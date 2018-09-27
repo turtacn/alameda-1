@@ -1,5 +1,4 @@
 # Alameda
-Intelligent Resources Orchestrator for Kubernetes by using machine learning
 
 Alameda is an intelligent resource orchestrator for Kubernetes, providing the features of autonomous balancing, scaling and scheduling by using machine learning.
 
