@@ -11,7 +11,7 @@ Contact Please use the following to reach members of the community:
 
 Slack: <span style="color: #00ccff;"><a style="color: #00ccff;" href="https://join.slack.com/t/alameda-ai/signup" target="_blank" rel="noopener">Join our slack channel</a></span>
 
-<span style="color: #00ccff;"><a style="color: #00ccff;" href="alameda@prophetstor.com" target="_blank" rel="noopener">Email us</a></span>
+<span style="color: #00ccff;"><a style="color: #00ccff;" href="mailto:alameda@prophetstor.com" target="_blank" rel="noopener">Email us</a></span>
 
 
 Email: alameda@prophetstor.com
