@@ -13,9 +13,6 @@ Slack: <span style="color: #00ccff;"><a style="color: #00ccff;" href="https://jo
 
 <span style="color: #00ccff;"><a style="color: #00ccff;" href="mailto:alameda@prophetstor.com" target="_blank" rel="noopener">Email us</a></span>
 
-
-Email: alameda@prophetstor.com
-
 #
 
 Getting Started and Documentation, see our Documentation.
