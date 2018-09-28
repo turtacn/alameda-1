@@ -13,7 +13,9 @@ Contributing We welcome contributions. See Contributing to get started.
 
 Report a Bug For filing bugs, suggesting improvements, or requesting new features, please open an issue.
 
+
 Contact Please use the following to reach members of the community:
 
 Slack: Join our slack channel https://alameda-ai.slack.com/
+
 Email: alameda@prophetstor.com
