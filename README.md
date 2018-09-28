@@ -1,5 +1,6 @@
 # What is Alameda
-Intelligent Resources Orchestrator for Kubernetes by using machine learning
+
+<h3><strong>Intelligent Resources Orchestrator for Kubernetes by using machine learning</strong></h3>
 
 Alameda is an intelligent resource orchestrator for Kubernetes, providing the features of autonomous balancing, scaling and scheduling by using machine learning.
 
@@ -9,7 +10,9 @@ You're inviting to join us and to contribute to this community. We plan to conti
 
 #
 
-Contact Please use the following to reach members of the community:
+<h3><strong>Contact</strong></h3>
+ 
+Please use the following to reach members of the community:
 
 Slack: <span style="color: #00ccff;"><a style="color: #00ccff;" href="https://join.slack.com/t/alameda-ai/signup" target="_blank" rel="noopener">Join our slack channel</a></span>
 
@@ -17,15 +20,17 @@ Email: <span style="color: #00ccff;"><a style="color: #00ccff;" href="mailto:ala
 
 #
 
-Getting Started and Documentation, see our Documentation.
+<h3><strong>Getting Started and Documentation</strong></h3>
+See our Documentation.
 
 #
 
-Contributing 
+<h3><strong>Contributing</strong></h3>
 We welcome contributions. See Contributing to get started.
 
 #
 
-Report a Bug For filing bugs, suggesting improvements, or requesting new features, please open an issue.
+<h3><strong>Report a Bug</strong></h3>
+For filing bugs, suggesting improvements, or requesting new features, please open an issue.
 
 #
