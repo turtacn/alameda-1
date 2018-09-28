@@ -15,4 +15,5 @@ Report a Bug For filing bugs, suggesting improvements, or requesting new feature
 
 Contact Please use the following to reach members of the community:
 
-Slack: Join our slack channel
+Slack: Join our slack channel https://alameda-ai.slack.com/
+Email: alameda@prophetstor.com
