@@ -28,7 +28,7 @@ See our Documentation.
 #
 
 <h3><strong>Contributing</strong></h3>
-We welcome contributions. See Contributing to get started.
+We welcome contributions. See <span style="color: #00ccff;"><a style="color: #00ccff;" href="https://github.com/containers-ai/Alameda/commit/20b071b4b6632619897b126ace6c26c26460e598" target="_blank" rel="noopener">Contributing</a></span> to get started.
 
 #
 
