@@ -70,7 +70,7 @@ from a "Proposal" or can be submitted individually depending on the size.
 ### Issue Lifecycle
 
 The issue lifecycle is mainly driven by the core maintainers, but is good information for those
-contributing to Helm. All issue types follow the same general lifecycle. Differences are noted below.
+contributing to Alameda. All issue types follow the same general lifecycle. Differences are noted below.
 1. Issue creation
 2. Triage
     - The maintainer in charge of triaging will apply the proper labels for the issue. This
@@ -161,7 +161,7 @@ throughout the work week.
 
 ## Labels
 
-The following tables define all label types used for Helm. It is split up by category.
+The following tables define all label types used for Alamed. It is split up by category.
 
 ### Common
 
@@ -182,7 +182,7 @@ The following tables define all label types used for Helm. It is split up by cat
 | `help wanted` | This issue is one the core maintainers cannot get to right now and would appreciate help with |
 | `proposal` | This issue is a proposal |
 | `question/support` | This issue is a support request or question |
-| `starter` | This issue is a good for someone new to contributing to Helm |
+| `starter` | This issue is a good for someone new to contributing to Alameda |
 | `wont fix` | The issue has been discussed and will not be implemented (or accepted in the case of a proposal) |
 
 ### PR Specific
