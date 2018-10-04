@@ -48,7 +48,7 @@ We currently welcome contributions of all kinds. For example:
 
 ## Issues
 
-Issues are used as the primary method for tracking anything to do with the Helm project.
+Issues are used as the primary method for tracking anything to do with the Alameda project.
 
 ### Issue Types
 
