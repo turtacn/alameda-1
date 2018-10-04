@@ -1,4 +1,4 @@
-# Contributing to CoreDNS
+# Contributing to Alameda
 Welcome! The Alameda project is [Apache 2.0 licensed](LICENSE) and accepts contributions via GitHub
 pull requests. This document outlines some of the conventions on development
 workflow, commit message formatting, contact points and other resources to make
