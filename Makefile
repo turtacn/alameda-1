@@ -1,26 +1,52 @@
-TAG?=latest
-NAME?=alameda
-GOOS?=linux
 
-.PHONY: all
-all: build
+# Image URL to use all building/pushing image targets
+IMG ?= controller:latest
 
-.PHONY: deps
-deps:
-	go get -u github.com/golang/dep/cmd/dep
+all: test manager
 
-.PHONY: build
-build: clean deps
-	dep ensure
-	GOOS=$(GOOS) go build -o ${NAME}
+# Run tests
+test: generate fmt vet manifests
+	go test ./pkg/... ./cmd/... -coverprofile cover.out
 
-.PHONY: docker 
-docker:
-	docker build -t ${NAME}:${TAG} .
+# Build manager binary
+manager: generate fmt vet
+	go build -o bin/manager github.com/tsungming/kubebuilder-exa2/cmd/manager
 
-.PHONY: release
-release: build docker
+# Run against the configured Kubernetes cluster in ~/.kube/config
+run: generate fmt vet
+	go run ./cmd/manager/main.go
 
-.PHONY: clean
-clean:
-	rm -f ${NAME}	
+# Install CRDs into a cluster
+install: manifests
+	kubectl apply -f config/crds
+
+# Deploy controller in the configured Kubernetes cluster in ~/.kube/config
+deploy: manifests
+	kubectl apply -f config/crds
+	kustomize build config/default | kubectl apply -f -
+
+# Generate manifests e.g. CRD, RBAC etc.
+manifests:
+	go run vendor/sigs.k8s.io/controller-tools/cmd/controller-gen/main.go all
+
+# Run go fmt against code
+fmt:
+	go fmt ./pkg/... ./cmd/...
+
+# Run go vet against code
+vet:
+	go vet ./pkg/... ./cmd/...
+
+# Generate code
+generate:
+	go generate ./pkg/... ./cmd/...
+
+# Build the docker image
+docker-build: test
+	docker build . -t ${IMG}
+	@echo "updating kustomize image patch file for manager resource"
+	sed -i'' -e 's@image: .*@image: '"${IMG}"'@' ./config/default/manager_image_patch.yaml
+
+# Push the docker image
+docker-push:
+	docker push ${IMG}
