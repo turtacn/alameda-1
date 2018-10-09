@@ -1,0 +1,7 @@
+apiVersion: autoscaling.containers.ai/v1alpha1
+kind: AlamedaVPA
+metadata:
+  name: alameda-example
+spec:
+  deploymentName: alameda-example-deploy
+  replicas: 1
