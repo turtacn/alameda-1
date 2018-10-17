@@ -17,10 +17,10 @@ limitations under the License.
 package controller
 
 import (
-	"github.com/containers-ai/alameda/pkg/controller/alamedavpa"
+	"github.com/containers-ai/alameda/operator/pkg/controller/deployment"
 )
 
 func init() {
 	// AddToManagerFuncs is a list of functions to create controllers and add them to a manager.
-	AddToManagerFuncs = append(AddToManagerFuncs, alamedavpa.Add)
+	AddToManagerFuncs = append(AddToManagerFuncs, deployment.Add)
 }

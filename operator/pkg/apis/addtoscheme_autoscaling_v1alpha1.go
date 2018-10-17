@@ -17,7 +17,7 @@ limitations under the License.
 package apis
 
 import (
-	"github.com/containers-ai/alameda/pkg/apis/autoscaling/v1alpha1"
+	"github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 )
 
 func init() {

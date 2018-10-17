@@ -21,7 +21,7 @@ import (
 	"log"
 	"reflect"
 
-	autoscalingv1alpha1 "github.com/containers-ai/alameda/pkg/apis/autoscaling/v1alpha1"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
