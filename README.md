@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/containers-ai/Alameda)](https://goreportcard.com/report/github.com/containers-ai/Alameda)
+
 # What is Alameda
 
 <h3><strong>Intelligent Resources Orchestrator for Kubernetes by using machine learning</strong></h3>
