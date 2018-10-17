@@ -17,7 +17,7 @@ limitations under the License.
 package controller
 
 import (
-	"github.com/containers-ai/alameda/pkg/controller/deployment"
+	"github.com/containers-ai/alameda/operator/pkg/controller/deployment"
 )
 
 func init() {

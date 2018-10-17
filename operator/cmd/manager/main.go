@@ -19,8 +19,8 @@ package main
 import (
 	"log"
 
-	"github.com/containers-ai/alameda/pkg/apis"
-	"github.com/containers-ai/alameda/pkg/controller"
+	"github.com/containers-ai/alameda/operator/pkg/apis"
+	"github.com/containers-ai/alameda/operator/pkg/controller"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"

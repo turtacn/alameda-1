@@ -17,7 +17,7 @@ limitations under the License.
 // Package v1alpha1 contains API Schema definitions for the autoscaling v1alpha1 API group
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package,register
-// +k8s:conversion-gen=github.com/containers-ai/alameda/pkg/apis/autoscaling
+// +k8s:conversion-gen=github.com/containers-ai/alameda/operator/pkg/apis/autoscaling
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=autoscaling.containers.ai
 package v1alpha1
