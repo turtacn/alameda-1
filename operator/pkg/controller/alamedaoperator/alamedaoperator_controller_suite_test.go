@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package alamedavpa
+package alamedaoperator
 
 import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/containers-ai/alameda/operator/pkg/apis"
@@ -62,10 +63,13 @@ func SetupTestReconcile(inner reconcile.Reconciler) (reconcile.Reconciler, chan 
 }
 
 // StartTestManager adds recFn
-func StartTestManager(mgr manager.Manager, g *gomega.GomegaWithT) chan struct{} {
+func StartTestManager(mgr manager.Manager, g *gomega.GomegaWithT) (chan struct{}, *sync.WaitGroup) {
 	stop := make(chan struct{})
+	wg := &sync.WaitGroup{}
 	go func() {
+		wg.Add(1)
 		g.Expect(mgr.Start(stop)).NotTo(gomega.HaveOccurred())
+		wg.Done()
 	}()
-	return stop
+	return stop, wg
 }
