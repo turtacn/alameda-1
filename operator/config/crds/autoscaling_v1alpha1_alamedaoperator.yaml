@@ -4,12 +4,12 @@ metadata:
   creationTimestamp: null
   labels:
     controller-tools.k8s.io: "1.0"
-  name: alamedavpas.autoscaling.containers.ai
+  name: alamedaoperators.autoscaling.containers.ai
 spec:
   group: autoscaling.containers.ai
   names:
-    kind: AlamedaVPA
-    plural: alamedavpas
+    kind: AlamedaOperator
+    plural: alamedaoperators
   scope: Namespaced
   validation:
     openAPIV3Schema:
