@@ -17,19 +17,38 @@ limitations under the License.
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
+	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	"github.com/go-logr/logr"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 )
 
+var isDev bool
+var logger logr.Logger
+
+func init() {
+	flag.BoolVar(&isDev, "development", false, "development mode")
+}
+
+func initLogger(development bool) {
+	logger = logUtil.GetLogger()
+}
+
 func main() {
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	initLogger(isDev)
+
 	if err != nil {
 		log.Fatal(err)
 	}
