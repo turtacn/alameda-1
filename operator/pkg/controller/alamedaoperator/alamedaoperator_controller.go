@@ -119,8 +119,6 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 	}
 
 	policy := instance.Spec.Policy
-	dpSpec := &appsv1.DeploymentSpec{}
-	setDeploymentSpec(dpSpec, &instance.Spec)
 	// TODO(user): Change this to be the object type created by your controller
 	// Define the desired Deployment object
 	deploy := &appsv1.Deployment{
@@ -128,7 +126,7 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 			Name:      instance.Name + "-" + alamedaTag,
 			Namespace: instance.Namespace,
 		},
-		Spec: *dpSpec,
+		Spec: instance.Spec.DeploymentSpec,
 	}
 	if err := controllerutil.SetControllerReference(instance, deploy, r.scheme); err != nil {
 		return reconcile.Result{}, err
@@ -161,30 +159,6 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 		}
 	}
 	return reconcile.Result{}, nil
-}
-
-func setDeploymentSpec(deploymentSpec *appsv1.DeploymentSpec, instance *autoscalingv1alpha1.AlamedaOperatorSpec) {
-	v := reflect.ValueOf(&instance.DeploymentSpec).Elem()
-	for i := 0; i < v.NumField(); i++ {
-		fldName := v.Type().Field(i).Name
-		if fldName == "Replicas" {
-			deploymentSpec.Replicas = instance.Replicas
-		} else if fldName == "Selector" {
-			deploymentSpec.Selector = instance.Selector
-		} else if fldName == "Template" {
-			deploymentSpec.Template = instance.Template
-		} else if fldName == "Strategy" {
-			deploymentSpec.Strategy = instance.Strategy
-		} else if fldName == "MinReadySeconds" {
-			deploymentSpec.MinReadySeconds = instance.MinReadySeconds
-		} else if fldName == "RevisionHistoryLimit" {
-			deploymentSpec.RevisionHistoryLimit = instance.RevisionHistoryLimit
-		} else if fldName == "Paused" {
-			deploymentSpec.Paused = instance.Paused
-		} else if fldName == "ProgressDeadlineSeconds" {
-			deploymentSpec.ProgressDeadlineSeconds = instance.ProgressDeadlineSeconds
-		}
-	}
 }
 
 func (r *ReconcileAlamedaOperator) getPodsFromDeployment(deployment *appsv1.Deployment) {
