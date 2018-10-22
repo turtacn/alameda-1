@@ -163,9 +163,13 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 
 func (r *ReconcileAlamedaOperator) getPodsFromDeployment(deployment *appsv1.Deployment) {
 	pods := &corev1.PodList{}
-	name := deployment.Name
+	name := deployment.GetName()
 	ns := deployment.GetNamespace()
-	labels := deployment.GetLabels()
+	if deployment.Spec.Selector == nil {
+		logUtil.GetLogger().Info(fmt.Sprintf("List pods of alameda deployment %s/%s failed due to no matched labels found.", ns, name))
+		return
+	}
+	labels := deployment.Spec.Selector.MatchLabels
 
 	err := r.Client.List(context.TODO(),
 		client.InNamespace(ns).
