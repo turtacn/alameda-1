@@ -18,10 +18,13 @@ package alamedaoperator
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"reflect"
+	"strings"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -35,6 +38,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+)
+
+const (
+	alamedaTag = "alameda"
 )
 
 /**
@@ -100,6 +107,7 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 	// Fetch the AlamedaOperator instance
 	instance := &autoscalingv1alpha1.AlamedaOperator{}
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
+	logUtil.GetLogger().Info(fmt.Sprintf("Get Alameda Resource %s/%s.", instance.Namespace, instance.Name))
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Object not found, return.  Created objects are automatically garbage collected.
@@ -110,29 +118,15 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 		return reconcile.Result{}, err
 	}
 
+	policy := instance.Spec.Policy
 	// TODO(user): Change this to be the object type created by your controller
 	// Define the desired Deployment object
 	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name + "-deployment",
+			Name:      instance.Name + "-" + alamedaTag,
 			Namespace: instance.Namespace,
 		},
-		Spec: appsv1.DeploymentSpec{
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{"deployment": instance.Name + "-deployment"},
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"deployment": instance.Name + "-deployment"}},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Name:  "nginx",
-							Image: "nginx",
-						},
-					},
-				},
-			},
-		},
+		Spec: instance.Spec.DeploymentSpec,
 	}
 	if err := controllerutil.SetControllerReference(instance, deploy, r.scheme); err != nil {
 		return reconcile.Result{}, err
@@ -143,15 +137,17 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 	found := &appsv1.Deployment{}
 	err = r.Get(context.TODO(), types.NamespacedName{Name: deploy.Name, Namespace: deploy.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
-		log.Printf("Creating Deployment %s/%s\n", deploy.Namespace, deploy.Name)
+		logUtil.GetLogger().Info(fmt.Sprintf("Creating Alameda Deployment with policy %s %s/%s.", policy, deploy.Namespace, deploy.Name))
 		err = r.Create(context.TODO(), deploy)
 		if err != nil {
+			logUtil.GetLogger().Error(err, err.Error())
 			return reconcile.Result{}, err
 		}
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
 
+	r.getPodsFromDeployment(found)
 	// TODO(user): Change this for the object type created by your controller
 	// Update the found object and write the result back if there are any changes
 	if !reflect.DeepEqual(deploy.Spec, found.Spec) {
@@ -163,4 +159,40 @@ func (r *ReconcileAlamedaOperator) Reconcile(request reconcile.Request) (reconci
 		}
 	}
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileAlamedaOperator) getPodsFromDeployment(deployment *appsv1.Deployment) {
+	pods := &corev1.PodList{}
+	name := deployment.GetName()
+	ns := deployment.GetNamespace()
+	if deployment.Spec.Selector == nil {
+		logUtil.GetLogger().Info(fmt.Sprintf("List pods of alameda deployment %s/%s failed due to no matched labels found.", ns, name))
+		return
+	}
+	labels := deployment.Spec.Selector.MatchLabels
+
+	err := r.Client.List(context.TODO(),
+		client.InNamespace(ns).
+			MatchingLabels(labels),
+		pods)
+	podUIDs := []string{}
+	if err != nil {
+		logUtil.GetLogger().Info(fmt.Sprintf("List pods of alameda deployment %s/%s failed.", ns, name))
+	} else {
+		var deploymentName string
+		for _, pod := range pods.Items {
+			for _, ownerReference := range pod.ObjectMeta.GetOwnerReferences() {
+
+				if ownerReference.Kind == "ReplicaSet" {
+					replicaSetName := ownerReference.Name
+					deploymentName = replicaSetName[0:strings.LastIndex(replicaSetName, "-")]
+				}
+				break
+			}
+			if deploymentName == name {
+				podUIDs = append(podUIDs, string(pod.GetUID()))
+			}
+		}
+	}
+	logUtil.GetLogger().Info(fmt.Sprintf("%d pods founded in alameda deployment %s/%s.", len(podUIDs), ns, name))
 }

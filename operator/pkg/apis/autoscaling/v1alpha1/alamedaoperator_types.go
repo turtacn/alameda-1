@@ -17,14 +17,20 @@ limitations under the License.
 package v1alpha1
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+type AlamedaPolicy string
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // AlamedaOperatorSpec defines the desired state of AlamedaOperator
 type AlamedaOperatorSpec struct {
+	appsv1.DeploymentSpec `json:",inline"`
+	// +optional
+	Policy AlamedaPolicy `json:"policy,omitempty" protobuf:"bytes,1,opt,name=policy"`
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }

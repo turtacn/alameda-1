@@ -21,6 +21,32 @@ spec:
         metadata:
           type: object
         spec:
+          properties:
+            minReadySeconds:
+              format: int32
+              type: integer
+            paused:
+              type: boolean
+            policy:
+              type: string
+            progressDeadlineSeconds:
+              format: int32
+              type: integer
+            replicas:
+              format: int32
+              type: integer
+            revisionHistoryLimit:
+              format: int32
+              type: integer
+            selector:
+              type: object
+            strategy:
+              type: object
+            template:
+              type: object
+          required:
+          - selector
+          - template
           type: object
         status:
           type: object
