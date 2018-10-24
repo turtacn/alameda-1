@@ -27,7 +27,7 @@ spec:
       hostNetwork: true
       hostPID: true
       containers:
-      - image: "smart-exporter:v1.0.0"
+      - image: "containersai/smart_exporter:latest"
         securityContext:
           privileged: true
         name: smart-exporter
