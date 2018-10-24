@@ -96,6 +96,8 @@ data:
       - source_labels: ["__meta_kubernetes_pod_annotation_alameda_scrape"]
         regex: (true)
         action: keep
+      - source_labels: ["__meta_kubernetes_pod_node_name"]
+        target_label: node_name
 
       # This block configure prometheus to discover all nodes as targets.
       # For each declared port of a container, a single target is generated.   
