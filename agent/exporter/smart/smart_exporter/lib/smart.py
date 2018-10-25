@@ -7,7 +7,7 @@ GiB = 1000 * 1000 * 1000
 
 class Smartctl(object):
     """ DiskProphet smartctl manager """
-    def __init__(self, dev_name, interface='scsi',
+    def __init__(self, dev_name, interface=None,
                  raid_card=None, raid_params=[]):
         self.device = None
         self.dev_name = dev_name

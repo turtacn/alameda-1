@@ -225,7 +225,7 @@ class SaiDisk_Smart_Plugin(object):
                 except:
                     data = None
                 if data is not None:
-                    field_name = '{num}_raw'.format(num)
+                    field_name = "%s_raw" % (num, )
                     metric = "%s_%s" % (base_metric, field_name)
                     if metric in metrics:
                         gauge = metrics[metric]
