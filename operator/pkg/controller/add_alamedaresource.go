@@ -17,10 +17,10 @@ limitations under the License.
 package controller
 
 import (
-	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaoperator"
+	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
 )
 
 func init() {
 	// AddToManagerFuncs is a list of functions to create controllers and add them to a manager.
-	AddToManagerFuncs = append(AddToManagerFuncs, alamedaoperator.Add)
+	AddToManagerFuncs = append(AddToManagerFuncs, alamedaresource.Add)
 }

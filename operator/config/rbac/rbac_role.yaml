@@ -19,7 +19,7 @@ rules:
 - apiGroups:
   - autoscaling.containers.ai
   resources:
-  - alamedaoperators
+  - alamedaresources
   verbs:
   - get
   - list
