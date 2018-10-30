@@ -38,10 +38,10 @@ import (
 * business logic.  Delete these comments after modifying this file.*
  */
 
-const AlamedaAnnotationPrefix = "container.ai"
+const AlamedaAnnotationPrefix = "containers.ai"
 const AlamedaDeploymentControllerLoggerPrefix = "deployment_controller:"
 
-var AlamedaAnnotationKeys = []string{"container.ai/autoscale", "container.ai/diskFailurePrediction", "container.ai/capacityTrendingPrediction"}
+var AlamedaAnnotationKeys = []string{"containers.ai/autoscale", "containers.ai/diskFailurePrediction", "containers.ai/capacityTrendingPrediction"}
 
 // Add creates a new Deployment Controller and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.

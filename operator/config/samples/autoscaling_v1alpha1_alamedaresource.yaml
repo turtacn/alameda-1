@@ -1,9 +1,9 @@
 apiVersion: autoscaling.containers.ai/v1alpha1
-kind: AlamedaOperator
+kind: AlamedaResource
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: alamedaoperator-sample
+  name: alamedaresource-sample
 spec:
   # Add fields here
   foo: bar

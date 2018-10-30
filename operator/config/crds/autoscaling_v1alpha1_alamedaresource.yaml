@@ -4,12 +4,12 @@ metadata:
   creationTimestamp: null
   labels:
     controller-tools.k8s.io: "1.0"
-  name: alamedaoperators.autoscaling.containers.ai
+  name: alamedaresources.autoscaling.containers.ai
 spec:
   group: autoscaling.containers.ai
   names:
-    kind: AlamedaOperator
-    plural: alamedaoperators
+    kind: AlamedaResource
+    plural: alamedaresources
   scope: Namespaced
   validation:
     openAPIV3Schema:
@@ -22,31 +22,15 @@ spec:
           type: object
         spec:
           properties:
-            minReadySeconds:
-              format: int32
-              type: integer
-            paused:
+            enable:
               type: boolean
             policy:
               type: string
-            progressDeadlineSeconds:
-              format: int32
-              type: integer
-            replicas:
-              format: int32
-              type: integer
-            revisionHistoryLimit:
-              format: int32
-              type: integer
             selector:
-              type: object
-            strategy:
-              type: object
-            template:
               type: object
           required:
           - selector
-          - template
+          - enable
           type: object
         status:
           type: object
