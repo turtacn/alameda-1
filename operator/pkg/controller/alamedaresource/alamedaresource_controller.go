@@ -23,6 +23,7 @@ import (
 	"reflect"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsv1 "k8s.io/api/apps/v1"
 
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
@@ -43,6 +44,21 @@ const (
 	AlamedaDeployment AlamedaResource = "Deployment"
 )
 const AlamedaK8sController = "annotation-k8s-controller"
+
+type Pod struct {
+	UID  string
+	Name string
+}
+
+type Deployment struct {
+	UID    string
+	Name   string
+	PodMap map[string]Pod
+}
+
+type K8SControllerAnnotation struct {
+	DeploymentMap map[string]Deployment
+}
 
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
@@ -74,7 +90,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	if err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForObject{}); err != nil {
-		logUtil.GetLogger().Error(err, fmt.Sprintf("Watch Deployment controller failed."))
+		logUtil.GetLogger().Error(err, fmt.Sprintf("Watch Deployment controller for AlemedaResource failed."))
 	}
 
 	if err != nil {
@@ -100,14 +116,13 @@ type ReconcileAlamedaResource struct {
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=autoscaling.containers.ai,resources=alamedaresources,verbs=get;list;watch;create;update;patch;delete
 func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	logUtil.GetLogger().Info(fmt.Sprintf("Start reconciling."))
-	alamedaAnnotations := map[string]string{}
-	newAlamedaAnnotations := map[string]string{}
 	// Fetch the AlamedaResource instance
 	deleteEvt := true
 	ns := request.Namespace
 	name := request.Name
+
 	alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
+	logUtil.GetLogger().Info(fmt.Sprintf("Try to get AlamedaResource (%s/%s)", ns, name))
 	err := r.Get(context.TODO(), request.NamespacedName, alamedaresource)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -119,34 +134,7 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 
 	} else {
 		logUtil.GetLogger().Info(fmt.Sprintf("AlamedaResource found. (%s/%s)", ns, name))
-
-		alamedaAnnotations = alamedaresource.GetAnnotations()
-		if alamedaAnnotations == nil {
-			newAlamedaAnnotations = map[string]string{}
-		} else {
-			for k, v := range alamedaAnnotations {
-				newAlamedaAnnotations[k] = v
-			}
-		}
-		if newAlamedaAnnotations[AlamedaK8sController] == "" {
-			newAlamedaAnnotations[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
-		}
-		//find matched deployment controller
-		matchedDeploymentList := &appsv1.DeploymentList{}
-		err := r.List(context.TODO(),
-			client.InNamespace(ns).
-				MatchingLabels(alamedaresource.Spec.Selector.MatchLabels),
-			matchedDeploymentList)
-		if err == nil {
-			akcMap := convertk8scontrollerJsonString(newAlamedaAnnotations[AlamedaK8sController])
-			akcMap.(map[string]map[string]map[string]string)["deployment"] = map[string]map[string]string{}
-			for _, deploy := range matchedDeploymentList.Items {
-				akcMap.(map[string]map[string]map[string]string)["deployment"][string(deploy.GetUID())] = getControllerMapForAnno("deployment", &deploy)
-			}
-			updatemd, _ := json.Marshal(akcMap)
-			newAlamedaAnnotations[AlamedaK8sController] = string(updatemd)
-		}
-
+		r.updateAlamedaResourceAnnotation(alamedaresource, ns)
 		deleteEvt = false
 	}
 
@@ -157,16 +145,10 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 			//logUtil.GetLogger().Info(fmt.Sprintf("Deployment not found. (%s/%s)", ns, name))
 			//return reconcile.Result{}, nil
 		}
-		//logUtil.GetLogger().Error(err, fmt.Sprintf("Get Deployment failed. (%s/%s)", ns, name))
+		logUtil.GetLogger().Info(fmt.Sprintf("Get Deployment for AlamedaResource controller failed. (%s/%s)", ns, name))
 		//		return reconcile.Result{}, err
 	} else {
-		alamedaResourceList := &autoscalingv1alpha1.AlamedaResourceList{}
-		err = r.List(context.TODO(),
-			client.InNamespace(ns),
-			alamedaResourceList)
-		for _, ala := range alamedaResourceList.Items {
-			r.updateAlamedaAnnotationByDeployment(&ala, deploymentFound)
-		}
+		r.updateAlamedaK8SControllerByDeployment(ns, deploymentFound)
 		deleteEvt = false
 	}
 
@@ -179,14 +161,52 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 		for _, ala := range alamedaResourceList.Items {
 			r.updateAlamedaAnnotationByDeleteEvt(&ala, request)
 		}
-	} else if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
-		alamedaresource.SetAnnotations(newAlamedaAnnotations)
-		err = r.Update(context.TODO(), alamedaresource)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
 	}
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(alamedaresource *autoscalingv1alpha1.AlamedaResource, ns string) {
+	alamedaAnnotations := map[string]string{}
+	newAlamedaAnnotations := map[string]string{}
+	alamedaAnnotations = alamedaresource.GetAnnotations()
+	if alamedaAnnotations == nil {
+		newAlamedaAnnotations = map[string]string{}
+	} else {
+		for k, v := range alamedaAnnotations {
+			newAlamedaAnnotations[k] = v
+		}
+	}
+	if newAlamedaAnnotations[AlamedaK8sController] == "" {
+		newAlamedaAnnotations[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
+	}
+	//find matched deployment controller
+	matchedDeploymentList := &appsv1.DeploymentList{}
+	err := r.List(context.TODO(),
+		client.InNamespace(ns).
+			MatchingLabels(alamedaresource.Spec.Selector.MatchLabels),
+		matchedDeploymentList)
+	if err == nil {
+		akcMap := convertk8scontrollerJsonString(newAlamedaAnnotations[AlamedaK8sController])
+		for _, deploy := range matchedDeploymentList.Items {
+			akcMap.DeploymentMap[string(deploy.GetUID())] = *r.getControllerMapForAnno("deployment", &deploy).(*Deployment)
+		}
+		updatemd, _ := json.Marshal(akcMap)
+		newAlamedaAnnotations[AlamedaK8sController] = string(updatemd)
+	}
+	if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
+		alamedaresource.SetAnnotations(newAlamedaAnnotations)
+		r.Update(context.TODO(), alamedaresource)
+	}
+}
+
+func (r *ReconcileAlamedaResource) updateAlamedaK8SControllerByDeployment(ns string, deploymentFound *appsv1.Deployment) {
+	alamedaResourceList := &autoscalingv1alpha1.AlamedaResourceList{}
+	r.List(context.TODO(),
+		client.InNamespace(ns),
+		alamedaResourceList)
+	for _, ala := range alamedaResourceList.Items {
+		r.updateAlamedaAnnotationByDeployment(&ala, deploymentFound)
+	}
 }
 
 func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autoscalingv1alpha1.AlamedaResource, request reconcile.Request) {
@@ -194,11 +214,11 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autos
 	name := request.Name
 	anno := ala.GetAnnotations()
 	if anno != nil && anno[AlamedaK8sController] != "" {
-		k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController]).(map[string]map[string]map[string]string)
+		k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController])
 		//handle deployment controller
-		for k, v := range k8sc["deployment"] {
-			if v["name"] == name {
-				delete(k8sc["deployment"], k)
+		for k, v := range k8sc.DeploymentMap {
+			if v.Name == name {
+				delete(k8sc.DeploymentMap, k)
 				needUpdated = true
 			}
 		}
@@ -220,16 +240,39 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 	if anno == nil {
 		anno[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
 	}
-	k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController]).(map[string]map[string]map[string]string)
+	k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController])
 	if isLabelsMatched(dL, alaML) {
-		if k8sc["deployment"][string(dpUID)] == nil {
-			k8sc["deployment"][string(dpUID)] = getControllerMapForAnno("deployment", deploy)
-			logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment found. (%s/%s).", deploy.GetNamespace(), deploy.GetName()))
-			needUpdated = true
+		deletePodMaps := map[string]Pod{}
+		newPodMaps := map[string]Pod{}
+		curDeployment := *r.getControllerMapForAnno("deployment", deploy).(*Deployment)
+		if _, found := k8sc.DeploymentMap[string(dpUID)]; found {
+			legacyDeployment := k8sc.DeploymentMap[string(dpUID)]
+
+			for k, v := range legacyDeployment.PodMap {
+				if _, found := curDeployment.PodMap[k]; !found {
+					deletePodMaps[k] = v
+				}
+			}
+			for k, v := range curDeployment.PodMap {
+				if _, found := legacyDeployment.PodMap[k]; !found {
+					newPodMaps[k] = v
+				}
+			}
+		} else {
+			for k, v := range curDeployment.PodMap {
+				newPodMaps[k] = v
+			}
 		}
+		k8sc.DeploymentMap[string(dpUID)] = curDeployment
+		deletePodMapsBin, _ := json.Marshal(deletePodMaps)
+		newPodMapsBin, _ := json.Marshal(newPodMaps)
+
+		logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment Pods to add %s. (%s/%s).", string(newPodMapsBin), deploy.GetNamespace(), deploy.GetName()))
+		logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment Pods to delete %s. (%s/%s).", string(deletePodMapsBin), deploy.GetNamespace(), deploy.GetName()))
+		needUpdated = true
 	} else {
-		if k8sc["deployment"][string(dpUID)] == nil {
-			delete(k8sc["deployment"], string(deploy.GetUID()))
+		if _, found := k8sc.DeploymentMap[string(dpUID)]; found {
+			delete(k8sc.DeploymentMap, string(deploy.GetUID()))
 			needUpdated = true
 		}
 	}
@@ -254,29 +297,44 @@ func isLabelsMatched(labels, matchlabels map[string]string) bool {
 }
 
 func alamedaK8sControllerDefautlAnno() string {
-	emp := map[string]interface{}{}
-	emp["deployment"] = map[string]interface{}{}
-	md, _ := json.Marshal(emp)
+	md, _ := json.Marshal(*getDefaultAlamedaK8SControllerAnno())
 	return string(md)
 }
 
-//annotation-k8s-controller annotation struct definition
-func convertk8scontrollerJsonString(jsonStr string) interface{} {
-	akcMap := map[string]map[string]map[string]string{
-		"deployment": {},
+func getDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
+	return &K8SControllerAnnotation{
+		DeploymentMap: map[string]Deployment{},
 	}
-	err := json.Unmarshal([]byte(jsonStr), &akcMap)
+}
+
+//annotation-k8s-controller annotation struct definition
+func convertk8scontrollerJsonString(jsonStr string) *K8SControllerAnnotation {
+	akcMap := getDefaultAlamedaK8SControllerAnno()
+	err := json.Unmarshal([]byte(jsonStr), akcMap)
 	if err != nil {
 		logUtil.GetLogger().Error(err, fmt.Sprintf("Json string decode failed"))
 	}
 	return akcMap
 }
 
-func getControllerMapForAnno(kind string, deploy interface{}) map[string]string {
+func (r *ReconcileAlamedaResource) getControllerMapForAnno(kind string, deploy interface{}) interface{} {
 	if kind == "deployment" {
-		return map[string]string{
-			"name": deploy.(*appsv1.Deployment).GetName(),
-			"uid":  string(deploy.(*appsv1.Deployment).GetUID())}
+		namespace := deploy.(*appsv1.Deployment).GetNamespace()
+		name := deploy.(*appsv1.Deployment).GetName()
+		listPods := utilsresource.NewListPods(r)
+		podList := listPods.ListPods(namespace, name, "deployment")
+		podMap := map[string]Pod{}
+		for _, pod := range podList {
+			podMap[string(pod.GetUID())] = Pod{
+				Name: pod.GetName(),
+				UID:  string(pod.GetUID()),
+			}
+		}
+		return &Deployment{
+			Name:   name,
+			UID:    string(deploy.(*appsv1.Deployment).GetUID()),
+			PodMap: podMap,
+		}
 	}
 	return nil
 }
