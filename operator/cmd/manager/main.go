@@ -19,6 +19,7 @@ package main
 import (
 	"flag"
 	"log"
+	"sync"
 
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
@@ -28,20 +29,42 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
+
+	"github.com/containers-ai/alameda/operator/server"
 )
 
 var isDev bool
 var logger logr.Logger
+var serverConf server.Config
 
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
+	initConfig()
 }
 
 func initLogger(development bool) {
 	logger = logUtil.GetLogger()
 }
 
+func initConfig() {
+	serverConf = server.NewConfig()
+}
+
 func main() {
+
+	// Set wait group for Server goroutine
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	// Setup Server
+	s, err := server.NewServer(&serverConf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Start Server
+	go s.Start(&wg)
+
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if !flag.Parsed() {
@@ -75,4 +98,7 @@ func main() {
 
 	// Start the Cmd
 	log.Fatal(mgr.Start(signals.SetupSignalHandler()))
+
+	// Wait Server goroutine
+	wg.Wait()
 }
