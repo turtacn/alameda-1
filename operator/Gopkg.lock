@@ -10,6 +10,14 @@
   version = "v0.29.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:e62485ea7201178f38a48230fd716044216c9139e22bcd65e9d674eb788fd199"
+  name = "github.com/containers-ai/api"
+  packages = ["operator/v1alpha1"]
+  pruneopts = "T"
+  revision = "9e40be8c295881828beaabfce6f0d8d0dd35ab78"
+
+[[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -92,6 +100,7 @@
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
+    "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
@@ -399,6 +408,8 @@
     "http2",
     "http2/hpack",
     "idna",
+    "internal/timeseries",
+    "trace",
   ]
   pruneopts = "T"
   revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
@@ -503,6 +514,51 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:80aae82eb03dd30038e2002cdbf3dc269bc17bfd170ef5c5a816b224ae29776f"
+  name = "google.golang.org/genproto"
+  packages = ["googleapis/rpc/status"]
+  pruneopts = "T"
+  revision = "c830210a61dfaa790e1920f8d0470fc27bc2efbe"
+
+[[projects]]
+  digest = "1:ef437b2116089e1355b910bcbfb66c90d5164c6623f37deb5b94a6973a1ddf16"
+  name = "google.golang.org/grpc"
+  packages = [
+    ".",
+    "balancer",
+    "balancer/base",
+    "balancer/roundrobin",
+    "codes",
+    "connectivity",
+    "credentials",
+    "encoding",
+    "encoding/proto",
+    "grpclog",
+    "internal",
+    "internal/backoff",
+    "internal/channelz",
+    "internal/envconfig",
+    "internal/grpcrand",
+    "internal/transport",
+    "keepalive",
+    "metadata",
+    "naming",
+    "peer",
+    "reflection",
+    "reflection/grpc_reflection_v1alpha",
+    "resolver",
+    "resolver/dns",
+    "resolver/passthrough",
+    "stats",
+    "status",
+    "tap",
+  ]
+  pruneopts = "T"
+  revision = "2e463a05d100327ca47ac218281906921038fd95"
+  version = "v1.16.0"
+
+[[projects]]
   digest = "1:7fc160b460a6fc506b37fcca68332464c3f2cd57b6e3f111f26c5bbfd2d5518e"
   name = "gopkg.in/fsnotify.v1"
   packages = ["."]
@@ -580,6 +636,9 @@
   packages = [
     "pkg/apis/apiextensions",
     "pkg/apis/apiextensions/v1beta1",
+    "pkg/client/clientset/clientset",
+    "pkg/client/clientset/clientset/scheme",
+    "pkg/client/clientset/clientset/typed/apiextensions/v1beta1",
   ]
   pruneopts = "T"
   revision = "408db4a50408e2149acbd657bceb2480c13cb0a4"
@@ -756,6 +815,8 @@
     "pkg/client/apiutil",
     "pkg/client/config",
     "pkg/controller",
+    "pkg/envtest",
+    "pkg/envtest/printer",
     "pkg/event",
     "pkg/handler",
     "pkg/internal/controller",
@@ -768,6 +829,7 @@
     "pkg/recorder",
     "pkg/runtime/inject",
     "pkg/runtime/log",
+    "pkg/runtime/scheme",
     "pkg/runtime/signals",
     "pkg/source",
     "pkg/source/internal",
@@ -810,17 +872,35 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/containers-ai/api/operator/v1alpha1",
     "github.com/emicklei/go-restful",
+    "github.com/go-logr/logr",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
+    "golang.org/x/net/context",
+    "google.golang.org/grpc",
+    "google.golang.org/grpc/reflection",
+    "k8s.io/api/apps/v1",
+    "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
+    "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
+    "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/types",
+    "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/plugin/pkg/client/auth/gcp",
+    "k8s.io/client-go/rest",
     "k8s.io/code-generator/cmd/deepcopy-gen",
+    "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",
     "sigs.k8s.io/controller-runtime/pkg/controller",
+    "sigs.k8s.io/controller-runtime/pkg/envtest",
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",
+    "sigs.k8s.io/controller-runtime/pkg/reconcile",
+    "sigs.k8s.io/controller-runtime/pkg/runtime/log",
+    "sigs.k8s.io/controller-runtime/pkg/runtime/scheme",
     "sigs.k8s.io/controller-runtime/pkg/runtime/signals",
     "sigs.k8s.io/controller-runtime/pkg/source",
     "sigs.k8s.io/controller-tools/cmd/controller-gen",
