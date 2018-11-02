@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+service OperatorService {
+    rpc GetMetrics(GetMetricsRequest)
+        returns (GetMetricsResponse) {}
+    rpc PostPredictResult(PostPredictResultRequest)
+        returns (PostPredictResultResponse) {}
+}
+
+message GetMetricsRequest {
+    string metric = 1;
+    oneof time_selector {
+        google.protobuf.Timestamp time = 2;
+        google.protobuf.Timestamp duration = 3;
+        TimeRange time_range = 4;
+    }
+    repeated LabelSelector conditions = 5;
+}
+
+message GetMetricsResponse {
+    repeated Result results = 1;
+}
+
+message PostPredictResultRequest {
+}
+
+message PostPredictResultResponse {
+}
+
+message TimeRange {
+    google.protobuf.Timestamp start_time = 1;
+    google.protobuf.Timestamp end_time = 2;
+}
+    
+message LabelSelector {
+    string key = 1;
+    string op = 2 ;
+    string value = 3;
+}
+    
+message Result {
+    map<string, string> labels =1;
+    repeated Value data = 2;
+}
+
+message Value {
+    google.protobuf.Timestamp time = 1;
+    double value = 2;
+}
