@@ -6,7 +6,7 @@
 
 As the brain of Kubernetes resource orchestrator, Alameda provides the predictive analytics for the automation of scaling and scheduling of containers by using machine learning technologies, as well as justifies your cloud strategy with full foresights of resource availability, demands, health, impacts and return. 
 
-Alameda learns the continuing changes of compute and I/O metrics from clusters, predicts the future demands of pods, foresee the resource availability, and generate intelligent recommendations for developers and end users to automate the resources orchestration without over-provisioning and manual configuration.
+Alameda learns the continuing changes of compute and I/O metrics from clusters, predicts the future demands of pods, foresee the resource availability, and generate intelligent recommendations for developers and end users to automatically and elastically provision resources for workloads without over-provisioning and manual configuration.
 
 You're inviting to join us and to contribute to this community. We plan to continue adding more supports based on community demand and engagement in future releases.
 
