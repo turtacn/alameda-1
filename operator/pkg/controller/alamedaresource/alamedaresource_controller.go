@@ -44,6 +44,7 @@ const (
 	AlamedaDeployment AlamedaResource = "Deployment"
 )
 const AlamedaK8sController = "annotation-k8s-controller"
+const JSON_INDENT = "  "
 
 type Pod struct {
 	UID  string
@@ -190,7 +191,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(alamedaresour
 		for _, deploy := range matchedDeploymentList.Items {
 			akcMap.DeploymentMap[string(deploy.GetUID())] = *r.getControllerMapForAnno("deployment", &deploy).(*Deployment)
 		}
-		updatemd, _ := json.Marshal(akcMap)
+		updatemd, _ := json.MarshalIndent(akcMap, "", JSON_INDENT)
 		newAlamedaAnnotations[AlamedaK8sController] = string(updatemd)
 	}
 	if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
@@ -223,7 +224,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autos
 			}
 		}
 		if needUpdated {
-			updated, _ := json.Marshal(k8sc)
+			updated, _ := json.MarshalIndent(k8sc, "", JSON_INDENT)
 			anno[AlamedaK8sController] = string(updated)
 			ala.SetAnnotations(anno)
 			_ = r.Update(context.TODO(), ala)
@@ -264,8 +265,8 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 			}
 		}
 		k8sc.DeploymentMap[string(dpUID)] = curDeployment
-		deletePodMapsBin, _ := json.Marshal(deletePodMaps)
-		newPodMapsBin, _ := json.Marshal(newPodMaps)
+		deletePodMapsBin, _ := json.MarshalIndent(deletePodMaps, "", JSON_INDENT)
+		newPodMapsBin, _ := json.MarshalIndent(newPodMaps, "", JSON_INDENT)
 
 		logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment Pods to add %s. (%s/%s).", string(newPodMapsBin), deploy.GetNamespace(), deploy.GetName()))
 		logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment Pods to delete %s. (%s/%s).", string(deletePodMapsBin), deploy.GetNamespace(), deploy.GetName()))
@@ -277,7 +278,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		}
 	}
 	if needUpdated {
-		updated, _ := json.Marshal(k8sc)
+		updated, _ := json.MarshalIndent(k8sc, "", JSON_INDENT)
 		anno[AlamedaK8sController] = string(updated)
 		ala.SetAnnotations(anno)
 		_ = r.Update(context.TODO(), ala)
@@ -297,7 +298,7 @@ func isLabelsMatched(labels, matchlabels map[string]string) bool {
 }
 
 func alamedaK8sControllerDefautlAnno() string {
-	md, _ := json.Marshal(*getDefaultAlamedaK8SControllerAnno())
+	md, _ := json.MarshalIndent(*getDefaultAlamedaK8SControllerAnno(), "", JSON_INDENT)
 	return string(md)
 }
 
