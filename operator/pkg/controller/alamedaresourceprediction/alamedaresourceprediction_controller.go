@@ -113,7 +113,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 			MatchingLabels(instance.Spec.Selector.MatchLabels),
 		matchedDeploymentList)
 	if err == nil {
-		// remove deleted deployment
+		// 1. remove deleted deployment
 		for deployUID, _ := range instance.Status.Prediction.Deployments {
 			deleteDeploy := true
 			for _, deployment := range matchedDeploymentList.Items {
@@ -127,6 +127,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 			}
 		}
 		for _, deployment := range matchedDeploymentList.Items {
+			// 2. add new deployment
 			if _, ok := instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())]; !ok {
 				listPods := utilsresource.NewListPods(r)
 				podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
@@ -153,9 +154,10 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 					Pods:      podsMap,
 				}
 			} else {
+				// 3. update pods info of existing deployment
 				listPods := utilsresource.NewListPods(r)
 				podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
-				// remove deleted pods from existing deployment
+				// 3.1 remove deleted pods from existing deployment
 				for podUID, _ := range instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods {
 					deletePod := true
 					for _, pod := range podList {
@@ -164,11 +166,12 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 						}
 					}
 					if deletePod {
-						delete(instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods, podUID)
+						delete(instance.Stsatus.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods, podUID)
 					}
 				}
 
 				for _, pod := range podList {
+					// 3.2 add new pods from existing deployment
 					if _, ok := instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods[autoscalingv1alpha1.PodUID(pod.GetUID())]; !ok {
 						containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
 						for _, container := range pod.Spec.Containers {

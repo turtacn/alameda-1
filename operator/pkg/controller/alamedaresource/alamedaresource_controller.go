@@ -32,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -169,6 +170,10 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 						},
 					},
 				}
+				if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, r.scheme); err != nil {
+					return reconcile.Result{}, err
+				}
+
 				r.Create(context.TODO(), newAlamedaResourcePrediction)
 			}
 		}
