@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
 
 service OperatorService {
     rpc GetMetrics(GetMetricsRequest)
@@ -13,7 +14,7 @@ message GetMetricsRequest {
     string metric = 1;
     oneof time_selector {
         google.protobuf.Timestamp time = 2;
-        google.protobuf.Timestamp duration = 3;
+        google.protobuf.Duration duration = 3;
         TimeRange time_range = 4;
     }
     repeated LabelSelector conditions = 5;
@@ -23,10 +24,55 @@ message GetMetricsResponse {
     repeated Result results = 1;
 }
 
+message Limit {
+    string cpu = 1;
+    string memory = 2;
+}
+
+message Request {
+    string cpu = 1;
+    string memory = 2;
+}
+
+message Resource {
+    Limit limit = 1;
+    Request request = 2;
+}
+
+message Recommendation {
+    google.protobuf.Timestamp time = 1;
+    Resource resource = 2;
+}
+
+message PredictData {
+    google.protobuf.Timestamp time = 1;
+    string value = 2;
+}
+
+message TimeSeriesData {
+    repeated PredictData predict_data = 1;
+}
+
+message PredictContainer {
+    string name = 1;
+    map<string, TimeSeriesData> row_predict_data = 2;
+    repeated Recommendation recommendations = 3;
+    Resource initial_resource = 4;
+}
+
+message PredictPod {
+    string uid = 1;
+    string namespace = 2;
+    string name = 3;
+    repeated PredictContainer predict_containers = 4;
+}
+
 message PostPredictResultRequest {
+    repeated PredictPod predict_pods = 1;
 }
 
 message PostPredictResultResponse {
+    string message = 1;
 }
 
 message TimeRange {
@@ -41,7 +87,7 @@ message LabelSelector {
 }
     
 message Result {
-    map<string, string> labels =1;
+    map<string, string> labels = 1;
     repeated Value data = 2;
 }
 

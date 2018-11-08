@@ -11,11 +11,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e62485ea7201178f38a48230fd716044216c9139e22bcd65e9d674eb788fd199"
+  digest = "1:fff091f63f1020c92c2211b68f476c2ca6c641871dcad705f17b82cbe4ff46cf"
   name = "github.com/containers-ai/api"
   packages = ["operator/v1alpha1"]
   pruneopts = "T"
-  revision = "9e40be8c295881828beaabfce6f0d8d0dd35ab78"
+  revision = "e99deaa9d75d161b632d5965fcb3c5789879a493"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
