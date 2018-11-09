@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+// import "google/rpc/status.proto";
+
+message Object {
+    enum Type {
+        POD = 0;
+    }
+    Type type = 1;
+    string uid = 2;
+    string namespace = 3;
+    string name = 4;
+}
+
+message PredictionObjectListCreationRequest {
+    repeated Object objects = 1;
+}
+
+message PredictionObjectListDeletionRequest {
+    repeated Object objects = 1;
+}
+
+message RequestResponse {
+    string message = 1;
+}
+
+service AlamendaAIService {
+    rpc CreatePredictionObjects(PredictionObjectListCreationRequest)
+            returns (RequestResponse) {}
+    rpc DeletePredictionObjects(PredictionObjectListDeletionRequest)
+            returns (google.protobuf.Empty) {}
+}

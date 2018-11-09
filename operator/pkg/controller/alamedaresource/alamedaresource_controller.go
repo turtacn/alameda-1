@@ -28,9 +28,11 @@ import (
 
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -43,12 +45,18 @@ type AlamedaResource string
 const (
 	AlamedaDeployment AlamedaResource = "Deployment"
 )
+
 const AlamedaK8sController = "annotation-k8s-controller"
 const JSON_INDENT = "  "
 
-type Pod struct {
-	UID  string
+type Container struct {
 	Name string
+}
+
+type Pod struct {
+	UID        string
+	Name       string
+	Containers []Container
 }
 
 type Deployment struct {
@@ -127,8 +135,12 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 	err := r.Get(context.TODO(), request.NamespacedName, alamedaresource)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			//logUtil.GetLogger().Info(fmt.Sprintf("AlamedaResource not found. (%s/%s)", ns, name))
-			//return reconcile.Result{}, nil
+			//delete Alameda Resource Predict CR due to no Alameda CR with the same name exist
+			alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
+			err = r.Get(context.TODO(), request.NamespacedName, alamedaResourcePrediction)
+			if err == nil {
+				r.Delete(context.TODO(), alamedaResourcePrediction)
+			}
 		}
 		//logUtil.GetLogger().Info(fmt.Sprintf("Get AlamedaResource failed. (%s/%s)", ns, name))
 		//return reconcile.Result{}, err
@@ -136,6 +148,35 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 	} else {
 		logUtil.GetLogger().Info(fmt.Sprintf("AlamedaResource found. (%s/%s)", ns, name))
 		r.updateAlamedaResourceAnnotation(alamedaresource, ns)
+		//check in alameda predict CR exist state
+		alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
+
+		err := r.Get(context.TODO(), request.NamespacedName, alamedaResourcePrediction)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				newAlamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      request.Name,
+						Namespace: request.Namespace,
+					},
+					Spec: autoscalingv1alpha1.AlamedaResourcePredictionSpec{
+						Selector: &metav1.LabelSelector{
+							MatchLabels: alamedaresource.Spec.Selector.MatchLabels,
+						},
+					},
+					Status: autoscalingv1alpha1.AlamedaResourcePredictionStatus{
+						Prediction: autoscalingv1alpha1.AlamedaPrediction{
+							Deployments: map[autoscalingv1alpha1.DeploymentUID]autoscalingv1alpha1.PredictDeployment{},
+						},
+					},
+				}
+				if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, r.scheme); err != nil {
+					return reconcile.Result{}, err
+				}
+
+				r.Create(context.TODO(), newAlamedaResourcePrediction)
+			}
+		}
 		deleteEvt = false
 	}
 
@@ -298,11 +339,11 @@ func isLabelsMatched(labels, matchlabels map[string]string) bool {
 }
 
 func alamedaK8sControllerDefautlAnno() string {
-	md, _ := json.MarshalIndent(*getDefaultAlamedaK8SControllerAnno(), "", JSON_INDENT)
+	md, _ := json.MarshalIndent(*GetDefaultAlamedaK8SControllerAnno(), "", JSON_INDENT)
 	return string(md)
 }
 
-func getDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
+func GetDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
 	return &K8SControllerAnnotation{
 		DeploymentMap: map[string]Deployment{},
 	}
@@ -310,7 +351,7 @@ func getDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
 
 //annotation-k8s-controller annotation struct definition
 func convertk8scontrollerJsonString(jsonStr string) *K8SControllerAnnotation {
-	akcMap := getDefaultAlamedaK8SControllerAnno()
+	akcMap := GetDefaultAlamedaK8SControllerAnno()
 	err := json.Unmarshal([]byte(jsonStr), akcMap)
 	if err != nil {
 		logUtil.GetLogger().Error(err, fmt.Sprintf("Json string decode failed"))
@@ -326,9 +367,14 @@ func (r *ReconcileAlamedaResource) getControllerMapForAnno(kind string, deploy i
 		podList := listPods.ListPods(namespace, name, "deployment")
 		podMap := map[string]Pod{}
 		for _, pod := range podList {
+			containers := []Container{}
+			for _, container := range pod.Spec.Containers {
+				containers = append(containers, Container{Name: container.Name})
+			}
 			podMap[string(pod.GetUID())] = Pod{
-				Name: pod.GetName(),
-				UID:  string(pod.GetUID()),
+				Name:       pod.GetName(),
+				UID:        string(pod.GetUID()),
+				Containers: containers,
 			}
 		}
 		return &Deployment{
