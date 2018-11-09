@@ -31,6 +31,7 @@ func (listpods *ListPods) ListPods(namespace, name, kind string) []corev1.Pod {
 			Name:      name,
 		}, deploymentFound)
 		if err != nil {
+			logUtil.GetLogger().Error(err, "Get pods from deployment failed.")
 			return podList
 		} else {
 			return listpods.getPodsFromDeployment(deploymentFound)
