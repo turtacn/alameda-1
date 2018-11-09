@@ -11,11 +11,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:fff091f63f1020c92c2211b68f476c2ca6c641871dcad705f17b82cbe4ff46cf"
+  digest = "1:76630990e8e745474b034acbc62171e433260dd181ac9415fb46c688a7ddeb59"
   name = "github.com/containers-ai/api"
   packages = ["operator/v1alpha1"]
   pruneopts = "T"
-  revision = "e99deaa9d75d161b632d5965fcb3c5789879a493"
+  revision = "d0c0efe618f57b51adfe506d0b565c1e6ec01243"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -815,6 +815,7 @@
     "pkg/client/apiutil",
     "pkg/client/config",
     "pkg/controller",
+    "pkg/controller/controllerutil",
     "pkg/envtest",
     "pkg/envtest/printer",
     "pkg/event",
@@ -884,6 +885,7 @@
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
     "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/api/resource",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
@@ -895,6 +897,7 @@
     "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",
     "sigs.k8s.io/controller-runtime/pkg/controller",
+    "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil",
     "sigs.k8s.io/controller-runtime/pkg/envtest",
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",

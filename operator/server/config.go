@@ -2,15 +2,19 @@ package server
 
 import (
 	"github.com/containers-ai/alameda/operator/services/grpc"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 type Config struct {
-	GRPC *grpc.Config
+	GRPC    *grpc.Config
+	Manager manager.Manager
 }
 
-func NewConfig() Config {
+func NewConfig(manager manager.Manager) Config {
 
-	c := Config{}
+	c := Config{
+		Manager: manager,
+	}
 	c.init()
 
 	return c

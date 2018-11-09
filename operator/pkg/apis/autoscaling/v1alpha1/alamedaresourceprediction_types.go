@@ -65,11 +65,16 @@ type DeploymentUID string
 type ResourceType string
 type Recommendation struct {
 	Time      int64
+	Date      string
 	Resources apicorev1.ResourceRequirements
 }
-type TimeSeriesData struct {
+type PredictData struct {
 	Time  int64
+	Date  string
 	Value string
+}
+type TimeSeriesData struct {
+	PredictData []PredictData
 }
 type PredictContainer struct {
 	Name            string

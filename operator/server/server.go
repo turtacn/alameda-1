@@ -27,7 +27,7 @@ func NewServer(config *Config) (*Server, error) {
 	}
 	s.Config = config
 
-	s.gRPC, err = grpc.NewService(config.GRPC)
+	s.gRPC, err = grpc.NewService(config.GRPC, config.Manager)
 	if err != nil {
 		return nil, err
 	}

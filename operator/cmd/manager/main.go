@@ -24,13 +24,12 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	"github.com/containers-ai/alameda/operator/server"
 	"github.com/go-logr/logr"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
-
-	"github.com/containers-ai/alameda/operator/server"
 )
 
 var isDev bool
@@ -39,31 +38,17 @@ var serverConf server.Config
 
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
-	initConfig()
 }
 
 func initLogger(development bool) {
 	logger = logUtil.GetLogger()
 }
 
-func initConfig() {
-	serverConf = server.NewConfig()
+func initConfig(mgr manager.Manager) {
+	serverConf = server.NewConfig(mgr)
 }
 
 func main() {
-
-	// Set wait group for Server goroutine
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	// Setup Server
-	s, err := server.NewServer(&serverConf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Start Server
-	go s.Start(&wg)
 
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
@@ -81,7 +66,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Set wait group for Server goroutine
+	var wg sync.WaitGroup
+	wg.Add(1)
+	initConfig(mgr)
+	// Setup Server
+	s, err := server.NewServer(&serverConf)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	// Start Server
+	go s.Start(&wg)
 	log.Printf("Registering Components.")
 
 	// Setup Scheme for all resources
