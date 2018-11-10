@@ -23,7 +23,10 @@ import (
 	"reflect"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	aiservice_v1alpha1 "github.com/containers-ai/api/ai-service/v1alpha1"
+	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
 
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
@@ -283,9 +286,9 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		anno[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
 	}
 	k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController])
+	deletePodMaps := map[string]Pod{}
+	newPodMaps := map[string]Pod{}
 	if isLabelsMatched(dL, alaML) {
-		deletePodMaps := map[string]Pod{}
-		newPodMaps := map[string]Pod{}
 		curDeployment := *r.getControllerMapForAnno("deployment", deploy).(*Deployment)
 		if _, found := k8sc.DeploymentMap[string(dpUID)]; found {
 			legacyDeployment := k8sc.DeploymentMap[string(dpUID)]
@@ -314,6 +317,9 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		needUpdated = true
 	} else {
 		if _, found := k8sc.DeploymentMap[string(dpUID)]; found {
+			for k, v := range k8sc.DeploymentMap[string(deploy.GetUID())].PodMap {
+				deletePodMaps[k] = v
+			}
 			delete(k8sc.DeploymentMap, string(deploy.GetUID()))
 			needUpdated = true
 		}
@@ -322,7 +328,42 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		updated, _ := json.MarshalIndent(k8sc, "", JSON_INDENT)
 		anno[AlamedaK8sController] = string(updated)
 		ala.SetAnnotations(anno)
-		_ = r.Update(context.TODO(), ala)
+		err := r.Update(context.TODO(), ala)
+		if err == nil {
+			conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
+			if err == nil {
+				defer conn.Close()
+				aiServiceClnt := aiservice_v1alpha1.NewAlamendaAIServiceClient(conn)
+				if len(newPodMaps) > 0 {
+					req := aiservice_v1alpha1.PredictionObjectListCreationRequest{
+						Objects: []*aiservice_v1alpha1.Object{},
+					}
+					for _, v := range newPodMaps {
+						req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
+							Type:      aiservice_v1alpha1.Object_POD,
+							Uid:       v.UID,
+							Namespace: deploy.GetNamespace(),
+							Name:      v.Name,
+						})
+					}
+					aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
+				}
+				if len(deletePodMaps) > 0 {
+					req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
+						Objects: []*aiservice_v1alpha1.Object{},
+					}
+					for _, v := range deletePodMaps {
+						req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
+							Type:      aiservice_v1alpha1.Object_POD,
+							Uid:       v.UID,
+							Namespace: deploy.GetNamespace(),
+							Name:      v.Name,
+						})
+					}
+					aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
+				}
+			}
+		}
 	}
 }
 
