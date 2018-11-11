@@ -4,14 +4,14 @@
 
 <h3><strong>The Brain of Resources Orchestrator for Kubernetes</strong></h3>
 
-As the brain of Kubernetes resource orchestrator, Alameda provides the predictive analytics for the automation of scaling and scheduling of containers by using machine learning technologies, as well as justifies your cloud strategy with full foresights of resource availability, demands, health, impacts and return.
+Alameda is a prediction engine that foresees future resource usage of your Kubernetes cluster down to the pod level. We use machine learning technology to provide resource predictions that enable dynamic scaling and scheduling of your containers, effectively making us the “brain” of Kubernetes resource orchestration. By providing full foresight of resource availability, demand, health, and impact, we enable cloud strategies that involve changing provisioned resources in real time.
 
-Alameda learns the continuing changes of compute and I/O metrics from clusters, predicts future demands of pods and resource availability of nodes, and generates intelligent resource configuration recommendations. 
-Alameda aims to help other container and storage orchestrators to achieve zero-configuration on orchestration tasks, such as pod auto-scaling, scheduler, cluster auto-scaling, and persistent volume provisioning and etc.
+Alameda agents in your cluster collect compute and I/O metrics, and send it to our engine, which will learn the continually changing resource demands and generate configuration recommendations that can be used by other container and storage orchestrators. We aim to help create a solution that automates pod scaling and scheduling, persistent volume provisioning, etc. to replace all manual configuration and orchestration tasks.
 
-With Alameda, scale-up, scale-out, and the placement of pods and the provisioning of persistent volumes are no longer reactive shortsightedly and proactively. The container and storage orchestrators can make cluster-wide resource optimization based on predicted resource usage patterns.
+Automated orchestration (pod scaling and scheduling, persistent volume provisioning, etc.) means your cluster’s time spent reactively addressing resource failure and unavailability is reduced to a minimum. With Alameda, container and storage orchestrators can proactively make cluster-wide resource optimizations and reallocations before those problems arise.
 
-You're inviting to join us and to contribute to this community. We plan to continue adding more supports based on community demand and engagement in future releases.
+You’re welcome to join and contribute to our community. We will be continually adding more support based on community demand and engagement in future releases.
+
 #
 
 <h3><strong>Contact</strong></h3>
