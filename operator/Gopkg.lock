@@ -13,7 +13,10 @@
   branch = "master"
   digest = "1:76630990e8e745474b034acbc62171e433260dd181ac9415fb46c688a7ddeb59"
   name = "github.com/containers-ai/api"
-  packages = ["operator/v1alpha1"]
+  packages = [
+    "ai-service/v1alpha1",
+    "operator/v1alpha1",
+  ]
   pruneopts = "T"
   revision = "d0c0efe618f57b51adfe506d0b565c1e6ec01243"
 
@@ -104,6 +107,7 @@
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/empty",
     "ptypes/timestamp",
   ]
   pruneopts = "T"
@@ -873,6 +877,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/containers-ai/api/ai-service/v1alpha1",
     "github.com/containers-ai/api/operator/v1alpha1",
     "github.com/emicklei/go-restful",
     "github.com/go-logr/logr",

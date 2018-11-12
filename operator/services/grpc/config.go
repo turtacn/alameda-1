@@ -1,5 +1,11 @@
 package grpc
 
+import (
+	"strconv"
+
+	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
+)
+
 type Config struct {
 	BindAddress string
 }
@@ -13,5 +19,5 @@ func NewConfig() *Config {
 
 func (c *Config) init() {
 
-	c.BindAddress = ":50050"
+	c.BindAddress = ":" + strconv.Itoa(grpcutils.GetServerPort())
 }
