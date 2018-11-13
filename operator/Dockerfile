@@ -2,16 +2,20 @@
 FROM golang:1.11.2 as builder
 
 # Copy in the go src
-WORKDIR /go/src/github.com/containers-ai/alameda
+WORKDIR /go/src/github.com/containers-ai/alameda/operator
 COPY pkg/    pkg/
 COPY cmd/    cmd/
 COPY vendor/ vendor/
+COPY server/ server/
+COPY services/ services/
+
+ENV AI_SERVER_ADDR=${AI_SERVER_ADDR:-"127.0.0.1:50050"}
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/containers-ai/alameda/cmd/manager
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/containers-ai/alameda/operator/cmd/manager
 
 # Copy the controller-manager into a thin image
 FROM ubuntu:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/manager .
-ENTRYPOINT ["./manager"]
+COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/manager .
+ENTRYPOINT ["./manager --ai-server=$AI_SERVER_ADDR"]
