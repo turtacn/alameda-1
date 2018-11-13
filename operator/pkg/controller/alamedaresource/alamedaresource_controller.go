@@ -25,7 +25,7 @@ import (
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
-	aiservice_v1alpha1 "github.com/containers-ai/api/ai-service/v1alpha1"
+	aiservice_v1alpha1 "github.com/containers-ai/api/aiservice/v1alpha1"
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
 

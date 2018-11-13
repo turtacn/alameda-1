@@ -90,12 +90,14 @@ func (s *Service) Close() error {
 	return nil
 }
 
-func (s *Service) GetMetrics(ctx context.Context, in *operator_v1alpha1.GetMetricsRequest) (*operator_v1alpha1.GetMetricsResponse, error) {
-
-	return &operator_v1alpha1.GetMetricsResponse{}, nil
+func (s *Service) ListMetrics(ctx context.Context, in *operator_v1alpha1.ListMetricsRequest) (*operator_v1alpha1.ListMetricsResponse, error) {
+	return nil, nil
+}
+func (s *Service) ListMetricsSum(ctx context.Context, in *operator_v1alpha1.ListMetricsSumRequest) (*operator_v1alpha1.ListMetricsSumResponse, error) {
+	return nil, nil
 }
 
-func (s *Service) PostPredictResult(ctx context.Context, in *operator_v1alpha1.PostPredictResultRequest) (*operator_v1alpha1.PostPredictResultResponse, error) {
+func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1.CreatePredictResultRequest) (*operator_v1alpha1.CreatePredictResultResponse, error) {
 	// 1. Get namespace list information from predicted pods
 	nsRange := map[string]bool{}
 	for _, predictPod := range in.GetPredictPods() {
@@ -132,7 +134,7 @@ func (s *Service) PostPredictResult(ctx context.Context, in *operator_v1alpha1.P
 		}
 	}
 
-	return &operator_v1alpha1.PostPredictResultResponse{}, nil
+	return &operator_v1alpha1.CreatePredictResultResponse{}, nil
 }
 
 func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaResource, predictPods []*operator_v1alpha1.PredictPod) {
