@@ -1,0 +1,9 @@
+Dockerfile
+Gopkg.lock
+Gopkg.toml
+Makefile
+PROJECT
+config/
+cover.out
+docs/
+hack/
