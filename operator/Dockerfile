@@ -3,11 +3,7 @@ FROM golang:1.11.2 as builder
 
 # Copy in the go src
 WORKDIR /go/src/github.com/containers-ai/alameda/operator
-COPY pkg/    pkg/
-COPY cmd/    cmd/
-COPY vendor/ vendor/
-COPY server/ server/
-COPY services/ services/
+Add . .
 
 ENV AI_SERVER_ADDR=${AI_SERVER_ADDR:-"127.0.0.1:50050"}
 
