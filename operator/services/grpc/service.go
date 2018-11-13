@@ -9,10 +9,15 @@ import (
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus"
 	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	operator_v1alpha1 "github.com/containers-ai/api/operator/v1alpha1"
+	"github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
+	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	apicorev1 "k8s.io/api/core/v1"
@@ -23,23 +28,34 @@ import (
 )
 
 type Service struct {
-	Config  Config
-	Manager manager.Manager
+	Config    Config
+	Manager   manager.Manager
+	MetricsDB metrics.MetricsDB
 }
 
 func NewService(c *Config, manager manager.Manager) (*Service, error) {
-
-	// TODO: new metircs repository
 
 	s := &Service{
 		Config:  *c,
 		Manager: manager,
 	}
 
+	// New Prometheus as metrics database
+	db, err := prometheus.New(*c.Prometheus)
+	if err != nil {
+		return nil, err
+	}
+	s.MetricsDB = db
+
 	return s, nil
 }
 
 func (s *Service) Open() error {
+
+	// Open metrics database
+	if err := s.MetricsDB.Connect(); err != nil {
+		return err
+	}
 
 	// build server listener
 	log.GetLogger().Info("starting gRPC server")
@@ -87,14 +103,103 @@ func (s *Service) registGRPCServer(server *grpc.Server) {
 
 func (s *Service) Close() error {
 
+	if err := s.MetricsDB.Close(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (s *Service) ListMetrics(ctx context.Context, in *operator_v1alpha1.ListMetricsRequest) (*operator_v1alpha1.ListMetricsResponse, error) {
-	return nil, nil
+
+	var resp *operator_v1alpha1.ListMetricsResponse
+
+	// Validate request
+	err := ValidateListMetricsRequest(in)
+	if err != nil {
+		resp = &operator_v1alpha1.ListMetricsResponse{}
+		resp.Status = &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
+		}
+		return resp, nil
+	}
+
+	// build query instance to query metrics db
+	q := metrics.Query{}
+	switch in.GetMetricType() {
+	case operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL:
+		q.Metric = metrics.MetricTypeContainerCPUUsageTotal
+	case operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL_RATE:
+		q.Metric = metrics.MetricTypeContainerCPUUsageTotalRate
+	case operator_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE:
+		q.Metric = metrics.MetricTypeContainerMemoryUsage
+	}
+
+	for _, labelSelector := range in.GetConditions() {
+
+		k := labelSelector.GetKey()
+		v := labelSelector.GetValue()
+		var op metrics.StringOperator
+		switch labelSelector.GetOp() {
+		case operator_v1alpha1.StrOp_Equal:
+			op = metrics.StringOperatorEqueal
+		case operator_v1alpha1.StrOp_NotEqual:
+			op = metrics.StringOperatorNotEqueal
+		}
+
+		q.LabelSelectors = append(q.LabelSelectors, metrics.LabelSelector{Key: k, Op: op, Value: v})
+	}
+
+	// assign difference type of time to query instance by type of gRPC request time
+	switch in.TimeSelector.(type) {
+	case nil:
+		q.TimeSelector = nil
+	case *operator_v1alpha1.ListMetricsRequest_Time:
+		q.TimeSelector = &metrics.Timestamp{T: time.Unix(in.GetTime().GetSeconds(), int64(in.GetTime().GetNanos()))}
+	case *operator_v1alpha1.ListMetricsRequest_Duration:
+		d, _ := ptypes.Duration(in.GetDuration())
+		q.TimeSelector = &metrics.Since{
+			Duration: d,
+		}
+	case *operator_v1alpha1.ListMetricsRequest_TimeRange:
+		startTime := in.GetTimeRange().GetStartTime()
+		endTime := in.GetTimeRange().GetEndTime()
+		step, _ := ptypes.Duration(in.GetTimeRange().GetStep())
+		q.TimeSelector = &metrics.TimeRange{
+			StartTime: time.Unix(startTime.GetSeconds(), int64(startTime.GetNanos())),
+			EndTime:   time.Unix(endTime.GetSeconds(), int64(endTime.GetNanos())),
+			Step:      step,
+		}
+	}
+
+	// query to metrics db
+	quertResp, err := s.MetricsDB.Query(q)
+	if err != nil {
+		resp = &operator_v1alpha1.ListMetricsResponse{}
+		resp.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
+		return resp, nil
+	}
+
+	// convert response of query metrics db to containers-ai.operator.v1alpha1.ListMetricssResposne
+	resp = convertMetricsQueryResponseToProtoResponse(&quertResp)
+	resp.Status = &status.Status{
+		Code: int32(code.Code_OK),
+	}
+	return resp, nil
 }
+
 func (s *Service) ListMetricsSum(ctx context.Context, in *operator_v1alpha1.ListMetricsSumRequest) (*operator_v1alpha1.ListMetricsSumResponse, error) {
-	return nil, nil
+
+	return &operator_v1alpha1.ListMetricsSumResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_UNIMPLEMENTED),
+			Message: "Not implemented",
+		},
+	}, nil
 }
 
 func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1.CreatePredictResultRequest) (*operator_v1alpha1.CreatePredictResultResponse, error) {
@@ -228,4 +333,31 @@ func isAlamedaPod(alaK8sCtrAnnoStr, podUid string) bool {
 		}
 	}
 	return false
+}
+
+func convertMetricsQueryResponseToProtoResponse(resp *metrics.QueryResponse) *operator_v1alpha1.ListMetricsResponse {
+
+	// initiallize proto response
+	ListMetricssResponse := &operator_v1alpha1.ListMetricsResponse{}
+	ListMetricssResponse.Metrics = []*operator_v1alpha1.MetricResult{}
+
+	for _, result := range resp.Results {
+		series := &operator_v1alpha1.MetricResult{}
+
+		series.Labels = result.Labels
+		for _, sample := range result.Samples {
+			s := &operator_v1alpha1.Sample{}
+
+			timestampProto, err := ptypes.TimestampProto(sample.Time)
+			if err != nil {
+				log.GetLogger().Error(err, "convert time.Time to google.protobuf.Timestamp failed")
+			}
+			s.Time = timestampProto
+			s.Value = sample.Value
+			series.Samples = append(series.Samples, s)
+		}
+		ListMetricssResponse.Metrics = append(ListMetricssResponse.Metrics, series)
+	}
+
+	return ListMetricssResponse
 }
