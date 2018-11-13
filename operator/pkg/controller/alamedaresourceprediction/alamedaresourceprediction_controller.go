@@ -132,7 +132,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 				listPods := utilsresource.NewListPods(r)
 				podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
 				podsMap := map[autoscalingv1alpha1.PodUID]autoscalingv1alpha1.PredictPod{}
-				logUtil.GetLogger().Info(fmt.Sprintf("%d pods found in deployment (%/%s) will be updated to AlamedaResourcePrediction %s.", len(podList), deployment.GetNamespace(), deployment.GetName(), instance.GetName()))
+				logUtil.GetLogger().Info(fmt.Sprintf("%d pods found in deployment (%s/%s) will be updated to AlamedaResourcePrediction %s.", len(podList), deployment.GetNamespace(), deployment.GetName(), instance.GetName()))
 				for _, pod := range podList {
 					containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
 					for _, container := range pod.Spec.Containers {
