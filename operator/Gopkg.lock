@@ -11,14 +11,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:76630990e8e745474b034acbc62171e433260dd181ac9415fb46c688a7ddeb59"
+  digest = "1:3f2afe07cb4a041a96ef434a485ed8597e72c73e053a0856b9adde79c1c3bb14"
   name = "github.com/containers-ai/api"
   packages = [
-    "ai-service/v1alpha1",
+    "aiservice/v1alpha1",
     "operator/v1alpha1",
   ]
   pruneopts = "T"
-  revision = "d0c0efe618f57b51adfe506d0b565c1e6ec01243"
+  revision = "4f5a7423abbf067c3125986581d72a18561cfab0"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -810,7 +810,7 @@
   revision = "9dfdf9be683f61f82cda12362c44c784e0778b56"
 
 [[projects]]
-  digest = "1:4c3be496e0e0977b54e265fea184b57e9928fed12a1a14687c04b5d42e044abc"
+  digest = "1:ca3f51201a90f3a23bf35938ee910d2fb3095ece453cf56c8b723e935c194ebd"
   name = "sigs.k8s.io/controller-runtime"
   packages = [
     "pkg/cache",
@@ -843,8 +843,8 @@
     "pkg/webhook/types",
   ]
   pruneopts = "T"
-  revision = "53fc44b56078cd095b11bd44cfa0288ee4cf718f"
-  version = "v0.1.4"
+  revision = "5fd1e9e9fac5261e9ad9d47c375afc014fc31d21"
+  version = "v0.1.7"
 
 [[projects]]
   digest = "1:92290e452e328ffe6bd62f969e51d3aadd57a30a68b5fcf31ccdeda62068bb5d"
@@ -877,7 +877,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/containers-ai/api/ai-service/v1alpha1",
+    "github.com/containers-ai/api/aiservice/v1alpha1",
     "github.com/containers-ai/api/operator/v1alpha1",
     "github.com/emicklei/go-restful",
     "github.com/go-logr/logr",
