@@ -34,12 +34,14 @@ import (
 
 var isDev bool
 var aiSrvAddr string
+var isLogOutput bool
 var serverPort int
 var logger logr.Logger
 var serverConf server.Config
 
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
+	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.StringVar(&aiSrvAddr, "ai-server", "127.0.0.1:50050", "AI service address")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 }
@@ -62,13 +64,13 @@ func main() {
 	initLogger(isDev)
 
 	if err != nil {
-		log.Fatal(err)
+		logUtil.GetLogger().Error(err, "Get configuration failed.")
 	}
 
 	// Create a new Cmd to provide shared dependencies and start components
 	mgr, err := manager.New(cfg, manager.Options{})
 	if err != nil {
-		log.Fatal(err)
+		logUtil.GetLogger().Error(err, "Create manager failed.")
 	}
 	// Set wait group for Server goroutine
 	var wg sync.WaitGroup
@@ -77,7 +79,7 @@ func main() {
 	// Setup Server
 	s, err := server.NewServer(&serverConf)
 	if err != nil {
-		log.Fatal(err)
+		logUtil.GetLogger().Error(err, "Create gRPC server failed.")
 	}
 
 	// Start Server
@@ -86,18 +88,20 @@ func main() {
 
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
-		log.Fatal(err)
+		logUtil.GetLogger().Error(err, "Add scheme failed.")
 	}
 
 	// Setup all Controllers
 	if err := controller.AddToManager(mgr); err != nil {
-		log.Fatal(err)
+		logUtil.GetLogger().Error(err, "Add controller failed.")
 	}
 
 	log.Printf("Starting the Cmd.")
 
 	// Start the Cmd
-	log.Fatal(mgr.Start(signals.SetupSignalHandler()))
+	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
+		logUtil.GetLogger().Error(err, "Run manager failed.")
+	}
 
 	// Wait Server goroutine
 	wg.Wait()
