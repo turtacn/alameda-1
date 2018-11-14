@@ -5,6 +5,13 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
   - apps
   resources:
   - deployments
@@ -64,10 +71,3 @@ rules:
   - update
   - patch
   - delete
-# Permission for query prometheus under namespace openshift-monitoring 
-- apiGroups: 
-  - ""
-  resources: 
-  - namespaces
-  verbs: 
-  - get
