@@ -5,7 +5,7 @@ FROM golang:1.11.2 as builder
 WORKDIR /go/src/github.com/containers-ai/alameda/operator
 Add . .
 
-ENV AI_SERVER_ADDR=${AI_SERVER_ADDR:-"ai.alameda.svc.cluster.local:50050"}
+ENV AI_SERVER_ADDR=${AI_SERVER_ADDR:-"alameda-ai.alameda.svc.cluster.local:50051"}
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/containers-ai/alameda/operator/cmd/manager
