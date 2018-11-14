@@ -521,7 +521,10 @@
   branch = "master"
   digest = "1:80aae82eb03dd30038e2002cdbf3dc269bc17bfd170ef5c5a816b224ae29776f"
   name = "google.golang.org/genproto"
-  packages = ["googleapis/rpc/status"]
+  packages = [
+    "googleapis/rpc/code",
+    "googleapis/rpc/status",
+  ]
   pruneopts = "T"
   revision = "c830210a61dfaa790e1920f8d0470fc27bc2efbe"
 
@@ -881,9 +884,12 @@
     "github.com/containers-ai/api/operator/v1alpha1",
     "github.com/emicklei/go-restful",
     "github.com/go-logr/logr",
+    "github.com/golang/protobuf/ptypes",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
     "golang.org/x/net/context",
+    "google.golang.org/genproto/googleapis/rpc/code",
+    "google.golang.org/genproto/googleapis/rpc/status",
     "google.golang.org/grpc",
     "google.golang.org/grpc/reflection",
     "k8s.io/api/apps/v1",
