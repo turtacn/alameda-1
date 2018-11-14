@@ -11,14 +11,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3f2afe07cb4a041a96ef434a485ed8597e72c73e053a0856b9adde79c1c3bb14"
+  digest = "1:380fc36f2336582142dca1d52f8fc92689af60a3c6c814c6a521a8441a511ee8"
   name = "github.com/containers-ai/api"
   packages = [
-    "aiservice/v1alpha1",
-    "operator/v1alpha1",
+    "alameda_api/v1alpha1/ai_service",
+    "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "4f5a7423abbf067c3125986581d72a18561cfab0"
+  revision = "3c90be0221a7143ba974be460bce8618baa8224b"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -880,8 +880,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/containers-ai/api/aiservice/v1alpha1",
-    "github.com/containers-ai/api/operator/v1alpha1",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/operator",
     "github.com/emicklei/go-restful",
     "github.com/go-logr/logr",
     "github.com/golang/protobuf/ptypes",

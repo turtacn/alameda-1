@@ -13,8 +13,9 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus"
 	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
-	operator_v1alpha1 "github.com/containers-ai/api/operator/v1alpha1"
 	"github.com/golang/protobuf/ptypes"
+
+	operator_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/operator"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
