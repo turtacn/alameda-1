@@ -1,57 +1,51 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  labels:
-    controller-tools.k8s.io: "1.0"
   name: alameda
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: controller-manager-service
+  name: operator
   namespace: alameda
   labels:
-    control-plane: controller-manager
-    controller-tools.k8s.io: "1.0"
+    app: operator
 spec:
   selector:
-    control-plane: controller-manager
-    controller-tools.k8s.io: "1.0"
+    app: operator
   ports:
-  - port: 443
+  - port: 50050
+    name: grpc
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: alameda-operator
+  name: operator
   namespace: alameda
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: controller-manager
+  name: operator
   namespace: alameda
   labels:
-    control-plane: controller-manager
-    controller-tools.k8s.io: "1.0"
+    app: operator
 spec:
   selector:
     matchLabels:
-      control-plane: controller-manager
-      controller-tools.k8s.io: "1.0"
-  serviceName: controller-manager-service
+      app: operator
   template:
     metadata:
       labels:
-        control-plane: controller-manager
-        controller-tools.k8s.io: "1.0"
+        app: operator
     spec:
-      serviceAccountName: alameda-operator
+      serviceAccountName: operator
       containers:
       - command:
         - /root/manager
-        image: controller:latest
-        name: manager
+        # TODO: Use docker image from https://hub.docker.com/r/containersai/alameda/
+        image: 
+        name: operator
         resources:
           limits:
             cpu: 100m
@@ -59,4 +53,3 @@ spec:
           requests:
             cpu: 100m
             memory: 20Mi
-      terminationGracePeriodSeconds: 10
