@@ -1,5 +1,9 @@
 package prometheus
 
+import (
+	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
+)
+
 type Config struct {
 	Host      string
 	Port      string
@@ -34,5 +38,5 @@ func (c *Config) init() {
 	c.TLSConfig = &TLSConfig{
 		InsecureSkipVerify: true,
 	}
-	c.BearerTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+	c.BearerTokenFile = grpcutils.GetPrometheusBearerTokenFile()
 }

@@ -36,6 +36,7 @@ var isDev bool
 var aiSrvAddr string
 var isLogOutput bool
 var serverPort int
+var prometheusBearerTokenFile string
 var logger logr.Logger
 var serverConf server.Config
 
@@ -44,6 +45,7 @@ func init() {
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.StringVar(&aiSrvAddr, "ai-server", "127.0.0.1:50050", "AI service address")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
+	flag.StringVar(&prometheusBearerTokenFile, "prometheus-bearer-token-file", "", "File path to prometheus bearer token")
 }
 
 func initLogger(development bool) {
