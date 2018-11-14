@@ -45,29 +45,37 @@ import (
 // AlamedaResource is alameda resource
 type AlamedaResource string
 
+//
 const (
 	AlamedaDeployment AlamedaResource = "Deployment"
 )
 
+// AlamedaK8sController is key of AlamedaResource annotation
 const AlamedaK8sController = "annotation-k8s-controller"
-const JSON_INDENT = "  "
 
+// JSONIndent is ident of formatted json string
+const JSONIndent = "  "
+
+// Container struct
 type Container struct {
 	Name string
 }
 
+// Pod struct
 type Pod struct {
 	UID        string
 	Name       string
 	Containers []Container
 }
 
+// Deployment struct
 type Deployment struct {
 	UID    string
 	Name   string
 	PodMap map[string]Pod
 }
 
+// K8SControllerAnnotation struct
 type K8SControllerAnnotation struct {
 	DeploymentMap map[string]Deployment
 }
@@ -231,11 +239,11 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(alamedaresour
 			MatchingLabels(alamedaresource.Spec.Selector.MatchLabels),
 		matchedDeploymentList)
 	if err == nil {
-		akcMap := convertk8scontrollerJsonString(newAlamedaAnnotations[AlamedaK8sController])
+		akcMap := convertk8scontrollerJSONString(newAlamedaAnnotations[AlamedaK8sController])
 		for _, deploy := range matchedDeploymentList.Items {
 			akcMap.DeploymentMap[string(deploy.GetUID())] = *r.getControllerMapForAnno("deployment", &deploy).(*Deployment)
 		}
-		updatemd, _ := json.MarshalIndent(akcMap, "", JSON_INDENT)
+		updatemd, _ := json.MarshalIndent(akcMap, "", JSONIndent)
 		newAlamedaAnnotations[AlamedaK8sController] = string(updatemd)
 	}
 	if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
@@ -259,7 +267,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autos
 	name := request.Name
 	anno := ala.GetAnnotations()
 	if anno != nil && anno[AlamedaK8sController] != "" {
-		k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController])
+		k8sc := convertk8scontrollerJSONString(anno[AlamedaK8sController])
 		//handle deployment controller
 		for k, v := range k8sc.DeploymentMap {
 			if v.Name == name {
@@ -268,7 +276,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autos
 			}
 		}
 		if needUpdated {
-			updated, _ := json.MarshalIndent(k8sc, "", JSON_INDENT)
+			updated, _ := json.MarshalIndent(k8sc, "", JSONIndent)
 			anno[AlamedaK8sController] = string(updated)
 			ala.SetAnnotations(anno)
 			_ = r.Update(context.TODO(), ala)
@@ -285,7 +293,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 	if anno == nil {
 		anno[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
 	}
-	k8sc := convertk8scontrollerJsonString(anno[AlamedaK8sController])
+	k8sc := convertk8scontrollerJSONString(anno[AlamedaK8sController])
 	deletePodMaps := map[string]Pod{}
 	newPodMaps := map[string]Pod{}
 	if isLabelsMatched(dL, alaML) {
@@ -309,8 +317,8 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 			}
 		}
 		k8sc.DeploymentMap[string(dpUID)] = curDeployment
-		deletePodMapsBin, _ := json.MarshalIndent(deletePodMaps, "", JSON_INDENT)
-		newPodMapsBin, _ := json.MarshalIndent(newPodMaps, "", JSON_INDENT)
+		deletePodMapsBin, _ := json.MarshalIndent(deletePodMaps, "", JSONIndent)
+		newPodMapsBin, _ := json.MarshalIndent(newPodMaps, "", JSONIndent)
 
 		logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment Pods to add %s. (%s/%s).", string(newPodMapsBin), deploy.GetNamespace(), deploy.GetName()))
 		logUtil.GetLogger().Info(fmt.Sprintf("Alameda Deployment Pods to delete %s. (%s/%s).", string(deletePodMapsBin), deploy.GetNamespace(), deploy.GetName()))
@@ -325,7 +333,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		}
 	}
 	if needUpdated {
-		updated, _ := json.MarshalIndent(k8sc, "", JSON_INDENT)
+		updated, _ := json.MarshalIndent(k8sc, "", JSONIndent)
 		anno[AlamedaK8sController] = string(updated)
 		ala.SetAnnotations(anno)
 		err := r.Update(context.TODO(), ala)
@@ -380,10 +388,11 @@ func isLabelsMatched(labels, matchlabels map[string]string) bool {
 }
 
 func alamedaK8sControllerDefautlAnno() string {
-	md, _ := json.MarshalIndent(*GetDefaultAlamedaK8SControllerAnno(), "", JSON_INDENT)
+	md, _ := json.MarshalIndent(*GetDefaultAlamedaK8SControllerAnno(), "", JSONIndent)
 	return string(md)
 }
 
+// GetDefaultAlamedaK8SControllerAnno get default AlamedaResource annotation of K8S controller
 func GetDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
 	return &K8SControllerAnnotation{
 		DeploymentMap: map[string]Deployment{},
@@ -391,7 +400,7 @@ func GetDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
 }
 
 //annotation-k8s-controller annotation struct definition
-func convertk8scontrollerJsonString(jsonStr string) *K8SControllerAnnotation {
+func convertk8scontrollerJSONString(jsonStr string) *K8SControllerAnnotation {
 	akcMap := GetDefaultAlamedaK8SControllerAnno()
 	err := json.Unmarshal([]byte(jsonStr), akcMap)
 	if err != nil {
