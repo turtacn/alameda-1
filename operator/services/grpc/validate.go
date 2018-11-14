@@ -3,7 +3,7 @@ package grpc
 import (
 	"errors"
 
-	v1alpha1 "github.com/containers-ai/api/operator/v1alpha1"
+	v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/operator"
 	"github.com/golang/protobuf/ptypes"
 )
 
