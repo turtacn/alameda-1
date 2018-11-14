@@ -3,7 +3,7 @@ FROM golang:1.11.2 as builder
 
 # Copy in the go src
 WORKDIR /go/src/github.com/containers-ai/alameda/operator
-Add . .
+ADD . .
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/containers-ai/alameda/operator/cmd/manager
