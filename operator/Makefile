@@ -1,6 +1,6 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= alameda:latest
+IMG ?= operator:latest
 
 all: test manager
 
