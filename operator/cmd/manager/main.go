@@ -43,7 +43,7 @@ var serverConf server.Config
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
-	flag.StringVar(&aiSrvAddr, "ai-server", "127.0.0.1:50050", "AI service address")
+	flag.StringVar(&aiSrvAddr, "ai-server", "alameda-ai.alameda.svc.cluster.local:50051", "AI service address")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 	flag.StringVar(&prometheusBearerTokenFile, "prometheus-bearer-token-file", "", "File path to prometheus bearer token")
 }
