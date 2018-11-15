@@ -338,40 +338,50 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		anno[AlamedaK8sController] = string(updated)
 		ala.SetAnnotations(anno)
 		err := r.Update(context.TODO(), ala)
-		if err == nil {
-			conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
-			if err == nil {
-				defer conn.Close()
-				aiServiceClnt := aiservice_v1alpha1.NewAlamendaAIServiceClient(conn)
-				if len(newPodMaps) > 0 {
-					req := aiservice_v1alpha1.PredictionObjectListCreationRequest{
-						Objects: []*aiservice_v1alpha1.Object{},
-					}
-					for _, v := range newPodMaps {
-						req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
-							Type:      aiservice_v1alpha1.Object_POD,
-							Uid:       v.UID,
-							Namespace: deploy.GetNamespace(),
-							Name:      v.Name,
-						})
-					}
-					aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
-				}
-				if len(deletePodMaps) > 0 {
-					req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
-						Objects: []*aiservice_v1alpha1.Object{},
-					}
-					for _, v := range deletePodMaps {
-						req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
-							Type:      aiservice_v1alpha1.Object_POD,
-							Uid:       v.UID,
-							Namespace: deploy.GetNamespace(),
-							Name:      v.Name,
-						})
-					}
-					aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
-				}
+		if err != nil {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Update Annotation failed"))
+			return
+		}
+
+		conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
+		if err != nil {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Connect to AI server failed"))
+			return
+		}
+
+		defer conn.Close()
+		aiServiceClnt := aiservice_v1alpha1.NewAlamendaAIServiceClient(conn)
+		if len(newPodMaps) > 0 {
+			req := aiservice_v1alpha1.PredictionObjectListCreationRequest{
+				Objects: []*aiservice_v1alpha1.Object{},
 			}
+			for _, v := range newPodMaps {
+				req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
+					Type:      aiservice_v1alpha1.Object_POD,
+					Uid:       v.UID,
+					Namespace: deploy.GetNamespace(),
+					Name:      v.Name,
+				})
+			}
+			reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
+			logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object %s to AI server. (%s/%s).", string(reqBin), deploy.GetNamespace(), deploy.GetName()))
+			aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
+		}
+		if len(deletePodMaps) > 0 {
+			req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
+				Objects: []*aiservice_v1alpha1.Object{},
+			}
+			for _, v := range deletePodMaps {
+				req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
+					Type:      aiservice_v1alpha1.Object_POD,
+					Uid:       v.UID,
+					Namespace: deploy.GetNamespace(),
+					Name:      v.Name,
+				})
+			}
+			reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
+			logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object %s to AI server. (%s/%s).", string(reqBin), deploy.GetNamespace(), deploy.GetName()))
+			aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
 		}
 	}
 }

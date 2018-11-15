@@ -112,28 +112,71 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 		client.InNamespace(instance.GetNamespace()).
 			MatchingLabels(instance.Spec.Selector.MatchLabels),
 		matchedDeploymentList)
-	if err == nil {
-		// 1. remove deleted deployment
-		for deployUID, _ := range instance.Status.Prediction.Deployments {
-			deleteDeploy := true
-			for _, deployment := range matchedDeploymentList.Items {
-				if string(deployment.GetUID()) == string(deployUID) {
-					deleteDeploy = false
-					break
-				}
-			}
-			if deleteDeploy {
-				delete(instance.Status.Prediction.Deployments, deployUID)
+	if err != nil {
+		return reconcile.Result{}, nil
+	}
+
+	// 1. remove deleted deployment
+	for deployUID, _ := range instance.Status.Prediction.Deployments {
+		deleteDeploy := true
+		for _, deployment := range matchedDeploymentList.Items {
+			if string(deployment.GetUID()) == string(deployUID) {
+				deleteDeploy = false
+				break
 			}
 		}
-		for _, deployment := range matchedDeploymentList.Items {
-			// 2. add new deployment
-			if _, ok := instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())]; !ok {
-				listPods := utilsresource.NewListPods(r)
-				podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
-				podsMap := map[autoscalingv1alpha1.PodUID]autoscalingv1alpha1.PredictPod{}
-				logUtil.GetLogger().Info(fmt.Sprintf("%d pods found in deployment (%s/%s) will be updated to AlamedaResourcePrediction %s.", len(podList), deployment.GetNamespace(), deployment.GetName(), instance.GetName()))
+		if deleteDeploy {
+			delete(instance.Status.Prediction.Deployments, deployUID)
+		}
+	}
+	for _, deployment := range matchedDeploymentList.Items {
+		// 2. add new deployment
+		if _, ok := instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())]; !ok {
+			listPods := utilsresource.NewListPods(r)
+			podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
+			podsMap := map[autoscalingv1alpha1.PodUID]autoscalingv1alpha1.PredictPod{}
+			logUtil.GetLogger().Info(fmt.Sprintf("%d pods found in deployment (%s/%s) will be updated to AlamedaResourcePrediction %s.", len(podList), deployment.GetNamespace(), deployment.GetName(), instance.GetName()))
+			for _, pod := range podList {
+				containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
+				for _, container := range pod.Spec.Containers {
+					containers[autoscalingv1alpha1.ContainerName(container.Name)] = autoscalingv1alpha1.PredictContainer{
+						Name:            container.Name,
+						RawPredict:      map[autoscalingv1alpha1.ResourceType]autoscalingv1alpha1.TimeSeriesData{},
+						Recommendations: []autoscalingv1alpha1.Recommendation{},
+					}
+				}
+				podsMap[autoscalingv1alpha1.PodUID(pod.GetUID())] = autoscalingv1alpha1.PredictPod{
+					Name:       pod.GetName(),
+					Containers: containers,
+				}
+			}
+
+			instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())] = autoscalingv1alpha1.PredictDeployment{
+				UID:       string(deployment.GetUID()),
+				Namespace: instance.GetNamespace(),
+				Name:      instance.GetName(),
+				Pods:      podsMap,
+			}
+		} else {
+			// 3. update pods info of existing deployment
+			listPods := utilsresource.NewListPods(r)
+			podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
+			// 3.1 remove deleted pods from existing deployment
+			for podUID, _ := range instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods {
+				deletePod := true
 				for _, pod := range podList {
+					if string(pod.GetUID()) == string(podUID) {
+						deletePod = false
+					}
+				}
+				if deletePod {
+					delete(instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods, podUID)
+				}
+			}
+
+			for _, pod := range podList {
+				// 3.2 add new pods from existing deployment
+				if _, ok := instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods[autoscalingv1alpha1.PodUID(pod.GetUID())]; !ok {
 					containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
 					for _, container := range pod.Spec.Containers {
 						containers[autoscalingv1alpha1.ContainerName(container.Name)] = autoscalingv1alpha1.PredictContainer{
@@ -142,58 +185,17 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 							Recommendations: []autoscalingv1alpha1.Recommendation{},
 						}
 					}
-					podsMap[autoscalingv1alpha1.PodUID(pod.GetUID())] = autoscalingv1alpha1.PredictPod{
+					instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods[autoscalingv1alpha1.PodUID(pod.GetUID())] = autoscalingv1alpha1.PredictPod{
 						Name:       pod.GetName(),
 						Containers: containers,
 					}
 				}
-
-				instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())] = autoscalingv1alpha1.PredictDeployment{
-					UID:       string(deployment.GetUID()),
-					Namespace: instance.GetNamespace(),
-					Name:      instance.GetName(),
-					Pods:      podsMap,
-				}
-			} else {
-				// 3. update pods info of existing deployment
-				listPods := utilsresource.NewListPods(r)
-				podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
-				// 3.1 remove deleted pods from existing deployment
-				for podUID, _ := range instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods {
-					deletePod := true
-					for _, pod := range podList {
-						if string(pod.GetUID()) == string(podUID) {
-							deletePod = false
-						}
-					}
-					if deletePod {
-						delete(instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods, podUID)
-					}
-				}
-
-				for _, pod := range podList {
-					// 3.2 add new pods from existing deployment
-					if _, ok := instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods[autoscalingv1alpha1.PodUID(pod.GetUID())]; !ok {
-						containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
-						for _, container := range pod.Spec.Containers {
-							containers[autoscalingv1alpha1.ContainerName(container.Name)] = autoscalingv1alpha1.PredictContainer{
-								Name:            container.Name,
-								RawPredict:      map[autoscalingv1alpha1.ResourceType]autoscalingv1alpha1.TimeSeriesData{},
-								Recommendations: []autoscalingv1alpha1.Recommendation{},
-							}
-						}
-						instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())].Pods[autoscalingv1alpha1.PodUID(pod.GetUID())] = autoscalingv1alpha1.PredictPod{
-							Name:       pod.GetName(),
-							Containers: containers,
-						}
-					}
-				}
 			}
 		}
-		if !reflect.DeepEqual(instance.Status.Prediction, copyInstance.Status.Prediction) {
-			logUtil.GetLogger().Info(fmt.Sprintf("Sync AlamedaResourcePrediction structure (%s/%s).", request.Namespace, request.Name))
-			r.Update(context.TODO(), instance)
-		}
+	}
+	if !reflect.DeepEqual(instance.Status.Prediction, copyInstance.Status.Prediction) {
+		logUtil.GetLogger().Info(fmt.Sprintf("Sync AlamedaResourcePrediction structure (%s/%s).", request.Namespace, request.Name))
+		r.Update(context.TODO(), instance)
 	}
 
 	return reconcile.Result{}, nil
