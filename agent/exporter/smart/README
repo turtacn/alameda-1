@@ -1,7 +1,0 @@
-Build docker
-   sh# make docker-image
-
-Support Environment:
-   - HOSTDEV_PATH=/dev 
-   - INTERVAL_TIME=10
-
