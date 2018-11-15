@@ -23,6 +23,22 @@ const (
 	epQueryRange = "/query_range"
 )
 
+var (
+	// defaultLabelSelectors LabelSelectors must apply when query
+	defaultLabelSelectors = []metrics.LabelSelector{
+		metrics.LabelSelector{
+			Key:   "container_name",
+			Op:    metrics.StringOperatorNotEqueal,
+			Value: "POD",
+		},
+		metrics.LabelSelector{
+			Key:   "container_name",
+			Op:    metrics.StringOperatorNotEqueal,
+			Value: "",
+		},
+	}
+)
+
 type prometheus struct {
 	config Config
 	client http.Client
@@ -161,15 +177,18 @@ func setQueryExpressionParameter(v *url.Values, q metrics.Query) {
 
 	var (
 		queryExpression string // query represent the query expression to prometheus api
+		lss             = q.LabelSelectors
 	)
+
+	lss = append(lss, defaultLabelSelectors...)
 
 	// build prometheus query expression
 	labelSelectorString := ""
-	for _, labelSelector := range q.LabelSelectors {
+	for _, ls := range lss {
 
-		k := labelSelector.Key
-		v := labelSelector.Value
-		op := StringOperatorLiteral[labelSelector.Op]
+		k := ls.Key
+		v := ls.Value
+		op := StringOperatorLiteral[ls.Op]
 
 		labelSelectorString += fmt.Sprintf("%s %s \"%s\",", k, op, v)
 	}
