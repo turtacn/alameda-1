@@ -44,10 +44,8 @@ func New(config Config) (metrics.MetricsDB, error) {
 		p.client = http.Client{}
 	}
 
-	// TODO: Read token file from flag
 	if p.config.BearerTokenFile != "" {
-		// token, err := ioutil.ReadFile(config.BearerTokenFile)
-		token, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+		token, err := ioutil.ReadFile(config.BearerTokenFile)
 		if err != nil {
 			log.GetLogger().Error(err, "open bearer token file for prometheus failed")
 			return nil, errors.New("open bearer token file for prometheus failed")
