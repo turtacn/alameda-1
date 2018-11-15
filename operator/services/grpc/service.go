@@ -247,8 +247,13 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 			s.updateAlamedaResourcePredict(ala, predictPodsInAla)
 		}
 	}
-
-	return &operator_v1alpha1.CreatePredictResultResponse{}, nil
+	inBin, _ := json.Marshal(*in)
+	return &operator_v1alpha1.CreatePredictResultResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_OK),
+			Message: string(inBin),
+		},
+	}, nil
 }
 
 func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaResource, predictPods []*operator_v1alpha1.PredictPod) {
