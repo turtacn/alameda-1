@@ -220,6 +220,14 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 			alaListRange = append(alaListRange, alamedaresourceList.Items...)
 		}
 	}
+	if len(alaListRange) == 0 {
+		return &operator_v1alpha1.CreatePredictResultResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_NOT_FOUND),
+				Message: "AlamedaResource not found.",
+			},
+		}, nil
+	}
 	for _, ala := range alaListRange {
 		alaAnno := ala.GetAnnotations()
 		predictPodsInAla := []*operator_v1alpha1.PredictPod{}
