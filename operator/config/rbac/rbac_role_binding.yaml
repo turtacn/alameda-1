@@ -9,5 +9,5 @@ roleRef:
   name: manager-role
 subjects:
 - kind: ServiceAccount
-  name: alameda-operator
-  namespace: alameda
+  name: default
+  namespace: system
