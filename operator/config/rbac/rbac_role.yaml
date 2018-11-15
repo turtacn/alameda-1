@@ -24,22 +24,9 @@ rules:
   - patch
   - delete
 - apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - patch
-  - delete
-- apiGroups:
   - autoscaling.containers.ai
   resources:
   - alamedaresources
-  - alamedaresourcepredictions
   verbs:
   - get
   - list
@@ -52,6 +39,32 @@ rules:
   - apps
   resources:
   - deployments
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedaresources
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedaresourcepredictions
   verbs:
   - get
   - list
