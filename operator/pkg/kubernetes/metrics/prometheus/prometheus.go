@@ -23,6 +23,22 @@ const (
 	epQueryRange = "/query_range"
 )
 
+var (
+	// defaultLabelSelectors LabelSelectors must apply when query
+	defaultLabelSelectors = []metrics.LabelSelector{
+		metrics.LabelSelector{
+			Key:   "container_name",
+			Op:    metrics.StringOperatorNotEqueal,
+			Value: "POD",
+		},
+		metrics.LabelSelector{
+			Key:   "container_name",
+			Op:    metrics.StringOperatorNotEqueal,
+			Value: "",
+		},
+	}
+)
+
 type prometheus struct {
 	config Config
 	client http.Client
@@ -161,15 +177,18 @@ func setQueryExpressionParameter(v *url.Values, q metrics.Query) {
 
 	var (
 		queryExpression string // query represent the query expression to prometheus api
+		lss             = q.LabelSelectors
 	)
+
+	lss = append(lss, defaultLabelSelectors...)
 
 	// build prometheus query expression
 	labelSelectorString := ""
-	for _, labelSelector := range q.LabelSelectors {
+	for _, ls := range lss {
 
-		k := labelSelector.Key
-		v := labelSelector.Value
-		op := StringOperatorLiteral[labelSelector.Op]
+		k := ls.Key
+		v := ls.Value
+		op := StringOperatorLiteral[ls.Op]
 
 		labelSelectorString += fmt.Sprintf("%s %s \"%s\",", k, op, v)
 	}
@@ -224,6 +243,7 @@ func convertQueryResponse(resp *http.Response) (metrics.QueryResponse, error) {
 	var r Response
 	err = json.Unmarshal(body, &r)
 	if err != nil {
+		log.GetLogger().Error(err, "unmarshal prometheus response error", "response.body", string(body))
 		return metrics.QueryResponse{}, err
 	} else if r.Error != "" || r.ErrorType != "" {
 		return metrics.QueryResponse{}, errors.New(r.Error)
@@ -239,7 +259,7 @@ func convertQueryResponse(resp *http.Response) (metrics.QueryResponse, error) {
 
 			result := MatrixResult{}
 			if _, ok := r.(map[string]interface{}); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
+				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
 			}
 			resultStr, err := json.Marshal(r.(map[string]interface{}))
 			if err != nil {
@@ -255,12 +275,12 @@ func convertQueryResponse(resp *http.Response) (metrics.QueryResponse, error) {
 			for _, value := range result.Values {
 
 				if _, ok := value[0].(float64); !ok {
-					return metrics.QueryResponse{}, fmt.Errorf("cannot convert type %s to float64", reflect.TypeOf(value[0]))
+					return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[0]))
 				}
 				unixTime := time.Unix(int64(value[0].(float64)), 0)
 
 				if _, ok := value[1].(string); !ok {
-					return metrics.QueryResponse{}, fmt.Errorf("cannot convert type %s to float64", reflect.TypeOf(value[1]))
+					return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[1]))
 				}
 				sampleValue, err := strconv.ParseFloat(value[1].(string), 64)
 				if err != nil {
@@ -281,7 +301,7 @@ func convertQueryResponse(resp *http.Response) (metrics.QueryResponse, error) {
 			result := VectorResult{}
 
 			if _, ok := r.(map[string]interface{}); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
+				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
 			}
 			resultStr, err := json.Marshal(r.(map[string]interface{}))
 			if err != nil {
@@ -297,12 +317,12 @@ func convertQueryResponse(resp *http.Response) (metrics.QueryResponse, error) {
 			value := result.Value
 
 			if _, ok := value[0].(float64); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("cannot convert type %s to float64", reflect.TypeOf(value[0]))
+				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[0]))
 			}
 			unixTime := time.Unix(int64(value[0].(float64)), 0)
 
 			if _, ok := value[1].(string); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("cannot convert type %s to float64", reflect.TypeOf(value[1]))
+				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[1]))
 			}
 			sampleValue, err := strconv.ParseFloat(value[1].(string), 64)
 			if err != nil {
