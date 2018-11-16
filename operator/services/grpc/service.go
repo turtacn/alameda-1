@@ -232,15 +232,20 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 		alaAnno := ala.GetAnnotations()
 		predictPodsInAla := []*operator_v1alpha1.PredictPod{}
 		if alaAnno == nil {
+			logUtil.GetLogger().Info(fmt.Sprintf("No annotation found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
 		}
 		if _, ok := alaAnno[alamedaresource.AlamedaK8sController]; !ok {
+			logUtil.GetLogger().Info(fmt.Sprintf("No k8s controller annotation key found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
 		}
+		logUtil.GetLogger().Info(fmt.Sprintf("K8s controller annotation found %s in AlamedaResouce %s in namespace %s in AlamedaResource list", alaAnno[alamedaresource.AlamedaK8sController], ala.GetName(), ala.GetNamespace()))
 		for _, predictPod := range in.GetPredictPods() {
 			alaK8sCtrStr := alaAnno[alamedaresource.AlamedaK8sController]
 			if isAlamedaPod(alaK8sCtrStr, predictPod.GetUid()) {
 				predictPodsInAla = append(predictPodsInAla, predictPod)
+			} else {
+				logUtil.GetLogger().Info(fmt.Sprintf("Pod %s do not belong to AlamedaResource (%s/%s)", predictPod.GetUid(), ala.GetNamespace(), ala.GetName()))
 			}
 		}
 		if len(predictPodsInAla) > 0 {
@@ -262,6 +267,7 @@ func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaRe
 		Name:      ala.GetName(),
 		Namespace: ala.GetNamespace(),
 	}, alamedaresourcePredict)
+
 	for _, predictPod := range predictPods {
 		for _, deployment := range alamedaresourcePredict.Status.Prediction.Deployments {
 			if _, ok := deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())]; ok {
@@ -281,7 +287,10 @@ func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaRe
 		}
 	}
 
-	s.Manager.GetClient().Update(context.TODO(), alamedaresourcePredict)
+	err := s.Manager.GetClient().Update(context.TODO(), alamedaresourcePredict)
+	if err != nil {
+		logUtil.GetLogger().Error(err, fmt.Sprintf("Update Prediction from AI service failed. (%s/%s)", ala.GetNamespace(), ala.GetName()))
+	}
 }
 
 func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer autoscalingv1alpha1.PredictContainer, predictContainer *operator_v1alpha1.PredictContainer) ([]autoscalingv1alpha1.Recommendation, apicorev1.ResourceRequirements) {
@@ -290,12 +299,17 @@ func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer auto
 			PredictData: []autoscalingv1alpha1.PredictData{},
 		}
 		for _, data := range predictData.GetPredictData() {
-			date := time.Unix(data.Time.Seconds, 0)
-			tsData.PredictData = append(tsData.PredictData, autoscalingv1alpha1.PredictData{
-				Time:  data.Time.Seconds,
-				Value: data.Value,
-				Date:  date.String(),
-			})
+			if data.Time == nil {
+				dataBin, _ := json.Marshal(data)
+				logUtil.GetLogger().Info(fmt.Sprintf("Predict data from AI server contains no time field. %s", dataBin))
+			} else {
+				date := time.Unix(data.Time.Seconds, 0)
+				tsData.PredictData = append(tsData.PredictData, autoscalingv1alpha1.PredictData{
+					Time:  data.Time.Seconds,
+					Value: data.Value,
+					Date:  date.String(),
+				})
+			}
 		}
 		alaPredictContainer.RawPredict[autoscalingv1alpha1.ResourceType(resource)] = tsData
 	}
@@ -325,12 +339,15 @@ func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer auto
 		Limits:   map[apicorev1.ResourceName]apiresource.Quantity{},
 		Requests: map[apicorev1.ResourceName]apiresource.Quantity{},
 	}
-	for limitKey, limit := range predictContainer.InitialResource.Limit {
-		initialResource.Limits[apicorev1.ResourceName(limitKey)] = apiresource.MustParse(limit)
+	if predictContainer.InitialResource != nil {
+		for limitKey, limit := range predictContainer.InitialResource.Limit {
+			initialResource.Limits[apicorev1.ResourceName(limitKey)] = apiresource.MustParse(limit)
+		}
+		for requestKey, request := range predictContainer.InitialResource.Request {
+			initialResource.Requests[apicorev1.ResourceName(requestKey)] = apiresource.MustParse(request)
+		}
 	}
-	for requestKey, request := range predictContainer.InitialResource.Request {
-		initialResource.Requests[apicorev1.ResourceName(requestKey)] = apiresource.MustParse(request)
-	}
+
 	alaPredictContainer.InitialResource = initialResource
 	return recommendations, initialResource
 }
@@ -344,6 +361,8 @@ func isAlamedaPod(alaK8sCtrAnnoStr, podUid string) bool {
 	for _, deployment := range akcMap.DeploymentMap {
 		if _, ok := deployment.PodMap[podUid]; ok {
 			return true
+		} else {
+			logUtil.GetLogger().Info(fmt.Sprintf("Pod %s does not belong to K8s controller %s", podUid, alaK8sCtrAnnoStr))
 		}
 	}
 	return false
