@@ -28,6 +28,7 @@ import (
 	aiservice_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service"
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -336,8 +337,17 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 	if needUpdated {
 		updated, _ := json.MarshalIndent(k8sc, "", JSONIndent)
 		anno[AlamedaK8sController] = string(updated)
-		ala.SetAnnotations(anno)
-		err := r.Update(context.TODO(), ala)
+		alaIns := &autoscalingv1alpha1.AlamedaResource{}
+		err := r.Get(context.TODO(), types.NamespacedName{
+			Namespace: ala.GetNamespace(),
+			Name:      ala.GetName(),
+		}, alaIns)
+		if err != nil {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Get AlamedaResource for updating annotion failed. (%s/%s)", ala.GetNamespace(), ala.GetName()))
+			return
+		}
+		alaIns.SetAnnotations(anno)
+		err = r.Update(context.TODO(), ala)
 		if err != nil {
 			logUtil.GetLogger().Error(err, fmt.Sprintf("Update Annotation failed"))
 			return
@@ -365,7 +375,13 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 			}
 			reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
 			logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object %s to AI server. (%s/%s).", string(reqBin), deploy.GetNamespace(), deploy.GetName()))
-			aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
+			reqRes, err := aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
+			if err != nil {
+				logUtil.GetLogger().Error(err, fmt.Sprintf("Create prediction object to AI server failed."))
+			} else {
+				reqResBin, _ := json.Marshal(*reqRes)
+				logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object to AI server successfully (%s).", reqResBin))
+			}
 		}
 		if len(deletePodMaps) > 0 {
 			req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
@@ -381,7 +397,13 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 			}
 			reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
 			logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object %s to AI server. (%s/%s).", string(reqBin), deploy.GetNamespace(), deploy.GetName()))
-			aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
+			reqRes, err := aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
+			if err != nil {
+				logUtil.GetLogger().Error(err, fmt.Sprintf("Delete prediction object to AI server failed."))
+			} else {
+				reqResBin, _ := json.Marshal(*reqRes)
+				logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object to AI server successfully (%s).", reqResBin))
+			}
 		}
 	}
 }
