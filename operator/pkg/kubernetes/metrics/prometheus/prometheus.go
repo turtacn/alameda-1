@@ -86,13 +86,15 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 	// Get query url
 	u, err := p.queryUrl(q)
 	if err != nil {
-		return metrics.QueryResponse{}, err
+		log.GetLogger().Error(err, "parse query url", "ErrorMsg", err.Error())
+		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
 
 	// Build http request
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return metrics.QueryResponse{}, err
+		log.GetLogger().Error(err, "build http request", "ErrorMsg", err.Error())
+		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
 	if token := p.config.bearerToken; token != "" {
 		h := http.Header{
@@ -104,18 +106,28 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 	// Send request to prometheus
 	resp, err := p.client.Do(req)
 	if err != nil {
-		log.GetLogger().Error(err, "send http request failed")
+		log.GetLogger().Error(err, "send http request to prometheus", "ErrorMsg", err.Error())
 		return metrics.QueryResponse{}, err
 	}
 
 	// Convert http response to metrics response
-	response, err := convertQueryResponse(resp)
+	response, err := getResponse(resp)
 	if err != nil {
-		log.GetLogger().Error(err, err.Error())
-		return metrics.QueryResponse{}, err
+		log.GetLogger().Error(err, "get prometheus response error", "ErrorMsg", err.Error())
+		return metrics.QueryResponse{}, errors.New("Query: %s" + err.Error())
+	} else if response.Status == "error" {
+		log.GetLogger().Error(err, "get error response from prometheus", "ErrorMsg", response.Error)
+		return metrics.QueryResponse{}, errors.New("Query: %s" + response.Error)
 	}
 
-	return response, nil
+	// Convert Response to QueryResponse
+	queryResponse, err := convertQueryResponse(response)
+	if err != nil {
+		log.GetLogger().Error(err, "convert Response to QueryResponse", "ErrorMsg", err.Error())
+		return metrics.QueryResponse{}, errors.New("Query: %s" + err.Error())
+	}
+
+	return queryResponse, nil
 }
 
 // getQueryUrl Return url.URL by the metrics.Query instance
@@ -137,8 +149,7 @@ func (p *prometheus) queryUrl(q metrics.Query) (url.URL, error) {
 
 	u, err := url.Parse(ep)
 	if err != nil {
-		log.GetLogger().Error(err, "parse requset url failed")
-		return url.URL{}, err
+		return url.URL{}, errors.New("parse requset url failed: " + err.Error())
 	}
 	u.RawQuery = v.Encode()
 
@@ -228,26 +239,32 @@ func setQueryTimeParameter(v *url.Values, q metrics.Query) {
 	}
 }
 
-// convertQueryResponse convert the response from prometheus query request to instance metrics.QueryResponse
-// The format of prometheus response vary from resultType.
-func convertQueryResponse(resp *http.Response) (metrics.QueryResponse, error) {
+// getResponse Convert http response to Response struct
+func getResponse(resp *http.Response) (Response, error) {
+
+	var r Response
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return metrics.QueryResponse{}, err
+		return Response{}, err
 	}
 
 	// unmarshal json response to struct Response
 	// if unmarshal error or receive error from prometheus, return error
-	var r Response
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		log.GetLogger().Error(err, "unmarshal prometheus response error", "response.body", string(body))
-		return metrics.QueryResponse{}, err
-	} else if r.Error != "" || r.ErrorType != "" {
-		return metrics.QueryResponse{}, errors.New(r.Error)
+		return Response{}, err
 	}
+
+	r.StatusCode = resp.StatusCode
+
+	return r, nil
+}
+
+// convertQueryResponse convert the response from prometheus to metrics.QueryResponse
+// The format of prometheus response vary from resultType.
+func convertQueryResponse(r Response) (metrics.QueryResponse, error) {
 
 	// build QueryResponse instance base on different type of prometheus resultType
 	// For each case, get the associated type result first by converting the result of http response to []byte first and then unmarshal.

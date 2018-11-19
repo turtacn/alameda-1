@@ -18,10 +18,11 @@ var (
 )
 
 type Response struct {
-	Status    string `json:"status"`
-	Data      Data   `json:"data"`
-	ErrorType string `json:"errorType"`
-	Error     string `json:"error"`
+	StatusCode int
+	Status     string `json:"status"`
+	Data       Data   `json:"data"`
+	ErrorType  string `json:"errorType"`
+	Error      string `json:"error"`
 }
 
 type Data struct {
