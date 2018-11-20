@@ -50,7 +50,7 @@ func New(config Config) (metrics.MetricsDB, error) {
 
 	p.config = config
 
-	if p.config.TLSConfig != nil {
+	if strings.ToLower(p.config.Protocol) == "https" {
 		p.client = http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: p.config.TLSConfig.InsecureSkipVerify},

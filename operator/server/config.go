@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	GRPC    *grpc.Config
+	GRPC    *grpc.Config `mapstructure:"gRPC"`
 	Manager manager.Manager
 }
 
