@@ -1,16 +1,12 @@
 package prometheus
 
-import (
-	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
-)
-
 type Config struct {
-	Host      string
-	Port      string
-	Protocol  string
-	TLSConfig *TLSConfig
+	Host            string     `mapstructure:"host"`
+	Port            string     `mapstructure:"port"`
+	Protocol        string     `mapstructure:"protocol"`
+	BearerTokenFile string     `mapstructure:"bearer-token-file"`
+	TLSConfig       *TLSConfig `mapstructure:"tls-config"`
 	// Path to bearer token file.
-	BearerTokenFile string
 
 	bearerToken string
 }
@@ -21,7 +17,7 @@ type TLSConfig struct {
 	// Certificate and key files for client cert authentication to the server.
 	// CertFile           string
 	// KeyFile            string
-	InsecureSkipVerify bool
+	InsecureSkipVerify bool `mapstructure:"insecure-skip-verify"`
 }
 
 func NewConfig() Config {
@@ -38,5 +34,4 @@ func (c *Config) init() {
 	c.TLSConfig = &TLSConfig{
 		InsecureSkipVerify: true,
 	}
-	c.BearerTokenFile = grpcutils.GetPrometheusBearerTokenFile()
 }

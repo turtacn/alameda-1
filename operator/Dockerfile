@@ -11,6 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/cont
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/etc/operator.yml /etc/alameda/operator/operator.yml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/manager .
 EXPOSE 50050/tcp
 ENTRYPOINT ["./manager"]

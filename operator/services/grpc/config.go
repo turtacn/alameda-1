@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	BindAddress string
-	Prometheus  *prometheus.Config
+	BindAddress string             `mapstructure:"bind-address"`
+	Prometheus  *prometheus.Config `mapstructure:"prometheus"`
 }
 
 func NewConfig() *Config {

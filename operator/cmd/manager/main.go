@@ -17,8 +17,11 @@ limitations under the License.
 package main
 
 import (
+	"errors"
 	"flag"
+	"github.com/spf13/viper"
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/containers-ai/alameda/operator/pkg/apis"
@@ -32,11 +35,16 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 )
 
+const (
+	envVarPrefix = "ALAMEDA_OPERATOR"
+)
+
 var isDev bool
 var aiSrvAddr string
 var isLogOutput bool
 var serverPort int
-var prometheusBearerTokenFile string
+var operatorConfigFile string
+
 var logger logr.Logger
 var serverConf server.Config
 
@@ -45,7 +53,7 @@ func init() {
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.StringVar(&aiSrvAddr, "ai-server", "alameda-ai.alameda.svc.cluster.local:50051", "AI service address")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
-	flag.StringVar(&prometheusBearerTokenFile, "prometheus-bearer-token-file", "", "File path to prometheus bearer token")
+	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
 }
 
 func initLogger(development bool) {
@@ -53,7 +61,19 @@ func initLogger(development bool) {
 }
 
 func initConfig(mgr manager.Manager) {
+
 	serverConf = server.NewConfig(mgr)
+
+	viper.SetEnvPrefix(envVarPrefix)
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+
+	viper.SetConfigFile(operatorConfigFile)
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(errors.New("Read configuration failed: " + err.Error()))
+	}
+	viper.Unmarshal(&serverConf)
 }
 
 func main() {
@@ -74,10 +94,12 @@ func main() {
 	if err != nil {
 		logUtil.GetLogger().Error(err, "Create manager failed.")
 	}
+
 	// Set wait group for Server goroutine
 	var wg sync.WaitGroup
 	wg.Add(1)
 	initConfig(mgr)
+
 	// Setup Server
 	s, err := server.NewServer(&serverConf)
 	if err != nil {
