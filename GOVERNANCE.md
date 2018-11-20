@@ -18,16 +18,24 @@ All members enjoy the privileges and undertake the obligations described in this
 Board.
 
 Founding Member: No conditions (TBD)
+
 Premier Member: TBD
+
 General Member: TBD
+
 Associate Member (pre-approved non-profits, open source projects, and government entities)
 
 The Governing Board voting members will consist of:
+
 i) one representative appointed by each Founding Member;
+
 ii) one representative appointed by each Premier Member; 
+
 iii) one General Members representative elected by the General Members;
-iv) one active contributor to the Alameda open source project designated by the Alameda
+
+iv) one active contributor to the Alameda open source project designated by the Alameda;
 Leadership Team (“Community Representative”), as set forth in the Alameda Open Source project’s governance document; and
+
 v) one Associate Member representative appointed by the Governing Board.
 
 ## Maintainership
