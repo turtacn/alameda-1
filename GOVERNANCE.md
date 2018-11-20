@@ -33,7 +33,7 @@ v) one Associate Member representative appointed by the Governing Board.
 ## Maintainership
 The Governing Board appoints or removes Maintainers. All Maintainers must comply with the policies made by the Governing Board. 
 
-The founding member has the right to appoint a maintainer without conditions. New maintainers are proposed by one member of the Governing Board, and are elected by 2/3 majority vote of the Governing Board.
+Each founding member has the right to appoint a maintainer without conditions. New maintainers are proposed by one member of the Governing Board, and are elected by 2/3 majority vote of the Governing Board.
 
 Maintainers can be removed by a 2/3 majority organization vote. 
 
