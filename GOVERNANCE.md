@@ -25,6 +25,8 @@ General Member: TBD
 
 Associate Member (pre-approved non-profits, open source projects, and government entities)
 
+
+## Governing Board
 The Governing Board voting members will consist of:
 
 i) one representative appointed by each Founding Member;
