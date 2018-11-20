@@ -13,40 +13,31 @@ The Alameda community adheres to the following principles:
 ## Voting
 The Alameda project employs "organization voting" to ensure no single organization can dominate the project.
 
-Individuals not associated with or employed by a company or organization are allowed one organization vote. Each company or organization (regardless of the number of maintainers associated with or employed by that company/organization) receives one organization vote.
+## Memberships
+All members enjoy the privileges and undertake the obligations described in this section, as from time to time amended by the Governing
+Board.
 
-In other words, if two maintainers are employed by Company X, two by Company Y, two by Company Z, and one maintainer is an un-affiliated individual, a total of four "organization votes" are possible; one for X, one for Y, one for Z, and one for the un-affiliated individual.
+Founding Member: No conditions (TBD)
+Premier Member: TBD
+General Member: TBD
+Associate Member (pre-approved non-profits, open source projects, and government entities)
 
-Any maintainer from an organization may cast the vote for that organization.
+The Governing Board voting members will consist of:
+i) one representative appointed by each Founding Member;
+ii) one representative appointed by each Premier Member; 
+iii) one General Members representative elected by the General Members;
+iv) one active contributor to the Alameda open source project designated by the Alameda
+Leadership Team (“Community Representative”), as set forth in the Alameda Open Source project’s governance document; and
+v) one Associate Member representative appointed by the Governing Board.
 
-For formal votes, a specific statement of what is being voted on should be added to the relevant github issue or PR, and a link to that issue or PR added to the maintainers meeting agenda document. Maintainers should indicate their yes/no vote on that issue or PR, and after a suitable period of time, the votes will be tallied and the outcome noted.
+## Maintainership
+The Governing Board appoints or removes Maintainers. All Maintainers must comply with the policies made by the Governing Board. 
 
-## Changes in Maintainership
-New maintainers are proposed by an existing maintainer and are elected by a 2/3 majority organization vote.
+The founding member has the right to appoint a maintainer without conditions. New maintainers are proposed by one member of the Governing Board, and are elected by 2/3 majority vote of the Governing Board.
 
-Maintainers can be removed by a 2/3 majority organization vote.
+Maintainers can be removed by a 2/3 majority organization vote. 
 
 ## Github Project Administration
-Maintainers will be added to the containernetworking GitHub organization and added to the GitHub cni-maintainers team, and made a GitHub maintainer of that team.
+Maintainers will be added to the Alameda GitHub organization, and added to the GitHub Maintainers team.
 
-After 6 months a maintainer will be made an "owner" of the GitHub organization.
-
-## Changes in Governance
-All changes in Governance require a 2/3 majority organization vote.
-
-## Other Changes
-Unless specified above, all other changes to the project require a 2/3 majority organization vote.
-
-Additionally, any maintainer may request that any change require a 2/3 majority organization vote.
-
-## Code of Conduct
-
-Fluentd follows the CNCF Code of Conduct:
-
-https://github.com/cncf/foundation/blob/master/code-of-conduct.md
-
-### Reference
-- [fluentd](https://github.com/fluent/fluentd/blob/master/GOVERNANCE.md)
-- [coredns](https://github.com/coredns/coredns/blob/6f52a3f9452549f5f29734842ad02ed9dd214c7f/GOVERNANCE.md)
-- [cni](https://github.com/containernetworking/cni/blob/master/GOVERNANCE.md)
-- [jaeger](https://github.com/jaegertracing/jaeger/blob/master/GOVERNANCE.md)
+After 6 months a maintainer will be made an "owner" of the Alameda GitHub organization.
