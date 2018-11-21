@@ -34,7 +34,11 @@ func TestStorageAlamedaResourcePrediction(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo",
 			Namespace: "default",
-		}}
+		},
+		Spec: AlamedaResourcePredictionSpec{
+			Selector: &metav1.LabelSelector{},
+		},
+	}
 	g := gomega.NewGomegaWithT(t)
 
 	// Test Create

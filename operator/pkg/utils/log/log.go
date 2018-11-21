@@ -16,8 +16,17 @@ func GetLogger() logr.Logger {
 	if logger != nil {
 		return logger
 	}
-	isDev := (flag.Lookup("development").Value.String() == "true")
-	isLogOutput := (flag.Lookup("logfile").Value.String() == "true")
+
+	isDev := false
+	if devFlag := flag.Lookup("development"); devFlag != nil {
+		isDev = (flag.Lookup("development").Value.String() == "true")
+	}
+
+	isLogOutput := false
+	if isLogOutputFlag := flag.Lookup("logfile"); isLogOutputFlag != nil {
+		isLogOutput = (flag.Lookup("logfile").Value.String() == "true")
+	}
+
 	dateStr := time.Now().Format(time.RFC3339)
 	dateStr = strings.Replace(dateStr, ":", "-", -1)
 

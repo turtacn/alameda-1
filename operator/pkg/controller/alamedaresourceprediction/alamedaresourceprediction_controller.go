@@ -22,6 +22,7 @@ import (
 	"reflect"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsv1 "k8s.io/api/apps/v1"
@@ -96,15 +97,26 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 	instance := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Object not found, return.  Created objects are automatically garbage collected.
-			// For additional cleanup logic use finalizers.
+	if err != nil && errors.IsNotFound(err) {
+		alaInstance := &autoscalingv1alpha1.AlamedaResource{}
+		err := r.Get(context.TODO(), request.NamespacedName, alaInstance)
+		if err != nil {
 			return reconcile.Result{}, nil
 		}
-		// Error reading the object - requeue the request.
-		return reconcile.Result{}, err
+		//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
+		err = alamedaresource.CreateAlamedaPrediction(r, r.scheme, alaInstance)
+		if err != nil {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Create AlamedaResourcePrediction failed. (%s/%s)", alaInstance.Namespace, alaInstance.Name))
+			return reconcile.Result{}, nil
+		}
+	} else if err != nil {
+		return reconcile.Result{}, nil
 	}
+
+	if instance.Spec.Selector == nil {
+		return reconcile.Result{}, nil
+	}
+
 	copyInstance := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 	instance.DeepCopyInto(copyInstance)
 
