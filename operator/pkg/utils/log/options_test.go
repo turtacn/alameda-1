@@ -23,7 +23,6 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
-	"go.uber.org/zap/zapcore"
 )
 
 func TestOpts(t *testing.T) {
@@ -34,8 +33,8 @@ func TestOpts(t *testing.T) {
 		{"--log_as_json", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			JSONEncoding:       true,
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
@@ -45,8 +44,8 @@ func TestOpts(t *testing.T) {
 		{"--log_target stdout --log_target stderr", Options{
 			OutputPaths:        []string{"stdout", "stderr"},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -55,8 +54,8 @@ func TestOpts(t *testing.T) {
 		{"--log_callers", Options{
 			OutputPaths:                 []string{defaultOutputPath},
 			ErrorOutputPaths:            []string{defaultErrorOutputPath},
-			outputLevel:                 levelToString[defaultOutputLevel],
-			stackTraceLevel:             levelToString[defaultStackTraceLevel],
+			outputLevel:                 string(defaultOutputLevel),
+			stackTraceLevel:             string(defaultStackTraceLevel),
 			IncludeCallerSourceLocation: true,
 			RotationMaxAge:              defaultRotationMaxAge,
 			RotationMaxSize:             defaultRotationMaxSize,
@@ -66,8 +65,8 @@ func TestOpts(t *testing.T) {
 		{"--log_stacktrace_level debug", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[zapcore.DebugLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(DebugLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -76,8 +75,8 @@ func TestOpts(t *testing.T) {
 		{"--log_stacktrace_level info", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[zapcore.InfoLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(InfoLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -86,8 +85,8 @@ func TestOpts(t *testing.T) {
 		{"--log_stacktrace_level warn", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[zapcore.WarnLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(WarnLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -96,8 +95,8 @@ func TestOpts(t *testing.T) {
 		{"--log_stacktrace_level error", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[zapcore.ErrorLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(ErrorLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -106,8 +105,8 @@ func TestOpts(t *testing.T) {
 		{"--log_stacktrace_level none", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[None],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(NoneLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -116,8 +115,8 @@ func TestOpts(t *testing.T) {
 		{"--log_output_level debug", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[zapcore.DebugLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(DebugLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -126,8 +125,8 @@ func TestOpts(t *testing.T) {
 		{"--log_output_level info", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[zapcore.InfoLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(InfoLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -136,8 +135,8 @@ func TestOpts(t *testing.T) {
 		{"--log_output_level warn", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[zapcore.WarnLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(WarnLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -146,8 +145,8 @@ func TestOpts(t *testing.T) {
 		{"--log_output_level error", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[zapcore.ErrorLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(ErrorLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -156,8 +155,8 @@ func TestOpts(t *testing.T) {
 		{"--log_output_level none", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[None],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(NoneLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -166,8 +165,8 @@ func TestOpts(t *testing.T) {
 		{"--log_rotate foobar", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotateOutputPath:   "foobar",
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
@@ -177,8 +176,8 @@ func TestOpts(t *testing.T) {
 		{"--log_rotate_max_age 1234", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     1234,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -187,8 +186,8 @@ func TestOpts(t *testing.T) {
 		{"--log_rotate_max_size 1234", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    1234,
 			RotationMaxBackups: defaultRotationMaxBackups,
@@ -197,8 +196,8 @@ func TestOpts(t *testing.T) {
 		{"--log_rotate_max_backups 1234", Options{
 			OutputPaths:        []string{defaultOutputPath},
 			ErrorOutputPaths:   []string{defaultErrorOutputPath},
-			outputLevel:        levelToString[defaultOutputLevel],
-			stackTraceLevel:    levelToString[defaultStackTraceLevel],
+			outputLevel:        string(defaultOutputLevel),
+			stackTraceLevel:    string(defaultStackTraceLevel),
 			RotationMaxAge:     defaultRotationMaxAge,
 			RotationMaxSize:    defaultRotationMaxSize,
 			RotationMaxBackups: 1234,
@@ -225,65 +224,43 @@ func TestOpts(t *testing.T) {
 
 func TestLevel(t *testing.T) {
 	cases := []struct {
-		inputLevel  zapcore.Level
-		outputLevel zapcore.Level
-		fail        bool
+		outputLevel     Level
+		stackTraceLevel Level
+		fail            bool
 	}{
-		{zapcore.DebugLevel, zapcore.DebugLevel, false},
-		{zapcore.InfoLevel, zapcore.InfoLevel, false},
-		{zapcore.WarnLevel, zapcore.WarnLevel, false},
-		{zapcore.ErrorLevel, zapcore.ErrorLevel, false},
-		{None, None, false},
+		{DebugLevel, InfoLevel, false},
+		{InfoLevel, WarnLevel, false},
+		{WarnLevel, ErrorLevel, false},
+		{ErrorLevel, NoneLevel, false},
+		{NoneLevel, DebugLevel, false},
+		{"bad", "bad", true},
 	}
 
 	for i, c := range cases {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			o := NewOptions()
 
-			err := o.SetOutputLevel(c.inputLevel)
-			if c.fail && err == nil {
-				t.Errorf("Got success, expecting failure")
-			} else if !c.fail && err != nil {
-				t.Errorf("Got failure '%v', expecting success", err)
-			}
+			oldLevel, _ := o.GetOutputLevel()
+			err := o.SetOutputLevel(c.outputLevel)
+			newLevel, _ := o.GetOutputLevel()
 
-			var l zapcore.Level
-			l, err = o.GetOutputLevel()
-			if err != nil {
-				t.Errorf("Got failure %v, expecting success", err)
-			}
+			checkSetLevel(t, oldLevel, c.outputLevel, newLevel, err, c.fail)
 
-			if c.outputLevel != l {
-				t.Errorf("Got %v, expecting %v", l, c.outputLevel)
-			}
+			oldLevel, _ = o.GetStackTraceLevel()
+			err = o.SetStackTraceLevel(c.stackTraceLevel)
+			newLevel, _ = o.GetStackTraceLevel()
 
-			err = o.SetStackTraceLevel(c.inputLevel)
-			if c.fail && err == nil {
-				t.Errorf("Got success, expecting failure")
-			} else if !c.fail && err != nil {
-				t.Errorf("Got failure '%v', expecting success", err)
-			}
-
-			l, err = o.GetStackTraceLevel()
-			if err != nil {
-				t.Errorf("Got failure %v, expecting success", err)
-			}
-
-			if c.outputLevel != l {
-				t.Errorf("Got %v, expecting %v", l, c.outputLevel)
-			}
+			checkSetLevel(t, oldLevel, c.stackTraceLevel, newLevel, err, c.fail)
 		})
 	}
 
+	// Now test setting the underlying field directly. This simulates what would
+	// happen if an invalid CLI flag was provided.
 	o := NewOptions()
 	o.outputLevel = "foobar"
 	_, err := o.GetOutputLevel()
 	if err == nil {
 		t.Errorf("Got nil, expecting error")
-	}
-
-	if err = o.SetOutputLevel(127); err == nil {
-		t.Errorf("Got success, expecting error")
 	}
 
 	o = NewOptions()
@@ -292,8 +269,24 @@ func TestLevel(t *testing.T) {
 	if err == nil {
 		t.Errorf("Got nil, expecting error")
 	}
+}
 
-	if err = o.SetStackTraceLevel(127); err == nil {
-		t.Errorf("Got success, expecting error")
+func checkSetLevel(t *testing.T, oldLevel Level, requestedLevel Level, newLevel Level, err error, expectError bool) {
+	if expectError { // Expecting Error
+		if err == nil {
+			t.Errorf("Got success, expecting failure")
+		}
+
+		if newLevel != oldLevel {
+			t.Errorf("Got %v, expecting %v", newLevel, oldLevel)
+		}
+	} else { // Expecting success
+		if err != nil {
+			t.Errorf("Got failure '%v', expecting success", err)
+		}
+
+		if newLevel != requestedLevel {
+			t.Errorf("Got %v, expecting %v", newLevel, requestedLevel)
+		}
 	}
 }
