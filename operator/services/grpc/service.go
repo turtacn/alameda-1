@@ -11,11 +11,9 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics"
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus"
-	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
-	"github.com/golang/protobuf/ptypes"
-
 	operator_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/operator"
+	"github.com/golang/protobuf/ptypes"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
@@ -59,18 +57,18 @@ func (s *Service) Open() error {
 	}
 
 	// build server listener
-	log.GetLogger().Info("starting gRPC server")
+	logUtil.GetLogger().Info("starting gRPC server")
 	ln, err := net.Listen("tcp", s.Config.BindAddress)
 	if err != nil {
-		log.GetLogger().Error(err, "gRPC server failed listen: "+err.Error())
+		logUtil.GetLogger().Error(err, "gRPC server failed listen: "+err.Error())
 		return fmt.Errorf("GRPC server failed to bind address: %s", s.Config.BindAddress)
 	}
-	log.GetLogger().Info("gRPC server listening on " + s.Config.BindAddress)
+	logUtil.GetLogger().Info("gRPC server listening on " + s.Config.BindAddress)
 
 	// build gRPC server
 	server, err := s.newGRPCServer()
 	if err != nil {
-		log.GetLogger().Error(err, err.Error())
+		logUtil.GetLogger().Error(err, err.Error())
 		return err
 	}
 
@@ -383,7 +381,7 @@ func convertMetricsQueryResponseToProtoResponse(resp *metrics.QueryResponse) *op
 
 			timestampProto, err := ptypes.TimestampProto(sample.Time)
 			if err != nil {
-				log.GetLogger().Error(err, "convert time.Time to google.protobuf.Timestamp failed")
+				logUtil.GetLogger().Error(err, "convert time.Time to google.protobuf.Timestamp failed")
 			}
 			s.Time = timestampProto
 			s.Value = sample.Value
