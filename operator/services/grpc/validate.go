@@ -35,8 +35,13 @@ func ValidateListMetricsRequest(req *v1alpha1.ListMetricsRequest) error {
 			return err
 		}
 	case *v1alpha1.ListMetricsRequest_TimeRange:
-		if req.GetTimeRange().GetStartTime() == nil || req.GetTimeRange().GetEndTime() == nil || req.GetTimeRange().GetStep() == nil {
+		start := req.GetTimeRange().GetStartTime()
+		end := req.GetTimeRange().GetEndTime()
+		if start == nil || end == nil || req.GetTimeRange().GetStep() == nil {
 			return errors.New("Validate: must provide both \"start_time\",\"end_time\" and \"step\"")
+		}
+		if start.Seconds >= end.Seconds && start.Nanos >= end.Nanos {
+			return errors.New("Validate: \"start_time\" cannot greater than \"end_time\"")
 		}
 		_, err := ptypes.Duration(req.GetTimeRange().GetStep())
 		if err != nil {
