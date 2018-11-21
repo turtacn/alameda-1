@@ -11,6 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
 )
@@ -337,13 +338,8 @@ func TestListMetrics(t *testing.T) {
 		mockDB.EXPECT().Query(mockQuery).Return(mockResponse, nil)
 
 		resp, err := s.ListMetrics(context.Background(), test.have)
-		if err != nil {
-			t.Errorf("Received error" + err.Error())
-		}
-
-		if !assert.EqualValues(test.want, resp) {
-			t.Errorf("want %+v, receive %+v", test.want, resp)
-		}
+		require.NoError(t, err)
+		assert.Equal(test.want, resp)
 	}
 }
 
@@ -360,12 +356,7 @@ func TestListMetricsError(t *testing.T) {
 	for _, test := range testErrors {
 
 		resp, err := s.ListMetrics(context.Background(), test.have)
-		if err != nil {
-			t.Errorf("Received error" + err.Error())
-		}
-
-		if !assert.EqualValues(test.want.Status.Code, resp.Status.Code) {
-			t.Errorf("want %+v, receive %+v", test.want, resp)
-		}
+		require.NoError(t, err)
+		assert.Equal(test.want.Status.Code, resp.Status.Code)
 	}
 }
