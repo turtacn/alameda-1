@@ -142,66 +142,44 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 	deleteEvt := true
 	ns := request.Namespace
 	name := request.Name
-
 	alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
 	logUtil.GetLogger().Info(fmt.Sprintf("Try to get AlamedaResource (%s/%s)", ns, name))
 	err := r.Get(context.TODO(), request.NamespacedName, alamedaresource)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			//delete Alameda Resource Predict CR due to no Alameda CR with the same name exist
-			alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
-			err = r.Get(context.TODO(), request.NamespacedName, alamedaResourcePrediction)
-			if err == nil {
-				r.Delete(context.TODO(), alamedaResourcePrediction)
-			}
+	if err != nil && errors.IsNotFound(err) {
+		//delete Alameda Resource Predict CR due to no Alameda CR with the same name exist
+		alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
+		err = r.Get(context.TODO(), request.NamespacedName, alamedaResourcePrediction)
+		if err == nil {
+			r.Delete(context.TODO(), alamedaResourcePrediction)
 		}
-		//logUtil.GetLogger().Info(fmt.Sprintf("Get AlamedaResource failed. (%s/%s)", ns, name))
-		//return reconcile.Result{}, err
-
-	} else {
+	} else if err == nil {
 		logUtil.GetLogger().Info(fmt.Sprintf("AlamedaResource found. (%s/%s)", ns, name))
-		r.updateAlamedaResourceAnnotation(alamedaresource, ns)
+		r.updateAlamedaResourceAnnotation(alamedaresource.Spec.Selector.MatchLabels, alamedaresource.GetAnnotations(), ns, name)
 		//check in alameda predict CR exist state
 		alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 
 		err := r.Get(context.TODO(), request.NamespacedName, alamedaResourcePrediction)
-		if err != nil {
-			if errors.IsNotFound(err) {
-				newAlamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      request.Name,
-						Namespace: request.Namespace,
-					},
-					Spec: autoscalingv1alpha1.AlamedaResourcePredictionSpec{
-						Selector: &metav1.LabelSelector{
-							MatchLabels: alamedaresource.Spec.Selector.MatchLabels,
-						},
-					},
-					Status: autoscalingv1alpha1.AlamedaResourcePredictionStatus{
-						Prediction: autoscalingv1alpha1.AlamedaPrediction{
-							Deployments: map[autoscalingv1alpha1.DeploymentUID]autoscalingv1alpha1.PredictDeployment{},
-						},
-					},
-				}
-				if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, r.scheme); err != nil {
-					return reconcile.Result{}, err
-				}
-
-				r.Create(context.TODO(), newAlamedaResourcePrediction)
+		if err != nil && errors.IsNotFound(err) {
+			logUtil.GetLogger().Info(fmt.Sprintf("Create AlamedaResourcePrediction for AlamedaResource. (%s/%s)", alamedaresource.Namespace, alamedaresource.Name))
+			err = CreateAlamedaPrediction(r, r.scheme, alamedaresource)
+			if err != nil {
+				logUtil.GetLogger().Error(err, fmt.Sprintf("Create AlamedaResourcePrediction failed. (%s/%s)", alamedaresource.Namespace, alamedaresource.Name))
 			}
 		}
 		deleteEvt = false
+	} else {
+		logUtil.GetLogger().Error(err, fmt.Sprintf("Get AlamedaResource failed.(%s/%s)", ns, name))
 	}
 
 	deploymentFound := &appsv1.Deployment{}
 	err = r.Get(context.TODO(), request.NamespacedName, deploymentFound)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			//logUtil.GetLogger().Info(fmt.Sprintf("Deployment not found. (%s/%s)", ns, name))
-			//return reconcile.Result{}, nil
+			logUtil.GetLogger().Info(fmt.Sprintf("Deployment not found (%s/%s).", ns, name))
+
+		} else {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Get Deployment for AlamedaResource controller failed. (%s/%s)", ns, name))
 		}
-		logUtil.GetLogger().Info(fmt.Sprintf("Get Deployment for AlamedaResource controller failed. (%s/%s)", ns, name))
-		//		return reconcile.Result{}, err
 	} else {
 		r.updateAlamedaK8SControllerByDeployment(ns, deploymentFound)
 		deleteEvt = false
@@ -220,12 +198,42 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(alamedaresource *autoscalingv1alpha1.AlamedaResource, ns string) {
-	alamedaAnnotations := map[string]string{}
+// CreateAlamedaPrediction Creates AlamedaResourcePrediction CR
+func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedaresource *autoscalingv1alpha1.AlamedaResource) error {
+	newAlamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      alamedaresource.Name,
+			Namespace: alamedaresource.Namespace,
+		},
+		Spec: autoscalingv1alpha1.AlamedaResourcePredictionSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: alamedaresource.Spec.Selector.MatchLabels,
+			},
+		},
+		Status: autoscalingv1alpha1.AlamedaResourcePredictionStatus{
+			Prediction: autoscalingv1alpha1.AlamedaPrediction{
+				Deployments: map[autoscalingv1alpha1.DeploymentUID]autoscalingv1alpha1.PredictDeployment{},
+			},
+		},
+	}
+	if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, scheme); err != nil {
+		return err
+	}
+
+	err := r.Create(context.TODO(), newAlamedaResourcePrediction)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, alamedaAnnotations map[string]string, namespace, name string) {
+	noAlaPod := false
+	newPodMaps := map[string]Pod{}
 	newAlamedaAnnotations := map[string]string{}
-	alamedaAnnotations = alamedaresource.GetAnnotations()
 	if alamedaAnnotations == nil {
 		newAlamedaAnnotations = map[string]string{}
+		noAlaPod = true
 	} else {
 		for k, v := range alamedaAnnotations {
 			newAlamedaAnnotations[k] = v
@@ -233,32 +241,56 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(alamedaresour
 	}
 	if newAlamedaAnnotations[AlamedaK8sController] == "" {
 		newAlamedaAnnotations[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
+		noAlaPod = true
 	}
 	//find matched deployment controller
 	matchedDeploymentList := &appsv1.DeploymentList{}
 	err := r.List(context.TODO(),
-		client.InNamespace(ns).
-			MatchingLabels(alamedaresource.Spec.Selector.MatchLabels),
+		client.InNamespace(namespace).
+			MatchingLabels(matchLabels),
 		matchedDeploymentList)
 	if err == nil {
 		akcMap := convertk8scontrollerJSONString(newAlamedaAnnotations[AlamedaK8sController])
+
 		for _, deploy := range matchedDeploymentList.Items {
 			akcMap.DeploymentMap[string(deploy.GetUID())] = *r.getControllerMapForAnno("deployment", &deploy).(*Deployment)
+			// New AlamedaResource created, records Alameda pods to register AI server
+			if noAlaPod {
+				for k, v := range akcMap.DeploymentMap[string(deploy.GetUID())].PodMap {
+					newPodMaps[k] = v
+				}
+			}
 		}
 		updatemd, _ := json.MarshalIndent(akcMap, "", JSONIndent)
 		newAlamedaAnnotations[AlamedaK8sController] = string(updatemd)
 	}
 	if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
-		alamedaresource.SetAnnotations(newAlamedaAnnotations)
-		r.Update(context.TODO(), alamedaresource)
+		alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
+		err := r.Get(context.TODO(), types.NamespacedName{
+			Namespace: namespace,
+			Name:      name,
+		}, alamedaresource)
+		if err == nil {
+			err = r.Update(context.TODO(), alamedaresource)
+			if err != nil {
+				logUtil.GetLogger().Error(err, fmt.Sprintf("Update AlamedaResource failed."))
+			} else {
+				registerPodPrediction(namespace, name, newPodMaps, nil)
+			}
+		}
 	}
 }
 
 func (r *ReconcileAlamedaResource) updateAlamedaK8SControllerByDeployment(ns string, deploymentFound *appsv1.Deployment) {
 	alamedaResourceList := &autoscalingv1alpha1.AlamedaResourceList{}
-	r.List(context.TODO(),
+	err := r.List(context.TODO(),
 		client.InNamespace(ns),
 		alamedaResourceList)
+	if err != nil {
+		logUtil.GetLogger().Error(err, fmt.Sprintf("List AlamedaResource failed."))
+		return
+	}
+
 	for _, ala := range alamedaResourceList.Items {
 		r.updateAlamedaAnnotationByDeployment(&ala, deploymentFound)
 	}
@@ -353,57 +385,61 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 			return
 		}
 
-		conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
-		if err != nil {
-			logUtil.GetLogger().Error(err, fmt.Sprintf("Connect to AI server failed"))
-			return
-		}
+		registerPodPrediction(deploy.GetNamespace(), deploy.GetName(), newPodMaps, deletePodMaps)
+	}
+}
 
-		defer conn.Close()
-		aiServiceClnt := aiservice_v1alpha1.NewAlamendaAIServiceClient(conn)
-		if len(newPodMaps) > 0 {
-			req := aiservice_v1alpha1.PredictionObjectListCreationRequest{
-				Objects: []*aiservice_v1alpha1.Object{},
-			}
-			for _, v := range newPodMaps {
-				req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
-					Type:      aiservice_v1alpha1.Object_POD,
-					Uid:       v.UID,
-					Namespace: deploy.GetNamespace(),
-					Name:      v.Name,
-				})
-			}
-			reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
-			logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object %s to AI server. (%s/%s).", string(reqBin), deploy.GetNamespace(), deploy.GetName()))
-			reqRes, err := aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
-			if err != nil {
-				logUtil.GetLogger().Error(err, fmt.Sprintf("Create prediction object to AI server failed."))
-			} else {
-				reqResBin, _ := json.Marshal(*reqRes)
-				logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object to AI server successfully (%s).", reqResBin))
-			}
+func registerPodPrediction(namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
+	conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
+	if err != nil {
+		logUtil.GetLogger().Error(err, fmt.Sprintf("Connect to AI server failed"))
+		return
+	}
+
+	defer conn.Close()
+	aiServiceClnt := aiservice_v1alpha1.NewAlamendaAIServiceClient(conn)
+	if len(newPodMaps) > 0 {
+		req := aiservice_v1alpha1.PredictionObjectListCreationRequest{
+			Objects: []*aiservice_v1alpha1.Object{},
 		}
-		if len(deletePodMaps) > 0 {
-			req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
-				Objects: []*aiservice_v1alpha1.Object{},
-			}
-			for _, v := range deletePodMaps {
-				req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
-					Type:      aiservice_v1alpha1.Object_POD,
-					Uid:       v.UID,
-					Namespace: deploy.GetNamespace(),
-					Name:      v.Name,
-				})
-			}
-			reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
-			logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object %s to AI server. (%s/%s).", string(reqBin), deploy.GetNamespace(), deploy.GetName()))
-			reqRes, err := aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
-			if err != nil {
-				logUtil.GetLogger().Error(err, fmt.Sprintf("Delete prediction object to AI server failed."))
-			} else {
-				reqResBin, _ := json.Marshal(*reqRes)
-				logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object to AI server successfully (%s).", reqResBin))
-			}
+		for _, v := range newPodMaps {
+			req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
+				Type:      aiservice_v1alpha1.Object_POD,
+				Uid:       v.UID,
+				Namespace: namespace,
+				Name:      v.Name,
+			})
+		}
+		reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
+		logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object %s to AI server. (%s/%s).", string(reqBin), namespace, name))
+		reqRes, err := aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
+		if err != nil {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Create prediction object to AI server failed."))
+		} else {
+			reqResBin, _ := json.Marshal(*reqRes)
+			logUtil.GetLogger().Info(fmt.Sprintf("Create prediction object to AI server successfully (%s).", reqResBin))
+		}
+	}
+	if len(deletePodMaps) > 0 {
+		req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
+			Objects: []*aiservice_v1alpha1.Object{},
+		}
+		for _, v := range deletePodMaps {
+			req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
+				Type:      aiservice_v1alpha1.Object_POD,
+				Uid:       v.UID,
+				Namespace: namespace,
+				Name:      v.Name,
+			})
+		}
+		reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
+		logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object %s to AI server. (%s/%s).", string(reqBin), namespace, name))
+		reqRes, err := aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
+		if err != nil {
+			logUtil.GetLogger().Error(err, fmt.Sprintf("Delete prediction object to AI server failed."))
+		} else {
+			reqResBin, _ := json.Marshal(*reqRes)
+			logUtil.GetLogger().Info(fmt.Sprintf("Delete prediction object to AI server successfully (%s).", reqResBin))
 		}
 	}
 }
