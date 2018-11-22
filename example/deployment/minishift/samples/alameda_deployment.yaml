@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: alameda
+---
+apiVersion: autoscaling.containers.ai/v1alpha1
+kind: AlamedaResource
+metadata:
+  name: alameda
+  namespace: alameda
+spec:
+  policy: auto
+  enable: true
+  selector:
+    matchLabels:
+      app: nginx
