@@ -3,14 +3,20 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 // import "google/rpc/status.proto";
 
+enum RecommendationPolicy {
+    STABLE = 0;
+    COMPACT = 1;
+}
+
 message Object {
     enum Type {
         POD = 0;
     }
     Type type = 1;
-    string uid = 2;
-    string namespace = 3;
-    string name = 4;
+    RecommendationPolicy policy = 2;
+    string uid = 3;
+    string namespace = 4;
+    string name = 5;
 }
 
 message PredictionObjectListCreationRequest {

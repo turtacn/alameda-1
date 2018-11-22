@@ -2,21 +2,43 @@
 
 Alameda API definitions of Alameda-ai service and Alameda operator
 
-## Prerequisition
-
-1. Install [protoc](https://github.com/protocolbuffers/protobuf/releases) command for generating golang code
-2. Install the packages for generating python code
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-
 ## How to compile
 
-1. Run the script to generate client and service code for golang and python
-    ```bash
-    ./compile_proto.sh
-    ```
+We provide two methods to compile proto files, within docker environment and without docker environment.
+
+### Compile within docker environment
+
+Run the following script compiling proto files with docker
+```bash
+./compile_proto_using_docker.sh
+```
+### Compile without docker environment
+
+#### Prerequisition
+
+1. Install [Python3](https://www.python.org/downloads/)
+2. Install pip3
+```bash
+sudo apt-get -y install python3-pip
+```
+3. Install [Go](https://golang.org/dl/)
+4. Install protoc-gen-go
+```bash
+go get -u github.com/golang/protobuf/protoc-gen-go
+```
+5. Install [protoc](https://github.com/protocolbuffers/protobuf/releases)
+6. Install the packages for generating python code
+```bash
+pip3 install -r requirements.txt
+```
+
+#### Compile 
+
+After complete above steps, run the following script compiling proto files with protoc
+```bash
+./compile_proto.sh
+```
+
 The generated code will be located in the same folder as the .proto files.
 
 ## How to use

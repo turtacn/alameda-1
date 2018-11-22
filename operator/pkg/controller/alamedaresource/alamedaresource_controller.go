@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
@@ -275,7 +276,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, 
 			if err != nil {
 				logUtil.GetLogger().Error(err, fmt.Sprintf("Update AlamedaResource failed."))
 			} else {
-				registerPodPrediction(namespace, name, newPodMaps, nil)
+				registerPodPrediction(alamedaresource, namespace, name, newPodMaps, nil)
 			}
 		}
 	}
@@ -385,11 +386,11 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 			return
 		}
 
-		registerPodPrediction(deploy.GetNamespace(), deploy.GetName(), newPodMaps, deletePodMaps)
+		registerPodPrediction(alaIns, deploy.GetNamespace(), deploy.GetName(), newPodMaps, deletePodMaps)
 	}
 }
 
-func registerPodPrediction(namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
+func registerPodPrediction(alamedaresource *autoscalingv1alpha1.AlamedaResource, namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
 	conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
 	if err != nil {
 		logUtil.GetLogger().Error(err, fmt.Sprintf("Connect to AI server failed"))
@@ -403,8 +404,15 @@ func registerPodPrediction(namespace, name string, newPodMaps, deletePodMaps map
 			Objects: []*aiservice_v1alpha1.Object{},
 		}
 		for _, v := range newPodMaps {
+			policy := aiservice_v1alpha1.RecommendationPolicy_STABLE
+			if strings.ToLower(string(alamedaresource.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicyCOMPACT)) {
+				policy = aiservice_v1alpha1.RecommendationPolicy_COMPACT
+			} else if strings.ToLower(string(alamedaresource.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicySTABLE)) {
+				policy = aiservice_v1alpha1.RecommendationPolicy_STABLE
+			}
 			req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
 				Type:      aiservice_v1alpha1.Object_POD,
+				Policy:    aiservice_v1alpha1.RecommendationPolicy(policy),
 				Uid:       v.UID,
 				Namespace: namespace,
 				Name:      v.Name,
