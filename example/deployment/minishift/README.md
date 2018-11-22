@@ -79,9 +79,9 @@ Add in docker preference daemon tab
 
 **Windows**
 
-![windows](img/windows.png "windows")
-
 Add in docker preference daemon tab
+
+![windows](img/windows.png "windows")
 
 **linux**
 
