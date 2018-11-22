@@ -73,11 +73,15 @@ copy paste address for setting insecure-registries
 
 **Mac**:
 
- add in docker preference daemon tab
+Add in docker preference daemon tab
+
+![mac](img/mac.png "mac")
 
 **Windows**
 
-windows add in docker preference daemon tab
+![windows](img/windows.png "windows")
+
+Add in docker preference daemon tab
 
 **linux**
 
