@@ -222,6 +222,47 @@ func TestRotateAndStdout(t *testing.T) {
 	}
 }
 
+func TestRotateMaxBackups(t *testing.T) {
+	dir, _ := ioutil.TempDir("", "TestRotateMaxBackups")
+	defer os.RemoveAll(dir)
+
+	file := dir + "/rot.log"
+
+	o := DefaultOptions()
+	o.OutputPaths = []string{}
+	o.RotateOutputPath = file
+	o.RotationMaxSize = 1
+	o.RotationMaxBackups = 2
+	o.RotationMaxAge = 30
+	if err := Configure(o); err != nil {
+		t.Fatalf("Unable to configure logger: %v", err)
+	}
+
+	// construct a line string contains 128 characters
+	line := ""
+	for i := 0; i < 8; i++ {
+		line += "0123456789ABCDEF" // 16 characters
+	}
+
+	// make sure that all log outputs much higher than 2M
+	for i := 0; i < 4*1024; i++ {
+		for j := 0; j < 8; j++ {
+			defaultScope.Info(line)
+		}
+	}
+
+	time.Sleep(500 * time.Millisecond)
+
+	rd, err := ioutil.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("Unable to read dir: %v", err)
+	}
+
+	if len(rd) > o.RotationMaxBackups+1 {
+		t.Errorf("Expecting at most %d backup logs, got %d", o.RotationMaxBackups, len(rd)-1)
+	}
+}
+
 func TestCapture(t *testing.T) {
 	lines, _ := captureStdout(func() {
 		o := DefaultOptions()
@@ -250,14 +291,19 @@ func TestCapture(t *testing.T) {
 			Message: "zap-write",
 			Level:   zapcore.ErrorLevel,
 		}
-		zap.L().Core().Write(entry, nil)
+		_ = zap.L().Core().Write(entry, nil)
 
 		defaultScope.SetOutputLevel(NoneLevel)
-		// all these get thrown out
-		zap.L().Error("zap-error")
-		zap.L().Warn("zap-warn")
-		zap.L().Info("zap-info")
-		zap.L().Debug("zap-debug")
+
+		// all these get thrown out since the level is set to none
+		log.Println("golang-2")
+		grpclog.Error("grpc-error-2")
+		grpclog.Warning("grpc-warn-2")
+		grpclog.Info("grpc-info-2")
+		zap.L().Error("zap-error-2")
+		zap.L().Warn("zap-warn-2")
+		zap.L().Info("zap-info-2")
+		zap.L().Debug("zap-debug-2")
 	})
 
 	patterns := []string{
@@ -271,6 +317,15 @@ func TestCapture(t *testing.T) {
 		timePattern + "\tdebug\tlog/config_test.go:.*\tzap-debug",
 		timePattern + "\terror\tlog/config_test.go:.*\tzap-with",
 		timePattern + "\terror\tzap-write",
+		"",
+	}
+
+	if len(lines) > len(patterns) {
+		t.Errorf("Expecting %d lines of output, but got %d", len(patterns), len(lines))
+
+		for i := len(patterns); i < len(lines); i++ {
+			t.Errorf("  Extra line of output: %s", lines[i])
+		}
 	}
 
 	for i, pat := range patterns {

@@ -17,7 +17,7 @@ limitations under the License.
 // Package log provides the canonical logging functionality used by Go-based
 // Alameda components.
 //
-// Istio's logging subsystem is built on top of the [Zap](https://godoc.org/go.uber.org/zap) package.
+// Alameda's logging subsystem is built on top of the [Zap](https://godoc.org/go.uber.org/zap) package.
 // High performance scenarios should use the Error, Warn, Info, and Debug methods. Lower perf
 // scenarios can use the more expensive convenience methods such as Debugf and Warnw.
 //
@@ -39,37 +39,6 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// This type exists so we can have a bit of logic sitting in front of all the real core calls for the
-// case where we are intercepting other log packages. This lets us subject the log output to the
-// default scope's log level, as is these other log packages were in fact directly outputting to the
-// default scope.
-type interceptor struct {
-	zapcore.Core
-}
-
-func (in interceptor) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
-	switch ent.Level {
-	case zapcore.ErrorLevel:
-		if !defaultScope.ErrorEnabled() {
-			return nil
-		}
-	case zapcore.WarnLevel:
-		if !defaultScope.WarnEnabled() {
-			return nil
-		}
-	case zapcore.InfoLevel:
-		if !defaultScope.InfoEnabled() {
-			return nil
-		}
-	case zapcore.DebugLevel:
-		if !defaultScope.DebugEnabled() {
-			return nil
-		}
-	}
-
-	return in.Core.Check(ent, ce)
-}
-
 // none is used to disable logging output as well as to disable stack tracing.
 const none zapcore.Level = 100
 
@@ -78,6 +47,7 @@ var levelToZap = map[Level]zapcore.Level{
 	InfoLevel:  zapcore.InfoLevel,
 	WarnLevel:  zapcore.WarnLevel,
 	ErrorLevel: zapcore.ErrorLevel,
+	FatalLevel: zapcore.FatalLevel,
 	NoneLevel:  none,
 }
 
@@ -87,7 +57,7 @@ func init() {
 }
 
 // prepZap is a utility function used by the Configure function.
-func prepZap(options *Options) (zapcore.Core, zapcore.WriteSyncer, error) {
+func prepZap(options *Options) (zapcore.Core, zapcore.Core, zapcore.WriteSyncer, error) {
 	encCfg := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -114,14 +84,14 @@ func prepZap(options *Options) (zapcore.Core, zapcore.WriteSyncer, error) {
 		rotaterSink = zapcore.AddSync(&lumberjack.Logger{
 			Filename:   options.RotateOutputPath,
 			MaxSize:    options.RotationMaxSize,
-			MaxBackups: options.RotationMaxAge,
-			MaxAge:     options.RotationMaxBackups,
+			MaxBackups: options.RotationMaxBackups,
+			MaxAge:     options.RotationMaxAge,
 		})
 	}
 
 	errSink, closeErrorSink, err := zap.Open(options.ErrorOutputPaths...)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	var outputSink zapcore.WriteSyncer
@@ -129,7 +99,7 @@ func prepZap(options *Options) (zapcore.Core, zapcore.WriteSyncer, error) {
 		outputSink, _, err = zap.Open(options.OutputPaths...)
 		if err != nil {
 			closeErrorSink()
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
 	}
 
@@ -142,7 +112,21 @@ func prepZap(options *Options) (zapcore.Core, zapcore.WriteSyncer, error) {
 		sink = outputSink
 	}
 
-	return zapcore.NewCore(enc, sink, zap.NewAtomicLevelAt(zapcore.DebugLevel)), errSink, nil
+	var enabler zap.LevelEnablerFunc = func(lvl zapcore.Level) bool {
+		switch lvl {
+		case zapcore.ErrorLevel:
+			return defaultScope.ErrorEnabled()
+		case zapcore.WarnLevel:
+			return defaultScope.WarnEnabled()
+		case zapcore.InfoLevel:
+			return defaultScope.InfoEnabled()
+		}
+		return defaultScope.DebugEnabled()
+	}
+
+	return zapcore.NewCore(enc, sink, zap.NewAtomicLevelAt(zapcore.DebugLevel)),
+		zapcore.NewCore(enc, sink, enabler),
+		errSink, nil
 }
 
 func formatDate(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
@@ -190,6 +174,9 @@ func updateScopes(options *Options, core zapcore.Core, errSink zapcore.WriteSync
 	syncFn.Store(core.Sync)
 	errorSink.Store(errSink)
 
+	// snapshot what's there
+	allScopes := Scopes()
+
 	// update the output levels of all scopes
 	levels := strings.Split(options.outputLevels, ",")
 	for _, sl := range levels {
@@ -198,7 +185,7 @@ func updateScopes(options *Options, core zapcore.Core, errSink zapcore.WriteSync
 			return err
 		}
 
-		if scope, ok := scopes[s]; ok {
+		if scope, ok := allScopes[s]; ok {
 			scope.SetOutputLevel(l)
 		} else {
 			return fmt.Errorf("unknown scope '%s' specified", s)
@@ -213,7 +200,7 @@ func updateScopes(options *Options, core zapcore.Core, errSink zapcore.WriteSync
 			return err
 		}
 
-		if scope, ok := scopes[s]; ok {
+		if scope, ok := allScopes[s]; ok {
 			scope.SetStackTraceLevel(l)
 		} else {
 			return fmt.Errorf("unknown scope '%s' specified", s)
@@ -227,7 +214,7 @@ func updateScopes(options *Options, core zapcore.Core, errSink zapcore.WriteSync
 			continue
 		}
 
-		if scope, ok := scopes[s]; ok {
+		if scope, ok := allScopes[s]; ok {
 			scope.SetLogCallers(true)
 		} else {
 			return fmt.Errorf("unknown scope '%s' specified", s)
@@ -237,12 +224,12 @@ func updateScopes(options *Options, core zapcore.Core, errSink zapcore.WriteSync
 	return nil
 }
 
-// Configure initializes Istio's logging subsystem.
+// Configure initializes Alameda's logging subsystem.
 //
 // You typically call this once at process startup.
 // Once this call returns, the logging system is ready to accept data.
 func Configure(options *Options) error {
-	core, errSink, err := prepZap(options)
+	core, captureCore, errSink, err := prepZap(options)
 	if err != nil {
 		return err
 	}
@@ -265,7 +252,7 @@ func Configure(options *Options) error {
 		opts = append(opts, zap.AddStacktrace(levelToZap[l]))
 	}
 
-	captureLogger := zap.New(interceptor{core}, opts...)
+	captureLogger := zap.New(captureCore, opts...)
 
 	// capture global zap logging and force it through our logger
 	_ = zap.ReplaceGlobals(captureLogger)
@@ -287,9 +274,10 @@ var syncFn atomic.Value
 // Sync flushes any buffered log entries.
 // Processes should normally take care to call Sync before exiting.
 func Sync() error {
+	var err error
 	if s := syncFn.Load().(func() error); s != nil {
-		return s()
+		err = s()
 	}
 
-	return nil
+	return err
 }

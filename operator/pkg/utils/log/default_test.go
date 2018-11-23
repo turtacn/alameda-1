@@ -50,6 +50,11 @@ func TestDefault(t *testing.T) {
 		{func() { Errorf("%s", "Hello") }, timePattern + "\terror\tHello", false, false, NoneLevel},
 		{func() { Errora("Hello") }, timePattern + "\terror\tHello", false, false, NoneLevel},
 
+		{func() { Fatal("Hello") }, timePattern + "\tfatal\tHello", false, false, NoneLevel},
+		{func() { Fatalf("Hello") }, timePattern + "\tfatal\tHello", false, false, NoneLevel},
+		{func() { Fatalf("%s", "Hello") }, timePattern + "\tfatal\tHello", false, false, NoneLevel},
+		{func() { Fatala("Hello") }, timePattern + "\tfatal\tHello", false, false, NoneLevel},
+
 		{func() { Debug("Hello") }, timePattern + "\tdebug\tlog/default_test.go:.*\tHello", false, true, NoneLevel},
 
 		{func() { Debug("Hello") }, "{\"level\":\"debug\",\"time\":\"" + timePattern + "\",\"caller\":\"log/default_test.go:.*\",\"msg\":\"Hello\"," +
@@ -62,6 +67,9 @@ func TestDefault(t *testing.T) {
 			"\"stack\":\".*\"}",
 			true, true, DebugLevel},
 		{func() { Error("Hello") }, "{\"level\":\"error\",\"time\":\"" + timePattern + "\",\"caller\":\"log/default_test.go:.*\",\"msg\":\"Hello\"," +
+			"\"stack\":\".*\"}",
+			true, true, DebugLevel},
+		{func() { Fatal("Hello") }, "{\"level\":\"fatal\",\"time\":\"" + timePattern + "\",\"caller\":\"log/default_test.go:.*\",\"msg\":\"Hello\"," +
 			"\"stack\":\".*\"}",
 			true, true, DebugLevel},
 	}
@@ -83,6 +91,7 @@ func TestDefault(t *testing.T) {
 				c.f()
 				_ = Sync()
 			})
+
 			if err != nil {
 				t.Errorf("Got error '%v', expected success", err)
 			}
@@ -101,12 +110,14 @@ func TestEnabled(t *testing.T) {
 		infoEnabled  bool
 		warnEnabled  bool
 		errorEnabled bool
+		fatalEnabled bool
 	}{
-		{DebugLevel, true, true, true, true},
-		{InfoLevel, false, true, true, true},
-		{WarnLevel, false, false, true, true},
-		{ErrorLevel, false, false, false, true},
-		{NoneLevel, false, false, false, false},
+		{DebugLevel, true, true, true, true, true},
+		{InfoLevel, false, true, true, true, true},
+		{WarnLevel, false, false, true, true, true},
+		{ErrorLevel, false, false, false, true, true},
+		{FatalLevel, false, false, false, false, true},
+		{NoneLevel, false, false, false, false, false},
 	}
 
 	for i, c := range cases {
@@ -129,6 +140,10 @@ func TestEnabled(t *testing.T) {
 
 			if c.errorEnabled != ErrorEnabled() {
 				t.Errorf("Got %v, expecting %v", ErrorEnabled(), c.errorEnabled)
+			}
+
+			if c.fatalEnabled != FatalEnabled() {
+				t.Errorf("Got %v, expecting %v", FatalEnabled(), c.fatalEnabled)
 			}
 		})
 	}

@@ -296,7 +296,6 @@ func TestOpts(t *testing.T) {
 
 		_ = RegisterScope("foo", "bar", 0)
 	}
-
 }
 
 func TestSetLevel(t *testing.T) {
