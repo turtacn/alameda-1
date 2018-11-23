@@ -26,6 +26,11 @@ import (
 type PredictEnable bool
 type AlamedaPolicy string
 
+const (
+	RecommendationPolicySTABLE  AlamedaPolicy = "stable"
+	RecommendationPolicyCOMPACT AlamedaPolicy = "compact"
+)
+
 // AlamedaResourceSpec defines the desired state of AlamedaResource
 type AlamedaResourceSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
