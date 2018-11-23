@@ -326,6 +326,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 	dpUID := deploy.GetUID()
 	anno := ala.GetAnnotations()
 	if anno == nil {
+		anno = map[string]string{}
 		anno[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
 	}
 	k8sc := convertk8scontrollerJSONString(anno[AlamedaK8sController])
