@@ -125,52 +125,7 @@ func (s *Service) ListMetrics(ctx context.Context, in *operator_v1alpha1.ListMet
 	}
 
 	// build query instance to query metrics db
-	q := metrics.Query{}
-	switch in.GetMetricType() {
-	case operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL:
-		q.Metric = metrics.MetricTypeContainerCPUUsageTotal
-	case operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL_RATE:
-		q.Metric = metrics.MetricTypeContainerCPUUsageTotalRate
-	case operator_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE:
-		q.Metric = metrics.MetricTypeContainerMemoryUsage
-	}
-
-	for _, labelSelector := range in.GetConditions() {
-
-		k := labelSelector.GetKey()
-		v := labelSelector.GetValue()
-		var op metrics.StringOperator
-		switch labelSelector.GetOp() {
-		case operator_v1alpha1.StrOp_Equal:
-			op = metrics.StringOperatorEqueal
-		case operator_v1alpha1.StrOp_NotEqual:
-			op = metrics.StringOperatorNotEqueal
-		}
-
-		q.LabelSelectors = append(q.LabelSelectors, metrics.LabelSelector{Key: k, Op: op, Value: v})
-	}
-
-	// assign difference type of time to query instance by type of gRPC request time
-	switch in.TimeSelector.(type) {
-	case nil:
-		q.TimeSelector = nil
-	case *operator_v1alpha1.ListMetricsRequest_Time:
-		q.TimeSelector = &metrics.Timestamp{T: time.Unix(in.GetTime().GetSeconds(), int64(in.GetTime().GetNanos()))}
-	case *operator_v1alpha1.ListMetricsRequest_Duration:
-		d, _ := ptypes.Duration(in.GetDuration())
-		q.TimeSelector = &metrics.Since{
-			Duration: d,
-		}
-	case *operator_v1alpha1.ListMetricsRequest_TimeRange:
-		startTime := in.GetTimeRange().GetStartTime()
-		endTime := in.GetTimeRange().GetEndTime()
-		step, _ := ptypes.Duration(in.GetTimeRange().GetStep())
-		q.TimeSelector = &metrics.TimeRange{
-			StartTime: time.Unix(startTime.GetSeconds(), int64(startTime.GetNanos())),
-			EndTime:   time.Unix(endTime.GetSeconds(), int64(endTime.GetNanos())),
-			Step:      step,
-		}
-	}
+	q := buildMetircQuery(in)
 
 	// query to metrics db
 	quertResp, err := s.MetricsDB.Query(q)
@@ -364,6 +319,59 @@ func isAlamedaPod(alaK8sCtrAnnoStr, podUid string) bool {
 		}
 	}
 	return false
+}
+
+func buildMetircQuery(req *operator_v1alpha1.ListMetricsRequest) metrics.Query {
+
+	var q = metrics.Query{}
+
+	switch req.GetMetricType() {
+	case operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL:
+		q.Metric = metrics.MetricTypeContainerCPUUsageTotal
+	case operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL_RATE:
+		q.Metric = metrics.MetricTypeContainerCPUUsageTotalRate
+	case operator_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE:
+		q.Metric = metrics.MetricTypeContainerMemoryUsage
+	}
+
+	for _, labelSelector := range req.GetConditions() {
+
+		k := labelSelector.GetKey()
+		v := labelSelector.GetValue()
+		var op metrics.StringOperator
+		switch labelSelector.GetOp() {
+		case operator_v1alpha1.StrOp_Equal:
+			op = metrics.StringOperatorEqueal
+		case operator_v1alpha1.StrOp_NotEqual:
+			op = metrics.StringOperatorNotEqueal
+		}
+
+		q.LabelSelectors = append(q.LabelSelectors, metrics.LabelSelector{Key: k, Op: op, Value: v})
+	}
+
+	// assign difference type of time to query instance by type of gRPC request time
+	switch req.TimeSelector.(type) {
+	case nil:
+		q.TimeSelector = nil
+	case *operator_v1alpha1.ListMetricsRequest_Time:
+		q.TimeSelector = &metrics.Timestamp{T: time.Unix(req.GetTime().GetSeconds(), int64(req.GetTime().GetNanos()))}
+	case *operator_v1alpha1.ListMetricsRequest_Duration:
+		d, _ := ptypes.Duration(req.GetDuration())
+		q.TimeSelector = &metrics.Since{
+			Duration: d,
+		}
+	case *operator_v1alpha1.ListMetricsRequest_TimeRange:
+		startTime := req.GetTimeRange().GetStartTime()
+		endTime := req.GetTimeRange().GetEndTime()
+		step, _ := ptypes.Duration(req.GetTimeRange().GetStep())
+		q.TimeSelector = &metrics.TimeRange{
+			StartTime: time.Unix(startTime.GetSeconds(), int64(startTime.GetNanos())),
+			EndTime:   time.Unix(endTime.GetSeconds(), int64(endTime.GetNanos())),
+			Step:      step,
+		}
+	}
+
+	return q
 }
 
 func convertMetricsQueryResponseToProtoResponse(resp *metrics.QueryResponse) *operator_v1alpha1.ListMetricsResponse {
