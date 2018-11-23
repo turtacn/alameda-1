@@ -169,6 +169,24 @@ var (
 				},
 			},
 		},
+		{
+			have: &operator_v1alpha1.ListMetricsRequest{
+				MetricType: operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL,
+				Conditions: []*operator_v1alpha1.LabelSelector{
+					&operator_v1alpha1.LabelSelector{
+						Key:   "namespace",
+						Op:    operator_v1alpha1.StrOp_Equal,
+						Value: "\"test\"",
+					},
+				},
+			},
+			want: &operator_v1alpha1.ListMetricsResponse{
+				Status: &status.Status{
+					Code:    int32(code.Code_INVALID_ARGUMENT),
+					Message: "Validate: Condition Value \"\"test\"\" is invalid",
+				},
+			},
+		},
 	}
 
 	mock = []struct {
@@ -294,27 +312,28 @@ var (
 				},
 			},
 		},
-	}
-
-	testErrors = []struct {
-		have *operator_v1alpha1.ListMetricsRequest
-		want *operator_v1alpha1.ListMetricsResponse
-	}{
 		{
-			have: &operator_v1alpha1.ListMetricsRequest{
-				MetricType: operator_v1alpha1.MetricType_CONTAINER_CPU_USAGE_TOTAL,
-				Conditions: []*operator_v1alpha1.LabelSelector{
-					&operator_v1alpha1.LabelSelector{
-						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
-						Value: "\"test\"",
-					},
-				},
+			query: metrics.Query{
+				Metric: metrics.MetricTypeContainerCPUUsageTotal,
+				LabelSelectors: []metrics.LabelSelector{metrics.LabelSelector{
+					Key:   "namespace",
+					Op:    metrics.StringOperatorEqueal,
+					Value: "\"test\"",
+				}},
 			},
-			want: &operator_v1alpha1.ListMetricsResponse{
-				Status: &status.Status{
-					Code:    int32(code.Code_INVALID_ARGUMENT),
-					Message: "Validate: Condition Value \"\"tesasdt\"\" is invalid",
+			response: metrics.QueryResponse{
+				Results: []metrics.Data{
+					metrics.Data{
+						Labels: map[string]string{
+							"namespace": "\"test\"",
+						},
+						Samples: []metrics.Sample{
+							metrics.Sample{
+								Time:  currentTime,
+								Value: 0.026015485,
+							},
+						},
+					},
 				},
 			},
 		},
@@ -335,28 +354,10 @@ func TestListMetrics(t *testing.T) {
 
 		mockQuery := mock[i].query
 		mockResponse := mock[i].response
-		mockDB.EXPECT().Query(mockQuery).Return(mockResponse, nil)
+		mockDB.EXPECT().Query(mockQuery).Return(mockResponse, nil).AnyTimes()
 
 		resp, err := s.ListMetrics(context.Background(), test.have)
 		require.NoError(t, err)
 		assert.Equal(test.want, resp)
-	}
-}
-
-func TestListMetricsError(t *testing.T) {
-
-	ctl := gomock.NewController(t)
-	defer ctl.Finish()
-	mockDB := mocks.NewMockMetricsDB(ctl)
-	s := Service{
-		MetricsDB: mockDB,
-	}
-
-	assert := assert.New(t)
-	for _, test := range testErrors {
-
-		resp, err := s.ListMetrics(context.Background(), test.have)
-		require.NoError(t, err)
-		assert.Equal(test.want.Status.Code, resp.Status.Code)
 	}
 }
