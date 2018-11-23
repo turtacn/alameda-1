@@ -101,8 +101,11 @@ oc new-project alameda
 
 ## Apply yaml for kubernetes config
 
-Login as admin, then apply follow yaml files in config/minishift
+Login as admin, then apply follow yaml files in example/deployment/minishift
 
+```
+oc login -u admin
+```
 ```
 oc adm policy add-scc-to-user anyuid system:serviceaccount:opsmx:tiller
 oc adm policy add-scc-to-group anyuid system:authenticated
