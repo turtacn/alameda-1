@@ -112,16 +112,19 @@ oc adm policy add-scc-to-group anyuid system:authenticated
 oc apply -f prometheus.yaml
 oc apply -f rbac
 oc apply -f crds
-oc apply -f manager
+oc apply -f service
 oc apply -f deployconfig
 ```
 
-Clone code and build docker image
+Clone code and build docker image for operator
 ```
 git clone https://github.com/containers-ai/alameda.git
 cd alameda/operator
 docker build -t operator .
-https://github.com/prophetstor-ai/alameda-ai.git
+```
+Clone code and build docker image for alameda-ai
+```
+git clone https://github.com/prophetstor-ai/alameda-ai.git
 cd alameda-ai
 docker build -t alameda-ai .
 ```
@@ -133,4 +136,19 @@ docker tag alameda-ai $(minishift openshift registry)/alameda/alameda-ai
 oc whoami -t | docker login -u developer --password-stdin $(minishift openshift registry)
 docker push $(minishift openshift registry)/alameda/operator
 docker push $(minishift openshift registry)/alameda/alameda-ai
+```
+
+Check pod successful created and running
+```
+oc get pod
+```
+log in to pod
+```
+oc exec -it <pod name> bash
+```
+
+After ensure both operator and alameda-ai running execute below command
+```
+oc apply -f samples/nginx_deployment.yaml
+oc apply -f samples/alameda_deployment.yaml
 ```
