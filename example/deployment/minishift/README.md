@@ -104,6 +104,8 @@ oc new-project alameda
 Login as admin, then apply follow yaml files in config/minishift
 
 ```
+oc adm policy add-scc-to-user anyuid system:serviceaccount:opsmx:tiller
+oc adm policy add-scc-to-group anyuid system:authenticated
 oc apply -f prometheus.yaml
 oc apply -f rbac
 oc apply -f crds
@@ -122,8 +124,10 @@ docker build -t alameda-ai .
 ```
 Tag image and push to minishift registry
 ```
-docker tag operator <address>/alameda/operator
-docker tag alameda-ai as <address>/alameda/alameda-ai
-docker push <address>/alameda/operator
-docker push <address>/alameda/alameda-ai
+oc login -u developer
+docker tag operator $(minishift openshift registry)/alameda/operator
+docker tag alameda-ai $(minishift openshift registry)/alameda/alameda-ai
+oc whoami -t | docker login -u developer --password-stdin $(minishift openshift registry)
+docker push $(minishift openshift registry)/alameda/operator
+docker push $(minishift openshift registry)/alameda/alameda-ai
 ```
