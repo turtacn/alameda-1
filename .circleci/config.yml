@@ -7,3 +7,8 @@ jobs:
     steps:
       - checkout            
       - run: go build -o ./operator/bin/manager github.com/containers-ai/alameda/operator/cmd/manager
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
