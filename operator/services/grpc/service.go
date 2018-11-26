@@ -11,7 +11,6 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics"
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus"
-	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	operator_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/operator"
 	"github.com/golang/protobuf/ptypes"
@@ -32,6 +31,10 @@ type Service struct {
 	Manager   manager.Manager
 	MetricsDB metrics.MetricsDB
 }
+
+var (
+	scope = logUtil.RegisterScope("gRPC", "gRPC server log", 0)
+)
 
 func NewService(c *Config, manager manager.Manager) (*Service, error) {
 
@@ -58,18 +61,18 @@ func (s *Service) Open() error {
 	}
 
 	// build server listener
-	log.Info(("starting gRPC server"))
+	scope.Info(("starting gRPC server"))
 	ln, err := net.Listen("tcp", s.Config.BindAddress)
 	if err != nil {
-		log.Error("gRPC server failed listen: " + err.Error())
+		scope.Error("gRPC server failed listen: " + err.Error())
 		return fmt.Errorf("GRPC server failed to bind address: %s", s.Config.BindAddress)
 	}
-	log.Info("gRPC server listening on " + s.Config.BindAddress)
+	scope.Info("gRPC server listening on " + s.Config.BindAddress)
 
 	// build gRPC server
 	server, err := s.newGRPCServer()
 	if err != nil {
-		log.Error(err.Error())
+		scope.Error(err.Error())
 		return err
 	}
 
@@ -390,7 +393,7 @@ func convertMetricsQueryResponseToProtoResponse(resp *metrics.QueryResponse) *op
 
 			timestampProto, err := ptypes.TimestampProto(sample.Time)
 			if err != nil {
-				log.Error("convert time.Time to google.protobuf.Timestamp failed")
+				scope.Error("convert time.Time to google.protobuf.Timestamp failed")
 			}
 			s.Time = timestampProto
 			s.Value = sample.Value

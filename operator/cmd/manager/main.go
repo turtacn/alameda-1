@@ -47,6 +47,7 @@ var operatorConfigFile string
 
 var logger logr.Logger
 var serverConf server.Config
+var scope *logUtil.Scope
 
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
@@ -54,6 +55,8 @@ func init() {
 	flag.StringVar(&aiSrvAddr, "ai-server", "alameda-ai.alameda.svc.cluster.local:50051", "AI service address")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
+
+	scope = logUtil.RegisterScope("manager", "operator entry point", 0)
 }
 
 func initLogger(development bool) {
@@ -86,7 +89,7 @@ func main() {
 	initLogger(isDev)
 
 	if err != nil {
-		logUtil.Error("Get configuration failed: " + err.Error())
+		scope.Error("Get configuration failed: " + err.Error())
 	}
 
 	// Create a new Cmd to provide shared dependencies and start components
@@ -103,7 +106,7 @@ func main() {
 	// Setup Server
 	s, err := server.NewServer(&serverConf)
 	if err != nil {
-		logUtil.Error("Setup server failed: " + err.Error())
+		scope.Error("Setup server failed: " + err.Error())
 	}
 
 	// Start Server
