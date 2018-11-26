@@ -19,10 +19,10 @@ package main
 import (
 	"errors"
 	"flag"
-	"github.com/spf13/viper"
-	"log"
 	"strings"
 	"sync"
+
+	"github.com/spf13/viper"
 
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
@@ -59,8 +59,18 @@ func init() {
 	scope = logUtil.RegisterScope("manager", "operator entry point", 0)
 }
 
-func initLogger(development bool) {
-	logger = logUtil.GetLogger()
+func initLogger() {
+	scope.Infof("Log output level is %s.", serverConf.Log.OutputLevel)
+	scope.Infof("Log stacktrace level is %s.", serverConf.Log.StackTraceLevel)
+	for _, scope := range logUtil.Scopes() {
+		scope.SetLogCallers(serverConf.Log.SetLogCallers == true)
+		if outputLvl, ok := logUtil.StringToLevel(serverConf.Log.OutputLevel); ok {
+			scope.SetOutputLevel(outputLvl)
+		}
+		if stacktraceLevel, ok := logUtil.StringToLevel(serverConf.Log.StackTraceLevel); ok {
+			scope.SetStackTraceLevel(stacktraceLevel)
+		}
+	}
 }
 
 func initConfig(mgr manager.Manager) {
@@ -80,13 +90,11 @@ func initConfig(mgr manager.Manager) {
 }
 
 func main() {
-
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if !flag.Parsed() {
 		flag.Parse()
 	}
-	initLogger(isDev)
 
 	if err != nil {
 		scope.Error("Get configuration failed: " + err.Error())
@@ -95,39 +103,41 @@ func main() {
 	// Create a new Cmd to provide shared dependencies and start components
 	mgr, err := manager.New(cfg, manager.Options{})
 	if err != nil {
-		logUtil.GetLogger().Error(err, "Create manager failed.")
+		scope.Error(err.Error())
 	}
 
 	// Set wait group for Server goroutine
 	var wg sync.WaitGroup
 	wg.Add(1)
 	initConfig(mgr)
+	initLogger()
 
 	// Setup Server
 	s, err := server.NewServer(&serverConf)
+
 	if err != nil {
 		scope.Error("Setup server failed: " + err.Error())
 	}
 
 	// Start Server
 	go s.Start(&wg)
-	log.Printf("Registering Components.")
+	scope.Info("Registering Components.")
 
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
-		logUtil.GetLogger().Error(err, "Add scheme failed.")
+		scope.Error(err.Error())
 	}
 
 	// Setup all Controllers
 	if err := controller.AddToManager(mgr); err != nil {
-		logUtil.GetLogger().Error(err, "Add controller failed.")
+		scope.Error(err.Error())
 	}
 
-	log.Printf("Starting the Cmd.")
+	scope.Info("Starting the Cmd.")
 
 	// Start the Cmd
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
-		logUtil.GetLogger().Error(err, "Run manager failed.")
+		scope.Error(err.Error())
 	}
 
 	// Wait Server goroutine

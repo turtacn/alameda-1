@@ -39,6 +39,24 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+type Config struct {
+	SetLogCallers   bool   `mapstructure:"set-logcallers"`
+	StackTraceLevel string `mapstructure:"stacktrace-level"`
+	OutputLevel     string `mapstructure:"output-level"`
+}
+
+func NewConfig() *Config {
+	c := Config{}
+	c.init()
+	return &c
+}
+
+func (c Config) init() {
+	c.SetLogCallers = true
+	c.OutputLevel = "none"
+	c.StackTraceLevel = "none"
+}
+
 // none is used to disable logging output as well as to disable stack tracing.
 const none zapcore.Level = 100
 

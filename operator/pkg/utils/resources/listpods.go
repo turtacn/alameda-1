@@ -12,6 +12,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+var (
+	scope = logUtil.RegisterScope("listresourceutil", "listresourceutil log", 0)
+)
+
 type ListPods struct {
 	client client.Client
 }
@@ -31,7 +35,7 @@ func (listpods *ListPods) ListPods(namespace, name, kind string) []corev1.Pod {
 			Name:      name,
 		}, deploymentFound)
 		if err != nil {
-			logUtil.GetLogger().Error(err, "Get pods from deployment failed.")
+			scope.Error(err.Error())
 			return podList
 		} else {
 			return listpods.getPodsFromDeployment(deploymentFound)
@@ -46,7 +50,7 @@ func (listpods *ListPods) getPodsFromDeployment(deployment *appsv1.Deployment) [
 	name := deployment.GetName()
 	ns := deployment.GetNamespace()
 	if deployment.Spec.Selector == nil {
-		logUtil.GetLogger().Info(fmt.Sprintf("List pods of alameda deployment %s/%s failed due to no matched labels found.", ns, name))
+		scope.Warnf(fmt.Sprintf("List pods of alameda deployment %s/%s failed due to no matched labels found.", ns, name))
 		return podList
 	}
 	labels := deployment.Spec.Selector.MatchLabels
@@ -56,7 +60,7 @@ func (listpods *ListPods) getPodsFromDeployment(deployment *appsv1.Deployment) [
 			MatchingLabels(labels),
 		pods)
 	if err != nil {
-		logUtil.GetLogger().Info(fmt.Sprintf("List pods of alameda deployment %s/%s failed.", ns, name))
+		scope.Warnf(fmt.Sprintf("List pods of alameda deployment %s/%s failed.", ns, name))
 	} else {
 		var deploymentName string
 		for _, pod := range pods.Items {
@@ -73,6 +77,6 @@ func (listpods *ListPods) getPodsFromDeployment(deployment *appsv1.Deployment) [
 			}
 		}
 	}
-	logUtil.GetLogger().Info(fmt.Sprintf("%d pods founded in alameda deployment %s/%s.", len(podList), ns, name))
+	scope.Infof(fmt.Sprintf("%d pods founded in alameda deployment %s/%s.", len(podList), ns, name))
 	return podList
 }

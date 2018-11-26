@@ -189,20 +189,20 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 		alaAnno := ala.GetAnnotations()
 		predictPodsInAla := []*operator_v1alpha1.PredictPod{}
 		if alaAnno == nil {
-			logUtil.GetLogger().Info(fmt.Sprintf("No annotation found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
+			scope.Warnf(fmt.Sprintf("No annotation found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
 		}
 		if _, ok := alaAnno[alamedaresource.AlamedaK8sController]; !ok {
-			logUtil.GetLogger().Info(fmt.Sprintf("No k8s controller annotation key found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
+			scope.Warnf(fmt.Sprintf("No k8s controller annotation key found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
 		}
-		logUtil.GetLogger().Info(fmt.Sprintf("K8s controller annotation found %s in AlamedaResouce %s in namespace %s in AlamedaResource list", alaAnno[alamedaresource.AlamedaK8sController], ala.GetName(), ala.GetNamespace()))
+		scope.Infof(fmt.Sprintf("K8s controller annotation found %s in AlamedaResouce %s in namespace %s in AlamedaResource list", alaAnno[alamedaresource.AlamedaK8sController], ala.GetName(), ala.GetNamespace()))
 		for _, predictPod := range in.GetPredictPods() {
 			alaK8sCtrStr := alaAnno[alamedaresource.AlamedaK8sController]
 			if isAlamedaPod(alaK8sCtrStr, predictPod.GetUid()) {
 				predictPodsInAla = append(predictPodsInAla, predictPod)
 			} else {
-				logUtil.GetLogger().Info(fmt.Sprintf("Pod %s do not belong to AlamedaResource (%s/%s)", predictPod.GetUid(), ala.GetNamespace(), ala.GetName()))
+				scope.Infof(fmt.Sprintf("Pod %s do not belong to AlamedaResource (%s/%s)", predictPod.GetUid(), ala.GetNamespace(), ala.GetName()))
 			}
 		}
 		if len(predictPodsInAla) > 0 {
@@ -231,7 +231,7 @@ func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaRe
 				for _, predictContainer := range predictPod.GetPredictContainers() {
 					for containerName, _ := range deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers {
 						if predictContainer.GetName() == string(containerName) {
-							logUtil.GetLogger().Info(fmt.Sprintf("Update Prediction from AI service. (%s/%s)", ala.GetNamespace(), ala.GetName()))
+							scope.Infof(fmt.Sprintf("Update Prediction from AI service. (%s/%s)", ala.GetNamespace(), ala.GetName()))
 							recommendation, initialResource := s.updateAlamedaResourcePredictContainer(deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers[containerName], predictContainer)
 							alaPredictContainer := deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers[containerName]
 							alaPredictContainer.Recommendations = recommendation
@@ -246,7 +246,7 @@ func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaRe
 
 	err := s.Manager.GetClient().Update(context.TODO(), alamedaresourcePredict)
 	if err != nil {
-		logUtil.GetLogger().Error(err, fmt.Sprintf("Update Prediction from AI service failed. (%s/%s)", ala.GetNamespace(), ala.GetName()))
+		scope.Error(err.Error())
 	}
 }
 
@@ -258,7 +258,7 @@ func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer auto
 		for _, data := range predictData.GetPredictData() {
 			if data.Time == nil {
 				dataBin, _ := json.Marshal(data)
-				logUtil.GetLogger().Info(fmt.Sprintf("Predict data from AI server contains no time field. %s", dataBin))
+				scope.Infof(fmt.Sprintf("Predict data from AI server contains no time field. %s", dataBin))
 			} else {
 				date := time.Unix(data.Time.Seconds, 0)
 				tsData.PredictData = append(tsData.PredictData, autoscalingv1alpha1.PredictData{
@@ -319,7 +319,7 @@ func isAlamedaPod(alaK8sCtrAnnoStr, podUid string) bool {
 		if _, ok := deployment.PodMap[podUid]; ok {
 			return true
 		} else {
-			logUtil.GetLogger().Info(fmt.Sprintf("Pod %s does not belong to K8s controller %s", podUid, alaK8sCtrAnnoStr))
+			scope.Infof(fmt.Sprintf("Pod %s does not belong to K8s controller %s", podUid, alaK8sCtrAnnoStr))
 		}
 	}
 	return false

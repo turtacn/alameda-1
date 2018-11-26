@@ -18,7 +18,6 @@ package alamedaresourceprediction
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
@@ -34,6 +33,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+)
+
+var (
+	scope = logUtil.RegisterScope("alamedaresourceprediction", "alamedaresourceprediction log", 0)
 )
 
 /**
@@ -64,11 +67,11 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Watch for changes to AlamedaResourcePrediction
 
 	if err = c.Watch(&source.Kind{Type: &autoscalingv1alpha1.AlamedaResourcePrediction{}}, &handler.EnqueueRequestForObject{}); err != nil {
-		logUtil.GetLogger().Error(err, fmt.Sprintf("Watch AlamedaResourcePrediction failed."))
+		scope.Error(err.Error())
 		return err
 	}
 	if err = c.Watch(&source.Kind{Type: &autoscalingv1alpha1.AlamedaResource{}}, &handler.EnqueueRequestForObject{}); err != nil {
-		logUtil.GetLogger().Error(err, fmt.Sprintf("Watch AlamedaResource controller for AlamedaResourcePrediction failed."))
+		scope.Error(err.Error())
 		return err
 	}
 
@@ -106,7 +109,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 		//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
 		err = alamedaresource.CreateAlamedaPrediction(r, r.scheme, alaInstance)
 		if err != nil {
-			logUtil.GetLogger().Error(err, fmt.Sprintf("Create AlamedaResourcePrediction failed. (%s/%s)", alaInstance.Namespace, alaInstance.Name))
+			scope.Error(err.Error())
 			return reconcile.Result{}, nil
 		}
 	} else if err != nil {
@@ -149,7 +152,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 			listPods := utilsresource.NewListPods(r)
 			podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
 			podsMap := map[autoscalingv1alpha1.PodUID]autoscalingv1alpha1.PredictPod{}
-			logUtil.GetLogger().Info(fmt.Sprintf("%d pods found in deployment (%s/%s) will be updated to AlamedaResourcePrediction %s.", len(podList), deployment.GetNamespace(), deployment.GetName(), instance.GetName()))
+			scope.Error(err.Error())
 			for _, pod := range podList {
 				containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
 				for _, container := range pod.Spec.Containers {
@@ -208,7 +211,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 		}
 	}
 	if !reflect.DeepEqual(instance.Status.Prediction, copyInstance.Status.Prediction) {
-		logUtil.GetLogger().Info(fmt.Sprintf("Sync AlamedaResourcePrediction structure (%s/%s).", request.Namespace, request.Name))
+		scope.Error(err.Error())
 		r.Update(context.TODO(), instance)
 	}
 

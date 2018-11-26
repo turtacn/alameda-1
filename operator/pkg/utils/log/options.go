@@ -72,6 +72,11 @@ var stringToLevel = map[string]Level{
 	"none":  NoneLevel,
 }
 
+func StringToLevel(level string) (Level, bool) {
+	lvl, ok := stringToLevel[strings.ToLower(level)]
+	return lvl, ok
+}
+
 // Options defines the set of options supported by Istio's component logging package.
 type Options struct {
 	// OutputPaths is a list of file system paths to write the log data to.
