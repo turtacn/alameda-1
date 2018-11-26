@@ -32,6 +32,10 @@ type Service struct {
 	MetricsDB metrics.MetricsDB
 }
 
+var (
+	scope = logUtil.RegisterScope("gRPC", "gRPC server log", 0)
+)
+
 func NewService(c *Config, manager manager.Manager) (*Service, error) {
 
 	s := &Service{
@@ -57,18 +61,18 @@ func (s *Service) Open() error {
 	}
 
 	// build server listener
-	logUtil.GetLogger().Info("starting gRPC server")
+	scope.Info(("starting gRPC server"))
 	ln, err := net.Listen("tcp", s.Config.BindAddress)
 	if err != nil {
-		logUtil.GetLogger().Error(err, "gRPC server failed listen: "+err.Error())
+		scope.Error("gRPC server failed listen: " + err.Error())
 		return fmt.Errorf("GRPC server failed to bind address: %s", s.Config.BindAddress)
 	}
-	logUtil.GetLogger().Info("gRPC server listening on " + s.Config.BindAddress)
+	scope.Info("gRPC server listening on " + s.Config.BindAddress)
 
 	// build gRPC server
 	server, err := s.newGRPCServer()
 	if err != nil {
-		logUtil.GetLogger().Error(err, err.Error())
+		scope.Error(err.Error())
 		return err
 	}
 
@@ -389,7 +393,7 @@ func convertMetricsQueryResponseToProtoResponse(resp *metrics.QueryResponse) *op
 
 			timestampProto, err := ptypes.TimestampProto(sample.Time)
 			if err != nil {
-				logUtil.GetLogger().Error(err, "convert time.Time to google.protobuf.Timestamp failed")
+				scope.Error("convert time.Time to google.protobuf.Timestamp failed")
 			}
 			s.Time = timestampProto
 			s.Value = sample.Value

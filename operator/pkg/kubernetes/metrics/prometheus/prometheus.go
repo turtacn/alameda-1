@@ -24,6 +24,8 @@ const (
 )
 
 var (
+	scope = log.RegisterScope("prometheus", "metrics repository", 0)
+
 	// defaultLabelSelectors LabelSelectors must apply when query
 	defaultLabelSelectors = []metrics.LabelSelector{
 		metrics.LabelSelector{
@@ -63,7 +65,7 @@ func New(config Config) (metrics.MetricsDB, error) {
 	if p.config.BearerTokenFile != "" {
 		token, err := ioutil.ReadFile(config.BearerTokenFile)
 		if err != nil {
-			log.GetLogger().Error(err, "open bearer token file for prometheus failed")
+			scope.Error("open bearer token file for prometheus failed: " + err.Error())
 			return nil, errors.New("open bearer token file for prometheus failed")
 		}
 		p.config.bearerToken = string(token)
@@ -86,14 +88,14 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 	// Get query url
 	u, err := p.queryUrl(q)
 	if err != nil {
-		log.GetLogger().Error(err, "parse query url", "ErrorMsg", err.Error())
+		scope.Error("parse query url: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
 
 	// Build http request
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		log.GetLogger().Error(err, "build http request", "ErrorMsg", err.Error())
+		scope.Error("build http request faild: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
 	if token := p.config.bearerToken; token != "" {
@@ -106,24 +108,24 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 	// Send request to prometheus
 	resp, err := p.client.Do(req)
 	if err != nil {
-		log.GetLogger().Error(err, "send http request to prometheus", "ErrorMsg", err.Error())
+		scope.Error("send http request to prometheus failed: " + err.Error())
 		return metrics.QueryResponse{}, err
 	}
 
 	// Convert http response to metrics response
 	response, err := getResponse(resp)
 	if err != nil {
-		log.GetLogger().Error(err, "get prometheus response error", "ErrorMsg", err.Error())
+		scope.Error("get prometheus response error" + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: %s" + err.Error())
 	} else if response.Status == "error" {
-		log.GetLogger().Error(err, "get error response from prometheus", "ErrorMsg", response.Error)
+		scope.Error("get error response from prometheus" + response.Error)
 		return metrics.QueryResponse{}, errors.New("Query: %s" + response.Error)
 	}
 
 	// Convert Response to QueryResponse
 	queryResponse, err := convertQueryResponse(response)
 	if err != nil {
-		log.GetLogger().Error(err, "convert Response to QueryResponse", "ErrorMsg", err.Error())
+		scope.Error("convert Response to QueryResponse failed: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: %s" + err.Error())
 	}
 
