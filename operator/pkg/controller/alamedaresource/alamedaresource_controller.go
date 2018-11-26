@@ -271,6 +271,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, 
 			Namespace: namespace,
 			Name:      name,
 		}, alamedaresource)
+		alamedaresource.SetAnnotations(newAlamedaAnnotations)
 		if err == nil {
 			err = r.Update(context.TODO(), alamedaresource)
 			if err != nil {
