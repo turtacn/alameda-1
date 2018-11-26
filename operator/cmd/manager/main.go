@@ -86,7 +86,7 @@ func main() {
 	initLogger(isDev)
 
 	if err != nil {
-		logUtil.GetLogger().Error(err, "Get configuration failed.")
+		logUtil.Error("Get configuration failed: " + err.Error())
 	}
 
 	// Create a new Cmd to provide shared dependencies and start components
@@ -103,7 +103,7 @@ func main() {
 	// Setup Server
 	s, err := server.NewServer(&serverConf)
 	if err != nil {
-		logUtil.GetLogger().Error(err, "Create gRPC server failed.")
+		logUtil.Error("Setup server failed: " + err.Error())
 	}
 
 	// Start Server
