@@ -1,4 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/containers-ai/Alameda)](https://goreportcard.com/report/github.com/containers-ai/Alameda)
+[![CircleCI](https://circleci.com/gh/containers-ai/alameda.svg?style=shield)](https://circleci.com/gh/containers-ai/alameda)
 
 # What is Alameda
 
