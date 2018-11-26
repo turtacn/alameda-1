@@ -10,6 +10,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
+// TODO: Deprecate all this stuff
+
 var logger logr.Logger
 
 func GetLogger() logr.Logger {
