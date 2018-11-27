@@ -26,9 +26,16 @@ type Response struct {
 }
 
 type Data struct {
-	ResultType string        `json:"resultType"`
+	ResultType ResultType    `json:"resultType"`
 	Result     []interface{} `json:"result"`
 }
+
+type ResultType string
+
+var MatrixResultType ResultType = "matrix"
+var VectorResultType ResultType = "vector"
+var ScalarResultType ResultType = "scalar"
+var StringResultType ResultType = "string"
 
 type MatrixResult struct {
 	Metric map[string]string `json:"metric"`
