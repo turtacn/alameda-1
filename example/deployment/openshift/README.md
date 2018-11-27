@@ -2,7 +2,7 @@
 
 ## Pre-requirement
 
-1. Setup OKD cluster and command line eg: oc, kubectl
+1. Setup OKD v1.11.0 cluster and command line eg: oc, kubectl
 2. Configure Prometheus in project openshift-monitoring
 3. Create user and setup RBAC policy
 
