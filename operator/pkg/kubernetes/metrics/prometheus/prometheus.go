@@ -52,7 +52,8 @@ func New(config Config) (metrics.MetricsDB, error) {
 
 	p.config = config
 
-	if strings.ToLower(p.config.Protocol) == "https" {
+	u, _ := url.Parse(config.URL)
+	if strings.ToLower(u.Scheme) == "https" {
 		p.client = http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: p.config.TLSConfig.InsecureSkipVerify},
@@ -163,10 +164,7 @@ func (p *prometheus) queryEndpoint(q *metrics.Query) string {
 
 	var ep string
 
-	protocol := p.config.Protocol
-	host := p.config.Host
-	port := p.config.Port
-	ep = fmt.Sprintf("%s://%s:%s", protocol, host, port)
+	ep = p.config.URL
 
 	// append query endpoint into ep and set query parameter
 	switch q.TimeSelector.(type) {
@@ -299,7 +297,7 @@ func convertQueryResponse(r Response) (metrics.QueryResponse, error) {
 				unixTime := time.Unix(int64(value[0].(float64)), 0)
 
 				if _, ok := value[1].(string); !ok {
-					return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[1]))
+					return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to string", reflect.TypeOf(value[1]))
 				}
 				sampleValue, err := strconv.ParseFloat(value[1].(string), 64)
 				if err != nil {
@@ -341,7 +339,7 @@ func convertQueryResponse(r Response) (metrics.QueryResponse, error) {
 			unixTime := time.Unix(int64(value[0].(float64)), 0)
 
 			if _, ok := value[1].(string); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[1]))
+				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert %+v(type %s) to string", value[1], reflect.TypeOf(value[1]))
 			}
 			sampleValue, err := strconv.ParseFloat(value[1].(string), 64)
 			if err != nil {
