@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 	"time"
 
@@ -23,9 +22,8 @@ func setup() {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 
-	baseURL, _ := url.Parse(server.URL)
 	cfg := Config{
-		BaseURL: baseURL,
+		URL: server.URL,
 	}
 
 	p, _ := New(cfg)
