@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus"
@@ -25,4 +26,16 @@ func (c *Config) init() {
 
 	promConfig := prometheus.NewConfig()
 	c.Prometheus = &promConfig
+}
+
+func (c *Config) Validate() error {
+
+	var err error
+
+	err = c.Prometheus.Validate()
+	if err != nil {
+		return errors.New("gRPC config validate failed: " + err.Error())
+	}
+
+	return nil
 }
