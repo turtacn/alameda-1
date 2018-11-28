@@ -7,5 +7,4 @@ gRPC:
     bearer-token-file: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 log:
   set-logcallers: true
-  stacktrace-level: "error"
-  output-level: "warn"
+  output-level: "error" # debug, info, warn, error, fatal, none

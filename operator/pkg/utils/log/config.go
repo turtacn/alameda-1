@@ -51,7 +51,7 @@ func NewConfig() *Config {
 	return &c
 }
 
-func (c Config) init() {
+func (c *Config) init() {
 	c.SetLogCallers = true
 	c.OutputLevel = "none"
 	c.StackTraceLevel = "none"
