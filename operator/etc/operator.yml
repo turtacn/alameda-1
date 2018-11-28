@@ -1,9 +1,7 @@
 gRPC:
   bind-address: ":50050"
   prometheus:
-    host: "prometheus-k8s.openshift-monitoring"
-    port: "9091"
-    protocol: "https"
+    url: "https://prometheus-k8s.openshift-monitoring:9091"
     tls-config:
       insecure-skip-verify: true
     bearer-token-file: "/var/run/secrets/kubernetes.io/serviceaccount/token"

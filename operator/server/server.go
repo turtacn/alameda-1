@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"os"
 	"sync"
 
@@ -23,7 +24,7 @@ func NewServer(config *Config) (*Server, error) {
 	// Validate Server config
 	err := config.Validate()
 	if err != nil {
-		return nil, err
+		return nil, errors.New("new server instance failed: " + err.Error())
 	}
 	s.Config = config
 
