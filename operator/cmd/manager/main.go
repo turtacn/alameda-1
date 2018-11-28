@@ -79,6 +79,7 @@ func initServerConfig(mgr manager.Manager) {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 
+	// TODO: This config need default value. And it should check the file exists befor SetConfigFile.
 	viper.SetConfigFile(operatorConfigFile)
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -89,8 +90,7 @@ func initServerConfig(mgr manager.Manager) {
 
 func main() {
 	flag.Parse()
-
-	initLogger()
+	
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -102,8 +102,10 @@ func main() {
 	if err != nil {
 		scope.Error(err.Error())
 	}
+	// TODO: There are config dependency, this manager should have it's config.
+	initServerConfig(mgr)	
+	initLogger()
 
-	initServerConfig(mgr)
 
 	// Setup grpc server config
 	s, err := server.NewServer(&serverConf)
