@@ -1,9 +1,12 @@
 package prometheus
 
+import (
+	"errors"
+	"net/url"
+)
+
 type Config struct {
-	Host            string     `mapstructure:"host"`
-	Port            string     `mapstructure:"port"`
-	Protocol        string     `mapstructure:"protocol"`
+	URL             string     `mapstructure:"url"`
 	BearerTokenFile string     `mapstructure:"bearer-token-file"`
 	TLSConfig       *TLSConfig `mapstructure:"tls-config"`
 	// Path to bearer token file.
@@ -28,10 +31,20 @@ func NewConfig() Config {
 }
 
 func (c *Config) init() {
-	c.Host = "prometheus-k8s.openshift-monitoring"
-	c.Port = "9091"
-	c.Protocol = "https"
+	c.URL = "https://prometheus-k8s.openshift-monitoring:9091"
 	c.TLSConfig = &TLSConfig{
 		InsecureSkipVerify: true,
 	}
+}
+
+func (c *Config) Validate() error {
+
+	var err error
+
+	_, err = url.Parse(c.URL)
+	if err != nil {
+		return errors.New("prometheus config validate failed: " + err.Error())
+	}
+
+	return nil
 }

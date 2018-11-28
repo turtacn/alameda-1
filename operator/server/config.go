@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+
 	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/services/grpc"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -29,6 +31,13 @@ func (c *Config) init() {
 }
 
 func (c Config) Validate() error {
+
+	var err error
+
+	err = c.GRPC.Validate()
+	if err != nil {
+		return errors.New("server config validate failed: " + err.Error())
+	}
 
 	return nil
 }
