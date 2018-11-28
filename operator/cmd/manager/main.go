@@ -22,13 +22,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/viper"
-
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/server"
-	"github.com/go-logr/logr"
+	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -45,9 +43,9 @@ var isLogOutput bool
 var serverPort int
 var operatorConfigFile string
 
-var logger logr.Logger
 var serverConf server.Config
 var scope *logUtil.Scope
+var wg sync.WaitGroup
 
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
@@ -73,7 +71,7 @@ func initLogger() {
 	}
 }
 
-func initConfig(mgr manager.Manager) {
+func initServerConfig(mgr manager.Manager) {
 
 	serverConf = server.NewConfig(mgr)
 
@@ -90,12 +88,11 @@ func initConfig(mgr manager.Manager) {
 }
 
 func main() {
+	flag.Parse()
+
+	initLogger()
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
 	if err != nil {
 		scope.Error("Get configuration failed: " + err.Error())
 	}
@@ -106,23 +103,20 @@ func main() {
 		scope.Error(err.Error())
 	}
 
-	// Set wait group for Server goroutine
-	var wg sync.WaitGroup
-	wg.Add(1)
-	initConfig(mgr)
-	initLogger()
+	initServerConfig(mgr)
 
-	// Setup Server
+	// Setup grpc server config
 	s, err := server.NewServer(&serverConf)
 
 	if err != nil {
 		scope.Error("Setup server failed: " + err.Error())
 	}
 
-	// Start Server
+	// Start grpc server
+	wg.Add(1)
 	go s.Start(&wg)
-	scope.Info("Registering Components.")
 
+	scope.Info("Registering Components.")
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
 		scope.Error(err.Error())
@@ -140,6 +134,6 @@ func main() {
 		scope.Error(err.Error())
 	}
 
-	// Wait Server goroutine
+	// Wait grpc server goroutine
 	wg.Wait()
 }
