@@ -124,7 +124,7 @@ docker build -t operator .
 ```
 Clone code and build docker image for alameda-ai
 ```
-git clone https://github.com/prophetstor-ai/alameda-ai.git
+git clone https://github.com/containers-ai/alameda-ai.git
 cd alameda-ai
 docker build -t alameda-ai .
 ```
