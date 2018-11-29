@@ -28,7 +28,7 @@ Meeting:
 #
 
 <h3><strong>Getting Started and Documentation</strong></h3>
-See our Documentation.
+See our <span style="color: #00ccff;"><a style="color: #00ccff;" href="./docs/" target="_self" rel="noopener">Documentation</a></span>.
 
 #
 

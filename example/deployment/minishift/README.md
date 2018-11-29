@@ -149,6 +149,7 @@ oc exec -it <pod name> bash
 
 After ensure both operator and alameda-ai running execute below command
 ```
-oc apply -f samples/nginx_deployment.yaml
-oc apply -f samples/alameda_deployment.yaml
+cd <alameda>/example/samples/nginx
+oc apply -f nginx_deployment.yaml
+oc apply -f alameda_deployment.yaml
 ```

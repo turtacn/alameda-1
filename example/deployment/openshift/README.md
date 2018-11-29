@@ -10,7 +10,7 @@
 
 Login your OKD cluster
 ```
-oc loing -u <user> <address>
+oc login -u <user> <address>
 ```
 
 First create project named alameda
@@ -26,7 +26,7 @@ oc create imagestream operator
 
 Apply build config
 ```
-oc apply -f build_condig
+oc apply -f build_config
 ```
 
 ## Setup github webhook
@@ -67,6 +67,7 @@ oc exec -it <pod name> bash
 
 After ensure both operator and alameda-ai running execute below command
 ```
-oc apply -f samples/nginx_deployment.yaml
-oc apply -f samples/alameda_deployment.yaml
+cd <alameda>/example/samples/nginx
+oc apply -f nginx_deployment.yaml
+oc apply -f alameda_deployment.yaml
 ```
