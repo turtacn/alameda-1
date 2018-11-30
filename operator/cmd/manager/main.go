@@ -90,7 +90,7 @@ func initServerConfig(mgr manager.Manager) {
 
 func main() {
 	flag.Parse()
-	
+
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -103,9 +103,8 @@ func main() {
 		scope.Error(err.Error())
 	}
 	// TODO: There are config dependency, this manager should have it's config.
-	initServerConfig(mgr)	
+	initServerConfig(mgr)
 	initLogger()
-
 
 	// Setup grpc server config
 	s, err := server.NewServer(&serverConf)

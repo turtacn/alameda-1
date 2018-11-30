@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
@@ -54,6 +55,7 @@ type AlamedaResource string
 //
 const (
 	AlamedaDeployment AlamedaResource = "Deployment"
+	UpdateRetry                       = 3
 )
 
 // AlamedaK8sController is key of AlamedaResource annotation
@@ -270,18 +272,26 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, 
 		newAlamedaAnnotations[AlamedaK8sController] = string(updatemd)
 	}
 	if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
-		alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
-		err := r.Get(context.TODO(), types.NamespacedName{
-			Namespace: namespace,
-			Name:      name,
-		}, alamedaresource)
-		alamedaresource.SetAnnotations(newAlamedaAnnotations)
-		if err == nil {
-			err = r.Update(context.TODO(), alamedaresource)
+		for retry := 0; retry < UpdateRetry; retry++ {
+			time.Sleep(1 * time.Second)
+			alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
+			err := r.Get(context.TODO(), types.NamespacedName{
+				Namespace: namespace,
+				Name:      name,
+			}, alamedaresource)
+			alamedaresourceAnno := getAnnotations(alamedaresource)
+			alamedaresourceAnno[AlamedaK8sController] = newAlamedaAnnotations[AlamedaK8sController]
+			alamedaresource.SetAnnotations(alamedaresourceAnno)
 			if err != nil {
 				scope.Error(err.Error())
 			} else {
-				registerPodPrediction(alamedaresource, namespace, name, newPodMaps, nil)
+				err = r.Update(context.TODO(), alamedaresource)
+				if err != nil {
+					scope.Error(err.Error())
+				} else {
+					registerPodPrediction(alamedaresource, namespace, name, newPodMaps, nil)
+					break
+				}
 			}
 		}
 	}
@@ -305,7 +315,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaK8SControllerByDeployment(ns str
 func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autoscalingv1alpha1.AlamedaResource, request reconcile.Request) {
 	needUpdated := false
 	name := request.Name
-	anno := ala.GetAnnotations()
+	anno := getAnnotations(ala)
 	if anno != nil && anno[AlamedaK8sController] != "" {
 		k8sc := convertk8scontrollerJSONString(anno[AlamedaK8sController])
 		//handle deployment controller
@@ -329,11 +339,8 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 	alaML := ala.Spec.Selector.MatchLabels
 	dL := deploy.GetLabels()
 	dpUID := deploy.GetUID()
-	anno := ala.GetAnnotations()
-	if anno == nil {
-		anno = map[string]string{}
-		anno[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
-	}
+	anno := getAnnotations(ala)
+
 	k8sc := convertk8scontrollerJSONString(anno[AlamedaK8sController])
 	deletePodMaps := map[string]Pod{}
 	newPodMaps := map[string]Pod{}
@@ -374,29 +381,36 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		}
 	}
 	if needUpdated {
-		updated, _ := json.MarshalIndent(k8sc, "", JSONIndent)
-		anno[AlamedaK8sController] = string(updated)
-		alaIns := &autoscalingv1alpha1.AlamedaResource{}
-		err := r.Get(context.TODO(), types.NamespacedName{
-			Namespace: ala.GetNamespace(),
-			Name:      ala.GetName(),
-		}, alaIns)
-		if err != nil {
-			scope.Error(err.Error())
-			return
-		}
-		alaIns.SetAnnotations(anno)
-		err = r.Update(context.TODO(), ala)
-		if err != nil {
-			scope.Error(err.Error())
-			return
-		}
+		for retry := 0; retry < UpdateRetry; retry++ {
+			time.Sleep(1 * time.Second)
+			updated, _ := json.MarshalIndent(k8sc, "", JSONIndent)
+			alaIns := &autoscalingv1alpha1.AlamedaResource{}
+			err := r.Get(context.TODO(), types.NamespacedName{
+				Namespace: ala.GetNamespace(),
+				Name:      ala.GetName(),
+			}, alaIns)
+			if err != nil {
+				scope.Error(err.Error())
+				continue
+			}
 
-		registerPodPrediction(alaIns, deploy.GetNamespace(), deploy.GetName(), newPodMaps, deletePodMaps)
+			alaInsAnno := getAnnotations(alaIns)
+			alaInsAnno[AlamedaK8sController] = string(updated)
+			alaIns.SetAnnotations(alaInsAnno)
+			err = r.Update(context.TODO(), ala)
+			if err != nil {
+				scope.Error(err.Error())
+				continue
+			}
+
+			registerPodPrediction(alaIns, deploy.GetNamespace(), deploy.GetName(), newPodMaps, deletePodMaps)
+			break
+		}
 	}
 }
 
 func registerPodPrediction(alamedaresource *autoscalingv1alpha1.AlamedaResource, namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
+	scope.Info("Start registering pod prediction.")
 	conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
 	if err != nil {
 		scope.Error(err.Error())
@@ -517,4 +531,15 @@ func (r *ReconcileAlamedaResource) getControllerMapForAnno(kind string, deploy i
 		}
 	}
 	return nil
+}
+
+func getAnnotations(ala *autoscalingv1alpha1.AlamedaResource) map[string]string {
+	anno := ala.GetAnnotations()
+	if anno == nil {
+		anno = map[string]string{}
+	}
+	if _, ok := anno[AlamedaK8sController]; !ok {
+		anno[AlamedaK8sController] = alamedaK8sControllerDefautlAnno()
+	}
+	return anno
 }
