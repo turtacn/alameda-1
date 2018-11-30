@@ -152,7 +152,6 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 			listPods := utilsresource.NewListPods(r)
 			podList := listPods.ListPods(deployment.GetNamespace(), deployment.GetName(), "deployment")
 			podsMap := map[autoscalingv1alpha1.PodUID]autoscalingv1alpha1.PredictPod{}
-			scope.Error(err.Error())
 			for _, pod := range podList {
 				containers := map[autoscalingv1alpha1.ContainerName]autoscalingv1alpha1.PredictContainer{}
 				for _, container := range pod.Spec.Containers {
@@ -211,7 +210,6 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 		}
 	}
 	if !reflect.DeepEqual(instance.Status.Prediction, copyInstance.Status.Prediction) {
-		scope.Error(err.Error())
 		r.Update(context.TODO(), instance)
 	}
 
