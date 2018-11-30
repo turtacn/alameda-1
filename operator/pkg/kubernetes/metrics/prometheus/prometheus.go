@@ -48,19 +48,23 @@ type prometheus struct {
 
 func New(config Config) (metrics.MetricsDB, error) {
 
-	p := &prometheus{}
+	var (
+		p                = &prometheus{}
+		requestTimeout   = 30 * time.Second
+		handShakeTimeout = 5 * time.Second
+	)
 
 	p.config = config
 
 	u, _ := url.Parse(config.URL)
+	p.client = http.Client{
+		Timeout: requestTimeout,
+	}
 	if strings.ToLower(u.Scheme) == "https" {
-		p.client = http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: p.config.TLSConfig.InsecureSkipVerify},
-			},
+		p.client.Transport = &http.Transport{
+			TLSHandshakeTimeout: handShakeTimeout,
+			TLSClientConfig:     &tls.Config{InsecureSkipVerify: p.config.TLSConfig.InsecureSkipVerify},
 		}
-	} else {
-		p.client = http.Client{}
 	}
 
 	if p.config.BearerTokenFile != "" {
