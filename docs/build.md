@@ -1,24 +1,23 @@
 # Build Alameda docker images from source code
 
 Running Alameda requires two components:
-- [Alameda operator](https://github.com/containers-ai/alameda) which interacts with Kubernetes cluster.
-- [Alameda-ai](https://github.com/containers-ai/alameda-ai) which generates predictions and recommendations with deep learning techniques. 
+1. [Alameda operator](https://github.com/containers-ai/alameda) which interacts with Kubernetes cluster
+2. [Alameda-ai](https://github.com/containers-ai/alameda-ai) which generates predictions and recommendations with deep learning techniques 
 
 The following steps show how to build Alameda images.
-- Install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker](https://docs.docker.com/install/#supported-platforms) environment.
-- Build Alameda operator image
-```
-$ git clone https://github.com/containers-ai/alameda.git
-$ cd alameda/operator
-$ docker build -t operator .
-```
-- Build Alameda-ai image
-```
-git clone https://github.com/containers-ai/alameda-ai.git
-cd alameda-ai
-docker build -t alameda-ai .
-```
-
+- First we need to install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker](https://docs.docker.com/install/#supported-platforms) environment
+- Build Alameda operator image by:
+    ```
+    $ git clone https://github.com/containers-ai/alameda.git
+    $ cd alameda/operator
+    $ docker build -t operator .
+    ```
+- Build Alameda-ai image by:
+    ```
+    git clone https://github.com/containers-ai/alameda-ai.git
+    cd alameda-ai
+    docker build -t alameda-ai .
+    ```
 Then you can find the built *alameda-ai* and *operator* images in your docker environment.
 ```
 $ docker images
