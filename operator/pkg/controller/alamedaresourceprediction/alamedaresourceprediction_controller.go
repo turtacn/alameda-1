@@ -25,7 +25,6 @@ import (
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -98,24 +97,28 @@ type ReconcileAlamedaResourcePrediction struct {
 func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	// Fetch the AlamedaResourcePrediction instance
 	instance := &autoscalingv1alpha1.AlamedaResourcePrediction{}
-
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
-	if err != nil && errors.IsNotFound(err) {
-		alaInstance := &autoscalingv1alpha1.AlamedaResource{}
-		err := r.Get(context.TODO(), request.NamespacedName, alaInstance)
-		if err != nil {
-			return reconcile.Result{}, nil
-		}
-		//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
-		err = alamedaresource.CreateAlamedaPrediction(r, r.scheme, alaInstance)
-		if err != nil {
-			scope.Error(err.Error())
-			return reconcile.Result{}, nil
-		}
-	} else if err != nil {
+	if err != nil {
 		return reconcile.Result{}, nil
 	}
+	/*
+		if err != nil && errors.IsNotFound(err) {
+			alaInstance := &autoscalingv1alpha1.AlamedaResource{}
+			err := r.Get(context.TODO(), request.NamespacedName, alaInstance)
+			if err != nil {
+				return reconcile.Result{}, nil
+			}
+			//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
+			r.createAlamedaPrediction(alaInstance)
 
+			if err != nil {
+				scope.Error(err.Error())
+				return reconcile.Result{}, nil
+			}
+		} else if err != nil {
+			return reconcile.Result{}, nil
+		}
+	*/
 	if instance.Spec.Selector == nil {
 		return reconcile.Result{}, nil
 	}
@@ -214,4 +217,9 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileAlamedaResourcePrediction) createAlamedaPrediction(alaInstance *autoscalingv1alpha1.AlamedaResource) error {
+	err := alamedaresource.CreateAlamedaPrediction(r, r.scheme, alaInstance)
+	return err
 }
