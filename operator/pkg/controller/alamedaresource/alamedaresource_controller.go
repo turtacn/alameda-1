@@ -38,7 +38,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -223,9 +222,11 @@ func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedares
 			},
 		},
 	}
-	if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, scheme); err != nil {
-		return err
-	}
+	/*
+		if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, scheme); err != nil {
+			return err
+		}
+	*/
 
 	err := r.Create(context.TODO(), newAlamedaResourcePrediction)
 	if err != nil {

@@ -18,6 +18,7 @@ package alamedaresourceprediction
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
@@ -25,6 +26,7 @@ import (
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -98,27 +100,39 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 	// Fetch the AlamedaResourcePrediction instance
 	instance := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
-	if err != nil {
-		return reconcile.Result{}, nil
-	}
-	/*
-		if err != nil && errors.IsNotFound(err) {
-			alaInstance := &autoscalingv1alpha1.AlamedaResource{}
-			err := r.Get(context.TODO(), request.NamespacedName, alaInstance)
-			if err != nil {
-				return reconcile.Result{}, nil
-			}
-			//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
-			r.createAlamedaPrediction(alaInstance)
 
-			if err != nil {
-				scope.Error(err.Error())
-				return reconcile.Result{}, nil
-			}
-		} else if err != nil {
+	if err != nil && errors.IsNotFound(err) {
+		alaInstance := &autoscalingv1alpha1.AlamedaResource{}
+		err := r.Get(context.TODO(), request.NamespacedName, alaInstance)
+		if err != nil {
 			return reconcile.Result{}, nil
 		}
-	*/
+		//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
+		r.createAlamedaPrediction(alaInstance)
+
+		if err != nil {
+			scope.Error(err.Error())
+			return reconcile.Result{}, nil
+		}
+	} else if err != nil {
+		return reconcile.Result{}, nil
+	}
+
+	// Prediction found, check Alamedaresource if existed
+	found := &autoscalingv1alpha1.AlamedaResource{}
+	err = r.Get(context.TODO(), request.NamespacedName, found)
+
+	if err != nil && errors.IsNotFound(err) {
+		scope.Infof(fmt.Sprintf("AlamedaResourcePrediction found (%s/%s) but alamedaresource not found, delete the alamedaresourceprediction.", request.Namespace, request.Name))
+		r.Delete(context.TODO(), instance)
+		if err != nil {
+			scope.Error(err.Error())
+			return reconcile.Result{}, nil
+		}
+	} else if err != nil {
+		return reconcile.Result{}, nil
+	}
+
 	if instance.Spec.Selector == nil {
 		return reconcile.Result{}, nil
 	}
