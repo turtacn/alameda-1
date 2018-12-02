@@ -9,7 +9,7 @@ metadata:
   name: alameda
   namespace: alameda
 spec:
-  policy: COMPACT
+  policy: compact
   enable: true
   selector:
     matchLabels:
