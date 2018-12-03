@@ -1,12 +1,16 @@
 version: 2
 jobs:
   build:
-    docker:      
+    docker:
       - image: circleci/golang:1.11.2
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
-      - checkout            
-      - run: go build -o ./operator/bin/manager github.com/containers-ai/alameda/operator/cmd/manager
+      - checkout
+      - run: cd /go/src/github.com/containers-ai/alameda/operator; make manager
+      - run: cd /go/src/github.com/containers-ai/alameda/operator; make test-log
+      - run:
+          command: |
+            bash <(curl -s https://codecov.io/bash)
 workflows:
   version: 2
   build:
