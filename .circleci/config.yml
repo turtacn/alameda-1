@@ -1,12 +1,12 @@
 version: 2
 jobs:
   build:
-    docker:      
+    docker:
       - image: circleci/golang:1.11.2
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
       - checkout            
-      - run: go build -o ./operator/bin/manager github.com/containers-ai/alameda/operator/cmd/manager
+      - run: cd /go/src/github.com/containers-ai/alameda/operator; make manager
   install_kubebuilder:
     docker:
       - image: circleci/golang:1.11.2
@@ -32,7 +32,10 @@ jobs:
       - run: if [ ! -d "$KUBEBUILDER_DIR" ];then mkdir -p $KUBEBUILDER_DIR;fi;cp -r $KUBEBUILDER_DIR_WORKSPACE/bin $KUBEBUILDER_DIR/bin
       - run: echo 'export PATH=$KUBEBUILDER_DIR/bin:$PATH' >> ~/.bashrc 
       - checkout 
-      - run: cd operator;make test
+      - run: cd /go/src/github.com/containers-ai/alameda/operator;make test      
+      - run:
+          command: |
+            bash <(curl -s https://codecov.io/bash)
 workflows:
   version: 2
   build_test:

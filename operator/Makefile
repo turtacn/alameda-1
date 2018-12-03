@@ -2,15 +2,22 @@
 # Image URL to use all building/pushing image targets
 IMG ?= operator:latest
 
+.PHONY: all test manager test-log 
 all: test manager
 
 # Run tests
 test: generate fmt vet manifests
 	go test ./pkg/... ./cmd/... ./services/... -coverprofile cover.out
 
+# Run tests
+test-log: generate fmt vet manifests
+	go test ./pkg/utils/log/... -coverprofile cover.out
+
 # Build manager binary
 manager: generate fmt vet
 	go build -o bin/manager github.com/containers-ai/alameda/operator/cmd/manager
+
+.PHONY: run install deploy manifests
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet
@@ -28,6 +35,8 @@ deploy: manifests
 # Generate manifests e.g. CRD
 manifests:
 	go run vendor/sigs.k8s.io/controller-tools/cmd/controller-gen/main.go crd
+
+.PHONY: fmt vet generate docker-build docker-push
 
 # Run go fmt against code
 fmt:
