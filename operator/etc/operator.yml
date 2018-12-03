@@ -8,3 +8,6 @@ gRPC:
 log:
   set-logcallers: true
   output-level: "info" # debug, info, warn, error, fatal, none
+
+grafana-backend:
+  bind-port: 50049
