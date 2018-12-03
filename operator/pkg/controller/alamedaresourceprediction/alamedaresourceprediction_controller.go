@@ -186,8 +186,8 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 
 			instance.Status.Prediction.Deployments[autoscalingv1alpha1.DeploymentUID(deployment.GetUID())] = autoscalingv1alpha1.PredictDeployment{
 				UID:       string(deployment.GetUID()),
-				Namespace: instance.GetNamespace(),
-				Name:      instance.GetName(),
+				Namespace: deployment.GetNamespace(),
+				Name:      deployment.GetName(),
 				Pods:      podsMap,
 			}
 		} else {
