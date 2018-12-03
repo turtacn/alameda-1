@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: cd /go/src/github.com/containers-ai/alameda/operator; make manager
-      - run: cd /go/src/github.com/containers-ai/alameda/operator; make test
+      - run: cd /go/src/github.com/containers-ai/alameda/operator; make test-log
       - run:
           command: |
             bash <(curl -s https://codecov.io/bash)
