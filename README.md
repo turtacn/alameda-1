@@ -3,7 +3,7 @@
 
 # What is Alameda
 
-<h3><strong>The Brain of Resources Orchestrator for Kubernetes</strong></h3>
+### The Brain of Resources Orchestrator for Kubernetes
 
 Alameda is a prediction engine that foresees future resource usage of your Kubernetes cluster down to the pod level. We use machine learning technology to provide resource predictions that enable dynamic scaling and scheduling of your containers, effectively making us the “brain” of Kubernetes resource orchestration. By providing full foresight of resource availability, demand, health, and impact, we enable cloud strategies that involve changing provisioned resources in real time.
 
@@ -13,31 +13,24 @@ Automated orchestration (pod scaling and scheduling, persistent volume provision
 
 You’re welcome to join and contribute to our community. We will be continually adding more support based on community demand and engagement in future releases.
 
-#
-
-<h3><strong>Contact</strong></h3>
+### Contact
  
 Please use the following to reach members of the community:
 
-Slack: <span style="color: #00ccff;"><a style="color: #00ccff;" href="https://join.slack.com/t/alameda-ai/signup" target="_blank" rel="noopener">Join our slack channel</a></span>
+Slack: [Join our slack channel](https://join.slack.com/t/alameda-ai/signup)
 
-Email: <span style="color: #00ccff;"><a style="color: #00ccff;" href="mailto:alameda@prophetstor.com" target="_blank" rel="noopener">Click</a></span>
+Email: [Click](mailto:alameda@prophetstor.com)
 
 Meeting: 
 
-#
+### Getting Started and Documentation
 
-<h3><strong>Getting Started and Documentation</strong></h3>
-See our <span style="color: #00ccff;"><a style="color: #00ccff;" href="./docs/" target="_self" rel="noopener">Documentation</a></span>.
+See our [Documentation](./docs/).
 
-#
+### Contributing
 
-<h3><strong>Contributing</strong></h3>
-We welcome contributions. See <span style="color: #00ccff;"><a style="color: #00ccff;" href="https://github.com/containers-ai/Alameda/commit/20b071b4b6632619897b126ace6c26c26460e598" target="_blank" rel="noopener">Contributing</a></span> to get started.
+We welcome contributions. See [Contributing](CONTRIBUTING.md) to get started.
 
-#
+### Report a Bug
 
-<h3><strong>Report a Bug</strong></h3>
 For filing bugs, suggesting improvements, or requesting new features, please open an issue.
-
-#
