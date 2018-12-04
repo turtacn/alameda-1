@@ -26,7 +26,7 @@ func setup() {
 		URL: server.URL,
 	}
 
-	p, _ := New(cfg)
+	p := New(cfg)
 	prom = p.(*prometheus)
 }
 
