@@ -7,7 +7,7 @@ import (
 var (
 	MetricTypeName = map[metrics.MetricType]string{
 		metrics.MetricTypeContainerCPUUsageTotal:     "container_cpu_usage_seconds_total",
-		metrics.MetricTypeContainerCPUUsageTotalRate: "amespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate",
+		metrics.MetricTypeContainerCPUUsageTotalRate: "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate",
 		metrics.MetricTypeContainerMemoryUsage:       "container_memory_usage_bytes",
 	}
 
