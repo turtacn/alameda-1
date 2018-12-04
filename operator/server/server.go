@@ -10,6 +10,8 @@ import (
 )
 
 type Server struct {
+	err chan error
+
 	Config *Config
 
 	gRPC *grpc.Service
@@ -22,6 +24,7 @@ type Server struct {
 func NewServer(config *Config) (*Server, error) {
 
 	s := Server{
+		err:            make(chan error),
 		Services:       make([]services.Service, 0),
 		ServicesByName: make(map[string]bool),
 	}
@@ -39,26 +42,42 @@ func NewServer(config *Config) (*Server, error) {
 }
 
 func (s *Server) Start(wg *sync.WaitGroup) {
-	defer wg.Done()
 
 	for _, service := range s.Services {
 		go service.Open()
 	}
 
+	go s.watchServices()
+
 	var sigCh = make(chan os.Signal, 1)
 
 	select {
 	case <-sigCh:
-		s.Close()
+		s.Close(wg)
 	}
-
 }
 
 // Close close the services that server running
-func (s *Server) Close() {
+func (s *Server) Close(wg *sync.WaitGroup) {
+	defer wg.Done()
 	for _, service := range s.Services {
 		service.Close()
 	}
+}
+
+func (s *Server) Err() <-chan error {
+	return s.err
+}
+
+func (s *Server) watchServices() {
+
+	var err error
+
+	select {
+	case err = <-s.gRPC.Err():
+	}
+
+	s.err <- err
 }
 
 func (s *Server) appendGRPCService() {

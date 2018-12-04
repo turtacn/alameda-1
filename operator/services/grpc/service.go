@@ -27,6 +27,9 @@ import (
 )
 
 type Service struct {
+	err    chan error
+	server *grpc.Server
+
 	Config    Config
 	Manager   manager.Manager
 	MetricsDB metrics.MetricsDB
@@ -39,6 +42,8 @@ var (
 func NewService(c *Config, manager manager.Manager) *Service {
 
 	s := &Service{
+		err: make(chan error),
+
 		Config:  *c,
 		Manager: manager,
 	}
@@ -72,6 +77,7 @@ func (s *Service) Open() error {
 		scope.Error(err.Error())
 		return err
 	}
+	s.server = server
 
 	// register gRPC server
 	s.registGRPCServer(server)
@@ -79,7 +85,7 @@ func (s *Service) Open() error {
 
 	// run gRPC server
 	if err := server.Serve(ln); err != nil {
-		return fmt.Errorf("GRPC server failed to serve: %s", err.Error())
+		s.err <- fmt.Errorf("GRPC server failed to serve: %s", err.Error())
 	}
 
 	return nil
@@ -107,7 +113,13 @@ func (s *Service) Close() error {
 		return err
 	}
 
+	s.server.Stop()
+
 	return nil
+}
+
+func (s *Service) Err() <-chan error {
+	return s.err
 }
 
 func (s *Service) ListMetrics(ctx context.Context, in *operator_v1alpha1.ListMetricsRequest) (*operator_v1alpha1.ListMetricsResponse, error) {

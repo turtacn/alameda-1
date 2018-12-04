@@ -117,6 +117,7 @@ func main() {
 	// Start server
 	wg.Add(1)
 	go s.Start(&wg)
+	go watchServer(s)
 
 	scope.Info("Registering Components.")
 	// Setup Scheme for all resources
@@ -138,4 +139,14 @@ func main() {
 
 	// Wait grpc server goroutine
 	wg.Wait()
+}
+
+func watchServer(s *server.Server) {
+	var err error
+
+	select {
+	case err = <-s.Err():
+		s.Close(&wg)
+	}
+	scope.Error("server runtime failed: " + err.Error())
 }
