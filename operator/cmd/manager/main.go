@@ -114,7 +114,7 @@ func main() {
 		scope.Error("Setup server failed: " + err.Error())
 	}
 
-	// Start grpc server
+	// Start server
 	wg.Add(1)
 	go s.Start(&wg)
 

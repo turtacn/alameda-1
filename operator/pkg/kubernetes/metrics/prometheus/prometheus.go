@@ -46,7 +46,7 @@ type prometheus struct {
 	client http.Client
 }
 
-func New(config Config) (metrics.MetricsDB, error) {
+func New(config Config) metrics.MetricsDB {
 
 	var (
 		p                = &prometheus{}
@@ -71,12 +71,12 @@ func New(config Config) (metrics.MetricsDB, error) {
 		token, err := ioutil.ReadFile(config.BearerTokenFile)
 		if err != nil {
 			scope.Error("open bearer token file for prometheus failed: " + err.Error())
-			return nil, errors.New("open bearer token file for prometheus failed")
+			panic("open bearer token file for prometheus failed")
 		}
 		p.config.bearerToken = string(token)
 	}
 
-	return p, nil
+	return p
 }
 
 func (p *prometheus) Connect() error {

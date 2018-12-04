@@ -15,11 +15,16 @@ type Server struct {
 	gRPC *grpc.Service
 
 	Services []services.Service
+
+	ServicesByName map[string]bool
 }
 
 func NewServer(config *Config) (*Server, error) {
 
-	s := Server{}
+	s := Server{
+		Services:       make([]services.Service, 0),
+		ServicesByName: make(map[string]bool),
+	}
 
 	// Validate Server config
 	err := config.Validate()
@@ -28,11 +33,7 @@ func NewServer(config *Config) (*Server, error) {
 	}
 	s.Config = config
 
-	s.gRPC, err = grpc.NewService(config.GRPC, config.Manager)
-	if err != nil {
-		return nil, err
-	}
-	s.Services = append(s.Services, s.gRPC)
+	s.appendGRPCService()
 
 	return &s, nil
 }
@@ -58,4 +59,22 @@ func (s *Server) Close() {
 	for _, service := range s.Services {
 		service.Close()
 	}
+}
+
+func (s *Server) appendGRPCService() {
+
+	config := s.Config
+	service := grpc.NewService(config.GRPC, config.Manager)
+	s.gRPC = service
+	s.AppendService("gRPC", service)
+}
+
+func (s *Server) AppendService(serviceName string, service services.Service) {
+
+	if _, exist := s.ServicesByName[serviceName]; exist {
+		panic("cannot append service twice")
+	}
+
+	s.ServicesByName[serviceName] = true
+	s.Services = append(s.Services, service)
 }

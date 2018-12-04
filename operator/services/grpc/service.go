@@ -36,7 +36,7 @@ var (
 	scope = logUtil.RegisterScope("gRPC", "gRPC server log", 0)
 )
 
-func NewService(c *Config, manager manager.Manager) (*Service, error) {
+func NewService(c *Config, manager manager.Manager) *Service {
 
 	s := &Service{
 		Config:  *c,
@@ -44,13 +44,10 @@ func NewService(c *Config, manager manager.Manager) (*Service, error) {
 	}
 
 	// New Prometheus as metrics database
-	db, err := prometheus.New(*c.Prometheus)
-	if err != nil {
-		return nil, err
-	}
+	db := prometheus.New(*c.Prometheus)
 	s.MetricsDB = db
 
-	return s, nil
+	return s
 }
 
 func (s *Service) Open() error {
