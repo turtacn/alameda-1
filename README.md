@@ -1,7 +1,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/containers-ai/Alameda)](https://goreportcard.com/report/github.com/containers-ai/Alameda)
 [![CircleCI](https://circleci.com/gh/containers-ai/alameda.svg?style=shield)](https://circleci.com/gh/containers-ai/alameda)
 [![codecov](https://codecov.io/gh/containers-ai/alameda/branch/master/graph/badge.svg)](https://codecov.io/gh/containers-ai/alameda)
-[![Docker Pulls](https://img.shields.io/docker/pulls/containersai/alameda.svg)](https://img.shields.io/docker/pulls/containersai/alameda.svg)
+[![Docker Pulls](https://img.shields.io/docker/pulls/containersai/alameda.svg)](https://hub.docker.com/r/containersai/alameda)
 
 # What is Alameda
 
