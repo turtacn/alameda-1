@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
@@ -126,8 +127,8 @@ func (gds *GrafanaDataSource) handleQuery(w http.ResponseWriter, r *http.Request
 					namespace := nnStrs[0]
 					name := nnStrs[1]
 					resList := []TimeSerie{}
-					pdContainers := gds.getPredictionContainers(namespace, name)
-					if pdContainers != nil {
+					if pdContainers := gds.getPredictionContainers(namespace, name); pdContainers != nil {
+						nowSec := time.Now().UnixNano() / 1000000000
 						for _, pdContainer := range pdContainers {
 							dataPoints := [][]float64{}
 							if resNNStrs := strings.Split(target, ":"); len(resNNStrs) == 3 {
@@ -139,7 +140,7 @@ func (gds *GrafanaDataSource) handleQuery(w http.ResponseWriter, r *http.Request
 									for _, predictData := range tsData.PredictData {
 										value, valueErr := strconv.ParseFloat(predictData.Value, 64)
 										time := float64(predictData.Time)
-										if valueErr == nil && strings.ToLower(resNNStrs[0]) == strings.ToLower(string(resource)) {
+										if valueErr == nil && strings.ToLower(resNNStrs[0]) == strings.ToLower(string(resource)) && float64(nowSec) < time {
 											dataPoints = append(dataPoints, []float64{value, time * 1000})
 										}
 									}
