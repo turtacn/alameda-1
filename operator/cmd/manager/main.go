@@ -39,7 +39,6 @@ const (
 )
 
 var isDev bool
-var aiSrvAddr string
 var isLogOutput bool
 var serverPort int
 var operatorConfigFile string
@@ -51,7 +50,6 @@ var wg sync.WaitGroup
 func init() {
 	flag.BoolVar(&isDev, "development", false, "development mode")
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
-	flag.StringVar(&aiSrvAddr, "ai-server", "alameda-ai.alameda.svc.cluster.local:50051", "AI service address")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
 
