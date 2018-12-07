@@ -25,7 +25,7 @@ Email: [Click](mailto:alameda@prophetstor.com)
 
 Community Meeting: [Join](https://zoom.us/j/2541170419) 
 
-Wednesday 9:00am Pacific Time/month (please check "announcement" on our Slack)
+Wednesday 9:00am Pacific Time/month (please check "announcement" on our Slack channel)
 
 ### Getting Started and Documentation
 
