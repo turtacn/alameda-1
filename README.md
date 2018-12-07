@@ -23,9 +23,11 @@ Slack: [Join our slack channel](https://join.slack.com/t/alameda-ai/signup)
 
 Email: [Click](mailto:alameda@prophetstor.com)
 
-Community Meeting: [Join](https://zoom.us/j/2541170419) 
+## Community Meeting: 
 
-Wednesday 9:00am Pacific Time/month (please check "announcement" on our Slack channel)
+[Join](https://zoom.us/j/2541170419) Wednesday 9:00am Pacific Time/month 
+
+Any changes to the meeting schedule will be added to the agenda doc and posted to [Slack #announcements](https://alameda-ai.slack.com/messages/CD3N5BN5T/team/UD4QB30A2/) 
 
 ### Getting Started and Documentation
 
