@@ -5,6 +5,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/containers-ai/alameda/operator"
 	"github.com/containers-ai/alameda/operator/services"
 	"github.com/containers-ai/alameda/operator/services/grpc"
 )
@@ -12,7 +13,7 @@ import (
 type Server struct {
 	err chan error
 
-	Config *Config
+	Config *operator.Config
 
 	gRPC *grpc.Service
 
@@ -21,7 +22,7 @@ type Server struct {
 	ServicesByName map[string]bool
 }
 
-func NewServer(config *Config) (*Server, error) {
+func NewServer(config *operator.Config) (*Server, error) {
 
 	s := Server{
 		err:            make(chan error),

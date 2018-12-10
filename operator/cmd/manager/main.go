@@ -17,11 +17,14 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"strings"
 	"sync"
 
+	"github.com/containers-ai/alameda/operator"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
@@ -35,20 +38,20 @@ import (
 )
 
 const (
-	envVarPrefix = "ALAMEDA_OPERATOR"
+	envVarPrefix = "ALAMEDA"
 )
 
-var isDev bool
+const JSONIndent = "  "
+
 var isLogOutput bool
 var serverPort int
 var operatorConfigFile string
 
-var serverConf server.Config
+var operatorConf operator.Config
 var scope *logUtil.Scope
 var wg sync.WaitGroup
 
 func init() {
-	flag.BoolVar(&isDev, "development", false, "development mode")
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
@@ -57,14 +60,14 @@ func init() {
 }
 
 func initLogger() {
-	scope.Infof("Log output level is %s.", serverConf.Log.OutputLevel)
-	scope.Infof("Log stacktrace level is %s.", serverConf.Log.StackTraceLevel)
+	scope.Infof("Log output level is %s.", operatorConf.Log.OutputLevel)
+	scope.Infof("Log stacktrace level is %s.", operatorConf.Log.StackTraceLevel)
 	for _, scope := range logUtil.Scopes() {
-		scope.SetLogCallers(serverConf.Log.SetLogCallers == true)
-		if outputLvl, ok := logUtil.StringToLevel(serverConf.Log.OutputLevel); ok {
+		scope.SetLogCallers(operatorConf.Log.SetLogCallers == true)
+		if outputLvl, ok := logUtil.StringToLevel(operatorConf.Log.OutputLevel); ok {
 			scope.SetOutputLevel(outputLvl)
 		}
-		if stacktraceLevel, ok := logUtil.StringToLevel(serverConf.Log.StackTraceLevel); ok {
+		if stacktraceLevel, ok := logUtil.StringToLevel(operatorConf.Log.StackTraceLevel); ok {
 			scope.SetStackTraceLevel(stacktraceLevel)
 		}
 	}
@@ -72,7 +75,7 @@ func initLogger() {
 
 func initServerConfig(mgr manager.Manager) {
 
-	serverConf = server.NewConfig(mgr)
+	operatorConf = operator.NewConfig(mgr)
 
 	viper.SetEnvPrefix(envVarPrefix)
 	viper.AutomaticEnv()
@@ -84,7 +87,14 @@ func initServerConfig(mgr manager.Manager) {
 	if err != nil {
 		panic(errors.New("Read configuration failed: " + err.Error()))
 	}
-	viper.Unmarshal(&serverConf)
+	err = viper.Unmarshal(&operatorConf)
+	if err != nil {
+		panic(errors.New("Unmarshal configuration failed: " + err.Error()))
+	} else {
+		if operatorConfBin, err := json.MarshalIndent(operatorConf, "", JSONIndent); err == nil {
+			scope.Infof(fmt.Sprintf("Operator configuration: %s", string(operatorConfBin)))
+		}
+	}
 }
 
 func main() {
@@ -106,7 +116,7 @@ func main() {
 	initLogger()
 
 	// Setup grpc server config
-	s, err := server.NewServer(&serverConf)
+	s, err := server.NewServer(&operatorConf)
 
 	if err != nil {
 		scope.Error("Setup server failed: " + err.Error())
@@ -127,7 +137,7 @@ func main() {
 	if err := controller.AddToManager(mgr); err != nil {
 		scope.Error(err.Error())
 	}
-	go grafanadatasource.NewGrafanaDataSource(mgr, serverConf.GrafanaBackend.BindPort)
+	go grafanadatasource.NewGrafanaDataSource(mgr, operatorConf.GrafanaBackend.BindPort)
 	scope.Info("Starting the Cmd.")
 
 	// Start the Cmd

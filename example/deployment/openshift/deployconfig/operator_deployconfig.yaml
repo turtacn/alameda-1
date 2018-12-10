@@ -28,9 +28,9 @@ spec:
     spec:
       containers:
       - env:
-        - name: ALAMEDA_OPERATOR_GRPC_PROMETHEUS_BEARER_TOKEN_FILE
+        - name: ALAMEDA_GRPC_PROMETHEUS_BEARER_TOKEN_FILE
           value: /var/run/secrets/kubernetes.io/serviceaccount/token
-        - name: ALAMEDA_OPERATOR_GRPC_PROMETHEUS_URL
+        - name: ALAMEDA_GRPC_PROMETHEUS_URL
           value: http://prometheus24.kube-system.svc.cluster.local:80
         imagePullPolicy: Always
         name: operator

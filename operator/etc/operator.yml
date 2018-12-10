@@ -11,3 +11,6 @@ log:
 
 grafana-backend:
   bind-port: 50049
+
+ai-server:
+  address: "alameda-ai.alameda.svc.cluster.local:50051"

@@ -6,7 +6,7 @@ import (
 )
 
 func GetAIServiceAddress() string {
-	aiServer := os.Getenv("AI_SERVER")
+	aiServer := os.Getenv("ALAMEDA_AI_SERVER_ADDRESS")
 	if len(aiServer) == 0 {
 		return "alameda-ai.alameda.svc.cluster.local:50051"
 	}
