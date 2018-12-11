@@ -33,7 +33,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 			have: &operator_v1alpha1.ListMetricsRequest{
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
-						Key:   "test",
+						Key:   "namespace",
 						Op:    operator_v1alpha1.StrOp_Equal,
 						Value: "test",
 					},
@@ -45,7 +45,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 			have: &operator_v1alpha1.ListMetricsRequest{
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
-						Key:   `\"test`,
+						Key:   `\"node_name`,
 						Op:    operator_v1alpha1.StrOp_Equal,
 						Value: "test",
 					},
@@ -132,7 +132,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		err := ValidateListMetricsRequest(test.have)
+		err := ValidateListMetricsRequest(*test.have)
 		assert.Condition(func() bool {
 			success := false
 			if (test.want == nil && err == nil) || (test.want != nil && err != nil) {

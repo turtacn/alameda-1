@@ -127,7 +127,7 @@ func (s *Service) ListMetrics(ctx context.Context, in *operator_v1alpha1.ListMet
 	var resp *operator_v1alpha1.ListMetricsResponse
 
 	// Validate request
-	err := ValidateListMetricsRequest(in)
+	err := ValidateListMetricsRequest(*in)
 	if err != nil {
 		resp = &operator_v1alpha1.ListMetricsResponse{}
 		resp.Status = &status.Status{

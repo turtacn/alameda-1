@@ -19,3 +19,13 @@ const (
 	LabelSelectorKeyContainerName LabelSelectorKey = "container_name"
 	LabelSelectorKeyNodeName      LabelSelectorKey = "node_name"
 )
+
+var (
+	LabelSelectorKeysAvailableForMetrics = map[MetricType][]LabelSelectorKey{
+		MetricTypeContainerCPUUsageTotal:     []LabelSelectorKey{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
+		MetricTypeContainerCPUUsageTotalRate: []LabelSelectorKey{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
+		MetricTypeContainerMemoryUsage:       []LabelSelectorKey{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
+		MetricTypeNodeCPUUsageSecondsAvg1M:   []LabelSelectorKey{LabelSelectorKeyNodeName},
+		MetricTypeNodeMemoryUsageBytes:       []LabelSelectorKey{LabelSelectorKeyNodeName},
+	}
+)
