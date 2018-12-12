@@ -188,7 +188,7 @@ func transformResultsPrometheusLabelIntoLabelSelectorKeyByMetricType(q metrics.Q
 		labelsInPrometheus = nodeMemoryUsageBytes.LabelMapper.PrometheusLabels
 		labelSelectorKeys = nodeMemoryUsageBytes.LabelMapper.LabelSelectorKeys
 	default:
-		return result, errors.New(fmt.Sprintf("transform prometheus label to metrics.LabelSelectorKey failed: no exist LabelSelectorKey mapper for metric type \"%s\"", q.Metric))
+		return result, errors.New(fmt.Sprintf("transform prometheus label to metrics.LabelSelectorKey failed: no exist LabelSelectorKey mapper for metric type %d", q.Metric))
 	}
 
 	for _, data := range q.Results {
