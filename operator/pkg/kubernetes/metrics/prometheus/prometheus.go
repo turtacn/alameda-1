@@ -14,6 +14,12 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/containerCPUUsageTotal"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/containerCPUUsageTotalRate"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/containerMemoryUsage"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/factory"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/nodeCPUUsageSecondsAVG1M"
+	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/nodeMemoryUsageBytes"
 	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 )
 
@@ -44,6 +50,14 @@ var (
 type prometheus struct {
 	config Config
 	client http.Client
+}
+
+func (p prometheus) BaseURL() string {
+	return p.config.URL
+}
+
+func (p prometheus) BearerToken() string {
+	return p.config.bearerToken
 }
 
 func New(config Config) metrics.MetricsDB {
@@ -90,28 +104,23 @@ func (p *prometheus) Close() error {
 
 func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 
-	// Get query url
-	u, err := p.queryUrl(q)
-	if err != nil {
-		scope.Error("parse query url: " + err.Error())
-		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
-	}
+	var requestFactory metrics.BackendQueryRequestFactory
+	var req http.Request
 
-	// Build http request
-	req, err := http.NewRequest("GET", u.String(), nil)
+	requestFactory = p.queryRequestFactory(q)
+	request, err := requestFactory.BuildServiceRequest()
 	if err != nil {
-		scope.Error("build http request faild: " + err.Error())
+		scope.Error("build service request failed: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
-	if token := p.config.bearerToken; token != "" {
-		h := http.Header{
-			"Authorization": []string{fmt.Sprintf(" Bearer %s", token)},
-		}
-		req.Header = h
+	req, ok := request.(http.Request)
+	if !ok {
+		scope.Error("type assert to http.Request failed: " + err.Error())
+		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
 
 	// Send request to prometheus
-	resp, err := p.client.Do(req)
+	resp, err := p.client.Do(&req)
 	if err != nil {
 		scope.Error("send http request to prometheus failed: " + err.Error())
 		return metrics.QueryResponse{}, err
@@ -137,110 +146,33 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 	return queryResponse, nil
 }
 
-// getQueryUrl Return url.URL by the metrics.Query instance
-func (p *prometheus) queryUrl(q metrics.Query) (url.URL, error) {
+func (p *prometheus) queryRequestFactory(q metrics.Query) metrics.BackendQueryRequestFactory {
 
 	var (
-		u *url.URL
-		v = &url.Values{}
+		baseURL     = p.BaseURL()
+		bearerToken = p.BearerToken()
+		factoryOpts = []factory.QueryRequestFactoryOpts{
+			factory.PromAddr(baseURL),
+			factory.PromAuth(bearerToken),
+		}
+
+		bqrf metrics.BackendQueryRequestFactory
 	)
 
-	// get query end point base on query time selector
-	ep := p.queryEndpoint(&q)
-
-	// set query expression in query parameters
-	setQueryExpressionParameter(v, q)
-
-	// set query time in query parameters
-	setQueryTimeParameter(v, q)
-
-	u, err := url.Parse(ep)
-	if err != nil {
-		return url.URL{}, errors.New("parse requset url failed: " + err.Error())
-	}
-	u.RawQuery = v.Encode()
-
-	return *u, nil
-}
-
-// queryEndpoint Return query endpoint base on prometheus protocol,address and type of query time
-func (p *prometheus) queryEndpoint(q *metrics.Query) string {
-
-	var ep string
-
-	ep = p.config.URL
-
-	// append query endpoint into ep and set query parameter
-	switch q.TimeSelector.(type) {
-	case nil:
-		ep += fmt.Sprintf("%s%s", apiPrefix, epQuery)
-
-	case *metrics.Timestamp:
-		ep += fmt.Sprintf("%s%s", apiPrefix, epQuery)
-
-	case *metrics.TimeRange:
-		ep += fmt.Sprintf("%s%s", apiPrefix, epQueryRange)
-
-	case *metrics.Since:
-		ep += fmt.Sprintf("%s%s", apiPrefix, epQuery)
+	switch q.Metric {
+	case metrics.MetricTypeContainerCPUUsageTotal:
+		bqrf = containerCPUUsageTotal.NewQueryRequestFactory(q, factoryOpts...)
+	case metrics.MetricTypeContainerCPUUsageTotalRate:
+		bqrf = containerCPUUsageTotalRate.NewQueryRequestFactory(q, factoryOpts...)
+	case metrics.MetricTypeContainerMemoryUsage:
+		bqrf = containerMemoryUsage.NewQueryRequestFactory(q, factoryOpts...)
+	case metrics.MetricTypeNodeCPUUsageSecondsAvg1M:
+		bqrf = nodeCPUUsageSecondsAVG1M.NewQueryRequestFactory(q, factoryOpts...)
+	case metrics.MetricTypeNodeMemoryUsageBytes:
+		bqrf = nodeMemoryUsageBytes.NewQueryRequestFactory(q, factoryOpts...)
 	}
 
-	return ep
-}
-
-func setQueryExpressionParameter(v *url.Values, q metrics.Query) {
-
-	var (
-		queryExpression string // query represent the query expression to prometheus api
-		lss             = q.LabelSelectors
-	)
-
-	lss = append(lss, defaultLabelSelectors...)
-
-	// build prometheus query expression
-	labelSelectorString := ""
-	for _, ls := range lss {
-
-		k := ls.Key
-		v := ls.Value
-		op := StringOperatorLiteral[ls.Op]
-
-		labelSelectorString += fmt.Sprintf("%s %s \"%s\",", k, op, v)
-	}
-	labelSelectorString = strings.TrimSuffix(labelSelectorString, ",")
-	queryExpression = fmt.Sprintf("%s{%s}", MetricTypeName[q.Metric], labelSelectorString)
-
-	switch q.TimeSelector.(type) {
-	case *metrics.Since:
-		d := q.TimeSelector.(*metrics.Since)
-		rangeDurationString := fmt.Sprintf("[%ss]", strconv.FormatFloat(d.Duration.Seconds(), 'f', 0, 64))
-		queryExpression = queryExpression + rangeDurationString
-	}
-
-	v.Set("query", queryExpression)
-}
-
-func setQueryTimeParameter(v *url.Values, q metrics.Query) {
-
-	switch q.TimeSelector.(type) {
-	case *metrics.Timestamp:
-		t := q.TimeSelector.(*metrics.Timestamp)
-		tStr := strconv.FormatInt(int64(t.T.Unix()), 10)
-		v.Set("time", tStr)
-
-	case *metrics.TimeRange:
-		t := q.TimeSelector.(*metrics.TimeRange)
-		startTime := t.StartTime
-		endTime := t.EndTime
-		step := t.Step
-		startTimeString := strconv.FormatInt(int64(startTime.Unix()), 10)
-		endTimeString := strconv.FormatInt(int64(endTime.Unix()), 10)
-		stepString := strconv.FormatFloat(step.Seconds(), 'f', 0, 64)
-
-		v.Set("start", startTimeString)
-		v.Set("end", endTimeString)
-		v.Set("step", stepString)
-	}
+	return bqrf
 }
 
 // getResponse Convert http response to Response struct

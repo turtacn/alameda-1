@@ -1,22 +1,5 @@
 package prometheus
 
-import (
-	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics"
-)
-
-var (
-	MetricTypeName = map[metrics.MetricType]string{
-		metrics.MetricTypeContainerCPUUsageTotal:     "container_cpu_usage_seconds_total",
-		metrics.MetricTypeContainerCPUUsageTotalRate: "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate",
-		metrics.MetricTypeContainerMemoryUsage:       "container_memory_usage_bytes",
-	}
-
-	StringOperatorLiteral = map[metrics.StringOperator]string{
-		metrics.StringOperatorEqueal:    "=",
-		metrics.StringOperatorNotEqueal: "!=",
-	}
-)
-
 type Response struct {
 	StatusCode int
 	Status     string `json:"status"`

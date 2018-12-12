@@ -227,6 +227,14 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 	}, nil
 }
 
+func (s *Service) GetResourceInfo(ctx context.Context, in *operator_v1alpha1.GetResourceInfoRequest) (*operator_v1alpha1.GetResourceInfoResponse, error) {
+	return nil, nil
+}
+
+func (s *Service) GetResourceRecommendation(ctx context.Context, in *operator_v1alpha1.GetResourceRecommendationRequest) (*operator_v1alpha1.GetResourceRecommendationResponse, error) {
+	return nil, nil
+}
+
 func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaResource, predictPods []*operator_v1alpha1.PredictPod) {
 	alamedaresourcePredict := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 	s.Manager.GetClient().Get(go_context.TODO(), types.NamespacedName{
@@ -345,6 +353,10 @@ func buildMetircQuery(req *operator_v1alpha1.ListMetricsRequest) metrics.Query {
 		q.Metric = metrics.MetricTypeContainerCPUUsageTotalRate
 	case operator_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE:
 		q.Metric = metrics.MetricTypeContainerMemoryUsage
+	case operator_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_AVG1M:
+		q.Metric = metrics.MetricTypeNodeCPUUsageSecondsAvg1M
+	case operator_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES:
+		q.Metric = metrics.MetricTypeNodeMemoryUsageBytes
 	}
 
 	for _, labelSelector := range req.GetConditions() {

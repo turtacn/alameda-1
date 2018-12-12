@@ -60,3 +60,7 @@ type LabelSelector struct {
 	Key, Value string
 	Op         StringOperator
 }
+
+type BackendQueryRequestFactory interface {
+	BuildServiceRequest() (interface{}, error)
+}
