@@ -11,12 +11,22 @@ service OperatorService {
         returns (ListMetricsSumResponse) {}
     rpc CreatePredictResult(CreatePredictResultRequest)
         returns (CreatePredictResultResponse) {}
+    rpc GetResourceInfo(GetResourceInfoRequest)
+        returns (GetResourceInfoResponse) {}
+    rpc GetResourceRecommendation(GetResourceRecommendationRequest)
+        returns (GetResourceRecommendationResponse) {}
 }
 
 enum MetricType {
     CONTAINER_CPU_USAGE_TOTAL = 0;
     CONTAINER_CPU_USAGE_TOTAL_RATE = 1;
     CONTAINER_MEMORY_USAGE = 2;
+    NODE_CPU_USAGE_SECONDS_AVG1M = 3;
+    NODE_MEMORY_USAGE_BYTES = 4;
+}
+
+enum ResourceType {
+    POD = 0;
 }
 
 enum StrOp {
@@ -79,6 +89,18 @@ message ListMetricsSumResponse {
     google.rpc.Status status = 2;
 }
 
+message GetResourceInfoRequest {
+    ResourceType type = 1;
+    string namespace = 2;
+    string name = 3;
+}
+
+message GetResourceRecommendationRequest {
+    ResourceType type = 1;
+    string namespace = 2;
+    string name = 3;
+}
+
 message Resource {
     map<string,string> limit = 1;
     map<string,string> request = 2;
@@ -112,6 +134,16 @@ message PredictPod {
     repeated PredictContainer predict_containers = 4;
 }
 
+message Container {
+    string name = 1;
+    Resource resource = 2;
+    Resource initial_resource = 3;
+}
+
+message PodInfo {
+    repeated Container containers = 1;
+}
+
 message CreatePredictResultRequest {
     repeated PredictPod predict_pods = 1;
 }
@@ -120,3 +152,20 @@ message CreatePredictResultResponse {
     google.rpc.Status status = 1;
 }
 
+message GetResourceInfoResponse {
+    google.rpc.Status status = 1;
+    ResourceType type = 2;
+    string uid = 3;
+    string namespace = 4;
+    string name = 5;
+    PodInfo pod_info = 6;
+}
+
+message GetResourceRecommendationResponse {
+    google.rpc.Status status = 1;
+    ResourceType type = 2;
+    string uid = 3;
+    string namespace = 4;
+    string name = 5;
+    PodInfo pod_info = 6;
+}

@@ -11,14 +11,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7448ba8252bab1400b019a1426bddba0997be45f232f63d44fc826bad6a78208"
+  digest = "1:7db33113f15a13961b5a9377e676586d45a22e7de283403b7ce2ed162e892c86"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/ai_service",
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "519a626e8cd61c46debf72a237d4f423c4ce4902"
+  revision = "3f1d6190431f65add7e2ca2cebc89316e45b0e1e"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -933,7 +933,6 @@
     "pkg/client/apiutil",
     "pkg/client/config",
     "pkg/controller",
-    "pkg/controller/controllerutil",
     "pkg/envtest",
     "pkg/envtest/printer",
     "pkg/event",
@@ -994,7 +993,6 @@
     "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
     "github.com/containers-ai/api/alameda_api/v1alpha1/operator",
     "github.com/emicklei/go-restful",
-    "github.com/go-logr/logr",
     "github.com/golang/mock/gomock",
     "github.com/golang/protobuf/ptypes",
     "github.com/onsi/ginkgo",
@@ -1029,12 +1027,10 @@
     "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",
     "sigs.k8s.io/controller-runtime/pkg/controller",
-    "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil",
     "sigs.k8s.io/controller-runtime/pkg/envtest",
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",
     "sigs.k8s.io/controller-runtime/pkg/reconcile",
-    "sigs.k8s.io/controller-runtime/pkg/runtime/log",
     "sigs.k8s.io/controller-runtime/pkg/runtime/scheme",
     "sigs.k8s.io/controller-runtime/pkg/runtime/signals",
     "sigs.k8s.io/controller-runtime/pkg/source",

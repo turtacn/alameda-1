@@ -8,15 +8,22 @@ enum RecommendationPolicy {
     COMPACT = 1;
 }
 
+message Pod {
+    string node_name = 1;
+    string resourceLink = 2;
+}
+
 message Object {
     enum Type {
         POD = 0;
+        NODE = 1;
     }
     Type type = 1;
     RecommendationPolicy policy = 2;
     string uid = 3;
     string namespace = 4;
     string name = 5;
+    Pod pod = 6;
 }
 
 message PredictionObjectListCreationRequest {

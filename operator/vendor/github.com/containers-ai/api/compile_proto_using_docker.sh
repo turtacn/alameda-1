@@ -24,11 +24,14 @@ EOF
     cat > $ALAMEA_GRPC_GO_IMAGE_DOCKERFILE - <<EOF
 FROM golang:stretch
 ARG DOCKERFILE_MD5
-ENV DOCKERFILE_MD5=\$DOCKERFILE_MD5 PROTOC_VER=3.6.1 OS_ARC=linux-x86_64
+ENV DOCKERFILE_MD5=\$DOCKERFILE_MD5 PROTOC_VER=3.6.1 OS_ARC=linux-x86_64 PROTOC_GEN_GO_VER=v1.2.0
 RUN apt-get update && apt-get install unzip -y && \\
 curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v\$PROTOC_VER/protoc-\$PROTOC_VER-\$OS_ARC.zip && \\
 unzip protoc-\$PROTOC_VER-\$OS_ARC.zip -d /usr/local && rm protoc-\$PROTOC_VER-\$OS_ARC.zip && \\
-go get -u github.com/golang/protobuf/protoc-gen-go && rm -rf /var/lib/apt/lists/*
+go get -d -u github.com/golang/protobuf/protoc-gen-go && \\
+git -C "\$(go env GOPATH)"/src/github.com/golang/protobuf checkout \$PROTOC_GEN_GO_VER && \\
+go install github.com/golang/protobuf/protoc-gen-go && \\
+rm -rf /var/lib/apt/lists/*
 EOF
 }
 

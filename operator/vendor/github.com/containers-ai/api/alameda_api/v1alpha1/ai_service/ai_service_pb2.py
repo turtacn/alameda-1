@@ -8,7 +8,6 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -21,7 +20,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='alameda_api/v1alpha1/ai_service/ai_service.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n0alameda_api/v1alpha1/ai_service/ai_service.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8a\x01\n\x06Object\x12\x1a\n\x04type\x18\x01 \x01(\x0e\x32\x0c.Object.Type\x12%\n\x06policy\x18\x02 \x01(\x0e\x32\x15.RecommendationPolicy\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\"\x0f\n\x04Type\x12\x07\n\x03POD\x10\x00\"?\n#PredictionObjectListCreationRequest\x12\x18\n\x07objects\x18\x01 \x03(\x0b\x32\x07.Object\"?\n#PredictionObjectListDeletionRequest\x12\x18\n\x07objects\x18\x01 \x03(\x0b\x32\x07.Object\"\"\n\x0fRequestResponse\x12\x0f\n\x07message\x18\x01 \x01(\t*/\n\x14RecommendationPolicy\x12\n\n\x06STABLE\x10\x00\x12\x0b\n\x07\x43OMPACT\x10\x01\x32\xc3\x01\n\x11\x41lamendaAIService\x12S\n\x17\x43reatePredictionObjects\x12$.PredictionObjectListCreationRequest\x1a\x10.RequestResponse\"\x00\x12Y\n\x17\x44\x65letePredictionObjects\x12$.PredictionObjectListDeletionRequest\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3')
+  serialized_options=None,
+  serialized_pb=_b('\n0alameda_api/v1alpha1/ai_service/ai_service.proto\x1a\x1bgoogle/protobuf/empty.proto\".\n\x03Pod\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cresourceLink\x18\x02 \x01(\t\"\xa7\x01\n\x06Object\x12\x1a\n\x04type\x18\x01 \x01(\x0e\x32\x0c.Object.Type\x12%\n\x06policy\x18\x02 \x01(\x0e\x32\x15.RecommendationPolicy\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x11\n\x03pod\x18\x06 \x01(\x0b\x32\x04.Pod\"\x19\n\x04Type\x12\x07\n\x03POD\x10\x00\x12\x08\n\x04NODE\x10\x01\"?\n#PredictionObjectListCreationRequest\x12\x18\n\x07objects\x18\x01 \x03(\x0b\x32\x07.Object\"?\n#PredictionObjectListDeletionRequest\x12\x18\n\x07objects\x18\x01 \x03(\x0b\x32\x07.Object\"\"\n\x0fRequestResponse\x12\x0f\n\x07message\x18\x01 \x01(\t*/\n\x14RecommendationPolicy\x12\n\n\x06STABLE\x10\x00\x12\x0b\n\x07\x43OMPACT\x10\x01\x32\xc3\x01\n\x11\x41lamendaAIService\x12S\n\x17\x43reatePredictionObjects\x12$.PredictionObjectListCreationRequest\x1a\x10.RequestResponse\"\x00\x12Y\n\x17\x44\x65letePredictionObjects\x12$.PredictionObjectListDeletionRequest\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -33,17 +33,17 @@ _RECOMMENDATIONPOLICY = _descriptor.EnumDescriptor(
   values=[
     _descriptor.EnumValueDescriptor(
       name='STABLE', index=0, number=0,
-      options=None,
+      serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
       name='COMPACT', index=1, number=1,
-      options=None,
+      serialized_options=None,
       type=None),
   ],
   containing_type=None,
-  options=None,
-  serialized_start=388,
-  serialized_end=435,
+  serialized_options=None,
+  serialized_start=465,
+  serialized_end=512,
 )
 _sym_db.RegisterEnumDescriptor(_RECOMMENDATIONPOLICY)
 
@@ -60,15 +60,57 @@ _OBJECT_TYPE = _descriptor.EnumDescriptor(
   values=[
     _descriptor.EnumValueDescriptor(
       name='POD', index=0, number=0,
-      options=None,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='NODE', index=1, number=1,
+      serialized_options=None,
       type=None),
   ],
   containing_type=None,
-  options=None,
-  serialized_start=205,
-  serialized_end=220,
+  serialized_options=None,
+  serialized_start=272,
+  serialized_end=297,
 )
 _sym_db.RegisterEnumDescriptor(_OBJECT_TYPE)
+
+
+_POD = _descriptor.Descriptor(
+  name='Pod',
+  full_name='Pod',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='node_name', full_name='Pod.node_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='resourceLink', full_name='Pod.resourceLink', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=81,
+  serialized_end=127,
+)
 
 
 _OBJECT = _descriptor.Descriptor(
@@ -84,35 +126,42 @@ _OBJECT = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='policy', full_name='Object.policy', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='uid', full_name='Object.uid', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='namespace', full_name='Object.namespace', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='name', full_name='Object.name', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='pod', full_name='Object.pod', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -120,14 +169,14 @@ _OBJECT = _descriptor.Descriptor(
   enum_types=[
     _OBJECT_TYPE,
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=82,
-  serialized_end=220,
+  serialized_start=130,
+  serialized_end=297,
 )
 
 
@@ -144,21 +193,21 @@ _PREDICTIONOBJECTLISTCREATIONREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=222,
-  serialized_end=285,
+  serialized_start=299,
+  serialized_end=362,
 )
 
 
@@ -175,21 +224,21 @@ _PREDICTIONOBJECTLISTDELETIONREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=287,
-  serialized_end=350,
+  serialized_start=364,
+  serialized_end=427,
 )
 
 
@@ -206,34 +255,43 @@ _REQUESTRESPONSE = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=352,
-  serialized_end=386,
+  serialized_start=429,
+  serialized_end=463,
 )
 
 _OBJECT.fields_by_name['type'].enum_type = _OBJECT_TYPE
 _OBJECT.fields_by_name['policy'].enum_type = _RECOMMENDATIONPOLICY
+_OBJECT.fields_by_name['pod'].message_type = _POD
 _OBJECT_TYPE.containing_type = _OBJECT
 _PREDICTIONOBJECTLISTCREATIONREQUEST.fields_by_name['objects'].message_type = _OBJECT
 _PREDICTIONOBJECTLISTDELETIONREQUEST.fields_by_name['objects'].message_type = _OBJECT
+DESCRIPTOR.message_types_by_name['Pod'] = _POD
 DESCRIPTOR.message_types_by_name['Object'] = _OBJECT
 DESCRIPTOR.message_types_by_name['PredictionObjectListCreationRequest'] = _PREDICTIONOBJECTLISTCREATIONREQUEST
 DESCRIPTOR.message_types_by_name['PredictionObjectListDeletionRequest'] = _PREDICTIONOBJECTLISTDELETIONREQUEST
 DESCRIPTOR.message_types_by_name['RequestResponse'] = _REQUESTRESPONSE
 DESCRIPTOR.enum_types_by_name['RecommendationPolicy'] = _RECOMMENDATIONPOLICY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Pod = _reflection.GeneratedProtocolMessageType('Pod', (_message.Message,), dict(
+  DESCRIPTOR = _POD,
+  __module__ = 'alameda_api.v1alpha1.ai_service.ai_service_pb2'
+  # @@protoc_insertion_point(class_scope:Pod)
+  ))
+_sym_db.RegisterMessage(Pod)
 
 Object = _reflection.GeneratedProtocolMessageType('Object', (_message.Message,), dict(
   DESCRIPTOR = _OBJECT,
@@ -270,9 +328,9 @@ _ALAMENDAAISERVICE = _descriptor.ServiceDescriptor(
   full_name='AlamendaAIService',
   file=DESCRIPTOR,
   index=0,
-  options=None,
-  serialized_start=438,
-  serialized_end=633,
+  serialized_options=None,
+  serialized_start=515,
+  serialized_end=710,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreatePredictionObjects',
@@ -281,7 +339,7 @@ _ALAMENDAAISERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_PREDICTIONOBJECTLISTCREATIONREQUEST,
     output_type=_REQUESTRESPONSE,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='DeletePredictionObjects',
@@ -290,162 +348,11 @@ _ALAMENDAAISERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_PREDICTIONOBJECTLISTDELETIONREQUEST,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
-    options=None,
+    serialized_options=None,
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_ALAMENDAAISERVICE)
 
 DESCRIPTOR.services_by_name['AlamendaAIService'] = _ALAMENDAAISERVICE
 
-try:
-  # THESE ELEMENTS WILL BE DEPRECATED.
-  # Please use the generated *_pb2_grpc.py files instead.
-  import grpc
-  from grpc.beta import implementations as beta_implementations
-  from grpc.beta import interfaces as beta_interfaces
-  from grpc.framework.common import cardinality
-  from grpc.framework.interfaces.face import utilities as face_utilities
-
-
-  class AlamendaAIServiceStub(object):
-    # missing associated documentation comment in .proto file
-    pass
-
-    def __init__(self, channel):
-      """Constructor.
-
-      Args:
-        channel: A grpc.Channel.
-      """
-      self.CreatePredictionObjects = channel.unary_unary(
-          '/AlamendaAIService/CreatePredictionObjects',
-          request_serializer=PredictionObjectListCreationRequest.SerializeToString,
-          response_deserializer=RequestResponse.FromString,
-          )
-      self.DeletePredictionObjects = channel.unary_unary(
-          '/AlamendaAIService/DeletePredictionObjects',
-          request_serializer=PredictionObjectListDeletionRequest.SerializeToString,
-          response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-          )
-
-
-  class AlamendaAIServiceServicer(object):
-    # missing associated documentation comment in .proto file
-    pass
-
-    def CreatePredictionObjects(self, request, context):
-      # missing associated documentation comment in .proto file
-      pass
-      context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-      context.set_details('Method not implemented!')
-      raise NotImplementedError('Method not implemented!')
-
-    def DeletePredictionObjects(self, request, context):
-      # missing associated documentation comment in .proto file
-      pass
-      context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-      context.set_details('Method not implemented!')
-      raise NotImplementedError('Method not implemented!')
-
-
-  def add_AlamendaAIServiceServicer_to_server(servicer, server):
-    rpc_method_handlers = {
-        'CreatePredictionObjects': grpc.unary_unary_rpc_method_handler(
-            servicer.CreatePredictionObjects,
-            request_deserializer=PredictionObjectListCreationRequest.FromString,
-            response_serializer=RequestResponse.SerializeToString,
-        ),
-        'DeletePredictionObjects': grpc.unary_unary_rpc_method_handler(
-            servicer.DeletePredictionObjects,
-            request_deserializer=PredictionObjectListDeletionRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-        ),
-    }
-    generic_handler = grpc.method_handlers_generic_handler(
-        'AlamendaAIService', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
-
-
-  class BetaAlamendaAIServiceServicer(object):
-    """The Beta API is deprecated for 0.15.0 and later.
-
-    It is recommended to use the GA API (classes and functions in this
-    file not marked beta) for all further purposes. This class was generated
-    only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0."""
-    # missing associated documentation comment in .proto file
-    pass
-    def CreatePredictionObjects(self, request, context):
-      # missing associated documentation comment in .proto file
-      pass
-      context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
-    def DeletePredictionObjects(self, request, context):
-      # missing associated documentation comment in .proto file
-      pass
-      context.code(beta_interfaces.StatusCode.UNIMPLEMENTED)
-
-
-  class BetaAlamendaAIServiceStub(object):
-    """The Beta API is deprecated for 0.15.0 and later.
-
-    It is recommended to use the GA API (classes and functions in this
-    file not marked beta) for all further purposes. This class was generated
-    only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0."""
-    # missing associated documentation comment in .proto file
-    pass
-    def CreatePredictionObjects(self, request, timeout, metadata=None, with_call=False, protocol_options=None):
-      # missing associated documentation comment in .proto file
-      pass
-      raise NotImplementedError()
-    CreatePredictionObjects.future = None
-    def DeletePredictionObjects(self, request, timeout, metadata=None, with_call=False, protocol_options=None):
-      # missing associated documentation comment in .proto file
-      pass
-      raise NotImplementedError()
-    DeletePredictionObjects.future = None
-
-
-  def beta_create_AlamendaAIService_server(servicer, pool=None, pool_size=None, default_timeout=None, maximum_timeout=None):
-    """The Beta API is deprecated for 0.15.0 and later.
-
-    It is recommended to use the GA API (classes and functions in this
-    file not marked beta) for all further purposes. This function was
-    generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
-    request_deserializers = {
-      ('AlamendaAIService', 'CreatePredictionObjects'): PredictionObjectListCreationRequest.FromString,
-      ('AlamendaAIService', 'DeletePredictionObjects'): PredictionObjectListDeletionRequest.FromString,
-    }
-    response_serializers = {
-      ('AlamendaAIService', 'CreatePredictionObjects'): RequestResponse.SerializeToString,
-      ('AlamendaAIService', 'DeletePredictionObjects'): google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-    }
-    method_implementations = {
-      ('AlamendaAIService', 'CreatePredictionObjects'): face_utilities.unary_unary_inline(servicer.CreatePredictionObjects),
-      ('AlamendaAIService', 'DeletePredictionObjects'): face_utilities.unary_unary_inline(servicer.DeletePredictionObjects),
-    }
-    server_options = beta_implementations.server_options(request_deserializers=request_deserializers, response_serializers=response_serializers, thread_pool=pool, thread_pool_size=pool_size, default_timeout=default_timeout, maximum_timeout=maximum_timeout)
-    return beta_implementations.server(method_implementations, options=server_options)
-
-
-  def beta_create_AlamendaAIService_stub(channel, host=None, metadata_transformer=None, pool=None, pool_size=None):
-    """The Beta API is deprecated for 0.15.0 and later.
-
-    It is recommended to use the GA API (classes and functions in this
-    file not marked beta) for all further purposes. This function was
-    generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
-    request_serializers = {
-      ('AlamendaAIService', 'CreatePredictionObjects'): PredictionObjectListCreationRequest.SerializeToString,
-      ('AlamendaAIService', 'DeletePredictionObjects'): PredictionObjectListDeletionRequest.SerializeToString,
-    }
-    response_deserializers = {
-      ('AlamendaAIService', 'CreatePredictionObjects'): RequestResponse.FromString,
-      ('AlamendaAIService', 'DeletePredictionObjects'): google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-    }
-    cardinalities = {
-      'CreatePredictionObjects': cardinality.Cardinality.UNARY_UNARY,
-      'DeletePredictionObjects': cardinality.Cardinality.UNARY_UNARY,
-    }
-    stub_options = beta_implementations.stub_options(host=host, metadata_transformer=metadata_transformer, request_serializers=request_serializers, response_deserializers=response_deserializers, thread_pool=pool, thread_pool_size=pool_size)
-    return beta_implementations.dynamic_stub(channel, 'AlamendaAIService', cardinalities, options=stub_options)
-except ImportError:
-  pass
 # @@protoc_insertion_point(module_scope)

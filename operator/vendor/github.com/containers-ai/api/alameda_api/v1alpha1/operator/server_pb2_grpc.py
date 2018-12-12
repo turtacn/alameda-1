@@ -29,6 +29,16 @@ class OperatorServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.CreatePredictResultRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.CreatePredictResultResponse.FromString,
         )
+    self.GetResourceInfo = channel.unary_unary(
+        '/OperatorService/GetResourceInfo',
+        request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceInfoRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceInfoResponse.FromString,
+        )
+    self.GetResourceRecommendation = channel.unary_unary(
+        '/OperatorService/GetResourceRecommendation',
+        request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceRecommendationRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceRecommendationResponse.FromString,
+        )
 
 
 class OperatorServiceServicer(object):
@@ -56,6 +66,20 @@ class OperatorServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def GetResourceInfo(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def GetResourceRecommendation(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_OperatorServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -73,6 +97,16 @@ def add_OperatorServiceServicer_to_server(servicer, server):
           servicer.CreatePredictResult,
           request_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.CreatePredictResultRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.CreatePredictResultResponse.SerializeToString,
+      ),
+      'GetResourceInfo': grpc.unary_unary_rpc_method_handler(
+          servicer.GetResourceInfo,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceInfoRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceInfoResponse.SerializeToString,
+      ),
+      'GetResourceRecommendation': grpc.unary_unary_rpc_method_handler(
+          servicer.GetResourceRecommendation,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceRecommendationRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceRecommendationResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
