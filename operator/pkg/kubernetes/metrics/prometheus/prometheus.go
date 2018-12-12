@@ -4,12 +4,9 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -31,20 +28,6 @@ const (
 
 var (
 	scope = log.RegisterScope("prometheus", "metrics repository", 0)
-
-	// defaultLabelSelectors LabelSelectors must apply when query
-	defaultLabelSelectors = []metrics.LabelSelector{
-		metrics.LabelSelector{
-			Key:   "container_name",
-			Op:    metrics.StringOperatorNotEqueal,
-			Value: "POD",
-		},
-		metrics.LabelSelector{
-			Key:   "container_name",
-			Op:    metrics.StringOperatorNotEqueal,
-			Value: "",
-		},
-	}
 )
 
 type prometheus struct {
@@ -104,8 +87,13 @@ func (p *prometheus) Close() error {
 
 func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 
-	var requestFactory metrics.BackendQueryRequestFactory
-	var req http.Request
+	var (
+		requestFactory metrics.BackendQueryRequestFactory
+
+		httpRequest   http.Request
+		httpResponse  *http.Response
+		queryResponse metrics.QueryResponse
+	)
 
 	requestFactory = p.queryRequestFactory(q)
 	request, err := requestFactory.BuildServiceRequest()
@@ -113,33 +101,33 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 		scope.Error("build service request failed: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
-	req, ok := request.(http.Request)
+	httpRequest, ok := request.(http.Request)
 	if !ok {
 		scope.Error("type assert to http.Request failed: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: " + err.Error())
 	}
 
 	// Send request to prometheus
-	resp, err := p.client.Do(&req)
+	httpResponse, err = p.client.Do(&httpRequest)
 	if err != nil {
 		scope.Error("send http request to prometheus failed: " + err.Error())
 		return metrics.QueryResponse{}, err
 	}
 
-	// Convert http response to metrics response
-	response, err := getResponse(resp)
+	var response Response
+	err = decodeHTTPResponse(httpResponse, &response)
 	if err != nil {
-		scope.Error("get prometheus response error" + err.Error())
+		scope.Error("decode http response failed: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: %s" + err.Error())
-	} else if response.Status == "error" {
+	}
+	if response.Status == statusError {
 		scope.Error("get error response from prometheus" + response.Error)
 		return metrics.QueryResponse{}, errors.New("Query: %s" + response.Error)
 	}
-
-	// Convert Response to QueryResponse
-	queryResponse, err := convertQueryResponse(response)
+	response.setMetricType(q.Metric)
+	queryResponse, err = response.transformToMetricsQueryResponse()
 	if err != nil {
-		scope.Error("convert Response to QueryResponse failed: " + err.Error())
+		scope.Error("transform Response to QueryResponse failed: " + err.Error())
 		return metrics.QueryResponse{}, errors.New("Query: %s" + err.Error())
 	}
 
@@ -175,128 +163,15 @@ func (p *prometheus) queryRequestFactory(q metrics.Query) metrics.BackendQueryRe
 	return bqrf
 }
 
-// getResponse Convert http response to Response struct
-func getResponse(resp *http.Response) (Response, error) {
+func decodeHTTPResponse(httpResponse *http.Response, response *Response) error {
 
-	var r Response
+	var err error
 
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	defer httpResponse.Body.Close()
+	err = json.NewDecoder(httpResponse.Body).Decode(&response)
 	if err != nil {
-		return Response{}, err
+		return errors.New("decode http response failed: %s" + err.Error())
 	}
 
-	// unmarshal json response to struct Response
-	// if unmarshal error or receive error from prometheus, return error
-	err = json.Unmarshal(body, &r)
-	if err != nil {
-		return Response{}, err
-	}
-
-	r.StatusCode = resp.StatusCode
-
-	return r, nil
-}
-
-// convertQueryResponse convert the response from prometheus to metrics.QueryResponse
-// The format of prometheus response vary from resultType.
-func convertQueryResponse(r Response) (metrics.QueryResponse, error) {
-
-	// build QueryResponse instance base on different type of prometheus resultType
-	// For each case, get the associated type result first by converting the result of http response to []byte first and then unmarshal.
-	// After getting the result, extract labels and value(s) from the result to serie instance.
-	queryResponse := metrics.QueryResponse{}
-	switch r.Data.ResultType {
-	case "matrix":
-		for _, r := range r.Data.Result {
-
-			result := MatrixResult{}
-			if _, ok := r.(map[string]interface{}); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
-			}
-			resultStr, err := json.Marshal(r.(map[string]interface{}))
-			if err != nil {
-				return metrics.QueryResponse{}, err
-			}
-			err = json.Unmarshal(resultStr, &result)
-			if err != nil {
-				return metrics.QueryResponse{}, err
-			}
-
-			serie := metrics.Data{}
-			serie.Labels = result.Metric
-			for _, value := range result.Values {
-
-				if _, ok := value[0].(float64); !ok {
-					return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[0]))
-				}
-				unixTime := time.Unix(int64(value[0].(float64)), 0)
-
-				if _, ok := value[1].(string); !ok {
-					return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to string", reflect.TypeOf(value[1]))
-				}
-				sampleValue, err := strconv.ParseFloat(value[1].(string), 64)
-				if err != nil {
-					return metrics.QueryResponse{}, err
-				}
-
-				sample := metrics.Sample{
-					Time:  unixTime,
-					Value: sampleValue,
-				}
-				serie.Samples = append(serie.Samples, sample)
-			}
-			queryResponse.Results = append(queryResponse.Results, serie)
-		}
-	case "vector":
-		for _, r := range r.Data.Result {
-
-			result := VectorResult{}
-
-			if _, ok := r.(map[string]interface{}); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
-			}
-			resultStr, err := json.Marshal(r.(map[string]interface{}))
-			if err != nil {
-				return metrics.QueryResponse{}, err
-			}
-			err = json.Unmarshal(resultStr, &result)
-			if err != nil {
-				return metrics.QueryResponse{}, err
-			}
-
-			serie := metrics.Data{}
-			serie.Labels = result.Metric
-			value := result.Value
-
-			if _, ok := value[0].(float64); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[0]))
-			}
-			unixTime := time.Unix(int64(value[0].(float64)), 0)
-
-			if _, ok := value[1].(string); !ok {
-				return metrics.QueryResponse{}, fmt.Errorf("error while building sample, cannot convert %+v(type %s) to string", value[1], reflect.TypeOf(value[1]))
-			}
-			sampleValue, err := strconv.ParseFloat(value[1].(string), 64)
-			if err != nil {
-				return metrics.QueryResponse{}, err
-			}
-
-			sample := metrics.Sample{
-				Time:  unixTime,
-				Value: sampleValue,
-			}
-			serie.Samples = append(serie.Samples, sample)
-
-			queryResponse.Results = append(queryResponse.Results, serie)
-		}
-	case "scalar":
-		return metrics.QueryResponse{}, errors.New(fmt.Sprintf("not implement for resultType \"%s\"", r.Data.ResultType))
-	case "string":
-		return metrics.QueryResponse{}, errors.New(fmt.Sprintf("not implement for resultType \"%s\"", r.Data.ResultType))
-	default:
-		return metrics.QueryResponse{}, errors.New(fmt.Sprintf("not implement for resultType \"%s\"", r.Data.ResultType))
-	}
-
-	return queryResponse, nil
+	return nil
 }
