@@ -95,7 +95,7 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 		queryResponse metrics.QueryResponse
 	)
 
-	requestFactory = p.queryRequestFactory(q)
+	requestFactory = p.getQueryRequestFactoryByQueryMetricType(q)
 	request, err := requestFactory.BuildServiceRequest()
 	if err != nil {
 		scope.Error("build service request failed: " + err.Error())
@@ -134,7 +134,7 @@ func (p *prometheus) Query(q metrics.Query) (metrics.QueryResponse, error) {
 	return queryResponse, nil
 }
 
-func (p *prometheus) queryRequestFactory(q metrics.Query) metrics.BackendQueryRequestFactory {
+func (p *prometheus) getQueryRequestFactoryByQueryMetricType(q metrics.Query) metrics.BackendQueryRequestFactory {
 
 	var (
 		baseURL     = p.BaseURL()
