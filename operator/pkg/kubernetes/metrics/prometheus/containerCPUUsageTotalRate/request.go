@@ -13,6 +13,12 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/request"
 )
 
+const (
+	labelNamespace     = "namespace"
+	labelPodName       = "pod_name"
+	labelContainerName = "container_name"
+)
+
 var (
 	metricName            = "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate"
 	defaultLabelSelectors = []metrics.LabelSelector{
@@ -26,6 +32,14 @@ var (
 			Op:    metrics.StringOperatorNotEqueal,
 			Value: "",
 		},
+	}
+
+	LabelMapper = struct {
+		LabelSelectorKeys []string
+		PrometheusLabels  []string
+	}{
+		LabelSelectorKeys: []string{string(metrics.LabelSelectorKeyNamespace), string(metrics.LabelSelectorKeyPodName), string(metrics.LabelSelectorKeyContainerName)},
+		PrometheusLabels:  []string{labelNamespace, labelPodName, labelContainerName},
 	}
 )
 

@@ -13,8 +13,23 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus/request"
 )
 
+const (
+	labelNode = "node"
+)
+
 var (
-	metricName = "node:node_cpu_utilisation:avg1m"
+	metricName                          = "node:node_cpu_utilisation:avg1m"
+	labelSelectorKeyToLabelInPrometheus = map[metrics.LabelSelectorKey]string{
+		metrics.LabelSelectorKeyNodeName: "node",
+	}
+
+	LabelMapper = struct {
+		LabelSelectorKeys []string
+		PrometheusLabels  []string
+	}{
+		LabelSelectorKeys: []string{string(metrics.LabelSelectorKeyNodeName)},
+		PrometheusLabels:  []string{labelNode},
+	}
 )
 
 type QueryRequestFactory struct {
@@ -95,7 +110,7 @@ func getQueryExpression(q metrics.Query) string {
 	labelSelectorString := ""
 	for _, ls := range lss {
 
-		k := ls.Key
+		k := labelSelectorKeyToLabelInPrometheus[metrics.LabelSelectorKey(ls.Key)]
 		v := ls.Value
 		op := request.StringOperatorLiteral[ls.Op]
 
