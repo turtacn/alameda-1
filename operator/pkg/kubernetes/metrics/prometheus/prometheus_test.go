@@ -99,6 +99,54 @@ func TestQuery(t *testing.T) {
 					},
 				},
 			},
+			{
+				have: metrics.Query{
+					Metric: metrics.MetricTypeNodeCPUUsageSecondsAvg1M,
+					LabelSelectors: []metrics.LabelSelector{
+						metrics.LabelSelector{Key: "node_name", Op: metrics.StringOperatorEqueal, Value: "ip-172-31-17-113.us-west-2.compute.internal"},
+					},
+				},
+				want: metrics.QueryResponse{
+					Metric: metrics.MetricTypeNodeCPUUsageSecondsAvg1M,
+					Results: []metrics.Data{
+						metrics.Data{
+							Labels: map[string]string{
+								"node_name": "ip-172-31-17-113.us-west-2.compute.internal",
+							},
+							Samples: []metrics.Sample{
+								metrics.Sample{
+									Time:  time.Unix(int64(timestamp), int64(0)),
+									Value: float64(0.023583333330073675),
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				have: metrics.Query{
+					Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+					LabelSelectors: []metrics.LabelSelector{
+						metrics.LabelSelector{Key: "node_name", Op: metrics.StringOperatorEqueal, Value: "ip-172-31-17-113.us-west-2.compute.internal"},
+					},
+				},
+				want: metrics.QueryResponse{
+					Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+					Results: []metrics.Data{
+						metrics.Data{
+							Labels: map[string]string{
+								"node_name": "ip-172-31-17-113.us-west-2.compute.internal",
+							},
+							Samples: []metrics.Sample{
+								metrics.Sample{
+									Time:  time.Unix(int64(timestamp), int64(0)),
+									Value: float64(6858416128),
+								},
+							},
+						},
+					},
+				},
+			},
 		}
 
 		mockPrometheusResponses = []Response{
@@ -133,6 +181,42 @@ func TestQuery(t *testing.T) {
 							Values: []Value{
 								[]interface{}{float64(timestamps[0]), "3121.990940488"},
 								[]interface{}{float64(timestamps[1]), "3122.026482446"},
+							},
+						},
+					},
+				},
+			},
+			Response{
+				metricType: metrics.MetricTypeNodeCPUUsageSecondsAvg1M,
+				Status:     "success",
+				Data: Data{
+					ResultType: VectorResultType,
+					Result: []interface{}{
+						VectorResult{
+							Metric: map[string]string{
+								"node": "ip-172-31-17-113.us-west-2.compute.internal",
+							},
+							Value: []interface{}{
+								float64(timestamp),
+								"0.023583333330073675",
+							},
+						},
+					},
+				},
+			},
+			Response{
+				metricType: metrics.MetricTypeNodeMemoryUsageBytes,
+				Status:     "success",
+				Data: Data{
+					ResultType: VectorResultType,
+					Result: []interface{}{
+						VectorResult{
+							Metric: map[string]string{
+								"node_name": "ip-172-31-17-113.us-west-2.compute.internal",
+							},
+							Value: []interface{}{
+								float64(timestamp),
+								"6858416128",
 							},
 						},
 					},
