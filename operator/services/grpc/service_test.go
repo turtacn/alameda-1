@@ -187,6 +187,66 @@ var (
 				},
 			},
 		},
+		{
+			have: &operator_v1alpha1.ListMetricsRequest{
+				MetricType: operator_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_AVG1M,
+				Conditions: []*operator_v1alpha1.LabelSelector{
+					&operator_v1alpha1.LabelSelector{
+						Key:   "node_name",
+						Op:    operator_v1alpha1.StrOp_Equal,
+						Value: "localhost",
+					},
+				},
+			},
+			want: &operator_v1alpha1.ListMetricsResponse{
+				Metrics: []*operator_v1alpha1.MetricResult{
+					&operator_v1alpha1.MetricResult{
+						Labels: map[string]string{
+							"node_name": "localhost",
+						},
+						Samples: []*operator_v1alpha1.Sample{
+							&operator_v1alpha1.Sample{
+								Time:  currentPtypeTime,
+								Value: 0.023583333330073675,
+							},
+						},
+					},
+				},
+				Status: &status.Status{
+					Code: int32(code.Code_OK),
+				},
+			},
+		},
+		{
+			have: &operator_v1alpha1.ListMetricsRequest{
+				MetricType: operator_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES,
+				Conditions: []*operator_v1alpha1.LabelSelector{
+					&operator_v1alpha1.LabelSelector{
+						Key:   "node_name",
+						Op:    operator_v1alpha1.StrOp_Equal,
+						Value: "localhost",
+					},
+				},
+			},
+			want: &operator_v1alpha1.ListMetricsResponse{
+				Metrics: []*operator_v1alpha1.MetricResult{
+					&operator_v1alpha1.MetricResult{
+						Labels: map[string]string{
+							"node_name": "localhost",
+						},
+						Samples: []*operator_v1alpha1.Sample{
+							&operator_v1alpha1.Sample{
+								Time:  currentPtypeTime,
+								Value: 6858416128,
+							},
+						},
+					},
+				},
+				Status: &status.Status{
+					Code: int32(code.Code_OK),
+				},
+			},
+		},
 	}
 
 	mock = []struct {
@@ -331,6 +391,56 @@ var (
 							metrics.Sample{
 								Time:  currentTime,
 								Value: 0.026015485,
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			query: metrics.Query{
+				Metric: metrics.MetricTypeNodeCPUUsageSecondsAvg1M,
+				LabelSelectors: []metrics.LabelSelector{metrics.LabelSelector{
+					Key:   "node_name",
+					Op:    metrics.StringOperatorEqueal,
+					Value: "localhost",
+				}},
+			},
+			response: metrics.QueryResponse{
+				Results: []metrics.Data{
+					metrics.Data{
+						Labels: map[string]string{
+							"node_name": "localhost",
+						},
+						Samples: []metrics.Sample{
+							metrics.Sample{
+								Time:  currentTime,
+								Value: 0.023583333330073675,
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			query: metrics.Query{
+				Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+				LabelSelectors: []metrics.LabelSelector{metrics.LabelSelector{
+					Key:   "node_name",
+					Op:    metrics.StringOperatorEqueal,
+					Value: "localhost",
+				}},
+			},
+			response: metrics.QueryResponse{
+				Results: []metrics.Data{
+					metrics.Data{
+						Labels: map[string]string{
+							"node_name": "localhost",
+						},
+						Samples: []metrics.Sample{
+							metrics.Sample{
+								Time:  currentTime,
+								Value: 6858416128,
 							},
 						},
 					},
