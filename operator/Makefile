@@ -34,7 +34,7 @@ deploy: manifests
 
 # Generate manifests e.g. CRD
 manifests:
-	go run vendor/sigs.k8s.io/controller-tools/cmd/controller-gen/main.go crd
+	go run github.com/containers-ai/alameda/vendor/sigs.k8s.io/controller-tools/cmd/controller-gen crd
 
 .PHONY: fmt vet generate docker-build docker-push
 
