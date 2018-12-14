@@ -7,7 +7,7 @@ all: test manager
 
 # Run tests
 test: generate fmt vet
-	go test ./pkg/... ./cmd/... ./services/... -coverprofile cover.out
+	go test ./pkg/... ./cmd/... -coverprofile cover.out
 
 # Build datahub binary
 datahub: generate fmt vet
@@ -35,4 +35,4 @@ generate:
 
 # Build the docker image
 docker-build: test
-	docker build . -t ${IMG}
+	docker build ./.. -t ${IMG} -f Dockerfile
