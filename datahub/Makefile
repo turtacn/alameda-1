@@ -3,7 +3,7 @@
 IMG ?= datahub:latest
 
 .PHONY: all test datahub 
-all: test manager
+all: test datahub
 
 # Run tests
 test: generate fmt vet
