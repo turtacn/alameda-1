@@ -34,7 +34,7 @@ deploy: manifests
 
 # Generate manifests e.g. CRD
 manifests:
-	go run vendor/sigs.k8s.io/controller-tools/cmd/controller-gen/main.go crd
+	go run github.com/containers-ai/alameda/vendor/sigs.k8s.io/controller-tools/cmd/controller-gen crd
 
 .PHONY: fmt vet generate docker-build docker-push
 
@@ -52,7 +52,7 @@ generate:
 
 # Build the docker image
 docker-build: test
-	docker build . -t ${IMG}
+	docker build ./.. -t ${IMG} -f Dockerfile
 	@echo "updating kustomize image patch file for manager resource"
 	sed -i'' -e 's@image: .*@image: '"${IMG}"'@' ./config/default/manager_image_patch.yaml
 

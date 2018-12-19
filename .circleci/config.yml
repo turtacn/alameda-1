@@ -1,12 +1,19 @@
 version: 2
 jobs:
-  build:
+  build_operator:
     docker:
       - image: circleci/golang:1.11.2
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
       - checkout            
       - run: cd /go/src/github.com/containers-ai/alameda/operator; make manager
+  build_datahub:
+    docker:
+      - image: circleci/golang:1.11.2
+    working_directory: /go/src/github.com/containers-ai/alameda
+    steps:
+      - checkout            
+      - run: cd /go/src/github.com/containers-ai/alameda/datahub; make datahub
   install_kubebuilder:
     docker:
       - image: circleci/golang:1.11.2
@@ -36,12 +43,25 @@ jobs:
       - run:
           command: |
             bash <(curl -s https://codecov.io/bash)
+  test_datahub:
+    docker:
+      - image: circleci/golang:1.11.2
+        user: root
+    working_directory: /go/src/github.com/containers-ai/alameda
+    steps:
+      - checkout 
+      - run: cd /go/src/github.com/containers-ai/alameda/datahub;make test      
+      - run:
+          command: |
+            bash <(curl -s https://codecov.io/bash)
 workflows:
   version: 2
   build_test:
     jobs:
-      - build
+      - build_operator
+      - build_datahub
       - install_kubebuilder
       - test_operator:
           requires:
             - install_kubebuilder
+      - test_datahub

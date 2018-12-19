@@ -2,11 +2,11 @@
 FROM golang:1.11.2-alpine as builder
 
 # Copy in the go src
-WORKDIR /go/src/github.com/containers-ai/alameda/operator
+WORKDIR /go/src/github.com/containers-ai/alameda
 ADD . .
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager github.com/containers-ai/alameda/operator/cmd/manager
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o ./operator/manager github.com/containers-ai/alameda/operator/cmd/manager
 
 # Copy the controller-manager into a thin image
 FROM alpine:latest

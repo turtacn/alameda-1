@@ -1,17 +1,19 @@
 # api
 
-Alameda API definitions of Alameda-ai service and Alameda operator
+This repository defines interfaces for Alameda to access data sources and store its generated predictions and recommendations. The backend that implements these interfaces is the *datahub* component of Alameda. See [Alameda architecture design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md) for more details.
 
 ## How to compile
 
-We provide two methods to compile proto files, within docker environment and without docker environment.
+We provide two ways to compile proto files: [within docker environment](#compile-within-docker-environment) and [without docker environment](#compile-without-docker-environment).
 
 ### Compile within docker environment
 
-Run the following script compiling proto files with docker
+Run the following script to compile proto files with docker
 ```bash
 ./compile_proto_using_docker.sh
 ```
+The generated code will be located in the same folder as the .proto files.
+
 ### Compile without docker environment
 
 #### Prerequisition
@@ -34,7 +36,7 @@ pip3 install -r requirements.txt
 
 #### Compile 
 
-After complete above steps, run the following script compiling proto files with protoc
+After above steps, run the following script to compile proto files with protoc
 ```bash
 ./compile_proto.sh
 ```
