@@ -133,6 +133,7 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 
 	datahub_v1alpha1.RegisterDatahubServiceServer(server, s)
 }
+
 func (s *Server) ListContainerMetrics(ctx context.Context, in *datahub_v1alpha1.ListContainerMetricsRequest) (*datahub_v1alpha1.ListContainerMetricsResponse, error) {
 	return &datahub_v1alpha1.ListContainerMetricsResponse{
 		Status: &status.Status{
@@ -141,6 +142,7 @@ func (s *Server) ListContainerMetrics(ctx context.Context, in *datahub_v1alpha1.
 		},
 	}, nil
 }
+
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {
 	return &datahub_v1alpha1.ListNodeMetricsResponse{
 		Status: &status.Status{
@@ -149,12 +151,14 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 		},
 	}, nil
 }
+
 func (s *Server) CreateAlamedaPod(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaPodRequest) (*status.Status, error) {
 	return &status.Status{
 		Code:    int32(code.Code_UNIMPLEMENTED),
 		Message: "Not implemented",
 	}, nil
 }
+
 func (s *Server) DeleteAlamedaPod(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaPodRequest) (*status.Status, error) {
 	return &status.Status{
 		Code:    int32(code.Code_UNIMPLEMENTED),
@@ -167,12 +171,14 @@ func (s *Server) CreateAlamedaNode(ctx context.Context, in *datahub_v1alpha1.Cre
 		Message: "Not implemented",
 	}, nil
 }
+
 func (s *Server) DeleteAlamedaNode(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodeRequest) (*status.Status, error) {
 	return &status.Status{
 		Code:    int32(code.Code_UNIMPLEMENTED),
 		Message: "Not implemented",
 	}, nil
 }
+
 func (s *Server) ListAlamedaPods(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListAlamedaPodsResponse, error) {
 	return &datahub_v1alpha1.ListAlamedaPodsResponse{
 		Status: &status.Status{
@@ -181,6 +187,7 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *empty.Empty) (*datahub
 		},
 	}, nil
 }
+
 func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListAlamedaNodesResponse, error) {
 	return &datahub_v1alpha1.ListAlamedaNodesResponse{
 		Status: &status.Status{
@@ -189,18 +196,21 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 		},
 	}, nil
 }
+
 func (s *Server) CreatePredictPods(ctx context.Context, in *datahub_v1alpha1.CreatePredictPodsRequest) (*status.Status, error) {
 	return &status.Status{
 		Code:    int32(code.Code_UNIMPLEMENTED),
 		Message: "Not implemented",
 	}, nil
 }
+
 func (s *Server) CreatePredictNodes(ctx context.Context, in *datahub_v1alpha1.CreatePredictNodesRequest) (*status.Status, error) {
 	return &status.Status{
 		Code:    int32(code.Code_UNIMPLEMENTED),
 		Message: "Not implemented",
 	}, nil
 }
+
 func (s *Server) GetPodPredictResult(ctx context.Context, in *datahub_v1alpha1.GetPodPredictRequest) (*datahub_v1alpha1.GetPodPredictResponse, error) {
 	return &datahub_v1alpha1.GetPodPredictResponse{
 		Status: &status.Status{
@@ -209,6 +219,7 @@ func (s *Server) GetPodPredictResult(ctx context.Context, in *datahub_v1alpha1.G
 		},
 	}, nil
 }
+
 func (s *Server) GetNodePredictResult(ctx context.Context, in *datahub_v1alpha1.GetNodePredictRequest) (*datahub_v1alpha1.GetNodePredictResponse, error) {
 	return &datahub_v1alpha1.GetNodePredictResponse{
 		Status: &status.Status{
@@ -217,6 +228,7 @@ func (s *Server) GetNodePredictResult(ctx context.Context, in *datahub_v1alpha1.
 		},
 	}, nil
 }
+
 func (s *Server) GetAlamedaPodResourceInfo(ctx context.Context, in *datahub_v1alpha1.GetAlamedaPodResourceInfoRequest) (*datahub_v1alpha1.ListAlamedaPodsResponse, error) {
 	return &datahub_v1alpha1.ListAlamedaPodsResponse{
 		Status: &status.Status{
