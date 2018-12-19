@@ -51,7 +51,6 @@ compile_grpc_python(){
     if ! docker images $ALAMEA_GRPC_PYTHON_IMAGE | grep $ALAMEA_GRPC_PYTHON_IMAGE_REPO > /dev/null 2>&1; then
         echo "Build new image $ALAMEA_GRPC_PYTHON_IMAGE";
         build_python_image
-	return 0
     fi
     if ! docker run --rm $ALAMEA_GRPC_PYTHON_IMAGE sh -c "
         if [ \"$REQUIREMENT_MD5\" != \"\$REQUIREMENT_MD5\" ] || [ \"$DOCKERFILE_MD5\" != \"\$DOCKERFILE_MD5\" ]; then
@@ -72,7 +71,6 @@ compile_grpc_go(){
     if ! docker images $ALAMEA_GRPC_GO_IMAGE | grep $ALAMEA_GRPC_GO_IMAGE_REPO > /dev/null 2>&1; then
         echo "Build new image $ALAMEA_GRPC_GO_IMAGE";
         build_go_image
-	return 0
     fi
     if ! docker run --rm $ALAMEA_GRPC_GO_IMAGE sh -c "
         if [ \"$DOCKERFILE_MD5\" != \"\$DOCKERFILE_MD5\" ]; then

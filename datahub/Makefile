@@ -17,7 +17,7 @@ datahub: generate fmt vet
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet
-	go run ./cmd/main.go
+	go run ./cmd/main.go run
 
 .PHONY: fmt vet generate docker-build docker-push
 
