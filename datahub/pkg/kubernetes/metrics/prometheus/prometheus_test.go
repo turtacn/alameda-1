@@ -49,8 +49,8 @@ func TestListContainerCPUUsageSecondsPercentage(t *testing.T) {
 				have: metrics.Query{
 					Metric: metrics.MetricTypeContainerCPUUsageSecondsPercentage,
 					LabelSelectors: []metrics.LabelSelector{
-						metrics.LabelSelector{Key: "namespace", Op: metrics.StringOperatorEqueal, Value: "default"},
-						metrics.LabelSelector{Key: "pod_name", Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyNamespace), Op: metrics.StringOperatorEqueal, Value: "default"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyPodName), Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
 					},
 				},
 				want: metrics.QueryResponse{
@@ -58,8 +58,8 @@ func TestListContainerCPUUsageSecondsPercentage(t *testing.T) {
 					Results: []metrics.Data{
 						metrics.Data{
 							Labels: map[string]string{
-								"namespace": "default",
-								"pod_name":  "docker-registry-1-mbjnw",
+								string(metrics.LabelSelectorKeyNamespace): "default",
+								string(metrics.LabelSelectorKeyPodName):   "docker-registry-1-mbjnw",
 							},
 							Samples: []metrics.Sample{
 								metrics.Sample{
@@ -75,8 +75,8 @@ func TestListContainerCPUUsageSecondsPercentage(t *testing.T) {
 				have: metrics.Query{
 					Metric: metrics.MetricTypeContainerCPUUsageSecondsPercentage,
 					LabelSelectors: []metrics.LabelSelector{
-						metrics.LabelSelector{Key: "namespace", Op: metrics.StringOperatorEqueal, Value: "default"},
-						metrics.LabelSelector{Key: "pod_name", Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyNamespace), Op: metrics.StringOperatorEqueal, Value: "default"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyPodName), Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
 					},
 					TimeSelector: &metrics.Since{Duration: 60 * time.Second},
 				},
@@ -85,8 +85,8 @@ func TestListContainerCPUUsageSecondsPercentage(t *testing.T) {
 					Results: []metrics.Data{
 						metrics.Data{
 							Labels: map[string]string{
-								"namespace": "default",
-								"pod_name":  "docker-registry-1-mbjnw",
+								string(metrics.LabelSelectorKeyNamespace): "default",
+								string(metrics.LabelSelectorKeyPodName):   "docker-registry-1-mbjnw",
 							},
 							Samples: []metrics.Sample{
 								metrics.Sample{
@@ -157,7 +157,7 @@ func TestListContainerCPUUsageSecondsPercentage(t *testing.T) {
 	for i, test := range tests {
 
 		testIndex = i
-		resp, err := prom.Query(test.have)
+		resp, err := prom.ListContainerCPUUsageSecondsPercentage(test.have)
 
 		assert := assert.New(t)
 		require.Nil(t, err)
@@ -180,8 +180,8 @@ func TestListContainerMemoryUsageBytes(t *testing.T) {
 				have: metrics.Query{
 					Metric: metrics.MetricTypeContainerMemoryUsageBytes,
 					LabelSelectors: []metrics.LabelSelector{
-						metrics.LabelSelector{Key: "namespace", Op: metrics.StringOperatorEqueal, Value: "default"},
-						metrics.LabelSelector{Key: "pod_name", Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyNamespace), Op: metrics.StringOperatorEqueal, Value: "default"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyPodName), Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
 					},
 				},
 				want: metrics.QueryResponse{
@@ -189,8 +189,8 @@ func TestListContainerMemoryUsageBytes(t *testing.T) {
 					Results: []metrics.Data{
 						metrics.Data{
 							Labels: map[string]string{
-								"namespace": "default",
-								"pod_name":  "docker-registry-1-mbjnw",
+								string(metrics.LabelSelectorKeyNamespace): "default",
+								string(metrics.LabelSelectorKeyPodName):   "docker-registry-1-mbjnw",
 							},
 							Samples: []metrics.Sample{
 								metrics.Sample{
@@ -206,8 +206,8 @@ func TestListContainerMemoryUsageBytes(t *testing.T) {
 				have: metrics.Query{
 					Metric: metrics.MetricTypeContainerMemoryUsageBytes,
 					LabelSelectors: []metrics.LabelSelector{
-						metrics.LabelSelector{Key: "namespace", Op: metrics.StringOperatorEqueal, Value: "default"},
-						metrics.LabelSelector{Key: "pod_name", Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyNamespace), Op: metrics.StringOperatorEqueal, Value: "default"},
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyPodName), Op: metrics.StringOperatorEqueal, Value: "docker-registry-1-mbjnw"},
 					},
 					TimeSelector: &metrics.Since{Duration: 60 * time.Second},
 				},
@@ -216,8 +216,8 @@ func TestListContainerMemoryUsageBytes(t *testing.T) {
 					Results: []metrics.Data{
 						metrics.Data{
 							Labels: map[string]string{
-								"namespace": "default",
-								"pod_name":  "docker-registry-1-mbjnw",
+								string(metrics.LabelSelectorKeyNamespace): "default",
+								string(metrics.LabelSelectorKeyPodName):   "docker-registry-1-mbjnw",
 							},
 							Samples: []metrics.Sample{
 								metrics.Sample{
@@ -288,7 +288,133 @@ func TestListContainerMemoryUsageBytes(t *testing.T) {
 	for i, test := range tests {
 
 		testIndex = i
-		resp, err := prom.Query(test.have)
+		resp, err := prom.ListContainerMemoryUsageBytes(test.have)
+
+		assert := assert.New(t)
+		require.Nil(t, err)
+		assert.Equal(test.want, resp)
+	}
+	server.Close()
+}
+
+func TestListNodeMemoryUsageBytes(t *testing.T) {
+	setup(t)
+
+	var (
+		timestamp  = 1435781430
+		timestamps = []int{1543286478, 1543286508}
+
+		tests = []struct {
+			have metrics.Query
+			want metrics.QueryResponse
+		}{
+			{
+				have: metrics.Query{
+					Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+					LabelSelectors: []metrics.LabelSelector{
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyNodeName), Op: metrics.StringOperatorEqueal, Value: "localhost"},
+					},
+				},
+				want: metrics.QueryResponse{
+					Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+					Results: []metrics.Data{
+						metrics.Data{
+							Labels: map[string]string{
+								string(metrics.LabelSelectorKeyNodeName): "localhost",
+							},
+							Samples: []metrics.Sample{
+								metrics.Sample{
+									Time:  time.Unix(int64(timestamp), int64(0)),
+									Value: float64(101.1),
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				have: metrics.Query{
+					Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+					LabelSelectors: []metrics.LabelSelector{
+						metrics.LabelSelector{Key: string(metrics.LabelSelectorKeyNodeName), Op: metrics.StringOperatorEqueal, Value: "localhost"},
+					},
+					TimeSelector: &metrics.Since{Duration: 60 * time.Second},
+				},
+				want: metrics.QueryResponse{
+					Metric: metrics.MetricTypeNodeMemoryUsageBytes,
+					Results: []metrics.Data{
+						metrics.Data{
+							Labels: map[string]string{
+								string(metrics.LabelSelectorKeyNodeName): "localhost",
+							},
+							Samples: []metrics.Sample{
+								metrics.Sample{
+									Time:  time.Unix(int64(timestamps[0]), int64(0)),
+									Value: float64(3121.990940488),
+								},
+								metrics.Sample{
+									Time:  time.Unix(int64(timestamps[1]), int64(0)),
+									Value: float64(3122.026482446),
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		mockPrometheusResponses = []Response{
+			Response{
+				Status: "success",
+				Data: Data{
+					ResultType: VectorResultType,
+					Result: []interface{}{
+						VectorResult{
+							Metric: map[string]string{
+								"node": "localhost",
+							},
+							Value: []interface{}{
+								float64(timestamp),
+								"101.1",
+							},
+						},
+					},
+				},
+			},
+			Response{
+				Status: "success",
+				Data: Data{
+					ResultType: MatrixResultType,
+					Result: []interface{}{
+						MatrixResult{
+							Metric: map[string]string{
+								"node": "localhost",
+							},
+							Values: []Value{
+								[]interface{}{float64(timestamps[0]), "3121.990940488"},
+								[]interface{}{float64(timestamps[1]), "3122.026482446"},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		testIndex = 0
+	)
+
+	mux.HandleFunc(apiPrefix+epQuery, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		mockResponse := mockPrometheusResponses[testIndex]
+		json.NewEncoder(w).Encode(mockResponse)
+	})
+
+	for i, test := range tests {
+
+		testIndex = i
+		resp, err := prom.ListNodeMemoryUsageBytes(test.have)
 
 		assert := assert.New(t)
 		require.Nil(t, err)

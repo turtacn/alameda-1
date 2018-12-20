@@ -186,12 +186,54 @@ func (s *Server) ListContainerMetrics(ctx context.Context, in *datahub_v1alpha1.
 }
 
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {
-	return &datahub_v1alpha1.ListNodeMetricsResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
-		},
-	}, nil
+
+	var (
+		err error
+
+		req ListNodeMetricsRequest
+
+		apiResp                    datahub_v1alpha1.ListNodeMetricsResponse
+		apiRespInternalServerError = datahub_v1alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
+			},
+		}
+
+		metricsQuery         metrics.Query
+		metricsQueryResponse metrics.QueryResponse
+	)
+
+	req = ListNodeMetricsRequest{*in}
+	err = req.Validate()
+	if err != nil {
+		return &datahub_v1alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	metricsQuery = req.MetricsQuery()
+	switch metricsQuery.Metric {
+	case metrics.MetricTypeNodeCPUUsageSecondsPercentage:
+		metricsQueryResponse, err = s.MetricsDB.ListNodeCPUUsageSecondsPercentage(metricsQuery)
+	case metrics.MetricTypeNodeMemoryUsageBytes:
+		metricsQueryResponse, err = s.MetricsDB.ListNodeMemoryUsageBytes(metricsQuery)
+	}
+	if err != nil {
+		scope.Error(err.Error())
+		return &apiRespInternalServerError, nil
+	}
+
+	apiResp, err = MetricsQueryResponse{metricsQueryResponse}.ListNodeMetricsResponse()
+	if err != nil {
+		scope.Error(err.Error())
+		return &apiRespInternalServerError, nil
+	}
+
+	return &apiResp, nil
 }
 
 func (s *Server) CreateAlamedaPod(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaPodRequest) (*status.Status, error) {

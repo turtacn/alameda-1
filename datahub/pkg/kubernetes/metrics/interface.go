@@ -10,6 +10,8 @@ type MetricsDB interface {
 	Query(q Query) (QueryResponse, error)
 	ListContainerCPUUsageSecondsPercentage(q Query) (QueryResponse, error)
 	ListContainerMemoryUsageBytes(q Query) (QueryResponse, error)
+	ListNodeCPUUsageSecondsPercentage(q Query) (QueryResponse, error)
+	ListNodeMemoryUsageBytes(q Query) (QueryResponse, error)
 }
 
 type Query struct {

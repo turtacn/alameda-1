@@ -11,6 +11,8 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus/containerCPUUsageSecondsPercentage"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus/containerMemoryUsageBytes"
+	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus/nodeCPUUsageSecondsPercentage"
+	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus/nodeMemoryUsageBytes"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 )
 
@@ -175,6 +177,12 @@ func transformResultsPrometheusLabelIntoLabelSelectorKeyByMetricType(q metrics.Q
 	case metrics.MetricTypeContainerMemoryUsageBytes:
 		labelsInPrometheus = containerMemoryUsageBytes.LabelMapper.PrometheusLabels
 		labelSelectorKeys = containerMemoryUsageBytes.LabelMapper.LabelSelectorKeys
+	case metrics.MetricTypeNodeCPUUsageSecondsPercentage:
+		labelsInPrometheus = nodeCPUUsageSecondsPercentage.LabelMapper.PrometheusLabels
+		labelSelectorKeys = nodeCPUUsageSecondsPercentage.LabelMapper.LabelSelectorKeys
+	case metrics.MetricTypeNodeMemoryUsageBytes:
+		labelsInPrometheus = nodeMemoryUsageBytes.LabelMapper.PrometheusLabels
+		labelSelectorKeys = nodeMemoryUsageBytes.LabelMapper.LabelSelectorKeys
 	default:
 		return result, errors.New(fmt.Sprintf("transform prometheus label to metrics.LabelSelectorKey failed: no exist LabelSelectorKey mapper for metric type %d", q.Metric))
 	}

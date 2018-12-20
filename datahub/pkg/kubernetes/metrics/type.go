@@ -1,9 +1,5 @@
 package metrics
 
-type MetricType int
-type StringOperator int
-type LabelSelectorKey string
-
 const (
 	MetricTypeContainerCPUUsageSecondsPercentage MetricType = 0
 	MetricTypeContainerMemoryUsageBytes          MetricType = 1
@@ -20,10 +16,29 @@ const (
 )
 
 var (
-	LabelSelectorKeysAvailableForMetrics = map[MetricType][]LabelSelectorKey{
-		MetricTypeContainerCPUUsageSecondsPercentage: []LabelSelectorKey{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
-		MetricTypeContainerMemoryUsageBytes:          []LabelSelectorKey{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
-		MetricTypeNodeCPUUsageSecondsPercentage:      []LabelSelectorKey{LabelSelectorKeyNodeName},
-		MetricTypeNodeMemoryUsageBytes:               []LabelSelectorKey{LabelSelectorKeyNodeName},
+	LabelSelectorKeysAvailableForMetrics = map[MetricType]LabelSelectorKeys{
+		MetricTypeContainerCPUUsageSecondsPercentage: LabelSelectorKeys{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
+		MetricTypeContainerMemoryUsageBytes:          LabelSelectorKeys{LabelSelectorKeyNamespace, LabelSelectorKeyPodName, LabelSelectorKeyContainerName},
+		MetricTypeNodeCPUUsageSecondsPercentage:      LabelSelectorKeys{LabelSelectorKeyNodeName},
+		MetricTypeNodeMemoryUsageBytes:               LabelSelectorKeys{LabelSelectorKeyNodeName},
 	}
 )
+
+type MetricType int
+
+type StringOperator int
+
+type LabelSelectorKey string
+
+type LabelSelectorKeys []LabelSelectorKey
+
+func (lsks LabelSelectorKeys) Contains(keyToVerify LabelSelectorKey) bool {
+
+	for _, keyExist := range lsks {
+		if keyExist == keyToVerify {
+			return true
+		}
+	}
+
+	return false
+}
