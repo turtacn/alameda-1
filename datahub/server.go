@@ -135,12 +135,54 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 }
 
 func (s *Server) ListContainerMetrics(ctx context.Context, in *datahub_v1alpha1.ListContainerMetricsRequest) (*datahub_v1alpha1.ListContainerMetricsResponse, error) {
-	return &datahub_v1alpha1.ListContainerMetricsResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
-		},
-	}, nil
+
+	var (
+		err error
+
+		req ListContainerMetricsRequest
+
+		apiResp                    datahub_v1alpha1.ListContainerMetricsResponse
+		apiRespInternalServerError = datahub_v1alpha1.ListContainerMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
+			},
+		}
+
+		metricsQuery         metrics.Query
+		metricsQueryResponse metrics.QueryResponse
+	)
+
+	req = ListContainerMetricsRequest{*in}
+	err = req.Validate()
+	if err != nil {
+		return &datahub_v1alpha1.ListContainerMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	metricsQuery = req.MetricsQuery()
+	switch metricsQuery.Metric {
+	case metrics.MetricTypeContainerCPUUsageSecondsPercentage:
+		metricsQueryResponse, err = s.MetricsDB.ListContainerCPUUsageSecondsPercentage(metricsQuery)
+	case metrics.MetricTypeContainerMemoryUsageBytes:
+		metricsQueryResponse, err = s.MetricsDB.ListContainerMemoryUsageBytes(metricsQuery)
+	}
+	if err != nil {
+		scope.Error(err.Error())
+		return &apiRespInternalServerError, nil
+	}
+
+	apiResp, err = MetricsQueryResponse{metricsQueryResponse}.ListContainerMetricsResponse()
+	if err != nil {
+		scope.Error(err.Error())
+		return &apiRespInternalServerError, nil
+	}
+
+	return &apiResp, nil
 }
 
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {

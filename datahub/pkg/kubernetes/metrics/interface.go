@@ -8,6 +8,8 @@ type MetricsDB interface {
 	Connect() error
 	Close() error
 	Query(q Query) (QueryResponse, error)
+	ListContainerCPUUsageSecondsPercentage(q Query) (QueryResponse, error)
+	ListContainerMemoryUsageBytes(q Query) (QueryResponse, error)
 }
 
 type Query struct {
@@ -59,4 +61,8 @@ func (t *Since) is_timeselector() {}
 type LabelSelector struct {
 	Key, Value string
 	Op         StringOperator
+}
+
+type BackendQueryRequestFactory interface {
+	BuildServiceRequest() (interface{}, error)
 }
