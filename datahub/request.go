@@ -3,7 +3,6 @@ package datahub
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics"
@@ -48,40 +47,51 @@ type ListContainerMetricsRequest struct {
 func (req ListContainerMetricsRequest) Validate() error {
 
 	var (
-		availabelLabelSelectorKeys metrics.LabelSelectorKeys
+		err error
+
+		availableLabelSelectorKeys metrics.LabelSelectorKeys
 	)
 
 	if req.GetMetricType() == datahub_v1alpha1.ContainerMetricType_CONTAINER_METRICTYPE_UNDEFINED {
 		return errors.New(fmt.Sprintf(`validate failed: metric type not support "%s"`, datahub_v1alpha1.ContainerMetricType_name[int32(req.GetMetricType())]))
 	}
 
-	availabelLabelSelectorKeys = req.getAvailabelLabelSelectorKeysByMetricType()
-	for _, condition := range req.GetConditions() {
-		key := condition.GetKey()
-		if !availabelLabelSelectorKeys.Contains(metrics.LabelSelectorKey(key)) {
-			return errors.New(fmt.Sprintf(`validate failed: invalid condition, key invalid "%s"`, key))
-		}
+	availableLabelSelectorKeys = req.getAvailableLabelSelectorKeysByMetricType()
+	err = req.validateConditionKeysAreAvailable(availableLabelSelectorKeys)
+	if err != nil {
+		return errors.New("vaildate failed: " + err.Error())
 	}
 
 	return nil
 }
 
-func (req ListContainerMetricsRequest) getAvailabelLabelSelectorKeysByMetricType() metrics.LabelSelectorKeys {
+func (req ListContainerMetricsRequest) validateConditionKeysAreAvailable(availableLabelSelectorKeys metrics.LabelSelectorKeys) error {
+
+	for _, condition := range req.GetConditions() {
+		key := condition.GetKey()
+		if !availableLabelSelectorKeys.Contains(metrics.LabelSelectorKey(key)) {
+			return errors.New(fmt.Sprintf(`invalid condition key: "%s"`, key))
+		}
+	}
+	return nil
+}
+
+func (req ListContainerMetricsRequest) getAvailableLabelSelectorKeysByMetricType() metrics.LabelSelectorKeys {
 
 	var (
-		availabelLabelSelectorKeys metrics.LabelSelectorKeys
+		availableLabelSelectorKeys metrics.LabelSelectorKeys
 	)
 
 	switch req.GetMetricType() {
 	case datahub_v1alpha1.ContainerMetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE:
-		availabelLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeContainerCPUUsageSecondsPercentage]
+		availableLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeContainerCPUUsageSecondsPercentage]
 	case datahub_v1alpha1.ContainerMetricType_CONTAINER_MEMORY_USAGE_BYTES:
-		availabelLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeContainerMemoryUsageBytes]
+		availableLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeContainerMemoryUsageBytes]
 	default:
-		availabelLabelSelectorKeys = make(metrics.LabelSelectorKeys, 0)
+		availableLabelSelectorKeys = make(metrics.LabelSelectorKeys, 0)
 	}
 
-	return availabelLabelSelectorKeys
+	return availableLabelSelectorKeys
 }
 
 func (req ListContainerMetricsRequest) MetricsQuery() metrics.Query {
@@ -135,40 +145,51 @@ type ListNodeMetricsRequest struct {
 func (req ListNodeMetricsRequest) Validate() error {
 
 	var (
-		availabelLabelSelectorKeys metrics.LabelSelectorKeys
+		err error
+
+		availableLabelSelectorKeys metrics.LabelSelectorKeys
 	)
 
 	if req.GetMetricType() == datahub_v1alpha1.NodeMetricType_NODE_METRICTYPE_UNDEFINED {
 		return errors.New(fmt.Sprintf(`validate failed: metric type not support "%s"`, datahub_v1alpha1.NodeMetricType_name[int32(req.GetMetricType())]))
 	}
 
-	availabelLabelSelectorKeys = req.getAvailabelLabelSelectorKeysByMetricType()
-	for _, condition := range req.GetConditions() {
-		key := condition.GetKey()
-		if !availabelLabelSelectorKeys.Contains(metrics.LabelSelectorKey(key)) {
-			return errors.New(fmt.Sprintf(`validate failed: invalid condition, key invalid "%s"`, key))
-		}
+	availableLabelSelectorKeys = req.getAvailableLabelSelectorKeysByMetricType()
+	err = req.validateConditionKeysAreAvailable(availableLabelSelectorKeys)
+	if err != nil {
+		return errors.New("vaildate failed: " + err.Error())
 	}
 
 	return nil
 }
 
-func (req ListNodeMetricsRequest) getAvailabelLabelSelectorKeysByMetricType() metrics.LabelSelectorKeys {
+func (req ListNodeMetricsRequest) validateConditionKeysAreAvailable(availableLabelSelectorKeys metrics.LabelSelectorKeys) error {
+
+	for _, condition := range req.GetConditions() {
+		key := condition.GetKey()
+		if !availableLabelSelectorKeys.Contains(metrics.LabelSelectorKey(key)) {
+			return errors.New(fmt.Sprintf(`invalid condition key: "%s"`, key))
+		}
+	}
+	return nil
+}
+
+func (req ListNodeMetricsRequest) getAvailableLabelSelectorKeysByMetricType() metrics.LabelSelectorKeys {
 
 	var (
-		availabelLabelSelectorKeys metrics.LabelSelectorKeys
+		availableLabelSelectorKeys metrics.LabelSelectorKeys
 	)
 
 	switch req.GetMetricType() {
 	case datahub_v1alpha1.NodeMetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE:
-		availabelLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeNodeCPUUsageSecondsPercentage]
+		availableLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeNodeCPUUsageSecondsPercentage]
 	case datahub_v1alpha1.NodeMetricType_NODE_MEMORY_USAGE_BYTES:
-		availabelLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeNodeMemoryUsageBytes]
+		availableLabelSelectorKeys = metrics.LabelSelectorKeysAvailableForMetrics[metrics.MetricTypeNodeMemoryUsageBytes]
 	default:
-		availabelLabelSelectorKeys = make(metrics.LabelSelectorKeys, 0)
+		availableLabelSelectorKeys = make(metrics.LabelSelectorKeys, 0)
 	}
 
-	return availabelLabelSelectorKeys
+	return availableLabelSelectorKeys
 }
 
 func (req ListNodeMetricsRequest) MetricsQuery() metrics.Query {
@@ -213,66 +234,4 @@ func (req ListNodeMetricsRequest) MetricsQuery() metrics.Query {
 	}
 
 	return q
-}
-
-type MetricsQueryResponse struct {
-	metrics.QueryResponse
-}
-
-func (resp MetricsQueryResponse) ListContainerMetricsResponse() (datahub_v1alpha1.ListContainerMetricsResponse, error) {
-
-	var (
-		convertedResp = datahub_v1alpha1.ListContainerMetricsResponse{}
-	)
-
-	convertedResp.Metrics = make([]*datahub_v1alpha1.MetricResult, 0)
-	for _, result := range resp.Results {
-		series := &datahub_v1alpha1.MetricResult{}
-
-		series.Labels = result.Labels
-		for _, sample := range result.Samples {
-			s := &datahub_v1alpha1.Sample{}
-
-			timestampProto, err := ptypes.TimestampProto(sample.Time)
-			if err != nil {
-				scope.Error("convert time.Time to google.protobuf.Timestamp failed")
-				return convertedResp, err
-			}
-			s.Time = timestampProto
-			s.NumValue = strconv.FormatFloat(sample.Value, 'f', -1, 64)
-			series.Samples = append(series.Samples, s)
-		}
-		convertedResp.Metrics = append(convertedResp.Metrics, series)
-	}
-
-	return convertedResp, nil
-}
-
-func (resp MetricsQueryResponse) ListNodeMetricsResponse() (datahub_v1alpha1.ListNodeMetricsResponse, error) {
-
-	var (
-		convertedResp = datahub_v1alpha1.ListNodeMetricsResponse{}
-	)
-
-	convertedResp.Metrics = make([]*datahub_v1alpha1.MetricResult, 0)
-	for _, result := range resp.Results {
-		series := &datahub_v1alpha1.MetricResult{}
-
-		series.Labels = result.Labels
-		for _, sample := range result.Samples {
-			s := &datahub_v1alpha1.Sample{}
-
-			timestampProto, err := ptypes.TimestampProto(sample.Time)
-			if err != nil {
-				scope.Error("convert time.Time to google.protobuf.Timestamp failed")
-				return convertedResp, err
-			}
-			s.Time = timestampProto
-			s.NumValue = strconv.FormatFloat(sample.Value, 'f', -1, 64)
-			series.Samples = append(series.Samples, s)
-		}
-		convertedResp.Metrics = append(convertedResp.Metrics, series)
-	}
-
-	return convertedResp, nil
 }
