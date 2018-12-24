@@ -15,7 +15,7 @@ spec:
   runPolicy: Serial
   source:
     git:
-      uri: https://github.com/containers-ai/alameda.git
+      uri: https://github.com/containers-ai/alameda-ai.git
     type: Git
   strategy:
     dockerStrategy: {}
