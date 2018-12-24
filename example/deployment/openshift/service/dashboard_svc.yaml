@@ -6,21 +6,19 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: operator
+  name: dashboard
   namespace: alameda
   labels:
-    app: operator
+    app: dashboard
 spec:
   selector:
-    app: operator
+    app: dashboard
   ports:
-  - port: 50049
-    name: simplejson
-  - port: 50050
-    name: grpc
+  - port: 3000
+    name: grafana
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: operator
+  name: dashboard
   namespace: alameda
