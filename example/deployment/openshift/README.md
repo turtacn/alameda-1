@@ -210,6 +210,11 @@ Verify this just commit to github build should trigger automatic
 
 
 ## Apply alameda and alameda-ai deploy config
+Grant alameda-ai pod to run container as root user.
+```
+oc adm policy  add-scc-to-user anyuid system:serviceaccount:alameda:alameda-ai
+``` 
+
 Apply following yaml
 ```
 oc apply -f rbac
@@ -232,6 +237,7 @@ oc exec -it <pod name> bash
 After ensure both operator and alameda-ai running execute below command
 ```
 cd <alameda>/example/samples/nginx
+oc adm policy  add-scc-to-user anyuid system:serviceaccount:alameda:nginx
 oc apply -f nginx_deployment.yaml
 oc apply -f alameda_deployment.yaml
 ```
