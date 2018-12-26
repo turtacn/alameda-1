@@ -1,15 +1,14 @@
 ---
 apiVersion: v1
-kind: ServiceAccount
+kind: Namespace
 metadata:
-  name: nginx
-  namespace: alameda
+  name: webapp
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
-  namespace: alameda
+  namespace: webapp
   labels:
     app: nginx
 spec:

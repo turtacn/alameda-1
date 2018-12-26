@@ -1,10 +1,12 @@
-# Prerequisites
-
-- It is recommended to use Kubernetes 1.9 or greater
-
 # Deployment
 
-This deploy guide provides instructions for but not limit to OpenShift Origin and Minishift platforms.
+This deploy guide provides instructions for
+- Kubernetes  
+- OpenShift Origin  
+- Minishift  
+
+## on Kubernetes
+Please refer to the [README](../example/deployment/kubernetes/README.md).
 
 ## on OpenShift Origin
 

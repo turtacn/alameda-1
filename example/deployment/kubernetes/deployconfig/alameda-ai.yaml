@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: alameda
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alameda-ai
+  namespace: alameda
+  labels:
+    app: alameda-ai
+spec:
+  selector:
+    app: alameda-ai
+  ports:
+  - port: 50051
+    name: grpc
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alameda-ai
+  namespace: alameda
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alameda-ai
+  name: alameda-ai
+  namespace: alameda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alameda-ai
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate 
+  template:
+    metadata:
+      labels:
+        app: alameda-ai
+        deploymentconfig: alameda-ai
+    spec:
+      containers:
+      - image: alameda-ai:latest
+        imagePullPolicy: IfNotPresent
+        args:
+        env:
+        - name: OPERATOR_ADDRESS
+          value: operator.alameda:50050
+        name: alameda-ai
+        ports:
+        - containerPort: 50051
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+

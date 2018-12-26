@@ -1,35 +1,30 @@
 # QuickStart
 
 This document guides you from build, deploy to use Alameda.
-- [Build Alameda](#build-alameda)
-- [Deploy Alameda](#deploy-alameda)
-- [Use Alameda](#use-alameda)
+- Build Alameda
+- Deploy Alameda
+- Use Alameda
 
-# Build Alameda
-Please follow the [build](./build.md) guide.
+## Build Alameda
+Please refer to the [build](./build.md) guide.
 
-# Deploy Alameda
-Please follow the [deploy](./deploy.md) guide.
+## Deploy Alameda
+Please refer to the [deploy](./deploy.md) guide.
 
-# Use Alameda
+## Use Alameda
 
-## Specify a target to request Alameda services
+### Specify a target to request Alameda services
 User can create a custom resource of *AlamedaResource* custom resource definition (CRD) to instruct Alameda that
 1. which Pod(s) to watch by Kubernetes *selector* construct, and
 2. what policy that Alameda should use to give recommendations.
 
-Currently Alameda provides *stable* and *compact* policy. The following is an example to instruct Alameda to watch Pod(s) with *nginx* app label and *stable* policy.
+Currently Alameda provides *stable* and *compact* policy. The following is an example to instruct Alameda to watch Pod(s) at *webapp* namespace with *nginx* label and *stable* policy.
 ```
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: alameda
----
 apiVersion: autoscaling.containers.ai/v1alpha1
 kind: AlamedaResource
 metadata:
   name: alameda
-  namespace: alameda
+  namespace: webapp
 spec:
   policy: stable
   enable: true
@@ -40,35 +35,35 @@ spec:
 
 You can list all Pods that are watched by Alameda with:
 ```
-$ oc get alamedaresources
+$ kubectl get alamedaresources --all-namespaces
 ```
 
-## Retrieve Alameda prediction and recommendation result
+### Retrieve Alameda prediction and recommendation result
 Alameda outputs raw workload metrics prediction and recommendations in a global planning manner for all the pods watched by Alameda.
 They are presented as *alamedaresourceprediction* CRD.
 You can check Alameda prediction and recommendation results by:
 ```
-$ oc get alamedaresourceprediction
+$ kubectl get alamedaresourceprediction --all-namespaces
 ```
 
-## Example
+### Example
 
 - Deploy a nginx application example by:
     ```
     $ cd <alameda>/example/samples/nginx
-    $ oc apply -f nginx_deployment.yaml
+    $ kubectl create -f nginx_deployment.yaml
     ```
 - Request Alameda to predict and recommend the resource usage for nginx Pods by:
     ```
     $ cd <alameda>/example/samples/nginx
-    $ oc apply -f alameda_deployment.yaml
+    $ kubectl create -f alamedaresource.yaml
     ```
 You can check that Alameda is watching the nginx Pods by:
 ```
-$ oc get alamedaresources
-NAME      AGE
-alameda   5m
-$ oc get alamedaresources alameda -o yaml
+$ kubectl get alamedaresource --all-namespaces
+NAMESPACE   NAME      AGE
+webapp      alameda   5h
+$ kubectl get alamedaresource alameda -n webapp -o yaml
 apiVersion: autoscaling.containers.ai/v1alpha1
 kind: AlamedaResource
 metadata:
@@ -103,17 +98,17 @@ metadata:
         }
       }
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaResource","metadata":{"annotations":{},"name":"alameda","namespace":"alameda"},"spec":{"enable":true,"policy":"COMPACT","selector":{"matchLabels":{"app":"nginx"}}}}
+      {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaResource","metadata":{"annotations":{},"name":"alameda","namespace":"alameda"},"spec":{"enable":true,"policy":"compact","selector":{"matchLabels":{"app":"nginx"}}}}
   creationTimestamp: 2018-11-30T08:59:28Z
   generation: 1
   name: alameda
-  namespace: alameda
+  namespace: webapp
   resourceVersion: "67988"
-  selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/alameda/alamedaresources/alameda
+  selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedaresources/alameda
   uid: 3e8ea661-f47e-11e8-8913-88d7f6561288
 spec:
   enable: true
-  policy: COMPACT
+  policy: compact
   selector:
     matchLabels:
       app: nginx
@@ -121,16 +116,16 @@ status: {}
 ```
 And the prediction and recommendation for the nginx Pods are:
 ```
-$ oc get alamedaresourceprediction alameda -o yaml
+$ kubectl get alamedaresourceprediction alameda -n webapp -o yaml
 apiVersion: autoscaling.containers.ai/v1alpha1
 kind: AlamedaResourcePrediction
 metadata:
   creationTimestamp: 2018-11-30T08:59:28Z
   generation: 1
   name: alameda
-  namespace: alameda
+  namespace: webapp
   resourceVersion: "70278"
-  selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/alameda/alamedaresourcepredictions/alameda
+  selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedaresourcepredictions/alameda
   uid: 3e9dc05e-f47e-11e8-8913-88d7f6561288
 spec:
   selector:
