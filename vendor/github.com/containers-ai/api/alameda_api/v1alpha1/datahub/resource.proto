@@ -19,13 +19,15 @@ message Container {
     repeated MetricData initial_request_resource_recommendation = 7;
 }
 
-message AlamedaPod {
+message Pod {
     NamespacedName namespaced_name = 1;
     string resource_link = 2;
     repeated Container containers = 3;
-    NamespacedName alameda_resource = 4;
+    bool is_alameda = 4;
+    NamespacedName alameda_resource = 5;
+    string node_name = 6;
 }
 
-message AlamedaNode {    
+message Node {
     string name = 1;
 }
