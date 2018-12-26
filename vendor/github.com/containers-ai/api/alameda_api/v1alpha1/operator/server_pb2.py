@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n*alameda_api/v1alpha1/operator/server.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17google/rpc/status.proto\"\x92\x01\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\"?\n\rLabelSelector\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x12\n\x02op\x18\x02 \x01(\x0e\x32\x06.StrOp\x12\r\n\x05value\x18\x03 \x01(\t\"A\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\x01\"\x82\x01\n\x0cMetricResult\x12)\n\x06labels\x18\x01 \x03(\x0b\x32\x19.MetricResult.LabelsEntry\x12\x18\n\x07samples\x18\x02 \x03(\x0b\x32\x07.Sample\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe8\x01\n\x12ListMetricsRequest\x12 \n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x0b.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12 \n\ntime_range\x18\x04 \x01(\x0b\x32\n.TimeRangeH\x00\x12\"\n\nconditions\x18\x05 \x03(\x0b\x32\x0e.LabelSelectorB\x0f\n\rtime_selector\"Y\n\x13ListMetricsResponse\x12\x1e\n\x07metrics\x18\x01 \x03(\x0b\x32\r.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"\xfb\x01\n\x15ListMetricsSumRequest\x12 \n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x0b.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12 \n\ntime_range\x18\x04 \x01(\x0b\x32\n.TimeRangeH\x00\x12\"\n\nconditions\x18\x05 \x03(\x0b\x32\x0e.LabelSelector\x12\x0e\n\x06labels\x18\x06 \x03(\tB\x0f\n\rtime_selector\"\\\n\x16ListMetricsSumResponse\x12\x1e\n\x07metrics\x18\x01 \x03(\x0b\x32\r.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"V\n\x16GetResourceInfoRequest\x12\x1b\n\x04type\x18\x01 \x01(\x0e\x32\r.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"`\n GetResourceRecommendationRequest\x12\x1b\n\x04type\x18\x01 \x01(\x0e\x32\r.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"\xb6\x01\n\x08Resource\x12#\n\x05limit\x18\x01 \x03(\x0b\x32\x14.Resource.LimitEntry\x12\'\n\x07request\x18\x02 \x03(\x0b\x32\x16.Resource.RequestEntry\x1a,\n\nLimitEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cRequestEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"W\n\x0eRecommendation\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1b\n\x08resource\x18\x02 \x01(\x0b\x32\t.Resource\"F\n\x0bPredictData\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\t\"4\n\x0eTimeSeriesData\x12\"\n\x0cpredict_data\x18\x01 \x03(\x0b\x32\x0c.PredictData\"\xf8\x01\n\x10PredictContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12?\n\x10row_predict_data\x18\x02 \x03(\x0b\x32%.PredictContainer.RowPredictDataEntry\x12(\n\x0frecommendations\x18\x03 \x03(\x0b\x32\x0f.Recommendation\x12#\n\x10initial_resource\x18\x04 \x01(\x0b\x32\t.Resource\x1a\x46\n\x13RowPredictDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.TimeSeriesData:\x02\x38\x01\"i\n\nPredictPod\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12-\n\x12predict_containers\x18\x04 \x03(\x0b\x32\x11.PredictContainer\"[\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1b\n\x08resource\x18\x02 \x01(\x0b\x32\t.Resource\x12#\n\x10initial_resource\x18\x03 \x01(\x0b\x32\t.Resource\")\n\x07PodInfo\x12\x1e\n\ncontainers\x18\x01 \x03(\x0b\x32\n.Container\"?\n\x1a\x43reatePredictResultRequest\x12!\n\x0cpredict_pods\x18\x01 \x03(\x0b\x32\x0b.PredictPod\"A\n\x1b\x43reatePredictResultResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\"\xa4\x01\n\x17GetResourceInfoResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x1b\n\x04type\x18\x02 \x01(\x0e\x32\r.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x1a\n\x08pod_info\x18\x06 \x01(\x0b\x32\x08.PodInfo\"\xae\x01\n!GetResourceRecommendationResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x1b\n\x04type\x18\x02 \x01(\x0e\x32\r.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x1a\n\x08pod_info\x18\x06 \x01(\x0b\x32\x08.PodInfo*\xaa\x01\n\nMetricType\x12\x1d\n\x19\x43ONTAINER_CPU_USAGE_TOTAL\x10\x00\x12\"\n\x1e\x43ONTAINER_CPU_USAGE_TOTAL_RATE\x10\x01\x12\x1a\n\x16\x43ONTAINER_MEMORY_USAGE\x10\x02\x12 \n\x1cNODE_CPU_USAGE_SECONDS_AVG1M\x10\x03\x12\x1b\n\x17NODE_MEMORY_USAGE_BYTES\x10\x04*\x17\n\x0cResourceType\x12\x07\n\x03POD\x10\x00* \n\x05StrOp\x12\t\n\x05\x45qual\x10\x00\x12\x0c\n\x08NotEqual\x10\x01\x32\x94\x03\n\x0fOperatorService\x12:\n\x0bListMetrics\x12\x13.ListMetricsRequest\x1a\x14.ListMetricsResponse\"\x00\x12\x43\n\x0eListMetricsSum\x12\x16.ListMetricsSumRequest\x1a\x17.ListMetricsSumResponse\"\x00\x12R\n\x13\x43reatePredictResult\x12\x1b.CreatePredictResultRequest\x1a\x1c.CreatePredictResultResponse\"\x00\x12\x46\n\x0fGetResourceInfo\x12\x17.GetResourceInfoRequest\x1a\x18.GetResourceInfoResponse\"\x00\x12\x64\n\x19GetResourceRecommendation\x12!.GetResourceRecommendationRequest\x1a\".GetResourceRecommendationResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n*alameda_api/v1alpha1/operator/server.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17google/rpc/status.proto\"\x92\x01\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\"?\n\rLabelSelector\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x12\n\x02op\x18\x02 \x01(\x0e\x32\x06.StrOp\x12\r\n\x05value\x18\x03 \x01(\t\"A\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\x01\"\x82\x01\n\x0cMetricResult\x12)\n\x06labels\x18\x01 \x03(\x0b\x32\x19.MetricResult.LabelsEntry\x12\x18\n\x07samples\x18\x02 \x03(\x0b\x32\x07.Sample\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe8\x01\n\x12ListMetricsRequest\x12 \n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x0b.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12 \n\ntime_range\x18\x04 \x01(\x0b\x32\n.TimeRangeH\x00\x12\"\n\nconditions\x18\x05 \x03(\x0b\x32\x0e.LabelSelectorB\x0f\n\rtime_selector\"Y\n\x13ListMetricsResponse\x12\x1e\n\x07metrics\x18\x01 \x03(\x0b\x32\r.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"\xfb\x01\n\x15ListMetricsSumRequest\x12 \n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x0b.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12 \n\ntime_range\x18\x04 \x01(\x0b\x32\n.TimeRangeH\x00\x12\"\n\nconditions\x18\x05 \x03(\x0b\x32\x0e.LabelSelector\x12\x0e\n\x06labels\x18\x06 \x03(\tB\x0f\n\rtime_selector\"\\\n\x16ListMetricsSumResponse\x12\x1e\n\x07metrics\x18\x01 \x03(\x0b\x32\r.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"V\n\x16GetResourceInfoRequest\x12\x1b\n\x04type\x18\x01 \x01(\x0e\x32\r.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"`\n GetResourceRecommendationRequest\x12\x1b\n\x04type\x18\x01 \x01(\x0e\x32\r.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"\xb6\x01\n\x08Resource\x12#\n\x05limit\x18\x01 \x03(\x0b\x32\x14.Resource.LimitEntry\x12\'\n\x07request\x18\x02 \x03(\x0b\x32\x16.Resource.RequestEntry\x1a,\n\nLimitEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cRequestEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"W\n\x0eRecommendation\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1b\n\x08resource\x18\x02 \x01(\x0b\x32\t.Resource\"F\n\x0bPredictData\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\t\"4\n\x0eTimeSeriesData\x12\"\n\x0cpredict_data\x18\x01 \x03(\x0b\x32\x0c.PredictData\"\xf8\x01\n\x10PredictContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12?\n\x10raw_predict_data\x18\x02 \x03(\x0b\x32%.PredictContainer.RawPredictDataEntry\x12(\n\x0frecommendations\x18\x03 \x03(\x0b\x32\x0f.Recommendation\x12#\n\x10initial_resource\x18\x04 \x01(\x0b\x32\t.Resource\x1a\x46\n\x13RawPredictDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.TimeSeriesData:\x02\x38\x01\"i\n\nPredictPod\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12-\n\x12predict_containers\x18\x04 \x03(\x0b\x32\x11.PredictContainer\"[\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1b\n\x08resource\x18\x02 \x01(\x0b\x32\t.Resource\x12#\n\x10initial_resource\x18\x03 \x01(\x0b\x32\t.Resource\")\n\x07PodInfo\x12\x1e\n\ncontainers\x18\x01 \x03(\x0b\x32\n.Container\"?\n\x1a\x43reatePredictResultRequest\x12!\n\x0cpredict_pods\x18\x01 \x03(\x0b\x32\x0b.PredictPod\"A\n\x1b\x43reatePredictResultResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\"\xa4\x01\n\x17GetResourceInfoResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x1b\n\x04type\x18\x02 \x01(\x0e\x32\r.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x1a\n\x08pod_info\x18\x06 \x01(\x0b\x32\x08.PodInfo\"\xae\x01\n!GetResourceRecommendationResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x1b\n\x04type\x18\x02 \x01(\x0e\x32\r.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x1a\n\x08pod_info\x18\x06 \x01(\x0b\x32\x08.PodInfo*\xaa\x01\n\nMetricType\x12\x1d\n\x19\x43ONTAINER_CPU_USAGE_TOTAL\x10\x00\x12\"\n\x1e\x43ONTAINER_CPU_USAGE_TOTAL_RATE\x10\x01\x12\x1a\n\x16\x43ONTAINER_MEMORY_USAGE\x10\x02\x12 \n\x1cNODE_CPU_USAGE_SECONDS_AVG1M\x10\x03\x12\x1b\n\x17NODE_MEMORY_USAGE_BYTES\x10\x04*\x17\n\x0cResourceType\x12\x07\n\x03POD\x10\x00*!\n\x05StrOp\x12\t\n\x05\x45QUAL\x10\x00\x12\r\n\tNOT_EQUAL\x10\x01\x32\x94\x03\n\x0fOperatorService\x12:\n\x0bListMetrics\x12\x13.ListMetricsRequest\x1a\x14.ListMetricsResponse\"\x00\x12\x43\n\x0eListMetricsSum\x12\x16.ListMetricsSumRequest\x1a\x17.ListMetricsSumResponse\"\x00\x12R\n\x13\x43reatePredictResult\x12\x1b.CreatePredictResultRequest\x1a\x1c.CreatePredictResultResponse\"\x00\x12\x46\n\x0fGetResourceInfo\x12\x17.GetResourceInfoRequest\x1a\x18.GetResourceInfoResponse\"\x00\x12\x64\n\x19GetResourceRecommendation\x12!.GetResourceRecommendationRequest\x1a\".GetResourceRecommendationResponse\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
@@ -88,18 +88,18 @@ _STROP = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='Equal', index=0, number=0,
+      name='EQUAL', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='NotEqual', index=1, number=1,
+      name='NOT_EQUAL', index=1, number=1,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=2978,
-  serialized_end=3010,
+  serialized_end=3011,
 )
 _sym_db.RegisterEnumDescriptor(_STROP)
 
@@ -110,8 +110,8 @@ CONTAINER_MEMORY_USAGE = 2
 NODE_CPU_USAGE_SECONDS_AVG1M = 3
 NODE_MEMORY_USAGE_BYTES = 4
 POD = 0
-Equal = 0
-NotEqual = 1
+EQUAL = 0
+NOT_EQUAL = 1
 
 
 
@@ -834,22 +834,22 @@ _TIMESERIESDATA = _descriptor.Descriptor(
 )
 
 
-_PREDICTCONTAINER_ROWPREDICTDATAENTRY = _descriptor.Descriptor(
-  name='RowPredictDataEntry',
-  full_name='PredictContainer.RowPredictDataEntry',
+_PREDICTCONTAINER_RAWPREDICTDATAENTRY = _descriptor.Descriptor(
+  name='RawPredictDataEntry',
+  full_name='PredictContainer.RawPredictDataEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='PredictContainer.RowPredictDataEntry.key', index=0,
+      name='key', full_name='PredictContainer.RawPredictDataEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='PredictContainer.RowPredictDataEntry.value', index=1,
+      name='value', full_name='PredictContainer.RawPredictDataEntry.value', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -886,7 +886,7 @@ _PREDICTCONTAINER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='row_predict_data', full_name='PredictContainer.row_predict_data', index=1,
+      name='raw_predict_data', full_name='PredictContainer.raw_predict_data', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -909,7 +909,7 @@ _PREDICTCONTAINER = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_PREDICTCONTAINER_ROWPREDICTDATAENTRY, ],
+  nested_types=[_PREDICTCONTAINER_RAWPREDICTDATAENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -1294,9 +1294,9 @@ _RECOMMENDATION.fields_by_name['time'].message_type = google_dot_protobuf_dot_ti
 _RECOMMENDATION.fields_by_name['resource'].message_type = _RESOURCE
 _PREDICTDATA.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TIMESERIESDATA.fields_by_name['predict_data'].message_type = _PREDICTDATA
-_PREDICTCONTAINER_ROWPREDICTDATAENTRY.fields_by_name['value'].message_type = _TIMESERIESDATA
-_PREDICTCONTAINER_ROWPREDICTDATAENTRY.containing_type = _PREDICTCONTAINER
-_PREDICTCONTAINER.fields_by_name['row_predict_data'].message_type = _PREDICTCONTAINER_ROWPREDICTDATAENTRY
+_PREDICTCONTAINER_RAWPREDICTDATAENTRY.fields_by_name['value'].message_type = _TIMESERIESDATA
+_PREDICTCONTAINER_RAWPREDICTDATAENTRY.containing_type = _PREDICTCONTAINER
+_PREDICTCONTAINER.fields_by_name['raw_predict_data'].message_type = _PREDICTCONTAINER_RAWPREDICTDATAENTRY
 _PREDICTCONTAINER.fields_by_name['recommendations'].message_type = _RECOMMENDATION
 _PREDICTCONTAINER.fields_by_name['initial_resource'].message_type = _RESOURCE
 _PREDICTPOD.fields_by_name['predict_containers'].message_type = _PREDICTCONTAINER
@@ -1462,10 +1462,10 @@ _sym_db.RegisterMessage(TimeSeriesData)
 
 PredictContainer = _reflection.GeneratedProtocolMessageType('PredictContainer', (_message.Message,), dict(
 
-  RowPredictDataEntry = _reflection.GeneratedProtocolMessageType('RowPredictDataEntry', (_message.Message,), dict(
-    DESCRIPTOR = _PREDICTCONTAINER_ROWPREDICTDATAENTRY,
+  RawPredictDataEntry = _reflection.GeneratedProtocolMessageType('RawPredictDataEntry', (_message.Message,), dict(
+    DESCRIPTOR = _PREDICTCONTAINER_RAWPREDICTDATAENTRY,
     __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-    # @@protoc_insertion_point(class_scope:PredictContainer.RowPredictDataEntry)
+    # @@protoc_insertion_point(class_scope:PredictContainer.RawPredictDataEntry)
     ))
   ,
   DESCRIPTOR = _PREDICTCONTAINER,
@@ -1473,7 +1473,7 @@ PredictContainer = _reflection.GeneratedProtocolMessageType('PredictContainer', 
   # @@protoc_insertion_point(class_scope:PredictContainer)
   ))
 _sym_db.RegisterMessage(PredictContainer)
-_sym_db.RegisterMessage(PredictContainer.RowPredictDataEntry)
+_sym_db.RegisterMessage(PredictContainer.RawPredictDataEntry)
 
 PredictPod = _reflection.GeneratedProtocolMessageType('PredictPod', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTPOD,
@@ -1528,7 +1528,7 @@ _sym_db.RegisterMessage(GetResourceRecommendationResponse)
 _METRICRESULT_LABELSENTRY._options = None
 _RESOURCE_LIMITENTRY._options = None
 _RESOURCE_REQUESTENTRY._options = None
-_PREDICTCONTAINER_ROWPREDICTDATAENTRY._options = None
+_PREDICTCONTAINER_RAWPREDICTDATAENTRY._options = None
 
 _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   name='OperatorService',
@@ -1536,8 +1536,8 @@ _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=3013,
-  serialized_end=3417,
+  serialized_start=3014,
+  serialized_end=3418,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListMetrics',

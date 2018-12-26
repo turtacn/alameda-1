@@ -34,7 +34,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "test",
 					},
 				},
@@ -46,7 +46,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   `\"node_name`,
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "test",
 					},
 				},
@@ -58,7 +58,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   `\\\\"test`,
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: `test`,
 					},
 				},
@@ -70,7 +70,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   `test`,
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: `\"test`,
 					},
 				},
@@ -82,7 +82,7 @@ func TestValidateListMetricsRequest(t *testing.T) {
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   `test`,
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: `\\\\"test`,
 					},
 				},

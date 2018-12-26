@@ -10,6 +10,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
@@ -134,190 +135,255 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 	datahub_v1alpha1.RegisterDatahubServiceServer(server, s)
 }
 
-func (s *Server) ListContainerMetrics(ctx context.Context, in *datahub_v1alpha1.ListContainerMetricsRequest) (*datahub_v1alpha1.ListContainerMetricsResponse, error) {
+func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
 
-	var (
-		err error
-
-		req ListContainerMetricsRequest
-
-		apiResp                    datahub_v1alpha1.ListContainerMetricsResponse
-		apiRespInternalServerError = datahub_v1alpha1.ListContainerMetricsResponse{
-			Status: &status.Status{
-				Code:    int32(code.Code_INTERNAL),
-				Message: "Internal server error.",
+	return &datahub_v1alpha1.ListPodMetricsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodMetrics: []*datahub_v1alpha1.PodMetric{
+			&datahub_v1alpha1.PodMetric{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: "openshit-monitoring",
+					Name:      "prometheus-k8s-0",
+				},
+				ContainerMetrics: []*datahub_v1alpha1.ContainerMetric{
+					&datahub_v1alpha1.ContainerMetric{
+						Name: "prometheus",
+						MetricData: []*datahub_v1alpha1.MetricData{
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
+								Data: []*datahub_v1alpha1.Sample{
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809867},
+										NumValue: "20",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809897},
+										NumValue: "50",
+									},
+								},
+							},
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
+								Data: []*datahub_v1alpha1.Sample{
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809867},
+										NumValue: "512",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809897},
+										NumValue: "1024",
+									},
+								},
+							},
+						},
+					},
+				},
 			},
-		}
-
-		metricsQuery         metrics.Query
-		metricsQueryResponse metrics.QueryResponse
-	)
-
-	req = ListContainerMetricsRequest{*in}
-	err = req.Validate()
-	if err != nil {
-		return &datahub_v1alpha1.ListContainerMetricsResponse{
-			Status: &status.Status{
-				Code:    int32(code.Code_INVALID_ARGUMENT),
-				Message: err.Error(),
+			&datahub_v1alpha1.PodMetric{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: "openshit-monitoring",
+					Name:      "prometheus-k8s-1",
+				},
+				ContainerMetrics: []*datahub_v1alpha1.ContainerMetric{
+					&datahub_v1alpha1.ContainerMetric{
+						Name: "prometheus",
+						MetricData: []*datahub_v1alpha1.MetricData{
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
+								Data: []*datahub_v1alpha1.Sample{
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809867},
+										NumValue: "20",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809897},
+										NumValue: "50",
+									},
+								},
+							},
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
+								Data: []*datahub_v1alpha1.Sample{
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809867},
+										NumValue: "512",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     &timestamp.Timestamp{Seconds: 1545809897},
+										NumValue: "1024",
+									},
+								},
+							},
+						},
+					},
+				},
 			},
-		}, nil
-	}
-
-	metricsQuery = req.MetricsQuery()
-	switch metricsQuery.Metric {
-	case metrics.MetricTypeContainerCPUUsageSecondsPercentage:
-		metricsQueryResponse, err = s.MetricsDB.ListContainerCPUUsageSecondsPercentage(metricsQuery)
-	case metrics.MetricTypeContainerMemoryUsageBytes:
-		metricsQueryResponse, err = s.MetricsDB.ListContainerMemoryUsageBytes(metricsQuery)
-	}
-	if err != nil {
-		scope.Error(err.Error())
-		return &apiRespInternalServerError, nil
-	}
-
-	apiResp, err = MetricsQueryResponse{metricsQueryResponse}.ListContainerMetricsResponse()
-	if err != nil {
-		scope.Error(err.Error())
-		return &apiRespInternalServerError, nil
-	}
-
-	return &apiResp, nil
+		},
+	}, nil
 }
 
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {
-
-	var (
-		err error
-
-		req ListNodeMetricsRequest
-
-		apiResp                    datahub_v1alpha1.ListNodeMetricsResponse
-		apiRespInternalServerError = datahub_v1alpha1.ListNodeMetricsResponse{
-			Status: &status.Status{
-				Code:    int32(code.Code_INTERNAL),
-				Message: "Internal server error.",
+	return &datahub_v1alpha1.ListNodeMetricsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		NodeMetrics: []*datahub_v1alpha1.NodeMetric{
+			&datahub_v1alpha1.NodeMetric{
+				Name: "ip-10-0-23-197.us-west-2.compute.internal",
+				MetricData: []*datahub_v1alpha1.MetricData{
+					&datahub_v1alpha1.MetricData{
+						MetricType: datahub_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE,
+						Data: []*datahub_v1alpha1.Sample{
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809867},
+								NumValue: "20",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809897},
+								NumValue: "50",
+							},
+						},
+					},
+					&datahub_v1alpha1.MetricData{
+						MetricType: datahub_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES,
+						Data: []*datahub_v1alpha1.Sample{
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809867},
+								NumValue: "512",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809897},
+								NumValue: "1024",
+							},
+						},
+					},
+				},
 			},
-		}
-
-		metricsQuery         metrics.Query
-		metricsQueryResponse metrics.QueryResponse
-	)
-
-	req = ListNodeMetricsRequest{*in}
-	err = req.Validate()
-	if err != nil {
-		return &datahub_v1alpha1.ListNodeMetricsResponse{
-			Status: &status.Status{
-				Code:    int32(code.Code_INVALID_ARGUMENT),
-				Message: err.Error(),
+			&datahub_v1alpha1.NodeMetric{
+				Name: "ip-10-0-3-158.us-west-2.compute.internal",
+				MetricData: []*datahub_v1alpha1.MetricData{
+					&datahub_v1alpha1.MetricData{
+						MetricType: datahub_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE,
+						Data: []*datahub_v1alpha1.Sample{
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809867},
+								NumValue: "20",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809897},
+								NumValue: "50",
+							},
+						},
+					},
+					&datahub_v1alpha1.MetricData{
+						MetricType: datahub_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES,
+						Data: []*datahub_v1alpha1.Sample{
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809867},
+								NumValue: "512",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     &timestamp.Timestamp{Seconds: 1545809897},
+								NumValue: "1024",
+							},
+						},
+					},
+				},
 			},
-		}, nil
-	}
-
-	metricsQuery = req.MetricsQuery()
-	switch metricsQuery.Metric {
-	case metrics.MetricTypeNodeCPUUsageSecondsPercentage:
-		metricsQueryResponse, err = s.MetricsDB.ListNodeCPUUsageSecondsPercentage(metricsQuery)
-	case metrics.MetricTypeNodeMemoryUsageBytes:
-		metricsQueryResponse, err = s.MetricsDB.ListNodeMemoryUsageBytes(metricsQuery)
-	}
-	if err != nil {
-		scope.Error(err.Error())
-		return &apiRespInternalServerError, nil
-	}
-
-	apiResp, err = MetricsQueryResponse{metricsQueryResponse}.ListNodeMetricsResponse()
-	if err != nil {
-		scope.Error(err.Error())
-		return &apiRespInternalServerError, nil
-	}
-
-	return &apiResp, nil
-}
-
-func (s *Server) CreateAlamedaPod(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaPodRequest) (*status.Status, error) {
-	return &status.Status{
-		Code:    int32(code.Code_UNIMPLEMENTED),
-		Message: "Not implemented",
-	}, nil
-}
-
-func (s *Server) DeleteAlamedaPod(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaPodRequest) (*status.Status, error) {
-	return &status.Status{
-		Code:    int32(code.Code_UNIMPLEMENTED),
-		Message: "Not implemented",
-	}, nil
-}
-func (s *Server) CreateAlamedaNode(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaNodeRequest) (*status.Status, error) {
-	return &status.Status{
-		Code:    int32(code.Code_UNIMPLEMENTED),
-		Message: "Not implemented",
-	}, nil
-}
-
-func (s *Server) DeleteAlamedaNode(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodeRequest) (*status.Status, error) {
-	return &status.Status{
-		Code:    int32(code.Code_UNIMPLEMENTED),
-		Message: "Not implemented",
-	}, nil
-}
-
-func (s *Server) ListAlamedaPods(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListAlamedaPodsResponse, error) {
-	return &datahub_v1alpha1.ListAlamedaPodsResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
 		},
 	}, nil
 }
 
-func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListAlamedaNodesResponse, error) {
-	return &datahub_v1alpha1.ListAlamedaNodesResponse{
+func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+	return &datahub_v1alpha1.ListPodsResponse{
 		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Not implement.",
 		},
 	}, nil
 }
 
-func (s *Server) CreatePredictPods(ctx context.Context, in *datahub_v1alpha1.CreatePredictPodsRequest) (*status.Status, error) {
+func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListNodesResponse, error) {
+	return &datahub_v1alpha1.ListNodesResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Not implement.",
+		},
+	}, nil
+}
+func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
+	return &datahub_v1alpha1.ListPodPredictionsResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Not implement.",
+		},
+	}, nil
+}
+func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.ListNodePredictionsRequest) (*datahub_v1alpha1.ListNodePredictionsResponse, error) {
+	return &datahub_v1alpha1.ListNodePredictionsResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Not implement.",
+		},
+	}, nil
+}
+func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha1.ListPodRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
+	return &datahub_v1alpha1.ListPodRecommendationsResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Not implement.",
+		},
+	}, nil
+}
+func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNameRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+	return &datahub_v1alpha1.ListPodsResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Not implement.",
+		},
+	}, nil
+}
+func (s *Server) CreateAlamedaPods(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaPodsRequest) (*status.Status, error) {
 	return &status.Status{
-		Code:    int32(code.Code_UNIMPLEMENTED),
-		Message: "Not implemented",
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
 	}, nil
 }
-
-func (s *Server) CreatePredictNodes(ctx context.Context, in *datahub_v1alpha1.CreatePredictNodesRequest) (*status.Status, error) {
+func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaNodesRequest) (*status.Status, error) {
 	return &status.Status{
-		Code:    int32(code.Code_UNIMPLEMENTED),
-		Message: "Not implemented",
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
 	}, nil
 }
-
-func (s *Server) GetPodPredictResult(ctx context.Context, in *datahub_v1alpha1.GetPodPredictRequest) (*datahub_v1alpha1.GetPodPredictResponse, error) {
-	return &datahub_v1alpha1.GetPodPredictResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
-		},
+func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
+	return &status.Status{
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
 	}, nil
 }
-
-func (s *Server) GetNodePredictResult(ctx context.Context, in *datahub_v1alpha1.GetNodePredictRequest) (*datahub_v1alpha1.GetNodePredictResponse, error) {
-	return &datahub_v1alpha1.GetNodePredictResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
-		},
+func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
+	return &status.Status{
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
 	}, nil
 }
-
-func (s *Server) GetAlamedaPodResourceInfo(ctx context.Context, in *datahub_v1alpha1.GetAlamedaPodResourceInfoRequest) (*datahub_v1alpha1.ListAlamedaPodsResponse, error) {
-	return &datahub_v1alpha1.ListAlamedaPodsResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_UNIMPLEMENTED),
-			Message: "Not implemented",
-		},
+func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
+	return &status.Status{
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
+	}, nil
+}
+func (s *Server) DeleteAlamedaPods(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaPodsRequest) (*status.Status, error) {
+	return &status.Status{
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
+	}, nil
+}
+func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodesRequest) (*status.Status, error) {
+	return &status.Status{
+		Code:    int32(code.Code_INTERNAL),
+		Message: "Not implement.",
 	}, nil
 }

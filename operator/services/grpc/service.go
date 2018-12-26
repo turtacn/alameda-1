@@ -268,7 +268,7 @@ func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaRe
 }
 
 func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer autoscalingv1alpha1.PredictContainer, predictContainer *operator_v1alpha1.PredictContainer) ([]autoscalingv1alpha1.Recommendation, apicorev1.ResourceRequirements) {
-	for resource, predictData := range predictContainer.RowPredictData {
+	for resource, predictData := range predictContainer.RawPredictData {
 		tsData := autoscalingv1alpha1.TimeSeriesData{
 			PredictData: []autoscalingv1alpha1.PredictData{},
 		}
@@ -365,9 +365,9 @@ func buildMetircQuery(req *operator_v1alpha1.ListMetricsRequest) metrics.Query {
 		v := labelSelector.GetValue()
 		var op metrics.StringOperator
 		switch labelSelector.GetOp() {
-		case operator_v1alpha1.StrOp_Equal:
+		case operator_v1alpha1.StrOp_EQUAL:
 			op = metrics.StringOperatorEqueal
-		case operator_v1alpha1.StrOp_NotEqual:
+		case operator_v1alpha1.StrOp_NOT_EQUAL:
 			op = metrics.StringOperatorNotEqueal
 		}
 

@@ -34,7 +34,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "test1",
 					},
 				},
@@ -64,7 +64,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "test2",
 					},
 				},
@@ -101,7 +101,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "test3",
 					},
 				},
@@ -134,7 +134,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "test3",
 					},
 				},
@@ -175,7 +175,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "namespace",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "\"test\"",
 					},
 				},
@@ -193,7 +193,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "node_name",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "localhost",
 					},
 				},
@@ -223,7 +223,7 @@ var (
 				Conditions: []*operator_v1alpha1.LabelSelector{
 					&operator_v1alpha1.LabelSelector{
 						Key:   "node_name",
-						Op:    operator_v1alpha1.StrOp_Equal,
+						Op:    operator_v1alpha1.StrOp_EQUAL,
 						Value: "localhost",
 					},
 				},

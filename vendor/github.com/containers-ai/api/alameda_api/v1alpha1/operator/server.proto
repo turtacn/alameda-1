@@ -30,8 +30,8 @@ enum ResourceType {
 }
 
 enum StrOp {
-    Equal = 0;
-    NotEqual = 1;
+    EQUAL = 0;
+    NOT_EQUAL = 1;
 }
 
 message TimeRange {
@@ -122,7 +122,7 @@ message TimeSeriesData {
 
 message PredictContainer {
     string name = 1;
-    map<string, TimeSeriesData> row_predict_data = 2;
+    map<string, TimeSeriesData> raw_predict_data = 2;
     repeated Recommendation recommendations = 3;
     Resource initial_resource = 4;
 }
