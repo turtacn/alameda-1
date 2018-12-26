@@ -4,7 +4,6 @@ package containers_ai.alameda.v1alpha1.datahub;
 
 import "alameda_api/v1alpha1/datahub/resource.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
-import "alameda_api/v1alpha1/datahub/pod_assignment.proto";
 
 enum RecommendationPolicy {
     RECOMMENDATIONPOLICY_UNDEFINED = 0;
@@ -25,11 +24,6 @@ message PredictPod {
     string uid = 1;
     NamespacedName namespaced_name = 2;
     repeated PredictContainer predict_containers = 3;
-    oneof assign_pod_policy {
-        NodePriority node_priority = 4;
-        Selector node_selector = 5;
-        string node_name = 6;
-    };
 }
 
 message PredictNode {

@@ -15,6 +15,7 @@
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/ai_service",
+    "alameda_api/v1alpha1/datahub",
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
@@ -991,10 +992,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/containers-ai/api/alameda_api/v1alpha1/operator",
     "github.com/emicklei/go-restful",
     "github.com/golang/mock/gomock",
     "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/empty",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
     "github.com/spf13/cobra",
