@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7b59104fc40b2d2405f6245f093dcbba642354f2ac57c26529fbe923b6343433"
+  digest = "1:491634c6d4433e06d2124e46e6958626c5de45049037995996b3095686c09645"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/ai_service",
@@ -19,7 +19,7 @@
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "0b15a95048466c82bf9f93f2fee604cc8c8de62a"
+  revision = "cf7615792effaf499a7deb7a10878dd89705c814"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -998,6 +998,7 @@
     "github.com/golang/mock/gomock",
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/empty",
+    "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
     "github.com/spf13/cobra",
