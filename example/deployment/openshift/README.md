@@ -120,11 +120,13 @@ oc apply -f service
 oc apply -f deployconfig
 ```
 
-Clone code and build docker image for operator
+Clone code and build docker image for operator and dashboard
 ```
 git clone https://github.com/containers-ai/alameda.git
 cd alameda/operator
 docker build -t operator .
+cd ../grafana
+docker build -t dashboard .
 ```
 Clone code and build docker image for alameda-ai
 ```
@@ -137,9 +139,11 @@ Tag image and push to minishift registry
 oc login -u developer
 docker tag operator $(minishift openshift registry)/alameda/operator
 docker tag alameda-ai $(minishift openshift registry)/alameda/alameda-ai
+docker tag dashboard $(minishift openshift registry)/alameda/dashboard
 oc whoami -t | docker login -u developer --password-stdin $(minishift openshift registry)
 docker push $(minishift openshift registry)/alameda/operator
 docker push $(minishift openshift registry)/alameda/alameda-ai
+docker push $(minishift openshift registry)/alameda/dashboard
 ```
 
 Check pod successful created and running
@@ -181,6 +185,7 @@ Create imagestream first in registry
 ```
 oc create imagestream alameda-ai
 oc create imagestream operator
+oc create imagestream dashboard
 ```
 
 Apply build config

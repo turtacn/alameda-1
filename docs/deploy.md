@@ -16,6 +16,7 @@ This section shows how to deploy Alameda from source code to a single-node OpenS
     ```
     $ docker images
     REPOSITORY                    TAG                 IMAGE ID            CREATED             SIZE
+    dashboard                     latest              aa3a33126b34        20 hours ago        244MB
     operator                      latest              58e9fad95e3d        21 hours ago        44.3MB
     alameda-ai                    latest              a366398fa9fc        45 hours ago        1.76GB
     ```
@@ -68,15 +69,18 @@ This section shows how to deploy Alameda from source code to a single-node OpenS
     $ oc new-project alameda
     $ docker tag operator 172.30.1.1:5000/alameda/operator
     $ docker tag alameda-ai 172.30.1.1:5000/alameda/alameda-ai
+    $ docker tag dashboard 172.30.1.1:5000/alameda/dashboard
     $ docker login -u admin -p `oc whoami -t` 172.30.1.1:5000
     $ docker push 172.30.1.1:5000/alameda/operator
     $ docker push 172.30.1.1:5000/alameda/alameda-ai
+    $ docker push 172.30.1.1:5000/alameda/dashboard
     ```
     Check if the imagestreams are creted in Alameda namespace by:
     ```
     $ oc get is
     NAME         DOCKER REPO                          TAGS      UPDATED
     alameda-ai   172.30.1.1:5000/alameda/alameda-ai   latest    8 seconds ago
+    dashboard    172.30.1.1:5000/alameda/dashboard    latest    3 minutes ago
     operator     172.30.1.1:5000/alameda/operator     latest    4 minutes ago
     ```
 - Deploy Prometheus by:
@@ -98,8 +102,9 @@ This section shows how to deploy Alameda from source code to a single-node OpenS
     ```
     $ oc get pods -n alameda
     NAME                 READY     STATUS    RESTARTS   AGE
-    alameda-ai-1-smnmk   1/1       Running       0          49s
-    operator-1-fg9gx     1/1       Running       0          4m
+    alameda-ai-1-smnmk   1/1       Running    0         49s
+    dashboard-1-vshlj    1/1       Running    0         3m
+    operator-1-fg9gx     1/1       Running    0         4m
     ```
 ## on Minishift
 
@@ -109,6 +114,7 @@ This section shows how to deploy Alameda from source code to a Minishift environ
     ```
     $ docker images
     REPOSITORY                    TAG                 IMAGE ID            CREATED             SIZE
+    dashboard                     latest              aa3a33126b34        20 hours ago        244MB
     operator                      latest              58e9fad95e3d        21 hours ago        44.3MB
     alameda-ai                    latest              a366398fa9fc        45 hours ago        1.76GB
     ```
@@ -116,6 +122,7 @@ This section shows how to deploy Alameda from source code to a Minishift environ
     ```
     $ docker save -o alameda-ai.tar alameda-ai:latest
     $ docker save -o operator.tar operator:latest
+    $ docker save -o dashboard.tar dashboard:latest
     ```
 - Prepare a running Minishift environment. Please refer to the [Minishift Installation guide](https://docs.okd.io/latest/minishift/getting-started/installing.html) for more details. The following steps illustrate creating a Minishift v1.27.0 environment on ubuntu 18.04
     - Download [Minishift v1.27.0](https://github.com/minishift/minishift/releases/download/v1.27.0/minishift-1.27.0-linux-amd64.tgz), untar it and add the extracted directory to system PATH
@@ -165,17 +172,20 @@ This section shows how to deploy Alameda from source code to a Minishift environ
     $ docker load -i alameda-ai.tar
     $ docker tag operator $(minishift openshift registry)/alameda/operator
     $ docker tag alameda-ai $(minishift openshift registry)/alameda/alameda-ai
+    $ docker tag dashboard $(minishift openshift registry)/alameda/dashboard
     $ oc login -u admin
     $ oc new-project alameda
     $ docker login -u admin -p `oc whoami -t` $(minishift openshift registry)
     $ docker push $(minishift openshift registry)/alameda/operator
     $ docker push $(minishift openshift registry)/alameda/alameda-ai
+    $ docker push $(minishift openshift registry)/alameda/dashboard
     ```
     Check if the imagestreams are creted in Alameda namespace by:
     ```
     $ oc get is
     NAME         DOCKER REPO                          TAGS      UPDATED
     alameda-ai   172.30.1.1:5000/alameda/alameda-ai   latest    2 minutes ago
+    dashboard    172.30.1.1:5000/alameda/dashboard    latest    3 minutes ago
     operator     172.30.1.1:5000/alameda/operator     latest    4 minutes ago
     ```
 - Deploy Prometheus by:
@@ -198,5 +208,6 @@ This section shows how to deploy Alameda from source code to a Minishift environ
     $ oc get pods -n alameda
     NAME                 READY     STATUS    RESTARTS   AGE
     alameda-ai-1-7ktxz   1/1       Running   0          1m
+    dashboard-1-vshlj    1/1       Running   0          1m
     operator-1-9tlgr     1/1       Running   0          1m
     ```
