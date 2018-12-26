@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package containers_ai.alameda.v1alpha1.datahub;
+
+message NodePriority {
+    repeated string nodes = 1;
+}
+
+message Selector {
+    map<string, string> selector = 1;
+}
