@@ -33,8 +33,12 @@ var (
 	scope = log.RegisterScope("gRPC", "gRPC server log", 0)
 
 	tmpTimestamps = []*timestamp.Timestamp{
-		&timestamp.Timestamp{Seconds: 1545809867},
-		&timestamp.Timestamp{Seconds: 1545809897},
+		&timestamp.Timestamp{Seconds: 1545809000},
+		&timestamp.Timestamp{Seconds: 1545809030},
+		&timestamp.Timestamp{Seconds: 1545809060},
+		&timestamp.Timestamp{Seconds: 1545809090},
+		&timestamp.Timestamp{Seconds: 1545809120},
+		&timestamp.Timestamp{Seconds: 1545809150},
 	}
 )
 
@@ -161,11 +165,27 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 								Data: []*datahub_v1alpha1.Sample{
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[0],
-										NumValue: "20",
+										NumValue: "64",
 									},
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[1],
-										NumValue: "50",
+										NumValue: "128",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[2],
+										NumValue: "152",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[3],
+										NumValue: "176",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[4],
+										NumValue: "200",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[5],
+										NumValue: "224",
 									},
 								},
 							},
@@ -174,11 +194,27 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 								Data: []*datahub_v1alpha1.Sample{
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[0],
-										NumValue: "512",
+										NumValue: "64",
 									},
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[1],
-										NumValue: "1024",
+										NumValue: "128",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[2],
+										NumValue: "152",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[3],
+										NumValue: "176",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[4],
+										NumValue: "200",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[5],
+										NumValue: "224",
 									},
 								},
 							},
@@ -204,7 +240,23 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 									},
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[1],
-										NumValue: "50",
+										NumValue: "25",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[2],
+										NumValue: "30",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[3],
+										NumValue: "35",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[4],
+										NumValue: "40",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[5],
+										NumValue: "45",
 									},
 								},
 							},
@@ -213,11 +265,27 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 								Data: []*datahub_v1alpha1.Sample{
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[0],
-										NumValue: "512",
+										NumValue: "20",
 									},
 									&datahub_v1alpha1.Sample{
 										Time:     tmpTimestamps[1],
-										NumValue: "1024",
+										NumValue: "25",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[2],
+										NumValue: "30",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[3],
+										NumValue: "35",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[4],
+										NumValue: "40",
+									},
+									&datahub_v1alpha1.Sample{
+										Time:     tmpTimestamps[5],
+										NumValue: "45",
 									},
 								},
 							},
@@ -247,7 +315,23 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 							},
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[1],
-								NumValue: "50",
+								NumValue: "25",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[2],
+								NumValue: "30",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[3],
+								NumValue: "35",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[4],
+								NumValue: "40",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[5],
+								NumValue: "45",
 							},
 						},
 					},
@@ -256,11 +340,27 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 						Data: []*datahub_v1alpha1.Sample{
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[0],
-								NumValue: "512",
+								NumValue: "64",
 							},
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[1],
-								NumValue: "1024",
+								NumValue: "128",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[2],
+								NumValue: "152",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[3],
+								NumValue: "176",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[4],
+								NumValue: "200",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[5],
+								NumValue: "224",
 							},
 						},
 					},
@@ -278,7 +378,23 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 							},
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[1],
-								NumValue: "50",
+								NumValue: "25",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[2],
+								NumValue: "30",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[3],
+								NumValue: "35",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[4],
+								NumValue: "40",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[5],
+								NumValue: "45",
 							},
 						},
 					},
@@ -287,11 +403,27 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 						Data: []*datahub_v1alpha1.Sample{
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[0],
-								NumValue: "512",
+								NumValue: "64",
 							},
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[1],
-								NumValue: "1024",
+								NumValue: "128",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[2],
+								NumValue: "152",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[3],
+								NumValue: "176",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[4],
+								NumValue: "200",
+							},
+							&datahub_v1alpha1.Sample{
+								Time:     tmpTimestamps[5],
+								NumValue: "224",
 							},
 						},
 					},
