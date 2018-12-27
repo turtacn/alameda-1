@@ -435,35 +435,6 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
 
-	var tmpMetricsData = []*datahub_v1alpha1.MetricData{
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "20",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "50",
-				},
-			},
-		},
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "512",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "1024",
-				},
-			},
-		},
-	}
-
 	return &datahub_v1alpha1.ListPodsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
@@ -471,53 +442,21 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 		Pods: []*datahub_v1alpha1.Pod{
 			&datahub_v1alpha1.Pod{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshit-monitoring",
-					Name:      "prometheus-k8s-0",
+					Namespace: "alameda",
+					Name:      "nginx-deployment-f99bb8986-h8rbk",
 				},
-				ResourceLink: "",
-				Containers: []*datahub_v1alpha1.Container{
-					&datahub_v1alpha1.Container{
-						Name:                                 "prometheus",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
-					},
-					&datahub_v1alpha1.Container{
-						Name:                                 "another-container",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
-					},
-				},
+				ResourceLink: "/namespaces/alameda/deployments/nginx-deployment/replicasets/nginx-deployment-f99bb8986/pods/nginx-deployment-f99bb8986-h8rbk",
+				IsAlameda:    true,
+				NodeName:     "node1",
 			},
 			&datahub_v1alpha1.Pod{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshit-monitoring",
-					Name:      "prometheus-k8s-1",
+					Namespace: "alameda",
+					Name:      "nginx-deployment-f99bb8986-npg2f",
 				},
-				ResourceLink: "",
-				Containers: []*datahub_v1alpha1.Container{
-					&datahub_v1alpha1.Container{
-						Name:                                 "prometheus",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
-					},
-					&datahub_v1alpha1.Container{
-						Name:                                 "another-container",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
-					},
-				},
+				ResourceLink: "/namespaces/alameda/deployments/nginx-deployment/replicasets/nginx-deployment-f99bb8986/pods/nginx-deployment-f99bb8986-npg2f",
+				IsAlameda:    true,
+				NodeName:     "node2",
 			},
 		},
 	}, nil
