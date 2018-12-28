@@ -239,6 +239,29 @@
   version = "v1.0"
 
 [[projects]]
+  digest = "1:7ed2f889c7386a4eaea5c15c9a72103f33c48bbca7f75e1c9fca9f5139f0af21"
+  name = "github.com/influxdata/influxdb"
+  packages = [
+    "client/v2",
+    "models",
+    "pkg/escape",
+  ]
+  pruneopts = "T"
+  revision = "76f907b0fada2f16931e37471da695349fcdf8c6"
+  version = "v1.7.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:cb7496f82f7d9307d09cae0460229418d5c4963a6eb2e96b278bb367d58e013b"
+  name = "github.com/influxdata/platform"
+  packages = [
+    "models",
+    "pkg/escape",
+  ]
+  pruneopts = "T"
+  revision = "f5b0bdeb12f9d47233fd5008c93fd8b7e6ddfd16"
+
+[[projects]]
   digest = "1:ee5840274624ad20cac08227aeca582fbdaf3727ef9dd37ae935706240679e09"
   name = "github.com/joho/godotenv"
   packages = ["."]
@@ -999,6 +1022,7 @@
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/empty",
     "github.com/golang/protobuf/ptypes/timestamp",
+    "github.com/influxdata/influxdb/client/v2",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
     "github.com/spf13/cobra",
