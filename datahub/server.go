@@ -4,13 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"time"
 
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
-	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics"
-	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
+	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"golang.org/x/net/context"
@@ -26,9 +29,11 @@ type Server struct {
 	err    chan error
 	server *grpc.Server
 
-	Config    Config
-	K8SClient client.Client
-	MetricsDB metrics.MetricsDB
+	Config       Config
+	K8SClient    client.Client
+	PrometheusDB prometheus.Prometheus
+
+	MetricsDAO metric.MetricsDAO
 }
 
 var (
@@ -48,9 +53,8 @@ func NewServer(cfg Config) (*Server, error) {
 	var (
 		err error
 
-		server    *Server
-		k8sCli    client.Client
-		metricsDB metrics.MetricsDB
+		server *Server
+		k8sCli client.Client
 	)
 
 	if err = cfg.Validate(); err != nil {
@@ -66,16 +70,11 @@ func NewServer(cfg Config) (*Server, error) {
 		return server, errors.New("Create kubernetes client failed: " + err.Error())
 	}
 
-	if metricsDB, err = prometheus.New(*cfg.Prometheus); err != nil {
-		return server, errors.New("Create prometheus instance failed: " + err.Error())
-	}
-
 	server = &Server{
 		err: make(chan error),
 
 		Config:    cfg,
 		K8SClient: k8sCli,
-		MetricsDB: metricsDB,
 	}
 
 	return server, nil
@@ -84,7 +83,7 @@ func NewServer(cfg Config) (*Server, error) {
 func (s *Server) Run() error {
 
 	// Open metrics database
-	if err := s.MetricsDB.Connect(); err != nil {
+	if err := s.PrometheusDB.Connect(); err != nil {
 		return err
 	}
 
@@ -116,7 +115,7 @@ func (s *Server) Run() error {
 
 func (s *Server) Stop() error {
 
-	if err := s.MetricsDB.Close(); err != nil {
+	if err := s.PrometheusDB.Close(); err != nil {
 		return err
 	}
 
@@ -147,154 +146,65 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 
 func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
 
+	var (
+		err error
+
+		metricDAO metric.MetricsDAO
+
+		namespace      = ""
+		podName        = ""
+		queryStartTime time.Time
+		queryEndTime   time.Time
+
+		podsMetricMap     metric.PodsMetricMap
+		datahubPodMetrics []*datahub_v1alpha1.PodMetric
+
+		apiInternalServerErrorResponse = datahub_v1alpha1.ListPodMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
+			},
+		}
+	)
+
+	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
+
+	if in.GetNamespacedName() != nil {
+		namespace = in.GetNamespacedName().GetNamespace()
+		podName = in.GetNamespacedName().GetName()
+	}
+	queryStartTime, err = ptypes.Timestamp(in.GetTimeRange().GetStartTime())
+	if err != nil {
+		return &apiInternalServerErrorResponse, nil
+	}
+	queryEndTime, err = ptypes.Timestamp(in.GetTimeRange().GetEndTime())
+	if err != nil {
+		return &apiInternalServerErrorResponse, nil
+	}
+	listPodMetricsRequest := metric.ListPodMetricsRequest{
+		Namespace: namespace,
+		PodName:   podName,
+		StartTime: queryStartTime,
+		EndTime:   queryEndTime,
+	}
+
+	podsMetricMap, err = metricDAO.ListPodMetrics(listPodMetricsRequest)
+	if err != nil {
+		scope.Error("ListPodMetrics failed: " + err.Error())
+		return &apiInternalServerErrorResponse, nil
+	}
+
+	for _, podMetric := range podsMetricMap {
+		podMetricExtended := podMetricExtended(podMetric)
+		datahubPodMetric := podMetricExtended.datahubPodMetric()
+		datahubPodMetrics = append(datahubPodMetrics, &datahubPodMetric)
+	}
+
 	return &datahub_v1alpha1.ListPodMetricsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		PodMetrics: []*datahub_v1alpha1.PodMetric{
-			&datahub_v1alpha1.PodMetric{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshit-monitoring",
-					Name:      "prometheus-k8s-0",
-				},
-				ContainerMetrics: []*datahub_v1alpha1.ContainerMetric{
-					&datahub_v1alpha1.ContainerMetric{
-						Name: "prometheus",
-						MetricData: []*datahub_v1alpha1.MetricData{
-							&datahub_v1alpha1.MetricData{
-								MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
-								Data: []*datahub_v1alpha1.Sample{
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[0],
-										NumValue: "64",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[1],
-										NumValue: "128",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[2],
-										NumValue: "152",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[3],
-										NumValue: "176",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[4],
-										NumValue: "200",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[5],
-										NumValue: "224",
-									},
-								},
-							},
-							&datahub_v1alpha1.MetricData{
-								MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
-								Data: []*datahub_v1alpha1.Sample{
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[0],
-										NumValue: "64",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[1],
-										NumValue: "128",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[2],
-										NumValue: "152",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[3],
-										NumValue: "176",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[4],
-										NumValue: "200",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[5],
-										NumValue: "224",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			&datahub_v1alpha1.PodMetric{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshit-monitoring",
-					Name:      "prometheus-k8s-1",
-				},
-				ContainerMetrics: []*datahub_v1alpha1.ContainerMetric{
-					&datahub_v1alpha1.ContainerMetric{
-						Name: "prometheus",
-						MetricData: []*datahub_v1alpha1.MetricData{
-							&datahub_v1alpha1.MetricData{
-								MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
-								Data: []*datahub_v1alpha1.Sample{
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[0],
-										NumValue: "20",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[1],
-										NumValue: "25",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[2],
-										NumValue: "30",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[3],
-										NumValue: "35",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[4],
-										NumValue: "40",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[5],
-										NumValue: "45",
-									},
-								},
-							},
-							&datahub_v1alpha1.MetricData{
-								MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
-								Data: []*datahub_v1alpha1.Sample{
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[0],
-										NumValue: "20",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[1],
-										NumValue: "25",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[2],
-										NumValue: "30",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[3],
-										NumValue: "35",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[4],
-										NumValue: "40",
-									},
-									&datahub_v1alpha1.Sample{
-										Time:     tmpTimestamps[5],
-										NumValue: "45",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+		PodMetrics: datahubPodMetrics,
 	}, nil
 }
 

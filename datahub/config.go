@@ -3,8 +3,8 @@ package datahub
 import (
 	"errors"
 
-	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
