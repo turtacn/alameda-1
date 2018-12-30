@@ -6,6 +6,11 @@ prometheus:
   tls-config:
     insecure-skip-verify: true
   bearer-token-file: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+influxdb:
+  address: "https://influxdb.alameda.svc.cluster.local:8086"
+  username: "alameda"
+  password: "alameda"
     
 log:
   set-logcallers: true

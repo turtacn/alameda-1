@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus"
+	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
@@ -12,9 +13,10 @@ const (
 )
 
 type Config struct {
-	BindAddress string             `mapstructure:"bind-address"`
-	Prometheus  *prometheus.Config `mapstructure:"prometheus"`
-	Log         *log.Config        `mapstructure:"log"`
+	BindAddress string                      `mapstructure:"bind-address"`
+	Prometheus  *prometheus.Config          `mapstructure:"prometheus"`
+	InfluxDB    *influxdb_repository.Config `mapstructure:"influxdb"`
+	Log         *log.Config                 `mapstructure:"log"`
 }
 
 func NewDefaultConfig() Config {
@@ -22,9 +24,11 @@ func NewDefaultConfig() Config {
 	var (
 		defaultlogConfig        = log.NewDefaultConfig()
 		defaultPrometheusConfig = prometheus.NewDefaultConfig()
+		defaultInfluxDBConfig   = influxdb_repository.NewDefaultConfig()
 		config                  = Config{
 			BindAddress: defaultBindAddress,
 			Prometheus:  &defaultPrometheusConfig,
+			InfluxDB:    &defaultInfluxDBConfig,
 			Log:         &defaultlogConfig,
 		}
 	)

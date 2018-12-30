@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
+	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metrics/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -30,8 +32,7 @@ type Server struct {
 }
 
 var (
-	scope = log.RegisterScope("gRPC", "gRPC server log", 0)
-
+	scope         = log.RegisterScope("gRPC", "gRPC server log", 0)
 	tmpTimestamps = []*timestamp.Timestamp{
 		&timestamp.Timestamp{Seconds: 1545809000},
 		&timestamp.Timestamp{Seconds: 1545809030},
@@ -53,20 +54,20 @@ func NewServer(cfg Config) (*Server, error) {
 	)
 
 	if err = cfg.Validate(); err != nil {
-		return server, errors.New("create gRPC server instance failed: " + err.Error())
+		return server, errors.New("Configuration validation failed: " + err.Error())
 	}
 
 	k8sClientConfig, err := config.GetConfig()
 	if err != nil {
-		return server, errors.New("create gRPC server instance failed: " + err.Error())
+		return server, errors.New("Get kubernetes configuration failed: " + err.Error())
 	}
 
 	if k8sCli, err = client.New(k8sClientConfig, client.Options{}); err != nil {
-		return server, errors.New("create gRPC server instance failed: " + err.Error())
+		return server, errors.New("Create kubernetes client failed: " + err.Error())
 	}
 
 	if metricsDB, err = prometheus.New(*cfg.Prometheus); err != nil {
-		return server, errors.New("create gRPC server instance failed: " + err.Error())
+		return server, errors.New("Create prometheus instance failed: " + err.Error())
 	}
 
 	server = &Server{
@@ -472,6 +473,33 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 			&datahub_v1alpha1.Node{Name: "node2"},
 		},
 	}, nil
+	/*
+		nodeDAO := &cluster_status_dao_impl.Node{
+			InfluxDBConfig: *s.Config.InfluxDB,
+		}
+		nodes := []*datahub_v1alpha1.Node{}
+
+		if alamedaNodes, err := nodeDAO.ListAlamedaNodes(); err != nil {
+			scope.Error(err.Error())
+			return &datahub_v1alpha1.ListNodesResponse{
+				Status: &status.Status{
+					Code: int32(code.Code_INTERNAL),
+				},
+			}, err
+		} else {
+			for _, alamedaNode := range alamedaNodes {
+				nodes = append(nodes, &datahub_v1alpha1.Node{
+					Name: alamedaNode.Name,
+				})
+			}
+			return &datahub_v1alpha1.ListNodesResponse{
+				Status: &status.Status{
+					Code: int32(code.Code_OK),
+				},
+				Nodes: nodes,
+			}, nil
+		}
+	*/
 }
 
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
@@ -787,10 +815,27 @@ func (s *Server) CreateAlamedaPods(ctx context.Context, in *datahub_v1alpha1.Cre
 }
 
 func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaNodesRequest) (*status.Status, error) {
+	nodeDAO := &cluster_status_dao_impl.Node{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+	alamedaNodeList := []*cluster_status_dao.AlamedaNode{}
+	for _, alamedaNode := range in.GetAlamedaNodes() {
+		alamedaNodeList = append(alamedaNodeList, &cluster_status_dao.AlamedaNode{
+			Name: alamedaNode.GetName(),
+		})
+	}
+	if err := nodeDAO.RegisterAlamedaNodes(alamedaNodeList); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code: int32(code.Code_INTERNAL),
+		}, err
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
 }
+
 func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
 	return &status.Status{
 		Code: int32(code.Code_OK),
@@ -816,6 +861,22 @@ func (s *Server) DeleteAlamedaPods(ctx context.Context, in *datahub_v1alpha1.Del
 }
 
 func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodesRequest) (*status.Status, error) {
+	nodeDAO := &cluster_status_dao_impl.Node{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+	alamedaNodeList := []*cluster_status_dao.AlamedaNode{}
+	for _, alamedaNode := range in.GetAlamedaNodes() {
+		alamedaNodeList = append(alamedaNodeList, &cluster_status_dao.AlamedaNode{
+			Name: alamedaNode.GetName(),
+		})
+	}
+	if err := nodeDAO.DeregisterAlamedaNodes(alamedaNodeList); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code: int32(code.Code_INTERNAL),
+		}, err
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

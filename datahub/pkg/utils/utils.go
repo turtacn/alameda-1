@@ -1,5 +1,9 @@
 package utils
 
+import (
+	"time"
+)
+
 type StringStringMap map[string]string
 
 func (m StringStringMap) ReplaceKeys(old, new []string) StringStringMap {
@@ -13,4 +17,9 @@ func (m StringStringMap) ReplaceKeys(old, new []string) StringStringMap {
 	}
 
 	return m
+}
+
+func ParseTime(timeStr string) (time.Time, error) {
+	t, err := time.Parse(time.RFC3339, timeStr)
+	return t, err
 }

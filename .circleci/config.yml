@@ -2,32 +2,32 @@ version: 2
 jobs:
   build_operator:
     docker:
-      - image: circleci/golang:1.11.2
+      - image: circleci/golang:1.11.4
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
       - checkout            
       - run: cd /go/src/github.com/containers-ai/alameda/operator; make manager
   build_datahub:
     docker:
-      - image: circleci/golang:1.11.2
+      - image: circleci/golang:1.11.4
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
       - checkout            
       - run: cd /go/src/github.com/containers-ai/alameda/datahub; make datahub
   install_kubebuilder:
     docker:
-      - image: circleci/golang:1.11.2
+      - image: circleci/golang:1.11.4
     steps:
-      - run: curl -L -O https://github.com/kubernetes-sigs/kubebuilder/releases/download/v1.0.5/kubebuilder_1.0.5_linux_amd64.tar.gz
-      - run: tar -zxf kubebuilder_1.0.5_linux_amd64.tar.gz 
-      - run: mv kubebuilder_1.0.5_linux_amd64 kubebuilder && sudo mv kubebuilder /usr/local/
+      - run: curl -L -O https://github.com/kubernetes-sigs/kubebuilder/releases/download/v1.0.7/kubebuilder_1.0.7_linux_amd64.tar.gz
+      - run: tar -zxf kubebuilder_1.0.7_linux_amd64.tar.gz
+      - run: mv kubebuilder_1.0.7_linux_amd64 kubebuilder && sudo mv kubebuilder /usr/local/
       - persist_to_workspace:
           root: /usr/local
           paths:
             - kubebuilder/bin
   test_operator:
     docker:
-      - image: circleci/golang:1.11.2
+      - image: circleci/golang:1.11.4
         user: root
     working_directory: /go/src/github.com/containers-ai/alameda
     environment:
@@ -45,7 +45,7 @@ jobs:
             bash <(curl -s https://codecov.io/bash)
   test_datahub:
     docker:
-      - image: circleci/golang:1.11.2
+      - image: circleci/golang:1.11.4
         user: root
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:

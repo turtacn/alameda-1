@@ -1,7 +1,9 @@
 package app
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/containers-ai/alameda/datahub"
@@ -34,6 +36,7 @@ var (
 
 			initConfig()
 			initLogger()
+			displayConfig()
 
 			server, err = datahub.NewServer(config)
 			if err != nil {
@@ -92,4 +95,12 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 func initLogger() {
 
 	scope = log.RegisterScope("datahub", "datahub server log", 0)
+}
+
+func displayConfig() {
+	if configBin, err := json.MarshalIndent(config, "", "  "); err != nil {
+		scope.Error(err.Error())
+	} else {
+		scope.Infof(fmt.Sprintf("Datahub configuration: %s", string(configBin)))
+	}
 }
