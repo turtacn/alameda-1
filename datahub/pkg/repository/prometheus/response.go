@@ -160,8 +160,8 @@ func (r Response) GetEntitis() ([]Entity, error) {
 		entities = make([]Entity, 0)
 	)
 
-	if r.Status != SuccessStatus {
-		return entities, fmt.Errorf("GetEntitis failed: response status is not %s", SuccessStatus)
+	if r.Status != StatusSuccess {
+		return entities, fmt.Errorf("GetEntitis failed: response status is not %s", StatusSuccess)
 	}
 
 	switch r.Data.ResultType {

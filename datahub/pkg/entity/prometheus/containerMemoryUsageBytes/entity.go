@@ -16,6 +16,7 @@ const (
 	ContainerLabel = "container_name"
 )
 
+// Entity Container memory usage bytes entity
 type Entity struct {
 	PrometheusEntity prometheus.Entity
 
@@ -25,7 +26,7 @@ type Entity struct {
 	Samples       []metric.Sample
 }
 
-// NewEntityFromPrometheusEntity NewEntityFromPrometheusEntity
+// NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
 func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
 
 	var (
@@ -59,9 +60,9 @@ func (e *Entity) ContainerMetric() metric.ContainerMetric {
 	)
 
 	containerMetric = metric.ContainerMetric{
-		Namespace:     metric.NamespaceName(e.Namespace),
-		PodName:       metric.PodName(e.PodName),
-		ContainerName: metric.ContainerName(e.ContainerName),
+		Namespace:     e.Namespace,
+		PodName:       e.PodName,
+		ContainerName: e.ContainerName,
 		MemoryMetrics: e.Samples,
 	}
 

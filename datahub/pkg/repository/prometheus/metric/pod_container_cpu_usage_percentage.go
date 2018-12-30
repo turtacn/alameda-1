@@ -9,16 +9,17 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 )
 
-// PodContainerCPUUsagePercentageRepository comment
+// PodContainerCPUUsagePercentageRepository Repository to access metric namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate from prometheus
 type PodContainerCPUUsagePercentageRepository struct {
 	PrometheusConfig prometheus.Config
 }
 
+// NewPodContainerCPUUsagePercentageRepositoryWithConfig New pod container cpu usage percentage repository with prometheus configuration
 func NewPodContainerCPUUsagePercentageRepositoryWithConfig(cfg prometheus.Config) PodContainerCPUUsagePercentageRepository {
 	return PodContainerCPUUsagePercentageRepository{PrometheusConfig: cfg}
 }
 
-// ListMetricsByPodNamespacedName comment
+// ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, startTime, endTime time.Time) ([]prometheus.Entity, error) {
 
 	var (
@@ -52,7 +53,7 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 	response, err = prometheusClient.QueryRange(queryExpression, startTime, endTime)
 	if err != nil {
 		return entities, errors.New("QueryRangeByPodNamespacedName failed: " + err.Error())
-	} else if response.Status != prometheus.SuccessStatus {
+	} else if response.Status != prometheus.StatusSuccess {
 		return entities, errors.New("QueryRangeByPodNamespacedName failed: receive error response from prometheus: " + response.Error)
 	}
 

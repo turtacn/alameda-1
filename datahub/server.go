@@ -10,7 +10,6 @@ import (
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -29,9 +28,8 @@ type Server struct {
 	err    chan error
 	server *grpc.Server
 
-	Config       Config
-	K8SClient    client.Client
-	PrometheusDB prometheus.Prometheus
+	Config    Config
+	K8SClient client.Client
 
 	MetricsDAO metric.MetricsDAO
 }
@@ -82,11 +80,6 @@ func NewServer(cfg Config) (*Server, error) {
 
 func (s *Server) Run() error {
 
-	// Open metrics database
-	if err := s.PrometheusDB.Connect(); err != nil {
-		return err
-	}
-
 	// build server listener
 	scope.Info(("starting gRPC server"))
 	ln, err := net.Listen("tcp", s.Config.BindAddress)
@@ -114,10 +107,6 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) Stop() error {
-
-	if err := s.PrometheusDB.Close(); err != nil {
-		return err
-	}
 
 	s.server.Stop()
 

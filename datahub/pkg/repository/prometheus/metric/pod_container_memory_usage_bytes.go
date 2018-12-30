@@ -9,16 +9,17 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 )
 
-// PodContainerMemoryUsageBytesRepository comment
+// PodContainerMemoryUsageBytesRepository Repository to access metric container_memory_usage_bytes from prometheus
 type PodContainerMemoryUsageBytesRepository struct {
 	PrometheusConfig prometheus.Config
 }
 
+// NewPodContainerCPUUsagePercentageRepositoryWithConfig New pod container memory usage bytes repository with prometheus configuration
 func NewPodContainerMemoryUsageBytesRepositoryWithConfig(cfg prometheus.Config) PodContainerMemoryUsageBytesRepository {
 	return PodContainerMemoryUsageBytesRepository{PrometheusConfig: cfg}
 }
 
-// ListMetricsByPodNamespacedName comment
+// ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(namespace string, podName string, startTime, endTime time.Time) ([]prometheus.Entity, error) {
 
 	var (
@@ -52,7 +53,7 @@ func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(n
 	response, err = prometheusClient.QueryRange(queryExpression, startTime, endTime)
 	if err != nil {
 		return entities, errors.New("QueryRangeByPodNamespacedName failed: " + err.Error())
-	} else if response.Status != prometheus.SuccessStatus {
+	} else if response.Status != prometheus.StatusSuccess {
 		return entities, errors.New("QueryRangeByPodNamespacedName failed: receive error response from prometheus: " + response.Error)
 	}
 

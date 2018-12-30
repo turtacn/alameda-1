@@ -20,8 +20,10 @@ const (
 	epQuery      = "/query"
 	epQueryRange = "/query_range"
 
-	SuccessStatus = "success"
-	ErrorStatus   = "error"
+	// StatusSuccess Status string literal of prometheus api request
+	StatusSuccess = "success"
+	// StatusError Status string literal of prometheus api request
+	StatusError = "error"
 
 	defaultStepTimeString = "30"
 )
@@ -35,11 +37,13 @@ type Entity struct {
 	Values []UnixTimeWithSampleValue
 }
 
+// Prometheus Prometheus api client
 type Prometheus struct {
 	config Config
 	client http.Client
 }
 
+// New New Prometheus api client with configuration
 func New(config Config) (*Prometheus, error) {
 
 	var (
@@ -78,15 +82,7 @@ func New(config Config) (*Prometheus, error) {
 	return p, nil
 }
 
-func (p *Prometheus) Connect() error {
-	return nil
-}
-
-func (p *Prometheus) Close() error {
-
-	return nil
-}
-
+// QueryRange Query data over a range of time from prometheus
 func (p *Prometheus) QueryRange(query string, startTime, endTime time.Time) (Response, error) {
 
 	var (
