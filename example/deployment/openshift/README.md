@@ -184,8 +184,9 @@ oc new-project alameda
 Create imagestream first in registry
 ```
 oc create imagestream alameda-ai
-oc create imagestream operator
+oc create imagestream operator-test
 oc create imagestream dashboard
+oc create imagestream datahub
 ```
 
 Apply build config

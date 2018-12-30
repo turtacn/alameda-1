@@ -2,14 +2,14 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   labels:
-    name: operator-docker-build
-  name: operator-docker-build
+    name: datahub-docker-build
+  name: datahub-docker-build
   namespace: alameda
 spec:
   output:
     to:
       kind: ImageStreamTag
-      name: operator:latest
+      name: datahub:latest
   postCommit: {}
   resources: {}
   runPolicy: Serial
@@ -19,7 +19,7 @@ spec:
     type: Git
   strategy:
     dockerStrategy: {
-      dockerfilePath: "./operator/Dockerfile"
+      dockerfilePath: "./datahub/Dockerfile"
     }
     type: Docker
   triggers:
