@@ -3,7 +3,8 @@ pull_request_rules:
     conditions:
       - label!=DNM
       - '#approved-reviews-by>=2'
-      - 'status-success=ci/circleci: build'
+      - 'status-success=ci/circleci: build_datahub'
+      - 'status-success=ci/circleci: build_operator'
       - 'status-success=DCO'
       - 'status-success=WIP'
     actions:
