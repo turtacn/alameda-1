@@ -6,6 +6,8 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerCPUUsagePercentage"
 	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerMemoryUsageBytes"
+	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
+	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUsageBytes"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	promRepository "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
 )
@@ -59,4 +61,56 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	}
 
 	return *ptrPodsMetricMap, nil
+}
+
+// ListNodesMetric Method implementation of MetricsDAO
+func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequest) (metric.NodesMetricMap, error) {
+
+	var (
+		err error
+
+		nodeNames []string
+		nodeName  string
+
+		nodeCPUUsageRepo        promRepository.NodeCPUUsagePercentageRepository
+		nodeMemoryUsageRepo     promRepository.NodeMemoryUsageBytesRepository
+		nodeCPUUsageEntities    []prometheus.Entity
+		nodeMemoryUsageEntities []prometheus.Entity
+
+		nodesMetricMap    = metric.NodesMetricMap{}
+		ptrNodesMetricMap = &nodesMetricMap
+	)
+
+	// TODO: must query all nodes' metric
+	nodeNames = req.NodeNames
+	if len(nodeNames) > 0 {
+		nodeName = nodeNames[0]
+	}
+
+	nodeCPUUsageRepo = promRepository.NewNodeCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
+	nodeCPUUsageEntities, err = nodeCPUUsageRepo.ListMetricsByNodeName(nodeName, req.StartTime, req.EndTime)
+	if err != nil {
+		return nodesMetricMap, errors.New("list pod metrics failed: " + err.Error())
+	}
+
+	for _, entity := range nodeCPUUsageEntities {
+		nodeCPUUsageEntity := nodeCPUUsagePercentage.NewEntityFromPrometheusEntity(entity)
+		nodeMetric := nodeCPUUsageEntity.NodeMetric()
+		ptrNodesMetricMap.AddNodeMetric(nodeMetric)
+	}
+
+	nodeMemoryUsageRepo = promRepository.NewNodeMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
+	nodeMemoryUsageEntities, err = nodeMemoryUsageRepo.ListMetricsByNodeName(nodeName, req.StartTime, req.EndTime)
+	if err != nil {
+		return nodesMetricMap, errors.New("list pod metrics failed: " + err.Error())
+	}
+
+	for _, entity := range nodeMemoryUsageEntities {
+		noodeMemoryUsageEntity := nodeMemoryUsageBytes.NewEntityFromPrometheusEntity(entity)
+		nodeMetric := noodeMemoryUsageEntity.NodeMetric()
+		ptrNodesMetricMap.AddNodeMetric(nodeMetric)
+	}
+
+	return *ptrNodesMetricMap, nil
+
 }

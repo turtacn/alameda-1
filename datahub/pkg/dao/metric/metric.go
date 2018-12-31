@@ -8,6 +8,7 @@ import (
 // MetricsDAO DAO interface of metric data.
 type MetricsDAO interface {
 	ListPodMetrics(ListPodMetricsRequest) (PodsMetricMap, error)
+	ListNodesMetric(ListNodeMetricsRequest) (NodesMetricMap, error)
 }
 
 // NamespaceName Type alias
@@ -19,6 +20,9 @@ type PodName = string
 // ContainerName Type alias
 type ContainerName = string
 
+// NodeName Type alias
+type NodeName = string
+
 // NamespacePodName Type alias
 type NamespacePodName = string
 
@@ -29,6 +33,13 @@ type NamespacePodContainerName = string
 type ListPodMetricsRequest struct {
 	Namespace string
 	PodName   string
+	StartTime time.Time
+	EndTime   time.Time
+}
+
+// ListNodeMetricsRequest Argument of method ListNodeMetrics
+type ListNodeMetricsRequest struct {
+	NodeNames []NodeName
 	StartTime time.Time
 	EndTime   time.Time
 }
@@ -139,5 +150,44 @@ func (p *PodsMetricMap) AddContainerMetric(c ContainerMetric) {
 		(*p)[namespacePodName] = existedPodMetric.Merge(podMetric)
 	} else {
 		(*p)[namespacePodName] = podMetric
+	}
+}
+
+// NodeMetric Metric model to represent one node metric
+type NodeMetric struct {
+	NodeName               NodeName
+	CPUUsageMetircs        []Sample
+	MemoryTotalMetrics     []Sample
+	MemoryAvailableMetrics []Sample
+	MemoryUsageMetrics     []Sample
+}
+
+// Merge Merge current NodeMetric with input NodeMetric
+func (n NodeMetric) Merge(in NodeMetric) NodeMetric {
+
+	var (
+		newNodeMetirc = NodeMetric{
+			NodeName:               n.NodeName,
+			CPUUsageMetircs:        append(n.CPUUsageMetircs, in.CPUUsageMetircs...),
+			MemoryTotalMetrics:     append(n.MemoryTotalMetrics, in.MemoryTotalMetrics...),
+			MemoryAvailableMetrics: append(n.MemoryAvailableMetrics, in.MemoryAvailableMetrics...),
+			MemoryUsageMetrics:     append(n.MemoryUsageMetrics, in.MemoryUsageMetrics...),
+		}
+	)
+
+	return newNodeMetirc
+}
+
+// NodesMetricMap Nodes' metric map
+type NodesMetricMap map[NodeName]NodeMetric
+
+// AddNodeMetric Add node metric into NodesMetricMap
+func (n *NodesMetricMap) AddNodeMetric(nodeMetric NodeMetric) {
+
+	nodeName := nodeMetric.NodeName
+	if existNodeMetric, exist := (*n)[nodeName]; exist {
+		(*n)[nodeName] = existNodeMetric.Merge(nodeMetric)
+	} else {
+		(*n)[nodeName] = nodeMetric
 	}
 }
