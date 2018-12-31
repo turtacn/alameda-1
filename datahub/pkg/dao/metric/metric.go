@@ -44,6 +44,16 @@ type ListNodeMetricsRequest struct {
 	EndTime   time.Time
 }
 
+// GetNodeNames Return nodes name in request
+func (r ListNodeMetricsRequest) GetNodeNames() []NodeName {
+	return r.NodeNames
+}
+
+// GetEmptyNodeNames Return slice with one empty string element
+func (r ListNodeMetricsRequest) GetEmptyNodeNames() []NodeName {
+	return []NodeName{""}
+}
+
 // Sample Data struct representing timestamp and metric value of metric data point
 type Sample struct {
 	Timestamp time.Time
