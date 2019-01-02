@@ -30,8 +30,6 @@ type Server struct {
 
 	Config    Config
 	K8SClient client.Client
-
-	MetricsDAO metric.MetricsDAO
 }
 
 var (
@@ -140,6 +138,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 
 		metricDAO metric.MetricsDAO
 
+		requestExt     listPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
 		queryStartTime time.Time
@@ -155,6 +154,16 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 			},
 		}
 	)
+
+	requestExt = listPodMetricsRequestExtended(*in)
+	if err = requestExt.validate(); err != nil {
+		return &datahub_v1alpha1.ListPodMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
 
 	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
 
@@ -198,6 +207,74 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 }
 
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {
+
+	var (
+		err error
+
+		metricDAO metric.MetricsDAO
+
+		requestExt     listNodeMetricsRequestExtended
+		nodeNames      []string
+		queryStartTime time.Time
+		queryEndTime   time.Time
+
+		nodesMetricMap     metric.NodesMetricMap
+		datahubNodeMetrics []*datahub_v1alpha1.NodeMetric
+
+		apiInternalServerErrorResponse = datahub_v1alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
+			},
+		}
+	)
+
+	requestExt = listNodeMetricsRequestExtended(*in)
+	if err = requestExt.validate(); err != nil {
+		return &datahub_v1alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
+
+	nodeNames = in.GetNodeNames()
+	queryStartTime, err = ptypes.Timestamp(in.GetTimeRange().GetStartTime())
+	if err != nil {
+		return &apiInternalServerErrorResponse, nil
+	}
+	queryEndTime, err = ptypes.Timestamp(in.GetTimeRange().GetEndTime())
+	if err != nil {
+		return &apiInternalServerErrorResponse, nil
+	}
+	listNodeMetricsRequest := metric.ListNodeMetricsRequest{
+		NodeNames: nodeNames,
+		StartTime: queryStartTime,
+		EndTime:   queryEndTime,
+	}
+
+	nodesMetricMap, err = metricDAO.ListNodesMetric(listNodeMetricsRequest)
+	if err != nil {
+		scope.Error("ListPodMetrics failed: " + err.Error())
+		return &apiInternalServerErrorResponse, nil
+	}
+
+	for _, nodeMetric := range nodesMetricMap {
+		nodeMetricExtended := nodeMetricExtended(nodeMetric)
+		datahubNodeMetric := nodeMetricExtended.datahubNodeMetric()
+		datahubNodeMetrics = append(datahubNodeMetrics, &datahubNodeMetric)
+	}
+
+	return &datahub_v1alpha1.ListNodeMetricsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		NodeMetrics: datahubNodeMetrics,
+	}, nil
+
 	return &datahub_v1alpha1.ListNodeMetricsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
