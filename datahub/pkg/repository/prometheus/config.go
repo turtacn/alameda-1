@@ -10,6 +10,7 @@ const (
 	defaultBearerTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 )
 
+// Config Configuration of Prometheus datasource
 type Config struct {
 	URL             string     `mapstructure:"url"`
 	BearerTokenFile string     `mapstructure:"bearer-token-file"`
@@ -18,10 +19,12 @@ type Config struct {
 	bearerToken string
 }
 
+// TLSConfig Configuration of tls connnection
 type TLSConfig struct {
 	InsecureSkipVerify bool `mapstructure:"insecure-skip-verify"`
 }
 
+// NewDefaultConfig Provide default configuration
 func NewDefaultConfig() Config {
 
 	var config = Config{
@@ -34,6 +37,7 @@ func NewDefaultConfig() Config {
 	return config
 }
 
+// Validate Confirm the configuration is validate
 func (c *Config) Validate() error {
 
 	var err error
