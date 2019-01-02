@@ -31,8 +31,8 @@ type NamespacePodContainerName = string
 
 // ListPodMetricsRequest Argument of method ListPodMetrics
 type ListPodMetricsRequest struct {
-	Namespace string
-	PodName   string
+	Namespace NamespaceName
+	PodName   PodName
 	StartTime time.Time
 	EndTime   time.Time
 }
@@ -107,17 +107,21 @@ func (c ContainersMetricMap) BuildPodsMetricMap() PodsMetricMap {
 // Merge Merge current ContainersMetricMap with input ContainersMetricMap
 func (c ContainersMetricMap) Merge(in ContainersMetricMap) ContainersMetricMap {
 
+	var (
+		newContainersMetricMap = c
+	)
+
 	for namespacePodContainerName, containerMetric := range in {
-		if existedContainerMetric, exist := c[namespacePodContainerName]; exist {
+		if existedContainerMetric, exist := newContainersMetricMap[namespacePodContainerName]; exist {
 			existedContainerMetric.CPUMetircs = append(existedContainerMetric.CPUMetircs, containerMetric.CPUMetircs...)
 			existedContainerMetric.MemoryMetrics = append(existedContainerMetric.MemoryMetrics, containerMetric.MemoryMetrics...)
-			c[namespacePodContainerName] = existedContainerMetric
+			newContainersMetricMap[namespacePodContainerName] = existedContainerMetric
 		} else {
-			c[namespacePodContainerName] = containerMetric
+			newContainersMetricMap[namespacePodContainerName] = containerMetric
 		}
 	}
 
-	return c
+	return newContainersMetricMap
 }
 
 // PodMetric Metric model to represent one pod's metric
