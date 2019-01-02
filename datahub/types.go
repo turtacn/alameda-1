@@ -1,10 +1,65 @@
 package datahub
 
 import (
+	"errors"
+
 	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 )
+
+type listPodMetricsRequestExtended datahub_v1alpha1.ListPodMetricsRequest
+
+func (r listPodMetricsRequestExtended) validate() error {
+
+	var (
+		startTime *timestamp.Timestamp
+		endTime   *timestamp.Timestamp
+	)
+
+	if r.TimeRange == nil {
+		return errors.New("field \"time_range\" cannot be empty")
+	}
+
+	startTime = r.TimeRange.StartTime
+	endTime = r.TimeRange.EndTime
+	if startTime == nil || endTime == nil {
+		return errors.New("field \"start_time\" and \"end_time\"  cannot be empty")
+	}
+
+	if startTime.Seconds+int64(startTime.Nanos) >= endTime.Seconds+int64(endTime.Nanos) {
+		return errors.New("\"end_time\" must not be before \"start_time\"")
+	}
+
+	return nil
+}
+
+type listNodeMetricsRequestExtended datahub_v1alpha1.ListNodeMetricsRequest
+
+func (r listNodeMetricsRequestExtended) validate() error {
+
+	var (
+		startTime *timestamp.Timestamp
+		endTime   *timestamp.Timestamp
+	)
+
+	if r.TimeRange == nil {
+		return errors.New("field \"time_range\" cannot be empty")
+	}
+
+	startTime = r.TimeRange.StartTime
+	endTime = r.TimeRange.EndTime
+	if startTime == nil || endTime == nil {
+		return errors.New("field \"start_time\" and \"end_time\"  cannot be empty")
+	}
+
+	if startTime.Seconds+int64(startTime.Nanos) >= endTime.Seconds+int64(endTime.Nanos) {
+		return errors.New("\"end_time\" must not be before \"start_time\"")
+	}
+
+	return nil
+}
 
 type podMetricExtended metric.PodMetric
 

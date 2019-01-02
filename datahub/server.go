@@ -138,6 +138,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 
 		metricDAO metric.MetricsDAO
 
+		requestExt     listPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
 		queryStartTime time.Time
@@ -153,6 +154,16 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 			},
 		}
 	)
+
+	requestExt = listPodMetricsRequestExtended(*in)
+	if err = requestExt.validate(); err != nil {
+		return &datahub_v1alpha1.ListPodMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
 
 	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
 
@@ -202,6 +213,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 		metricDAO metric.MetricsDAO
 
+		requestExt     listNodeMetricsRequestExtended
 		nodeNames      []string
 		queryStartTime time.Time
 		queryEndTime   time.Time
@@ -216,6 +228,16 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 			},
 		}
 	)
+
+	requestExt = listNodeMetricsRequestExtended(*in)
+	if err = requestExt.validate(); err != nil {
+		return &datahub_v1alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
 
 	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
 
