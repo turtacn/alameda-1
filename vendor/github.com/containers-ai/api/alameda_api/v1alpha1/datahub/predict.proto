@@ -14,10 +14,6 @@ enum RecommendationPolicy {
 message ContainerPrediction {
     string name = 1;
     repeated MetricData predicted_raw_data = 2;
-    repeated MetricData predicted_limit_data = 3;
-    repeated MetricData predicted_request_data = 4;
-    repeated MetricData predicted_initial_limit_resource = 5;
-    repeated MetricData predicted_initial_request_resource = 6;
 }
 
 message PodPrediction {
@@ -28,4 +24,5 @@ message PodPrediction {
 message NodePrediction {
     string name = 1;
     repeated MetricData predicted_raw_data = 2;
+    bool is_scheduled =3;
 }

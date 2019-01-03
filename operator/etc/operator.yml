@@ -14,3 +14,6 @@ grafana-backend:
 
 ai-server:
   address: "alameda-ai.alameda.svc.cluster.local:50051"
+
+datahub:
+  address: "datahub.alameda.svc.cluster.local:50050"

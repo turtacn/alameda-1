@@ -2,18 +2,15 @@ syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
 
+import "alameda_api/v1alpha1/datahub/predict.proto";
+import "google/protobuf/timestamp.proto";
 import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
-
 
 message Container {
     string name = 1;
     repeated MetricData limit_resource = 2;
     repeated MetricData request_resource = 3;
-    repeated MetricData limit_resource_recommendation = 4;
-    repeated MetricData request_resource_recommendation = 5;
-    repeated MetricData initial_limit_resource_recommendation = 6;
-    repeated MetricData initial_request_resource_recommendation = 7;
 }
 
 message Pod {
@@ -23,6 +20,8 @@ message Pod {
     bool is_alameda = 4;
     NamespacedName alameda_resource = 5;
     string node_name = 6;
+    google.protobuf.Timestamp start_time = 7;
+    RecommendationPolicy policy = 8;
 }
 
 message Node {

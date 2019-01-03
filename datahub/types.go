@@ -103,8 +103,8 @@ func (c containerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Conta
 		Name: string(c.ContainerName),
 	}
 
-	go c.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUMetircs, metricDataChan)
-	go c.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES, c.MemoryMetrics, metricDataChan)
+	go c.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUMetircs, metricDataChan)
+	go c.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, c.MemoryMetrics, metricDataChan)
 
 	for i := 0; i < c.NumberOfDatahubMetricDataNeededProducing(); i++ {
 		receivedMetricData := <-metricDataChan
@@ -157,8 +157,8 @@ func (n nodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 		Name: n.NodeName,
 	}
 
-	go n.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE, n.CPUUsageMetircs, metricDataChan)
-	go n.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES, n.MemoryUsageMetrics, metricDataChan)
+	go n.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, n.CPUUsageMetircs, metricDataChan)
+	go n.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, n.MemoryUsageMetrics, metricDataChan)
 
 	for i := 0; i < n.NumberOfDatahubMetricDataNeededProducing(); i++ {
 		receivedMetricData := <-metricDataChan

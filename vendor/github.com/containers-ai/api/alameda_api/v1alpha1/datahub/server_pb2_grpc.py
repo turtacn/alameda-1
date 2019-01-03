@@ -56,9 +56,9 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNameRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsResponse.FromString,
         )
-    self.CreateAlamedaPods = channel.unary_unary(
-        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateAlamedaPods',
-        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateAlamedaPodsRequest.SerializeToString,
+    self.CreatePods = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreatePods',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodsRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
     self.CreateAlamedaNodes = channel.unary_unary(
@@ -81,9 +81,9 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
-    self.DeleteAlamedaPods = channel.unary_unary(
-        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/DeleteAlamedaPods',
-        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.DeleteAlamedaPodsRequest.SerializeToString,
+    self.UpdatePods = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/UpdatePods',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.UpdatePodsRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
     self.DeleteAlamedaNodes = channel.unary_unary(
@@ -153,7 +153,7 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def CreateAlamedaPods(self, request, context):
+  def CreatePods(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -188,7 +188,7 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def DeleteAlamedaPods(self, request, context):
+  def UpdatePods(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -245,9 +245,9 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNameRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsResponse.SerializeToString,
       ),
-      'CreateAlamedaPods': grpc.unary_unary_rpc_method_handler(
-          servicer.CreateAlamedaPods,
-          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateAlamedaPodsRequest.FromString,
+      'CreatePods': grpc.unary_unary_rpc_method_handler(
+          servicer.CreatePods,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodsRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'CreateAlamedaNodes': grpc.unary_unary_rpc_method_handler(
@@ -270,9 +270,9 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
-      'DeleteAlamedaPods': grpc.unary_unary_rpc_method_handler(
-          servicer.DeleteAlamedaPods,
-          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.DeleteAlamedaPodsRequest.FromString,
+      'UpdatePods': grpc.unary_unary_rpc_method_handler(
+          servicer.UpdatePods,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.UpdatePodsRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'DeleteAlamedaNodes': grpc.unary_unary_rpc_method_handler(

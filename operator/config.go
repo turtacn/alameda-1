@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	aiserver "github.com/containers-ai/alameda/operator/ai-server"
+	datahub "github.com/containers-ai/alameda/operator/datahub"
 	"github.com/containers-ai/alameda/operator/pkg/utils/log"
 	grafanadatasource "github.com/containers-ai/alameda/operator/services/grafana-datasource"
 	"github.com/containers-ai/alameda/operator/services/grpc"
@@ -14,6 +15,7 @@ type Config struct {
 	GRPC           *grpc.Config              `mapstructure:"gRPC"`
 	Log            *log.Config               `mapstructure:"log"`
 	GrafanaBackend *grafanadatasource.Config `mapstructure:"grafana-backend"`
+	Datahub        *datahub.Config           `mapstructure:"datahub"`
 	AIServer       *aiserver.Config          `mapstructure:"ai-server"`
 	Manager        manager.Manager
 }
@@ -33,6 +35,7 @@ func (c *Config) init() {
 	c.GRPC = grpc.NewConfig()
 	c.Log = log.NewConfig()
 	c.AIServer = aiserver.NewConfig()
+	c.Datahub = datahub.NewConfig()
 	c.GrafanaBackend = grafanadatasource.NewConfig()
 }
 

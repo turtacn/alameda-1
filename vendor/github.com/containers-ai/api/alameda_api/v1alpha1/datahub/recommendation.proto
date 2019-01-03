@@ -11,6 +11,8 @@ message ContainerRecommendation {
     string name = 1;    
     repeated MetricData limit_recommendations = 2;
     repeated MetricData request_recommendations = 3;
+    repeated MetricData initial_limit_recommendations = 4;
+    repeated MetricData initial_request_recommendations = 5;
 }
 
 message AssignPodPolicy {

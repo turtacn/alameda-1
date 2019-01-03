@@ -25,9 +25,10 @@ import (
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
-	grpcutils "github.com/containers-ai/alameda/operator/pkg/utils/grpc"
+	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
-	aiservice_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -71,15 +72,17 @@ type Container struct {
 // Pod struct
 type Pod struct {
 	UID        string
+	Namespace  string
 	Name       string
 	Containers []Container
 }
 
 // Deployment struct
 type Deployment struct {
-	UID    string
-	Name   string
-	PodMap map[string]Pod
+	UID       string
+	Namespace string
+	Name      string
+	PodMap    map[string]Pod
 }
 
 // K8SControllerAnnotation struct
@@ -412,63 +415,81 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 
 func registerPodPrediction(alamedaresource *autoscalingv1alpha1.AlamedaResource, namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
 	scope.Info("Start registering pod prediction.")
-	conn, err := grpc.Dial(grpcutils.GetAIServiceAddress(), grpc.WithInsecure())
+	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
+
 	if err != nil {
 		scope.Error(err.Error())
 		return
 	}
 
 	defer conn.Close()
-	aiServiceClnt := aiservice_v1alpha1.NewAlamendaAIServiceClient(conn)
+	aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	if len(newPodMaps) > 0 {
-		req := aiservice_v1alpha1.PredictionObjectListCreationRequest{
-			Objects: []*aiservice_v1alpha1.Object{},
+		req := datahub_v1alpha1.CreatePodsRequest{
+			Pods: []*datahub_v1alpha1.Pod{},
 		}
 		for _, v := range newPodMaps {
-			policy := aiservice_v1alpha1.RecommendationPolicy_STABLE
+			policy := datahub_v1alpha1.RecommendationPolicy_STABLE
+			containers := []*datahub_v1alpha1.Container{}
 			if strings.ToLower(string(alamedaresource.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicyCOMPACT)) {
-				policy = aiservice_v1alpha1.RecommendationPolicy_COMPACT
+				policy = datahub_v1alpha1.RecommendationPolicy_COMPACT
 			} else if strings.ToLower(string(alamedaresource.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicySTABLE)) {
-				policy = aiservice_v1alpha1.RecommendationPolicy_STABLE
+				policy = datahub_v1alpha1.RecommendationPolicy_STABLE
 			}
-			req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
-				Type:      aiservice_v1alpha1.Object_POD,
-				Policy:    aiservice_v1alpha1.RecommendationPolicy(policy),
-				Uid:       v.UID,
-				Namespace: namespace,
-				Name:      v.Name,
+			for _, c := range v.Containers {
+				containers = append(containers, &datahub_v1alpha1.Container{
+					Name: c.Name,
+				})
+			}
+			req.Pods = append(req.Pods, &datahub_v1alpha1.Pod{
+				IsAlameda: true,
+				AlamedaResource: &datahub_v1alpha1.NamespacedName{
+					Namespace: alamedaresource.GetNamespace(),
+					Name:      alamedaresource.GetName(),
+				},
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: v.Namespace,
+					Name:      v.Name,
+				},
+				Policy:     datahub_v1alpha1.RecommendationPolicy(policy),
+				Containers: containers,
+
+				// TODO
+				NodeName:     "",
+				ResourceLink: "",
+				StartTime:    &timestamp.Timestamp{},
 			})
 		}
 		reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
-		scope.Infof(fmt.Sprintf("Create prediction object %s to AI server. (%s/%s).", string(reqBin), namespace, name))
-		reqRes, err := aiServiceClnt.CreatePredictionObjects(context.Background(), &req)
+		scope.Infof(fmt.Sprintf("Add/Update alameda pod %s to datahub. (%s/%s).", string(reqBin), namespace, name))
+		reqRes, err := aiServiceClnt.CreatePods(context.Background(), &req)
 		if err != nil {
 			scope.Error(err.Error())
 		} else {
 			reqResBin, _ := json.Marshal(*reqRes)
-			scope.Infof(fmt.Sprintf("Create prediction object to AI server successfully (%s).", reqResBin))
+			scope.Infof(fmt.Sprintf("Add/Update alameda pod %s to datahub successfully (%s).", string(reqBin), reqResBin))
 		}
 	}
 	if len(deletePodMaps) > 0 {
-		req := aiservice_v1alpha1.PredictionObjectListDeletionRequest{
-			Objects: []*aiservice_v1alpha1.Object{},
+		req := datahub_v1alpha1.UpdatePodsRequest{
+			Pods: []*datahub_v1alpha1.Pod{},
 		}
 		for _, v := range deletePodMaps {
-			req.Objects = append(req.Objects, &aiservice_v1alpha1.Object{
-				Type:      aiservice_v1alpha1.Object_POD,
-				Uid:       v.UID,
-				Namespace: namespace,
-				Name:      v.Name,
+			req.Pods = append(req.Pods, &datahub_v1alpha1.Pod{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: v.Namespace,
+					Name:      v.Name,
+				},
 			})
 		}
 		reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
-		scope.Infof(fmt.Sprintf("Delete prediction object %s to AI server. (%s/%s).", string(reqBin), namespace, name))
-		reqRes, err := aiServiceClnt.DeletePredictionObjects(context.Background(), &req)
+		scope.Infof(fmt.Sprintf("Remove alameda pod %s from datahub. (%s/%s).", string(reqBin), namespace, name))
+		reqRes, err := aiServiceClnt.UpdatePods(context.Background(), &req)
 		if err != nil {
 			scope.Error(err.Error())
 		} else {
 			reqResBin, _ := json.Marshal(*reqRes)
-			scope.Infof(fmt.Sprintf("Delete prediction object to AI server successfully (%s).", reqResBin))
+			scope.Infof(fmt.Sprintf("Remove alameda pod %s from datahub successfully (%s).", string(reqBin), reqResBin))
 		}
 	}
 }
@@ -521,14 +542,16 @@ func (r *ReconcileAlamedaResource) getControllerMapForAnno(kind string, deploy i
 			}
 			podMap[string(pod.GetUID())] = Pod{
 				Name:       pod.GetName(),
+				Namespace:  namespace,
 				UID:        string(pod.GetUID()),
 				Containers: containers,
 			}
 		}
 		return &Deployment{
-			Name:   name,
-			UID:    string(deploy.(*appsv1.Deployment).GetUID()),
-			PodMap: podMap,
+			Name:      name,
+			Namespace: namespace,
+			UID:       string(deploy.(*appsv1.Deployment).GetUID()),
+			PodMap:    podMap,
 		}
 	}
 	return nil

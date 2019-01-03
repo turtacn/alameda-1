@@ -284,7 +284,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 				Name: "node1",
 				MetricData: []*datahub_v1alpha1.MetricData{
 					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE,
+						MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 						Data: []*datahub_v1alpha1.Sample{
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[0],
@@ -313,7 +313,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 						},
 					},
 					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES,
+						MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 						Data: []*datahub_v1alpha1.Sample{
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[0],
@@ -347,7 +347,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 				Name: "node2",
 				MetricData: []*datahub_v1alpha1.MetricData{
 					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE,
+						MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 						Data: []*datahub_v1alpha1.Sample{
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[0],
@@ -376,7 +376,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 						},
 					},
 					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES,
+						MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 						Data: []*datahub_v1alpha1.Sample{
 							&datahub_v1alpha1.Sample{
 								Time:     tmpTimestamps[0],
@@ -482,7 +482,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 
 	var tmpMetricsData = []*datahub_v1alpha1.MetricData{
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
+			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -495,7 +495,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 			},
 		},
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
+			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -521,20 +521,12 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 				},
 				ContainerPredictions: []*datahub_v1alpha1.ContainerPrediction{
 					&datahub_v1alpha1.ContainerPrediction{
-						Name:                            "prometheus",
-						PredictedRawData:                tmpMetricsData,
-						PredictedLimitData:              tmpMetricsData,
-						PredictedRequestData:            tmpMetricsData,
-						PredictedInitialLimitResource:   tmpMetricsData,
-						PredictedInitialRequestResource: tmpMetricsData,
+						Name:             "prometheus",
+						PredictedRawData: tmpMetricsData,
 					},
 					&datahub_v1alpha1.ContainerPrediction{
-						Name:                            "another-container",
-						PredictedRawData:                tmpMetricsData,
-						PredictedLimitData:              tmpMetricsData,
-						PredictedRequestData:            tmpMetricsData,
-						PredictedInitialLimitResource:   tmpMetricsData,
-						PredictedInitialRequestResource: tmpMetricsData,
+						Name:             "another-container",
+						PredictedRawData: tmpMetricsData,
 					},
 				},
 			},
@@ -545,20 +537,12 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 				},
 				ContainerPredictions: []*datahub_v1alpha1.ContainerPrediction{
 					&datahub_v1alpha1.ContainerPrediction{
-						Name:                            "prometheus",
-						PredictedRawData:                tmpMetricsData,
-						PredictedLimitData:              tmpMetricsData,
-						PredictedRequestData:            tmpMetricsData,
-						PredictedInitialLimitResource:   tmpMetricsData,
-						PredictedInitialRequestResource: tmpMetricsData,
+						Name:             "prometheus",
+						PredictedRawData: tmpMetricsData,
 					},
 					&datahub_v1alpha1.ContainerPrediction{
-						Name:                            "another-container",
-						PredictedRawData:                tmpMetricsData,
-						PredictedLimitData:              tmpMetricsData,
-						PredictedRequestData:            tmpMetricsData,
-						PredictedInitialLimitResource:   tmpMetricsData,
-						PredictedInitialRequestResource: tmpMetricsData,
+						Name:             "another-container",
+						PredictedRawData: tmpMetricsData,
 					},
 				},
 			},
@@ -570,7 +554,7 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 
 	var tmpNodePredictionsData = []*datahub_v1alpha1.MetricData{
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_NODE_CPU_USAGE_SECONDS_PERCENTAGE,
+			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -583,7 +567,7 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 			},
 		},
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_NODE_MEMORY_USAGE_BYTES,
+			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -618,7 +602,7 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 
 	var tmpRecommendationsData = []*datahub_v1alpha1.MetricData{
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
+			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -631,7 +615,7 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 			},
 		},
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
+			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -698,7 +682,7 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 
 	var tmpMetricsData = []*datahub_v1alpha1.MetricData{
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_CPU_USAGE_SECONDS_PERCENTAGE,
+			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -711,7 +695,7 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 			},
 		},
 		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CONTAINER_MEMORY_USAGE_BYTES,
+			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			Data: []*datahub_v1alpha1.Sample{
 				&datahub_v1alpha1.Sample{
 					Time:     tmpTimestamps[0],
@@ -738,20 +722,14 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 				ResourceLink: "",
 				Containers: []*datahub_v1alpha1.Container{
 					&datahub_v1alpha1.Container{
-						Name:                                 "prometheus",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
+						Name:            "prometheus",
+						LimitResource:   tmpMetricsData,
+						RequestResource: tmpMetricsData,
 					},
 					&datahub_v1alpha1.Container{
-						Name:                                 "another-container",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
+						Name:            "another-container",
+						LimitResource:   tmpMetricsData,
+						RequestResource: tmpMetricsData,
 					},
 				},
 			},
@@ -763,20 +741,14 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 				ResourceLink: "",
 				Containers: []*datahub_v1alpha1.Container{
 					&datahub_v1alpha1.Container{
-						Name:                                 "prometheus",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
+						Name:            "prometheus",
+						LimitResource:   tmpMetricsData,
+						RequestResource: tmpMetricsData,
 					},
 					&datahub_v1alpha1.Container{
-						Name:                                 "another-container",
-						LimitResource:                        tmpMetricsData,
-						RequestResource:                      tmpMetricsData,
-						LimitResourceRecommendation:          tmpMetricsData,
-						InitialLimitResourceRecommendation:   tmpMetricsData,
-						InitialRequestResourceRecommendation: tmpMetricsData,
+						Name:            "another-container",
+						LimitResource:   tmpMetricsData,
+						RequestResource: tmpMetricsData,
 					},
 				},
 			},
@@ -784,7 +756,13 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 	}, nil
 }
 
-func (s *Server) CreateAlamedaPods(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaPodsRequest) (*status.Status, error) {
+func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePodsRequest) (*status.Status, error) {
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+func (s *Server) UpdatePods(ctx context.Context, in *datahub_v1alpha1.UpdatePodsRequest) (*status.Status, error) {
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
@@ -825,12 +803,6 @@ func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1
 }
 
 func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
-	return &status.Status{
-		Code: int32(code.Code_OK),
-	}, nil
-}
-
-func (s *Server) DeleteAlamedaPods(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaPodsRequest) (*status.Status, error) {
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

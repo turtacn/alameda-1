@@ -90,17 +90,16 @@ message CreatePodRecommendationsRequest {
     repeated PodRecommendation pod_recommendations = 1;
 }
 
-message CreateAlamedaPodsRequest {
-    RecommendationPolicy policy = 1;
-    repeated Pod alameda_pods = 2;
+message CreatePodsRequest {
+    repeated Pod pods = 1;
 }
 
 message CreateAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
 
-message DeleteAlamedaPodsRequest {
-    repeated Pod alameda_pods = 1;
+message UpdatePodsRequest {
+    repeated Pod pods = 1;
 }
 
 message DeleteAlamedaNodesRequest {
@@ -126,8 +125,8 @@ service DatahubService {
         returns (ListPodRecommendationsResponse) {}
     rpc ListPodsByNodeName(ListPodsByNodeNameRequest)
         returns (ListPodsResponse) {}        
-    rpc CreateAlamedaPods(CreateAlamedaPodsRequest)
-        returns (google.rpc.Status){}    
+    rpc CreatePods(CreatePodsRequest)
+        returns (google.rpc.Status){}
     rpc CreateAlamedaNodes(CreateAlamedaNodesRequest)
         returns (google.rpc.Status){}    
     rpc CreatePodPredictions(CreatePodPredictionsRequest)
@@ -135,9 +134,9 @@ service DatahubService {
     rpc CreateNodePredictions(CreateNodePredictionsRequest)
         returns (google.rpc.Status) {}
     rpc CreatePodRecommendations(CreatePodRecommendationsRequest)
-        returns (google.rpc.Status) {}    
-    rpc DeleteAlamedaPods(DeleteAlamedaPodsRequest)
-        returns (google.rpc.Status){}        
+        returns (google.rpc.Status) {}
+    rpc UpdatePods(UpdatePodsRequest)
+        returns (google.rpc.Status){}
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}            
 }

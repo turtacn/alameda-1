@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:491634c6d4433e06d2124e46e6958626c5de45049037995996b3095686c09645"
+  digest = "1:825d63b45e58c3004ece69763ef70ccd960ce265d3b5cdd417d13c5fde260b62"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/ai_service",
@@ -19,7 +19,7 @@
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "cf7615792effaf499a7deb7a10878dd89705c814"
+  revision = "796d68a63f96a4886464ed3f96b09c41afcba1a3"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
