@@ -10,6 +10,8 @@ import (
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
+	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -137,7 +139,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 
 		metricDAO metric.MetricsDAO
 
-		requestExt     listPodMetricsRequestExtended
+		requestExt     datahubListPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
 		queryStartTime time.Time
@@ -154,7 +156,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 		}
 	)
 
-	requestExt = listPodMetricsRequestExtended(*in)
+	requestExt = datahubListPodMetricsRequestExtended{*in}
 	if err = requestExt.validate(); err != nil {
 		return &datahub_v1alpha1.ListPodMetricsResponse{
 			Status: &status.Status{
@@ -192,7 +194,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 	}
 
 	for _, podMetric := range podsMetricMap {
-		podMetricExtended := podMetricExtended(podMetric)
+		podMetricExtended := daoPodMetricExtended(podMetric)
 		datahubPodMetric := podMetricExtended.datahubPodMetric()
 		datahubPodMetrics = append(datahubPodMetrics, &datahubPodMetric)
 	}
@@ -212,7 +214,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 		metricDAO metric.MetricsDAO
 
-		requestExt     listNodeMetricsRequestExtended
+		requestExt     datahubListNodeMetricsRequestExtended
 		nodeNames      []string
 		queryStartTime time.Time
 		queryEndTime   time.Time
@@ -228,7 +230,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 		}
 	)
 
-	requestExt = listNodeMetricsRequestExtended(*in)
+	requestExt = datahubListNodeMetricsRequestExtended{*in}
 	if err = requestExt.validate(); err != nil {
 		return &datahub_v1alpha1.ListNodeMetricsResponse{
 			Status: &status.Status{
@@ -262,7 +264,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	}
 
 	for _, nodeMetric := range nodesMetricMap {
-		nodeMetricExtended := nodeMetricExtended(nodeMetric)
+		nodeMetricExtended := daoNodeMetricExtended(nodeMetric)
 		datahubNodeMetric := nodeMetricExtended.datahubNodeMetric()
 		datahubNodeMetrics = append(datahubNodeMetrics, &datahubNodeMetric)
 	}
@@ -456,73 +458,43 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
 
-	var tmpMetricsData = []*datahub_v1alpha1.MetricData{
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "20",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "50",
-				},
+	var (
+		err error
+
+		predictionDAO prediction_dao.DAO
+
+		podsPredicitonMap     prediction_dao.PodsPredictionMap
+		datahubPodPredicitons []*datahub_v1alpha1.PodPrediction
+
+		apiResponseInternalServerError = datahub_v1alpha1.ListPodPredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
 			},
-		},
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "512",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "1024",
-				},
-			},
-		},
+		}
+	)
+
+	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+
+	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{*in}
+	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
+	podsPredicitonMap, err = predictionDAO.ListPodPredictions(listPodPredictionsRequest)
+	if err != nil {
+		scope.Error("ListPodMetrics failed: " + err.Error())
+		return &apiResponseInternalServerError, nil
+	}
+
+	for _, podPrediction := range podsPredicitonMap {
+		podPredicitonExtended := daoPodPredictionExtended(podPrediction)
+		datahubPodPrediction := podPredicitonExtended.datahubPodPrediction()
+		datahubPodPredicitons = append(datahubPodPredicitons, &datahubPodPrediction)
 	}
 
 	return &datahub_v1alpha1.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		PodPredictions: []*datahub_v1alpha1.PodPrediction{
-			&datahub_v1alpha1.PodPrediction{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshift-monitoring",
-					Name:      "prometheus-k8s-0",
-				},
-				ContainerPredictions: []*datahub_v1alpha1.ContainerPrediction{
-					&datahub_v1alpha1.ContainerPrediction{
-						Name:             "prometheus",
-						PredictedRawData: tmpMetricsData,
-					},
-					&datahub_v1alpha1.ContainerPrediction{
-						Name:             "another-container",
-						PredictedRawData: tmpMetricsData,
-					},
-				},
-			},
-			&datahub_v1alpha1.PodPrediction{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshift-monitoring",
-					Name:      "prometheus-k8s-1",
-				},
-				ContainerPredictions: []*datahub_v1alpha1.ContainerPrediction{
-					&datahub_v1alpha1.ContainerPrediction{
-						Name:             "prometheus",
-						PredictedRawData: tmpMetricsData,
-					},
-					&datahub_v1alpha1.ContainerPrediction{
-						Name:             "another-container",
-						PredictedRawData: tmpMetricsData,
-					},
-				},
-			},
-		},
+		PodPredictions: datahubPodPredicitons,
 	}, nil
 }
 
@@ -787,6 +759,27 @@ func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.Cr
 }
 
 func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
+
+	var (
+		err error
+
+		predictionDAO        prediction_dao.DAO
+		containersPrediciton []*prediction_dao.ContainerPrediction
+
+		apiResponseInternalServerError = status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Internal server error.",
+		}
+	)
+
+	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+
+	containersPrediciton = datahubCreatePodPredictionsRequestExtended{*in}.daoContainerPredictions()
+	err = predictionDAO.CreateContainerPredictions(containersPrediciton)
+	if err != nil {
+		return &apiResponseInternalServerError, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

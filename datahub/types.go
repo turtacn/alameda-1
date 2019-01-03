@@ -1,69 +1,15 @@
 package datahub
 
 import (
-	"errors"
-
 	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
-type listPodMetricsRequestExtended datahub_v1alpha1.ListPodMetricsRequest
+type daoPodMetricExtended metric.PodMetric
 
-func (r listPodMetricsRequestExtended) validate() error {
-
-	var (
-		startTime *timestamp.Timestamp
-		endTime   *timestamp.Timestamp
-	)
-
-	if r.TimeRange == nil {
-		return errors.New("field \"time_range\" cannot be empty")
-	}
-
-	startTime = r.TimeRange.StartTime
-	endTime = r.TimeRange.EndTime
-	if startTime == nil || endTime == nil {
-		return errors.New("field \"start_time\" and \"end_time\"  cannot be empty")
-	}
-
-	if startTime.Seconds+int64(startTime.Nanos) >= endTime.Seconds+int64(endTime.Nanos) {
-		return errors.New("\"end_time\" must not be before \"start_time\"")
-	}
-
-	return nil
-}
-
-type listNodeMetricsRequestExtended datahub_v1alpha1.ListNodeMetricsRequest
-
-func (r listNodeMetricsRequestExtended) validate() error {
-
-	var (
-		startTime *timestamp.Timestamp
-		endTime   *timestamp.Timestamp
-	)
-
-	if r.TimeRange == nil {
-		return errors.New("field \"time_range\" cannot be empty")
-	}
-
-	startTime = r.TimeRange.StartTime
-	endTime = r.TimeRange.EndTime
-	if startTime == nil || endTime == nil {
-		return errors.New("field \"start_time\" and \"end_time\"  cannot be empty")
-	}
-
-	if startTime.Seconds+int64(startTime.Nanos) >= endTime.Seconds+int64(endTime.Nanos) {
-		return errors.New("\"end_time\" must not be before \"start_time\"")
-	}
-
-	return nil
-}
-
-type podMetricExtended metric.PodMetric
-
-func (p podMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
+func (p daoPodMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 
 	var (
 		datahubPodMetric datahub_v1alpha1.PodMetric
@@ -77,7 +23,7 @@ func (p podMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 	}
 
 	for _, containerMetric := range p.ContainersMetricMap {
-		containerMetricExtended := containerMetricExtended(containerMetric)
+		containerMetricExtended := daoContainerMetricExtended(containerMetric)
 		datahubContainerMetric := containerMetricExtended.datahubContainerMetric()
 		datahubPodMetric.ContainerMetrics = append(datahubPodMetric.ContainerMetrics, &datahubContainerMetric)
 	}
@@ -85,13 +31,13 @@ func (p podMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 	return datahubPodMetric
 }
 
-type containerMetricExtended metric.ContainerMetric
+type daoContainerMetricExtended metric.ContainerMetric
 
-func (c containerMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
+func (c daoContainerMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
 	return 2
 }
 
-func (c containerMetricExtended) datahubContainerMetric() datahub_v1alpha1.ContainerMetric {
+func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.ContainerMetric {
 
 	var (
 		metricDataChan = make(chan datahub_v1alpha1.MetricData)
@@ -103,8 +49,8 @@ func (c containerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Conta
 		Name: string(c.ContainerName),
 	}
 
-	go c.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUMetircs, metricDataChan)
-	go c.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, c.MemoryMetrics, metricDataChan)
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUMetircs, metricDataChan)
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, c.MemoryMetrics, metricDataChan)
 
 	for i := 0; i < c.NumberOfDatahubMetricDataNeededProducing(); i++ {
 		receivedMetricData := <-metricDataChan
@@ -114,38 +60,13 @@ func (c containerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Conta
 	return datahubContainerMetric
 }
 
-func (c containerMetricExtended) produceDatahubMetricDataFromSamples(metricType datahub_v1alpha1.MetricType, samples []metric.Sample, metricDataChan chan<- datahub_v1alpha1.MetricData) {
+type daoNodeMetricExtended metric.NodeMetric
 
-	var (
-		datahubMetricData datahub_v1alpha1.MetricData
-	)
-
-	datahubMetricData = datahub_v1alpha1.MetricData{
-		MetricType: metricType,
-	}
-
-	for _, sample := range samples {
-
-		// TODO: Send error to caller
-		googleTimestamp, err := ptypes.TimestampProto(sample.Timestamp)
-		if err != nil {
-			googleTimestamp = nil
-		}
-
-		datahubSample := datahub_v1alpha1.Sample{Time: googleTimestamp, NumValue: sample.Value}
-		datahubMetricData.Data = append(datahubMetricData.Data, &datahubSample)
-	}
-
-	metricDataChan <- datahubMetricData
-}
-
-type nodeMetricExtended metric.NodeMetric
-
-func (n nodeMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
+func (n daoNodeMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
 	return 2
 }
 
-func (n nodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
+func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 
 	var (
 		metricDataChan = make(chan datahub_v1alpha1.MetricData)
@@ -157,8 +78,8 @@ func (n nodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 		Name: n.NodeName,
 	}
 
-	go n.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, n.CPUUsageMetircs, metricDataChan)
-	go n.produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, n.MemoryUsageMetrics, metricDataChan)
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, n.CPUUsageMetircs, metricDataChan)
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, n.MemoryUsageMetrics, metricDataChan)
 
 	for i := 0; i < n.NumberOfDatahubMetricDataNeededProducing(); i++ {
 		receivedMetricData := <-metricDataChan
@@ -168,7 +89,60 @@ func (n nodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 	return datahubNodeMetric
 }
 
-func (n nodeMetricExtended) produceDatahubMetricDataFromSamples(metricType datahub_v1alpha1.MetricType, samples []metric.Sample, metricDataChan chan<- datahub_v1alpha1.MetricData) {
+type daoPodPredictionExtended prediction.PodPrediction
+
+func (p daoPodPredictionExtended) datahubPodPrediction() datahub_v1alpha1.PodPrediction {
+
+	var (
+		datahubPodPrediction datahub_v1alpha1.PodPrediction
+	)
+
+	datahubPodPrediction = datahub_v1alpha1.PodPrediction{
+		NamespacedName: &datahub_v1alpha1.NamespacedName{
+			Namespace: string(p.Namespace),
+			Name:      string(p.PodName),
+		},
+	}
+
+	for _, containerPrediction := range p.ContainersPredictionMap {
+		containerPredictionExtended := daoContainerPredictionExtended(containerPrediction)
+		datahubContainerPrediction := containerPredictionExtended.datahubContainerPrediction()
+		datahubPodPrediction.ContainerPredictions = append(datahubPodPrediction.ContainerPredictions, &datahubContainerPrediction)
+	}
+
+	return datahubPodPrediction
+}
+
+type daoContainerPredictionExtended prediction.ContainerPrediction
+
+func (c daoContainerPredictionExtended) NumberOfDatahubPredictionDataNeededProducing() int {
+	return 2
+}
+
+func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1alpha1.ContainerPrediction {
+
+	var (
+		MetricDataChan = make(chan datahub_v1alpha1.MetricData)
+
+		datahubContainerPrediction datahub_v1alpha1.ContainerPrediction
+	)
+
+	datahubContainerPrediction = datahub_v1alpha1.ContainerPrediction{
+		Name: string(c.ContainerName),
+	}
+
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUPredictions, MetricDataChan)
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, c.MemoryPredictions, MetricDataChan)
+
+	for i := 0; i < c.NumberOfDatahubPredictionDataNeededProducing(); i++ {
+		receivedPredictionData := <-MetricDataChan
+		datahubContainerPrediction.PredictedRawData = append(datahubContainerPrediction.PredictedRawData, &receivedPredictionData)
+	}
+
+	return datahubContainerPrediction
+}
+
+func produceDatahubMetricDataFromSamples(metricType datahub_v1alpha1.MetricType, samples []metric.Sample, MetricDataChan chan<- datahub_v1alpha1.MetricData) {
 
 	var (
 		datahubMetricData datahub_v1alpha1.MetricData
@@ -190,5 +164,5 @@ func (n nodeMetricExtended) produceDatahubMetricDataFromSamples(metricType datah
 		datahubMetricData.Data = append(datahubMetricData.Data, &datahubSample)
 	}
 
-	metricDataChan <- datahubMetricData
+	MetricDataChan <- datahubMetricData
 }
