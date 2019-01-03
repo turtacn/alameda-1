@@ -1,0 +1,5 @@
+Alameda has been installed. Check its status by running:
+  kubectl --namespace {{ .Release.Namespace }} get pods
+
+Visit https://github.com/containers-ai/alameda for instructions on how to get started with Alameda.
+

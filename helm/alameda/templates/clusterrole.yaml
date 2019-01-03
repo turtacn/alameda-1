@@ -1,0 +1,58 @@
+{{- if .Values.global.rbacEnable }}
+{{- if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1beta1" }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+{{- else if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1alpha1" }}
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1
+{{- end }}
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: {{ include "alameda.name" . }}
+    helm.sh/chart: {{ include "alameda.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  name: {{ include "alameda.fullname" . }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedaresources
+  - alamedaresourcepredictions
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+# Permission for query prometheus under namespace openshift-monitoring
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+{{- end }}
