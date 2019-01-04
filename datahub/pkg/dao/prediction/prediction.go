@@ -4,32 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 )
-
-// NamespaceName Type alias
-type NamespaceName = string
-
-// PodName Type alias
-type PodName = string
-
-// ContainerName Type alias
-type ContainerName = string
-
-// NodeName Type alias
-type NodeName = string
-
-// NamespacePodName Type alias
-type NamespacePodName = string
-
-// NamespacePodContainerName Type alias
-type NamespacePodContainerName = string
 
 // IsScheduled Specified if the node prediction is scheduled
 type IsScheduled = bool
-
-// Sample Data struct representing timestamp and Prediction value of Prediction data point
-type Sample = metric.Sample
 
 // DAO DAO interface of prediction
 type DAO interface {
@@ -56,11 +36,11 @@ type ListNodePredictionsRequest struct {
 
 // ContainerPrediction Prediction model to represent one container Prediction
 type ContainerPrediction struct {
-	Namespace         NamespaceName
-	PodName           PodName
-	ContainerName     ContainerName
-	CPUPredictions    []Sample
-	MemoryPredictions []Sample
+	Namespace         metadata.NamespaceName
+	PodName           metadata.PodName
+	ContainerName     metadata.ContainerName
+	CPUPredictions    []metric.Sample
+	MemoryPredictions []metric.Sample
 }
 
 // BuildPodPrediction Build PodPrediction consist of the receiver in ContainersPredictionMap.
@@ -77,12 +57,12 @@ func (c ContainerPrediction) BuildPodPrediction() PodPrediction {
 }
 
 // NamespacePodContainerName Return identity of the container Prediction.
-func (c ContainerPrediction) NamespacePodContainerName() NamespacePodContainerName {
-	return NamespacePodContainerName(fmt.Sprintf("%s/%s/%s", c.Namespace, c.PodName, c.ContainerName))
+func (c ContainerPrediction) NamespacePodContainerName() metadata.NamespacePodContainerName {
+	return metadata.NamespacePodContainerName(fmt.Sprintf("%s/%s/%s", c.Namespace, c.PodName, c.ContainerName))
 }
 
 // ContainersPredictionMap Containers Prediction map
-type ContainersPredictionMap map[NamespacePodContainerName]ContainerPrediction
+type ContainersPredictionMap map[metadata.NamespacePodContainerName]ContainerPrediction
 
 // BuildPodsPredictionMap Build PodsPredictionMap base on current ContainersPredictionMap
 func (c ContainersPredictionMap) BuildPodsPredictionMap() PodsPredictionMap {
@@ -120,14 +100,14 @@ func (c ContainersPredictionMap) Merge(in ContainersPredictionMap) ContainersPre
 
 // PodPrediction Prediction model to represent one pod's Prediction
 type PodPrediction struct {
-	Namespace               NamespaceName
-	PodName                 PodName
+	Namespace               metadata.NamespaceName
+	PodName                 metadata.PodName
 	ContainersPredictionMap ContainersPredictionMap
 }
 
 // NamespacePodName Return identity of the pod Prediction
-func (p PodPrediction) NamespacePodName() NamespacePodName {
-	return NamespacePodName(fmt.Sprintf("%s/%s", p.Namespace, p.PodName))
+func (p PodPrediction) NamespacePodName() metadata.NamespacePodName {
+	return metadata.NamespacePodName(fmt.Sprintf("%s/%s", p.Namespace, p.PodName))
 }
 
 // Merge Merge current PodPrediction with input PodPrediction
@@ -147,7 +127,7 @@ func (p PodPrediction) Merge(in PodPrediction) PodPrediction {
 }
 
 // PodsPredictionMap Pods' Prediction map
-type PodsPredictionMap map[NamespacePodName]PodPrediction
+type PodsPredictionMap map[metadata.NamespacePodName]PodPrediction
 
 // AddContainerPrediction Add container Prediction into PodsPredictionMap
 func (p *PodsPredictionMap) AddContainerPrediction(c ContainerPrediction) {
@@ -163,10 +143,10 @@ func (p *PodsPredictionMap) AddContainerPrediction(c ContainerPrediction) {
 
 // NodePrediction Prediction model to represent one node Prediction
 type NodePrediction struct {
-	NodeName               NodeName
+	NodeName               metadata.NodeName
 	IsScheduled            bool
-	CPUUsagePredictions    []Sample
-	MemoryUsagePredictions []Sample
+	CPUUsagePredictions    []metric.Sample
+	MemoryUsagePredictions []metric.Sample
 }
 
 // Merge Merge current NodePrediction with input NodePrediction
@@ -188,7 +168,7 @@ func (n NodePrediction) Merge(in NodePrediction) NodePrediction {
 type IsScheduledNodePredictionMap map[IsScheduled]NodePrediction
 
 // NodesPredictionMap Nodes' Prediction map
-type NodesPredictionMap map[NodeName]IsScheduledNodePredictionMap
+type NodesPredictionMap map[metadata.NodeName]IsScheduledNodePredictionMap
 
 // AddNodePrediction Add node Prediction into NodesPredictionMap
 func (n *NodesPredictionMap) AddNodePrediction(nodePrediction NodePrediction) {

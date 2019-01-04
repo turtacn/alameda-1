@@ -1,7 +1,8 @@
 package nodeCPUUsagePercentage
 
 import (
-	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 )
 
@@ -45,13 +46,13 @@ func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
 }
 
 // NodeMetric Build NodeMetric base on entity properties
-func (e *Entity) NodeMetric() metric.NodeMetric {
+func (e *Entity) NodeMetric() metric_dao.NodeMetric {
 
 	var (
-		nodeMetric metric.NodeMetric
+		nodeMetric metric_dao.NodeMetric
 	)
 
-	nodeMetric = metric.NodeMetric{
+	nodeMetric = metric_dao.NodeMetric{
 		NodeName:        e.NodeName,
 		CPUUsageMetircs: e.Samples,
 	}

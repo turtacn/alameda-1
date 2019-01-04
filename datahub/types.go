@@ -1,13 +1,14 @@
 package datahub
 
 import (
-	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 )
 
-type daoPodMetricExtended metric.PodMetric
+type daoPodMetricExtended metric_dao.PodMetric
 
 func (p daoPodMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 
@@ -31,7 +32,7 @@ func (p daoPodMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 	return datahubPodMetric
 }
 
-type daoContainerMetricExtended metric.ContainerMetric
+type daoContainerMetricExtended metric_dao.ContainerMetric
 
 func (c daoContainerMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
 	return 2
@@ -60,7 +61,7 @@ func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Co
 	return datahubContainerMetric
 }
 
-type daoNodeMetricExtended metric.NodeMetric
+type daoNodeMetricExtended metric_dao.NodeMetric
 
 func (n daoNodeMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
 	return 2

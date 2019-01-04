@@ -1,7 +1,8 @@
 package containerMemoryUsageBytes
 
 import (
-	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 )
 
@@ -53,13 +54,13 @@ func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
 }
 
 // ContainerMetric Build ContainerMetric base on entity properties
-func (e *Entity) ContainerMetric() metric.ContainerMetric {
+func (e *Entity) ContainerMetric() metric_dao.ContainerMetric {
 
 	var (
-		containerMetric metric.ContainerMetric
+		containerMetric metric_dao.ContainerMetric
 	)
 
-	containerMetric = metric.ContainerMetric{
+	containerMetric = metric_dao.ContainerMetric{
 		Namespace:     e.Namespace,
 		PodName:       e.PodName,
 		ContainerName: e.ContainerName,

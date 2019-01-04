@@ -5,6 +5,7 @@ import (
 	"time"
 
 	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -100,13 +101,13 @@ func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []
 					ContainerName: containerName,
 				}
 
-				samples := []prediction_dao.Sample{}
+				samples := []metric.Sample{}
 				for _, datahubSample := range rawData.GetData() {
 					time, err := ptypes.Timestamp(datahubSample.GetTime())
 					if err != nil {
 						scope.Error(" failed: " + err.Error())
 					}
-					sample := prediction_dao.Sample{
+					sample := metric.Sample{
 						Timestamp: time,
 						Value:     datahubSample.GetNumValue(),
 					}
@@ -150,13 +151,13 @@ func (r datahubCreateNodePredictionsRequestExtended) daoNodePredictions() []*pre
 
 		for _, rawData := range datahubNodePrediction.GetPredictedRawData() {
 
-			samples := []prediction_dao.Sample{}
+			samples := []metric.Sample{}
 			for _, datahubSample := range rawData.GetData() {
 				time, err := ptypes.Timestamp(datahubSample.GetTime())
 				if err != nil {
 					scope.Error(" failed: " + err.Error())
 				}
-				sample := prediction_dao.Sample{
+				sample := metric.Sample{
 					Timestamp: time,
 					Value:     datahubSample.GetNumValue(),
 				}

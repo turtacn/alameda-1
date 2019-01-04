@@ -3,6 +3,9 @@ package metric
 import (
 	"fmt"
 	"time"
+
+	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 )
 
 // MetricsDAO DAO interface of metric data.
@@ -11,62 +14,38 @@ type MetricsDAO interface {
 	ListNodesMetric(ListNodeMetricsRequest) (NodesMetricMap, error)
 }
 
-// NamespaceName Type alias
-type NamespaceName = string
-
-// PodName Type alias
-type PodName = string
-
-// ContainerName Type alias
-type ContainerName = string
-
-// NodeName Type alias
-type NodeName = string
-
-// NamespacePodName Type alias
-type NamespacePodName = string
-
-// NamespacePodContainerName Type alias
-type NamespacePodContainerName = string
-
 // ListPodMetricsRequest Argument of method ListPodMetrics
 type ListPodMetricsRequest struct {
-	Namespace NamespaceName
-	PodName   PodName
+	Namespace metadata.NamespaceName
+	PodName   metadata.PodName
 	StartTime time.Time
 	EndTime   time.Time
 }
 
 // ListNodeMetricsRequest Argument of method ListNodeMetrics
 type ListNodeMetricsRequest struct {
-	NodeNames []NodeName
+	NodeNames []metadata.NodeName
 	StartTime time.Time
 	EndTime   time.Time
 }
 
 // GetNodeNames Return nodes name in request
-func (r ListNodeMetricsRequest) GetNodeNames() []NodeName {
+func (r ListNodeMetricsRequest) GetNodeNames() []metadata.NodeName {
 	return r.NodeNames
 }
 
 // GetEmptyNodeNames Return slice with one empty string element
-func (r ListNodeMetricsRequest) GetEmptyNodeNames() []NodeName {
-	return []NodeName{""}
-}
-
-// Sample Data struct representing timestamp and metric value of metric data point
-type Sample struct {
-	Timestamp time.Time
-	Value     string
+func (r ListNodeMetricsRequest) GetEmptyNodeNames() []metadata.NodeName {
+	return []metadata.NodeName{""}
 }
 
 // ContainerMetric Metric model to represent one container metric
 type ContainerMetric struct {
-	Namespace     NamespaceName
-	PodName       PodName
-	ContainerName ContainerName
-	CPUMetircs    []Sample
-	MemoryMetrics []Sample
+	Namespace     metadata.NamespaceName
+	PodName       metadata.PodName
+	ContainerName metadata.ContainerName
+	CPUMetircs    []metric.Sample
+	MemoryMetrics []metric.Sample
 }
 
 // BuildPodMetric Build PodMetric consist of the receiver in ContainersMetricMap.
@@ -83,12 +62,12 @@ func (c ContainerMetric) BuildPodMetric() PodMetric {
 }
 
 // NamespacePodContainerName Return identity of the container metric.
-func (c ContainerMetric) NamespacePodContainerName() NamespacePodContainerName {
-	return NamespacePodContainerName(fmt.Sprintf("%s/%s/%s", c.Namespace, c.PodName, c.ContainerName))
+func (c ContainerMetric) NamespacePodContainerName() metadata.NamespacePodContainerName {
+	return metadata.NamespacePodContainerName(fmt.Sprintf("%s/%s/%s", c.Namespace, c.PodName, c.ContainerName))
 }
 
 // ContainersMetricMap Containers metric map
-type ContainersMetricMap map[NamespacePodContainerName]ContainerMetric
+type ContainersMetricMap map[metadata.NamespacePodContainerName]ContainerMetric
 
 // BuildPodsMetricMap Build PodsMetricMap base on current ContainersMetricMap
 func (c ContainersMetricMap) BuildPodsMetricMap() PodsMetricMap {
@@ -126,14 +105,14 @@ func (c ContainersMetricMap) Merge(in ContainersMetricMap) ContainersMetricMap {
 
 // PodMetric Metric model to represent one pod's metric
 type PodMetric struct {
-	Namespace           NamespaceName
-	PodName             PodName
+	Namespace           metadata.NamespaceName
+	PodName             metadata.PodName
 	ContainersMetricMap ContainersMetricMap
 }
 
 // NamespacePodName Return identity of the pod metric
-func (p PodMetric) NamespacePodName() NamespacePodName {
-	return NamespacePodName(fmt.Sprintf("%s/%s", p.Namespace, p.PodName))
+func (p PodMetric) NamespacePodName() metadata.NamespacePodName {
+	return metadata.NamespacePodName(fmt.Sprintf("%s/%s", p.Namespace, p.PodName))
 }
 
 // Merge Merge current PodMetric with input PodMetric
@@ -153,7 +132,7 @@ func (p PodMetric) Merge(in PodMetric) PodMetric {
 }
 
 // PodsMetricMap Pods' metric map
-type PodsMetricMap map[NamespacePodName]PodMetric
+type PodsMetricMap map[metadata.NamespacePodName]PodMetric
 
 // AddContainerMetric Add container metric into PodsMetricMap
 func (p *PodsMetricMap) AddContainerMetric(c ContainerMetric) {
@@ -169,11 +148,11 @@ func (p *PodsMetricMap) AddContainerMetric(c ContainerMetric) {
 
 // NodeMetric Metric model to represent one node metric
 type NodeMetric struct {
-	NodeName               NodeName
-	CPUUsageMetircs        []Sample
-	MemoryTotalMetrics     []Sample
-	MemoryAvailableMetrics []Sample
-	MemoryUsageMetrics     []Sample
+	NodeName               metadata.NodeName
+	CPUUsageMetircs        []metric.Sample
+	MemoryTotalMetrics     []metric.Sample
+	MemoryAvailableMetrics []metric.Sample
+	MemoryUsageMetrics     []metric.Sample
 }
 
 // Merge Merge current NodeMetric with input NodeMetric
@@ -193,7 +172,7 @@ func (n NodeMetric) Merge(in NodeMetric) NodeMetric {
 }
 
 // NodesMetricMap Nodes' metric map
-type NodesMetricMap map[NodeName]NodeMetric
+type NodesMetricMap map[metadata.NodeName]NodeMetric
 
 // AddNodeMetric Add node metric into NodesMetricMap
 func (n *NodesMetricMap) AddNodeMetric(nodeMetric NodeMetric) {

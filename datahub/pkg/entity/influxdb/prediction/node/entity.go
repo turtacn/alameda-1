@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 )
 
 type Field = string
@@ -50,13 +51,13 @@ func (e Entity) NodePrediction() prediction.NodePrediction {
 
 	var (
 		isScheduled    bool
-		samples        []prediction.Sample
+		samples        []metric.Sample
 		NodePrediction prediction.NodePrediction
 	)
 
 	// TODO: log error
 	isScheduled, _ = strconv.ParseBool(e.IsScheduled)
-	samples = append(samples, prediction.Sample{Timestamp: e.Timestamp, Value: e.Value})
+	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: e.Value})
 
 	NodePrediction = prediction.NodePrediction{
 		NodeName:    e.Name,

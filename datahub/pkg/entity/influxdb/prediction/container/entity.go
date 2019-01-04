@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	"github.com/containers-ai/alameda/datahub/pkg/metric"
 )
 
 type Field = string
@@ -50,11 +51,11 @@ type Entity struct {
 func (e Entity) ContainerPrediction() prediction.ContainerPrediction {
 
 	var (
-		samples             []prediction.Sample
+		samples             []metric.Sample
 		containerPrediction prediction.ContainerPrediction
 	)
 
-	samples = append(samples, prediction.Sample{Timestamp: e.Timestamp, Value: e.Value})
+	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: e.Value})
 
 	containerPrediction = prediction.ContainerPrediction{
 		Namespace:     e.Namespace,
