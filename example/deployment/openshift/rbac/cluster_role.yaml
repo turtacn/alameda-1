@@ -27,7 +27,7 @@ rules:
 - apiGroups:
   - autoscaling.containers.ai
   resources:
-  - alamedaresources
+  - alamedascalers
   - alamedaresourcepredictions
   verbs:
   - get

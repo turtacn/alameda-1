@@ -1,6 +1,6 @@
 ---
 apiVersion: autoscaling.containers.ai/v1alpha1
-kind: AlamedaResource
+kind: AlamedaScaler
 metadata:
   name: alameda
   namespace: webapp

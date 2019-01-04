@@ -118,7 +118,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 		return reconcile.Result{}, nil
 	}
 
-	// Prediction found, check Alamedaresource if existed
+	// Prediction found, check AlamedaScaler if existed
 	found := &autoscalingv1alpha1.AlamedaScaler{}
 	err = r.Get(context.TODO(), request.NamespacedName, found)
 
