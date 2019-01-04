@@ -1,17 +1,17 @@
 package clusterstatus
 
-type NodeField string
-type NodeTag string
+type nodeField string
+type nodeTag string
 
 const (
-	NodeTime NodeTag = "time"
+	NodeTime nodeTag = "time"
 
-	NodeName      NodeField = "name"
-	NodeGroup     NodeField = "group"
-	NodeInCluster NodeField = "in_cluster"
+	NodeName      nodeField = "name"
+	NodeGroup     nodeField = "group"
+	NodeInCluster nodeField = "in_cluster"
 )
 
 var (
-	NodeTags   = []NodeTag{NodeTime}
-	NodeFields = []NodeField{NodeName, NodeGroup, NodeInCluster}
+	NodeTags   = []nodeTag{NodeTime}
+	NodeFields = []nodeField{NodeName, NodeGroup, NodeInCluster}
 )

@@ -45,7 +45,6 @@ var (
 )
 
 func NewServer(cfg Config) (*Server, error) {
-
 	var (
 		err error
 
@@ -411,71 +410,53 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 }
 
 func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
 
-	return &datahub_v1alpha1.ListPodsResponse{
-		Status: &status.Status{
-			Code: int32(code.Code_OK),
-		},
-		Pods: []*datahub_v1alpha1.Pod{
-			&datahub_v1alpha1.Pod{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "alameda",
-					Name:      "nginx-deployment-f99bb8986-h8rbk",
-				},
-				ResourceLink: "/namespaces/alameda/deployments/nginx-deployment/replicasets/nginx-deployment-f99bb8986/pods/nginx-deployment-f99bb8986-h8rbk",
-				IsAlameda:    true,
-				NodeName:     "node1",
+	if alamedaPods, err := containerDAO.ListAlamedaPods(); err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListPodsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INTERNAL),
 			},
-			&datahub_v1alpha1.Pod{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "alameda",
-					Name:      "nginx-deployment-f99bb8986-npg2f",
-				},
-				ResourceLink: "/namespaces/alameda/deployments/nginx-deployment/replicasets/nginx-deployment-f99bb8986/pods/nginx-deployment-f99bb8986-npg2f",
-				IsAlameda:    true,
-				NodeName:     "node2",
+		}, err
+	} else {
+		return &datahub_v1alpha1.ListPodsResponse{
+			Pods: alamedaPods,
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
 			},
-		},
-	}, nil
+		}, nil
+	}
 }
 
 func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListNodesResponse, error) {
-	return &datahub_v1alpha1.ListNodesResponse{
-		Status: &status.Status{
-			Code: int32(code.Code_OK),
-		},
-		Nodes: []*datahub_v1alpha1.Node{
-			&datahub_v1alpha1.Node{Name: "node1"},
-			&datahub_v1alpha1.Node{Name: "node2"},
-		},
-	}, nil
-	/*
-		nodeDAO := &cluster_status_dao_impl.Node{
-			InfluxDBConfig: *s.Config.InfluxDB,
-		}
-		nodes := []*datahub_v1alpha1.Node{}
+	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+	nodes := []*datahub_v1alpha1.Node{}
 
-		if alamedaNodes, err := nodeDAO.ListAlamedaNodes(); err != nil {
-			scope.Error(err.Error())
-			return &datahub_v1alpha1.ListNodesResponse{
-				Status: &status.Status{
-					Code: int32(code.Code_INTERNAL),
-				},
-			}, err
-		} else {
-			for _, alamedaNode := range alamedaNodes {
-				nodes = append(nodes, &datahub_v1alpha1.Node{
-					Name: alamedaNode.Name,
-				})
-			}
-			return &datahub_v1alpha1.ListNodesResponse{
-				Status: &status.Status{
-					Code: int32(code.Code_OK),
-				},
-				Nodes: nodes,
-			}, nil
+	if alamedaNodes, err := nodeDAO.ListAlamedaNodes(); err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListNodesResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INTERNAL),
+			},
+		}, err
+	} else {
+		for _, alamedaNode := range alamedaNodes {
+			nodes = append(nodes, &datahub_v1alpha1.Node{
+				Name: alamedaNode.Name,
+			})
 		}
-	*/
+		return &datahub_v1alpha1.ListNodesResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Nodes: nodes,
+		}, nil
+	}
 }
 
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
@@ -757,28 +738,45 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 }
 
 func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePodsRequest) (*status.Status, error) {
+	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	if err := containerDAO.AddPods(in.GetPods()); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code: int32(code.Code_INTERNAL),
+		}, err
+	}
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
 }
 
 func (s *Server) UpdatePods(ctx context.Context, in *datahub_v1alpha1.UpdatePodsRequest) (*status.Status, error) {
+	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+	if err := containerDAO.UpdatePods(in.GetPods()); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code: int32(code.Code_INTERNAL),
+		}, err
+	}
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
 }
 
 func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaNodesRequest) (*status.Status, error) {
-	nodeDAO := &cluster_status_dao_impl.Node{
+	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	alamedaNodeList := []*cluster_status_dao.AlamedaNode{}
-	for _, alamedaNode := range in.GetAlamedaNodes() {
-		alamedaNodeList = append(alamedaNodeList, &cluster_status_dao.AlamedaNode{
-			Name: alamedaNode.GetName(),
-		})
-	}
-	if err := nodeDAO.RegisterAlamedaNodes(alamedaNodeList); err != nil {
+	if err := nodeDAO.RegisterAlamedaNodes(in.GetAlamedaNodes()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code: int32(code.Code_INTERNAL),
@@ -809,12 +807,12 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 }
 
 func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodesRequest) (*status.Status, error) {
-	nodeDAO := &cluster_status_dao_impl.Node{
+	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	alamedaNodeList := []*cluster_status_dao.AlamedaNode{}
+	alamedaNodeList := []*datahub_v1alpha1.Node{}
 	for _, alamedaNode := range in.GetAlamedaNodes() {
-		alamedaNodeList = append(alamedaNodeList, &cluster_status_dao.AlamedaNode{
+		alamedaNodeList = append(alamedaNodeList, &datahub_v1alpha1.Node{
 			Name: alamedaNode.GetName(),
 		})
 	}

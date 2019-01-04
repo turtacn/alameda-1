@@ -1,13 +1,12 @@
 package clusterstatus
 
-// Node provides node measurement operations
-type Node interface {
-	RegisterAlamedaNodes([]*AlamedaNode) error
-	DeregisterAlamedaNodes([]*AlamedaNode) error
-	ListAlamedaNodes() ([]*AlamedaNode, error)
-}
+import (
+	datahub_api "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+)
 
-// AlamedaNode is predicted node in cluster
-type AlamedaNode struct {
-	Name string
+// Node provides node measurement operations
+type NodeOperation interface {
+	RegisterAlamedaNodes([]*datahub_api.Node) error
+	DeregisterAlamedaNodes([]*datahub_api.Node) error
+	ListAlamedaNodes() ([]*datahub_api.Node, error)
 }

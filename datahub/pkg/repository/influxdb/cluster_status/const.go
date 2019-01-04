@@ -5,6 +5,8 @@ import (
 )
 
 const (
-	Node      influxdb.Measurement = "node"
+	// Node is node measurement
+	Node influxdb.Measurement = "node"
+	// Container is container measurement
 	Container influxdb.Measurement = "container"
 )

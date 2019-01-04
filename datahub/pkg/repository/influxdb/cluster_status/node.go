@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -39,7 +40,7 @@ func NewNodeRepository(influxDBCfg *influxdb.Config) *NodeRepository {
 	}
 }
 
-func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*cluster_status_dao.AlamedaNode) error {
+func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
 	points := []*influxdb_client.Point{}
 	for _, alamedaNode := range alamedaNodes {
 		// due to time is the only one tag, sleep for a short while to prevent data point overridden
@@ -59,10 +60,13 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*cluster_st
 	return nil
 }
 
-func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*cluster_status_dao.AlamedaNode) error {
+func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
 	points := []*influxdb_client.Point{}
 	for _, alamedaNode := range alamedaNodes {
-		cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"='%s' AND \"%s\"=%s ORDER BY time DESC LIMIT 1", string(Node), string(cluster_status_entity.NodeName), alamedaNode.Name, string(cluster_status_entity.NodeInCluster), "true")
+		// SELECT * FROM node WHERE "name"='%s' AND in_cluster=true ORDER BY time DESC LIMIT 1
+		cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"='%s' AND \"%s\"=%s ORDER BY time DESC LIMIT 1",
+			string(Node), string(cluster_status_entity.NodeName), alamedaNode.Name,
+			string(cluster_status_entity.NodeInCluster), "true")
 		if results, _ := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus)); len(results) == 1 && len(results[0].Series) == 1 {
 			newFields := map[string]interface{}{}
 			newTags := map[string]string{}
