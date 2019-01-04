@@ -102,8 +102,8 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request predicti
 		entities []*container_entity.Entity
 	)
 
-	whereClause := buildInfluxQLWhereClauseFromRequest(request)
-	lastClause, whereTimeClause := buildTimeClause(request)
+	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
+	lastClause, whereTimeClause := r.buildTimeClause(request)
 	if whereTimeClause != "" {
 		if whereClause != "" {
 			whereClause += whereTimeClause
@@ -142,7 +142,7 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request predicti
 	return entities, nil
 }
 
-func buildInfluxQLWhereClauseFromRequest(request prediction_dao.ListPodPredictionsRequest) string {
+func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(request prediction_dao.ListPodPredictionsRequest) string {
 
 	var (
 		whereClause string
@@ -163,7 +163,7 @@ func buildInfluxQLWhereClauseFromRequest(request prediction_dao.ListPodPredictio
 	return whereClause
 }
 
-func buildTimeClause(request prediction_dao.ListPodPredictionsRequest) (string, string) {
+func (r *ContainerRepository) buildTimeClause(request prediction_dao.ListPodPredictionsRequest) (string, string) {
 
 	var (
 		lastClause      string

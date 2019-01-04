@@ -129,6 +129,60 @@ func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []
 	return containerPredictions
 }
 
+type datahubCreateNodePredictionsRequestExtended struct {
+	datahub_v1alpha1.CreateNodePredictionsRequest
+}
+
+func (r datahubCreateNodePredictionsRequestExtended) validate() error {
+	return nil
+}
+
+func (r datahubCreateNodePredictionsRequestExtended) daoNodePredictions() []*prediction_dao.NodePrediction {
+
+	var (
+		NodePredictions []*prediction_dao.NodePrediction
+	)
+
+	for _, datahubNodePrediction := range r.NodePredictions {
+
+		nodeName := datahubNodePrediction.GetName()
+		isScheduled := datahubNodePrediction.GetIsScheduled()
+
+		for _, rawData := range datahubNodePrediction.GetPredictedRawData() {
+
+			samples := []prediction_dao.Sample{}
+			for _, datahubSample := range rawData.GetData() {
+				time, err := ptypes.Timestamp(datahubSample.GetTime())
+				if err != nil {
+					scope.Error(" failed: " + err.Error())
+				}
+				sample := prediction_dao.Sample{
+					Timestamp: time,
+					Value:     datahubSample.GetNumValue(),
+				}
+				samples = append(samples, sample)
+			}
+
+			NodePrediction := prediction_dao.NodePrediction{
+				NodeName:    nodeName,
+				IsScheduled: isScheduled,
+			}
+
+			metricType := rawData.GetMetricType()
+			switch metricType {
+			case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+				NodePrediction.CPUUsagePredictions = samples
+			case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+				NodePrediction.MemoryUsagePredictions = samples
+			}
+
+			NodePredictions = append(NodePredictions, &NodePrediction)
+		}
+	}
+
+	return NodePredictions
+}
+
 type datahubListPodPredictionsRequestExtended struct {
 	datahub_v1alpha1.ListPodPredictionsRequest
 }
@@ -168,4 +222,42 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 	}
 
 	return listContainerPredictionsRequest
+}
+
+type datahubListNodePredictionsRequestExtended struct {
+	datahub_v1alpha1.ListNodePredictionsRequest
+}
+
+func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest() prediction_dao.ListNodePredictionsRequest {
+
+	var (
+		nodeNames []string
+		startTime *time.Time
+		endTime   *time.Time
+	)
+
+	if r.GetTimeRange() != nil {
+
+		if r.GetTimeRange().GetStartTime() != nil {
+			tmpStartTime, _ := ptypes.Timestamp(r.GetTimeRange().GetStartTime())
+			startTime = &tmpStartTime
+		}
+
+		if r.GetTimeRange().GetEndTime() != nil {
+			tmpEndTime, _ := ptypes.Timestamp(r.GetTimeRange().GetEndTime())
+			endTime = &tmpEndTime
+		}
+	}
+
+	for _, nodeName := range r.GetNodeName() {
+		nodeNames = append(nodeNames, nodeName)
+	}
+
+	listNodePredictionsRequest := prediction_dao.ListNodePredictionsRequest{
+		NodeNames: nodeNames,
+		StartTime: startTime,
+		EndTime:   endTime,
+	}
+
+	return listNodePredictionsRequest
 }

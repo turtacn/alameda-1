@@ -500,49 +500,39 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 
 func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.ListNodePredictionsRequest) (*datahub_v1alpha1.ListNodePredictionsResponse, error) {
 
-	var tmpNodePredictionsData = []*datahub_v1alpha1.MetricData{
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "20",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "50",
-				},
+	var (
+		err error
+
+		predictionDAO prediction_dao.DAO
+
+		nodesPredicitonMap     prediction_dao.NodesPredictionMap
+		datahubNodePredicitons []*datahub_v1alpha1.NodePrediction
+
+		apiResponseInternalServerError = datahub_v1alpha1.ListNodePredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
 			},
-		},
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "512",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "1024",
-				},
-			},
-		},
+		}
+	)
+
+	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+
+	datahubListNodePredictionsRequestExtended := datahubListNodePredictionsRequestExtended{*in}
+	listNodePredictionRequest := datahubListNodePredictionsRequestExtended.daoListNodePredictionsRequest()
+	nodesPredicitonMap, err = predictionDAO.ListNodePredictions(listNodePredictionRequest)
+	if err != nil {
+		scope.Error("ListNodePredictions failed: " + err.Error())
+		return &apiResponseInternalServerError, nil
 	}
+
+	datahubNodePredicitons = daoNodesPredictionMapExtended(nodesPredicitonMap).datahubNodePredictions()
 
 	return &datahub_v1alpha1.ListNodePredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		NodePredictions: []*datahub_v1alpha1.NodePrediction{
-			&datahub_v1alpha1.NodePrediction{
-				Name:             "node1",
-				PredictedRawData: tmpNodePredictionsData,
-			},
-			&datahub_v1alpha1.NodePrediction{
-				Name:             "node2",
-				PredictedRawData: tmpNodePredictionsData,
-			},
-		},
+		NodePredictions: datahubNodePredicitons,
 	}, nil
 }
 
@@ -786,6 +776,27 @@ func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.
 }
 
 func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
+
+	var (
+		err error
+
+		predictionDAO   prediction_dao.DAO
+		nodesPrediciton []*prediction_dao.NodePrediction
+
+		apiResponseInternalServerError = status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Internal server error.",
+		}
+	)
+
+	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+
+	nodesPrediciton = datahubCreateNodePredictionsRequestExtended{*in}.daoNodePredictions()
+	err = predictionDAO.CreateNodePredictions(nodesPrediciton)
+	if err != nil {
+		return &apiResponseInternalServerError, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

@@ -2,8 +2,9 @@ package prediction
 
 import (
 	"fmt"
-	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	"time"
+
+	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 )
 
 // NamespaceName Type alias
@@ -24,19 +25,31 @@ type NamespacePodName = string
 // NamespacePodContainerName Type alias
 type NamespacePodContainerName = string
 
+// IsScheduled Specified if the node prediction is scheduled
+type IsScheduled = bool
+
 // Sample Data struct representing timestamp and Prediction value of Prediction data point
 type Sample = metric.Sample
 
 // DAO DAO interface of prediction
 type DAO interface {
 	ListPodPredictions(ListPodPredictionsRequest) (PodsPredictionMap, error)
+	ListNodePredictions(ListNodePredictionsRequest) (NodesPredictionMap, error)
 	CreateContainerPredictions([]*ContainerPrediction) error
+	CreateNodePredictions([]*NodePrediction) error
 }
 
-// ListPodPredictionsRequest ListPodPredictionsRequest interface of prediction
+// ListPodPredictionsRequest ListPodPredictionsRequest
 type ListPodPredictionsRequest struct {
 	Namespace string
 	PodName   string
+	StartTime *time.Time
+	EndTime   *time.Time
+}
+
+// ListNodePredictionsRequest ListNodePredictionsRequest
+type ListNodePredictionsRequest struct {
+	NodeNames []string
 	StartTime *time.Time
 	EndTime   *time.Time
 }
@@ -145,5 +158,52 @@ func (p *PodsPredictionMap) AddContainerPrediction(c ContainerPrediction) {
 		(*p)[namespacePodName] = existedPodPrediction.Merge(podPrediction)
 	} else {
 		(*p)[namespacePodName] = podPrediction
+	}
+}
+
+// NodePrediction Prediction model to represent one node Prediction
+type NodePrediction struct {
+	NodeName               NodeName
+	IsScheduled            bool
+	CPUUsagePredictions    []Sample
+	MemoryUsagePredictions []Sample
+}
+
+// Merge Merge current NodePrediction with input NodePrediction
+func (n NodePrediction) Merge(in NodePrediction) NodePrediction {
+
+	var (
+		newNodePrediction = NodePrediction{
+			NodeName:               n.NodeName,
+			IsScheduled:            n.IsScheduled,
+			CPUUsagePredictions:    append(n.CPUUsagePredictions, in.CPUUsagePredictions...),
+			MemoryUsagePredictions: append(n.MemoryUsagePredictions, in.MemoryUsagePredictions...),
+		}
+	)
+
+	return newNodePrediction
+}
+
+// IsScheduledNodePredictionMap Nodes' Prediction map
+type IsScheduledNodePredictionMap map[IsScheduled]NodePrediction
+
+// NodesPredictionMap Nodes' Prediction map
+type NodesPredictionMap map[NodeName]IsScheduledNodePredictionMap
+
+// AddNodePrediction Add node Prediction into NodesPredictionMap
+func (n *NodesPredictionMap) AddNodePrediction(nodePrediction NodePrediction) {
+
+	nodeName := nodePrediction.NodeName
+	isScheduled := nodePrediction.IsScheduled
+
+	if existIsScheduledNodePredictionMap, exist := (*n)[nodeName]; exist {
+		if existNodePrediction, exist := existIsScheduledNodePredictionMap[isScheduled]; exist {
+			(*n)[nodeName][isScheduled] = existNodePrediction.Merge(nodePrediction)
+		} else {
+			(*n)[nodeName][isScheduled] = nodePrediction
+		}
+	} else {
+		(*n)[nodeName] = make(IsScheduledNodePredictionMap)
+		(*n)[nodeName][isScheduled] = nodePrediction
 	}
 }

@@ -142,6 +142,64 @@ func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1a
 	return datahubContainerPrediction
 }
 
+type daoNodePredictionExtended prediction.NodePrediction
+
+func (d daoNodePredictionExtended) NumberOfDatahubPredictionDataNeededProducing() int {
+	return 2
+}
+
+func (d daoNodePredictionExtended) datahubNodePrediction() datahub_v1alpha1.NodePrediction {
+
+	var (
+		MetricDataChan = make(chan datahub_v1alpha1.MetricData)
+
+		datahubNodePrediction datahub_v1alpha1.NodePrediction
+	)
+
+	datahubNodePrediction = datahub_v1alpha1.NodePrediction{
+		Name:        string(d.NodeName),
+		IsScheduled: d.IsScheduled,
+	}
+
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, d.CPUUsagePredictions, MetricDataChan)
+	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, d.MemoryUsagePredictions, MetricDataChan)
+
+	for i := 0; i < d.NumberOfDatahubPredictionDataNeededProducing(); i++ {
+		receivedPredictionData := <-MetricDataChan
+		datahubNodePrediction.PredictedRawData = append(datahubNodePrediction.PredictedRawData, &receivedPredictionData)
+	}
+
+	return datahubNodePrediction
+}
+
+type daoNodesPredictionMapExtended prediction.NodesPredictionMap
+
+func (d daoNodesPredictionMapExtended) datahubNodePredictions() []*datahub_v1alpha1.NodePrediction {
+
+	var (
+		datahubNodePredictions = make([]*datahub_v1alpha1.NodePrediction, 0)
+	)
+
+	for _, isScheduledNodePredictionMap := range d {
+
+		if scheduledNodePrediction, exist := isScheduledNodePredictionMap[true]; exist {
+
+			scheduledNodePredictionExtended := daoNodePredictionExtended(scheduledNodePrediction)
+			sechduledDatahubNodePrediction := scheduledNodePredictionExtended.datahubNodePrediction()
+			datahubNodePredictions = append(datahubNodePredictions, &sechduledDatahubNodePrediction)
+		}
+
+		if noneScheduledNodePrediction, exist := isScheduledNodePredictionMap[false]; exist {
+
+			noneScheduledNodePredictionExtended := daoNodePredictionExtended(noneScheduledNodePrediction)
+			noneSechduledDatahubNodePrediction := noneScheduledNodePredictionExtended.datahubNodePrediction()
+			datahubNodePredictions = append(datahubNodePredictions, &noneSechduledDatahubNodePrediction)
+		}
+	}
+
+	return datahubNodePredictions
+}
+
 func produceDatahubMetricDataFromSamples(metricType datahub_v1alpha1.MetricType, samples []metric.Sample, MetricDataChan chan<- datahub_v1alpha1.MetricData) {
 
 	var (
