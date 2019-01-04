@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package alamedaresource
+package alamedascaler
 
 import (
 	"context"
@@ -46,19 +46,19 @@ import (
 )
 
 var (
-	scope = logUtil.RegisterScope("alamedaresource", "alamedaresource log", 0)
+	scope = logUtil.RegisterScope("alamedascaler", "alamedascaler log", 0)
 )
 
-// AlamedaResource is alameda resource
-type AlamedaResource string
+// AlamedaScaler is alameda scaler
+type AlamedaScaler string
 
 //
 const (
-	AlamedaDeployment AlamedaResource = "Deployment"
+	AlamedaDeployment AlamedaScaler = "Deployment"
 	UpdateRetry                       = 3
 )
 
-// AlamedaK8sController is key of AlamedaResource annotation
+// AlamedaK8sController is key of AlamedaScaler annotation
 const AlamedaK8sController = "annotation-k8s-controller"
 
 // JSONIndent is ident of formatted json string
@@ -95,7 +95,7 @@ type K8SControllerAnnotation struct {
 * business logic.  Delete these comments after modifying this file.*
  */
 
-// Add creates a new AlamedaResource Controller and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
+// Add creates a new AlamedaScaler Controller and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 // USER ACTION REQUIRED: update cmd/manager/main.go to call this autoscaling.Add(mgr) to install this Controller
 func Add(mgr manager.Manager) error {
@@ -104,18 +104,18 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileAlamedaResource{Client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	return &ReconcileAlamedaScaler{Client: mgr.GetClient(), scheme: mgr.GetScheme()}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
-	c, err := controller.New("alamedaresource-controller", mgr, controller.Options{Reconciler: r})
+	c, err := controller.New("alamedascaler-controller", mgr, controller.Options{Reconciler: r})
 	if err != nil {
 		return err
 	}
 
-	if err = c.Watch(&source.Kind{Type: &autoscalingv1alpha1.AlamedaResource{}}, &handler.EnqueueRequestForObject{}); err != nil {
+	if err = c.Watch(&source.Kind{Type: &autoscalingv1alpha1.AlamedaScaler{}}, &handler.EnqueueRequestForObject{}); err != nil {
 		scope.Error(err.Error())
 	}
 
@@ -130,30 +130,30 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	return nil
 }
 
-var _ reconcile.Reconciler = &ReconcileAlamedaResource{}
+var _ reconcile.Reconciler = &ReconcileAlamedaScaler{}
 
-// ReconcileAlamedaResource reconciles a AlamedaResource object
-type ReconcileAlamedaResource struct {
+// ReconcileAlamedaScaler reconciles a AlamedaScaler object
+type ReconcileAlamedaScaler struct {
 	client.Client
 	scheme *runtime.Scheme
 }
 
-// Reconcile reads that state of the cluster for a AlamedaResource object and makes changes based on the state read
-// and what is in the AlamedaResource.Spec
+// Reconcile reads that state of the cluster for a AlamedaScaler object and makes changes based on the state read
+// and what is in the AlamedaScaler .Spec
 // TODO(user): Modify this Reconcile function to implement your Controller logic.  The scaffolding writes
 // a Deployment as an example
 // Automatically generate RBAC rules to allow the Controller to read and write Deployments
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=autoscaling.containers.ai,resources=alamedaresources,verbs=get;list;watch;create;update;patch;delete
-func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	// Fetch the AlamedaResource instance
+// +kubebuilder:rbac:groups=autoscaling.containers.ai,resources=alamedascalers,verbs=get;list;watch;create;update;patch;delete
+func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+	// Fetch the AlamedaScaler instance
 	deleteEvt := true
 	ns := request.Namespace
 	name := request.Name
-	alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
-	scope.Infof(fmt.Sprintf("Try to get AlamedaResource (%s/%s)", ns, name))
-	err := r.Get(context.TODO(), request.NamespacedName, alamedaresource)
+	alamedascaler := &autoscalingv1alpha1.AlamedaScaler{}
+	scope.Infof(fmt.Sprintf("Try to get AlamedaScaler (%s/%s)", ns, name))
+	err := r.Get(context.TODO(), request.NamespacedName, alamedascaler)
 	if err != nil && errors.IsNotFound(err) {
 		//delete Alameda Resource Predict CR due to no Alameda CR with the same name exist
 		alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
@@ -162,15 +162,15 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 			r.Delete(context.TODO(), alamedaResourcePrediction)
 		}
 	} else if err == nil {
-		scope.Infof(fmt.Sprintf("AlamedaResource found. (%s/%s)", ns, name))
-		r.updateAlamedaResourceAnnotation(alamedaresource.Spec.Selector.MatchLabels, alamedaresource.GetAnnotations(), ns, name)
+		scope.Infof(fmt.Sprintf("AlamedaScaler found. (%s/%s)", ns, name))
+		r.updateAlamedaScalerAnnotation(alamedascaler.Spec.Selector.MatchLabels, alamedascaler.GetAnnotations(), ns, name)
 		//check in alameda predict CR exist state
 		alamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 
 		err := r.Get(context.TODO(), request.NamespacedName, alamedaResourcePrediction)
 		if err != nil && errors.IsNotFound(err) {
-			scope.Infof(fmt.Sprintf("Create AlamedaResourcePrediction for AlamedaResource. (%s/%s)", alamedaresource.Namespace, alamedaresource.Name))
-			err = CreateAlamedaPrediction(r, r.scheme, alamedaresource)
+			scope.Infof(fmt.Sprintf("Create AlamedaResourcePrediction for AlamedaScaler. (%s/%s)", alamedascaler.Namespace, alamedascaler.Name))
+			err = CreateAlamedaPrediction(r, r.scheme, alamedascaler)
 			if err != nil {
 				scope.Error(err.Error())
 			}
@@ -196,7 +196,7 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 
 	if deleteEvt {
 		scope.Info(fmt.Sprintf("Delete event."))
-		alamedaResourceList := &autoscalingv1alpha1.AlamedaResourceList{}
+		alamedaResourceList := &autoscalingv1alpha1.AlamedaScalerList{}
 		err = r.List(context.TODO(),
 			client.InNamespace(ns),
 			alamedaResourceList)
@@ -207,16 +207,16 @@ func (r *ReconcileAlamedaResource) Reconcile(request reconcile.Request) (reconci
 	return reconcile.Result{}, nil
 }
 
-// CreateAlamedaPrediction Creates AlamedaResourcePrediction CR
-func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedaresource *autoscalingv1alpha1.AlamedaResource) error {
+// CreateAlamedaPrediction Creates AlamedaScalerAlamedaResourcePrediction CR
+func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedascaler *autoscalingv1alpha1.AlamedaScaler) error {
 	newAlamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      alamedaresource.Name,
-			Namespace: alamedaresource.Namespace,
+			Name:      alamedascaler.Name,
+			Namespace: alamedascaler.Namespace,
 		},
 		Spec: autoscalingv1alpha1.AlamedaResourcePredictionSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: alamedaresource.Spec.Selector.MatchLabels,
+				MatchLabels: alamedascaler.Spec.Selector.MatchLabels,
 			},
 		},
 		Status: autoscalingv1alpha1.AlamedaResourcePredictionStatus{
@@ -226,7 +226,7 @@ func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedares
 		},
 	}
 	/*
-		if err := controllerutil.SetControllerReference(alamedaresource, newAlamedaResourcePrediction, scheme); err != nil {
+		if err := controllerutil.SetControllerReference(alamedascaler, newAlamedaResourcePrediction, scheme); err != nil {
 			return err
 		}
 	*/
@@ -238,7 +238,7 @@ func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedares
 	return nil
 }
 
-func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, alamedaAnnotations map[string]string, namespace, name string) {
+func (r *ReconcileAlamedaScaler) updateAlamedaScalerAnnotation(matchLabels, alamedaAnnotations map[string]string, namespace, name string) {
 	noAlaPod := false
 	newPodMaps := map[string]Pod{}
 	newAlamedaAnnotations := map[string]string{}
@@ -265,7 +265,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, 
 
 		for _, deploy := range matchedDeploymentList.Items {
 			akcMap.DeploymentMap[string(deploy.GetUID())] = *r.getControllerMapForAnno("deployment", &deploy).(*Deployment)
-			// New AlamedaResource created, records Alameda pods to register AI server
+			// New AlamedaScaler created, records Alameda pods to register AI server
 			if noAlaPod {
 				for k, v := range akcMap.DeploymentMap[string(deploy.GetUID())].PodMap {
 					newPodMaps[k] = v
@@ -278,22 +278,22 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, 
 	if len(newAlamedaAnnotations) > 0 && !reflect.DeepEqual(newAlamedaAnnotations, alamedaAnnotations) {
 		for retry := 0; retry < UpdateRetry; retry++ {
 			time.Sleep(1 * time.Second)
-			alamedaresource := &autoscalingv1alpha1.AlamedaResource{}
+			alamedascaler := &autoscalingv1alpha1.AlamedaScaler{}
 			err := r.Get(context.TODO(), types.NamespacedName{
 				Namespace: namespace,
 				Name:      name,
-			}, alamedaresource)
-			alamedaresourceAnno := getAnnotations(alamedaresource)
-			alamedaresourceAnno[AlamedaK8sController] = newAlamedaAnnotations[AlamedaK8sController]
-			alamedaresource.SetAnnotations(alamedaresourceAnno)
+			}, alamedascaler)
+			alamedascalerAnno := getAnnotations(alamedascaler)
+			alamedascalerAnno[AlamedaK8sController] = newAlamedaAnnotations[AlamedaK8sController]
+			alamedascaler.SetAnnotations(alamedascalerAnno)
 			if err != nil {
 				scope.Error(err.Error())
 			} else {
-				err = r.Update(context.TODO(), alamedaresource)
+				err = r.Update(context.TODO(), alamedascaler)
 				if err != nil {
 					scope.Error(err.Error())
 				} else {
-					registerPodPrediction(alamedaresource, namespace, name, newPodMaps, nil)
+					registerPodPrediction(alamedascaler, namespace, name, newPodMaps, nil)
 					break
 				}
 			}
@@ -301,8 +301,8 @@ func (r *ReconcileAlamedaResource) updateAlamedaResourceAnnotation(matchLabels, 
 	}
 }
 
-func (r *ReconcileAlamedaResource) updateAlamedaK8SControllerByDeployment(ns string, deploymentFound *appsv1.Deployment) {
-	alamedaResourceList := &autoscalingv1alpha1.AlamedaResourceList{}
+func (r *ReconcileAlamedaScaler) updateAlamedaK8SControllerByDeployment(ns string, deploymentFound *appsv1.Deployment) {
+	alamedaResourceList := &autoscalingv1alpha1.AlamedaScalerList{}
 	err := r.List(context.TODO(),
 		client.InNamespace(ns),
 		alamedaResourceList)
@@ -316,7 +316,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaK8SControllerByDeployment(ns str
 	}
 }
 
-func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autoscalingv1alpha1.AlamedaResource, request reconcile.Request) {
+func (r *ReconcileAlamedaScaler) updateAlamedaAnnotationByDeleteEvt(ala *autoscalingv1alpha1.AlamedaScaler, request reconcile.Request) {
 	needUpdated := false
 	name := request.Name
 	anno := getAnnotations(ala)
@@ -338,7 +338,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeleteEvt(ala *autos
 	}
 }
 
-func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *autoscalingv1alpha1.AlamedaResource, deploy *appsv1.Deployment) {
+func (r *ReconcileAlamedaScaler) updateAlamedaAnnotationByDeployment(ala *autoscalingv1alpha1.AlamedaScaler, deploy *appsv1.Deployment) {
 	needUpdated := false
 	alaML := ala.Spec.Selector.MatchLabels
 	dL := deploy.GetLabels()
@@ -388,7 +388,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 		for retry := 0; retry < UpdateRetry; retry++ {
 			time.Sleep(1 * time.Second)
 			updated, _ := json.MarshalIndent(k8sc, "", JSONIndent)
-			alaIns := &autoscalingv1alpha1.AlamedaResource{}
+			alaIns := &autoscalingv1alpha1.AlamedaScaler{}
 			err := r.Get(context.TODO(), types.NamespacedName{
 				Namespace: ala.GetNamespace(),
 				Name:      ala.GetName(),
@@ -413,7 +413,7 @@ func (r *ReconcileAlamedaResource) updateAlamedaAnnotationByDeployment(ala *auto
 	}
 }
 
-func registerPodPrediction(alamedaresource *autoscalingv1alpha1.AlamedaResource, namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
+func registerPodPrediction(alamedascaler *autoscalingv1alpha1.AlamedaScaler, namespace, name string, newPodMaps, deletePodMaps map[string]Pod) {
 	scope.Info("Start registering pod prediction.")
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 
@@ -431,9 +431,9 @@ func registerPodPrediction(alamedaresource *autoscalingv1alpha1.AlamedaResource,
 		for _, v := range newPodMaps {
 			policy := datahub_v1alpha1.RecommendationPolicy_STABLE
 			containers := []*datahub_v1alpha1.Container{}
-			if strings.ToLower(string(alamedaresource.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicyCOMPACT)) {
+			if strings.ToLower(string(alamedascaler.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicyCOMPACT)) {
 				policy = datahub_v1alpha1.RecommendationPolicy_COMPACT
-			} else if strings.ToLower(string(alamedaresource.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicySTABLE)) {
+			} else if strings.ToLower(string(alamedascaler.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicySTABLE)) {
 				policy = datahub_v1alpha1.RecommendationPolicy_STABLE
 			}
 			for _, c := range v.Containers {
@@ -443,9 +443,9 @@ func registerPodPrediction(alamedaresource *autoscalingv1alpha1.AlamedaResource,
 			}
 			req.Pods = append(req.Pods, &datahub_v1alpha1.Pod{
 				IsAlameda: true,
-				AlamedaResource: &datahub_v1alpha1.NamespacedName{
-					Namespace: alamedaresource.GetNamespace(),
-					Name:      alamedaresource.GetName(),
+				AlamedaScaler: &datahub_v1alpha1.NamespacedName{
+					Namespace: alamedascaler.GetNamespace(),
+					Name:      alamedascaler.GetName(),
 				},
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
 					Namespace: v.Namespace,
@@ -511,7 +511,7 @@ func alamedaK8sControllerDefautlAnno() string {
 	return string(md)
 }
 
-// GetDefaultAlamedaK8SControllerAnno get default AlamedaResource annotation of K8S controller
+// GetDefaultAlamedaK8SControllerAnno get default AlamedaScaler annotation of K8S controller
 func GetDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
 	return &K8SControllerAnnotation{
 		DeploymentMap: map[string]Deployment{},
@@ -528,7 +528,7 @@ func convertk8scontrollerJSONString(jsonStr string) *K8SControllerAnnotation {
 	return akcMap
 }
 
-func (r *ReconcileAlamedaResource) getControllerMapForAnno(kind string, deploy interface{}) interface{} {
+func (r *ReconcileAlamedaScaler) getControllerMapForAnno(kind string, deploy interface{}) interface{} {
 	if kind == "deployment" {
 		namespace := deploy.(*appsv1.Deployment).GetNamespace()
 		name := deploy.(*appsv1.Deployment).GetName()
@@ -557,7 +557,7 @@ func (r *ReconcileAlamedaResource) getControllerMapForAnno(kind string, deploy i
 	return nil
 }
 
-func getAnnotations(ala *autoscalingv1alpha1.AlamedaResource) map[string]string {
+func getAnnotations(ala *autoscalingv1alpha1.AlamedaScaler) map[string]string {
 	anno := ala.GetAnnotations()
 	if anno == nil {
 		anno = map[string]string{}

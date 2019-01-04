@@ -36,7 +36,7 @@ message ListPodsResponse {
 }
 
 message ListAlamedaPodsRequest {
-    NamespacedName alameda_resource = 1;
+    NamespacedName alameda_scaler = 1;
 }
 
 message ListNodesResponse {

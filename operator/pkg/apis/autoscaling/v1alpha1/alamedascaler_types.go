@@ -31,8 +31,8 @@ const (
 	RecommendationPolicyCOMPACT AlamedaPolicy = "compact"
 )
 
-// AlamedaResourceSpec defines the desired state of AlamedaResource
-type AlamedaResourceSpec struct {
+// AlamedaScalerSpec defines the desired state of AlamedaScaler
+type AlamedaScalerSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	Selector *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
@@ -40,8 +40,8 @@ type AlamedaResourceSpec struct {
 	Policy   AlamedaPolicy         `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
 }
 
-// AlamedaResourceStatus defines the observed state of AlamedaResource
-type AlamedaResourceStatus struct {
+// AlamedaScalerStatus defines the observed state of AlamedaScaler
+type AlamedaScalerStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
@@ -49,25 +49,25 @@ type AlamedaResourceStatus struct {
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// AlamedaResource is the Schema for the alamedaresources API
+// AlamedaScaler is the Schema for the alamedascalers API
 // +k8s:openapi-gen=true
-type AlamedaResource struct {
+type AlamedaScaler struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   AlamedaResourceSpec   `json:"spec,omitempty"`
-	Status AlamedaResourceStatus `json:"status,omitempty"`
+	Spec   AlamedaScalerSpec   `json:"spec,omitempty"`
+	Status AlamedaScalerStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// AlamedaResourceList contains a list of AlamedaResource
-type AlamedaResourceList struct {
+// AlamedaScalerList contains a list of AlamedaScaler
+type AlamedaScalerList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []AlamedaResource `json:"items"`
+	Items           []AlamedaScaler `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&AlamedaResource{}, &AlamedaResourceList{})
+	SchemeBuilder.Register(&AlamedaScaler{}, &AlamedaScalerList{})
 }

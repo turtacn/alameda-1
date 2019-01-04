@@ -22,7 +22,7 @@ import (
 	"reflect"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
-	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
+	"github.com/containers-ai/alameda/operator/pkg/controller/alamedascaler"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsv1 "k8s.io/api/apps/v1"
@@ -71,7 +71,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		scope.Error(err.Error())
 		return err
 	}
-	if err = c.Watch(&source.Kind{Type: &autoscalingv1alpha1.AlamedaResource{}}, &handler.EnqueueRequestForObject{}); err != nil {
+	if err = c.Watch(&source.Kind{Type: &autoscalingv1alpha1.AlamedaScaler{}}, &handler.EnqueueRequestForObject{}); err != nil {
 		scope.Error(err.Error())
 		return err
 	}
@@ -94,7 +94,7 @@ type ReconcileAlamedaResourcePrediction struct {
 // Automatically generate RBAC rules to allow the Controller to read and write Deployments
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
-// +kubebuilder:rbac:groups=autoscaling.containers.ai,resources=alamedaresources,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=autoscaling.containers.ai,resources=alamedascalers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=autoscaling.containers.ai,resources=alamedaresourcepredictions,verbs=get;list;watch;create;update;patch;delete
 func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	// Fetch the AlamedaResourcePrediction instance
@@ -102,12 +102,12 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
 
 	if err != nil && errors.IsNotFound(err) {
-		alaInstance := &autoscalingv1alpha1.AlamedaResource{}
+		alaInstance := &autoscalingv1alpha1.AlamedaScaler{}
 		err := r.Get(context.TODO(), request.NamespacedName, alaInstance)
 		if err != nil {
 			return reconcile.Result{}, nil
 		}
-		//AlamedaResource found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
+		//AlamedaScaler found but AlamedaResourcePrediction not found (maybe deleted by user), create a new one
 		r.createAlamedaPrediction(alaInstance)
 
 		if err != nil {
@@ -119,11 +119,11 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 	}
 
 	// Prediction found, check Alamedaresource if existed
-	found := &autoscalingv1alpha1.AlamedaResource{}
+	found := &autoscalingv1alpha1.AlamedaScaler{}
 	err = r.Get(context.TODO(), request.NamespacedName, found)
 
 	if err != nil && errors.IsNotFound(err) {
-		scope.Infof(fmt.Sprintf("AlamedaResourcePrediction found (%s/%s) but alamedaresource not found, delete the alamedaresourceprediction.", request.Namespace, request.Name))
+		scope.Infof(fmt.Sprintf("AlamedaResourcePrediction found (%s/%s) but alamedascaler not found, delete the alamedaresourceprediction.", request.Namespace, request.Name))
 		r.Delete(context.TODO(), instance)
 		if err != nil {
 			scope.Error(err.Error())
@@ -233,7 +233,7 @@ func (r *ReconcileAlamedaResourcePrediction) Reconcile(request reconcile.Request
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileAlamedaResourcePrediction) createAlamedaPrediction(alaInstance *autoscalingv1alpha1.AlamedaResource) error {
-	err := alamedaresource.CreateAlamedaPrediction(r, r.scheme, alaInstance)
+func (r *ReconcileAlamedaResourcePrediction) createAlamedaPrediction(alaInstance *autoscalingv1alpha1.AlamedaScaler) error {
+	err := alamedascaler.CreateAlamedaPrediction(r, r.scheme, alaInstance)
 	return err
 }

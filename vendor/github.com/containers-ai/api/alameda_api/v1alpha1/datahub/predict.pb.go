@@ -33,8 +33,8 @@ var RecommendationPolicy_name = map[int32]string{
 }
 var RecommendationPolicy_value = map[string]int32{
 	"RECOMMENDATIONPOLICY_UNDEFINED": 0,
-	"STABLE":  1,
-	"COMPACT": 2,
+	"STABLE":                         1,
+	"COMPACT":                        2,
 }
 
 func (x RecommendationPolicy) String() string {

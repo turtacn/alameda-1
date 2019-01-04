@@ -10,6 +10,11 @@ import (
 type Database string
 type Measurement string
 
+var (
+	// ZeroTime is used as a constant of timestamp
+	ZeroTime time.Time = time.Unix(0, 0)
+)
+
 type InfluxDBEntity struct {
 	Time   time.Time
 	Tags   map[string]string

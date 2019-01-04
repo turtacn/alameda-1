@@ -25,17 +25,17 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-func TestStorageAlamedaResource(t *testing.T) {
+func TestStorageAlamedaScaler(t *testing.T) {
 	key := types.NamespacedName{
 		Name:      "foo",
 		Namespace: "default",
 	}
-	created := &AlamedaResource{
+	created := &AlamedaScaler{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo",
 			Namespace: "default",
 		},
-		Spec: AlamedaResourceSpec{
+		Spec: AlamedaScalerSpec{
 			Selector: &metav1.LabelSelector{},
 			Enable:   true,
 		},
@@ -43,7 +43,7 @@ func TestStorageAlamedaResource(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
 
 	// Test Create
-	fetched := &AlamedaResource{}
+	fetched := &AlamedaScaler{}
 	g.Expect(c.Create(context.TODO(), created)).NotTo(gomega.HaveOccurred())
 
 	g.Expect(c.Get(context.TODO(), key, fetched)).NotTo(gomega.HaveOccurred())

@@ -431,11 +431,11 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 	}
 }
 
+// ListAlamedaNodes list nodes in cluster
 func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListNodesResponse, error) {
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	nodes := []*datahub_v1alpha1.Node{}
 
 	if alamedaNodes, err := nodeDAO.ListAlamedaNodes(); err != nil {
 		scope.Error(err.Error())
@@ -445,16 +445,11 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 			},
 		}, err
 	} else {
-		for _, alamedaNode := range alamedaNodes {
-			nodes = append(nodes, &datahub_v1alpha1.Node{
-				Name: alamedaNode.Name,
-			})
-		}
 		return &datahub_v1alpha1.ListNodesResponse{
 			Status: &status.Status{
 				Code: int32(code.Code_OK),
 			},
-			Nodes: nodes,
+			Nodes: alamedaNodes,
 		}, nil
 	}
 }
@@ -737,6 +732,7 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 	}, nil
 }
 
+// CreatePods add containers information of pods to database
 func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePodsRequest) (*status.Status, error) {
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
@@ -753,6 +749,7 @@ func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePods
 	}, nil
 }
 
+// UpdatePods update containers information of pods to database
 func (s *Server) UpdatePods(ctx context.Context, in *datahub_v1alpha1.UpdatePodsRequest) (*status.Status, error) {
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
@@ -772,6 +769,7 @@ func (s *Server) UpdatePods(ctx context.Context, in *datahub_v1alpha1.UpdatePods
 	}, nil
 }
 
+// CreateAlamedaNodes add node information to database
 func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaNodesRequest) (*status.Status, error) {
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
@@ -806,6 +804,7 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 	}, nil
 }
 
+// DeleteAlamedaNodes remove node information to database
 func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodesRequest) (*status.Status, error) {
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,

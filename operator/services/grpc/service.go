@@ -8,7 +8,7 @@ import (
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
-	"github.com/containers-ai/alameda/operator/pkg/controller/alamedaresource"
+	"github.com/containers-ai/alameda/operator/pkg/controller/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics"
 	"github.com/containers-ai/alameda/operator/pkg/kubernetes/metrics/prometheus"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
@@ -177,20 +177,20 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 			nsRange[predictPod.GetNamespace()] = true
 		}
 	}
-	// 2. Get AlamedaResource list from namespace list
-	alaListRange := []autoscalingv1alpha1.AlamedaResource{}
+	// 2. Get AlamedaScaler list from namespace list
+	alaListRange := []autoscalingv1alpha1.AlamedaScaler{}
 	for namespace, _ := range nsRange {
-		alamedaresourceList := &autoscalingv1alpha1.AlamedaResourceList{}
-		err := s.Manager.GetClient().List(go_context.TODO(), client.InNamespace(namespace), alamedaresourceList)
+		alamedascalerList := &autoscalingv1alpha1.AlamedaScalerList{}
+		err := s.Manager.GetClient().List(go_context.TODO(), client.InNamespace(namespace), alamedascalerList)
 		if err == nil {
-			alaListRange = append(alaListRange, alamedaresourceList.Items...)
+			alaListRange = append(alaListRange, alamedascalerList.Items...)
 		}
 	}
 	if len(alaListRange) == 0 {
 		return &operator_v1alpha1.CreatePredictResultResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_NOT_FOUND),
-				Message: "AlamedaResource not found.",
+				Message: "AlamedaScaler not found.",
 			},
 		}, nil
 	}
@@ -198,20 +198,20 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 		alaAnno := ala.GetAnnotations()
 		predictPodsInAla := []*operator_v1alpha1.PredictPod{}
 		if alaAnno == nil {
-			scope.Warnf(fmt.Sprintf("No annotation found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
+			scope.Warnf(fmt.Sprintf("No annotation found in AlamedaScaler %s in namespace %s in AlamedaScaler list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
 		}
-		if _, ok := alaAnno[alamedaresource.AlamedaK8sController]; !ok {
-			scope.Warnf(fmt.Sprintf("No k8s controller annotation key found in AlamedaResouce %s in namespace %s in AlamedaResource list, try searching next item", ala.GetName(), ala.GetNamespace()))
+		if _, ok := alaAnno[alamedascaler.AlamedaK8sController]; !ok {
+			scope.Warnf(fmt.Sprintf("No k8s controller annotation key found in AlamedaResouce %s in namespace %s in AlamedaScaler list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
 		}
-		scope.Infof(fmt.Sprintf("K8s controller annotation found %s in AlamedaResouce %s in namespace %s in AlamedaResource list", alaAnno[alamedaresource.AlamedaK8sController], ala.GetName(), ala.GetNamespace()))
+		scope.Infof(fmt.Sprintf("K8s controller annotation found %s in AlamedaResouce %s in namespace %s in AlamedaScaler list", alaAnno[alamedascaler.AlamedaK8sController], ala.GetName(), ala.GetNamespace()))
 		for _, predictPod := range in.GetPredictPods() {
-			alaK8sCtrStr := alaAnno[alamedaresource.AlamedaK8sController]
+			alaK8sCtrStr := alaAnno[alamedascaler.AlamedaK8sController]
 			if isAlamedaPod(alaK8sCtrStr, predictPod.GetUid()) {
 				predictPodsInAla = append(predictPodsInAla, predictPod)
 			} else {
-				scope.Infof(fmt.Sprintf("Pod %s do not belong to AlamedaResource (%s/%s)", predictPod.GetUid(), ala.GetNamespace(), ala.GetName()))
+				scope.Infof(fmt.Sprintf("Pod %s do not belong to AlamedaScaler (%s/%s)", predictPod.GetUid(), ala.GetNamespace(), ala.GetName()))
 			}
 		}
 		if len(predictPodsInAla) > 0 {
@@ -235,7 +235,7 @@ func (s *Service) GetResourceRecommendation(ctx context.Context, in *operator_v1
 	return nil, nil
 }
 
-func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaResource, predictPods []*operator_v1alpha1.PredictPod) {
+func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaScaler, predictPods []*operator_v1alpha1.PredictPod) {
 	alamedaresourcePredict := &autoscalingv1alpha1.AlamedaResourcePrediction{}
 	s.Manager.GetClient().Get(go_context.TODO(), types.NamespacedName{
 		Name:      ala.GetName(),
@@ -327,7 +327,7 @@ func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer auto
 }
 
 func isAlamedaPod(alaK8sCtrAnnoStr, podUid string) bool {
-	akcMap := alamedaresource.GetDefaultAlamedaK8SControllerAnno()
+	akcMap := alamedascaler.GetDefaultAlamedaK8SControllerAnno()
 	err := json.Unmarshal([]byte(alaK8sCtrAnnoStr), akcMap)
 	if err != nil {
 		return false

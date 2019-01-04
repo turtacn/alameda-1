@@ -18,7 +18,7 @@ message Pod {
     string resource_link = 2;
     repeated Container containers = 3;
     bool is_alameda = 4;
-    NamespacedName alameda_resource = 5;
+    NamespacedName alameda_scaler = 5;
     string node_name = 6;
     google.protobuf.Timestamp start_time = 7;
     RecommendationPolicy policy = 8;

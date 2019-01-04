@@ -62,7 +62,7 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers() ([]*data
 						Namespace: contanerNS,
 					},
 					IsAlameda: true,
-					AlamedaResource: &datahub_v1alpha1.NamespacedName{
+					AlamedaScaler: &datahub_v1alpha1.NamespacedName{
 						Name:      podName,
 						Namespace: contanerNS,
 					},
@@ -92,16 +92,16 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 				string(cluster_status_entity.ContainerNamespace): podNS,
 				string(cluster_status_entity.ContainerPodName):   podName,
 				string(cluster_status_entity.ContainerNodeName):  pod.GetNodeName(),
+				string(cluster_status_entity.ContainerName):      container.GetName(),
 			}
 			fields := map[string]interface{}{
-				string(cluster_status_entity.ContainerName):      container.GetName(),
 				string(cluster_status_entity.ContainerIsDeleted): false,
 				string(cluster_status_entity.ContainerIsAlameda): isAlamedaPod,
 				string(cluster_status_entity.ContainerPolicy):    pod.GetPolicy(),
 			}
 			if isAlamedaPod {
-				tags[string(cluster_status_entity.ContainerAlamedaScalerNamespace)] = pod.GetAlamedaResource().GetNamespace()
-				tags[string(cluster_status_entity.ContainerAlamedaScalerName)] = pod.GetAlamedaResource().GetName()
+				tags[string(cluster_status_entity.ContainerAlamedaScalerNamespace)] = pod.GetAlamedaScaler().GetNamespace()
+				tags[string(cluster_status_entity.ContainerAlamedaScalerName)] = pod.GetAlamedaScaler().GetName()
 			}
 			for _, metricData := range container.GetLimitResource() {
 				if data := metricData.GetData(); len(data) == 1 {
@@ -124,7 +124,7 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 				}
 			}
 
-			if pt, err := influxdb_client.NewPoint(string(Container), tags, fields, time.Now()); err == nil {
+			if pt, err := influxdb_client.NewPoint(string(Container), tags, fields, influxdb.ZeroTime); err == nil {
 				points = append(points, pt)
 			} else {
 				scope.Error(err.Error())

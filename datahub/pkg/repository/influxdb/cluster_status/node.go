@@ -40,15 +40,17 @@ func NewNodeRepository(influxDBCfg *influxdb.Config) *NodeRepository {
 	}
 }
 
+// AddAlamedaNodes add node information to database
 func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
 	points := []*influxdb_client.Point{}
 	for _, alamedaNode := range alamedaNodes {
-		// due to time is the only one tag, sleep for a short while to prevent data point overridden
-		time.Sleep(1 * time.Microsecond)
-		if pt, err := influxdb_client.NewPoint(string(Node), map[string]string{}, map[string]interface{}{
-			string(cluster_status_entity.NodeName):      alamedaNode.Name,
+		tags := map[string]string{
+			string(cluster_status_entity.NodeName): alamedaNode.Name,
+		}
+		fields := map[string]interface{}{
 			string(cluster_status_entity.NodeInCluster): true,
-		}, time.Now()); err == nil {
+		}
+		if pt, err := influxdb_client.NewPoint(string(Node), tags, fields, influxdb.ZeroTime); err == nil {
 			points = append(points, pt)
 		} else {
 			scope.Error(err.Error())

@@ -16,9 +16,9 @@ const (
 	ContainerAlamedaScalerName containerTag = "alameda_scaler_name"
 	// ContainerNodeName is the name of node that container is running in
 	ContainerNodeName containerTag = "node_name"
-
 	// ContainerName is the container name
-	ContainerName containerField = "name"
+	ContainerName containerTag = "name"
+
 	// ContainerResourceRequestCPU is CPU request of the container
 	ContainerResourceRequestCPU containerField = "resource_request_cpu"
 	// ContainerResourceRequestMemory is memory request of the container
@@ -40,11 +40,11 @@ var (
 	ContainerTags = []containerTag{
 		ContainerTime, ContainerNamespace, ContainerPodName,
 		ContainerAlamedaScalerNamespace, ContainerAlamedaScalerName,
-		ContainerNodeName,
+		ContainerNodeName, ContainerName,
 	}
 	// ContainerFields is the list of container measurement fields
 	ContainerFields = []containerField{
-		ContainerName, ContainerResourceRequestCPU, ContainerResourceRequestMemory,
+		ContainerResourceRequestCPU, ContainerResourceRequestMemory,
 		ContainerResourceLimitCPU, ContainerResourceLimitMemory,
 		ContainerIsAlameda, ContainerIsDeleted, ContainerPolicy,
 	}
