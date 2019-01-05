@@ -1,3 +1,4 @@
+/// This file has messages and services related to Containers.ai
 syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
@@ -10,133 +11,246 @@ import "alameda_api/v1alpha1/datahub/metric.proto";
 import "alameda_api/v1alpha1/datahub/resource.proto";
 import "alameda_api/v1alpha1/datahub/recommendation.proto";
 
+/**
+ * Represents a request for listing metric data of a pod
+ * 
+ */
 message ListPodMetricsRequest {
     NamespacedName namespaced_name = 1;
     TimeRange time_range = 2;
 }
 
+/**
+ * Represents a response for a listing pod metric data request
+ * 
+ */
 message ListPodMetricsResponse {
     google.rpc.Status status = 1;
     repeated PodMetric pod_metrics = 2;
 }
 
+/**
+ * Represents a request for listing metric data of a pod
+ * 
+ */
 message ListNodeMetricsRequest {
     repeated string node_names = 1;
     TimeRange time_range = 2;
 }
 
+/**
+ * Represents a response for a listing node metrics request
+ * 
+ */
 message ListNodeMetricsResponse {
     google.rpc.Status status = 1;
     repeated NodeMetric node_metrics = 2;
 }
 
+/**
+ * Represents a response for a listing pods request
+ * 
+ */
 message ListPodsResponse {
     google.rpc.Status status = 1;
     repeated Pod pods = 2;
 }
 
+/**
+ * Represents a request for listing pods that need to be predicted
+ * 
+ */
 message ListAlamedaPodsRequest {
     NamespacedName alameda_scaler = 1;
 }
 
+/**
+ * Represents a response for a listing nodes request
+ * 
+ */
 message ListNodesResponse {
     google.rpc.Status status = 1;
     repeated Node nodes = 2;
 }
 
+/**
+ * Represents a request for listing predictions of pods
+ * 
+ */
 message ListPodPredictionsRequest {
     NamespacedName namespaced_name = 1;
     TimeRange time_range = 2;
 }
 
+/**
+ * Represents a response for a listing predictions of pods request
+ * 
+ */
 message ListPodPredictionsResponse {
     google.rpc.Status status = 1;
     repeated PodPrediction pod_predictions = 2;
 }
 
+/**
+ * Represents a request for listing predictions of nodes
+ * 
+ */
 message ListNodePredictionsRequest {
     repeated string node_name = 1;
     TimeRange time_range = 2;
 }
 
+/**
+ * Represents a response for a listing predictions of nodes request
+ * 
+ */
 message ListNodePredictionsResponse {
     google.rpc.Status status = 1;
     repeated NodePrediction node_predictions = 2;
 }
 
+/**
+ * Represents a request for listing recommendations of pods
+ * 
+ */
 message ListPodRecommendationsRequest {
     NamespacedName namespaced_name = 1;
     TimeRange time_range = 2;
 }
 
+/**
+ * Represents a response for listing pod recommendations request
+ * 
+ */
 message ListPodRecommendationsResponse {
     google.rpc.Status status = 1;
     repeated PodRecommendation pod_recommendations = 2;
 }
 
+/**
+ * Represents a request for listing nodes
+ * 
+ */
 message ListPodsByNodeNameRequest {
     repeated string node_name = 1;
 }
 
+/**
+ * Represents a request for creating predictions of containers' metric data belonging to a pod
+ */
 message CreatePodPredictionsRequest {
     repeated PodPrediction pod_predictions = 1;
 }
 
+/**
+ * Represents a request for creating predictions of a node metric data
+ * 
+ */
 message CreateNodePredictionsRequest {
     repeated NodePrediction node_predictions = 1;
 }
 
+/**
+ * Represents a request for creating a pod's recommendation
+ * 
+ */
 message CreatePodRecommendationsRequest {
     repeated PodRecommendation pod_recommendations = 1;
 }
 
+/**
+ * Represents a request for creating pods
+ * 
+ */
 message CreatePodsRequest {
     repeated Pod pods = 1;
 }
 
+/**
+ * Represents a request for adding nodes that need to be predicted
+ * 
+ */
 message CreateAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
 
-message UpdatePodsRequest {
+/**
+ * Represents a request for deleting pods data
+ * 
+ */
+message DeletePodsRequest {
     repeated Pod pods = 1;
 }
 
+/**
+ * Represents a request for stoping predicting nodes 
+ * 
+ */
 message DeleteAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
 
+/**
+ * Service for providing data stored in the backend
+ */
 service DatahubService {
+    /// Used to list pod metric data
     rpc ListPodMetrics(ListPodMetricsRequest)
         returns (ListPodMetricsResponse) {}
+
+    /// Used to list node metric data
     rpc ListNodeMetrics(ListNodeMetricsRequest)
         returns (ListNodeMetricsResponse) {}
-    // List pods need to be predicted
+
+    // Used to list pods need to be predicted
     rpc ListAlamedaPods(ListAlamedaPodsRequest)
         returns (ListPodsResponse){}
-    // List nodes need to be predicted
+
+    // Used to list nodes need to be predicted
     rpc ListAlamedaNodes(google.protobuf.Empty)
         returns (ListNodesResponse){}
+
+    /// Used to list pod predictions
     rpc ListPodPredictions(ListPodPredictionsRequest)
         returns (ListPodPredictionsResponse) {}
+
+    /// Used to list node predictions
     rpc ListNodePredictions(ListNodePredictionsRequest)
         returns (ListNodePredictionsResponse) {}
+
+    /// Used to list pod recommenations
     rpc ListPodRecommendations(ListPodRecommendationsRequest)
         returns (ListPodRecommendationsResponse) {}
+
+    /// Used to list pods need to be predicted by a node name
     rpc ListPodsByNodeName(ListPodsByNodeNameRequest)
-        returns (ListPodsResponse) {}        
+        returns (ListPodsResponse) {} 
+        
+    /// Used to add pods that need to be predicted
     rpc CreatePods(CreatePodsRequest)
         returns (google.rpc.Status){}
+    
+    /// Used to add nodes that need to be predicted
     rpc CreateAlamedaNodes(CreateAlamedaNodesRequest)
-        returns (google.rpc.Status){}    
+        returns (google.rpc.Status){}
+
+    /// Used to create predictions of pods
     rpc CreatePodPredictions(CreatePodPredictionsRequest)
         returns (google.rpc.Status) {}
+
+    /// Used to create predictions of nodes
     rpc CreateNodePredictions(CreateNodePredictionsRequest)
         returns (google.rpc.Status) {}
+
+    /// Used to create recommendations of pods
     rpc CreatePodRecommendations(CreatePodRecommendationsRequest)
         returns (google.rpc.Status) {}
-    rpc UpdatePods(UpdatePodsRequest)
+
+    /// Used to delete info of pods
+    rpc DeletePods(DeletePodsRequest)
         returns (google.rpc.Status){}
+
+    /// Used to stop generating predictions for the nodes
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}            
 }

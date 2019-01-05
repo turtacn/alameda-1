@@ -1,7 +1,11 @@
+/// This file has messages related to Kubernetes metadata
 syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
 
+/**
+ * Represents a Kubernetes namespace
+ */
 message NamespacedName {
     string namespace = 1;
     string name = 2;

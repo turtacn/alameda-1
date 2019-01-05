@@ -7,8 +7,9 @@ from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
 class DatahubServiceStub(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """*
+  Service for providing data stored in the backend
+  """
 
   def __init__(self, channel):
     """Constructor.
@@ -81,9 +82,9 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
-    self.UpdatePods = channel.unary_unary(
-        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/UpdatePods',
-        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.UpdatePodsRequest.SerializeToString,
+    self.DeletePods = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/DeletePods',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.DeletePodsRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
     self.DeleteAlamedaNodes = channel.unary_unary(
@@ -94,110 +95,111 @@ class DatahubServiceStub(object):
 
 
 class DatahubServiceServicer(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """*
+  Service for providing data stored in the backend
+  """
 
   def ListPodMetrics(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list pod metric data
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListNodeMetrics(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list node metric data
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListAlamedaPods(self, request, context):
-    """List pods need to be predicted
+    """Used to list pods need to be predicted
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListAlamedaNodes(self, request, context):
-    """List nodes need to be predicted
+    """Used to list nodes need to be predicted
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListPodPredictions(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list pod predictions
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListNodePredictions(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list node predictions
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListPodRecommendations(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list pod recommenations
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListPodsByNodeName(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list pods need to be predicted by a node name
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePods(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to add pods that need to be predicted
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreateAlamedaNodes(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to add nodes that need to be predicted
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePodPredictions(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to create predictions of pods
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreateNodePredictions(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to create predictions of nodes
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePodRecommendations(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to create recommendations of pods
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def UpdatePods(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+  def DeletePods(self, request, context):
+    """/ Used to delete info of pods
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def DeleteAlamedaNodes(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to stop generating predictions for the nodes
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -270,9 +272,9 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
-      'UpdatePods': grpc.unary_unary_rpc_method_handler(
-          servicer.UpdatePods,
-          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.UpdatePodsRequest.FromString,
+      'DeletePods': grpc.unary_unary_rpc_method_handler(
+          servicer.DeletePods,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.DeletePodsRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'DeleteAlamedaNodes': grpc.unary_unary_rpc_method_handler(

@@ -1,3 +1,4 @@
+/// This file has messages related to recommendations of containers, pods, and nodes
 syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
@@ -7,6 +8,12 @@ import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/pod_assignment.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
 
+/**
+ * Represents a resource configuration recommendation made by the AI Engine
+ * 
+ * It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial strage
+ *
+ */
 message ContainerRecommendation {
     string name = 1;    
     repeated MetricData limit_recommendations = 2;
@@ -15,6 +22,10 @@ message ContainerRecommendation {
     repeated MetricData initial_request_recommendations = 5;
 }
 
+/**
+ * Represents a recommended pod-to-node assignment (i.e. pod placement) made by the AI Engine
+ * 
+ */
 message AssignPodPolicy {
     google.protobuf.Timestamp time = 1;
     oneof policy {
@@ -24,6 +35,10 @@ message AssignPodPolicy {
     };
 }
 
+/**
+ * Represents a set of container resource configuration recommenation of a pod made by the AI Engine
+ * 
+ */
 message PodRecommendation {
     NamespacedName namespaced_name = 1;
     bool apply_recommendation_now = 2;

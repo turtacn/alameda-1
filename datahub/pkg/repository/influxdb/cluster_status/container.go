@@ -1,7 +1,9 @@
 package clusterstatus
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
@@ -137,7 +139,87 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 	return nil
 }
 
-// UpdateContainers updates containers information container measurement
-func (containerRepository *ContainerRepository) UpdateContainers(pods []*datahub_v1alpha1.Pod) error {
+// DeleteContainers set containers' field is_deleted to true into container measurement
+func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub_v1alpha1.Pod) error {
+
+	var (
+		err error
+
+		containersEntityBeforeDelete = make([]*cluster_status_entity.ContainerEntity, 0)
+
+		pointsToDelete = make([]*influxdb_client.Point, 0)
+	)
+
+	containersEntityBeforeDelete, err = containerRepository.ListPodsContainers(pods)
+	if err != nil {
+		return errors.New("delete containers failed: " + err.Error())
+	}
+	for _, containerEntity := range containersEntityBeforeDelete {
+		entity := *containerEntity
+
+		trueString := string("true")
+		entity.IsDeleted = &trueString
+		point, err := entity.InfluxDBPoint(string(Container))
+		if err != nil {
+			return errors.New("delete containers failed: " + err.Error())
+		}
+
+		pointsToDelete = append(pointsToDelete, point)
+	}
+
+	containerRepository.influxDB.WritePoints(pointsToDelete, influxdb_client.BatchPointsConfig{
+		Database: string(influxdb.ClusterStatus),
+	})
 	return nil
+}
+
+// ListPodsContainers list containers information container measurement
+func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datahub_v1alpha1.Pod) ([]*cluster_status_entity.ContainerEntity, error) {
+
+	var (
+		cmd                 = ""
+		cmdSelectString     = ""
+		cmdTagsFilterString = ""
+		containerEntities   = make([]*cluster_status_entity.ContainerEntity, 0)
+	)
+
+	if len(pods) == 0 {
+		return containerEntities, nil
+	}
+
+	cmdSelectString = fmt.Sprintf(`select * from "%s" `, Container)
+	for _, pod := range pods {
+
+		var (
+			namespace = ""
+			podName   = ""
+		)
+
+		if pod.GetNamespacedName() != nil {
+			namespace = pod.GetNamespacedName().GetNamespace()
+			podName = pod.GetNamespacedName().GetName()
+		}
+
+		cmdTagsFilterString += fmt.Sprintf(`("%s" = '%s' and "%s" = '%s') or `,
+			cluster_status_entity.ContainerNamespace, namespace,
+			cluster_status_entity.ContainerPodName, podName,
+		)
+	}
+	cmdTagsFilterString = strings.TrimSuffix(cmdTagsFilterString, "or ")
+
+	cmd = fmt.Sprintf("%s where %s", cmdSelectString, cmdTagsFilterString)
+	results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	if err != nil {
+		return containerEntities, errors.New("list containers' entity failed: " + err.Error())
+	}
+
+	rows := influxdb.PackMap(results)
+	for _, row := range rows {
+		for _, data := range row.Data {
+			entity := cluster_status_entity.NewContainerEntityFromMap(data)
+			containerEntities = append(containerEntities, &entity)
+		}
+	}
+
+	return containerEntities, nil
 }

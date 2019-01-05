@@ -711,21 +711,18 @@ func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePods
 	}, nil
 }
 
-// UpdatePods update containers information of pods to database
-func (s *Server) UpdatePods(ctx context.Context, in *datahub_v1alpha1.UpdatePodsRequest) (*status.Status, error) {
+// DeletePods update containers information of pods to database
+func (s *Server) DeletePods(ctx context.Context, in *datahub_v1alpha1.DeletePodsRequest) (*status.Status, error) {
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	if err := containerDAO.UpdatePods(in.GetPods()); err != nil {
+	if err := containerDAO.DeletePods(in.GetPods()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
-			Code: int32(code.Code_INTERNAL),
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Internal server error.",
 		}, err
 	}
-	return &status.Status{
-		Code: int32(code.Code_OK),
-	}, nil
-
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

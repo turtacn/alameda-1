@@ -21,9 +21,9 @@ func (container *Container) AddPods(pods []*datahub_v1alpha1.Pod) error {
 	return containerRepository.CreateContainers(pods)
 }
 
-func (container *Container) UpdatePods(pods []*datahub_v1alpha1.Pod) error {
+func (container *Container) DeletePods(pods []*datahub_v1alpha1.Pod) error {
 	containerRepository := influxdb_repository_cluster_status.NewContainerRepository(&container.InfluxDBConfig)
-	return containerRepository.UpdateContainers(pods)
+	return containerRepository.DeleteContainers(pods)
 }
 
 func (container *Container) ListAlamedaPods() ([]*datahub_v1alpha1.Pod, error) {
