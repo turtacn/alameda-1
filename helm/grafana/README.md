@@ -10,7 +10,7 @@ For more details, please goto https://github.com/helm/charts/tree/master/stable/
 $ helm install stable/grafana --name grafana --namespace monitoring -f values.yaml
 ```
 
-Compared to the upstream `values.yaml`, the supplied `values.yaml` add a datasource configuration:  
+Compared to the upstream `values.yaml`, the supplied `values.yaml` add two datasource configurations:  
 ```
 datasources:
   datasources.yaml:
@@ -21,4 +21,10 @@ datasources:
       url: http://prometheus-server
       access: proxy
       isDefault: true
+    - name: InfluxDB
+      type: influxdb
+      database: _internal
+      url: http://influxdb-influxdb:8086
+      access: proxy
+      isDefault: false
 ```
