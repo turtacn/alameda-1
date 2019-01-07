@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Alameda Authors.
+Copyright 2019 The Alameda Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ type AlamedaScaler string
 //
 const (
 	AlamedaDeployment AlamedaScaler = "Deployment"
-	UpdateRetry                       = 3
+	UpdateRetry                     = 3
 )
 
 // AlamedaK8sController is key of AlamedaScaler annotation
@@ -471,7 +471,7 @@ func registerPodPrediction(alamedascaler *autoscalingv1alpha1.AlamedaScaler, nam
 		}
 	}
 	if len(deletePodMaps) > 0 {
-		req := datahub_v1alpha1.UpdatePodsRequest{
+		req := datahub_v1alpha1.DeletePodsRequest{
 			Pods: []*datahub_v1alpha1.Pod{},
 		}
 		for _, v := range deletePodMaps {
@@ -484,7 +484,7 @@ func registerPodPrediction(alamedascaler *autoscalingv1alpha1.AlamedaScaler, nam
 		}
 		reqBin, _ := json.MarshalIndent(req, "", JSONIndent)
 		scope.Infof(fmt.Sprintf("Remove alameda pod %s from datahub. (%s/%s).", string(reqBin), namespace, name))
-		reqRes, err := aiServiceClnt.UpdatePods(context.Background(), &req)
+		reqRes, err := aiServiceClnt.DeletePods(context.Background(), &req)
 		if err != nil {
 			scope.Error(err.Error())
 		} else {

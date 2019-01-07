@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
@@ -14,7 +13,7 @@ import (
 )
 
 var (
-	containerScope = log.RegisterScope("influxdb_repo_container_measurement", "InfluxDB repository container measurement", 0)
+	containerScope = log.RegisterScope("cluster_status_db_container_measurement", "cluster_status DB container measurement", 0)
 )
 
 // ContainerRepository is used to operate node measurement of cluster_status database
@@ -88,8 +87,6 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 		isAlamedaPod := pod.GetIsAlameda()
 
 		for _, container := range containers {
-			// due to containers in pod may have same tags as the following, sleep for a short while to prevent data point overridden
-			time.Sleep(1 * time.Microsecond)
 			tags := map[string]string{
 				string(cluster_status_entity.ContainerNamespace): podNS,
 				string(cluster_status_entity.ContainerPodName):   podName,

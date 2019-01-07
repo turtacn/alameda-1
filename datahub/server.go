@@ -12,6 +12,8 @@ import (
 	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
 	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
+	recommendation_dao "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
+	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -57,7 +59,6 @@ func NewServer(cfg Config) (*Server, error) {
 	if err = cfg.Validate(); err != nil {
 		return server, errors.New("Configuration validation failed: " + err.Error())
 	}
-
 	k8sClientConfig, err := config.GetConfig()
 	if err != nil {
 		return server, errors.New("Get kubernetes configuration failed: " + err.Error())
@@ -536,84 +537,27 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 	}, nil
 }
 
+// ListPodRecommendations list pod recommendations
 func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha1.ListPodRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
-
-	var tmpRecommendationsData = []*datahub_v1alpha1.MetricData{
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "20",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "50",
-				},
-			},
-		},
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "512",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "1024",
-				},
-			},
-		},
+	var containerDAO recommendation_dao.ContainerOperation = &recommendation_dao_impl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	return &datahub_v1alpha1.ListPodRecommendationsResponse{
-		Status: &status.Status{
-			Code: int32(code.Code_OK),
-		},
-		PodRecommendations: []*datahub_v1alpha1.PodRecommendation{
-			&datahub_v1alpha1.PodRecommendation{
-				NamespacedName:         &datahub_v1alpha1.NamespacedName{Namespace: "openshift-monitoring", Name: "prometheus-k8s-0"},
-				ApplyRecommendationNow: false,
-				AssignPodPolicy: &datahub_v1alpha1.AssignPodPolicy{
-					Time:   tmpTimestamps[0],
-					Policy: &datahub_v1alpha1.AssignPodPolicy_NodeName{NodeName: "node1"},
-				},
-				ContainerRecommendations: []*datahub_v1alpha1.ContainerRecommendation{
-					&datahub_v1alpha1.ContainerRecommendation{
-						Name:                   "prometheus",
-						LimitRecommendations:   tmpRecommendationsData,
-						RequestRecommendations: tmpRecommendationsData,
-					},
-					&datahub_v1alpha1.ContainerRecommendation{
-						Name:                   "another-container",
-						LimitRecommendations:   tmpRecommendationsData,
-						RequestRecommendations: tmpRecommendationsData,
-					},
-				},
+	if podRecommendations, err := containerDAO.ListPodRecommendations(in.GetNamespacedName(), in.GetTimeRange()); err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListPodRecommendationsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INTERNAL),
 			},
-			&datahub_v1alpha1.PodRecommendation{
-				NamespacedName:         &datahub_v1alpha1.NamespacedName{Namespace: "openshift-monitoring", Name: "prometheus-k8s-1"},
-				ApplyRecommendationNow: false,
-				AssignPodPolicy: &datahub_v1alpha1.AssignPodPolicy{
-					Time:   tmpTimestamps[0],
-					Policy: &datahub_v1alpha1.AssignPodPolicy_NodeName{NodeName: "node2"},
-				},
-				ContainerRecommendations: []*datahub_v1alpha1.ContainerRecommendation{
-					&datahub_v1alpha1.ContainerRecommendation{
-						Name:                   "prometheus",
-						LimitRecommendations:   tmpRecommendationsData,
-						RequestRecommendations: tmpRecommendationsData,
-					},
-					&datahub_v1alpha1.ContainerRecommendation{
-						Name:                   "another-container",
-						LimitRecommendations:   tmpRecommendationsData,
-						RequestRecommendations: tmpRecommendationsData,
-					},
-				},
+		}, err
+	} else {
+		return &datahub_v1alpha1.ListPodRecommendationsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
 			},
-		},
-	}, nil
+			PodRecommendations: podRecommendations,
+		}, nil
+	}
 }
 
 func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNameRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
@@ -799,7 +743,18 @@ func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1
 	}, nil
 }
 
+// CreatePodRecommendations add pod recommendations information to database
 func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
+	var containerDAO recommendation_dao.ContainerOperation = &recommendation_dao_impl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+	if err := containerDAO.AddPodRecommendations(in.GetPodRecommendations()); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code: int32(code.Code_INTERNAL),
+		}, err
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
