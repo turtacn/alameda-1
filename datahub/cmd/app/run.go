@@ -56,7 +56,7 @@ func init() {
 }
 
 func parseFlag() {
-	RunCmd.Flags().StringVar(&configurationFilePath, "config", "", "The path to datahub configuration file.")
+	RunCmd.Flags().StringVar(&configurationFilePath, "config", "/etc/alameda/datahub/datahub.yml", "The path to datahub configuration file.")
 }
 
 func initConfig() {
