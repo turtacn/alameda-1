@@ -424,7 +424,7 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
 			},
-		}, err
+		}, nil
 	} else {
 		return &datahub_v1alpha1.ListPodsResponse{
 			Pods: alamedaPods,
@@ -448,7 +448,7 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
 			},
-		}, err
+		}, nil
 	} else {
 		return &datahub_v1alpha1.ListNodesResponse{
 			Status: &status.Status{
@@ -552,7 +552,7 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
 			},
-		}, err
+		}, nil
 	} else {
 		return &datahub_v1alpha1.ListPodRecommendationsResponse{
 			Status: &status.Status{
@@ -652,7 +652,7 @@ func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePods
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),
-		}, err
+		}, nil
 	}
 	return &status.Status{
 		Code: int32(code.Code_OK),
@@ -669,7 +669,7 @@ func (s *Server) DeletePods(ctx context.Context, in *datahub_v1alpha1.DeletePods
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: "Internal server error.",
-		}, err
+		}, nil
 	}
 	return &status.Status{
 		Code: int32(code.Code_OK),
@@ -686,7 +686,7 @@ func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.Cr
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),
-		}, err
+		}, nil
 	}
 
 	return &status.Status{
@@ -782,7 +782,7 @@ func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.De
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),
-		}, err
+		}, nil
 	}
 
 	return &status.Status{
