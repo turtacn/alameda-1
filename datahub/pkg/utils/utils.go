@@ -62,13 +62,5 @@ func GetTimeIdxFromColumns(columns []string) int {
 
 // TimeStampToNanoSecond get nano seconds from timestamp object
 func TimeStampToNanoSecond(timestamp *timestamp.Timestamp) int64 {
-	result := timestamp.GetSeconds() * 1000000000
-	if result > 0 {
-		return result
-	}
-	result = int64(timestamp.GetNanos())
-	if result > 0 {
-		return result
-	}
-	return 0
+	return timestamp.GetSeconds()*1000000000 + int64(timestamp.GetNanos())
 }

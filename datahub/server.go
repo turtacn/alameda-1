@@ -421,7 +421,8 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodsResponse{
 			Status: &status.Status{
-				Code: int32(code.Code_INTERNAL),
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
 			},
 		}, err
 	} else {
@@ -444,7 +445,8 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListNodesResponse{
 			Status: &status.Status{
-				Code: int32(code.Code_INTERNAL),
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
 			},
 		}, err
 	} else {
@@ -547,7 +549,8 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodRecommendationsResponse{
 			Status: &status.Status{
-				Code: int32(code.Code_INTERNAL),
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
 			},
 		}, err
 	} else {
@@ -647,7 +650,8 @@ func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePods
 	if err := containerDAO.AddPods(in.GetPods()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
-			Code: int32(code.Code_INTERNAL),
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
 		}, err
 	}
 	return &status.Status{
@@ -680,7 +684,8 @@ func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.Cr
 	if err := nodeDAO.RegisterAlamedaNodes(in.GetAlamedaNodes()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
-			Code: int32(code.Code_INTERNAL),
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
 		}, err
 	}
 
@@ -751,7 +756,8 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 	if err := containerDAO.AddPodRecommendations(in.GetPodRecommendations()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
-			Code: int32(code.Code_INTERNAL),
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
 		}, err
 	}
 
@@ -774,7 +780,8 @@ func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.De
 	if err := nodeDAO.DeregisterAlamedaNodes(alamedaNodeList); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
-			Code: int32(code.Code_INTERNAL),
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
 		}, err
 	}
 
