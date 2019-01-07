@@ -121,17 +121,19 @@ func PackMap(results []client.Result) []*InfluxDBRow {
 				// Pack values
 				for j, col := range r.Columns {
 					value := v[j]
-					switch value.(type) {
-					case bool:
-						data[col] = strconv.FormatBool(value.(bool))
-					case string:
-						data[col] = value.(string)
-					case json.Number:
-						data[col] = value.(json.Number).String()
-					case nil:
-						data[col] = ""
-					default:
-						data[col] = value.(string)
+					if value != nil {
+						switch value.(type) {
+						case bool:
+							data[col] = strconv.FormatBool(value.(bool))
+						case string:
+							data[col] = value.(string)
+						case json.Number:
+							data[col] = value.(json.Number).String()
+						case nil:
+							data[col] = ""
+						default:
+							data[col] = value.(string)
+						}
 					}
 				}
 				row.Data = append(row.Data, data)

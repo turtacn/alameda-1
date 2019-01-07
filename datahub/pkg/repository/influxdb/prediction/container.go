@@ -113,19 +113,9 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request predicti
 	}
 
 	rows = influxdb.PackMap(results)
-
 	for _, row := range rows {
 		for _, data := range row.Data {
-			tempTimestamp, _ := time.Parse("2006-01-02T15:04:05.999999Z07:00", data[container_entity.Time])
-
-			entity := container_entity.Entity{
-				Timestamp: tempTimestamp,
-				Namespace: data[container_entity.Namespace],
-				PodName:   data[container_entity.PodName],
-				Name:      data[container_entity.Name],
-				Metric:    data[container_entity.Metric],
-				Value:     data[container_entity.Value],
-			}
+			entity := container_entity.NewContainerEntityFromMap(data)
 			entities = append(entities, &entity)
 		}
 	}

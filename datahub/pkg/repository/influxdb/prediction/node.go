@@ -110,18 +110,9 @@ func (r *NodeRepository) ListNodePredictionsByRequest(request prediction_dao.Lis
 	}
 
 	rows = influxdb.PackMap(results)
-
 	for _, row := range rows {
 		for _, data := range row.Data {
-			tempTimestamp, _ := time.Parse("2006-01-02T15:04:05.999999Z07:00", data[node_entity.Time])
-
-			entity := node_entity.Entity{
-				Timestamp:   tempTimestamp,
-				Name:        data[node_entity.Name],
-				IsScheduled: data[node_entity.IsScheduled],
-				Metric:      data[node_entity.Metric],
-				Value:       data[node_entity.Value],
-			}
+			entity := node_entity.NewContainerEntityFromMap(data)
 			entities = append(entities, &entity)
 		}
 	}

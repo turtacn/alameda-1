@@ -52,10 +52,37 @@ var (
 type Entity struct {
 	Timestamp time.Time
 
-	Name        string
-	Metric      MetricType
-	Value       string
-	IsScheduled string
+	Name        *string
+	Metric      *MetricType
+	Value       *string
+	IsScheduled *string
+}
+
+func NewContainerEntityFromMap(data map[string]string) Entity {
+
+	tempTimestamp, _ := time.Parse("2006-01-02T15:04:05.999999Z07:00", data[Time])
+
+	entity := Entity{
+		Timestamp: tempTimestamp,
+	}
+
+	if name, exist := data[Name]; exist {
+		entity.Name = &name
+	}
+
+	if metric, exist := data[Metric]; exist {
+		entity.Metric = &metric
+	}
+
+	if value, exist := data[Value]; exist {
+		entity.Value = &value
+	}
+
+	if isScheduled, exist := data[IsScheduled]; exist {
+		entity.Value = &isScheduled
+	}
+
+	return entity
 }
 
 // NodePrediction Create container prediction base on entity
@@ -68,16 +95,16 @@ func (e Entity) NodePrediction() prediction.NodePrediction {
 	)
 
 	// TODO: log error
-	isScheduled, _ = strconv.ParseBool(e.IsScheduled)
-	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: e.Value})
+	isScheduled, _ = strconv.ParseBool(*e.IsScheduled)
+	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: *e.Value})
 
 	nodePrediction = prediction.NodePrediction{
-		NodeName:    e.Name,
+		NodeName:    *e.Name,
 		IsScheduled: isScheduled,
 		Predictions: map[metric.NodeMetricType][]metric.Sample{},
 	}
 
-	metricType := LocalMetricTypeToPkgMetricType[e.Metric]
+	metricType := LocalMetricTypeToPkgMetricType[*e.Metric]
 	nodePrediction.Predictions[metricType] = samples
 
 	return nodePrediction
