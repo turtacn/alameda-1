@@ -50,8 +50,11 @@ func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Co
 		Name: string(c.ContainerName),
 	}
 
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUMetircs, metricDataChan)
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, c.MemoryMetrics, metricDataChan)
+	for metricType, samples := range c.Metrics {
+		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
+		}
+	}
 
 	for i := 0; i < c.NumberOfDatahubMetricDataNeededProducing(); i++ {
 		receivedMetricData := <-metricDataChan
@@ -79,8 +82,11 @@ func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 		Name: n.NodeName,
 	}
 
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, n.CPUUsageMetircs, metricDataChan)
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, n.MemoryUsageMetrics, metricDataChan)
+	for metricType, samples := range n.Metrics {
+		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
+		}
+	}
 
 	for i := 0; i < n.NumberOfDatahubMetricDataNeededProducing(); i++ {
 		receivedMetricData := <-metricDataChan
@@ -116,14 +122,11 @@ func (p daoPodPredictionExtended) datahubPodPrediction() datahub_v1alpha1.PodPre
 
 type daoContainerPredictionExtended prediction.ContainerPrediction
 
-func (c daoContainerPredictionExtended) NumberOfDatahubPredictionDataNeededProducing() int {
-	return 2
-}
-
 func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1alpha1.ContainerPrediction {
 
 	var (
-		MetricDataChan = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan = make(chan datahub_v1alpha1.MetricData)
+		numOfGoroutine = 0
 
 		datahubContainerPrediction datahub_v1alpha1.ContainerPrediction
 	)
@@ -132,11 +135,15 @@ func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1a
 		Name: string(c.ContainerName),
 	}
 
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, c.CPUPredictions, MetricDataChan)
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, c.MemoryPredictions, MetricDataChan)
+	for metricType, samples := range c.Predictions {
+		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+			numOfGoroutine++
+			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
+		}
+	}
 
-	for i := 0; i < c.NumberOfDatahubPredictionDataNeededProducing(); i++ {
-		receivedPredictionData := <-MetricDataChan
+	for i := 0; i < numOfGoroutine; i++ {
+		receivedPredictionData := <-metricDataChan
 		datahubContainerPrediction.PredictedRawData = append(datahubContainerPrediction.PredictedRawData, &receivedPredictionData)
 	}
 
@@ -145,14 +152,11 @@ func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1a
 
 type daoNodePredictionExtended prediction.NodePrediction
 
-func (d daoNodePredictionExtended) NumberOfDatahubPredictionDataNeededProducing() int {
-	return 2
-}
-
 func (d daoNodePredictionExtended) datahubNodePrediction() datahub_v1alpha1.NodePrediction {
 
 	var (
-		MetricDataChan = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan = make(chan datahub_v1alpha1.MetricData)
+		numOfGoroutine = 0
 
 		datahubNodePrediction datahub_v1alpha1.NodePrediction
 	)
@@ -162,11 +166,15 @@ func (d daoNodePredictionExtended) datahubNodePrediction() datahub_v1alpha1.Node
 		IsScheduled: d.IsScheduled,
 	}
 
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, d.CPUUsagePredictions, MetricDataChan)
-	go produceDatahubMetricDataFromSamples(datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES, d.MemoryUsagePredictions, MetricDataChan)
+	for metricType, samples := range d.Predictions {
+		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+			numOfGoroutine++
+			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
+		}
+	}
 
-	for i := 0; i < d.NumberOfDatahubPredictionDataNeededProducing(); i++ {
-		receivedPredictionData := <-MetricDataChan
+	for i := 0; i < numOfGoroutine; i++ {
+		receivedPredictionData := <-metricDataChan
 		datahubNodePrediction.PredictedRawData = append(datahubNodePrediction.PredictedRawData, &receivedPredictionData)
 	}
 

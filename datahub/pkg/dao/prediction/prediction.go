@@ -36,11 +36,10 @@ type ListNodePredictionsRequest struct {
 
 // ContainerPrediction Prediction model to represent one container Prediction
 type ContainerPrediction struct {
-	Namespace         metadata.NamespaceName
-	PodName           metadata.PodName
-	ContainerName     metadata.ContainerName
-	CPUPredictions    []metric.Sample
-	MemoryPredictions []metric.Sample
+	Namespace     metadata.NamespaceName
+	PodName       metadata.PodName
+	ContainerName metadata.ContainerName
+	Predictions   map[metric.ContainerMetricType][]metric.Sample
 }
 
 // BuildPodPrediction Build PodPrediction consist of the receiver in ContainersPredictionMap.
@@ -87,8 +86,9 @@ func (c ContainersPredictionMap) Merge(in ContainersPredictionMap) ContainersPre
 
 	for namespacePodContainerName, containerPrediction := range in {
 		if existedContainerPrediction, exist := newContainersPredictionMap[namespacePodContainerName]; exist {
-			existedContainerPrediction.CPUPredictions = append(existedContainerPrediction.CPUPredictions, containerPrediction.CPUPredictions...)
-			existedContainerPrediction.MemoryPredictions = append(existedContainerPrediction.MemoryPredictions, containerPrediction.MemoryPredictions...)
+			for metricType, predictions := range existedContainerPrediction.Predictions {
+				existedContainerPrediction.Predictions[metricType] = append(existedContainerPrediction.Predictions[metricType], predictions...)
+			}
 			newContainersPredictionMap[namespacePodContainerName] = existedContainerPrediction
 		} else {
 			newContainersPredictionMap[namespacePodContainerName] = containerPrediction
@@ -143,10 +143,9 @@ func (p *PodsPredictionMap) AddContainerPrediction(c ContainerPrediction) {
 
 // NodePrediction Prediction model to represent one node Prediction
 type NodePrediction struct {
-	NodeName               metadata.NodeName
-	IsScheduled            bool
-	CPUUsagePredictions    []metric.Sample
-	MemoryUsagePredictions []metric.Sample
+	NodeName    metadata.NodeName
+	IsScheduled bool
+	Predictions map[metric.NodeMetricType][]metric.Sample
 }
 
 // Merge Merge current NodePrediction with input NodePrediction
@@ -154,12 +153,14 @@ func (n NodePrediction) Merge(in NodePrediction) NodePrediction {
 
 	var (
 		newNodePrediction = NodePrediction{
-			NodeName:               n.NodeName,
-			IsScheduled:            n.IsScheduled,
-			CPUUsagePredictions:    append(n.CPUUsagePredictions, in.CPUUsagePredictions...),
-			MemoryUsagePredictions: append(n.MemoryUsagePredictions, in.MemoryUsagePredictions...),
+			NodeName:    n.NodeName,
+			IsScheduled: n.IsScheduled,
 		}
 	)
+
+	for metricType, metrics := range in.Predictions {
+		newNodePrediction.Predictions[metricType] = append(newNodePrediction.Predictions[metricType], metrics...)
+	}
 
 	return newNodePrediction
 }

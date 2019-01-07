@@ -44,40 +44,31 @@ func (r *ContainerRepository) CreateContainerPrediction(containersPrediction []*
 		podName := containerPrediction.PodName
 		containerName := containerPrediction.ContainerName
 
-		for _, memoryPrediction := range containerPrediction.MemoryPredictions {
+		for metricType, samples := range containerPrediction.Predictions {
 
-			tags := map[string]string{
-				container_entity.Namespace: namespace,
-				container_entity.PodName:   podName,
-				container_entity.Name:      containerName,
-				container_entity.Metric:    container_entity.MetricTypeMemoryUsage,
-			}
-			fields := map[string]interface{}{
-				container_entity.Value: memoryPrediction.Value,
-			}
-			point, err := influxdb_client.NewPoint(container_entity.Measurement, tags, fields, memoryPrediction.Timestamp)
-			if err != nil {
-				return errors.New("new influxdb datapoint failed: " + err.Error())
-			}
-			points = append(points, point)
-		}
+			if metricName, exist := container_entity.PkgMetricTypeToLocalMetricType[metricType]; exist {
 
-		for _, cpuPrediction := range containerPrediction.CPUPredictions {
+				for _, sample := range samples {
 
-			tags := map[string]string{
-				container_entity.Namespace: namespace,
-				container_entity.PodName:   podName,
-				container_entity.Name:      containerName,
-				container_entity.Metric:    container_entity.MetricTypeCPUUsage,
+					tags := map[string]string{
+						container_entity.Namespace: namespace,
+						container_entity.PodName:   podName,
+						container_entity.Name:      containerName,
+						container_entity.Metric:    metricName,
+					}
+					fields := map[string]interface{}{
+						container_entity.Value: sample.Value,
+					}
+					point, err := influxdb_client.NewPoint(container_entity.Measurement, tags, fields, sample.Timestamp)
+					if err != nil {
+						return errors.New("new influxdb data point failed: " + err.Error())
+					}
+					points = append(points, point)
+				}
+			} else {
+				return fmt.Errorf(`map metric type from github.com/containers-ai/alameda.datahub.metric.ContainerMetricType
+				 to type in github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/container falied: metric type not exist %+v`, metricType)
 			}
-			fields := map[string]interface{}{
-				container_entity.Value: cpuPrediction.Value,
-			}
-			point, err := influxdb_client.NewPoint(container_entity.Measurement, tags, fields, cpuPrediction.Timestamp)
-			if err != nil {
-				return errors.New("new influxdb datapoint failed: " + err.Error())
-			}
-			points = append(points, point)
 		}
 	}
 
@@ -85,7 +76,7 @@ func (r *ContainerRepository) CreateContainerPrediction(containersPrediction []*
 		Database: container_entity.Database,
 	})
 	if err != nil {
-		return errors.New("write influxdb datapoint failed: " + err.Error())
+		return errors.New("write influxdb data point failed: " + err.Error())
 	}
 
 	return nil

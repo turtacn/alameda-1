@@ -99,6 +99,7 @@ func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []
 					Namespace:     podNamespace,
 					PodName:       podName,
 					ContainerName: containerName,
+					Predictions:   make(map[metric.ContainerMetricType][]metric.Sample),
 				}
 
 				samples := []metric.Sample{}
@@ -114,13 +115,14 @@ func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []
 					samples = append(samples, sample)
 				}
 
-				metricType := rawData.GetMetricType()
-				switch metricType {
+				var metricType metric.ContainerMetricType
+				switch rawData.GetMetricType() {
 				case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-					containerPrediction.CPUPredictions = samples
+					metricType = metric.TypeContainerCPUUsageSecondsPercentage
 				case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-					containerPrediction.MemoryPredictions = samples
+					metricType = metric.TypeContainerMemoryUsageBytes
 				}
+				containerPrediction.Predictions[metricType] = samples
 
 				containerPredictions = append(containerPredictions, &containerPrediction)
 			}
@@ -167,15 +169,17 @@ func (r datahubCreateNodePredictionsRequestExtended) daoNodePredictions() []*pre
 			NodePrediction := prediction_dao.NodePrediction{
 				NodeName:    nodeName,
 				IsScheduled: isScheduled,
+				Predictions: make(map[metric.NodeMetricType][]metric.Sample),
 			}
 
-			metricType := rawData.GetMetricType()
-			switch metricType {
+			var metricType metric.ContainerMetricType
+			switch rawData.GetMetricType() {
 			case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-				NodePrediction.CPUUsagePredictions = samples
+				metricType = metric.TypeNodeCPUUsageSecondsPercentage
 			case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-				NodePrediction.MemoryUsagePredictions = samples
+				metricType = metric.TypeNodeMemoryUsageBytes
 			}
+			NodePrediction.Predictions[metricType] = samples
 
 			NodePredictions = append(NodePredictions, &NodePrediction)
 		}

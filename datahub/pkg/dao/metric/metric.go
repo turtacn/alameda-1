@@ -44,8 +44,7 @@ type ContainerMetric struct {
 	Namespace     metadata.NamespaceName
 	PodName       metadata.PodName
 	ContainerName metadata.ContainerName
-	CPUMetircs    []metric.Sample
-	MemoryMetrics []metric.Sample
+	Metrics       map[metric.ContainerMetricType][]metric.Sample
 }
 
 // BuildPodMetric Build PodMetric consist of the receiver in ContainersMetricMap.
@@ -92,8 +91,9 @@ func (c ContainersMetricMap) Merge(in ContainersMetricMap) ContainersMetricMap {
 
 	for namespacePodContainerName, containerMetric := range in {
 		if existedContainerMetric, exist := newContainersMetricMap[namespacePodContainerName]; exist {
-			existedContainerMetric.CPUMetircs = append(existedContainerMetric.CPUMetircs, containerMetric.CPUMetircs...)
-			existedContainerMetric.MemoryMetrics = append(existedContainerMetric.MemoryMetrics, containerMetric.MemoryMetrics...)
+			for metricType, metrics := range containerMetric.Metrics {
+				existedContainerMetric.Metrics[metricType] = append(existedContainerMetric.Metrics[metricType], metrics...)
+			}
 			newContainersMetricMap[namespacePodContainerName] = existedContainerMetric
 		} else {
 			newContainersMetricMap[namespacePodContainerName] = containerMetric
@@ -148,11 +148,8 @@ func (p *PodsMetricMap) AddContainerMetric(c ContainerMetric) {
 
 // NodeMetric Metric model to represent one node metric
 type NodeMetric struct {
-	NodeName               metadata.NodeName
-	CPUUsageMetircs        []metric.Sample
-	MemoryTotalMetrics     []metric.Sample
-	MemoryAvailableMetrics []metric.Sample
-	MemoryUsageMetrics     []metric.Sample
+	NodeName metadata.NodeName
+	Metrics  map[metric.NodeMetricType][]metric.Sample
 }
 
 // Merge Merge current NodeMetric with input NodeMetric
@@ -160,13 +157,13 @@ func (n NodeMetric) Merge(in NodeMetric) NodeMetric {
 
 	var (
 		newNodeMetirc = NodeMetric{
-			NodeName:               n.NodeName,
-			CPUUsageMetircs:        append(n.CPUUsageMetircs, in.CPUUsageMetircs...),
-			MemoryTotalMetrics:     append(n.MemoryTotalMetrics, in.MemoryTotalMetrics...),
-			MemoryAvailableMetrics: append(n.MemoryAvailableMetrics, in.MemoryAvailableMetrics...),
-			MemoryUsageMetrics:     append(n.MemoryUsageMetrics, in.MemoryUsageMetrics...),
+			NodeName: n.NodeName,
 		}
 	)
+
+	for metricType, metrics := range in.Metrics {
+		newNodeMetirc.Metrics[metricType] = append(newNodeMetirc.Metrics[metricType], metrics...)
+	}
 
 	return newNodeMetirc
 }

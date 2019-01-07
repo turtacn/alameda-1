@@ -34,6 +34,18 @@ var (
 	MetricTypeCPUUsage MetricType = "cpu_usage_seconds_percentage"
 	// MetricTypeMemoryUsage Enum of tag "metric"
 	MetricTypeMemoryUsage MetricType = "memory_usage_bytes"
+
+	// LocalMetricTypeToPkgMetricType Convert local package metric type to package alameda.datahub.metric.NodeMetricType
+	LocalMetricTypeToPkgMetricType = map[MetricType]metric.NodeMetricType{
+		MetricTypeCPUUsage:    metric.TypeNodeCPUUsageSecondsPercentage,
+		MetricTypeMemoryUsage: metric.TypeNodeMemoryUsageBytes,
+	}
+
+	// PkgMetricTypeToLocalMetricType Convert package alameda.datahub.metric.NodeMetricType to local package metric type
+	PkgMetricTypeToLocalMetricType = map[metric.NodeMetricType]MetricType{
+		metric.TypeNodeCPUUsageSecondsPercentage: MetricTypeCPUUsage,
+		metric.TypeNodeMemoryUsageBytes:          MetricTypeMemoryUsage,
+	}
 )
 
 // Entity Container prediction entity in influxDB
@@ -52,24 +64,21 @@ func (e Entity) NodePrediction() prediction.NodePrediction {
 	var (
 		isScheduled    bool
 		samples        []metric.Sample
-		NodePrediction prediction.NodePrediction
+		nodePrediction prediction.NodePrediction
 	)
 
 	// TODO: log error
 	isScheduled, _ = strconv.ParseBool(e.IsScheduled)
 	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: e.Value})
 
-	NodePrediction = prediction.NodePrediction{
+	nodePrediction = prediction.NodePrediction{
 		NodeName:    e.Name,
 		IsScheduled: isScheduled,
+		Predictions: map[metric.NodeMetricType][]metric.Sample{},
 	}
 
-	switch e.Metric {
-	case MetricTypeCPUUsage:
-		NodePrediction.CPUUsagePredictions = samples
-	case MetricTypeMemoryUsage:
-		NodePrediction.MemoryUsagePredictions = samples
-	}
+	metricType := LocalMetricTypeToPkgMetricType[e.Metric]
+	nodePrediction.Predictions[metricType] = samples
 
-	return NodePrediction
+	return nodePrediction
 }

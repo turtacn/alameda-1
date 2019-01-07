@@ -34,6 +34,18 @@ var (
 	MetricTypeCPUUsage MetricType = "cpu_usage_seconds_percentage"
 	// MetricTypeMemoryUsage Enum of tag "metric"
 	MetricTypeMemoryUsage MetricType = "memory_usage_bytes"
+
+	// LocalMetricTypeToPkgMetricType Convert local package metric type to package alameda.datahub.metric.NodeMetricType
+	LocalMetricTypeToPkgMetricType = map[MetricType]metric.NodeMetricType{
+		MetricTypeCPUUsage:    metric.TypeContainerCPUUsageSecondsPercentage,
+		MetricTypeMemoryUsage: metric.TypeContainerMemoryUsageBytes,
+	}
+
+	// PkgMetricTypeToLocalMetricType Convert package alameda.datahub.metric.NodeMetricType to local package metric type
+	PkgMetricTypeToLocalMetricType = map[metric.NodeMetricType]MetricType{
+		metric.TypeContainerCPUUsageSecondsPercentage: MetricTypeCPUUsage,
+		metric.TypeContainerMemoryUsageBytes:          MetricTypeMemoryUsage,
+	}
 )
 
 // Entity Container prediction entity in influxDB
@@ -61,14 +73,11 @@ func (e Entity) ContainerPrediction() prediction.ContainerPrediction {
 		Namespace:     e.Namespace,
 		PodName:       e.PodName,
 		ContainerName: e.Name,
+		Predictions:   map[metric.ContainerMetricType][]metric.Sample{},
 	}
 
-	switch e.Metric {
-	case MetricTypeCPUUsage:
-		containerPrediction.CPUPredictions = samples
-	case MetricTypeMemoryUsage:
-		containerPrediction.MemoryPredictions = samples
-	}
+	metricType := LocalMetricTypeToPkgMetricType[e.Metric]
+	containerPrediction.Predictions[metricType] = samples
 
 	return containerPrediction
 }

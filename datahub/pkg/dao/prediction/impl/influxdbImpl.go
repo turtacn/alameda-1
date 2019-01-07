@@ -34,7 +34,7 @@ func (i influxDB) CreateContainerPredictions(containerPredictions []*prediction.
 
 	err = predictionRepo.CreateContainerPrediction(containerPredictions)
 	if err != nil {
-		return errors.New("create container prediction failed: ")
+		return errors.New("create container prediction failed: " + err.Error())
 	}
 
 	return nil

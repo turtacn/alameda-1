@@ -713,6 +713,7 @@ func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.
 	containersPrediciton = datahubCreatePodPredictionsRequestExtended{*in}.daoContainerPredictions()
 	err = predictionDAO.CreateContainerPredictions(containersPrediciton)
 	if err != nil {
+		scope.Errorf("create pod predictions failed: " + err.Error())
 		return &apiResponseInternalServerError, nil
 	}
 

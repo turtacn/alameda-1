@@ -53,8 +53,10 @@ func (e *Entity) NodeMetric() metric_dao.NodeMetric {
 	)
 
 	nodeMetric = metric_dao.NodeMetric{
-		NodeName:           e.NodeName,
-		MemoryTotalMetrics: e.Samples,
+		NodeName: e.NodeName,
+		Metrics: map[metric.NodeMetricType][]metric.Sample{
+			metric.TypeNodeMemoryTotalBytes: e.Samples,
+		},
 	}
 
 	return nodeMetric

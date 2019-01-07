@@ -43,38 +43,29 @@ func (r *NodeRepository) CreateNodePrediction(nodePredictions []*prediction_dao.
 		nodeName := nodePrediction.NodeName
 		isScheduled := strconv.FormatBool(nodePrediction.IsScheduled)
 
-		for _, memoryUsagePrediction := range nodePrediction.MemoryUsagePredictions {
+		for metricType, samples := range nodePrediction.Predictions {
 
-			tags := map[string]string{
-				node_entity.Name:        nodeName,
-				node_entity.IsScheduled: isScheduled,
-				node_entity.Metric:      node_entity.MetricTypeMemoryUsage,
-			}
-			fields := map[string]interface{}{
-				node_entity.Value: memoryUsagePrediction.Value,
-			}
-			point, err := influxdb_client.NewPoint(node_entity.Measurement, tags, fields, memoryUsagePrediction.Timestamp)
-			if err != nil {
-				return errors.New("new influxdb datapoint failed: " + err.Error())
-			}
-			points = append(points, point)
-		}
+			if metricName, exist := node_entity.PkgMetricTypeToLocalMetricType[metricType]; exist {
 
-		for _, cpuUsagePrediction := range nodePrediction.CPUUsagePredictions {
+				for _, sample := range samples {
 
-			tags := map[string]string{
-				node_entity.Name:        nodeName,
-				node_entity.IsScheduled: isScheduled,
-				node_entity.Metric:      node_entity.MetricTypeCPUUsage,
+					tags := map[string]string{
+						node_entity.Name:        nodeName,
+						node_entity.IsScheduled: isScheduled,
+						node_entity.Metric:      metricName,
+					}
+					fields := map[string]interface{}{
+						node_entity.Value: sample.Value,
+					}
+					point, err := influxdb_client.NewPoint(node_entity.Measurement, tags, fields, sample.Timestamp)
+					if err != nil {
+						return errors.New("new influxdb datapoint failed: " + err.Error())
+					}
+					points = append(points, point)
+				}
+			} else {
+				return fmt.Errorf("map metric type from github.com/containers-ai/alameda.datahub.metric.NodeMetricType to type in db falied: metric type not exist %+v", metricType)
 			}
-			fields := map[string]interface{}{
-				node_entity.Value: cpuUsagePrediction.Value,
-			}
-			point, err := influxdb_client.NewPoint(node_entity.Measurement, tags, fields, cpuUsagePrediction.Timestamp)
-			if err != nil {
-				return errors.New("new influxdb datapoint failed: " + err.Error())
-			}
-			points = append(points, point)
 		}
 	}
 

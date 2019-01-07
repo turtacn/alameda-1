@@ -64,7 +64,9 @@ func (e *Entity) ContainerMetric() metric_dao.ContainerMetric {
 		Namespace:     e.Namespace,
 		PodName:       e.PodName,
 		ContainerName: e.ContainerName,
-		CPUMetircs:    e.Samples,
+		Metrics: map[metric.ContainerMetricType][]metric.Sample{
+			metric.TypeContainerCPUUsageSecondsPercentage: e.Samples,
+		},
 	}
 
 	return containerMetric
