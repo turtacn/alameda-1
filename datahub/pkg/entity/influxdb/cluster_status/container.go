@@ -3,6 +3,7 @@ package clusterstatus
 import (
 	"time"
 
+	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 )
 
@@ -74,9 +75,11 @@ type ContainerEntity struct {
 	Policy                 *string
 }
 
+// NewContainerEntityFromMap Build entity from map
 func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 
-	tempTimestamp, _ := time.Parse("2006-01-02T15:04:05.999999Z07:00", data[ContainerTime])
+	// TODO: log error
+	tempTimestamp, _ := utils.ParseTime(data[ContainerTime])
 
 	entity := ContainerEntity{
 		Time: tempTimestamp,

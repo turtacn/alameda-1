@@ -5,6 +5,7 @@ import (
 
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
+	"github.com/containers-ai/alameda/datahub/pkg/utils"
 )
 
 type Field = string
@@ -59,9 +60,11 @@ type Entity struct {
 	Value     *string
 }
 
-func NewContainerEntityFromMap(data map[string]string) Entity {
+// NewEntityFromMap Build entity from map
+func NewEntityFromMap(data map[string]string) Entity {
 
-	tempTimestamp, _ := time.Parse("2006-01-02T15:04:05.999999Z07:00", data[Time])
+	// TODO: log error
+	tempTimestamp, _ := utils.ParseTime(data[Time])
 
 	entity := Entity{
 		Timestamp: tempTimestamp,

@@ -112,7 +112,7 @@ func (r *NodeRepository) ListNodePredictionsByRequest(request prediction_dao.Lis
 	rows = influxdb.PackMap(results)
 	for _, row := range rows {
 		for _, data := range row.Data {
-			entity := node_entity.NewContainerEntityFromMap(data)
+			entity := node_entity.NewEntityFromMap(data)
 			entities = append(entities, &entity)
 		}
 	}

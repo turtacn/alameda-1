@@ -115,7 +115,7 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request predicti
 	rows = influxdb.PackMap(results)
 	for _, row := range rows {
 		for _, data := range row.Data {
-			entity := container_entity.NewContainerEntityFromMap(data)
+			entity := container_entity.NewEntityFromMap(data)
 			entities = append(entities, &entity)
 		}
 	}
