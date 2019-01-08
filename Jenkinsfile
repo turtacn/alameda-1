@@ -7,7 +7,7 @@ node('go11') {
       export GOROOT=/usr/local/go
       export GOPATH=/go/src/workspace
       mkdir -p /go/src/workspace/src/github.com/containers-ai
-      mv /go/src/workspace/alameda/alameda-alameda-pipeline /go/src/workspace/src/github.com/containers-ai/alameda
+      mv ${env.WORKSPACE} /go/src/workspace/src/github.com/containers-ai/alameda
       cd /go/src/workspace/src/github.com/containers-ai/alameda/operator
       make manager
     """
