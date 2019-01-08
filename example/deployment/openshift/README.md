@@ -238,7 +238,7 @@ oc exec -it <pod name> bash
 After ensure both operator and alameda-ai running execute below command
 ```
 cd <alameda>/example/samples/nginx
-oc adm policy  add-scc-to-user anyuid system:serviceaccount:alameda:nginx
+oc adm policy  add-scc-to-user anyuid system:serviceaccount:webapp:nginx
 oc apply -f nginx_deployment.yaml
-oc apply -f alameda_deployment.yaml
+oc apply -f alamedascaler.yaml
 ```
