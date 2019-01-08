@@ -36,7 +36,7 @@ spec:
             - name: ALAMEDA_DATAHUB_PROMETHEUS_BEARER_TOKEN_FILE
               value: "{{ .Values.global.component.datahub.prometheusConfig.bearerTokenFile }}"
             - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
-              value: "{{ .Values.global.component.datahub.prometheusConfig.scheme }}.{{ .Release.Namespace }}://{{ .Values.global.component.datahub.prometheusConfig.url }}:{{ .Values.global.component.datahub.prometheusConfig.port }}"
+              value: "{{ .Values.global.component.datahub.prometheusConfig.scheme }}://{{ .Values.global.component.datahub.prometheusConfig.url }}:{{ .Values.global.component.datahub.prometheusConfig.port }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
     {{- if .Values.global.rbacEnable }}

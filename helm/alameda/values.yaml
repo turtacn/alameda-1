@@ -34,13 +34,13 @@ global:
         name: grpc
       prometheusConfig:
         scheme: "http"
-        url: "prometheus.monitoring"
+        url: "prometheus-server.monitoring"
         port: 80
         insecureSkipVerify: true
         bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
       influxdbConfig:
         scheme: "http"
-        url: "influxdb.monitoring"
+        url: "influxdb-influxdb.monitoring"
         port: 8086
         username: "alameda"
         password: "alameda"
