@@ -23,15 +23,19 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/containers-ai/alameda/operator"
+	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/operator/server"
 	grafanadatasource "github.com/containers-ai/alameda/operator/services/grafana-datasource"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
@@ -138,6 +142,7 @@ func main() {
 		scope.Error(err.Error())
 	}
 	go grafanadatasource.NewGrafanaDataSource(mgr, operatorConf.GrafanaBackend.BindPort)
+	go registerNodes(mgr.GetClient())
 	scope.Info("Starting the Cmd.")
 
 	// Start the Cmd
@@ -157,4 +162,13 @@ func watchServer(s *server.Server) {
 		s.Close(&wg)
 	}
 	scope.Error("server runtime failed: " + err.Error())
+}
+
+func registerNodes(client client.Client) {
+	time.Sleep(1 * time.Second)
+	listResources := resources.NewListResources(client)
+	nodeList := listResources.ListAllNodes()
+	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodeList.Items)))
+	createAlamedaNode := datahub_node.NewCreateAlamedaNode()
+	createAlamedaNode.CreateAlamedaNode(nodeList.Items)
 }
