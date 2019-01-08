@@ -899,7 +899,7 @@ serverFiles:
           record: "node_namespace_pod:kube_pod_info:"
         - expr: label_replace(node_cpu_seconds_total, "cpu", "$1", "cpu", "cpu(.+)")
           record: node_cpu
-        - expr: 1 - avg by (kubernetes_node) (rate(node_cpu{job="kubernetes-service-endpoints",mode="idle"}[1m]) * on(kubernetes_namespace, kubernetes_pod) group_left(node) node_namespace_pod:kube_pod_info:)
+        - expr: label_replace(1 - avg by (kubernetes_node) (rate(node_cpu{job="kubernetes-service-endpoints",mode="idle"}[1m]) * on(kubernetes_namespace, kubernetes_pod) group_left(node) node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
           record: node:node_cpu_utilisation:avg1m
         - expr: node_memory_MemTotal_bytes
           record: node_memory_MemTotal

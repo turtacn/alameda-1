@@ -23,18 +23,46 @@ Alameda levarages Prometheus to collect metrics and InfluxDB to store prediction
     ```
     groups:
     - name: k8s.rules
-    rules:
-    - expr: |
-        sum(rate(container_cpu_usage_seconds_total{image!="", container_name!=""}[5m])) by (namespace)
-      record: namespace:container_cpu_usage_seconds_total:sum_rate
-    - expr: |
-        sum by (namespace, pod_name, container_name) (
-          rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
-        )
-      record: namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate
-    - expr: |
-        sum(container_memory_usage_bytes{image!="", container_name!=""}) by (namespace)
-      record: namespace:container_memory_usage_bytes:sum
+      rules:
+      - expr: |
+          sum(rate(container_cpu_usage_seconds_total{image!="", container_name!=""}[5m])) by (namespace)
+        record: namespace:container_cpu_usage_seconds_total:sum_rate
+      - expr: |
+          sum by (namespace, pod_name, container_name) (
+            rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
+          )
+        record: namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate
+      - expr: |
+          sum(container_memory_usage_bytes{image!="", container_name!=""}) by (namespace)
+        record: namespace:container_memory_usage_bytes:sum
+        - expr: max by (kubernetes_node, kubernetes_namespace, kubernetes_pod) 
+            (label_replace(
+              label_replace(
+                label_replace(kube_pod_info{job="kubernetes-service-endpoints"}, "kubernetes_node", "$1", "node", "(.*)"),
+              "kubernetes_namespace", "$1", "namespace", "(.*)"),
+            "kubernetes_pod", "$1", "pod", "(.*)"))
+          record: "node_namespace_pod:kube_pod_info:"
+        - expr: label_replace(node_cpu_seconds_total, "cpu", "$1", "cpu", "cpu(.+)")
+          record: node_cpu
+        - expr: label_replace(1 - avg by (kubernetes_node) (rate(node_cpu{job="kubernetes-service-endpoints",mode="idle"}[1m]) * on(kubernetes_namespace, kubernetes_pod) group_left(node) node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
+          record: node:node_cpu_utilisation:avg1m
+        - expr: node_memory_MemTotal_bytes
+          record: node_memory_MemTotal
+        - expr: node_memory_MemFree_bytes
+          record: node_memory_MemFree
+        - expr: node_memory_Cached_bytes
+          record: node_memory_Cached
+        - expr: node_memory_Buffers_bytes
+          record: node_memory_Buffers
+        - expr: sum
+            by (kubernetes_node) ((node_memory_MemFree{job="kubernetes-service-endpoints"} + node_memory_Cached{job="kubernetes-service-endpoints"}
+            + node_memory_Buffers{job="kubernetes-service-endpoints"}) * on(kubernetes_namespace, kubernetes_pod) group_left(kubernetes_node)
+            node_namespace_pod:kube_pod_info:)
+          record: node:node_memory_bytes_available:sum
+        - expr: sum
+            by(kubernetes_node) (node_memory_MemTotal{job="kubernetes-service-endpoints"} * on(kubernetes_namespace, kubernetes_pod)
+            group_left(kubernetes_node) node_namespace_pod:kube_pod_info:)
+          record: node:node_memory_bytes_total:sum
     ```
 2. Alameda requires a running InfluxDB. It will create database *cluster_status*, *recommendation* and *prediction* if they does not exist.
 

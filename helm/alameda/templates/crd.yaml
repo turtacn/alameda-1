@@ -4,12 +4,12 @@ metadata:
   creationTimestamp: null
   labels:
     controller-tools.k8s.io: "1.0"
-  name: alamedaresources.autoscaling.containers.ai
+  name: alamedascalers.autoscaling.containers.ai
 spec:
   group: autoscaling.containers.ai
   names:
-    kind: AlamedaResource
-    plural: alamedaresources
+    kind: AlamedaScaler
+    plural: alamedascalers
   scope: Namespaced
   validation:
     openAPIV3Schema:
