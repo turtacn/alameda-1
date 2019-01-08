@@ -34,14 +34,11 @@ func (p daoPodMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 
 type daoContainerMetricExtended metric_dao.ContainerMetric
 
-func (c daoContainerMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
-	return 2
-}
-
 func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.ContainerMetric {
 
 	var (
-		metricDataChan = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan  = make(chan datahub_v1alpha1.MetricData)
+		numOfGoroutines = 0
 
 		datahubContainerMetric datahub_v1alpha1.ContainerMetric
 	)
@@ -52,11 +49,12 @@ func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Co
 
 	for metricType, samples := range c.Metrics {
 		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+			numOfGoroutines++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
 		}
 	}
 
-	for i := 0; i < c.NumberOfDatahubMetricDataNeededProducing(); i++ {
+	for i := 0; i < numOfGoroutines; i++ {
 		receivedMetricData := <-metricDataChan
 		datahubContainerMetric.MetricData = append(datahubContainerMetric.MetricData, &receivedMetricData)
 	}
@@ -66,14 +64,11 @@ func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Co
 
 type daoNodeMetricExtended metric_dao.NodeMetric
 
-func (n daoNodeMetricExtended) NumberOfDatahubMetricDataNeededProducing() int {
-	return 2
-}
-
 func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 
 	var (
-		metricDataChan = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan  = make(chan datahub_v1alpha1.MetricData)
+		numOfGoroutines = 0
 
 		datahubNodeMetric datahub_v1alpha1.NodeMetric
 	)
@@ -84,11 +79,12 @@ func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 
 	for metricType, samples := range n.Metrics {
 		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+			numOfGoroutines++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
 		}
 	}
 
-	for i := 0; i < n.NumberOfDatahubMetricDataNeededProducing(); i++ {
+	for i := 0; i < numOfGoroutines; i++ {
 		receivedMetricData := <-metricDataChan
 		datahubNodeMetric.MetricData = append(datahubNodeMetric.MetricData, &receivedMetricData)
 	}

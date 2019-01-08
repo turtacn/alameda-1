@@ -260,7 +260,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 	nodesMetricMap, err = metricDAO.ListNodesMetric(listNodeMetricsRequest)
 	if err != nil {
-		scope.Error("ListPodMetrics failed: " + err.Error())
+		scope.Error("ListNodeMetrics failed: " + err.Error())
 		return &apiInternalServerErrorResponse, nil
 	}
 
@@ -483,7 +483,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
 	podsPredicitonMap, err = predictionDAO.ListPodPredictions(listPodPredictionsRequest)
 	if err != nil {
-		scope.Error("ListPodMetrics failed: " + err.Error())
+		scope.Error("ListPodPrediction failed: " + err.Error())
 		return &apiResponseInternalServerError, nil
 	}
 
