@@ -158,6 +158,7 @@ func (n NodeMetric) Merge(in NodeMetric) NodeMetric {
 	var (
 		newNodeMetirc = NodeMetric{
 			NodeName: n.NodeName,
+			Metrics:  make(map[metric.NodeMetricType][]metric.Sample),
 		}
 	)
 
