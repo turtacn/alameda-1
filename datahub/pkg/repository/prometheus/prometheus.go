@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -137,12 +138,23 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime time.Time) (Res
 
 func decodeHTTPResponse(httpResponse *http.Response, response *Response) error {
 
-	var err error
+	var (
+		err                    error
+		httpResponseBody       []byte
+		httpResponseBodyReader io.Reader
+	)
 
 	defer httpResponse.Body.Close()
-	err = json.NewDecoder(httpResponse.Body).Decode(&response)
+
+	httpResponseBody, err = ioutil.ReadAll(httpResponse.Body)
 	if err != nil {
-		return errors.New("decode http response failed: %s" + err.Error())
+		return errors.New("decode http response failed: read http response body failed: " + err.Error())
+	}
+
+	httpResponseBodyReader = strings.NewReader(string(httpResponseBody))
+	err = json.NewDecoder(httpResponseBodyReader).Decode(&response)
+	if err != nil {
+		return errors.New("decode http response failed: " + err.Error() + " \n received response: " + string(httpResponseBody))
 	}
 
 	return nil
