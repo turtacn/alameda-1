@@ -416,8 +416,13 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
+	scalerNS, scalerName := "", ""
+	if scaler := in.GetAlamedaScaler(); scaler != nil {
+		scalerNS = scaler.GetNamespace()
+		scalerName = scaler.GetName()
+	}
 
-	if alamedaPods, err := containerDAO.ListAlamedaPods(); err != nil {
+	if alamedaPods, err := containerDAO.ListAlamedaPods(scalerNS, scalerName); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodsResponse{
 			Status: &status.Status{

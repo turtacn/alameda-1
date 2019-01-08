@@ -43,12 +43,23 @@ func NewContainerRepository(influxDBCfg *influxdb.Config) *ContainerRepository {
 }
 
 // ListAlamedaContainers list predicted containers
-func (containerRepository *ContainerRepository) ListAlamedaContainers() ([]*datahub_v1alpha1.Pod, error) {
+func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, scalerName string) ([]*datahub_v1alpha1.Pod, error) {
 	podList := []*datahub_v1alpha1.Pod{}
 	// SELECT * FROM container WHERE is_deleted=false AND is_alameda=true GROUP BY namespace,pod_name,alameda_scaler_namespace,alameda_scaler_name
-	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s AND \"%s\"=%s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
-		string(Container), string(cluster_status_entity.ContainerIsAlameda), "true",
-		string(cluster_status_entity.ContainerIsDeleted), "false",
+	whereStr := fmt.Sprintf("WHERE \"%s\"=%s AND \"%s\"=%s", string(cluster_status_entity.ContainerIsAlameda), "true",
+		string(cluster_status_entity.ContainerIsDeleted), "false")
+	if whereStr != "" {
+		if scalerNS != "" && scalerName != "" {
+			whereStr = fmt.Sprintf("%s AND \"%s\"='%s' AND \"%s\"='%s'", whereStr, string(cluster_status_entity.ContainerAlamedaScalerNamespace), scalerNS,
+				string(cluster_status_entity.ContainerAlamedaScalerName), scalerName)
+		} else if scalerNS != "" && scalerName == "" {
+			whereStr = fmt.Sprintf("%s AND \"%s\"='%s'", whereStr, string(cluster_status_entity.ContainerAlamedaScalerNamespace), scalerNS)
+		} else if scalerNS == "" && scalerName != "" {
+			whereStr = fmt.Sprintf("%s AND \"%s\"='%s'", whereStr, string(cluster_status_entity.ContainerAlamedaScalerName), scalerName)
+		}
+	}
+	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
+		string(Container), whereStr,
 		string(cluster_status_entity.ContainerNamespace), string(cluster_status_entity.ContainerPodName),
 		string(cluster_status_entity.ContainerAlamedaScalerNamespace), string(cluster_status_entity.ContainerAlamedaScalerName))
 
