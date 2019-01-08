@@ -5,9 +5,9 @@ const (
 	Time string = "time"
 
 	// ClusterStatus is cluster_status database
-	ClusterStatus Database = "cluster_status"
+	ClusterStatus Database = "alameda_cluster_status"
 	// Prediction is prediction database
-	Prediction Database = "prediction"
+	Prediction Database = "alameda_prediction"
 	// Recommendation is recommendation database
-	Recommendation Database = "recommendation"
+	Recommendation Database = "alameda_recommendation"
 )

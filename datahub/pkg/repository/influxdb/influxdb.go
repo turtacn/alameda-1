@@ -36,18 +36,26 @@ var (
 	scope = log.RegisterScope("influxdb_client", "influxdb client", 0)
 )
 
+// InfluxDBRepository interacts with database
 type InfluxDBRepository struct {
 	Address  string
 	Username string
 	Password string
 }
 
+// New returns InfluxDBRepository instance
 func New(influxCfg *Config) *InfluxDBRepository {
 	return &InfluxDBRepository{
 		Address:  influxCfg.Address,
 		Username: influxCfg.Username,
 		Password: influxCfg.Password,
 	}
+}
+
+// CreateDatabase creates database
+func (influxDBRepository *InfluxDBRepository) CreateDatabase(db string) error {
+	_, err := influxDBRepository.QueryDB(fmt.Sprintf("CREATE DATABASE %s", db), db)
+	return err
 }
 
 func (influxDBRepository *InfluxDBRepository) newHttpClient() client.Client {
@@ -63,6 +71,7 @@ func (influxDBRepository *InfluxDBRepository) newHttpClient() client.Client {
 	return clnt
 }
 
+// WritePoints writes points to database
 func (influxDBRepository *InfluxDBRepository) WritePoints(points []*client.Point, bpCfg client.BatchPointsConfig) error {
 	clnt := influxDBRepository.newHttpClient()
 	defer clnt.Close()
@@ -77,13 +86,24 @@ func (influxDBRepository *InfluxDBRepository) WritePoints(points []*client.Point
 	}
 
 	if err := clnt.Write(bp); err != nil {
-		scope.Error(err.Error())
-		return err
+		if strings.Contains(err.Error(), "database not found") {
+			if err = influxDBRepository.CreateDatabase(bpCfg.Database); err != nil {
+				scope.Error(err.Error())
+				return err
+			} else {
+				err = influxDBRepository.WritePoints(points, bpCfg)
+			}
+		}
+		if err != nil {
+			scope.Error(err.Error())
+			return err
+		}
 	}
 
 	return nil
 }
 
+// QueryDB queries database
 func (influxDBRepository *InfluxDBRepository) QueryDB(cmd, database string) (res []client.Result, err error) {
 	clnt := influxDBRepository.newHttpClient()
 	defer clnt.Close()
