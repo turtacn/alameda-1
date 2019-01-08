@@ -1,6 +1,7 @@
 package clusterstatus
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -66,12 +67,12 @@ type ContainerEntity struct {
 	AlamedaScalerName      *string
 	NodeName               *string
 	Name                   *string
-	ResourceRequestCPU     *string
-	ResourceRequestMemory  *string
-	ResourceLimitCPU       *string
-	ResourceLimitMemory    *string
-	IsAlameda              *string
-	IsDeleted              *string
+	ResourceRequestCPU     *float64
+	ResourceRequestMemory  *int64
+	ResourceLimitCPU       *float64
+	ResourceLimitMemory    *int64
+	IsAlameda              *bool
+	IsDeleted              *bool
 	Policy                 *string
 }
 
@@ -104,22 +105,28 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 		entity.Name = &name
 	}
 	if resourceRequestCPU, exist := data[ContainerResourceRequestCPU]; exist {
-		entity.ResourceRequestCPU = &resourceRequestCPU
+		value, _ := strconv.ParseFloat(resourceRequestCPU, 64)
+		entity.ResourceRequestCPU = &value
 	}
 	if resourceRequestMemory, exist := data[ContainerResourceRequestMemory]; exist {
-		entity.ResourceRequestMemory = &resourceRequestMemory
+		value, _ := strconv.ParseInt(resourceRequestMemory, 10, 64)
+		entity.ResourceRequestMemory = &value
 	}
 	if resourceLimitCPU, exist := data[ContainerResourceLimitCPU]; exist {
-		entity.ResourceLimitCPU = &resourceLimitCPU
+		value, _ := strconv.ParseFloat(resourceLimitCPU, 64)
+		entity.ResourceLimitCPU = &value
 	}
 	if resourceLimitMemory, exist := data[ContainerResourceLimitMemory]; exist {
-		entity.ResourceLimitMemory = &resourceLimitMemory
+		value, _ := strconv.ParseInt(resourceLimitMemory, 10, 64)
+		entity.ResourceLimitMemory = &value
 	}
 	if isAlameda, exist := data[ContainerIsAlameda]; exist {
-		entity.IsAlameda = &isAlameda
+		value, _ := strconv.ParseBool(isAlameda)
+		entity.IsAlameda = &value
 	}
 	if isDeleted, exist := data[ContainerIsDeleted]; exist {
-		entity.IsDeleted = &isDeleted
+		value, _ := strconv.ParseBool(isDeleted)
+		entity.IsDeleted = &value
 	}
 	if policy, exist := data[ContainerPolicy]; exist {
 		entity.Policy = &policy

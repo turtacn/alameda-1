@@ -154,8 +154,8 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub
 	for _, containerEntity := range containersEntityBeforeDelete {
 		entity := *containerEntity
 
-		trueString := string("true")
-		entity.IsDeleted = &trueString
+		trueValue := true
+		entity.IsDeleted = &trueValue
 		point, err := entity.InfluxDBPoint(string(Container))
 		if err != nil {
 			return errors.New("delete containers failed: " + err.Error())
