@@ -14,10 +14,6 @@ type Tag = string
 type MetricType = string
 
 const (
-	Database = "prediction"
-
-	Measurement = "alameda_node_prediction"
-
 	Time        Tag = "time"
 	Name        Tag = "name"
 	Metric      Tag = "metric"
