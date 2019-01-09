@@ -13,10 +13,6 @@ type Tag = string
 type MetricType = string
 
 const (
-	Database = "prediction"
-
-	Measurement = "alameda_container_prediction"
-
 	Time      Tag = "time"
 	Namespace Tag = "namespace"
 	PodName   Tag = "pod_name"

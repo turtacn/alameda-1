@@ -471,7 +471,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 
 		predictionDAO prediction_dao.DAO
 
-		podsPredicitonMap     prediction_dao.PodsPredictionMap
+		podsPredicitonMap     *prediction_dao.PodsPredictionMap
 		datahubPodPredicitons []*datahub_v1alpha1.PodPrediction
 
 		apiResponseInternalServerError = datahub_v1alpha1.ListPodPredictionsResponse{
@@ -492,10 +492,10 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 		return &apiResponseInternalServerError, nil
 	}
 
-	for _, podPrediction := range podsPredicitonMap {
-		podPredicitonExtended := daoPodPredictionExtended(podPrediction)
+	for _, ptrPodPrediction := range *podsPredicitonMap {
+		podPredicitonExtended := daoPtrPodPredictionExtended{ptrPodPrediction}
 		datahubPodPrediction := podPredicitonExtended.datahubPodPrediction()
-		datahubPodPredicitons = append(datahubPodPredicitons, &datahubPodPrediction)
+		datahubPodPredicitons = append(datahubPodPredicitons, datahubPodPrediction)
 	}
 
 	return &datahub_v1alpha1.ListPodPredictionsResponse{
@@ -513,7 +513,7 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 
 		predictionDAO prediction_dao.DAO
 
-		nodesPredicitonMap     prediction_dao.NodesPredictionMap
+		nodesPredicitonMap     *prediction_dao.NodesPredictionMap
 		datahubNodePredicitons []*datahub_v1alpha1.NodePrediction
 
 		apiResponseInternalServerError = datahub_v1alpha1.ListNodePredictionsResponse{
@@ -534,7 +534,7 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 		return &apiResponseInternalServerError, nil
 	}
 
-	datahubNodePredicitons = daoNodesPredictionMapExtended(nodesPredicitonMap).datahubNodePredictions()
+	datahubNodePredicitons = daoPtrNodesPredictionMapExtended{nodesPredicitonMap}.datahubNodePredictions()
 
 	return &datahub_v1alpha1.ListNodePredictionsResponse{
 		Status: &status.Status{
