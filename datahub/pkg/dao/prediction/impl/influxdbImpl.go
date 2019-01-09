@@ -41,7 +41,7 @@ func (i influxDB) CreateContainerPredictions(containerPredictions []*prediction.
 }
 
 // ListPodPredictions Implementation of prediction dao interface
-func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsRequest) (prediction.PodsPredictionMap, error) {
+func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsRequest) (*prediction.PodsPredictionMap, error) {
 
 	var (
 		err error
@@ -56,16 +56,16 @@ func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsReques
 
 	influxDBContainerPredictionEntities, err = predictionRepo.ListContainerPredictionsByRequest(request)
 	if err != nil {
-		return *podsPredictionMap, errors.New("create list prediction failed: " + err.Error())
+		return podsPredictionMap, errors.New("create list prediction failed: " + err.Error())
 	}
 
 	for _, entity := range influxDBContainerPredictionEntities {
 
 		containerPrediction := entity.ContainerPrediction()
-		podsPredictionMap.AddContainerPrediction(containerPrediction)
+		podsPredictionMap.AddContainerPrediction(&containerPrediction)
 	}
 
-	return *podsPredictionMap, nil
+	return podsPredictionMap, nil
 }
 
 // CreateNodePredictions Implementation of prediction dao interface
@@ -88,7 +88,7 @@ func (i influxDB) CreateNodePredictions(nodePredictions []*prediction.NodePredic
 }
 
 // ListNodePredictions Implementation of prediction dao interface
-func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequest) (prediction.NodesPredictionMap, error) {
+func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequest) (*prediction.NodesPredictionMap, error) {
 
 	var (
 		err error
@@ -103,13 +103,13 @@ func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequ
 
 	influxDBNodePredictionEntities, err = predictionRepo.ListNodePredictionsByRequest(request)
 	if err != nil {
-		return *nodesPredictionMap, errors.New("create container prediction failed: ")
+		return nodesPredictionMap, errors.New("create container prediction failed: ")
 	}
 
 	for _, entity := range influxDBNodePredictionEntities {
 		nodePrediction := entity.NodePrediction()
-		nodesPredictionMap.AddNodePrediction(nodePrediction)
+		nodesPredictionMap.AddNodePrediction(&nodePrediction)
 	}
 
-	return *nodesPredictionMap, nil
+	return nodesPredictionMap, nil
 }

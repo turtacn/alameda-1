@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - env:
-        - name: ALAMEDA_DATAHUB_GRPC_PROMETHEUS_URL
+        - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
           value: http://prometheus24.kube-system.svc.cluster.local:80
         imagePullPolicy: Always
         name: datahub

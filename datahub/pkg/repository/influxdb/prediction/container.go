@@ -59,7 +59,7 @@ func (r *ContainerRepository) CreateContainerPrediction(containersPrediction []*
 					fields := map[string]interface{}{
 						container_entity.Value: sample.Value,
 					}
-					point, err := influxdb_client.NewPoint(container_entity.Measurement, tags, fields, sample.Timestamp)
+					point, err := influxdb_client.NewPoint(string(Container), tags, fields, sample.Timestamp)
 					if err != nil {
 						return errors.New("new influxdb data point failed: " + err.Error())
 					}
@@ -73,7 +73,7 @@ func (r *ContainerRepository) CreateContainerPrediction(containersPrediction []*
 	}
 
 	err = r.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: container_entity.Database,
+		Database: string(influxdb.Prediction),
 	})
 	if err != nil {
 		return errors.New("write influxdb data point failed: " + err.Error())
@@ -104,9 +104,9 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request predicti
 	}
 	whereClause = strings.TrimSuffix(whereClause, "and ")
 
-	cmd := fmt.Sprintf("SELECT * FROM %s %s %s", container_entity.Measurement, whereClause, lastClause)
+	cmd := fmt.Sprintf("SELECT * FROM %s %s %s", Container, whereClause, lastClause)
 
-	results, err = r.influxDB.QueryDB(cmd, string(container_entity.Database))
+	results, err = r.influxDB.QueryDB(cmd, string(influxdb.Prediction))
 	if err != nil {
 		return entities, err
 

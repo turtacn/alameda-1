@@ -57,7 +57,7 @@ func (r *NodeRepository) CreateNodePrediction(nodePredictions []*prediction_dao.
 					fields := map[string]interface{}{
 						node_entity.Value: sample.Value,
 					}
-					point, err := influxdb_client.NewPoint(node_entity.Measurement, tags, fields, sample.Timestamp)
+					point, err := influxdb_client.NewPoint(string(Node), tags, fields, sample.Timestamp)
 					if err != nil {
 						return errors.New("new influxdb datapoint failed: " + err.Error())
 					}
@@ -70,7 +70,7 @@ func (r *NodeRepository) CreateNodePrediction(nodePredictions []*prediction_dao.
 	}
 
 	err = r.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: node_entity.Database,
+		Database: string(influxdb.Prediction),
 	})
 	if err != nil {
 		return errors.New("write influxdb datapoint failed: " + err.Error())
@@ -101,9 +101,9 @@ func (r *NodeRepository) ListNodePredictionsByRequest(request prediction_dao.Lis
 	}
 	whereClause = strings.TrimSuffix(whereClause, "and ")
 
-	cmd := fmt.Sprintf("SELECT * FROM %s %s %s", node_entity.Measurement, whereClause, lastClause)
+	cmd := fmt.Sprintf("SELECT * FROM %s %s %s", string(Node), whereClause, lastClause)
 
-	results, err = r.influxDB.QueryDB(cmd, string(node_entity.Database))
+	results, err = r.influxDB.QueryDB(cmd, string(influxdb.Prediction))
 	if err != nil {
 		return entities, err
 
