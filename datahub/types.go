@@ -92,9 +92,11 @@ func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 	return datahubNodeMetric
 }
 
-type daoPodPredictionExtended prediction.PodPrediction
+type daoPtrPodPredictionExtended struct {
+	*prediction.PodPrediction
+}
 
-func (p daoPodPredictionExtended) datahubPodPrediction() datahub_v1alpha1.PodPrediction {
+func (p daoPtrPodPredictionExtended) datahubPodPrediction() *datahub_v1alpha1.PodPrediction {
 
 	var (
 		datahubPodPrediction datahub_v1alpha1.PodPrediction
@@ -107,18 +109,20 @@ func (p daoPodPredictionExtended) datahubPodPrediction() datahub_v1alpha1.PodPre
 		},
 	}
 
-	for _, containerPrediction := range p.ContainersPredictionMap {
-		containerPredictionExtended := daoContainerPredictionExtended(containerPrediction)
+	for _, ptrContainerPrediction := range *p.ContainersPredictionMap {
+		containerPredictionExtended := daoContainerPredictionExtended{ptrContainerPrediction}
 		datahubContainerPrediction := containerPredictionExtended.datahubContainerPrediction()
-		datahubPodPrediction.ContainerPredictions = append(datahubPodPrediction.ContainerPredictions, &datahubContainerPrediction)
+		datahubPodPrediction.ContainerPredictions = append(datahubPodPrediction.ContainerPredictions, datahubContainerPrediction)
 	}
 
-	return datahubPodPrediction
+	return &datahubPodPrediction
 }
 
-type daoContainerPredictionExtended prediction.ContainerPrediction
+type daoContainerPredictionExtended struct {
+	*prediction.ContainerPrediction
+}
 
-func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1alpha1.ContainerPrediction {
+func (c daoContainerPredictionExtended) datahubContainerPrediction() *datahub_v1alpha1.ContainerPrediction {
 
 	var (
 		metricDataChan = make(chan datahub_v1alpha1.MetricData)
@@ -143,12 +147,14 @@ func (c daoContainerPredictionExtended) datahubContainerPrediction() datahub_v1a
 		datahubContainerPrediction.PredictedRawData = append(datahubContainerPrediction.PredictedRawData, &receivedPredictionData)
 	}
 
-	return datahubContainerPrediction
+	return &datahubContainerPrediction
 }
 
-type daoNodePredictionExtended prediction.NodePrediction
+type daoPtrNodePredictionExtended struct {
+	*prediction.NodePrediction
+}
 
-func (d daoNodePredictionExtended) datahubNodePrediction() datahub_v1alpha1.NodePrediction {
+func (d daoPtrNodePredictionExtended) datahubNodePrediction() *datahub_v1alpha1.NodePrediction {
 
 	var (
 		metricDataChan = make(chan datahub_v1alpha1.MetricData)
@@ -174,31 +180,33 @@ func (d daoNodePredictionExtended) datahubNodePrediction() datahub_v1alpha1.Node
 		datahubNodePrediction.PredictedRawData = append(datahubNodePrediction.PredictedRawData, &receivedPredictionData)
 	}
 
-	return datahubNodePrediction
+	return &datahubNodePrediction
 }
 
-type daoNodesPredictionMapExtended prediction.NodesPredictionMap
+type daoPtrNodesPredictionMapExtended struct {
+	*prediction.NodesPredictionMap
+}
 
-func (d daoNodesPredictionMapExtended) datahubNodePredictions() []*datahub_v1alpha1.NodePrediction {
+func (d daoPtrNodesPredictionMapExtended) datahubNodePredictions() []*datahub_v1alpha1.NodePrediction {
 
 	var (
 		datahubNodePredictions = make([]*datahub_v1alpha1.NodePrediction, 0)
 	)
 
-	for _, isScheduledNodePredictionMap := range d {
+	for _, ptrIsScheduledNodePredictionMap := range *d.NodesPredictionMap {
 
-		if scheduledNodePrediction, exist := isScheduledNodePredictionMap[true]; exist {
+		if ptrScheduledNodePrediction, exist := (*ptrIsScheduledNodePredictionMap)[true]; exist {
 
-			scheduledNodePredictionExtended := daoNodePredictionExtended(scheduledNodePrediction)
+			scheduledNodePredictionExtended := daoPtrNodePredictionExtended{ptrScheduledNodePrediction}
 			sechduledDatahubNodePrediction := scheduledNodePredictionExtended.datahubNodePrediction()
-			datahubNodePredictions = append(datahubNodePredictions, &sechduledDatahubNodePrediction)
+			datahubNodePredictions = append(datahubNodePredictions, sechduledDatahubNodePrediction)
 		}
 
-		if noneScheduledNodePrediction, exist := isScheduledNodePredictionMap[false]; exist {
+		if noneScheduledNodePrediction, exist := (*ptrIsScheduledNodePredictionMap)[false]; exist {
 
-			noneScheduledNodePredictionExtended := daoNodePredictionExtended(noneScheduledNodePrediction)
+			noneScheduledNodePredictionExtended := daoPtrNodePredictionExtended{noneScheduledNodePrediction}
 			noneSechduledDatahubNodePrediction := noneScheduledNodePredictionExtended.datahubNodePrediction()
-			datahubNodePredictions = append(datahubNodePredictions, &noneSechduledDatahubNodePrediction)
+			datahubNodePredictions = append(datahubNodePredictions, noneSechduledDatahubNodePrediction)
 		}
 	}
 

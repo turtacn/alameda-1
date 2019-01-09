@@ -13,8 +13,8 @@ type IsScheduled = bool
 
 // DAO DAO interface of prediction
 type DAO interface {
-	ListPodPredictions(ListPodPredictionsRequest) (PodsPredictionMap, error)
-	ListNodePredictions(ListNodePredictionsRequest) (NodesPredictionMap, error)
+	ListPodPredictions(ListPodPredictionsRequest) (*PodsPredictionMap, error)
+	ListNodePredictions(ListNodePredictionsRequest) (*NodesPredictionMap, error)
 	CreateContainerPredictions([]*ContainerPrediction) error
 	CreateNodePredictions([]*NodePrediction) error
 }
@@ -43,15 +43,15 @@ type ContainerPrediction struct {
 }
 
 // BuildPodPrediction Build PodPrediction consist of the receiver in ContainersPredictionMap.
-func (c ContainerPrediction) BuildPodPrediction() PodPrediction {
+func (c *ContainerPrediction) BuildPodPrediction() *PodPrediction {
 
 	containersPredictionMap := ContainersPredictionMap{}
 	containersPredictionMap[c.NamespacePodContainerName()] = c
 
-	return PodPrediction{
+	return &PodPrediction{
 		Namespace:               c.Namespace,
 		PodName:                 c.PodName,
-		ContainersPredictionMap: containersPredictionMap,
+		ContainersPredictionMap: &containersPredictionMap,
 	}
 }
 
@@ -61,10 +61,10 @@ func (c ContainerPrediction) NamespacePodContainerName() metadata.NamespacePodCo
 }
 
 // ContainersPredictionMap Containers Prediction map
-type ContainersPredictionMap map[metadata.NamespacePodContainerName]ContainerPrediction
+type ContainersPredictionMap map[metadata.NamespacePodContainerName]*ContainerPrediction
 
 // BuildPodsPredictionMap Build PodsPredictionMap base on current ContainersPredictionMap
-func (c ContainersPredictionMap) BuildPodsPredictionMap() PodsPredictionMap {
+func (c ContainersPredictionMap) BuildPodsPredictionMap() *PodsPredictionMap {
 
 	var (
 		podsPredictionMap = &PodsPredictionMap{}
@@ -74,35 +74,29 @@ func (c ContainersPredictionMap) BuildPodsPredictionMap() PodsPredictionMap {
 		podsPredictionMap.AddContainerPrediction(containerPrediction)
 	}
 
-	return *podsPredictionMap
+	return podsPredictionMap
 }
 
 // Merge Merge current ContainersPredictionMap with input ContainersPredictionMap
-func (c ContainersPredictionMap) Merge(in ContainersPredictionMap) ContainersPredictionMap {
+func (c *ContainersPredictionMap) Merge(in *ContainersPredictionMap) {
 
-	var (
-		newContainersPredictionMap = c
-	)
-
-	for namespacePodContainerName, containerPrediction := range in {
-		if existedContainerPrediction, exist := newContainersPredictionMap[namespacePodContainerName]; exist {
-			for metricType, predictions := range existedContainerPrediction.Predictions {
+	for namespacePodContainerName, containerPrediction := range *in {
+		if existedContainerPrediction, exist := (*c)[namespacePodContainerName]; exist {
+			for metricType, predictions := range containerPrediction.Predictions {
 				existedContainerPrediction.Predictions[metricType] = append(existedContainerPrediction.Predictions[metricType], predictions...)
 			}
-			newContainersPredictionMap[namespacePodContainerName] = existedContainerPrediction
+			(*c)[namespacePodContainerName] = existedContainerPrediction
 		} else {
-			newContainersPredictionMap[namespacePodContainerName] = containerPrediction
+			(*c)[namespacePodContainerName] = containerPrediction
 		}
 	}
-
-	return newContainersPredictionMap
 }
 
 // PodPrediction Prediction model to represent one pod's Prediction
 type PodPrediction struct {
 	Namespace               metadata.NamespaceName
 	PodName                 metadata.PodName
-	ContainersPredictionMap ContainersPredictionMap
+	ContainersPredictionMap *ContainersPredictionMap
 }
 
 // NamespacePodName Return identity of the pod Prediction
@@ -111,31 +105,20 @@ func (p PodPrediction) NamespacePodName() metadata.NamespacePodName {
 }
 
 // Merge Merge current PodPrediction with input PodPrediction
-func (p PodPrediction) Merge(in PodPrediction) PodPrediction {
-
-	var (
-		currentContainerMetircMap   = p.ContainersPredictionMap
-		mergeWithContainerMetircMap = in.ContainersPredictionMap
-		newPodPrediction            = PodPrediction{
-			Namespace:               p.Namespace,
-			PodName:                 p.PodName,
-			ContainersPredictionMap: currentContainerMetircMap.Merge(mergeWithContainerMetircMap),
-		}
-	)
-
-	return newPodPrediction
+func (p *PodPrediction) Merge(in *PodPrediction) {
+	p.ContainersPredictionMap.Merge(in.ContainersPredictionMap)
 }
 
 // PodsPredictionMap Pods' Prediction map
-type PodsPredictionMap map[metadata.NamespacePodName]PodPrediction
+type PodsPredictionMap map[metadata.NamespacePodName]*PodPrediction
 
 // AddContainerPrediction Add container Prediction into PodsPredictionMap
-func (p *PodsPredictionMap) AddContainerPrediction(c ContainerPrediction) {
+func (p *PodsPredictionMap) AddContainerPrediction(c *ContainerPrediction) {
 
 	podPrediction := c.BuildPodPrediction()
 	namespacePodName := podPrediction.NamespacePodName()
 	if existedPodPrediction, exist := (*p)[namespacePodName]; exist {
-		(*p)[namespacePodName] = existedPodPrediction.Merge(podPrediction)
+		existedPodPrediction.Merge(podPrediction)
 	} else {
 		(*p)[namespacePodName] = podPrediction
 	}
@@ -149,42 +132,34 @@ type NodePrediction struct {
 }
 
 // Merge Merge current NodePrediction with input NodePrediction
-func (n NodePrediction) Merge(in NodePrediction) NodePrediction {
-
-	var (
-		newNodePrediction = NodePrediction{
-			NodeName:    n.NodeName,
-			IsScheduled: n.IsScheduled,
-		}
-	)
+func (n *NodePrediction) Merge(in *NodePrediction) {
 
 	for metricType, metrics := range in.Predictions {
-		newNodePrediction.Predictions[metricType] = append(newNodePrediction.Predictions[metricType], metrics...)
+		n.Predictions[metricType] = append(n.Predictions[metricType], metrics...)
 	}
-
-	return newNodePrediction
 }
 
 // IsScheduledNodePredictionMap Nodes' Prediction map
-type IsScheduledNodePredictionMap map[IsScheduled]NodePrediction
+type IsScheduledNodePredictionMap map[IsScheduled]*NodePrediction
 
 // NodesPredictionMap Nodes' Prediction map
-type NodesPredictionMap map[metadata.NodeName]IsScheduledNodePredictionMap
+type NodesPredictionMap map[metadata.NodeName]*IsScheduledNodePredictionMap
 
 // AddNodePrediction Add node Prediction into NodesPredictionMap
-func (n *NodesPredictionMap) AddNodePrediction(nodePrediction NodePrediction) {
+func (n *NodesPredictionMap) AddNodePrediction(nodePrediction *NodePrediction) {
 
 	nodeName := nodePrediction.NodeName
 	isScheduled := nodePrediction.IsScheduled
 
 	if existIsScheduledNodePredictionMap, exist := (*n)[nodeName]; exist {
-		if existNodePrediction, exist := existIsScheduledNodePredictionMap[isScheduled]; exist {
-			(*n)[nodeName][isScheduled] = existNodePrediction.Merge(nodePrediction)
+		if existNodePrediction, exist := (*existIsScheduledNodePredictionMap)[isScheduled]; exist {
+			existNodePrediction.Merge(nodePrediction)
 		} else {
-			(*n)[nodeName][isScheduled] = nodePrediction
+			(*existIsScheduledNodePredictionMap)[isScheduled] = nodePrediction
 		}
 	} else {
-		(*n)[nodeName] = make(IsScheduledNodePredictionMap)
-		(*n)[nodeName][isScheduled] = nodePrediction
+		isScheduledNodePredictionMap := make(IsScheduledNodePredictionMap)
+		(*n)[nodeName] = &isScheduledNodePredictionMap
+		(*(*n)[nodeName])[isScheduled] = nodePrediction
 	}
 }
