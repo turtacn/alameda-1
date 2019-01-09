@@ -82,7 +82,7 @@ func NewEntityFromMap(data map[string]string) Entity {
 	}
 
 	if isScheduled, exist := data[IsScheduled]; exist {
-		entity.Value = &isScheduled
+		entity.IsScheduled = &isScheduled
 	}
 
 	return entity
@@ -98,13 +98,16 @@ func (e Entity) NodePrediction() prediction.NodePrediction {
 	)
 
 	// TODO: log error
-	isScheduled, _ = strconv.ParseBool(*e.IsScheduled)
 	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: *e.Value})
 
 	nodePrediction = prediction.NodePrediction{
 		NodeName:    *e.Name,
-		IsScheduled: isScheduled,
 		Predictions: map[metric.NodeMetricType][]metric.Sample{},
+	}
+
+	if e.IsScheduled != nil {
+		isScheduled, _ = strconv.ParseBool(*e.IsScheduled)
+		nodePrediction.IsScheduled = isScheduled
 	}
 
 	metricType := LocalMetricTypeToPkgMetricType[*e.Metric]
