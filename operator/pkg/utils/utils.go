@@ -1,5 +1,9 @@
 package utils
 
+import (
+	"fmt"
+)
+
 type StringStringMap map[string]string
 
 func (m StringStringMap) ReplaceKeys(old, new []string) StringStringMap {
@@ -13,4 +17,9 @@ func (m StringStringMap) ReplaceKeys(old, new []string) StringStringMap {
 	}
 
 	return m
+}
+
+// GetNamespacedNameKey returns string "namespaced/name"
+func GetNamespacedNameKey(namespace, name string) string {
+	return fmt.Sprintf("%s/%s", namespace, name)
 }
