@@ -56,7 +56,7 @@ func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsReques
 
 	influxDBContainerPredictionEntities, err = predictionRepo.ListContainerPredictionsByRequest(request)
 	if err != nil {
-		return *podsPredictionMap, errors.New("create container prediction failed: ")
+		return *podsPredictionMap, errors.New("create list prediction failed: " + err.Error())
 	}
 
 	for _, entity := range influxDBContainerPredictionEntities {
