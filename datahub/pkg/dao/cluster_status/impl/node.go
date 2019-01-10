@@ -33,7 +33,7 @@ func (node *Node) ListAlamedaNodes() ([]*datahub_v1alpha1.Node, error) {
 	entities, _ := nodeRepository.ListAlamedaNodes()
 	for _, entity := range entities {
 		alamedaNodes = append(alamedaNodes, &datahub_v1alpha1.Node{
-			Name: entity.Fields[string(influxdb_entity_cluster_status.NodeName)].(string),
+			Name: entity.Tags[string(influxdb_entity_cluster_status.NodeName)],
 		})
 	}
 	return alamedaNodes, nil

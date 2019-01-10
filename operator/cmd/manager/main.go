@@ -165,10 +165,10 @@ func watchServer(s *server.Server) {
 }
 
 func registerNodes(client client.Client) {
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	listResources := resources.NewListResources(client)
-	nodeList := listResources.ListAllNodes()
-	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodeList.Items)))
+	nodeList, _ := listResources.ListAllNodes()
+	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodeList)))
 	createAlamedaNode := datahub_node.NewCreateAlamedaNode()
-	createAlamedaNode.CreateAlamedaNode(nodeList.Items)
+	createAlamedaNode.CreateAlamedaNode(nodeList)
 }

@@ -17,33 +17,56 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type PredictEnable bool
-type AlamedaPolicy string
+type predictEnable bool
+type alamedaPolicy string
+type NamespacedName string
 
 const (
-	RecommendationPolicySTABLE  AlamedaPolicy = "stable"
-	RecommendationPolicyCOMPACT AlamedaPolicy = "compact"
+	RecommendationPolicySTABLE  alamedaPolicy = "stable"
+	RecommendationPolicyCOMPACT alamedaPolicy = "compact"
 )
 
+type AlamedaContainer struct {
+	Name      string                      `json:"name" protobuf:"bytes,1,opt,name=name"`
+	Resources corev1.ResourceRequirements `json:"resources,omitempty" protobuf:"bytes,2,opt,name=resources"`
+}
+
+type AlamedaPod struct {
+	Name       string             `json:"name" protobuf:"bytes,2,opt,name=name"`
+	UID        string             `json:"uid" protobuf:"bytes,3,opt,name=uid"`
+	Containers []AlamedaContainer `json:"containers" protobuf:"bytes,4,opt,name=containers"`
+}
+
+type AlamedaDeployment struct {
+	Namespace string                        `json:"namespace" protobuf:"bytes,1,opt,name=namespace"`
+	Name      string                        `json:"name" protobuf:"bytes,2,opt,name=name"`
+	UID       string                        `json:"uid" protobuf:"bytes,3,opt,name=uid"`
+	Pods      map[NamespacedName]AlamedaPod `json:"pods" protobuf:"bytes,4,opt,name=pods"`
+}
+
+type AlamedaController struct {
+	Deployments map[NamespacedName]AlamedaDeployment `json:"deployments" protobuf:"bytes,1,opt,name=deployments"`
+}
+
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
+// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	Selector *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
-	Enable   PredictEnable         `json:"enable" protobuf:"bytes,2,opt,name=enable"`
-	Policy   AlamedaPolicy         `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
+	Enable   predictEnable         `json:"enable" protobuf:"bytes,2,opt,name=enable"`
+	Policy   alamedaPolicy         `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
 }
 
 // AlamedaScalerStatus defines the observed state of AlamedaScaler
 type AlamedaScalerStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	AlamedaController AlamedaController `json:"alamedaController,omitempty" protobuf:"bytes,4,opt,name=alameda_controller"`
 }
 
 // +genclient

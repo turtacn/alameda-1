@@ -30,6 +30,7 @@ rules:
   resources:
   - alamedaresources
   - alamedaresourcepredictions
+  - alamedarecommendations
   verbs:
   - get
   - list

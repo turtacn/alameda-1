@@ -4,12 +4,12 @@ metadata:
   creationTimestamp: null
   labels:
     controller-tools.k8s.io: "1.0"
-  name: alamedascalers.autoscaling.containers.ai
+  name: alamedarecommendations.autoscaling.containers.ai
 spec:
   group: autoscaling.containers.ai
   names:
-    kind: AlamedaScaler
-    plural: alamedascalers
+    kind: AlamedaRecommendation
+    plural: alamedarecommendations
   scope: Namespaced
   validation:
     openAPIV3Schema:
@@ -22,25 +22,21 @@ spec:
           type: object
         spec:
           properties:
-            enable:
-              type: boolean
-            policy:
-              type: string
-            selector:
-              type: object
+            containers:
+              items:
+                properties:
+                  name:
+                    type: string
+                  resources:
+                    type: object
+                required:
+                - name
+                type: object
+              type: array
           required:
-          - selector
-          - enable
+          - containers
           type: object
         status:
-          properties:
-            alamedaController:
-              properties:
-                deployments:
-                  type: object
-              required:
-              - deployments
-              type: object
           type: object
   version: v1alpha1
 status:
