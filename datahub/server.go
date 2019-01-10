@@ -14,6 +14,9 @@ import (
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	recommendation_dao "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
+	"github.com/containers-ai/alameda/operator/pkg/apis"
+	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -24,8 +27,12 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 type Server struct {
@@ -66,6 +73,14 @@ func NewServer(cfg Config) (*Server, error) {
 
 	if k8sCli, err = client.New(k8sClientConfig, client.Options{}); err != nil {
 		return server, errors.New("Create kubernetes client failed: " + err.Error())
+	}
+
+	mgr, err := manager.New(k8sClientConfig, manager.Options{})
+	if err != nil {
+		scope.Error(err.Error())
+	}
+	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+		scope.Error(err.Error())
 	}
 
 	server = &Server{
@@ -280,6 +295,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	}, nil
 }
 
+// ListAlamedaPods returns predicted pods
 func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
@@ -653,7 +669,29 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 	var containerDAO recommendation_dao.ContainerOperation = &recommendation_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	if err := containerDAO.AddPodRecommendations(in.GetPodRecommendations()); err != nil {
+
+	podRecommendations := in.GetPodRecommendations()
+	for _, podRecommendation := range podRecommendations {
+		podNS := podRecommendation.GetNamespacedName().Namespace
+		podName := podRecommendation.GetNamespacedName().Name
+		alamedaRecommendation := &autoscaling_v1alpha1.AlamedaRecommendation{}
+
+		if err := s.K8SClient.Get(context.TODO(), types.NamespacedName{
+			Namespace: podNS,
+			Name:      podName,
+		}, alamedaRecommendation); err == nil {
+			alamedarecommendationReconciler := alamedarecommendation_reconciler.NewReconciler(s.K8SClient, alamedaRecommendation)
+			if alamedaRecommendation, err = alamedarecommendationReconciler.UpdateResourceRecommendation(podRecommendation); err == nil {
+				if err = s.K8SClient.Update(context.TODO(), alamedaRecommendation); err != nil {
+					scope.Error(err.Error())
+				}
+			}
+		} else if !k8s_errors.IsNotFound(err) {
+			scope.Error(err.Error())
+		}
+	}
+
+	if err := containerDAO.AddPodRecommendations(podRecommendations); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

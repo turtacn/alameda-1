@@ -6,20 +6,20 @@ import (
 	aiserver "github.com/containers-ai/alameda/operator/ai-server"
 	datahub "github.com/containers-ai/alameda/operator/datahub"
 	"github.com/containers-ai/alameda/operator/pkg/utils/log"
-	grafanadatasource "github.com/containers-ai/alameda/operator/services/grafana-datasource"
 	"github.com/containers-ai/alameda/operator/services/grpc"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
+// Config defines configurations
 type Config struct {
-	GRPC           *grpc.Config              `mapstructure:"gRPC"`
-	Log            *log.Config               `mapstructure:"log"`
-	GrafanaBackend *grafanadatasource.Config `mapstructure:"grafana-backend"`
-	Datahub        *datahub.Config           `mapstructure:"datahub"`
-	AIServer       *aiserver.Config          `mapstructure:"ai-server"`
-	Manager        manager.Manager
+	GRPC     *grpc.Config     `mapstructure:"gRPC"`
+	Log      *log.Config      `mapstructure:"log"`
+	Datahub  *datahub.Config  `mapstructure:"datahub"`
+	AIServer *aiserver.Config `mapstructure:"ai-server"`
+	Manager  manager.Manager
 }
 
+// NewConfig returns Config objecdt
 func NewConfig(manager manager.Manager) Config {
 
 	c := Config{
@@ -36,7 +36,6 @@ func (c *Config) init() {
 	c.Log = log.NewConfig()
 	c.AIServer = aiserver.NewConfig()
 	c.Datahub = datahub.NewConfig()
-	c.GrafanaBackend = grafanadatasource.NewConfig()
 }
 
 func (c Config) Validate() error {

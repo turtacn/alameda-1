@@ -17,18 +17,33 @@ limitations under the License.
 package alamedarecommendation
 
 import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
+
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
+	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
+	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
+	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"google.golang.org/grpc"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-var log = logf.Log.WithName("controller")
+var (
+	alamedarecommendationScope = logUtil.RegisterScope("alamedarecommendation", "alameda recommendation", 0)
+)
+
+var cachedFirstSynced = false
 
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
@@ -74,5 +89,61 @@ type ReconcileAlamedaRecommendation struct {
 // Reconcile reads that state of the cluster for a AlamedaRecommendation object and makes changes based on the state read
 // and what is in the AlamedaRecommendation.Spec
 func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+	if !cachedFirstSynced {
+		time.Sleep(5 * time.Second)
+	}
+	cachedFirstSynced = true
+
+	getResource := utilsresource.NewGetResource(r)
+	listResources := utilsresource.NewListResources(r)
+
+	if alamedaRecommendation, err := getResource.GetAlamedaRecommendation(request.Namespace, request.Name); err == nil {
+		// Remove AlamedaResource if target is not existed
+		for _, or := range alamedaRecommendation.OwnerReferences {
+			if *or.Controller && strings.ToLower(or.Kind) == "alamedascaler" {
+				if scalers, err := listResources.ListAllAlamedaScaler(); err == nil {
+					for _, scaler := range scalers {
+						if scaler.GetUID() == or.UID {
+							alamedascalerReconciler := alamedascaler_reconciler.NewReconciler(r, &scaler)
+							if !alamedascalerReconciler.HasAlamedaPod(alamedaRecommendation.Namespace, alamedaRecommendation.Name) {
+								alamedarecommendationScope.Infof(fmt.Sprintf("AlamedaRecommendation (%s/%s) is already removed from AlamedaScaler (%s/%s)", request.Namespace, request.Name, scaler.Namespace, scaler.Name))
+								if err = r.Delete(context.TODO(), alamedaRecommendation); err != nil {
+									alamedarecommendationScope.Error(err.Error())
+								}
+								return reconcile.Result{}, nil
+							}
+						}
+					}
+				} else {
+					alamedarecommendationScope.Error(err.Error())
+				}
+			}
+		}
+
+		// Update Recommendation from datahub
+		alamedarecommendationReconciler := alamedarecommendation_reconciler.NewReconciler(r, alamedaRecommendation)
+		if conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure()); err == nil {
+			defer conn.Close()
+			aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
+			req := datahub_v1alpha1.ListPodRecommendationsRequest{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: alamedaRecommendation.GetNamespace(),
+					Name:      alamedaRecommendation.GetName(),
+				},
+			}
+			if podRecommendationsRes, err := aiServiceClnt.ListPodRecommendations(context.Background(), &req); err == nil && len(podRecommendationsRes.GetPodRecommendations()) == 1 {
+				if alamedaRecommendation, err = alamedarecommendationReconciler.UpdateResourceRecommendation(podRecommendationsRes.GetPodRecommendations()[0]); err == nil {
+					if err = r.Update(context.TODO(), alamedaRecommendation); err != nil {
+						alamedarecommendationScope.Error(err.Error())
+					}
+				}
+			}
+		} else {
+			alamedarecommendationScope.Error(err.Error())
+		}
+	} else {
+		alamedarecommendationScope.Error(err.Error())
+	}
+
 	return reconcile.Result{}, nil
 }

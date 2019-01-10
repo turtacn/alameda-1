@@ -1,11 +1,17 @@
 package utils
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
+)
+
+var (
+	utilsScope = logUtil.RegisterScope("utils", "utils", 0)
 )
 
 type StringStringMap map[string]string
@@ -63,4 +69,9 @@ func GetTimeIdxFromColumns(columns []string) int {
 // TimeStampToNanoSecond get nano seconds from timestamp object
 func TimeStampToNanoSecond(timestamp *timestamp.Timestamp) int64 {
 	return timestamp.GetSeconds()*1000000000 + int64(timestamp.GetNanos())
+}
+
+// StringToInt64 parse str to int64
+func StringToInt64(str string) (int64, error) {
+	return strconv.ParseInt(str, 10, 64)
 }

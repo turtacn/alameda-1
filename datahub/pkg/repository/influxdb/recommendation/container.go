@@ -216,6 +216,9 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 					timeColIdx := utils.GetTimeIdxFromColumns(ser.Columns)
 					timeObj, _ := utils.ParseTime(val[timeColIdx].(string))
 					for columnIdx, column := range ser.Columns {
+						if val[columnIdx] == nil {
+							continue
+						}
 						colVal := val[columnIdx].(string)
 						sampleObj := utils.GetSampleInstance(&timeObj, colVal)
 						if column == string(recommendation_entity.ContainerInitialResourceLimitCPU) {

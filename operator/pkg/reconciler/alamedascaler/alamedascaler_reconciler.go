@@ -29,11 +29,24 @@ func NewReconciler(client client.Client, alamedascaler *autoscaling_v1alpha1.Ala
 	}
 }
 
-// HasAlamedaDeployment check the AlamedaScaler has the deployment or not
+// HasAlamedaDeployment checks the AlamedaScaler has the deployment or not
 func (reconciler *Reconciler) HasAlamedaDeployment(deploymentNS, deploymentName string) bool {
 	key := utils.GetNamespacedNameKey(deploymentNS, deploymentName)
 	_, ok := reconciler.alamedascaler.Status.AlamedaController.Deployments[autoscaling_v1alpha1.NamespacedName(key)]
 	return ok
+}
+
+// HasAlamedaPod checks the AlamedaScaler has the AlamedaPod or not
+func (reconciler *Reconciler) HasAlamedaPod(podNS, podName string) bool {
+	for _, deployment := range reconciler.alamedascaler.Status.AlamedaController.Deployments {
+		deploymentNS := deployment.Namespace
+		for _, pod := range deployment.Pods {
+			if deploymentNS == podNS && pod.Name == podName {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // RemoveAlamedaDeployment removes deployment from alamedaController of AlamedaScaler

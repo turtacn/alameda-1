@@ -32,7 +32,7 @@ import (
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/operator/server"
-	grafanadatasource "github.com/containers-ai/alameda/operator/services/grafana-datasource"
+
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -141,7 +141,7 @@ func main() {
 	if err := controller.AddToManager(mgr); err != nil {
 		scope.Error(err.Error())
 	}
-	go grafanadatasource.NewGrafanaDataSource(mgr, operatorConf.GrafanaBackend.BindPort)
+
 	go registerNodes(mgr.GetClient())
 	scope.Info("Starting the Cmd.")
 

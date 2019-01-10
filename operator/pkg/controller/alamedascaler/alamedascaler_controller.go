@@ -49,7 +49,7 @@ var (
 	scope = logUtil.RegisterScope("alamedascaler", "alamedascaler log", 0)
 )
 
-var CachedFirstSynced = false
+var cachedFirstSynced = false
 
 // AlamedaScaler is alameda scaler
 type AlamedaScaler string
@@ -114,6 +114,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
 	c, err := controller.New("alamedascaler-controller", mgr, controller.Options{Reconciler: r})
 	if err != nil {
+		scope.Error(err.Error())
 		return err
 	}
 
@@ -143,10 +144,10 @@ type ReconcileAlamedaScaler struct {
 // Reconcile reads that state of the cluster for a AlamedaScaler object and makes changes based on the state read
 // and what is in the AlamedaScaler .Spec
 func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-	if !CachedFirstSynced {
+	if !cachedFirstSynced {
 		time.Sleep(5 * time.Second)
 	}
-	CachedFirstSynced = true
+	cachedFirstSynced = true
 
 	getResource := utilsresource.NewGetResource(r)
 	listResources := utilsresource.NewListResources(r)
@@ -210,29 +211,28 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 					})
 					// try to create the recommendation by pod
 					recommendationNS := scalerDeployment.Namespace
-					recommendationName := alamedaScaler.GetName() + "-" + scalerDeployment.Namespace + "-" + pod.Name
+					recommendationName := pod.Name
 
 					recommendation := &autoscalingv1alpha1.AlamedaRecommendation{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      recommendationName,
 							Namespace: recommendationNS,
+							Labels: map[string]string{
+								"alamedascaler": fmt.Sprintf("%s.%s", alamedaScaler.GetName(), alamedaScaler.GetNamespace()),
+							},
 						},
 						Spec: autoscalingv1alpha1.AlamedaRecommendationSpec{
 							Containers: pod.Containers,
 						},
 					}
-					if corePod, err := getResource.GetPod(scalerDeployment.Namespace, pod.Name); err == nil {
-						recommendation.ObjectMeta.Labels = corePod.Labels
-					}
 
-					if err := controllerutil.SetControllerReference(alamedaScaler, recommendation, r.scheme); err != nil {
-						return reconcile.Result{}, err
-					}
-					_, err := getResource.GetAlamedaRecommendation(recommendationNS, recommendationName)
-					if err != nil && errors.IsNotFound(err) {
-						err = r.Create(context.TODO(), recommendation)
-						if err != nil {
-							scope.Error(err.Error())
+					if err := controllerutil.SetControllerReference(alamedaScaler, recommendation, r.scheme); err == nil {
+						_, err := getResource.GetAlamedaRecommendation(recommendationNS, recommendationName)
+						if err != nil && errors.IsNotFound(err) {
+							err = r.Create(context.TODO(), recommendation)
+							if err != nil {
+								scope.Error(err.Error())
+							}
 						}
 					}
 				}
@@ -249,8 +249,8 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		} else {
 			scope.Error(err.Error())
 		}
-
 	} else {
+		scope.Error(err.Error())
 	}
 
 	// Take care of Deployment
@@ -276,45 +276,8 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			}
 		}
 	} else {
+		scope.Error(err.Error())
 	}
 
 	return reconcile.Result{}, nil
-}
-
-// CreateAlamedaPrediction Creates AlamedaScalerAlamedaResourcePrediction CR
-func CreateAlamedaPrediction(r client.Client, scheme *runtime.Scheme, alamedascaler *autoscalingv1alpha1.AlamedaScaler) error {
-	newAlamedaResourcePrediction := &autoscalingv1alpha1.AlamedaResourcePrediction{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      alamedascaler.Name,
-			Namespace: alamedascaler.Namespace,
-		},
-		Spec: autoscalingv1alpha1.AlamedaResourcePredictionSpec{
-			Selector: &metav1.LabelSelector{
-				MatchLabels: alamedascaler.Spec.Selector.MatchLabels,
-			},
-		},
-		Status: autoscalingv1alpha1.AlamedaResourcePredictionStatus{
-			Prediction: autoscalingv1alpha1.AlamedaPrediction{
-				Deployments: map[autoscalingv1alpha1.DeploymentUID]autoscalingv1alpha1.PredictDeployment{},
-			},
-		},
-	}
-	/*
-		if err := controllerutil.SetControllerReference(alamedascaler, newAlamedaResourcePrediction, scheme); err != nil {
-			return err
-		}
-	*/
-
-	err := r.Create(context.TODO(), newAlamedaResourcePrediction)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetDefaultAlamedaK8SControllerAnno get default AlamedaScaler annotation of K8S controller
-func GetDefaultAlamedaK8SControllerAnno() *K8SControllerAnnotation {
-	return &K8SControllerAnnotation{
-		DeploymentMap: map[string]Deployment{},
-	}
 }

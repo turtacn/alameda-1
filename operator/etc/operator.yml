@@ -9,9 +9,6 @@ log:
   set-logcallers: true
   output-level: "info" # debug, info, warn, error, fatal, none
 
-grafana-backend:
-  bind-port: 50049
-
 ai-server:
   address: "alameda-ai.alameda.svc.cluster.local:50051"
 

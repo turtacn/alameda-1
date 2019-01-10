@@ -59,3 +59,10 @@ rules:
   - namespaces
   verbs: 
   - get
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedarecommendations
+  verbs:
+  - get
+  - update

@@ -19,9 +19,6 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	apicorev1 "k8s.io/api/core/v1"
-	apiresource "k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -196,7 +193,6 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 	}
 	for _, ala := range alaListRange {
 		alaAnno := ala.GetAnnotations()
-		predictPodsInAla := []*operator_v1alpha1.PredictPod{}
 		if alaAnno == nil {
 			scope.Warnf(fmt.Sprintf("No annotation found in AlamedaScaler %s in namespace %s in AlamedaScaler list, try searching next item", ala.GetName(), ala.GetNamespace()))
 			continue
@@ -206,17 +202,6 @@ func (s *Service) CreatePredictResult(ctx context.Context, in *operator_v1alpha1
 			continue
 		}
 		scope.Infof(fmt.Sprintf("K8s controller annotation found %s in AlamedaResouce %s in namespace %s in AlamedaScaler list", alaAnno[alamedascaler.AlamedaK8sController], ala.GetName(), ala.GetNamespace()))
-		for _, predictPod := range in.GetPredictPods() {
-			alaK8sCtrStr := alaAnno[alamedascaler.AlamedaK8sController]
-			if isAlamedaPod(alaK8sCtrStr, predictPod.GetUid()) {
-				predictPodsInAla = append(predictPodsInAla, predictPod)
-			} else {
-				scope.Infof(fmt.Sprintf("Pod %s do not belong to AlamedaScaler (%s/%s)", predictPod.GetUid(), ala.GetNamespace(), ala.GetName()))
-			}
-		}
-		if len(predictPodsInAla) > 0 {
-			s.updateAlamedaResourcePredict(ala, predictPodsInAla)
-		}
 	}
 	inBin, _ := json.Marshal(*in)
 	return &operator_v1alpha1.CreatePredictResultResponse{
@@ -233,113 +218,6 @@ func (s *Service) GetResourceInfo(ctx context.Context, in *operator_v1alpha1.Get
 
 func (s *Service) GetResourceRecommendation(ctx context.Context, in *operator_v1alpha1.GetResourceRecommendationRequest) (*operator_v1alpha1.GetResourceRecommendationResponse, error) {
 	return nil, nil
-}
-
-func (s *Service) updateAlamedaResourcePredict(ala autoscalingv1alpha1.AlamedaScaler, predictPods []*operator_v1alpha1.PredictPod) {
-	alamedaresourcePredict := &autoscalingv1alpha1.AlamedaResourcePrediction{}
-	s.Manager.GetClient().Get(go_context.TODO(), types.NamespacedName{
-		Name:      ala.GetName(),
-		Namespace: ala.GetNamespace(),
-	}, alamedaresourcePredict)
-
-	for _, predictPod := range predictPods {
-		for _, deployment := range alamedaresourcePredict.Status.Prediction.Deployments {
-			if _, ok := deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())]; ok {
-				for _, predictContainer := range predictPod.GetPredictContainers() {
-					for containerName, _ := range deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers {
-						if predictContainer.GetName() == string(containerName) {
-							scope.Infof(fmt.Sprintf("Update Prediction from AI service. (%s/%s)", ala.GetNamespace(), ala.GetName()))
-							recommendation, initialResource := s.updateAlamedaResourcePredictContainer(deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers[containerName], predictContainer)
-							alaPredictContainer := deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers[containerName]
-							alaPredictContainer.Recommendations = recommendation
-							alaPredictContainer.InitialResource = initialResource
-							deployment.Pods[autoscalingv1alpha1.PodUID(predictPod.GetUid())].Containers[containerName] = alaPredictContainer
-						}
-					}
-				}
-			}
-		}
-	}
-
-	err := s.Manager.GetClient().Update(context.TODO(), alamedaresourcePredict)
-	if err != nil {
-		scope.Error(err.Error())
-	}
-}
-
-func (s *Service) updateAlamedaResourcePredictContainer(alaPredictContainer autoscalingv1alpha1.PredictContainer, predictContainer *operator_v1alpha1.PredictContainer) ([]autoscalingv1alpha1.Recommendation, apicorev1.ResourceRequirements) {
-	for resource, predictData := range predictContainer.RawPredictData {
-		tsData := autoscalingv1alpha1.TimeSeriesData{
-			PredictData: []autoscalingv1alpha1.PredictData{},
-		}
-		for _, data := range predictData.GetPredictData() {
-			if data.Time == nil {
-				dataBin, _ := json.Marshal(data)
-				scope.Infof(fmt.Sprintf("Predict data from AI server contains no time field. %s", dataBin))
-			} else {
-				date := time.Unix(data.Time.Seconds, 0)
-				tsData.PredictData = append(tsData.PredictData, autoscalingv1alpha1.PredictData{
-					Time:  data.Time.Seconds,
-					Value: data.Value,
-					Date:  date.String(),
-				})
-			}
-		}
-		alaPredictContainer.RawPredict[autoscalingv1alpha1.ResourceType(resource)] = tsData
-	}
-	recommendations := []autoscalingv1alpha1.Recommendation{}
-	for _, recommendation := range predictContainer.Recommendations {
-		resource := apicorev1.ResourceRequirements{
-			Limits:   map[apicorev1.ResourceName]apiresource.Quantity{},
-			Requests: map[apicorev1.ResourceName]apiresource.Quantity{},
-		}
-		for limitKey, limit := range recommendation.Resource.Limit {
-			resource.Limits[apicorev1.ResourceName(limitKey)] = apiresource.MustParse(limit)
-		}
-		for requestKey, request := range recommendation.Resource.Request {
-			resource.Requests[apicorev1.ResourceName(requestKey)] = apiresource.MustParse(request)
-		}
-		date := time.Unix(recommendation.Time.Seconds, 0)
-		recommendations = append(recommendations, autoscalingv1alpha1.Recommendation{
-			Time:      recommendation.Time.Seconds,
-			Date:      date.String(),
-			Resources: resource,
-		})
-	}
-
-	alaPredictContainer.Recommendations = recommendations
-
-	initialResource := apicorev1.ResourceRequirements{
-		Limits:   map[apicorev1.ResourceName]apiresource.Quantity{},
-		Requests: map[apicorev1.ResourceName]apiresource.Quantity{},
-	}
-	if predictContainer.InitialResource != nil {
-		for limitKey, limit := range predictContainer.InitialResource.Limit {
-			initialResource.Limits[apicorev1.ResourceName(limitKey)] = apiresource.MustParse(limit)
-		}
-		for requestKey, request := range predictContainer.InitialResource.Request {
-			initialResource.Requests[apicorev1.ResourceName(requestKey)] = apiresource.MustParse(request)
-		}
-	}
-
-	alaPredictContainer.InitialResource = initialResource
-	return recommendations, initialResource
-}
-
-func isAlamedaPod(alaK8sCtrAnnoStr, podUid string) bool {
-	akcMap := alamedascaler.GetDefaultAlamedaK8SControllerAnno()
-	err := json.Unmarshal([]byte(alaK8sCtrAnnoStr), akcMap)
-	if err != nil {
-		return false
-	}
-	for _, deployment := range akcMap.DeploymentMap {
-		if _, ok := deployment.PodMap[podUid]; ok {
-			return true
-		} else {
-			scope.Infof(fmt.Sprintf("Pod %s does not belong to K8s controller %s", podUid, alaK8sCtrAnnoStr))
-		}
-	}
-	return false
 }
 
 func buildMetircQuery(req *operator_v1alpha1.ListMetricsRequest) metrics.Query {

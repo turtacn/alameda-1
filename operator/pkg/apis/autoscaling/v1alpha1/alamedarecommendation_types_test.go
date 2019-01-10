@@ -34,7 +34,15 @@ func TestStorageAlamedaRecommendation(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo",
 			Namespace: "default",
-		}}
+		},
+		Spec: AlamedaRecommendationSpec{
+			Containers: []AlamedaContainer{
+				AlamedaContainer{
+					Name: "nginx",
+				},
+			},
+		},
+	}
 	g := gomega.NewGomegaWithT(t)
 
 	// Test Create

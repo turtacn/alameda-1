@@ -39,6 +39,11 @@ func TestStorageAlamedaScaler(t *testing.T) {
 			Selector: &metav1.LabelSelector{},
 			Enable:   true,
 		},
+		Status: AlamedaScalerStatus{
+			AlamedaController: AlamedaController{
+				Deployments: map[NamespacedName]AlamedaDeployment{},
+			},
+		},
 	}
 	g := gomega.NewGomegaWithT(t)
 

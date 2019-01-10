@@ -74,10 +74,11 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 			newTags := map[string]string{}
 			originTime := time.Now()
 			for columnIdx, column := range results[0].Series[0].Columns {
-				if column == influxdb.Time {
-					originTime, _ = utils.ParseTime(results[0].Series[0].Values[0][columnIdx].(string))
-				} else if nodeRepository.IsTag(column) && column != influxdb.Time {
-					newTags[column] = results[0].Series[0].Values[0][columnIdx].(string)
+				colVal := results[0].Series[0].Values[0][columnIdx]
+				if column == influxdb.Time && colVal != nil {
+					originTime, _ = utils.ParseTime(colVal.(string))
+				} else if nodeRepository.IsTag(column) && column != influxdb.Time && colVal != nil {
+					newTags[column] = colVal.(string)
 				} else if !nodeRepository.IsTag(column) {
 					if column == string(cluster_status_entity.NodeInCluster) {
 						newFields[column] = false
@@ -110,9 +111,9 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes() ([]*influxdb.InfluxDBEn
 			newTags := map[string]string{}
 			entity := influxdb.InfluxDBEntity{}
 			for columnIdx, column := range results[0].Series[0].Columns {
-				if column == influxdb.Time {
+				if column == influxdb.Time && value[columnIdx] != nil {
 					entity.Time, _ = utils.ParseTime(value[columnIdx].(string))
-				} else if nodeRepository.IsTag(column) {
+				} else if nodeRepository.IsTag(column) && value[columnIdx] != nil {
 					newTags[column] = value[columnIdx].(string)
 				} else if !nodeRepository.IsTag(column) {
 					newFields[column] = value[columnIdx]
