@@ -6,8 +6,9 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 class AlamendaAIServiceStub(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """*
+  Service for creating prediction objects.
+  """
 
   def __init__(self, channel):
     """Constructor.
@@ -16,31 +17,32 @@ class AlamendaAIServiceStub(object):
       channel: A grpc.Channel.
     """
     self.CreatePredictionObjects = channel.unary_unary(
-        '/AlamendaAIService/CreatePredictionObjects',
+        '/containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService/CreatePredictionObjects',
         request_serializer=alameda__api_dot_v1alpha1_dot_ai__service_dot_ai__service__pb2.PredictionObjectListCreationRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_ai__service_dot_ai__service__pb2.RequestResponse.FromString,
         )
     self.DeletePredictionObjects = channel.unary_unary(
-        '/AlamendaAIService/DeletePredictionObjects',
+        '/containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService/DeletePredictionObjects',
         request_serializer=alameda__api_dot_v1alpha1_dot_ai__service_dot_ai__service__pb2.PredictionObjectListDeletionRequest.SerializeToString,
         response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
         )
 
 
 class AlamendaAIServiceServicer(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """*
+  Service for creating prediction objects.
+  """
 
   def CreatePredictionObjects(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to create prediction objects
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def DeletePredictionObjects(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to remove prediction objects
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -60,5 +62,5 @@ def add_AlamendaAIServiceServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'AlamendaAIService', rpc_method_handlers)
+      'containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

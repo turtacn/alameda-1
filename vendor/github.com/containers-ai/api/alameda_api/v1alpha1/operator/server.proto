@@ -1,4 +1,4 @@
-/// This file has messages related to the CRUD to Prometheus
+/// This file has messages related to the CRUD to Prometheus. This file will be deprated in v0.2.
 syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.operator;

@@ -18,16 +18,16 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='alameda_api/v1alpha1/ai_service/ai_service.proto',
-  package='',
+  package='containers_ai.alameda.v1alpha1.ai_service',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n0alameda_api/v1alpha1/ai_service/ai_service.proto\x1a\x1bgoogle/protobuf/empty.proto\".\n\x03Pod\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cresourceLink\x18\x02 \x01(\t\"\xa7\x01\n\x06Object\x12\x1a\n\x04type\x18\x01 \x01(\x0e\x32\x0c.Object.Type\x12%\n\x06policy\x18\x02 \x01(\x0e\x32\x15.RecommendationPolicy\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x11\n\x03pod\x18\x06 \x01(\x0b\x32\x04.Pod\"\x19\n\x04Type\x12\x07\n\x03POD\x10\x00\x12\x08\n\x04NODE\x10\x01\"?\n#PredictionObjectListCreationRequest\x12\x18\n\x07objects\x18\x01 \x03(\x0b\x32\x07.Object\"?\n#PredictionObjectListDeletionRequest\x12\x18\n\x07objects\x18\x01 \x03(\x0b\x32\x07.Object\"\"\n\x0fRequestResponse\x12\x0f\n\x07message\x18\x01 \x01(\t*/\n\x14RecommendationPolicy\x12\n\n\x06STABLE\x10\x00\x12\x0b\n\x07\x43OMPACT\x10\x01\x32\xc3\x01\n\x11\x41lamendaAIService\x12S\n\x17\x43reatePredictionObjects\x12$.PredictionObjectListCreationRequest\x1a\x10.RequestResponse\"\x00\x12Y\n\x17\x44\x65letePredictionObjects\x12$.PredictionObjectListDeletionRequest\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n0alameda_api/v1alpha1/ai_service/ai_service.proto\x12)containers_ai.alameda.v1alpha1.ai_service\x1a\x1bgoogle/protobuf/empty.proto\".\n\x03Pod\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cresourceLink\x18\x02 \x01(\t\"\xa5\x02\n\x06Object\x12\x44\n\x04type\x18\x01 \x01(\x0e\x32\x36.containers_ai.alameda.v1alpha1.ai_service.Object.Type\x12O\n\x06policy\x18\x02 \x01(\x0e\x32?.containers_ai.alameda.v1alpha1.ai_service.RecommendationPolicy\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12;\n\x03pod\x18\x06 \x01(\x0b\x32..containers_ai.alameda.v1alpha1.ai_service.Pod\"\x19\n\x04Type\x12\x07\n\x03POD\x10\x00\x12\x08\n\x04NODE\x10\x01\"i\n#PredictionObjectListCreationRequest\x12\x42\n\x07objects\x18\x01 \x03(\x0b\x32\x31.containers_ai.alameda.v1alpha1.ai_service.Object\"i\n#PredictionObjectListDeletionRequest\x12\x42\n\x07objects\x18\x01 \x03(\x0b\x32\x31.containers_ai.alameda.v1alpha1.ai_service.Object\"\"\n\x0fRequestResponse\x12\x0f\n\x07message\x18\x01 \x01(\t*/\n\x14RecommendationPolicy\x12\n\n\x06STABLE\x10\x00\x12\x0b\n\x07\x43OMPACT\x10\x01\x32\xc3\x02\n\x11\x41lamendaAIService\x12\xa7\x01\n\x17\x43reatePredictionObjects\x12N.containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListCreationRequest\x1a:.containers_ai.alameda.v1alpha1.ai_service.RequestResponse\"\x00\x12\x83\x01\n\x17\x44\x65letePredictionObjects\x12N.containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListDeletionRequest\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
 _RECOMMENDATIONPOLICY = _descriptor.EnumDescriptor(
   name='RecommendationPolicy',
-  full_name='RecommendationPolicy',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.RecommendationPolicy',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -42,8 +42,8 @@ _RECOMMENDATIONPOLICY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=465,
-  serialized_end=512,
+  serialized_start=718,
+  serialized_end=765,
 )
 _sym_db.RegisterEnumDescriptor(_RECOMMENDATIONPOLICY)
 
@@ -54,7 +54,7 @@ COMPACT = 1
 
 _OBJECT_TYPE = _descriptor.EnumDescriptor(
   name='Type',
-  full_name='Object.Type',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.Object.Type',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -69,28 +69,28 @@ _OBJECT_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=272,
-  serialized_end=297,
+  serialized_start=441,
+  serialized_end=466,
 )
 _sym_db.RegisterEnumDescriptor(_OBJECT_TYPE)
 
 
 _POD = _descriptor.Descriptor(
   name='Pod',
-  full_name='Pod',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.Pod',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='node_name', full_name='Pod.node_name', index=0,
+      name='node_name', full_name='containers_ai.alameda.v1alpha1.ai_service.Pod.node_name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='resourceLink', full_name='Pod.resourceLink', index=1,
+      name='resourceLink', full_name='containers_ai.alameda.v1alpha1.ai_service.Pod.resourceLink', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -108,55 +108,55 @@ _POD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=81,
-  serialized_end=127,
+  serialized_start=124,
+  serialized_end=170,
 )
 
 
 _OBJECT = _descriptor.Descriptor(
   name='Object',
-  full_name='Object',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.Object',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='type', full_name='Object.type', index=0,
+      name='type', full_name='containers_ai.alameda.v1alpha1.ai_service.Object.type', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='policy', full_name='Object.policy', index=1,
+      name='policy', full_name='containers_ai.alameda.v1alpha1.ai_service.Object.policy', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='uid', full_name='Object.uid', index=2,
+      name='uid', full_name='containers_ai.alameda.v1alpha1.ai_service.Object.uid', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='Object.namespace', index=3,
+      name='namespace', full_name='containers_ai.alameda.v1alpha1.ai_service.Object.namespace', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='Object.name', index=4,
+      name='name', full_name='containers_ai.alameda.v1alpha1.ai_service.Object.name', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pod', full_name='Object.pod', index=5,
+      name='pod', full_name='containers_ai.alameda.v1alpha1.ai_service.Object.pod', index=5,
       number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -175,20 +175,20 @@ _OBJECT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=130,
-  serialized_end=297,
+  serialized_start=173,
+  serialized_end=466,
 )
 
 
 _PREDICTIONOBJECTLISTCREATIONREQUEST = _descriptor.Descriptor(
   name='PredictionObjectListCreationRequest',
-  full_name='PredictionObjectListCreationRequest',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListCreationRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='objects', full_name='PredictionObjectListCreationRequest.objects', index=0,
+      name='objects', full_name='containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListCreationRequest.objects', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -206,20 +206,20 @@ _PREDICTIONOBJECTLISTCREATIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=299,
-  serialized_end=362,
+  serialized_start=468,
+  serialized_end=573,
 )
 
 
 _PREDICTIONOBJECTLISTDELETIONREQUEST = _descriptor.Descriptor(
   name='PredictionObjectListDeletionRequest',
-  full_name='PredictionObjectListDeletionRequest',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListDeletionRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='objects', full_name='PredictionObjectListDeletionRequest.objects', index=0,
+      name='objects', full_name='containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListDeletionRequest.objects', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -237,20 +237,20 @@ _PREDICTIONOBJECTLISTDELETIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=364,
-  serialized_end=427,
+  serialized_start=575,
+  serialized_end=680,
 )
 
 
 _REQUESTRESPONSE = _descriptor.Descriptor(
   name='RequestResponse',
-  full_name='RequestResponse',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.RequestResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='message', full_name='RequestResponse.message', index=0,
+      name='message', full_name='containers_ai.alameda.v1alpha1.ai_service.RequestResponse.message', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -268,8 +268,8 @@ _REQUESTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=429,
-  serialized_end=463,
+  serialized_start=682,
+  serialized_end=716,
 )
 
 _OBJECT.fields_by_name['type'].enum_type = _OBJECT_TYPE
@@ -289,35 +289,35 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 Pod = _reflection.GeneratedProtocolMessageType('Pod', (_message.Message,), dict(
   DESCRIPTOR = _POD,
   __module__ = 'alameda_api.v1alpha1.ai_service.ai_service_pb2'
-  # @@protoc_insertion_point(class_scope:Pod)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.ai_service.Pod)
   ))
 _sym_db.RegisterMessage(Pod)
 
 Object = _reflection.GeneratedProtocolMessageType('Object', (_message.Message,), dict(
   DESCRIPTOR = _OBJECT,
   __module__ = 'alameda_api.v1alpha1.ai_service.ai_service_pb2'
-  # @@protoc_insertion_point(class_scope:Object)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.ai_service.Object)
   ))
 _sym_db.RegisterMessage(Object)
 
 PredictionObjectListCreationRequest = _reflection.GeneratedProtocolMessageType('PredictionObjectListCreationRequest', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTIONOBJECTLISTCREATIONREQUEST,
   __module__ = 'alameda_api.v1alpha1.ai_service.ai_service_pb2'
-  # @@protoc_insertion_point(class_scope:PredictionObjectListCreationRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListCreationRequest)
   ))
 _sym_db.RegisterMessage(PredictionObjectListCreationRequest)
 
 PredictionObjectListDeletionRequest = _reflection.GeneratedProtocolMessageType('PredictionObjectListDeletionRequest', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTIONOBJECTLISTDELETIONREQUEST,
   __module__ = 'alameda_api.v1alpha1.ai_service.ai_service_pb2'
-  # @@protoc_insertion_point(class_scope:PredictionObjectListDeletionRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.ai_service.PredictionObjectListDeletionRequest)
   ))
 _sym_db.RegisterMessage(PredictionObjectListDeletionRequest)
 
 RequestResponse = _reflection.GeneratedProtocolMessageType('RequestResponse', (_message.Message,), dict(
   DESCRIPTOR = _REQUESTRESPONSE,
   __module__ = 'alameda_api.v1alpha1.ai_service.ai_service_pb2'
-  # @@protoc_insertion_point(class_scope:RequestResponse)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.ai_service.RequestResponse)
   ))
 _sym_db.RegisterMessage(RequestResponse)
 
@@ -325,16 +325,16 @@ _sym_db.RegisterMessage(RequestResponse)
 
 _ALAMENDAAISERVICE = _descriptor.ServiceDescriptor(
   name='AlamendaAIService',
-  full_name='AlamendaAIService',
+  full_name='containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService',
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=515,
-  serialized_end=710,
+  serialized_start=768,
+  serialized_end=1091,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreatePredictionObjects',
-    full_name='AlamendaAIService.CreatePredictionObjects',
+    full_name='containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService.CreatePredictionObjects',
     index=0,
     containing_service=None,
     input_type=_PREDICTIONOBJECTLISTCREATIONREQUEST,
@@ -343,7 +343,7 @@ _ALAMENDAAISERVICE = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='DeletePredictionObjects',
-    full_name='AlamendaAIService.DeletePredictionObjects',
+    full_name='containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService.DeletePredictionObjects',
     index=1,
     containing_service=None,
     input_type=_PREDICTIONOBJECTLISTDELETIONREQUEST,

@@ -11,7 +11,7 @@ import "alameda_api/v1alpha1/datahub/metric.proto";
 /**
  * Represents a resource configuration recommendation made by the AI Engine
  * 
- * It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial strage
+ * It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
  *
  */
 message ContainerRecommendation {

@@ -19,6 +19,9 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// *
+// Represents a container and its containing limit and requeset configurations
+//
 type Container struct {
 	Name                 string        `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	LimitResource        []*MetricData `protobuf:"bytes,2,rep,name=limit_resource,json=limitResource,proto3" json:"limit_resource,omitempty"`
@@ -32,7 +35,7 @@ func (m *Container) Reset()         { *m = Container{} }
 func (m *Container) String() string { return proto.CompactTextString(m) }
 func (*Container) ProtoMessage()    {}
 func (*Container) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_6785bca5ae24d492, []int{0}
+	return fileDescriptor_resource_4a119ad5e2cf1a81, []int{0}
 }
 func (m *Container) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Container.Unmarshal(m, b)
@@ -73,6 +76,9 @@ func (m *Container) GetRequestResource() []*MetricData {
 	return nil
 }
 
+// *
+// Represents a Kubernetes pod
+//
 type Pod struct {
 	NamespacedName       *NamespacedName      `protobuf:"bytes,1,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
 	ResourceLink         string               `protobuf:"bytes,2,opt,name=resource_link,json=resourceLink,proto3" json:"resource_link,omitempty"`
@@ -91,7 +97,7 @@ func (m *Pod) Reset()         { *m = Pod{} }
 func (m *Pod) String() string { return proto.CompactTextString(m) }
 func (*Pod) ProtoMessage()    {}
 func (*Pod) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_6785bca5ae24d492, []int{1}
+	return fileDescriptor_resource_4a119ad5e2cf1a81, []int{1}
 }
 func (m *Pod) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pod.Unmarshal(m, b)
@@ -167,6 +173,9 @@ func (m *Pod) GetPolicy() RecommendationPolicy {
 	return RecommendationPolicy_RECOMMENDATIONPOLICY_UNDEFINED
 }
 
+// *
+// Represents a Kubernetes node
+//
 type Node struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -178,7 +187,7 @@ func (m *Node) Reset()         { *m = Node{} }
 func (m *Node) String() string { return proto.CompactTextString(m) }
 func (*Node) ProtoMessage()    {}
 func (*Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_6785bca5ae24d492, []int{2}
+	return fileDescriptor_resource_4a119ad5e2cf1a81, []int{2}
 }
 func (m *Node) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Node.Unmarshal(m, b)
@@ -212,10 +221,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/resource.proto", fileDescriptor_resource_6785bca5ae24d492)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/resource.proto", fileDescriptor_resource_4a119ad5e2cf1a81)
 }
 
-var fileDescriptor_resource_6785bca5ae24d492 = []byte{
+var fileDescriptor_resource_4a119ad5e2cf1a81 = []byte{
 	// 436 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x92, 0x51, 0x8b, 0x13, 0x31,
 	0x10, 0xc7, 0xd9, 0x6b, 0xad, 0xdd, 0x39, 0xdb, 0x93, 0x3c, 0x2d, 0x15, 0xb1, 0x54, 0x90, 0xaa,

@@ -5,8 +5,9 @@ from alameda_api.v1alpha1.operator import server_pb2 as alameda__api_dot_v1alpha
 
 
 class OperatorServiceStub(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """*
+  Service for providing data stored in Prometheus
+  """
 
   def __init__(self, channel):
     """Constructor.
@@ -15,67 +16,68 @@ class OperatorServiceStub(object):
       channel: A grpc.Channel.
     """
     self.ListMetrics = channel.unary_unary(
-        '/OperatorService/ListMetrics',
+        '/containers_ai.alameda.v1alpha1.operator.OperatorService/ListMetrics',
         request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.ListMetricsRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.ListMetricsResponse.FromString,
         )
     self.ListMetricsSum = channel.unary_unary(
-        '/OperatorService/ListMetricsSum',
+        '/containers_ai.alameda.v1alpha1.operator.OperatorService/ListMetricsSum',
         request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.ListMetricsSumRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.ListMetricsSumResponse.FromString,
         )
     self.CreatePredictResult = channel.unary_unary(
-        '/OperatorService/CreatePredictResult',
+        '/containers_ai.alameda.v1alpha1.operator.OperatorService/CreatePredictResult',
         request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.CreatePredictResultRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.CreatePredictResultResponse.FromString,
         )
     self.GetResourceInfo = channel.unary_unary(
-        '/OperatorService/GetResourceInfo',
+        '/containers_ai.alameda.v1alpha1.operator.OperatorService/GetResourceInfo',
         request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceInfoRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceInfoResponse.FromString,
         )
     self.GetResourceRecommendation = channel.unary_unary(
-        '/OperatorService/GetResourceRecommendation',
+        '/containers_ai.alameda.v1alpha1.operator.OperatorService/GetResourceRecommendation',
         request_serializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceRecommendationRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_operator_dot_server__pb2.GetResourceRecommendationResponse.FromString,
         )
 
 
 class OperatorServiceServicer(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """*
+  Service for providing data stored in Prometheus
+  """
 
   def ListMetrics(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list metric data
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListMetricsSum(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to list summation of metric data
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePredictResult(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to requst for creating prediction results
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def GetResourceInfo(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to get resource data
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def GetResourceRecommendation(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """/ Used to get resource recommendation
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -110,5 +112,5 @@ def add_OperatorServiceServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'OperatorService', rpc_method_handlers)
+      'containers_ai.alameda.v1alpha1.operator.OperatorService', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

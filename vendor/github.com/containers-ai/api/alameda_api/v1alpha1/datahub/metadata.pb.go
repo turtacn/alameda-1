@@ -18,6 +18,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// *
+// Represents kubernetes resource with namespace and name
 type NamespacedName struct {
 	Namespace            string   `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -30,7 +32,7 @@ func (m *NamespacedName) Reset()         { *m = NamespacedName{} }
 func (m *NamespacedName) String() string { return proto.CompactTextString(m) }
 func (*NamespacedName) ProtoMessage()    {}
 func (*NamespacedName) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metadata_27a9b9e2a1dbbb9f, []int{0}
+	return fileDescriptor_metadata_942726ab83823fc8, []int{0}
 }
 func (m *NamespacedName) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NamespacedName.Unmarshal(m, b)
@@ -69,10 +71,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/metadata.proto", fileDescriptor_metadata_27a9b9e2a1dbbb9f)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/metadata.proto", fileDescriptor_metadata_942726ab83823fc8)
 }
 
-var fileDescriptor_metadata_27a9b9e2a1dbbb9f = []byte{
+var fileDescriptor_metadata_942726ab83823fc8 = []byte{
 	// 139 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0x4e, 0xcc, 0x49, 0xcc,
 	0x4d, 0x4d, 0x49, 0x8c, 0x4f, 0x2c, 0xc8, 0xd4, 0x2f, 0x33, 0x4c, 0xcc, 0x29, 0xc8, 0x48, 0x34,

@@ -254,7 +254,7 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 		}
 	}
 
-	for _, nodeName := range r.GetNodeName() {
+	for _, nodeName := range r.GetNodeNames() {
 		nodeNames = append(nodeNames, nodeName)
 	}
 

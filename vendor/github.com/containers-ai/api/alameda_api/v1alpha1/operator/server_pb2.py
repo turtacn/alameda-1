@@ -20,16 +20,16 @@ from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='alameda_api/v1alpha1/operator/server.proto',
-  package='',
+  package='containers_ai.alameda.v1alpha1.operator',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n*alameda_api/v1alpha1/operator/server.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17google/rpc/status.proto\"\x92\x01\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\"?\n\rLabelSelector\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x12\n\x02op\x18\x02 \x01(\x0e\x32\x06.StrOp\x12\r\n\x05value\x18\x03 \x01(\t\"A\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\x01\"\x82\x01\n\x0cMetricResult\x12)\n\x06labels\x18\x01 \x03(\x0b\x32\x19.MetricResult.LabelsEntry\x12\x18\n\x07samples\x18\x02 \x03(\x0b\x32\x07.Sample\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe8\x01\n\x12ListMetricsRequest\x12 \n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x0b.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12 \n\ntime_range\x18\x04 \x01(\x0b\x32\n.TimeRangeH\x00\x12\"\n\nconditions\x18\x05 \x03(\x0b\x32\x0e.LabelSelectorB\x0f\n\rtime_selector\"Y\n\x13ListMetricsResponse\x12\x1e\n\x07metrics\x18\x01 \x03(\x0b\x32\r.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"\xfb\x01\n\x15ListMetricsSumRequest\x12 \n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x0b.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12 \n\ntime_range\x18\x04 \x01(\x0b\x32\n.TimeRangeH\x00\x12\"\n\nconditions\x18\x05 \x03(\x0b\x32\x0e.LabelSelector\x12\x0e\n\x06labels\x18\x06 \x03(\tB\x0f\n\rtime_selector\"\\\n\x16ListMetricsSumResponse\x12\x1e\n\x07metrics\x18\x01 \x03(\x0b\x32\r.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"V\n\x16GetResourceInfoRequest\x12\x1b\n\x04type\x18\x01 \x01(\x0e\x32\r.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"`\n GetResourceRecommendationRequest\x12\x1b\n\x04type\x18\x01 \x01(\x0e\x32\r.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"\xb6\x01\n\x08Resource\x12#\n\x05limit\x18\x01 \x03(\x0b\x32\x14.Resource.LimitEntry\x12\'\n\x07request\x18\x02 \x03(\x0b\x32\x16.Resource.RequestEntry\x1a,\n\nLimitEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cRequestEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"W\n\x0eRecommendation\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1b\n\x08resource\x18\x02 \x01(\x0b\x32\t.Resource\"F\n\x0bPredictData\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\t\"4\n\x0eTimeSeriesData\x12\"\n\x0cpredict_data\x18\x01 \x03(\x0b\x32\x0c.PredictData\"\xf8\x01\n\x10PredictContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12?\n\x10raw_predict_data\x18\x02 \x03(\x0b\x32%.PredictContainer.RawPredictDataEntry\x12(\n\x0frecommendations\x18\x03 \x03(\x0b\x32\x0f.Recommendation\x12#\n\x10initial_resource\x18\x04 \x01(\x0b\x32\t.Resource\x1a\x46\n\x13RawPredictDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1e\n\x05value\x18\x02 \x01(\x0b\x32\x0f.TimeSeriesData:\x02\x38\x01\"i\n\nPredictPod\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12-\n\x12predict_containers\x18\x04 \x03(\x0b\x32\x11.PredictContainer\"[\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1b\n\x08resource\x18\x02 \x01(\x0b\x32\t.Resource\x12#\n\x10initial_resource\x18\x03 \x01(\x0b\x32\t.Resource\")\n\x07PodInfo\x12\x1e\n\ncontainers\x18\x01 \x03(\x0b\x32\n.Container\"?\n\x1a\x43reatePredictResultRequest\x12!\n\x0cpredict_pods\x18\x01 \x03(\x0b\x32\x0b.PredictPod\"A\n\x1b\x43reatePredictResultResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\"\xa4\x01\n\x17GetResourceInfoResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x1b\n\x04type\x18\x02 \x01(\x0e\x32\r.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x1a\n\x08pod_info\x18\x06 \x01(\x0b\x32\x08.PodInfo\"\xae\x01\n!GetResourceRecommendationResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x1b\n\x04type\x18\x02 \x01(\x0e\x32\r.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x1a\n\x08pod_info\x18\x06 \x01(\x0b\x32\x08.PodInfo*\xaa\x01\n\nMetricType\x12\x1d\n\x19\x43ONTAINER_CPU_USAGE_TOTAL\x10\x00\x12\"\n\x1e\x43ONTAINER_CPU_USAGE_TOTAL_RATE\x10\x01\x12\x1a\n\x16\x43ONTAINER_MEMORY_USAGE\x10\x02\x12 \n\x1cNODE_CPU_USAGE_SECONDS_AVG1M\x10\x03\x12\x1b\n\x17NODE_MEMORY_USAGE_BYTES\x10\x04*\x17\n\x0cResourceType\x12\x07\n\x03POD\x10\x00*!\n\x05StrOp\x12\t\n\x05\x45QUAL\x10\x00\x12\r\n\tNOT_EQUAL\x10\x01\x32\x94\x03\n\x0fOperatorService\x12:\n\x0bListMetrics\x12\x13.ListMetricsRequest\x1a\x14.ListMetricsResponse\"\x00\x12\x43\n\x0eListMetricsSum\x12\x16.ListMetricsSumRequest\x1a\x17.ListMetricsSumResponse\"\x00\x12R\n\x13\x43reatePredictResult\x12\x1b.CreatePredictResultRequest\x1a\x1c.CreatePredictResultResponse\"\x00\x12\x46\n\x0fGetResourceInfo\x12\x17.GetResourceInfoRequest\x1a\x18.GetResourceInfoResponse\"\x00\x12\x64\n\x19GetResourceRecommendation\x12!.GetResourceRecommendationRequest\x1a\".GetResourceRecommendationResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n*alameda_api/v1alpha1/operator/server.proto\x12\'containers_ai.alameda.v1alpha1.operator\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17google/rpc/status.proto\"\x92\x01\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\"g\n\rLabelSelector\x12\x0b\n\x03key\x18\x01 \x01(\t\x12:\n\x02op\x18\x02 \x01(\x0e\x32..containers_ai.alameda.v1alpha1.operator.StrOp\x12\r\n\x05value\x18\x03 \x01(\t\"A\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\x01\"\xd2\x01\n\x0cMetricResult\x12Q\n\x06labels\x18\x01 \x03(\x0b\x32\x41.containers_ai.alameda.v1alpha1.operator.MetricResult.LabelsEntry\x12@\n\x07samples\x18\x02 \x03(\x0b\x32/.containers_ai.alameda.v1alpha1.operator.Sample\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe0\x02\n\x12ListMetricsRequest\x12H\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x33.containers_ai.alameda.v1alpha1.operator.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12H\n\ntime_range\x18\x04 \x01(\x0b\x32\x32.containers_ai.alameda.v1alpha1.operator.TimeRangeH\x00\x12J\n\nconditions\x18\x05 \x03(\x0b\x32\x36.containers_ai.alameda.v1alpha1.operator.LabelSelectorB\x0f\n\rtime_selector\"\x81\x01\n\x13ListMetricsResponse\x12\x46\n\x07metrics\x18\x01 \x03(\x0b\x32\x35.containers_ai.alameda.v1alpha1.operator.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"\xf3\x02\n\x15ListMetricsSumRequest\x12H\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x33.containers_ai.alameda.v1alpha1.operator.MetricType\x12*\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12-\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.DurationH\x00\x12H\n\ntime_range\x18\x04 \x01(\x0b\x32\x32.containers_ai.alameda.v1alpha1.operator.TimeRangeH\x00\x12J\n\nconditions\x18\x05 \x03(\x0b\x32\x36.containers_ai.alameda.v1alpha1.operator.LabelSelector\x12\x0e\n\x06labels\x18\x06 \x03(\tB\x0f\n\rtime_selector\"\x84\x01\n\x16ListMetricsSumResponse\x12\x46\n\x07metrics\x18\x01 \x03(\x0b\x32\x35.containers_ai.alameda.v1alpha1.operator.MetricResult\x12\"\n\x06status\x18\x02 \x01(\x0b\x32\x12.google.rpc.Status\"~\n\x16GetResourceInfoRequest\x12\x43\n\x04type\x18\x01 \x01(\x0e\x32\x35.containers_ai.alameda.v1alpha1.operator.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"\x88\x01\n GetResourceRecommendationRequest\x12\x43\n\x04type\x18\x01 \x01(\x0e\x32\x35.containers_ai.alameda.v1alpha1.operator.ResourceType\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\"\x86\x02\n\x08Resource\x12K\n\x05limit\x18\x01 \x03(\x0b\x32<.containers_ai.alameda.v1alpha1.operator.Resource.LimitEntry\x12O\n\x07request\x18\x02 \x03(\x0b\x32>.containers_ai.alameda.v1alpha1.operator.Resource.RequestEntry\x1a,\n\nLimitEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cRequestEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x7f\n\x0eRecommendation\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x43\n\x08resource\x18\x02 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.operator.Resource\"F\n\x0bPredictData\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x02 \x01(\t\"\\\n\x0eTimeSeriesData\x12J\n\x0cpredict_data\x18\x01 \x03(\x0b\x32\x34.containers_ai.alameda.v1alpha1.operator.PredictData\"\x98\x03\n\x10PredictContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12g\n\x10raw_predict_data\x18\x02 \x03(\x0b\x32M.containers_ai.alameda.v1alpha1.operator.PredictContainer.RawPredictDataEntry\x12P\n\x0frecommendations\x18\x03 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.operator.Recommendation\x12K\n\x10initial_resource\x18\x04 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.operator.Resource\x1an\n\x13RawPredictDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x46\n\x05value\x18\x02 \x01(\x0b\x32\x37.containers_ai.alameda.v1alpha1.operator.TimeSeriesData:\x02\x38\x01\"\x91\x01\n\nPredictPod\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12U\n\x12predict_containers\x18\x04 \x03(\x0b\x32\x39.containers_ai.alameda.v1alpha1.operator.PredictContainer\"\xab\x01\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x43\n\x08resource\x18\x02 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.operator.Resource\x12K\n\x10initial_resource\x18\x03 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.operator.Resource\"Q\n\x07PodInfo\x12\x46\n\ncontainers\x18\x01 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.operator.Container\"g\n\x1a\x43reatePredictResultRequest\x12I\n\x0cpredict_pods\x18\x01 \x03(\x0b\x32\x33.containers_ai.alameda.v1alpha1.operator.PredictPod\"A\n\x1b\x43reatePredictResultResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\"\xf4\x01\n\x17GetResourceInfoResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x43\n\x04type\x18\x02 \x01(\x0e\x32\x35.containers_ai.alameda.v1alpha1.operator.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x42\n\x08pod_info\x18\x06 \x01(\x0b\x32\x30.containers_ai.alameda.v1alpha1.operator.PodInfo\"\xfe\x01\n!GetResourceRecommendationResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x43\n\x04type\x18\x02 \x01(\x0e\x32\x35.containers_ai.alameda.v1alpha1.operator.ResourceType\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\x42\n\x08pod_info\x18\x06 \x01(\x0b\x32\x30.containers_ai.alameda.v1alpha1.operator.PodInfo*\xaa\x01\n\nMetricType\x12\x1d\n\x19\x43ONTAINER_CPU_USAGE_TOTAL\x10\x00\x12\"\n\x1e\x43ONTAINER_CPU_USAGE_TOTAL_RATE\x10\x01\x12\x1a\n\x16\x43ONTAINER_MEMORY_USAGE\x10\x02\x12 \n\x1cNODE_CPU_USAGE_SECONDS_AVG1M\x10\x03\x12\x1b\n\x17NODE_MEMORY_USAGE_BYTES\x10\x04*\x17\n\x0cResourceType\x12\x07\n\x03POD\x10\x00*!\n\x05StrOp\x12\t\n\x05\x45QUAL\x10\x00\x12\r\n\tNOT_EQUAL\x10\x01\x32\xa9\x06\n\x0fOperatorService\x12\x8a\x01\n\x0bListMetrics\x12;.containers_ai.alameda.v1alpha1.operator.ListMetricsRequest\x1a<.containers_ai.alameda.v1alpha1.operator.ListMetricsResponse\"\x00\x12\x93\x01\n\x0eListMetricsSum\x12>.containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest\x1a?.containers_ai.alameda.v1alpha1.operator.ListMetricsSumResponse\"\x00\x12\xa2\x01\n\x13\x43reatePredictResult\x12\x43.containers_ai.alameda.v1alpha1.operator.CreatePredictResultRequest\x1a\x44.containers_ai.alameda.v1alpha1.operator.CreatePredictResultResponse\"\x00\x12\x96\x01\n\x0fGetResourceInfo\x12?.containers_ai.alameda.v1alpha1.operator.GetResourceInfoRequest\x1a@.containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse\"\x00\x12\xb4\x01\n\x19GetResourceRecommendation\x12I.containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationRequest\x1aJ.containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
 _METRICTYPE = _descriptor.EnumDescriptor(
   name='MetricType',
-  full_name='MetricType',
+  full_name='containers_ai.alameda.v1alpha1.operator.MetricType',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -56,15 +56,15 @@ _METRICTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2781,
-  serialized_end=2951,
+  serialized_start=4027,
+  serialized_end=4197,
 )
 _sym_db.RegisterEnumDescriptor(_METRICTYPE)
 
 MetricType = enum_type_wrapper.EnumTypeWrapper(_METRICTYPE)
 _RESOURCETYPE = _descriptor.EnumDescriptor(
   name='ResourceType',
-  full_name='ResourceType',
+  full_name='containers_ai.alameda.v1alpha1.operator.ResourceType',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -75,15 +75,15 @@ _RESOURCETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2953,
-  serialized_end=2976,
+  serialized_start=4199,
+  serialized_end=4222,
 )
 _sym_db.RegisterEnumDescriptor(_RESOURCETYPE)
 
 ResourceType = enum_type_wrapper.EnumTypeWrapper(_RESOURCETYPE)
 _STROP = _descriptor.EnumDescriptor(
   name='StrOp',
-  full_name='StrOp',
+  full_name='containers_ai.alameda.v1alpha1.operator.StrOp',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -98,8 +98,8 @@ _STROP = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2978,
-  serialized_end=3011,
+  serialized_start=4224,
+  serialized_end=4257,
 )
 _sym_db.RegisterEnumDescriptor(_STROP)
 
@@ -117,27 +117,27 @@ NOT_EQUAL = 1
 
 _TIMERANGE = _descriptor.Descriptor(
   name='TimeRange',
-  full_name='TimeRange',
+  full_name='containers_ai.alameda.v1alpha1.operator.TimeRange',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='start_time', full_name='TimeRange.start_time', index=0,
+      name='start_time', full_name='containers_ai.alameda.v1alpha1.operator.TimeRange.start_time', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='end_time', full_name='TimeRange.end_time', index=1,
+      name='end_time', full_name='containers_ai.alameda.v1alpha1.operator.TimeRange.end_time', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='step', full_name='TimeRange.step', index=2,
+      name='step', full_name='containers_ai.alameda.v1alpha1.operator.TimeRange.step', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -155,34 +155,34 @@ _TIMERANGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=137,
-  serialized_end=283,
+  serialized_start=178,
+  serialized_end=324,
 )
 
 
 _LABELSELECTOR = _descriptor.Descriptor(
   name='LabelSelector',
-  full_name='LabelSelector',
+  full_name='containers_ai.alameda.v1alpha1.operator.LabelSelector',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='LabelSelector.key', index=0,
+      name='key', full_name='containers_ai.alameda.v1alpha1.operator.LabelSelector.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='op', full_name='LabelSelector.op', index=1,
+      name='op', full_name='containers_ai.alameda.v1alpha1.operator.LabelSelector.op', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='LabelSelector.value', index=2,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.LabelSelector.value', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -200,27 +200,27 @@ _LABELSELECTOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=285,
-  serialized_end=348,
+  serialized_start=326,
+  serialized_end=429,
 )
 
 
 _SAMPLE = _descriptor.Descriptor(
   name='Sample',
-  full_name='Sample',
+  full_name='containers_ai.alameda.v1alpha1.operator.Sample',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='time', full_name='Sample.time', index=0,
+      name='time', full_name='containers_ai.alameda.v1alpha1.operator.Sample.time', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='Sample.value', index=1,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.Sample.value', index=1,
       number=2, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -238,27 +238,27 @@ _SAMPLE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=350,
-  serialized_end=415,
+  serialized_start=431,
+  serialized_end=496,
 )
 
 
 _METRICRESULT_LABELSENTRY = _descriptor.Descriptor(
   name='LabelsEntry',
-  full_name='MetricResult.LabelsEntry',
+  full_name='containers_ai.alameda.v1alpha1.operator.MetricResult.LabelsEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='MetricResult.LabelsEntry.key', index=0,
+      name='key', full_name='containers_ai.alameda.v1alpha1.operator.MetricResult.LabelsEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='MetricResult.LabelsEntry.value', index=1,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.MetricResult.LabelsEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -276,26 +276,26 @@ _METRICRESULT_LABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=503,
-  serialized_end=548,
+  serialized_start=664,
+  serialized_end=709,
 )
 
 _METRICRESULT = _descriptor.Descriptor(
   name='MetricResult',
-  full_name='MetricResult',
+  full_name='containers_ai.alameda.v1alpha1.operator.MetricResult',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='labels', full_name='MetricResult.labels', index=0,
+      name='labels', full_name='containers_ai.alameda.v1alpha1.operator.MetricResult.labels', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='samples', full_name='MetricResult.samples', index=1,
+      name='samples', full_name='containers_ai.alameda.v1alpha1.operator.MetricResult.samples', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -313,48 +313,48 @@ _METRICRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=418,
-  serialized_end=548,
+  serialized_start=499,
+  serialized_end=709,
 )
 
 
 _LISTMETRICSREQUEST = _descriptor.Descriptor(
   name='ListMetricsRequest',
-  full_name='ListMetricsRequest',
+  full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='metric_type', full_name='ListMetricsRequest.metric_type', index=0,
+      name='metric_type', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest.metric_type', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='time', full_name='ListMetricsRequest.time', index=1,
+      name='time', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest.time', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='duration', full_name='ListMetricsRequest.duration', index=2,
+      name='duration', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest.duration', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='time_range', full_name='ListMetricsRequest.time_range', index=3,
+      name='time_range', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest.time_range', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='conditions', full_name='ListMetricsRequest.conditions', index=4,
+      name='conditions', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest.conditions', index=4,
       number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -372,30 +372,30 @@ _LISTMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='time_selector', full_name='ListMetricsRequest.time_selector',
+      name='time_selector', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsRequest.time_selector',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=551,
-  serialized_end=783,
+  serialized_start=712,
+  serialized_end=1064,
 )
 
 
 _LISTMETRICSRESPONSE = _descriptor.Descriptor(
   name='ListMetricsResponse',
-  full_name='ListMetricsResponse',
+  full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='metrics', full_name='ListMetricsResponse.metrics', index=0,
+      name='metrics', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsResponse.metrics', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='status', full_name='ListMetricsResponse.status', index=1,
+      name='status', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsResponse.status', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -413,55 +413,55 @@ _LISTMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=785,
-  serialized_end=874,
+  serialized_start=1067,
+  serialized_end=1196,
 )
 
 
 _LISTMETRICSSUMREQUEST = _descriptor.Descriptor(
   name='ListMetricsSumRequest',
-  full_name='ListMetricsSumRequest',
+  full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='metric_type', full_name='ListMetricsSumRequest.metric_type', index=0,
+      name='metric_type', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.metric_type', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='time', full_name='ListMetricsSumRequest.time', index=1,
+      name='time', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.time', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='duration', full_name='ListMetricsSumRequest.duration', index=2,
+      name='duration', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.duration', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='time_range', full_name='ListMetricsSumRequest.time_range', index=3,
+      name='time_range', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.time_range', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='conditions', full_name='ListMetricsSumRequest.conditions', index=4,
+      name='conditions', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.conditions', index=4,
       number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='labels', full_name='ListMetricsSumRequest.labels', index=5,
+      name='labels', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.labels', index=5,
       number=6, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -479,30 +479,30 @@ _LISTMETRICSSUMREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='time_selector', full_name='ListMetricsSumRequest.time_selector',
+      name='time_selector', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest.time_selector',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=877,
-  serialized_end=1128,
+  serialized_start=1199,
+  serialized_end=1570,
 )
 
 
 _LISTMETRICSSUMRESPONSE = _descriptor.Descriptor(
   name='ListMetricsSumResponse',
-  full_name='ListMetricsSumResponse',
+  full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='metrics', full_name='ListMetricsSumResponse.metrics', index=0,
+      name='metrics', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumResponse.metrics', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='status', full_name='ListMetricsSumResponse.status', index=1,
+      name='status', full_name='containers_ai.alameda.v1alpha1.operator.ListMetricsSumResponse.status', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -520,34 +520,34 @@ _LISTMETRICSSUMRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1130,
-  serialized_end=1222,
+  serialized_start=1573,
+  serialized_end=1705,
 )
 
 
 _GETRESOURCEINFOREQUEST = _descriptor.Descriptor(
   name='GetResourceInfoRequest',
-  full_name='GetResourceInfoRequest',
+  full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='type', full_name='GetResourceInfoRequest.type', index=0,
+      name='type', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoRequest.type', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='GetResourceInfoRequest.namespace', index=1,
+      name='namespace', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoRequest.namespace', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='GetResourceInfoRequest.name', index=2,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoRequest.name', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -565,34 +565,34 @@ _GETRESOURCEINFOREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1224,
-  serialized_end=1310,
+  serialized_start=1707,
+  serialized_end=1833,
 )
 
 
 _GETRESOURCERECOMMENDATIONREQUEST = _descriptor.Descriptor(
   name='GetResourceRecommendationRequest',
-  full_name='GetResourceRecommendationRequest',
+  full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='type', full_name='GetResourceRecommendationRequest.type', index=0,
+      name='type', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationRequest.type', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='GetResourceRecommendationRequest.namespace', index=1,
+      name='namespace', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationRequest.namespace', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='GetResourceRecommendationRequest.name', index=2,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationRequest.name', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -610,27 +610,27 @@ _GETRESOURCERECOMMENDATIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1312,
-  serialized_end=1408,
+  serialized_start=1836,
+  serialized_end=1972,
 )
 
 
 _RESOURCE_LIMITENTRY = _descriptor.Descriptor(
   name='LimitEntry',
-  full_name='Resource.LimitEntry',
+  full_name='containers_ai.alameda.v1alpha1.operator.Resource.LimitEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='Resource.LimitEntry.key', index=0,
+      name='key', full_name='containers_ai.alameda.v1alpha1.operator.Resource.LimitEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='Resource.LimitEntry.value', index=1,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.Resource.LimitEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -648,26 +648,26 @@ _RESOURCE_LIMITENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1501,
-  serialized_end=1545,
+  serialized_start=2145,
+  serialized_end=2189,
 )
 
 _RESOURCE_REQUESTENTRY = _descriptor.Descriptor(
   name='RequestEntry',
-  full_name='Resource.RequestEntry',
+  full_name='containers_ai.alameda.v1alpha1.operator.Resource.RequestEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='Resource.RequestEntry.key', index=0,
+      name='key', full_name='containers_ai.alameda.v1alpha1.operator.Resource.RequestEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='Resource.RequestEntry.value', index=1,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.Resource.RequestEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -685,26 +685,26 @@ _RESOURCE_REQUESTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1547,
-  serialized_end=1593,
+  serialized_start=2191,
+  serialized_end=2237,
 )
 
 _RESOURCE = _descriptor.Descriptor(
   name='Resource',
-  full_name='Resource',
+  full_name='containers_ai.alameda.v1alpha1.operator.Resource',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='limit', full_name='Resource.limit', index=0,
+      name='limit', full_name='containers_ai.alameda.v1alpha1.operator.Resource.limit', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='request', full_name='Resource.request', index=1,
+      name='request', full_name='containers_ai.alameda.v1alpha1.operator.Resource.request', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -722,27 +722,27 @@ _RESOURCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1411,
-  serialized_end=1593,
+  serialized_start=1975,
+  serialized_end=2237,
 )
 
 
 _RECOMMENDATION = _descriptor.Descriptor(
   name='Recommendation',
-  full_name='Recommendation',
+  full_name='containers_ai.alameda.v1alpha1.operator.Recommendation',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='time', full_name='Recommendation.time', index=0,
+      name='time', full_name='containers_ai.alameda.v1alpha1.operator.Recommendation.time', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='resource', full_name='Recommendation.resource', index=1,
+      name='resource', full_name='containers_ai.alameda.v1alpha1.operator.Recommendation.resource', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -760,27 +760,27 @@ _RECOMMENDATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1595,
-  serialized_end=1682,
+  serialized_start=2239,
+  serialized_end=2366,
 )
 
 
 _PREDICTDATA = _descriptor.Descriptor(
   name='PredictData',
-  full_name='PredictData',
+  full_name='containers_ai.alameda.v1alpha1.operator.PredictData',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='time', full_name='PredictData.time', index=0,
+      name='time', full_name='containers_ai.alameda.v1alpha1.operator.PredictData.time', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='PredictData.value', index=1,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.PredictData.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -798,20 +798,20 @@ _PREDICTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1684,
-  serialized_end=1754,
+  serialized_start=2368,
+  serialized_end=2438,
 )
 
 
 _TIMESERIESDATA = _descriptor.Descriptor(
   name='TimeSeriesData',
-  full_name='TimeSeriesData',
+  full_name='containers_ai.alameda.v1alpha1.operator.TimeSeriesData',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='predict_data', full_name='TimeSeriesData.predict_data', index=0,
+      name='predict_data', full_name='containers_ai.alameda.v1alpha1.operator.TimeSeriesData.predict_data', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -829,27 +829,27 @@ _TIMESERIESDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1756,
-  serialized_end=1808,
+  serialized_start=2440,
+  serialized_end=2532,
 )
 
 
 _PREDICTCONTAINER_RAWPREDICTDATAENTRY = _descriptor.Descriptor(
   name='RawPredictDataEntry',
-  full_name='PredictContainer.RawPredictDataEntry',
+  full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.RawPredictDataEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='PredictContainer.RawPredictDataEntry.key', index=0,
+      name='key', full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.RawPredictDataEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='PredictContainer.RawPredictDataEntry.value', index=1,
+      name='value', full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.RawPredictDataEntry.value', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -867,40 +867,40 @@ _PREDICTCONTAINER_RAWPREDICTDATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1989,
-  serialized_end=2059,
+  serialized_start=2833,
+  serialized_end=2943,
 )
 
 _PREDICTCONTAINER = _descriptor.Descriptor(
   name='PredictContainer',
-  full_name='PredictContainer',
+  full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='PredictContainer.name', index=0,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='raw_predict_data', full_name='PredictContainer.raw_predict_data', index=1,
+      name='raw_predict_data', full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.raw_predict_data', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='recommendations', full_name='PredictContainer.recommendations', index=2,
+      name='recommendations', full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.recommendations', index=2,
       number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='initial_resource', full_name='PredictContainer.initial_resource', index=3,
+      name='initial_resource', full_name='containers_ai.alameda.v1alpha1.operator.PredictContainer.initial_resource', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -918,41 +918,41 @@ _PREDICTCONTAINER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1811,
-  serialized_end=2059,
+  serialized_start=2535,
+  serialized_end=2943,
 )
 
 
 _PREDICTPOD = _descriptor.Descriptor(
   name='PredictPod',
-  full_name='PredictPod',
+  full_name='containers_ai.alameda.v1alpha1.operator.PredictPod',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uid', full_name='PredictPod.uid', index=0,
+      name='uid', full_name='containers_ai.alameda.v1alpha1.operator.PredictPod.uid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='PredictPod.namespace', index=1,
+      name='namespace', full_name='containers_ai.alameda.v1alpha1.operator.PredictPod.namespace', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='PredictPod.name', index=2,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.PredictPod.name', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='predict_containers', full_name='PredictPod.predict_containers', index=3,
+      name='predict_containers', full_name='containers_ai.alameda.v1alpha1.operator.PredictPod.predict_containers', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -970,34 +970,34 @@ _PREDICTPOD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2061,
-  serialized_end=2166,
+  serialized_start=2946,
+  serialized_end=3091,
 )
 
 
 _CONTAINER = _descriptor.Descriptor(
   name='Container',
-  full_name='Container',
+  full_name='containers_ai.alameda.v1alpha1.operator.Container',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='Container.name', index=0,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.Container.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='resource', full_name='Container.resource', index=1,
+      name='resource', full_name='containers_ai.alameda.v1alpha1.operator.Container.resource', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='initial_resource', full_name='Container.initial_resource', index=2,
+      name='initial_resource', full_name='containers_ai.alameda.v1alpha1.operator.Container.initial_resource', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -1015,20 +1015,20 @@ _CONTAINER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2168,
-  serialized_end=2259,
+  serialized_start=3094,
+  serialized_end=3265,
 )
 
 
 _PODINFO = _descriptor.Descriptor(
   name='PodInfo',
-  full_name='PodInfo',
+  full_name='containers_ai.alameda.v1alpha1.operator.PodInfo',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='containers', full_name='PodInfo.containers', index=0,
+      name='containers', full_name='containers_ai.alameda.v1alpha1.operator.PodInfo.containers', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -1046,20 +1046,20 @@ _PODINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2261,
-  serialized_end=2302,
+  serialized_start=3267,
+  serialized_end=3348,
 )
 
 
 _CREATEPREDICTRESULTREQUEST = _descriptor.Descriptor(
   name='CreatePredictResultRequest',
-  full_name='CreatePredictResultRequest',
+  full_name='containers_ai.alameda.v1alpha1.operator.CreatePredictResultRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='predict_pods', full_name='CreatePredictResultRequest.predict_pods', index=0,
+      name='predict_pods', full_name='containers_ai.alameda.v1alpha1.operator.CreatePredictResultRequest.predict_pods', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -1077,20 +1077,20 @@ _CREATEPREDICTRESULTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2304,
-  serialized_end=2367,
+  serialized_start=3350,
+  serialized_end=3453,
 )
 
 
 _CREATEPREDICTRESULTRESPONSE = _descriptor.Descriptor(
   name='CreatePredictResultResponse',
-  full_name='CreatePredictResultResponse',
+  full_name='containers_ai.alameda.v1alpha1.operator.CreatePredictResultResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='CreatePredictResultResponse.status', index=0,
+      name='status', full_name='containers_ai.alameda.v1alpha1.operator.CreatePredictResultResponse.status', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -1108,55 +1108,55 @@ _CREATEPREDICTRESULTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2369,
-  serialized_end=2434,
+  serialized_start=3455,
+  serialized_end=3520,
 )
 
 
 _GETRESOURCEINFORESPONSE = _descriptor.Descriptor(
   name='GetResourceInfoResponse',
-  full_name='GetResourceInfoResponse',
+  full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='GetResourceInfoResponse.status', index=0,
+      name='status', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse.status', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='type', full_name='GetResourceInfoResponse.type', index=1,
+      name='type', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse.type', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='uid', full_name='GetResourceInfoResponse.uid', index=2,
+      name='uid', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse.uid', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='GetResourceInfoResponse.namespace', index=3,
+      name='namespace', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse.namespace', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='GetResourceInfoResponse.name', index=4,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse.name', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pod_info', full_name='GetResourceInfoResponse.pod_info', index=5,
+      name='pod_info', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse.pod_info', index=5,
       number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -1174,55 +1174,55 @@ _GETRESOURCEINFORESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2437,
-  serialized_end=2601,
+  serialized_start=3523,
+  serialized_end=3767,
 )
 
 
 _GETRESOURCERECOMMENDATIONRESPONSE = _descriptor.Descriptor(
   name='GetResourceRecommendationResponse',
-  full_name='GetResourceRecommendationResponse',
+  full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='GetResourceRecommendationResponse.status', index=0,
+      name='status', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse.status', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='type', full_name='GetResourceRecommendationResponse.type', index=1,
+      name='type', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse.type', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='uid', full_name='GetResourceRecommendationResponse.uid', index=2,
+      name='uid', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse.uid', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='GetResourceRecommendationResponse.namespace', index=3,
+      name='namespace', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse.namespace', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='GetResourceRecommendationResponse.name', index=4,
+      name='name', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse.name', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pod_info', full_name='GetResourceRecommendationResponse.pod_info', index=5,
+      name='pod_info', full_name='containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse.pod_info', index=5,
       number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -1240,8 +1240,8 @@ _GETRESOURCERECOMMENDATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2604,
-  serialized_end=2778,
+  serialized_start=3770,
+  serialized_end=4024,
 )
 
 _TIMERANGE.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -1341,21 +1341,21 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 TimeRange = _reflection.GeneratedProtocolMessageType('TimeRange', (_message.Message,), dict(
   DESCRIPTOR = _TIMERANGE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:TimeRange)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.TimeRange)
   ))
 _sym_db.RegisterMessage(TimeRange)
 
 LabelSelector = _reflection.GeneratedProtocolMessageType('LabelSelector', (_message.Message,), dict(
   DESCRIPTOR = _LABELSELECTOR,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:LabelSelector)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.LabelSelector)
   ))
 _sym_db.RegisterMessage(LabelSelector)
 
 Sample = _reflection.GeneratedProtocolMessageType('Sample', (_message.Message,), dict(
   DESCRIPTOR = _SAMPLE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:Sample)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.Sample)
   ))
 _sym_db.RegisterMessage(Sample)
 
@@ -1364,12 +1364,12 @@ MetricResult = _reflection.GeneratedProtocolMessageType('MetricResult', (_messag
   LabelsEntry = _reflection.GeneratedProtocolMessageType('LabelsEntry', (_message.Message,), dict(
     DESCRIPTOR = _METRICRESULT_LABELSENTRY,
     __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-    # @@protoc_insertion_point(class_scope:MetricResult.LabelsEntry)
+    # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.MetricResult.LabelsEntry)
     ))
   ,
   DESCRIPTOR = _METRICRESULT,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:MetricResult)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.MetricResult)
   ))
 _sym_db.RegisterMessage(MetricResult)
 _sym_db.RegisterMessage(MetricResult.LabelsEntry)
@@ -1377,42 +1377,42 @@ _sym_db.RegisterMessage(MetricResult.LabelsEntry)
 ListMetricsRequest = _reflection.GeneratedProtocolMessageType('ListMetricsRequest', (_message.Message,), dict(
   DESCRIPTOR = _LISTMETRICSREQUEST,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:ListMetricsRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.ListMetricsRequest)
   ))
 _sym_db.RegisterMessage(ListMetricsRequest)
 
 ListMetricsResponse = _reflection.GeneratedProtocolMessageType('ListMetricsResponse', (_message.Message,), dict(
   DESCRIPTOR = _LISTMETRICSRESPONSE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:ListMetricsResponse)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.ListMetricsResponse)
   ))
 _sym_db.RegisterMessage(ListMetricsResponse)
 
 ListMetricsSumRequest = _reflection.GeneratedProtocolMessageType('ListMetricsSumRequest', (_message.Message,), dict(
   DESCRIPTOR = _LISTMETRICSSUMREQUEST,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:ListMetricsSumRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.ListMetricsSumRequest)
   ))
 _sym_db.RegisterMessage(ListMetricsSumRequest)
 
 ListMetricsSumResponse = _reflection.GeneratedProtocolMessageType('ListMetricsSumResponse', (_message.Message,), dict(
   DESCRIPTOR = _LISTMETRICSSUMRESPONSE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:ListMetricsSumResponse)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.ListMetricsSumResponse)
   ))
 _sym_db.RegisterMessage(ListMetricsSumResponse)
 
 GetResourceInfoRequest = _reflection.GeneratedProtocolMessageType('GetResourceInfoRequest', (_message.Message,), dict(
   DESCRIPTOR = _GETRESOURCEINFOREQUEST,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:GetResourceInfoRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.GetResourceInfoRequest)
   ))
 _sym_db.RegisterMessage(GetResourceInfoRequest)
 
 GetResourceRecommendationRequest = _reflection.GeneratedProtocolMessageType('GetResourceRecommendationRequest', (_message.Message,), dict(
   DESCRIPTOR = _GETRESOURCERECOMMENDATIONREQUEST,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:GetResourceRecommendationRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationRequest)
   ))
 _sym_db.RegisterMessage(GetResourceRecommendationRequest)
 
@@ -1421,19 +1421,19 @@ Resource = _reflection.GeneratedProtocolMessageType('Resource', (_message.Messag
   LimitEntry = _reflection.GeneratedProtocolMessageType('LimitEntry', (_message.Message,), dict(
     DESCRIPTOR = _RESOURCE_LIMITENTRY,
     __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-    # @@protoc_insertion_point(class_scope:Resource.LimitEntry)
+    # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.Resource.LimitEntry)
     ))
   ,
 
   RequestEntry = _reflection.GeneratedProtocolMessageType('RequestEntry', (_message.Message,), dict(
     DESCRIPTOR = _RESOURCE_REQUESTENTRY,
     __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-    # @@protoc_insertion_point(class_scope:Resource.RequestEntry)
+    # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.Resource.RequestEntry)
     ))
   ,
   DESCRIPTOR = _RESOURCE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:Resource)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.Resource)
   ))
 _sym_db.RegisterMessage(Resource)
 _sym_db.RegisterMessage(Resource.LimitEntry)
@@ -1442,21 +1442,21 @@ _sym_db.RegisterMessage(Resource.RequestEntry)
 Recommendation = _reflection.GeneratedProtocolMessageType('Recommendation', (_message.Message,), dict(
   DESCRIPTOR = _RECOMMENDATION,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:Recommendation)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.Recommendation)
   ))
 _sym_db.RegisterMessage(Recommendation)
 
 PredictData = _reflection.GeneratedProtocolMessageType('PredictData', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTDATA,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:PredictData)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.PredictData)
   ))
 _sym_db.RegisterMessage(PredictData)
 
 TimeSeriesData = _reflection.GeneratedProtocolMessageType('TimeSeriesData', (_message.Message,), dict(
   DESCRIPTOR = _TIMESERIESDATA,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:TimeSeriesData)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.TimeSeriesData)
   ))
 _sym_db.RegisterMessage(TimeSeriesData)
 
@@ -1465,12 +1465,12 @@ PredictContainer = _reflection.GeneratedProtocolMessageType('PredictContainer', 
   RawPredictDataEntry = _reflection.GeneratedProtocolMessageType('RawPredictDataEntry', (_message.Message,), dict(
     DESCRIPTOR = _PREDICTCONTAINER_RAWPREDICTDATAENTRY,
     __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-    # @@protoc_insertion_point(class_scope:PredictContainer.RawPredictDataEntry)
+    # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.PredictContainer.RawPredictDataEntry)
     ))
   ,
   DESCRIPTOR = _PREDICTCONTAINER,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:PredictContainer)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.PredictContainer)
   ))
 _sym_db.RegisterMessage(PredictContainer)
 _sym_db.RegisterMessage(PredictContainer.RawPredictDataEntry)
@@ -1478,49 +1478,49 @@ _sym_db.RegisterMessage(PredictContainer.RawPredictDataEntry)
 PredictPod = _reflection.GeneratedProtocolMessageType('PredictPod', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTPOD,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:PredictPod)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.PredictPod)
   ))
 _sym_db.RegisterMessage(PredictPod)
 
 Container = _reflection.GeneratedProtocolMessageType('Container', (_message.Message,), dict(
   DESCRIPTOR = _CONTAINER,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:Container)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.Container)
   ))
 _sym_db.RegisterMessage(Container)
 
 PodInfo = _reflection.GeneratedProtocolMessageType('PodInfo', (_message.Message,), dict(
   DESCRIPTOR = _PODINFO,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:PodInfo)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.PodInfo)
   ))
 _sym_db.RegisterMessage(PodInfo)
 
 CreatePredictResultRequest = _reflection.GeneratedProtocolMessageType('CreatePredictResultRequest', (_message.Message,), dict(
   DESCRIPTOR = _CREATEPREDICTRESULTREQUEST,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:CreatePredictResultRequest)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.CreatePredictResultRequest)
   ))
 _sym_db.RegisterMessage(CreatePredictResultRequest)
 
 CreatePredictResultResponse = _reflection.GeneratedProtocolMessageType('CreatePredictResultResponse', (_message.Message,), dict(
   DESCRIPTOR = _CREATEPREDICTRESULTRESPONSE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:CreatePredictResultResponse)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.CreatePredictResultResponse)
   ))
 _sym_db.RegisterMessage(CreatePredictResultResponse)
 
 GetResourceInfoResponse = _reflection.GeneratedProtocolMessageType('GetResourceInfoResponse', (_message.Message,), dict(
   DESCRIPTOR = _GETRESOURCEINFORESPONSE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:GetResourceInfoResponse)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.GetResourceInfoResponse)
   ))
 _sym_db.RegisterMessage(GetResourceInfoResponse)
 
 GetResourceRecommendationResponse = _reflection.GeneratedProtocolMessageType('GetResourceRecommendationResponse', (_message.Message,), dict(
   DESCRIPTOR = _GETRESOURCERECOMMENDATIONRESPONSE,
   __module__ = 'alameda_api.v1alpha1.operator.server_pb2'
-  # @@protoc_insertion_point(class_scope:GetResourceRecommendationResponse)
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.operator.GetResourceRecommendationResponse)
   ))
 _sym_db.RegisterMessage(GetResourceRecommendationResponse)
 
@@ -1532,16 +1532,16 @@ _PREDICTCONTAINER_RAWPREDICTDATAENTRY._options = None
 
 _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   name='OperatorService',
-  full_name='OperatorService',
+  full_name='containers_ai.alameda.v1alpha1.operator.OperatorService',
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=3014,
-  serialized_end=3418,
+  serialized_start=4260,
+  serialized_end=5069,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListMetrics',
-    full_name='OperatorService.ListMetrics',
+    full_name='containers_ai.alameda.v1alpha1.operator.OperatorService.ListMetrics',
     index=0,
     containing_service=None,
     input_type=_LISTMETRICSREQUEST,
@@ -1550,7 +1550,7 @@ _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='ListMetricsSum',
-    full_name='OperatorService.ListMetricsSum',
+    full_name='containers_ai.alameda.v1alpha1.operator.OperatorService.ListMetricsSum',
     index=1,
     containing_service=None,
     input_type=_LISTMETRICSSUMREQUEST,
@@ -1559,7 +1559,7 @@ _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='CreatePredictResult',
-    full_name='OperatorService.CreatePredictResult',
+    full_name='containers_ai.alameda.v1alpha1.operator.OperatorService.CreatePredictResult',
     index=2,
     containing_service=None,
     input_type=_CREATEPREDICTRESULTREQUEST,
@@ -1568,7 +1568,7 @@ _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='GetResourceInfo',
-    full_name='OperatorService.GetResourceInfo',
+    full_name='containers_ai.alameda.v1alpha1.operator.OperatorService.GetResourceInfo',
     index=3,
     containing_service=None,
     input_type=_GETRESOURCEINFOREQUEST,
@@ -1577,7 +1577,7 @@ _OPERATORSERVICE = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='GetResourceRecommendation',
-    full_name='OperatorService.GetResourceRecommendation',
+    full_name='containers_ai.alameda.v1alpha1.operator.OperatorService.GetResourceRecommendation',
     index=4,
     containing_service=None,
     input_type=_GETRESOURCERECOMMENDATIONREQUEST,

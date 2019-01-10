@@ -54,8 +54,13 @@ class DatahubServiceStub(object):
         )
     self.ListPodsByNodeName = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodsByNodeName',
-        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNameRequest.SerializeToString,
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNamesRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsResponse.FromString,
+        )
+    self.ListSimulatedSchedulingScores = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListSimulatedSchedulingScores',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListSimulatedSchedulingScoresRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListSimulatedSchedulingScoresResponse.FromString,
         )
     self.CreatePods = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreatePods',
@@ -80,6 +85,11 @@ class DatahubServiceStub(object):
     self.CreatePodRecommendations = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreatePodRecommendations',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
+    self.CreateSimulatedSchedulingScores = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateSimulatedSchedulingScores',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateSimulatedSchedulingScoresRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
     self.DeletePods = channel.unary_unary(
@@ -149,7 +159,14 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def ListPodsByNodeName(self, request, context):
-    """/ Used to list pods need to be predicted by a node name
+    """/ Used to list pods by a node name
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def ListSimulatedSchedulingScores(self, request, context):
+    """/ Used to list system scores
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -185,6 +202,13 @@ class DatahubServiceServicer(object):
 
   def CreatePodRecommendations(self, request, context):
     """/ Used to create recommendations of pods
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CreateSimulatedSchedulingScores(self, request, context):
+    """/ Used to create scores of system 
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -244,8 +268,13 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       ),
       'ListPodsByNodeName': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodsByNodeName,
-          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNameRequest.FromString,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNamesRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsResponse.SerializeToString,
+      ),
+      'ListSimulatedSchedulingScores': grpc.unary_unary_rpc_method_handler(
+          servicer.ListSimulatedSchedulingScores,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListSimulatedSchedulingScoresRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListSimulatedSchedulingScoresResponse.SerializeToString,
       ),
       'CreatePods': grpc.unary_unary_rpc_method_handler(
           servicer.CreatePods,
@@ -270,6 +299,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'CreatePodRecommendations': grpc.unary_unary_rpc_method_handler(
           servicer.CreatePodRecommendations,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'CreateSimulatedSchedulingScores': grpc.unary_unary_rpc_method_handler(
+          servicer.CreateSimulatedSchedulingScores,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateSimulatedSchedulingScoresRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'DeletePods': grpc.unary_unary_rpc_method_handler(

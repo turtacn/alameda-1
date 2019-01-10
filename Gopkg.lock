@@ -11,14 +11,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6c0fdd0bf017e75b057e84a54b3cf07e243b137ff4a4dcd8566154f66b091c49"
+  digest = "1:8072b6399b0ea1673a6700542fbd6b7d17755093c96d455d1168828bf4f6c4bb"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "3a685b0d0142f07c3135e399d26dcfd1ec5f98ef"
+  revision = "e36e409f0b07ab1df6fc7df14e6091191ef6c815"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -956,6 +956,7 @@
     "pkg/client/apiutil",
     "pkg/client/config",
     "pkg/controller",
+    "pkg/controller/controllerutil",
     "pkg/envtest",
     "pkg/envtest/printer",
     "pkg/event",
@@ -1053,10 +1054,12 @@
     "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",
     "sigs.k8s.io/controller-runtime/pkg/controller",
+    "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil",
     "sigs.k8s.io/controller-runtime/pkg/envtest",
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",
     "sigs.k8s.io/controller-runtime/pkg/reconcile",
+    "sigs.k8s.io/controller-runtime/pkg/runtime/log",
     "sigs.k8s.io/controller-runtime/pkg/runtime/scheme",
     "sigs.k8s.io/controller-runtime/pkg/runtime/signals",
     "sigs.k8s.io/controller-runtime/pkg/source",

@@ -1,4 +1,4 @@
-/// This file has messages and services (methods) related to the AI engine
+/// This file has messages and services (methods) related to the AI engine. This file will be deprated in v0.2.
 syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.ai_service;

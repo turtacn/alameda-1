@@ -40,11 +40,6 @@ message NodeMetric {
     repeated MetricData metric_data = 2;
 }
 
-enum StrOp {
-    EQUAL = 0;
-    NOT_EQUAL = 1;
-}
-
 /**
  * Represents a data point of time-series metric data
  */
@@ -53,21 +48,10 @@ message Sample {
     string num_value = 2;
 }
 
-message MetricResult {
-    map<string, string> labels = 1;
-    repeated Sample samples = 2;
-}
-
 message TimeRange {
     google.protobuf.Timestamp start_time = 1;
     google.protobuf.Timestamp end_time = 2;
     google.protobuf.Duration step = 3;
-}
-
-message LabelSelector {
-    string key = 1;
-    StrOp op = 2 ;
-    string value = 3;
 }
 
 /**

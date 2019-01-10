@@ -133,6 +133,7 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 	datahub_v1alpha1.RegisterDatahubServiceServer(server, s)
 }
 
+// ListPodMetrics list pods' metrics
 func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
 
 	var (
@@ -208,6 +209,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 	}, nil
 }
 
+// ListNodeMetrics list nodes' metrics
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {
 
 	var (
@@ -276,140 +278,6 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 		},
 		NodeMetrics: datahubNodeMetrics,
 	}, nil
-
-	return &datahub_v1alpha1.ListNodeMetricsResponse{
-		Status: &status.Status{
-			Code: int32(code.Code_OK),
-		},
-		NodeMetrics: []*datahub_v1alpha1.NodeMetric{
-			&datahub_v1alpha1.NodeMetric{
-				Name: "node1",
-				MetricData: []*datahub_v1alpha1.MetricData{
-					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-						Data: []*datahub_v1alpha1.Sample{
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[0],
-								NumValue: "20",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[1],
-								NumValue: "25",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[2],
-								NumValue: "30",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[3],
-								NumValue: "35",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[4],
-								NumValue: "40",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[5],
-								NumValue: "45",
-							},
-						},
-					},
-					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-						Data: []*datahub_v1alpha1.Sample{
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[0],
-								NumValue: "64",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[1],
-								NumValue: "128",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[2],
-								NumValue: "152",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[3],
-								NumValue: "176",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[4],
-								NumValue: "200",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[5],
-								NumValue: "224",
-							},
-						},
-					},
-				},
-			},
-			&datahub_v1alpha1.NodeMetric{
-				Name: "node2",
-				MetricData: []*datahub_v1alpha1.MetricData{
-					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-						Data: []*datahub_v1alpha1.Sample{
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[0],
-								NumValue: "20",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[1],
-								NumValue: "25",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[2],
-								NumValue: "30",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[3],
-								NumValue: "35",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[4],
-								NumValue: "40",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[5],
-								NumValue: "45",
-							},
-						},
-					},
-					&datahub_v1alpha1.MetricData{
-						MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-						Data: []*datahub_v1alpha1.Sample{
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[0],
-								NumValue: "64",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[1],
-								NumValue: "128",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[2],
-								NumValue: "152",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[3],
-								NumValue: "176",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[4],
-								NumValue: "200",
-							},
-							&datahub_v1alpha1.Sample{
-								Time:     tmpTimestamps[5],
-								NumValue: "224",
-							},
-						},
-					},
-				},
-			},
-		},
-	}, nil
 }
 
 func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
@@ -464,6 +332,7 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 	}
 }
 
+// ListPodPredictions list pods' predictions
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
 
 	var (
@@ -506,6 +375,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 	}, nil
 }
 
+// ListNodePredictions list nodes' predictions
 func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.ListNodePredictionsRequest) (*datahub_v1alpha1.ListNodePredictionsResponse, error) {
 
 	var (
@@ -568,7 +438,8 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 	}
 }
 
-func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNameRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+// ListPodsByNodeName list pods running on specific nodes
+func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNamesRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
 
 	var tmpMetricsData = []*datahub_v1alpha1.MetricData{
 		&datahub_v1alpha1.MetricData{
@@ -646,6 +517,27 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 	}, nil
 }
 
+// ListSimulatedSchedulingScores list simulated scheduling scores
+func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.ListSimulatedSchedulingScoresRequest) (*datahub_v1alpha1.ListSimulatedSchedulingScoresResponse, error) {
+
+	var (
+		mockScores = []*datahub_v1alpha1.SimulatedSchedulingScore{
+			&datahub_v1alpha1.SimulatedSchedulingScore{
+				Time:        tmpTimestamps[0],
+				ScoreBefore: 1.5,
+				ScoreAfter:  2.5,
+			},
+		}
+	)
+
+	return &datahub_v1alpha1.ListSimulatedSchedulingScoresResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		Scores: mockScores,
+	}, nil
+}
+
 // CreatePods add containers information of pods to database
 func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePodsRequest) (*status.Status, error) {
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
@@ -699,6 +591,7 @@ func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.Cr
 	}, nil
 }
 
+// CreatePodPredictions add pod predictions information to database
 func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
 
 	var (
@@ -727,6 +620,7 @@ func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.
 	}, nil
 }
 
+// CreateNodePredictions add node predictions information to database
 func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
 
 	var (
@@ -767,6 +661,13 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 		}, err
 	}
 
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+// CreateSimulatedSchedulingScores add simulated scheduling scores information to database
+func (s *Server) CreateSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.CreateSimulatedSchedulingScoresRequest) (*status.Status, error) {
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
