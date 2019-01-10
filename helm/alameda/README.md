@@ -54,14 +54,14 @@ Alameda levarages Prometheus to collect metrics and InfluxDB to store prediction
           record: node_memory_Cached
         - expr: node_memory_Buffers_bytes
           record: node_memory_Buffers
-        - expr: sum
+        - expr: label_replace(sum
             by (kubernetes_node) ((node_memory_MemFree{job="kubernetes-service-endpoints"} + node_memory_Cached{job="kubernetes-service-endpoints"}
             + node_memory_Buffers{job="kubernetes-service-endpoints"}) * on(kubernetes_namespace, kubernetes_pod) group_left(kubernetes_node)
-            node_namespace_pod:kube_pod_info:)
+            node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
           record: node:node_memory_bytes_available:sum
-        - expr: sum
+        - expr: label_replace(sum
             by(kubernetes_node) (node_memory_MemTotal{job="kubernetes-service-endpoints"} * on(kubernetes_namespace, kubernetes_pod)
-            group_left(kubernetes_node) node_namespace_pod:kube_pod_info:)
+            group_left(kubernetes_node) node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
           record: node:node_memory_bytes_total:sum
     ```
 2. Alameda requires a running InfluxDB. It will create database *cluster_status*, *recommendation* and *prediction* if they does not exist.
