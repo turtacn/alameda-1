@@ -48,15 +48,15 @@ type ContainerMetric struct {
 }
 
 // BuildPodMetric Build PodMetric consist of the receiver in ContainersMetricMap.
-func (c ContainerMetric) BuildPodMetric() PodMetric {
+func (c *ContainerMetric) BuildPodMetric() *PodMetric {
 
 	containersMetricMap := ContainersMetricMap{}
 	containersMetricMap[c.NamespacePodContainerName()] = c
 
-	return PodMetric{
+	return &PodMetric{
 		Namespace:           c.Namespace,
 		PodName:             c.PodName,
-		ContainersMetricMap: containersMetricMap,
+		ContainersMetricMap: &containersMetricMap,
 	}
 }
 
@@ -66,10 +66,10 @@ func (c ContainerMetric) NamespacePodContainerName() metadata.NamespacePodContai
 }
 
 // ContainersMetricMap Containers metric map
-type ContainersMetricMap map[metadata.NamespacePodContainerName]ContainerMetric
+type ContainersMetricMap map[metadata.NamespacePodContainerName]*ContainerMetric
 
 // BuildPodsMetricMap Build PodsMetricMap base on current ContainersMetricMap
-func (c ContainersMetricMap) BuildPodsMetricMap() PodsMetricMap {
+func (c ContainersMetricMap) BuildPodsMetricMap() *PodsMetricMap {
 
 	var (
 		podsMetricMap = &PodsMetricMap{}
@@ -79,35 +79,30 @@ func (c ContainersMetricMap) BuildPodsMetricMap() PodsMetricMap {
 		podsMetricMap.AddContainerMetric(containerMetric)
 	}
 
-	return *podsMetricMap
+	return podsMetricMap
 }
 
 // Merge Merge current ContainersMetricMap with input ContainersMetricMap
-func (c ContainersMetricMap) Merge(in ContainersMetricMap) ContainersMetricMap {
+func (c *ContainersMetricMap) Merge(in *ContainersMetricMap) {
 
-	var (
-		newContainersMetricMap = c
-	)
-
-	for namespacePodContainerName, containerMetric := range in {
-		if existedContainerMetric, exist := newContainersMetricMap[namespacePodContainerName]; exist {
+	for namespacePodContainerName, containerMetric := range *in {
+		if existedContainerMetric, exist := (*c)[namespacePodContainerName]; exist {
 			for metricType, metrics := range containerMetric.Metrics {
 				existedContainerMetric.Metrics[metricType] = append(existedContainerMetric.Metrics[metricType], metrics...)
 			}
-			newContainersMetricMap[namespacePodContainerName] = existedContainerMetric
+			(*c)[namespacePodContainerName] = existedContainerMetric
 		} else {
-			newContainersMetricMap[namespacePodContainerName] = containerMetric
+			(*c)[namespacePodContainerName] = containerMetric
 		}
 	}
 
-	return newContainersMetricMap
 }
 
 // PodMetric Metric model to represent one pod's metric
 type PodMetric struct {
 	Namespace           metadata.NamespaceName
 	PodName             metadata.PodName
-	ContainersMetricMap ContainersMetricMap
+	ContainersMetricMap *ContainersMetricMap
 }
 
 // NamespacePodName Return identity of the pod metric
@@ -116,31 +111,20 @@ func (p PodMetric) NamespacePodName() metadata.NamespacePodName {
 }
 
 // Merge Merge current PodMetric with input PodMetric
-func (p PodMetric) Merge(in PodMetric) PodMetric {
-
-	var (
-		currentContainerMetircMap   = p.ContainersMetricMap
-		mergeWithContainerMetircMap = in.ContainersMetricMap
-		newPodMetric                = PodMetric{
-			Namespace:           p.Namespace,
-			PodName:             p.PodName,
-			ContainersMetricMap: currentContainerMetircMap.Merge(mergeWithContainerMetircMap),
-		}
-	)
-
-	return newPodMetric
+func (p *PodMetric) Merge(in *PodMetric) {
+	p.ContainersMetricMap.Merge(in.ContainersMetricMap)
 }
 
 // PodsMetricMap Pods' metric map
-type PodsMetricMap map[metadata.NamespacePodName]PodMetric
+type PodsMetricMap map[metadata.NamespacePodName]*PodMetric
 
 // AddContainerMetric Add container metric into PodsMetricMap
-func (p *PodsMetricMap) AddContainerMetric(c ContainerMetric) {
+func (p *PodsMetricMap) AddContainerMetric(c *ContainerMetric) {
 
 	podMetric := c.BuildPodMetric()
 	namespacePodName := podMetric.NamespacePodName()
 	if existedPodMetric, exist := (*p)[namespacePodName]; exist {
-		(*p)[namespacePodName] = existedPodMetric.Merge(podMetric)
+		existedPodMetric.Merge(podMetric)
 	} else {
 		(*p)[namespacePodName] = podMetric
 	}
@@ -153,31 +137,22 @@ type NodeMetric struct {
 }
 
 // Merge Merge current NodeMetric with input NodeMetric
-func (n NodeMetric) Merge(in NodeMetric) NodeMetric {
-
-	var (
-		newNodeMetirc = NodeMetric{
-			NodeName: n.NodeName,
-			Metrics:  make(map[metric.NodeMetricType][]metric.Sample),
-		}
-	)
+func (n *NodeMetric) Merge(in *NodeMetric) {
 
 	for metricType, metrics := range in.Metrics {
-		newNodeMetirc.Metrics[metricType] = append(newNodeMetirc.Metrics[metricType], metrics...)
+		n.Metrics[metricType] = append(n.Metrics[metricType], metrics...)
 	}
-
-	return newNodeMetirc
 }
 
 // NodesMetricMap Nodes' metric map
-type NodesMetricMap map[metadata.NodeName]NodeMetric
+type NodesMetricMap map[metadata.NodeName]*NodeMetric
 
 // AddNodeMetric Add node metric into NodesMetricMap
-func (n *NodesMetricMap) AddNodeMetric(nodeMetric NodeMetric) {
+func (n *NodesMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
 
 	nodeName := nodeMetric.NodeName
 	if existNodeMetric, exist := (*n)[nodeName]; exist {
-		(*n)[nodeName] = existNodeMetric.Merge(nodeMetric)
+		existNodeMetric.Merge(nodeMetric)
 	} else {
 		(*n)[nodeName] = nodeMetric
 	}

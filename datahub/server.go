@@ -213,9 +213,9 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 	}
 
 	for _, podMetric := range podsMetricMap {
-		podMetricExtended := daoPodMetricExtended(podMetric)
+		podMetricExtended := daoPodMetricExtended{podMetric}
 		datahubPodMetric := podMetricExtended.datahubPodMetric()
-		datahubPodMetrics = append(datahubPodMetrics, &datahubPodMetric)
+		datahubPodMetrics = append(datahubPodMetrics, datahubPodMetric)
 	}
 
 	return &datahub_v1alpha1.ListPodMetricsResponse{
@@ -284,9 +284,9 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	}
 
 	for _, nodeMetric := range nodesMetricMap {
-		nodeMetricExtended := daoNodeMetricExtended(nodeMetric)
+		nodeMetricExtended := daoNodeMetricExtended{nodeMetric}
 		datahubNodeMetric := nodeMetricExtended.datahubNodeMetric()
-		datahubNodeMetrics = append(datahubNodeMetrics, &datahubNodeMetric)
+		datahubNodeMetrics = append(datahubNodeMetrics, datahubNodeMetric)
 	}
 
 	return &datahub_v1alpha1.ListNodeMetricsResponse{

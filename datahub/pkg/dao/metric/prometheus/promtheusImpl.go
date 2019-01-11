@@ -47,7 +47,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	for _, entity := range containerCPUEntities {
 		containerCPUEntity := containerCPUUsagePercentage.NewEntityFromPrometheusEntity(entity)
 		containerMetric := containerCPUEntity.ContainerMetric()
-		ptrPodsMetricMap.AddContainerMetric(containerMetric)
+		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
 	}
 
 	podContainerMemoryRepo = promRepository.NewPodContainerMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
@@ -59,7 +59,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	for _, entity := range containerMemoryEntities {
 		containerMemoryEntity := containerMemoryUsageBytes.NewEntityFromPrometheusEntity(entity)
 		containerMetric := containerMemoryEntity.ContainerMetric()
-		ptrPodsMetricMap.AddContainerMetric(containerMetric)
+		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
 	}
 
 	return *ptrPodsMetricMap, nil
@@ -149,7 +149,7 @@ func addNodeMetricToNodesMetricMap(nodesMetricMap *metric.NodesMetricMap, nodeMe
 	for {
 		nodeMetric, more := <-nodeMetricChan
 		if more {
-			nodesMetricMap.AddNodeMetric(nodeMetric)
+			nodesMetricMap.AddNodeMetric(&nodeMetric)
 		} else {
 			done <- true
 			return

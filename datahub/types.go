@@ -8,9 +8,11 @@ import (
 	"github.com/golang/protobuf/ptypes"
 )
 
-type daoPodMetricExtended metric_dao.PodMetric
+type daoPodMetricExtended struct {
+	*metric_dao.PodMetric
+}
 
-func (p daoPodMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
+func (p daoPodMetricExtended) datahubPodMetric() *datahub_v1alpha1.PodMetric {
 
 	var (
 		datahubPodMetric datahub_v1alpha1.PodMetric
@@ -23,18 +25,20 @@ func (p daoPodMetricExtended) datahubPodMetric() datahub_v1alpha1.PodMetric {
 		},
 	}
 
-	for _, containerMetric := range p.ContainersMetricMap {
-		containerMetricExtended := daoContainerMetricExtended(containerMetric)
+	for _, containerMetric := range *p.ContainersMetricMap {
+		containerMetricExtended := daoContainerMetricExtended{containerMetric}
 		datahubContainerMetric := containerMetricExtended.datahubContainerMetric()
-		datahubPodMetric.ContainerMetrics = append(datahubPodMetric.ContainerMetrics, &datahubContainerMetric)
+		datahubPodMetric.ContainerMetrics = append(datahubPodMetric.ContainerMetrics, datahubContainerMetric)
 	}
 
-	return datahubPodMetric
+	return &datahubPodMetric
 }
 
-type daoContainerMetricExtended metric_dao.ContainerMetric
+type daoContainerMetricExtended struct {
+	*metric_dao.ContainerMetric
+}
 
-func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.ContainerMetric {
+func (c daoContainerMetricExtended) datahubContainerMetric() *datahub_v1alpha1.ContainerMetric {
 
 	var (
 		metricDataChan  = make(chan datahub_v1alpha1.MetricData)
@@ -59,12 +63,14 @@ func (c daoContainerMetricExtended) datahubContainerMetric() datahub_v1alpha1.Co
 		datahubContainerMetric.MetricData = append(datahubContainerMetric.MetricData, &receivedMetricData)
 	}
 
-	return datahubContainerMetric
+	return &datahubContainerMetric
 }
 
-type daoNodeMetricExtended metric_dao.NodeMetric
+type daoNodeMetricExtended struct {
+	*metric_dao.NodeMetric
+}
 
-func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
+func (n daoNodeMetricExtended) datahubNodeMetric() *datahub_v1alpha1.NodeMetric {
 
 	var (
 		metricDataChan  = make(chan datahub_v1alpha1.MetricData)
@@ -89,7 +95,7 @@ func (n daoNodeMetricExtended) datahubNodeMetric() datahub_v1alpha1.NodeMetric {
 		datahubNodeMetric.MetricData = append(datahubNodeMetric.MetricData, &receivedMetricData)
 	}
 
-	return datahubNodeMetric
+	return &datahubNodeMetric
 }
 
 type daoPtrPodPredictionExtended struct {
