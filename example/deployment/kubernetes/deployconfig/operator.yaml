@@ -55,7 +55,6 @@ rules:
   - autoscaling.containers.ai
   resources:
   - alamedascalers
-  - alamedaresourcepredictions
   - alamedarecommendations
   verbs:
   - get
