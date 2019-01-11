@@ -187,7 +187,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 		whereStr = fmt.Sprintf("%s AND %s", whereStr, timeConditionStr)
 	}
 
-	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" ORDER BY time DESC",
+	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" ORDER BY time ASC",
 		string(Container), whereStr, recommendation_entity.ContainerName,
 		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName)
 	containerScope.Infof(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
@@ -239,37 +239,59 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 							resourceRequestMemoryData = append(resourceRequestMemoryData, sampleObj)
 						}
 					}
+				}
+
+				if len(initialResourceLimitCPUData) > 0 {
 					containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 							Data:       initialResourceLimitCPUData,
-						}, &datahub_v1alpha1.MetricData{
+						})
+				}
+				if len(initialResourceLimitMemoryData) > 0 {
+					containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
+						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 							Data:       initialResourceLimitMemoryData,
 						})
-					containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialLimitRecommendations,
+				}
+				if len(initialResourceRequestCPUData) > 0 {
+					containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 							Data:       initialResourceRequestCPUData,
-						},
+						})
+				}
+				if len(initialResourceRequestMemoryData) > 0 {
+					containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 							Data:       initialResourceRequestMemoryData,
 						})
-					containerRecommendation.LimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
+				}
+				if len(resourceLimitCPUData) > 0 {
+					containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 							Data:       resourceLimitCPUData,
-						},
+						})
+				}
+				if len(resourceLimitMemoryData) > 0 {
+					containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 							Data:       resourceLimitMemoryData,
 						})
-					containerRecommendation.RequestRecommendations = append(containerRecommendation.InitialLimitRecommendations,
+				}
+				if len(resourceRequestCPUData) > 0 {
+					containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 							Data:       resourceRequestCPUData,
-						},
+						})
+				}
+				if len(resourceRequestMemoryData) > 0 {
+					containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations,
 						&datahub_v1alpha1.MetricData{
 							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 							Data:       resourceRequestMemoryData,

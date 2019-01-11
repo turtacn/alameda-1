@@ -65,8 +65,8 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
 	points := []*influxdb_client.Point{}
 	for _, alamedaNode := range alamedaNodes {
-		// SELECT * FROM node WHERE "name"='%s' AND in_cluster=true ORDER BY time DESC LIMIT 1
-		cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"='%s' AND \"%s\"=%s ORDER BY time DESC LIMIT 1",
+		// SELECT * FROM node WHERE "name"='%s' AND in_cluster=true ORDER BY time ASC LIMIT 1
+		cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"='%s' AND \"%s\"=%s ORDER BY time ASC LIMIT 1",
 			string(Node), string(cluster_status_entity.NodeName), alamedaNode.Name,
 			string(cluster_status_entity.NodeInCluster), "true")
 		if results, _ := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus)); len(results) == 1 && len(results[0].Series) == 1 {
