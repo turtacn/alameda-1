@@ -36,6 +36,7 @@ var (
 
 			initConfig()
 			initLogger()
+			setLoggerScopesWithConfig(*config.Log)
 			displayConfig()
 
 			server, err = datahub.NewServer(config)
@@ -102,5 +103,17 @@ func displayConfig() {
 		scope.Error(err.Error())
 	} else {
 		scope.Infof(fmt.Sprintf("Datahub configuration: %s", string(configBin)))
+	}
+}
+
+func setLoggerScopesWithConfig(config log.Config) {
+	for _, scope := range log.Scopes() {
+		scope.SetLogCallers(config.SetLogCallers == true)
+		if outputLvl, ok := log.StringToLevel(config.OutputLevel); ok {
+			scope.SetOutputLevel(outputLvl)
+		}
+		if stacktraceLevel, ok := log.StringToLevel(config.StackTraceLevel); ok {
+			scope.SetStackTraceLevel(stacktraceLevel)
+		}
 	}
 }
