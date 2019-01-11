@@ -10,4 +10,6 @@ const (
 	Prediction Database = "alameda_prediction"
 	// Recommendation is recommendation database
 	Recommendation Database = "alameda_recommendation"
+	// Score is score database
+	Score Database = "alameda_score"
 )

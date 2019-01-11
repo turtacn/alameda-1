@@ -3,6 +3,8 @@ package datahub
 import (
 	"errors"
 	"fmt"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	"net"
 	"time"
 
@@ -537,20 +539,61 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.ListSimulatedSchedulingScoresRequest) (*datahub_v1alpha1.ListSimulatedSchedulingScoresResponse, error) {
 
 	var (
-		mockScores = []*datahub_v1alpha1.SimulatedSchedulingScore{
-			&datahub_v1alpha1.SimulatedSchedulingScore{
-				Time:        tmpTimestamps[0],
-				ScoreBefore: 1.5,
-				ScoreAfter:  2.5,
-			},
-		}
+		err error
+
+		scoreDAO                          score.DAO
+		scoreDAOListRequest               score.ListRequest
+		scoreDAOSimulatedSchedulingScores = make([]*score.SimulatedSchedulingScore, 0)
+
+		datahubScores = make([]*datahub_v1alpha1.SimulatedSchedulingScore, 0)
 	)
+
+	scoreDAO = influxdb.NewWithConfig(*s.Config.InfluxDB)
+
+	scoreDAOListRequest = score.ListRequest{}
+	if in.GetTimeRange() != nil {
+		queryTimeRange := in.GetTimeRange()
+
+		googleStartTime := queryTimeRange.GetStartTime()
+		startTime, _ := ptypes.Timestamp(googleStartTime)
+		scoreDAOListRequest.StartTime = &startTime
+
+		googleEndTime := queryTimeRange.GetEndTime()
+		endTime, _ := ptypes.Timestamp(googleEndTime)
+		scoreDAOListRequest.EndTime = &endTime
+	}
+
+	scoreDAOSimulatedSchedulingScores, err = scoreDAO.ListSimulatedScheduingScores(scoreDAOListRequest)
+	if err != nil {
+		scope.Errorf("api ListSimulatedSchedulingScores failed: %s", err.Error())
+		return &datahub_v1alpha1.ListSimulatedSchedulingScoresResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: "Internal server error.",
+			},
+			Scores: datahubScores,
+		}, nil
+	}
+
+	for _, daoSimulatedSchedulingScore := range scoreDAOSimulatedSchedulingScores {
+
+		t, err := ptypes.TimestampProto(daoSimulatedSchedulingScore.Timestamp)
+		if err != nil {
+			scope.Warnf("api ListSimulatedSchedulingScores warn: time convert failed: %s", err.Error())
+		}
+		datahubScore := datahub_v1alpha1.SimulatedSchedulingScore{
+			Time:        t,
+			ScoreBefore: float32(daoSimulatedSchedulingScore.ScoreBefore),
+			ScoreAfter:  float32(daoSimulatedSchedulingScore.ScoreAfter),
+		}
+		datahubScores = append(datahubScores, &datahubScore)
+	}
 
 	return &datahub_v1alpha1.ListSimulatedSchedulingScoresResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		Scores: mockScores,
+		Scores: datahubScores,
 	}, nil
 }
 
@@ -704,8 +747,42 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 	}, nil
 }
 
-// CreateSimulatedSchedulingScores add simulated scheduling scores information to database
+// CreateSimulatedSchedulingScores add simulated scheduling scores to database
 func (s *Server) CreateSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.CreateSimulatedSchedulingScoresRequest) (*status.Status, error) {
+
+	var (
+		err error
+
+		scoreDAO                           score.DAO
+		daoSimulatedSchedulingScoreEntites = make([]*score.SimulatedSchedulingScore, 0)
+	)
+
+	scoreDAO = influxdb.NewWithConfig(*s.Config.InfluxDB)
+
+	for _, scoreEntity := range in.GetScores() {
+
+		if scoreEntity == nil {
+			continue
+		}
+
+		timestamp, _ := ptypes.Timestamp(scoreEntity.GetTime())
+		daoSimulatedSchedulingScoreEntity := score.SimulatedSchedulingScore{
+			Timestamp:   timestamp,
+			ScoreBefore: float64(scoreEntity.GetScoreBefore()),
+			ScoreAfter:  float64(scoreEntity.GetScoreAfter()),
+		}
+		daoSimulatedSchedulingScoreEntites = append(daoSimulatedSchedulingScoreEntites, &daoSimulatedSchedulingScoreEntity)
+	}
+
+	err = scoreDAO.CreateSimulatedScheduingScores(daoSimulatedSchedulingScoreEntites)
+	if err != nil {
+		scope.Errorf("api CreateSimulatedSchedulingScores failed: %s", err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: "Internal server error.",
+		}, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

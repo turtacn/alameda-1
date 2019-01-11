@@ -10,7 +10,7 @@ const (
 	NodeName nodeTag = "name"
 
 	// NodeGroup is node group name
-	NodeGroup nodeField = "grou"
+	NodeGroup nodeField = "group"
 	// NodeInCluster is the state node is in cluster or not
 	NodeInCluster nodeField = "in_cluster"
 )
