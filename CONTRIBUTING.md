@@ -1,5 +1,5 @@
-# Contributing to Alameda
-Welcome! The Alameda project is [Apache 2.0 licensed](LICENSE) and accepts contributions via GitHub
+# Contributing to Federator.ai 
+Welcome! The Federator.ai project is [Apache 2.0 licensed](LICENSE) and accepts contributions via GitHub
 pull requests. This document outlines some of the conventions on development
 workflow, commit message formatting, contact points and other resources to make
 it easier to get your contribution accepted.
@@ -48,7 +48,7 @@ We currently welcome contributions of all kinds. For example:
 
 ## Issues
 
-Issues are used as the primary method for tracking anything to do with the Alameda project.
+Issues are used as the primary method for tracking anything to do with the Federator.ai project.
 
 ### Issue Types
 
@@ -70,7 +70,7 @@ from a "Proposal" or can be submitted individually depending on the size.
 ### Issue Lifecycle
 
 The issue lifecycle is mainly driven by the core maintainers, but is good information for those
-contributing to Alameda. All issue types follow the same general lifecycle. Differences are noted below.
+contributing to Federator.ai. All issue types follow the same general lifecycle. Differences are noted below.
 1. Issue creation
 2. Triage
     - The maintainer in charge of triaging will apply the proper labels for the issue. This
@@ -182,7 +182,7 @@ The following tables define all label types used for Alamed. It is split up by c
 | `help wanted` | This issue is one the core maintainers cannot get to right now and would appreciate help with |
 | `proposal` | This issue is a proposal |
 | `question/support` | This issue is a support request or question |
-| `starter` | This issue is a good for someone new to contributing to Alameda |
+| `starter` | This issue is a good for someone new to contributing to Federator.ai|
 | `wont fix` | The issue has been discussed and will not be implemented (or accepted in the case of a proposal) |
 
 ### PR Specific

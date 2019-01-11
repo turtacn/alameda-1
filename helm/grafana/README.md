@@ -10,7 +10,7 @@ For more details, please goto https://github.com/helm/charts/tree/master/stable/
 $ helm install stable/grafana --name grafana --namespace monitoring -f values.yaml
 ```
 
-Compared to the upstream `values.yaml`, the supplied `values.yaml` add two datasource configurations:  
+Compared to the upstream `helm/charts/stable/grafana/values.yaml`, the supplied `values.yaml` in this folder adds two datasource configurations:  
 ```
 datasources:
   datasources.yaml:

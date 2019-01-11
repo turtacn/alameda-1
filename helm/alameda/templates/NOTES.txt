@@ -1,5 +1,5 @@
-Alameda has been installed. Check its status by running:
+Federator.ai has been installed. Check its status by running:
   kubectl --namespace {{ .Release.Namespace }} get pods
 
-Visit https://github.com/containers-ai/alameda for instructions on how to get started with Alameda.
+Visit https://github.com/containers-ai/alameda/blob/master/docs/quickstart.md to get started.
 

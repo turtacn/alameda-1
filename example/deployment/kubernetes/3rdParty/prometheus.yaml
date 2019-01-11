@@ -76,20 +76,49 @@ metadata:
   namespace: monitoring
 data:
   prometheus-rules.yml: |
-    groups: 
-    - name: k8s.rules
-      rules:
-      - expr: |
-          sum(rate(container_cpu_usage_seconds_total{image!="", container_name!=""}[5m])) by (namespace)
-        record: namespace:container_cpu_usage_seconds_total:sum_rate
-      - expr: |
-          sum by (namespace, pod_name, container_name) (
-            rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
-          )
-        record: namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate
-      - expr: |
-          sum(container_memory_usage_bytes{image!="", container_name!=""}) by (namespace)
-        record: namespace:container_memory_usage_bytes:sum
+    groups:
+      - name: k8s.rules
+        rules:
+        - expr: |
+            sum(rate(container_cpu_usage_seconds_total{image!="", container_name!=""}[5m])) by (namespace)
+          record: namespace:container_cpu_usage_seconds_total:sum_rate
+        - expr: |
+            sum by (namespace, pod_name, container_name) (
+              rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
+            )
+          record: namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate
+        - expr: |
+            sum(container_memory_usage_bytes{image!="", container_name!=""}) by (namespace)
+          record: namespace:container_memory_usage_bytes:sum
+        - expr: max by (kubernetes_node, kubernetes_namespace, kubernetes_pod) 
+            (label_replace(
+              label_replace(
+                label_replace(kube_pod_info{job="kubernetes-service-endpoints"}, "kubernetes_node", "$1", "node", "(.*)"),
+              "kubernetes_namespace", "$1", "namespace", "(.*)"),
+            "kubernetes_pod", "$1", "pod", "(.*)"))
+          record: "node_namespace_pod:kube_pod_info:"
+        - expr: label_replace(node_cpu_seconds_total, "cpu", "$1", "cpu", "cpu(.+)")
+          record: node_cpu
+        - expr: label_replace(1 - avg by (kubernetes_node) (rate(node_cpu{job="kubernetes-service-endpoints",mode="idle"}[1m]) * on(kubernetes_namespace, kubernetes_pod) group_left(node) node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
+          record: node:node_cpu_utilisation:avg1m
+        - expr: node_memory_MemTotal_bytes
+          record: node_memory_MemTotal
+        - expr: node_memory_MemFree_bytes
+          record: node_memory_MemFree
+        - expr: node_memory_Cached_bytes
+          record: node_memory_Cached
+        - expr: node_memory_Buffers_bytes
+          record: node_memory_Buffers
+        - expr: label_replace(sum
+            by (kubernetes_node) ((node_memory_MemFree{job="kubernetes-service-endpoints"} + node_memory_Cached{job="kubernetes-service-endpoints"}
+            + node_memory_Buffers{job="kubernetes-service-endpoints"}) * on(kubernetes_namespace, kubernetes_pod) group_left(kubernetes_node)
+            node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
+          record: node:node_memory_bytes_available:sum
+        - expr: label_replace(sum
+            by(kubernetes_node) (node_memory_MemTotal{job="kubernetes-service-endpoints"} * on(kubernetes_namespace, kubernetes_pod)
+            group_left(kubernetes_node) node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
+          record: node:node_memory_bytes_total:sum
+
   prometheus.yml: |
     global:
       scrape_interval: 30s
@@ -127,6 +156,42 @@ data:
         regex: (.+)
         target_label: __metrics_path__
         replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+    - job_name: 'kubernetes-service-endpoints'
+
+      kubernetes_sd_configs:
+        - role: endpoints
+
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+          action: replace
+          target_label: __scheme__
+          regex: (https?)
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+          action: replace
+          target_label: __address__
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: kubernetes_namespace
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: kubernetes_name
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: kubernetes_node
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: kubernetes_pod
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -1,8 +1,8 @@
-# Alameda Helm Chart
+# Federator.ai Helm Chart
 
-* Installs the brain of Kubernetes resource orchestration [Alameda](https://github.com/containers-ai/alameda)
+* Installs the brain of Kubernetes resource orchestration [Federator.ai](https://github.com/containers-ai/alameda)
 
-## Alameda components
+## Federator.ai components
 - operator
 - alameda-ai
 - datahub
@@ -10,15 +10,17 @@
 - InfluxDB
 - Grafana (optional)
 
-In this Helm chart, *operator*, *alameda-ai*, *datahub* and *Grafana*(if enabled in values.yaml) will be deployed and connection to Prometheus and InfluxDB will be configured.
+In this Helm chart, *operator*, *alameda-ai*, *datahub* will be deployed and connections to Prometheus and InfluxDB will be configured.
 
 ## Requirements
 
-Alameda levarages Prometheus to collect metrics and InfluxDB to store predictions with the following requirements.
+Federator.ai levarages Prometheus to collect metrics and InfluxDB to store predictions with the following requirements.
 
-1. Alameda requires a running Prometheus with following data exporters and record rules:  
+1. Federator.ai requires a running Prometheus with following data exporters and record rules:  
   - Data Exporters  
     - cAdvisor
+    - [Node exporter](https://github.com/prometheus/node_exporter)
+    - [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)
   - Recording Rules:   
     ```
     groups:
@@ -64,7 +66,7 @@ Alameda levarages Prometheus to collect metrics and InfluxDB to store prediction
             group_left(kubernetes_node) node_namespace_pod:kube_pod_info:), "node", "$1", "kubernetes_node", "(.*)")
           record: node:node_memory_bytes_total:sum
     ```
-2. Alameda requires a running InfluxDB. It will create database *cluster_status*, *recommendation* and *prediction* if they does not exist.
+2. Federator.ai requires a running InfluxDB. It will create database *cluster_status*, *recommendation* and *prediction* if they does not exist.
 
 ## TL;DR;
 
@@ -73,7 +75,7 @@ $ git clone https://github.com/containers-ai/alameda
 $ cd alameda/helm/alameda
 $ helm install --name alameda --namespace alameda .
 ```
-It will deploy Alameda in *alameda* namespace with *alameda* release name.
+It will deploy Federator.ai in *alameda* namespace with *alameda* release name.
 
 ## Installing the Chart
 

@@ -10,7 +10,7 @@ For more details, please goto https://github.com/helm/charts/tree/master/stable/
 $ helm install stable/prometheus --name prometheus --namespace monitoring -f values.yaml
 ```
 
-Compared to the upstream `values.yaml`, the supplied `values.yaml` adds a relabel target *kubernetes_pod* in job *kubernetes-service-endpoints* and the following recording rules:  
+Compared to the upstream `helm/charts/stable/prometheus/values.yaml`, the supplied `values.yaml` in this folder  adds a relabel target *kubernetes_pod* in job *kubernetes-service-endpoints* and the following recording rules:  
 ```
 groups:
 - name: k8s.rules
