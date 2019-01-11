@@ -459,78 +459,10 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 // ListPodsByNodeName list pods running on specific nodes
 func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNamesRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
 
-	var tmpMetricsData = []*datahub_v1alpha1.MetricData{
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "20",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "50",
-				},
-			},
-		},
-		&datahub_v1alpha1.MetricData{
-			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-			Data: []*datahub_v1alpha1.Sample{
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[0],
-					NumValue: "512",
-				},
-				&datahub_v1alpha1.Sample{
-					Time:     tmpTimestamps[1],
-					NumValue: "1024",
-				},
-			},
-		},
-	}
-
 	return &datahub_v1alpha1.ListPodsResponse{
 		Status: &status.Status{
-			Code: int32(code.Code_OK),
-		},
-		Pods: []*datahub_v1alpha1.Pod{
-			&datahub_v1alpha1.Pod{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshit-monitoring",
-					Name:      "prometheus-k8s-0",
-				},
-				ResourceLink: "",
-				Containers: []*datahub_v1alpha1.Container{
-					&datahub_v1alpha1.Container{
-						Name:            "prometheus",
-						LimitResource:   tmpMetricsData,
-						RequestResource: tmpMetricsData,
-					},
-					&datahub_v1alpha1.Container{
-						Name:            "another-container",
-						LimitResource:   tmpMetricsData,
-						RequestResource: tmpMetricsData,
-					},
-				},
-			},
-			&datahub_v1alpha1.Pod{
-				NamespacedName: &datahub_v1alpha1.NamespacedName{
-					Namespace: "openshit-monitoring",
-					Name:      "prometheus-k8s-1",
-				},
-				ResourceLink: "",
-				Containers: []*datahub_v1alpha1.Container{
-					&datahub_v1alpha1.Container{
-						Name:            "prometheus",
-						LimitResource:   tmpMetricsData,
-						RequestResource: tmpMetricsData,
-					},
-					&datahub_v1alpha1.Container{
-						Name:            "another-container",
-						LimitResource:   tmpMetricsData,
-						RequestResource: tmpMetricsData,
-					},
-				},
-			},
+			Code:    int32(code.Code_OK),
+			Message: "This function is deprecated.",
 		},
 	}, nil
 }
