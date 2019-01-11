@@ -1,6 +1,7 @@
 package clusterstatus
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	proto_timestmap "github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 )
 
@@ -50,12 +52,15 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, 
 		string(cluster_status_entity.ContainerIsDeleted), "false")
 	if whereStr != "" {
 		if scalerNS != "" && scalerName != "" {
-			whereStr = fmt.Sprintf("%s AND \"%s\"='%s' AND \"%s\"='%s'", whereStr, string(cluster_status_entity.ContainerAlamedaScalerNamespace), scalerNS,
+			whereStr = fmt.Sprintf("%s AND \"%s\"='%s' AND \"%s\"='%s'", whereStr,
+				string(cluster_status_entity.ContainerAlamedaScalerNamespace), scalerNS,
 				string(cluster_status_entity.ContainerAlamedaScalerName), scalerName)
 		} else if scalerNS != "" && scalerName == "" {
-			whereStr = fmt.Sprintf("%s AND \"%s\"='%s'", whereStr, string(cluster_status_entity.ContainerAlamedaScalerNamespace), scalerNS)
+			whereStr = fmt.Sprintf("%s AND \"%s\"='%s'", whereStr,
+				string(cluster_status_entity.ContainerAlamedaScalerNamespace), scalerNS)
 		} else if scalerNS == "" && scalerName != "" {
-			whereStr = fmt.Sprintf("%s AND \"%s\"='%s'", whereStr, string(cluster_status_entity.ContainerAlamedaScalerName), scalerName)
+			whereStr = fmt.Sprintf("%s AND \"%s\"='%s'", whereStr,
+				string(cluster_status_entity.ContainerAlamedaScalerName), scalerName)
 		}
 	}
 	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
@@ -68,7 +73,7 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, 
 			for _, ser := range result.Series {
 				podName := ser.Tags[string(cluster_status_entity.ContainerPodName)]
 				contanerNS := ser.Tags[string(cluster_status_entity.ContainerNamespace)]
-				podList = append(podList, &datahub_v1alpha1.Pod{
+				thePod := &datahub_v1alpha1.Pod{
 					NamespacedName: &datahub_v1alpha1.NamespacedName{
 						Name:      podName,
 						Namespace: contanerNS,
@@ -78,9 +83,25 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, 
 						Name:      podName,
 						Namespace: contanerNS,
 					},
-				})
+				}
+				if len(ser.Values) > 0 {
+					for colIdx, col := range ser.Columns {
+						if col == cluster_status_entity.ContainerPodCreateTime && ser.Values[0][colIdx] != nil {
+							if createTime, err := ser.Values[0][colIdx].(json.Number).Int64(); err == nil {
+								thePod.StartTime = &proto_timestmap.Timestamp{
+									Seconds: createTime,
+								}
+								break
+							} else {
+								containerScope.Error(err.Error())
+							}
+						} else if col == cluster_status_entity.ContainerNodeName && ser.Values[0][colIdx] != nil {
+							thePod.NodeName = ser.Values[0][colIdx].(string)
+						}
+					}
+				}
+				podList = append(podList, thePod)
 			}
-			containerScope.Infof(fmt.Sprintf(""))
 		}
 		return podList, nil
 	} else {
@@ -105,9 +126,10 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 				string(cluster_status_entity.ContainerName):      container.GetName(),
 			}
 			fields := map[string]interface{}{
-				string(cluster_status_entity.ContainerIsDeleted): false,
-				string(cluster_status_entity.ContainerIsAlameda): isAlamedaPod,
-				string(cluster_status_entity.ContainerPolicy):    pod.GetPolicy(),
+				string(cluster_status_entity.ContainerIsDeleted):     false,
+				string(cluster_status_entity.ContainerIsAlameda):     isAlamedaPod,
+				string(cluster_status_entity.ContainerPolicy):        pod.GetPolicy(),
+				string(cluster_status_entity.ContainerPodCreateTime): pod.StartTime.GetSeconds(),
 			}
 			if isAlamedaPod {
 				tags[string(cluster_status_entity.ContainerAlamedaScalerNamespace)] = pod.GetAlamedaScaler().GetNamespace()

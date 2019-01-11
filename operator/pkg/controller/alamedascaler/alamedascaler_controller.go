@@ -186,12 +186,22 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			for _, scalerDeployment := range alamedaScaler.Status.AlamedaController.Deployments {
 				for _, pod := range scalerDeployment.Pods {
 					containers := []*datahub_v1alpha1.Container{}
-
+					startTime := &timestamp.Timestamp{}
 					for _, container := range pod.Containers {
 						containers = append(containers, &datahub_v1alpha1.Container{
 							Name: container.Name,
 						})
 					}
+					nodeName := ""
+					if pod, err := getResource.GetPod(scalerDeployment.Namespace, pod.Name); err == nil {
+						nodeName = pod.Spec.NodeName
+						startTime = &timestamp.Timestamp{
+							Seconds: pod.ObjectMeta.GetCreationTimestamp().Unix(),
+						}
+					} else {
+						scope.Error(err.Error())
+					}
+
 					pods = append(pods, &datahub_v1alpha1.Pod{
 						IsAlameda: true,
 						AlamedaScaler: &datahub_v1alpha1.NamespacedName{
@@ -204,10 +214,10 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 						},
 						Policy:     datahub_v1alpha1.RecommendationPolicy(policy),
 						Containers: containers,
+						NodeName:   nodeName,
 						// TODO
-						NodeName:     "",
 						ResourceLink: "",
-						StartTime:    &timestamp.Timestamp{},
+						StartTime:    startTime,
 					})
 					// try to create the recommendation by pod
 					recommendationNS := scalerDeployment.Namespace

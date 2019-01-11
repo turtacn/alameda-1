@@ -41,6 +41,8 @@ const (
 	ContainerIsDeleted containerField = "is_deleted"
 	// ContainerPolicy is the prediction policy of container
 	ContainerPolicy containerField = "policy"
+	// ContainerPodCreateTime is the creation time of pod
+	ContainerPodCreateTime containerField = "pod_create_time"
 )
 
 var (
@@ -54,7 +56,7 @@ var (
 	ContainerFields = []containerField{
 		ContainerResourceRequestCPU, ContainerResourceRequestMemory,
 		ContainerResourceLimitCPU, ContainerResourceLimitMemory,
-		ContainerIsAlameda, ContainerIsDeleted, ContainerPolicy,
+		ContainerIsAlameda, ContainerIsDeleted, ContainerPolicy, ContainerPodCreateTime,
 	}
 )
 

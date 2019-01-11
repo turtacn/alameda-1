@@ -285,13 +285,16 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 				}
 				if !foundPodRec {
 					podRecommendations = append(podRecommendations, &datahub_v1alpha1.PodRecommendation{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: podNS,
+							Name:      podName,
+						},
 						ContainerRecommendations: []*datahub_v1alpha1.ContainerRecommendation{
 							containerRecommendation,
 						},
 					})
 				}
 			}
-
 		}
 		return podRecommendations, nil
 	} else {
