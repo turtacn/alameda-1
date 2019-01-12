@@ -73,5 +73,14 @@ func TimeStampToNanoSecond(timestamp *timestamp.Timestamp) int64 {
 
 // StringToInt64 parse str to int64
 func StringToInt64(str string) (int64, error) {
-	return strconv.ParseInt(str, 10, 64)
+
+	if val, err := strconv.ParseInt(str, 10, 64); err == nil {
+		return val, err
+	}
+
+	if val, err := strconv.ParseFloat(str, 64); err == nil {
+		return int64(val), err
+	} else {
+		return 0, err
+	}
 }
