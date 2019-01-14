@@ -40,8 +40,9 @@ type Entity struct {
 
 // Prometheus Prometheus api client
 type Prometheus struct {
-	config Config
-	client http.Client
+	config    Config
+	client    *http.Client
+	transport *http.Transport
 }
 
 // New New Prometheus api client with configuration
@@ -50,37 +51,38 @@ func New(config Config) (*Prometheus, error) {
 	var (
 		err error
 
-		p                = &Prometheus{}
 		requestTimeout   = 30 * time.Second
 		handShakeTimeout = 5 * time.Second
 	)
 
 	if err = config.Validate(); err != nil {
-		return p, errors.New("create prometheus instance failed: " + err.Error())
+		return nil, errors.New("create prometheus instance failed: " + err.Error())
 	}
 
-	p.config = config
-
-	u, _ := url.Parse(config.URL)
-	p.client = http.Client{
-		Timeout: requestTimeout,
+	tr := &http.Transport{
+		TLSHandshakeTimeout: handShakeTimeout,
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: config.TLSConfig.InsecureSkipVerify,
+		},
 	}
-	if strings.ToLower(u.Scheme) == "https" {
-		p.client.Transport = &http.Transport{
-			TLSHandshakeTimeout: handShakeTimeout,
-			TLSClientConfig:     &tls.Config{InsecureSkipVerify: p.config.TLSConfig.InsecureSkipVerify},
-		}
+	client := &http.Client{
+		Timeout:   requestTimeout,
+		Transport: tr,
 	}
 
-	if p.config.BearerTokenFile != "" {
+	if config.BearerTokenFile != "" {
 		token, err := ioutil.ReadFile(config.BearerTokenFile)
 		if err != nil {
-			return p, errors.New("create prometheus instance failed: open bearer token file for prometheus failed: " + err.Error())
+			return nil, errors.New("create prometheus instance failed: open bearer token file for prometheus failed: " + err.Error())
 		}
-		p.config.bearerToken = string(token)
+		config.bearerToken = string(token)
 	}
 
-	return p, nil
+	return &Prometheus{
+		config:    config,
+		client:    client,
+		transport: tr,
+	}, nil
 }
 
 // QueryRange Query data over a range of time from prometheus
@@ -133,7 +135,13 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime time.Time) (Res
 		return Response{}, errors.New("QueryRange failed: " + err.Error())
 	}
 
+	defer p.Close()
+
 	return response, nil
+}
+
+func (p *Prometheus) Close() {
+	p.transport.CloseIdleConnections()
 }
 
 func decodeHTTPResponse(httpResponse *http.Response, response *Response) error {
