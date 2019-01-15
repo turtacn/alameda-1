@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
-	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
-
+	"github.com/containers-ai/alameda/datahub/pkg/dao"
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -16,6 +14,8 @@ import (
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	recommendation_dao "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
@@ -161,7 +161,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 		requestExt     datahubListPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
-		queryCondition metric_dao.QueryCondition
+		queryCondition dao.QueryCondition
 
 		podsMetricMap     metric_dao.PodsMetricMap
 		datahubPodMetrics []*datahub_v1alpha1.PodMetric
@@ -227,7 +227,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 		requestExt     datahubListNodeMetricsRequestExtended
 		nodeNames      []string
-		queryCondition metric_dao.QueryCondition
+		queryCondition dao.QueryCondition
 
 		nodesMetricMap     metric_dao.NodesMetricMap
 		datahubNodeMetrics []*datahub_v1alpha1.NodeMetric
@@ -464,19 +464,8 @@ func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_
 
 	scoreDAO = influxdb.NewWithConfig(*s.Config.InfluxDB)
 
-	scoreDAOListRequest = score.ListRequest{}
-	if in.GetQueryCondition() != nil && in.GetQueryCondition().GetTimeRange() != nil {
-		queryTimeRange := in.GetQueryCondition().GetTimeRange()
-
-		googleStartTime := queryTimeRange.GetStartTime()
-		startTime, _ := ptypes.Timestamp(googleStartTime)
-		scoreDAOListRequest.StartTime = &startTime
-
-		googleEndTime := queryTimeRange.GetEndTime()
-		endTime, _ := ptypes.Timestamp(googleEndTime)
-		scoreDAOListRequest.EndTime = &endTime
-	}
-
+	datahubListSimulatedSchedulingScoresRequestExtended := datahubListSimulatedSchedulingScoresRequestExtended{in}
+	scoreDAOListRequest = datahubListSimulatedSchedulingScoresRequestExtended.daoLisRequest()
 	scoreDAOSimulatedSchedulingScores, err = scoreDAO.ListSimulatedScheduingScores(scoreDAOListRequest)
 	if err != nil {
 		scope.Errorf("api ListSimulatedSchedulingScores failed: %s", err.Error())

@@ -3,8 +3,9 @@ package datahub
 import (
 	"time"
 
-	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	"github.com/containers-ai/alameda/datahub/pkg/dao"
 	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	score_dao "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -156,7 +157,7 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 	var (
 		namespace      string
 		podName        string
-		queryCondition prediction_dao.QueryCondition
+		queryCondition dao.QueryCondition
 	)
 
 	if r.request.GetNamespacedName() != nil {
@@ -164,7 +165,7 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 		podName = r.request.GetNamespacedName().GetName()
 	}
 
-	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.predictionDAOQueryCondition()
+	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.daoQueryCondition()
 	listContainerPredictionsRequest := prediction_dao.ListPodPredictionsRequest{
 		Namespace:      namespace,
 		PodName:        podName,
@@ -182,13 +183,13 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 
 	var (
 		nodeNames      []string
-		queryCondition prediction_dao.QueryCondition
+		queryCondition dao.QueryCondition
 	)
 
 	for _, nodeName := range r.request.GetNodeNames() {
 		nodeNames = append(nodeNames, nodeName)
 	}
-	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.predictionDAOQueryCondition()
+	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.daoQueryCondition()
 	listNodePredictionsRequest := prediction_dao.ListNodePredictionsRequest{
 		NodeNames:      nodeNames,
 		QueryCondition: queryCondition,
@@ -197,11 +198,29 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 	return listNodePredictionsRequest
 }
 
+type datahubListSimulatedSchedulingScoresRequestExtended struct {
+	request *datahub_v1alpha1.ListSimulatedSchedulingScoresRequest
+}
+
+func (r datahubListSimulatedSchedulingScoresRequestExtended) daoLisRequest() score_dao.ListRequest {
+
+	var (
+		queryCondition dao.QueryCondition
+	)
+
+	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.daoQueryCondition()
+	listRequest := score_dao.ListRequest{
+		queryCondition,
+	}
+
+	return listRequest
+}
+
 type datahubQueryConditionExtend struct {
 	queryCondition *datahub_v1alpha1.QueryCondition
 }
 
-func (d datahubQueryConditionExtend) metricDAOQueryCondition() metric_dao.QueryCondition {
+func (d datahubQueryConditionExtend) metricDAOQueryCondition() dao.QueryCondition {
 
 	var (
 		queryStartTime      *time.Time
@@ -209,7 +228,7 @@ func (d datahubQueryConditionExtend) metricDAOQueryCondition() metric_dao.QueryC
 		queryStepTime       *time.Duration
 		queryTimestampOrder int
 		queryLimit          int
-		queryCondition      = metric_dao.QueryCondition{}
+		queryCondition      = dao.QueryCondition{}
 	)
 
 	if d.queryCondition == nil {
@@ -233,11 +252,11 @@ func (d datahubQueryConditionExtend) metricDAOQueryCondition() metric_dao.QueryC
 
 		switch d.queryCondition.GetOrder() {
 		case datahub_v1alpha1.QueryCondition_ASC:
-			queryTimestampOrder = metric_dao.Asc
+			queryTimestampOrder = dao.Asc
 		case datahub_v1alpha1.QueryCondition_DESC:
-			queryTimestampOrder = metric_dao.Desc
+			queryTimestampOrder = dao.Desc
 		default:
-			queryTimestampOrder = metric_dao.Asc
+			queryTimestampOrder = dao.Asc
 		}
 
 		queryLimit = int(d.queryCondition.GetLimit())
@@ -245,7 +264,7 @@ func (d datahubQueryConditionExtend) metricDAOQueryCondition() metric_dao.QueryC
 	queryTimestampOrder = int(d.queryCondition.GetOrder())
 	queryLimit = int(d.queryCondition.GetLimit())
 
-	queryCondition = metric_dao.QueryCondition{
+	queryCondition = dao.QueryCondition{
 		StartTime:      queryStartTime,
 		EndTime:        queryEndTime,
 		StepTime:       queryStepTime,
@@ -255,7 +274,7 @@ func (d datahubQueryConditionExtend) metricDAOQueryCondition() metric_dao.QueryC
 	return queryCondition
 }
 
-func (d datahubQueryConditionExtend) predictionDAOQueryCondition() prediction_dao.QueryCondition {
+func (d datahubQueryConditionExtend) daoQueryCondition() dao.QueryCondition {
 
 	var (
 		queryStartTime      *time.Time
@@ -263,7 +282,7 @@ func (d datahubQueryConditionExtend) predictionDAOQueryCondition() prediction_da
 		queryStepTime       *time.Duration
 		queryTimestampOrder int
 		queryLimit          int
-		queryCondition      = prediction_dao.QueryCondition{}
+		queryCondition      = dao.QueryCondition{}
 	)
 
 	if d.queryCondition == nil {
@@ -287,11 +306,11 @@ func (d datahubQueryConditionExtend) predictionDAOQueryCondition() prediction_da
 
 		switch d.queryCondition.GetOrder() {
 		case datahub_v1alpha1.QueryCondition_ASC:
-			queryTimestampOrder = metric_dao.Asc
+			queryTimestampOrder = dao.Asc
 		case datahub_v1alpha1.QueryCondition_DESC:
-			queryTimestampOrder = metric_dao.Desc
+			queryTimestampOrder = dao.Desc
 		default:
-			queryTimestampOrder = metric_dao.Asc
+			queryTimestampOrder = dao.Asc
 		}
 
 		queryLimit = int(d.queryCondition.GetLimit())
@@ -299,7 +318,7 @@ func (d datahubQueryConditionExtend) predictionDAOQueryCondition() prediction_da
 	queryTimestampOrder = int(d.queryCondition.GetOrder())
 	queryLimit = int(d.queryCondition.GetLimit())
 
-	queryCondition = prediction_dao.QueryCondition{
+	queryCondition = dao.QueryCondition{
 		StartTime:      queryStartTime,
 		EndTime:        queryEndTime,
 		StepTime:       queryStepTime,
