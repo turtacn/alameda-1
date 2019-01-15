@@ -24,7 +24,7 @@ func (container *Container) AddPodRecommendations(podRecommendations []*datahub_
 }
 
 // ListPodRecommendations list pod recommendations
-func (container *Container) ListPodRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName, timeRange *datahub_v1alpha1.TimeRange) ([]*datahub_v1alpha1.PodRecommendation, error) {
+func (container *Container) ListPodRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName, queryCondition *datahub_v1alpha1.QueryCondition) ([]*datahub_v1alpha1.PodRecommendation, error) {
 	containerRepository := influxdb_repository_recommendation.NewContainerRepository(&container.InfluxDBConfig)
-	return containerRepository.ListContainerRecommendations(podNamespacedName, timeRange)
+	return containerRepository.ListContainerRecommendations(podNamespacedName, queryCondition)
 }

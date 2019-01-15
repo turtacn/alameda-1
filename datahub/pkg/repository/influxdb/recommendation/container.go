@@ -10,6 +10,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 )
 
@@ -166,12 +167,20 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 }
 
 // ListContainerRecommendations list container recommendations
-func (containerRepository *ContainerRepository) ListContainerRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName, timeRange *datahub_v1alpha1.TimeRange) ([]*datahub_v1alpha1.PodRecommendation, error) {
+func (containerRepository *ContainerRepository) ListContainerRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName, queryCondition *datahub_v1alpha1.QueryCondition) ([]*datahub_v1alpha1.PodRecommendation, error) {
 	podRecommendations := []*datahub_v1alpha1.PodRecommendation{}
 	reqPodNS := podNamespacedName.GetNamespace()
 	reqPodName := podNamespacedName.GetName()
-	reqStartTime := timeRange.GetStartTime()
-	reqEndTime := timeRange.GetEndTime()
+	var (
+		reqStartTime *timestamp.Timestamp
+		reqEndTime   *timestamp.Timestamp
+	)
+	timeRange := queryCondition.GetTimeRange()
+	if timeRange != nil {
+		reqStartTime = timeRange.GetStartTime()
+		reqEndTime = timeRange.GetEndTime()
+	}
+
 	whereStr := ""
 	if reqPodNS != "" && reqPodName == "" {
 		whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqPodNS)
@@ -196,9 +205,12 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 		whereStr = fmt.Sprintf("%s AND %s", whereStr, timeConditionStr)
 	}
 
-	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" ORDER BY time ASC",
+	orderStr := containerRepository.buildOrderClause(queryCondition)
+	limitStr := containerRepository.buildLimitClause(queryCondition)
+
+	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" %s %s",
 		string(Container), whereStr, recommendation_entity.ContainerName,
-		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName)
+		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName, orderStr, limitStr)
 	containerScope.Infof(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 	if results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.Recommendation)); err == nil {
 		for _, result := range results {
@@ -346,4 +358,27 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	} else {
 		return podRecommendations, err
 	}
+}
+
+func (containerRepository *ContainerRepository) buildOrderClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
+	if queryCondition == nil {
+		return "ORDER BY time ASC"
+	}
+	if queryCondition.GetOrder() == datahub_v1alpha1.QueryCondition_DESC {
+		return "ORDER BY time DESC"
+	} else if queryCondition.GetOrder() == datahub_v1alpha1.QueryCondition_ASC {
+		return "ORDER BY time ASC"
+	}
+	return "ORDER BY time ASC"
+}
+
+func (containerRepository *ContainerRepository) buildLimitClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
+	if queryCondition == nil {
+		return ""
+	}
+	limit := queryCondition.GetLimit()
+	if queryCondition.GetLimit() > 0 {
+		return fmt.Sprintf("LIMIT %v", limit)
+	}
+	return ""
 }

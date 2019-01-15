@@ -48,6 +48,10 @@ message Sample {
     string num_value = 2;
 }
 
+/**
+ * Represents a time range definition
+ *
+ */
 message TimeRange {
     google.protobuf.Timestamp start_time = 1;
     google.protobuf.Timestamp end_time = 2;

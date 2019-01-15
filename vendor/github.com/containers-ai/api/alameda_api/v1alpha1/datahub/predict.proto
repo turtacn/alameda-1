@@ -24,7 +24,7 @@ message ContainerPrediction {
 }
 
 /**
- * Represents a list of item of predicted metrics data of a pod
+ * Represents a list of predicted metrics data of a pod
  */
 message PodPrediction {
     NamespacedName namespaced_name = 1;

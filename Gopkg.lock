@@ -11,14 +11,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8072b6399b0ea1673a6700542fbd6b7d17755093c96d455d1168828bf4f6c4bb"
+  digest = "1:5a0f06bea7a8cb5bb081370815afdd92ffd81a89ae87a2fb59d72c5bfb8b1780"
   name = "github.com/containers-ai/api"
   packages = [
+    "alameda_api/v1alpha1/ai_service",
     "alameda_api/v1alpha1/datahub",
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "e36e409f0b07ab1df6fc7df14e6091191ef6c815"
+  revision = "b6e9c5a76209ff1b7ff02f95e245768d0eecfcde"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1014,6 +1015,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/containers-ai/api/alameda_api/v1alpha1/operator",
     "github.com/emicklei/go-restful",
@@ -1059,7 +1061,6 @@
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",
     "sigs.k8s.io/controller-runtime/pkg/reconcile",
-    "sigs.k8s.io/controller-runtime/pkg/runtime/log",
     "sigs.k8s.io/controller-runtime/pkg/runtime/scheme",
     "sigs.k8s.io/controller-runtime/pkg/runtime/signals",
     "sigs.k8s.io/controller-runtime/pkg/source",

@@ -46,7 +46,7 @@ func (x RecommendationPolicy) String() string {
 	return proto.EnumName(RecommendationPolicy_name, int32(x))
 }
 func (RecommendationPolicy) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{0}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{0}
 }
 
 // / Types of an object
@@ -70,7 +70,7 @@ func (x Object_Type) String() string {
 	return proto.EnumName(Object_Type_name, int32(x))
 }
 func (Object_Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{1, 0}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{1, 0}
 }
 
 // *
@@ -88,7 +88,7 @@ func (m *Pod) Reset()         { *m = Pod{} }
 func (m *Pod) String() string { return proto.CompactTextString(m) }
 func (*Pod) ProtoMessage()    {}
 func (*Pod) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{0}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{0}
 }
 func (m *Pod) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pod.Unmarshal(m, b)
@@ -140,7 +140,7 @@ func (m *Object) Reset()         { *m = Object{} }
 func (m *Object) String() string { return proto.CompactTextString(m) }
 func (*Object) ProtoMessage()    {}
 func (*Object) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{1}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{1}
 }
 func (m *Object) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Object.Unmarshal(m, b)
@@ -215,7 +215,7 @@ func (m *PredictionObjectListCreationRequest) Reset()         { *m = PredictionO
 func (m *PredictionObjectListCreationRequest) String() string { return proto.CompactTextString(m) }
 func (*PredictionObjectListCreationRequest) ProtoMessage()    {}
 func (*PredictionObjectListCreationRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{2}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{2}
 }
 func (m *PredictionObjectListCreationRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PredictionObjectListCreationRequest.Unmarshal(m, b)
@@ -255,7 +255,7 @@ func (m *PredictionObjectListDeletionRequest) Reset()         { *m = PredictionO
 func (m *PredictionObjectListDeletionRequest) String() string { return proto.CompactTextString(m) }
 func (*PredictionObjectListDeletionRequest) ProtoMessage()    {}
 func (*PredictionObjectListDeletionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{3}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{3}
 }
 func (m *PredictionObjectListDeletionRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PredictionObjectListDeletionRequest.Unmarshal(m, b)
@@ -295,7 +295,7 @@ func (m *RequestResponse) Reset()         { *m = RequestResponse{} }
 func (m *RequestResponse) String() string { return proto.CompactTextString(m) }
 func (*RequestResponse) ProtoMessage()    {}
 func (*RequestResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ai_service_abd68b623713d0b3, []int{4}
+	return fileDescriptor_ai_service_680d4d44766a6757, []int{4}
 }
 func (m *RequestResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RequestResponse.Unmarshal(m, b)
@@ -442,10 +442,10 @@ var _AlamendaAIService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/ai_service/ai_service.proto", fileDescriptor_ai_service_abd68b623713d0b3)
+	proto.RegisterFile("alameda_api/v1alpha1/ai_service/ai_service.proto", fileDescriptor_ai_service_680d4d44766a6757)
 }
 
-var fileDescriptor_ai_service_abd68b623713d0b3 = []byte{
+var fileDescriptor_ai_service_680d4d44766a6757 = []byte{
 	// 494 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xc1, 0x6e, 0xd3, 0x40,
 	0x10, 0x8d, 0xe3, 0x90, 0x34, 0x13, 0x54, 0xcc, 0x0a, 0x51, 0x93, 0x72, 0x88, 0xcc, 0x25, 0x80,

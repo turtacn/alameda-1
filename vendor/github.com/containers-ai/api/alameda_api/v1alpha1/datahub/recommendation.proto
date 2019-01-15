@@ -9,7 +9,7 @@ import "alameda_api/v1alpha1/datahub/pod_assignment.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
 
 /**
- * Represents a resource configuration recommendation made by the AI Engine
+ * Represents a resource configuration recommendation
  * 
  * It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
  *
@@ -23,7 +23,7 @@ message ContainerRecommendation {
 }
 
 /**
- * Represents a recommended pod-to-node assignment (i.e. pod placement) made by the AI Engine
+ * Represents a recommended pod-to-node assignment (i.e. pod placement)
  * 
  */
 message AssignPodPolicy {
@@ -36,7 +36,7 @@ message AssignPodPolicy {
 }
 
 /**
- * Represents a set of container resource configuration recommenation of a pod made by the AI Engine
+ * Represents a set of container resource configuration recommenations of a pod
  * 
  */
 message PodRecommendation {

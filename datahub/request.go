@@ -22,12 +22,12 @@ func (r datahubListPodMetricsRequestExtended) validate() error {
 		endTime   *timestamp.Timestamp
 	)
 
-	if r.TimeRange == nil {
+	if r.GetQueryCondition() == nil && r.GetQueryCondition().GetTimeRange() == nil {
 		return errors.New("field \"time_range\" cannot be empty")
 	}
 
-	startTime = r.TimeRange.StartTime
-	endTime = r.TimeRange.EndTime
+	startTime = r.GetQueryCondition().GetTimeRange().StartTime
+	endTime = r.GetQueryCondition().GetTimeRange().EndTime
 	if startTime == nil || endTime == nil {
 		return errors.New("field \"start_time\" and \"end_time\"  cannot be empty")
 	}
@@ -50,12 +50,12 @@ func (r datahubListNodeMetricsRequestExtended) validate() error {
 		endTime   *timestamp.Timestamp
 	)
 
-	if r.TimeRange == nil {
+	if r.GetQueryCondition() != nil && r.GetQueryCondition().GetTimeRange() != nil {
 		return errors.New("field \"time_range\" cannot be empty")
 	}
 
-	startTime = r.TimeRange.StartTime
-	endTime = r.TimeRange.EndTime
+	startTime = r.GetQueryCondition().GetTimeRange().StartTime
+	endTime = r.GetQueryCondition().GetTimeRange().EndTime
 	if startTime == nil || endTime == nil {
 		return errors.New("field \"start_time\" and \"end_time\"  cannot be empty")
 	}
@@ -206,15 +206,15 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 		podName = r.GetNamespacedName().GetName()
 	}
 
-	if r.GetTimeRange() != nil {
+	if r.GetQueryCondition() != nil && r.GetQueryCondition().GetTimeRange() != nil {
 
-		if r.GetTimeRange().GetStartTime() != nil {
-			tmpStartTime, _ := ptypes.Timestamp(r.GetTimeRange().GetStartTime())
+		if r.GetQueryCondition().GetTimeRange().GetStartTime() != nil {
+			tmpStartTime, _ := ptypes.Timestamp(r.GetQueryCondition().GetTimeRange().GetStartTime())
 			startTime = &tmpStartTime
 		}
 
-		if r.GetTimeRange().GetEndTime() != nil {
-			tmpEndTime, _ := ptypes.Timestamp(r.GetTimeRange().GetEndTime())
+		if r.GetQueryCondition().GetTimeRange().GetEndTime() != nil {
+			tmpEndTime, _ := ptypes.Timestamp(r.GetQueryCondition().GetTimeRange().GetEndTime())
 			endTime = &tmpEndTime
 		}
 	}
@@ -241,15 +241,15 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 		endTime   *time.Time
 	)
 
-	if r.GetTimeRange() != nil {
+	if r.GetQueryCondition() != nil && r.GetQueryCondition().GetTimeRange() != nil {
 
-		if r.GetTimeRange().GetStartTime() != nil {
-			tmpStartTime, _ := ptypes.Timestamp(r.GetTimeRange().GetStartTime())
+		if r.GetQueryCondition().GetTimeRange().GetStartTime() != nil {
+			tmpStartTime, _ := ptypes.Timestamp(r.GetQueryCondition().GetTimeRange().GetStartTime())
 			startTime = &tmpStartTime
 		}
 
-		if r.GetTimeRange().GetEndTime() != nil {
-			tmpEndTime, _ := ptypes.Timestamp(r.GetTimeRange().GetEndTime())
+		if r.GetQueryCondition().GetTimeRange().GetEndTime() != nil {
+			tmpEndTime, _ := ptypes.Timestamp(r.GetQueryCondition().GetTimeRange().GetEndTime())
 			endTime = &tmpEndTime
 		}
 	}

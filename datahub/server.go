@@ -3,10 +3,11 @@ package datahub
 import (
 	"errors"
 	"fmt"
-	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
-	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	"net"
 	"time"
+
+	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
@@ -191,11 +192,11 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 		namespace = in.GetNamespacedName().GetNamespace()
 		podName = in.GetNamespacedName().GetName()
 	}
-	queryStartTime, err = ptypes.Timestamp(in.GetTimeRange().GetStartTime())
+	queryStartTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetStartTime())
 	if err != nil {
 		return &apiInternalServerErrorResponse, nil
 	}
-	queryEndTime, err = ptypes.Timestamp(in.GetTimeRange().GetEndTime())
+	queryEndTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetEndTime())
 	if err != nil {
 		return &apiInternalServerErrorResponse, nil
 	}
@@ -263,11 +264,11 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
 
 	nodeNames = in.GetNodeNames()
-	queryStartTime, err = ptypes.Timestamp(in.GetTimeRange().GetStartTime())
+	queryStartTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetStartTime())
 	if err != nil {
 		return &apiInternalServerErrorResponse, nil
 	}
-	queryEndTime, err = ptypes.Timestamp(in.GetTimeRange().GetEndTime())
+	queryEndTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetEndTime())
 	if err != nil {
 		return &apiInternalServerErrorResponse, nil
 	}
@@ -438,7 +439,7 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	if podRecommendations, err := containerDAO.ListPodRecommendations(in.GetNamespacedName(), in.GetTimeRange()); err != nil {
+	if podRecommendations, err := containerDAO.ListPodRecommendations(in.GetNamespacedName(), in.GetQueryCondition()); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodRecommendationsResponse{
 			Status: &status.Status{
@@ -483,8 +484,8 @@ func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_
 	scoreDAO = influxdb.NewWithConfig(*s.Config.InfluxDB)
 
 	scoreDAOListRequest = score.ListRequest{}
-	if in.GetTimeRange() != nil {
-		queryTimeRange := in.GetTimeRange()
+	if in.GetQueryCondition().GetTimeRange() != nil {
+		queryTimeRange := in.GetQueryCondition().GetTimeRange()
 
 		googleStartTime := queryTimeRange.GetStartTime()
 		startTime, _ := ptypes.Timestamp(googleStartTime)

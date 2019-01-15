@@ -35,15 +35,15 @@ var RecommendationPolicy_name = map[int32]string{
 }
 var RecommendationPolicy_value = map[string]int32{
 	"RECOMMENDATIONPOLICY_UNDEFINED": 0,
-	"STABLE":  1,
-	"COMPACT": 2,
+	"STABLE":                         1,
+	"COMPACT":                        2,
 }
 
 func (x RecommendationPolicy) String() string {
 	return proto.EnumName(RecommendationPolicy_name, int32(x))
 }
 func (RecommendationPolicy) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_predict_818b629aa367e4d6, []int{0}
+	return fileDescriptor_predict_d83d5761358ca814, []int{0}
 }
 
 // *
@@ -60,7 +60,7 @@ func (m *ContainerPrediction) Reset()         { *m = ContainerPrediction{} }
 func (m *ContainerPrediction) String() string { return proto.CompactTextString(m) }
 func (*ContainerPrediction) ProtoMessage()    {}
 func (*ContainerPrediction) Descriptor() ([]byte, []int) {
-	return fileDescriptor_predict_818b629aa367e4d6, []int{0}
+	return fileDescriptor_predict_d83d5761358ca814, []int{0}
 }
 func (m *ContainerPrediction) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerPrediction.Unmarshal(m, b)
@@ -95,7 +95,7 @@ func (m *ContainerPrediction) GetPredictedRawData() []*MetricData {
 }
 
 // *
-// Represents a list of item of predicted metrics data of a pod
+// Represents a list of predicted metrics data of a pod
 type PodPrediction struct {
 	NamespacedName       *NamespacedName        `protobuf:"bytes,1,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
 	ContainerPredictions []*ContainerPrediction `protobuf:"bytes,2,rep,name=container_predictions,json=containerPredictions,proto3" json:"container_predictions,omitempty"`
@@ -108,7 +108,7 @@ func (m *PodPrediction) Reset()         { *m = PodPrediction{} }
 func (m *PodPrediction) String() string { return proto.CompactTextString(m) }
 func (*PodPrediction) ProtoMessage()    {}
 func (*PodPrediction) Descriptor() ([]byte, []int) {
-	return fileDescriptor_predict_818b629aa367e4d6, []int{1}
+	return fileDescriptor_predict_d83d5761358ca814, []int{1}
 }
 func (m *PodPrediction) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PodPrediction.Unmarshal(m, b)
@@ -157,7 +157,7 @@ func (m *NodePrediction) Reset()         { *m = NodePrediction{} }
 func (m *NodePrediction) String() string { return proto.CompactTextString(m) }
 func (*NodePrediction) ProtoMessage()    {}
 func (*NodePrediction) Descriptor() ([]byte, []int) {
-	return fileDescriptor_predict_818b629aa367e4d6, []int{2}
+	return fileDescriptor_predict_d83d5761358ca814, []int{2}
 }
 func (m *NodePrediction) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodePrediction.Unmarshal(m, b)
@@ -206,10 +206,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/predict.proto", fileDescriptor_predict_818b629aa367e4d6)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/predict.proto", fileDescriptor_predict_d83d5761358ca814)
 }
 
-var fileDescriptor_predict_818b629aa367e4d6 = []byte{
+var fileDescriptor_predict_d83d5761358ca814 = []byte{
 	// 376 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x92, 0xcf, 0x6a, 0xdb, 0x40,
 	0x10, 0xc6, 0x2b, 0xbb, 0xb8, 0xed, 0xaa, 0x75, 0xc5, 0xd6, 0x05, 0xe3, 0x43, 0x71, 0x75, 0x28,

@@ -29,10 +29,11 @@ setup(
     author_email='support@prophetstor.com',
     urls='https://github.com/containers-ai/api',
     license=license,
-    packages=['alameda_api.v1alpha1.ai_service', 'alameda_api.v1alpha1.operator'],
+    packages=['alameda_api.v1alpha1.ai_service', 'alameda_api.v1alpha1.operator', 'alameda_api.v1alpha1.datahub'],
     package_dir={
         'alameda_api.v1alpha1.ai_service': 'alameda_api/v1alpha1/ai_service',
         'alameda_api.v1alpha1.operator': 'alameda_api/v1alpha1/operator',
+        'alameda_api.v1alpha1.datahub': 'alameda_api/v1alpha1/datahub',
     },
     install_requires=INSTALL_REQUIRES,
     zip_safe=False

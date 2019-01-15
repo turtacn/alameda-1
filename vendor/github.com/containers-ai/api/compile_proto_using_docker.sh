@@ -61,7 +61,7 @@ compile_grpc_python(){
         build_python_image
     fi
     echo "Start compiling proto files to python files."
-    docker run --rm -v $(pwd):$(pwd) -w $(pwd) $ALAMEA_GRPC_PYTHON_IMAGE bash -c "for pt in \$(find . | grep \\\.proto\$ | grep -v ^\\\./include);do python -m grpc_tools.protoc -I . -I include/ --python_out=./ --grpc_python_out=./ \$pt; done"
+    docker run --rm -v $(pwd):$(pwd) -w $(pwd) $ALAMEA_GRPC_PYTHON_IMAGE bash -c "for pt in \$(find . | grep \\\.proto\$ | grep -v ^\\\./include | grep -v ^\\\./google);do python -m grpc_tools.protoc -I . -I include/ --python_out=./ --grpc_python_out=./ \$pt; done"
     echo "Finish compiling proto files to python files."
 }
 
@@ -81,7 +81,7 @@ compile_grpc_go(){
         build_go_image
     fi
     echo "Start compiling proto files to go files."
-    docker run --rm -v $(pwd):$(pwd) -w $(pwd) $ALAMEA_GRPC_GO_IMAGE bash -c "for pt in \$(find . | grep \\\.proto\$ | grep -v ^\\\./include);do protoc -I . -I include/ \$pt --go_out=plugins=grpc:.; done"
+    docker run --rm -v $(pwd):$(pwd) -w $(pwd) $ALAMEA_GRPC_GO_IMAGE bash -c "for pt in \$(find . | grep \\\.proto\$ | grep -v ^\\\./include | grep -v ^\\\./google);do protoc -I . -I include/ \$pt --go_out=plugins=grpc:.; done"
     echo "Finish compiling proto files to go files."
 }
 

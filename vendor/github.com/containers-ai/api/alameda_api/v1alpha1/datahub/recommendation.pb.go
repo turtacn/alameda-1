@@ -20,7 +20,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // *
-// Represents a resource configuration recommendation made by the AI Engine
+// Represents a resource configuration recommendation
 //
 // It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
 //
@@ -39,7 +39,7 @@ func (m *ContainerRecommendation) Reset()         { *m = ContainerRecommendation
 func (m *ContainerRecommendation) String() string { return proto.CompactTextString(m) }
 func (*ContainerRecommendation) ProtoMessage()    {}
 func (*ContainerRecommendation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_6e536f58290a375b, []int{0}
+	return fileDescriptor_recommendation_e14cbbfa30630ea4, []int{0}
 }
 func (m *ContainerRecommendation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerRecommendation.Unmarshal(m, b)
@@ -95,7 +95,7 @@ func (m *ContainerRecommendation) GetInitialRequestRecommendations() []*MetricDa
 }
 
 // *
-// Represents a recommended pod-to-node assignment (i.e. pod placement) made by the AI Engine
+// Represents a recommended pod-to-node assignment (i.e. pod placement)
 //
 type AssignPodPolicy struct {
 	Time *timestamp.Timestamp `protobuf:"bytes,1,opt,name=time,proto3" json:"time,omitempty"`
@@ -113,7 +113,7 @@ func (m *AssignPodPolicy) Reset()         { *m = AssignPodPolicy{} }
 func (m *AssignPodPolicy) String() string { return proto.CompactTextString(m) }
 func (*AssignPodPolicy) ProtoMessage()    {}
 func (*AssignPodPolicy) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_6e536f58290a375b, []int{1}
+	return fileDescriptor_recommendation_e14cbbfa30630ea4, []int{1}
 }
 func (m *AssignPodPolicy) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AssignPodPolicy.Unmarshal(m, b)
@@ -280,7 +280,7 @@ func _AssignPodPolicy_OneofSizer(msg proto.Message) (n int) {
 }
 
 // *
-// Represents a set of container resource configuration recommenation of a pod made by the AI Engine
+// Represents a set of container resource configuration recommenations of a pod
 //
 type PodRecommendation struct {
 	NamespacedName           *NamespacedName            `protobuf:"bytes,1,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
@@ -296,7 +296,7 @@ func (m *PodRecommendation) Reset()         { *m = PodRecommendation{} }
 func (m *PodRecommendation) String() string { return proto.CompactTextString(m) }
 func (*PodRecommendation) ProtoMessage()    {}
 func (*PodRecommendation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_6e536f58290a375b, []int{2}
+	return fileDescriptor_recommendation_e14cbbfa30630ea4, []int{2}
 }
 func (m *PodRecommendation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PodRecommendation.Unmarshal(m, b)
@@ -351,10 +351,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/recommendation.proto", fileDescriptor_recommendation_6e536f58290a375b)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/recommendation.proto", fileDescriptor_recommendation_e14cbbfa30630ea4)
 }
 
-var fileDescriptor_recommendation_6e536f58290a375b = []byte{
+var fileDescriptor_recommendation_e14cbbfa30630ea4 = []byte{
 	// 517 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0x4d, 0x6f, 0x13, 0x31,
 	0x14, 0x6c, 0x93, 0x50, 0xa5, 0x0e, 0x10, 0xd5, 0x82, 0x76, 0x09, 0xaa, 0x5a, 0xe5, 0x80, 0x8a,

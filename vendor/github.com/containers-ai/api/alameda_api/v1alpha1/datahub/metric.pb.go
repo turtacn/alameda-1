@@ -45,7 +45,7 @@ func (x MetricType) String() string {
 	return proto.EnumName(MetricType_name, int32(x))
 }
 func (MetricType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{0}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{0}
 }
 
 // *
@@ -62,7 +62,7 @@ func (m *ContainerMetric) Reset()         { *m = ContainerMetric{} }
 func (m *ContainerMetric) String() string { return proto.CompactTextString(m) }
 func (*ContainerMetric) ProtoMessage()    {}
 func (*ContainerMetric) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{0}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{0}
 }
 func (m *ContainerMetric) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerMetric.Unmarshal(m, b)
@@ -110,7 +110,7 @@ func (m *PodMetric) Reset()         { *m = PodMetric{} }
 func (m *PodMetric) String() string { return proto.CompactTextString(m) }
 func (*PodMetric) ProtoMessage()    {}
 func (*PodMetric) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{1}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{1}
 }
 func (m *PodMetric) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PodMetric.Unmarshal(m, b)
@@ -158,7 +158,7 @@ func (m *NodeMetric) Reset()         { *m = NodeMetric{} }
 func (m *NodeMetric) String() string { return proto.CompactTextString(m) }
 func (*NodeMetric) ProtoMessage()    {}
 func (*NodeMetric) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{2}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{2}
 }
 func (m *NodeMetric) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeMetric.Unmarshal(m, b)
@@ -206,7 +206,7 @@ func (m *Sample) Reset()         { *m = Sample{} }
 func (m *Sample) String() string { return proto.CompactTextString(m) }
 func (*Sample) ProtoMessage()    {}
 func (*Sample) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{3}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{3}
 }
 func (m *Sample) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Sample.Unmarshal(m, b)
@@ -240,6 +240,9 @@ func (m *Sample) GetNumValue() string {
 	return ""
 }
 
+// *
+// Represents a time range definition
+//
 type TimeRange struct {
 	StartTime            *timestamp.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	EndTime              *timestamp.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
@@ -253,7 +256,7 @@ func (m *TimeRange) Reset()         { *m = TimeRange{} }
 func (m *TimeRange) String() string { return proto.CompactTextString(m) }
 func (*TimeRange) ProtoMessage()    {}
 func (*TimeRange) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{4}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{4}
 }
 func (m *TimeRange) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TimeRange.Unmarshal(m, b)
@@ -309,7 +312,7 @@ func (m *MetricData) Reset()         { *m = MetricData{} }
 func (m *MetricData) String() string { return proto.CompactTextString(m) }
 func (*MetricData) ProtoMessage()    {}
 func (*MetricData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metric_1350f89998c0c5ff, []int{5}
+	return fileDescriptor_metric_824d1d05d4057f7a, []int{5}
 }
 func (m *MetricData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricData.Unmarshal(m, b)
@@ -354,10 +357,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/metric.proto", fileDescriptor_metric_1350f89998c0c5ff)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/metric.proto", fileDescriptor_metric_824d1d05d4057f7a)
 }
 
-var fileDescriptor_metric_1350f89998c0c5ff = []byte{
+var fileDescriptor_metric_824d1d05d4057f7a = []byte{
 	// 488 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x92, 0xc1, 0x6e, 0xd3, 0x40,
 	0x10, 0x86, 0x71, 0x1a, 0x95, 0x7a, 0x22, 0xda, 0xb0, 0x07, 0x14, 0x02, 0x82, 0xc8, 0x07, 0x54,
