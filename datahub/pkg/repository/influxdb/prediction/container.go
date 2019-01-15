@@ -136,7 +136,7 @@ func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(request predic
 		conditions += fmt.Sprintf(`"%s" = '%s' and `, container_entity.Namespace, request.Namespace)
 	}
 	if request.PodName != "" {
-		conditions += fmt.Sprintf(`"%s" = '%s' and `, container_entity.PodName, request.PodName)
+		conditions += fmt.Sprintf(`"%s" = '%s'`, container_entity.PodName, request.PodName)
 	}
 
 	if conditions != "" {
