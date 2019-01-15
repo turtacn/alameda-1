@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 
 	"github.com/containers-ai/alameda/datahub/pkg/dao"
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
@@ -200,6 +201,14 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 	podsMetricMap, err = metricDAO.ListPodMetrics(listPodMetricsRequest)
 	if err != nil {
 		scope.Error("ListPodMetrics failed: " + err.Error())
+		if strings.Contains(err.Error(), metric_dao.ErrorQueryConditionExceedMaximum) {
+			apiInternalServerErrorResponse = datahub_v1alpha1.ListPodMetricsResponse{
+				Status: &status.Status{
+					Code:    int32(code.Code_INTERNAL),
+					Message: metric_dao.ErrorQueryConditionExceedMaximum,
+				},
+			}
+		}
 		return &apiInternalServerErrorResponse, nil
 	}
 
@@ -262,6 +271,14 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	nodesMetricMap, err = metricDAO.ListNodesMetric(listNodeMetricsRequest)
 	if err != nil {
 		scope.Error("ListNodeMetrics failed: " + err.Error())
+		if strings.Contains(err.Error(), metric_dao.ErrorQueryConditionExceedMaximum) {
+			apiInternalServerErrorResponse = datahub_v1alpha1.ListNodeMetricsResponse{
+				Status: &status.Status{
+					Code:    int32(code.Code_INTERNAL),
+					Message: metric_dao.ErrorQueryConditionExceedMaximum,
+				},
+			}
+		}
 		return &apiInternalServerErrorResponse, nil
 	}
 

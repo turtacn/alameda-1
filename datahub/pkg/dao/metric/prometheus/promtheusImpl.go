@@ -2,6 +2,8 @@ package prometheus
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -12,6 +14,10 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUsageBytes"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	promRepository "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
+)
+
+const (
+	prometheusDecreaseQueryMessage = "Try decreasing the query resolution"
 )
 
 type prometheusMetricDAOImpl struct {
@@ -41,6 +47,9 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	podContainerCPURepo = promRepository.NewPodContainerCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
 	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, req.StartTime, req.EndTime, req.StepTime)
 	if err != nil {
+		if strings.Contains(err.Error(), prometheusDecreaseQueryMessage) {
+			return podsMetricMap, fmt.Errorf("list pod metrics failed: %s: %s", metric.ErrorQueryConditionExceedMaximum, err.Error())
+		}
 		return podsMetricMap, errors.New("list pod metrics failed: " + err.Error())
 	}
 
@@ -53,6 +62,9 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	podContainerMemoryRepo = promRepository.NewPodContainerMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
 	containerMemoryEntities, err = podContainerMemoryRepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, req.StartTime, req.EndTime, req.StepTime)
 	if err != nil {
+		if strings.Contains(err.Error(), prometheusDecreaseQueryMessage) {
+			return podsMetricMap, fmt.Errorf("list pod metrics failed: %s: %s", metric.ErrorQueryConditionExceedMaximum, err.Error())
+		}
 		return podsMetricMap, errors.New("list pod metrics failed: " + err.Error())
 	}
 
@@ -102,6 +114,9 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 	select {
 	case _ = <-done:
 	case err := <-errChan:
+		if strings.Contains(err.Error(), prometheusDecreaseQueryMessage) {
+			return metric.NodesMetricMap{}, fmt.Errorf("list pod metrics failed: %s: %s", metric.ErrorQueryConditionExceedMaximum, err.Error())
+		}
 		return metric.NodesMetricMap{}, err
 	}
 

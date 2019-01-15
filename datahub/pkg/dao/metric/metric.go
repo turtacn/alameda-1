@@ -8,6 +8,10 @@ import (
 	"sort"
 )
 
+const (
+	ErrorQueryConditionExceedMaximum = "Query data points exceed maximum restriction."
+)
+
 // MetricsDAO DAO interface of metric data.
 type MetricsDAO interface {
 	ListPodMetrics(ListPodMetricsRequest) (PodsMetricMap, error)
