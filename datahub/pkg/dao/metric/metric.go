@@ -2,10 +2,21 @@ package metric
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
+)
+
+// Order Order enumerator
+type Order = int
+
+const (
+	// Asc Represent ascending order
+	Asc Order = 0
+	// Desc Represent descending order
+	Desc Order = 1
 )
 
 // MetricsDAO DAO interface of metric data.
@@ -14,19 +25,26 @@ type MetricsDAO interface {
 	ListNodesMetric(ListNodeMetricsRequest) (NodesMetricMap, error)
 }
 
+// QueryCondition Others query condition
+type QueryCondition struct {
+	StartTime      *time.Time
+	EndTime        *time.Time
+	StepTime       *time.Duration
+	TimestampOrder Order
+	Limit          int
+}
+
 // ListPodMetricsRequest Argument of method ListPodMetrics
 type ListPodMetricsRequest struct {
 	Namespace metadata.NamespaceName
 	PodName   metadata.PodName
-	StartTime time.Time
-	EndTime   time.Time
+	QueryCondition
 }
 
 // ListNodeMetricsRequest Argument of method ListNodeMetrics
 type ListNodeMetricsRequest struct {
 	NodeNames []metadata.NodeName
-	StartTime time.Time
-	EndTime   time.Time
+	QueryCondition
 }
 
 // GetNodeNames Return nodes name in request
@@ -65,6 +83,30 @@ func (c ContainerMetric) NamespacePodContainerName() metadata.NamespacePodContai
 	return metadata.NamespacePodContainerName(fmt.Sprintf("%s/%s/%s", c.Namespace, c.PodName, c.ContainerName))
 }
 
+// SortByTimestamp Sort each metric samples by timestamp in input order
+func (c *ContainerMetric) SortByTimestamp(order Order) {
+
+	for _, samples := range c.Metrics {
+		if order == Asc {
+			sort.Sort(metric.SamplesByAscTimestamp(samples))
+		} else {
+			sort.Sort(metric.SamplesByDescTimestamp(samples))
+		}
+	}
+}
+
+// Limit Slicing each metric samples element
+func (c *ContainerMetric) Limit(limit int) {
+
+	if limit == 0 {
+		return
+	}
+
+	for metricType, samples := range c.Metrics {
+		c.Metrics[metricType] = samples[:limit]
+	}
+}
+
 // ContainersMetricMap Containers metric map
 type ContainersMetricMap map[metadata.NamespacePodContainerName]*ContainerMetric
 
@@ -95,7 +137,6 @@ func (c *ContainersMetricMap) Merge(in *ContainersMetricMap) {
 			(*c)[namespacePodContainerName] = containerMetric
 		}
 	}
-
 }
 
 // PodMetric Metric model to represent one pod's metric
@@ -115,6 +156,22 @@ func (p *PodMetric) Merge(in *PodMetric) {
 	p.ContainersMetricMap.Merge(in.ContainersMetricMap)
 }
 
+// SortByTimestamp Sort each container metric's content
+func (p *PodMetric) SortByTimestamp(order Order) {
+
+	for _, containerMetric := range *p.ContainersMetricMap {
+		containerMetric.SortByTimestamp(order)
+	}
+}
+
+// Limit Slicing each container metric content
+func (p *PodMetric) Limit(limit int) {
+
+	for _, containerMetric := range *p.ContainersMetricMap {
+		containerMetric.Limit(limit)
+	}
+}
+
 // PodsMetricMap Pods' metric map
 type PodsMetricMap map[metadata.NamespacePodName]*PodMetric
 
@@ -127,6 +184,22 @@ func (p *PodsMetricMap) AddContainerMetric(c *ContainerMetric) {
 		existedPodMetric.Merge(podMetric)
 	} else {
 		(*p)[namespacePodName] = podMetric
+	}
+}
+
+// SortByTimestamp Sort each pod metric's content
+func (p *PodsMetricMap) SortByTimestamp(order Order) {
+
+	for _, podMetric := range *p {
+		podMetric.SortByTimestamp(order)
+	}
+}
+
+// Limit Slicing each pod metric content
+func (p *PodsMetricMap) Limit(limit int) {
+
+	for _, podMetric := range *p {
+		podMetric.Limit(limit)
 	}
 }
 
@@ -144,6 +217,30 @@ func (n *NodeMetric) Merge(in *NodeMetric) {
 	}
 }
 
+// SortByTimestamp Sort each metric samples by timestamp in input order
+func (n *NodeMetric) SortByTimestamp(order Order) {
+
+	for _, samples := range n.Metrics {
+		if order == Asc {
+			sort.Sort(metric.SamplesByAscTimestamp(samples))
+		} else {
+			sort.Sort(metric.SamplesByDescTimestamp(samples))
+		}
+	}
+}
+
+// Limit Slicing each metric samples element
+func (n *NodeMetric) Limit(limit int) {
+
+	if limit == 0 {
+		return
+	}
+
+	for metricType, samples := range n.Metrics {
+		n.Metrics[metricType] = samples[:limit]
+	}
+}
+
 // NodesMetricMap Nodes' metric map
 type NodesMetricMap map[metadata.NodeName]*NodeMetric
 
@@ -155,5 +252,21 @@ func (n *NodesMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
 		existNodeMetric.Merge(nodeMetric)
 	} else {
 		(*n)[nodeName] = nodeMetric
+	}
+}
+
+// SortByTimestamp Sort each node metric's content
+func (n *NodesMetricMap) SortByTimestamp(order Order) {
+
+	for _, nodeMetric := range *n {
+		nodeMetric.SortByTimestamp(order)
+	}
+}
+
+// Limit Limit each node metric's content
+func (n *NodesMetricMap) Limit(limit int) {
+
+	for _, nodeMetric := range *n {
+		nodeMetric.Limit(limit)
 	}
 }

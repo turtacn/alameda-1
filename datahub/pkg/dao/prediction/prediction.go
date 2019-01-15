@@ -8,6 +8,16 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 )
 
+// Order Order enumerator
+type Order = int
+
+const (
+	// Asc Represent ascending order
+	Asc Order = 0
+	// Desc Represent descending order
+	Desc Order = 1
+)
+
 // IsScheduled Specified if the node prediction is scheduled
 type IsScheduled = bool
 
@@ -19,19 +29,26 @@ type DAO interface {
 	CreateNodePredictions([]*NodePrediction) error
 }
 
+// QueryCondition Others query condition
+type QueryCondition struct {
+	StartTime      *time.Time
+	EndTime        *time.Time
+	StepTime       *time.Duration
+	TimestampOrder Order
+	Limit          int
+}
+
 // ListPodPredictionsRequest ListPodPredictionsRequest
 type ListPodPredictionsRequest struct {
 	Namespace string
 	PodName   string
-	StartTime *time.Time
-	EndTime   *time.Time
+	QueryCondition
 }
 
 // ListNodePredictionsRequest ListNodePredictionsRequest
 type ListNodePredictionsRequest struct {
 	NodeNames []string
-	StartTime *time.Time
-	EndTime   *time.Time
+	QueryCondition
 }
 
 // ContainerPrediction Prediction model to represent one container Prediction

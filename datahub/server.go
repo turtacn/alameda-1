@@ -4,14 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
-	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
 	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
@@ -157,15 +156,14 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 	var (
 		err error
 
-		metricDAO metric.MetricsDAO
+		metricDAO metric_dao.MetricsDAO
 
 		requestExt     datahubListPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
-		queryStartTime time.Time
-		queryEndTime   time.Time
+		queryCondition metric_dao.QueryCondition
 
-		podsMetricMap     metric.PodsMetricMap
+		podsMetricMap     metric_dao.PodsMetricMap
 		datahubPodMetrics []*datahub_v1alpha1.PodMetric
 
 		apiInternalServerErrorResponse = datahub_v1alpha1.ListPodMetricsResponse{
@@ -192,19 +190,11 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 		namespace = in.GetNamespacedName().GetNamespace()
 		podName = in.GetNamespacedName().GetName()
 	}
-	queryStartTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetStartTime())
-	if err != nil {
-		return &apiInternalServerErrorResponse, nil
-	}
-	queryEndTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetEndTime())
-	if err != nil {
-		return &apiInternalServerErrorResponse, nil
-	}
-	listPodMetricsRequest := metric.ListPodMetricsRequest{
-		Namespace: namespace,
-		PodName:   podName,
-		StartTime: queryStartTime,
-		EndTime:   queryEndTime,
+	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.metricDAOQueryCondition()
+	listPodMetricsRequest := metric_dao.ListPodMetricsRequest{
+		Namespace:      namespace,
+		PodName:        podName,
+		QueryCondition: queryCondition,
 	}
 
 	podsMetricMap, err = metricDAO.ListPodMetrics(listPodMetricsRequest)
@@ -233,14 +223,13 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	var (
 		err error
 
-		metricDAO metric.MetricsDAO
+		metricDAO metric_dao.MetricsDAO
 
 		requestExt     datahubListNodeMetricsRequestExtended
 		nodeNames      []string
-		queryStartTime time.Time
-		queryEndTime   time.Time
+		queryCondition metric_dao.QueryCondition
 
-		nodesMetricMap     metric.NodesMetricMap
+		nodesMetricMap     metric_dao.NodesMetricMap
 		datahubNodeMetrics []*datahub_v1alpha1.NodeMetric
 
 		apiInternalServerErrorResponse = datahub_v1alpha1.ListNodeMetricsResponse{
@@ -264,18 +253,10 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
 
 	nodeNames = in.GetNodeNames()
-	queryStartTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetStartTime())
-	if err != nil {
-		return &apiInternalServerErrorResponse, nil
-	}
-	queryEndTime, err = ptypes.Timestamp(in.GetQueryCondition().GetTimeRange().GetEndTime())
-	if err != nil {
-		return &apiInternalServerErrorResponse, nil
-	}
-	listNodeMetricsRequest := metric.ListNodeMetricsRequest{
-		NodeNames: nodeNames,
-		StartTime: queryStartTime,
-		EndTime:   queryEndTime,
+	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.metricDAOQueryCondition()
+	listNodeMetricsRequest := metric_dao.ListNodeMetricsRequest{
+		NodeNames:      nodeNames,
+		QueryCondition: queryCondition,
 	}
 
 	nodesMetricMap, err = metricDAO.ListNodesMetric(listNodeMetricsRequest)
@@ -372,7 +353,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 
 	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
 
-	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{*in}
+	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{in}
 	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
 	podsPredicitonMap, err = predictionDAO.ListPodPredictions(listPodPredictionsRequest)
 	if err != nil {
@@ -415,7 +396,7 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 
 	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
 
-	datahubListNodePredictionsRequestExtended := datahubListNodePredictionsRequestExtended{*in}
+	datahubListNodePredictionsRequestExtended := datahubListNodePredictionsRequestExtended{in}
 	listNodePredictionRequest := datahubListNodePredictionsRequestExtended.daoListNodePredictionsRequest()
 	nodesPredicitonMap, err = predictionDAO.ListNodePredictions(listNodePredictionRequest)
 	if err != nil {
@@ -484,7 +465,7 @@ func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_
 	scoreDAO = influxdb.NewWithConfig(*s.Config.InfluxDB)
 
 	scoreDAOListRequest = score.ListRequest{}
-	if in.GetQueryCondition().GetTimeRange() != nil {
+	if in.GetQueryCondition() != nil && in.GetQueryCondition().GetTimeRange() != nil {
 		queryTimeRange := in.GetQueryCondition().GetTimeRange()
 
 		googleStartTime := queryTimeRange.GetStartTime()
