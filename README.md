@@ -3,13 +3,13 @@
 [![codecov](https://codecov.io/gh/containers-ai/alameda/branch/master/graph/badge.svg)](https://codecov.io/gh/containers-ai/alameda)
 [![Docker Pulls](https://img.shields.io/docker/pulls/containersai/alameda.svg)](https://hub.docker.com/r/containersai/alameda)
 
-# What is Federator.ai 
+# What is Federator.ai for K8s
 
 ### The Brain of Resource Orchestration for Kubernetes
 
-Federator.ai is a prediction engine that foresees future resource usage of your Kubernetes cluster from the cloud layer down to the pod level. We use machine learning technology to provide intelligence that enables dynamic scaling and scheduling of your containers - effectively making us the “brain” of Kubernetes resource orchestration. By providing full foresight of resource availability, demand, health, impact and SLA, we enable cloud strategies that involve changing provisioned resources in real time. 
+Federator.ai K8s is a prediction engine that foresees future resource usage of your Kubernetes cluster from the cloud layer down to the pod level. We use machine learning technology to provide intelligence that enables dynamic scaling and scheduling of your containers - effectively making us the “brain” of Kubernetes resource orchestration. By providing full foresight of resource availability, demand, health, impact and SLA, we enable cloud strategies that involve changing provisioned resources in real time. 
 
-Federator.ai provides cross-cluster and multi-cloud intelligence to justify when and where users' workloads should be deployed. Federator.ai agents in your cluster collect compute and I/O metrics, and send it to our engine, which will learn the continually changing resource demands and generate configuration recommendations that can be used by other container and storage orchestrators. We aim to help create a solution that provides the predictions and recommendations to automate pod scaling and scheduling, persistent volume provisioning, etc. to replace all manual configuration and orchestration tasks across clusters and clouds.
+Federator.ai K8s provides cross-cluster and multi-cloud intelligence to justify when and where users' workloads should be deployed. Federator.ai agents in your cluster collect compute and I/O metrics, and send it to our engine, which will learn the continually changing resource demands and generate configuration recommendations that can be used by other container and storage orchestrators. We aim to help create a solution that provides the predictions and recommendations to automate pod scaling and scheduling, persistent volume provisioning, etc. to replace all manual configuration and orchestration tasks across clusters and clouds.
 
 The intelligence of automated orchestration (pod scaling and scheduling, persistent volume provisioning, etc.) means your cluster’s time spent reactively addressing resource failure and unavailability is reduced to a minimum. With Federator.ai, container and storage orchestrators can proactively make cluster-wide resource optimizations and reallocations before those problems arise.
 
