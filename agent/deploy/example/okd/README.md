@@ -9,7 +9,7 @@ $ oc adm policy add-scc-to-user privileged system:serviceaccount:alameda-monitor
 
 # Components to deploy
 
-Prometheus: Collect metrics from k8s cAdvisor and pods.Via service discovery, Prometheus will scrape metrics from pods with the annotations below.You can also merge the prometheus's configuration of alameda into existing Prometheus.There are two scrape_configs in Prometheus's configuration file that Federator.ai required.
+Prometheus: Collect metrics from k8s cAdvisor and pods.Via service discovery, Prometheus will scrape metrics from pods with the annotations below.You can also merge the prometheus's configuration of alameda into existing Prometheus.There are two scrape_configs in Prometheus's configuration file that Alameda required.
 
 First, job name "exporter", defining that Prometheus will create a target for each container's exposed ports in pods, fetch metrics from endpoint "/metrics" in "http" protocol and keep results that pod of target has annotation "alameda/scrape" with value "true".
 

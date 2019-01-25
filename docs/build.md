@@ -1,10 +1,10 @@
-# Build Federator.ai docker images from source code
+# Build Alameda docker images from source code
 
 ## Prerequisites
-To build Federator.ai images from source code, [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker](https://docs.docker.com/install/#supported-platforms) environment are required.
+To build Alameda images from source code, [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Docker](https://docs.docker.com/install/#supported-platforms) environment are required.
 > **Note**: It is recommended to use Docker engine 18.09 or greater
 
-As showed in the [Federator.ai architecture design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), Running Federator.ai requires several components. The following sections show how to build them from source code.
+As showed in the [Alameda architecture design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), Running Alameda requires several components. The following sections show how to build them from source code.
 
 ## Build operator
 ```
@@ -29,7 +29,7 @@ docker build -t alameda-ai .
 
 ## Build Grafana
 
-Federator.ai adds templates and json backend customization to visualize predicted metrics. Please use the following commands to build a customized Grafana image.
+Alameda adds templates and json backend customization to visualize predicted metrics. Please use the following commands to build a customized Grafana image.
 ```
 git clone https://github.com/containers-ai/alameda.git
 cd grafana

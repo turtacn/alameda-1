@@ -5,11 +5,11 @@ This deploy guide provides step-by-step instructions for
 - OpenShift Origin  
 - Minishift
 
-And you can also choose to deploy Federator.ai with Helm charts.
+And you can also choose to deploy Alameda with Helm charts.
 
 ## with Helm charts
 
-It just needs a few seconds to deploy Federator.ai with Helm charts. Please refer to the [README](./helm/README.md) for more details.
+It just needs a few seconds to deploy Alameda with Helm charts. Please refer to the [README](../helm/README.md) for more details.
 
 > **Note**: Helm chart deployment is applicable to any Kubernetes distributions including openshift.
 
@@ -18,9 +18,9 @@ Please refer to the [README](../example/deployment/kubernetes/README.md).
 
 ## on OpenShift Origin
 
-This section shows how to deploy Federator.ai from source code to a single-node OpenShift Origin cluster.
+This section shows how to deploy Alameda from source code to a single-node OpenShift Origin cluster.
 
-- Build Federator.ai docker images by following the [build](./build.md) guide. Supposely you will have *operator*, *datahub* and *alameda-ai* images in your docker environment as:
+- Build Alameda docker images by following the [build](./build.md) guide. Supposely you will have *operator*, *datahub* and *alameda-ai* images in your docker environment as:
     ```
     $ docker images
     REPOSITORY                    TAG                 IMAGE ID            CREATED             SIZE
@@ -72,7 +72,7 @@ This section shows how to deploy Federator.ai from source code to a single-node 
     $ oc create user admin --full-name=admin
     $ oc adm policy add-cluster-role-to-user cluster-admin admin
     ```
-- Create *alameda* project with *admin* user and push Federator.ai images to OpenShift integrated registry
+- Create *alameda* project with *admin* user and push Alameda images to OpenShift integrated registry
     ```
     $ oc login -u admin
     $ oc new-project alameda
@@ -100,7 +100,7 @@ This section shows how to deploy Federator.ai from source code to a single-node 
     $ cd <alameda>/example/deployment/openshift
     $ oc apply -f prometheus.yaml
     ```
-- Deploy Federator.ai by:
+- Deploy Alameda by:
     ```
     $ cd <alameda>/example/deployment/openshift
     $ oc adm policy add-scc-to-user anyuid system:serviceaccount:opsmx:tiller
@@ -110,7 +110,7 @@ This section shows how to deploy Federator.ai from source code to a single-node 
     $ oc apply -f service
     $ oc apply -f deployconfig
     ```
-    Check if Federator.ai *operator*, *datahub* and *alameda-ai* Pods are running or not.
+    Check if Alameda *operator*, *datahub* and *alameda-ai* Pods are running or not.
     ```
     $ oc get pods -n alameda
     NAME                 READY     STATUS    RESTARTS   AGE
@@ -121,9 +121,9 @@ This section shows how to deploy Federator.ai from source code to a single-node 
     ```
 ## on Minishift
 
-This section shows how to deploy Federator.ai from source code to a Minishift environment.
+This section shows how to deploy Alameda from source code to a Minishift environment.
 
-- Build Federator.ai docker images by following the [build](./build.md) guide. Supposely you will have *operator*, *datahub* and *alameda-ai* images in your docker environment as:
+- Build Alameda docker images by following the [build](./build.md) guide. Supposely you will have *operator*, *datahub* and *alameda-ai* images in your docker environment as:
     ```
     $ docker images
     REPOSITORY                    TAG                 IMAGE ID            CREATED             SIZE
@@ -132,7 +132,7 @@ This section shows how to deploy Federator.ai from source code to a Minishift en
     datahub                       latest              bcabb1da9ed8        10 minutes ago      41.4MB
     alameda-ai                    latest              a366398fa9fc        45 hours ago        1.76GB
     ```
-    Export the built Federator.ai images for later use:
+    Export the built Alameda images for later use:
     ```
     $ docker save -o alameda-ai.tar alameda-ai:latest
     $ docker save -o operator.tar operator:latest
@@ -180,7 +180,7 @@ This section shows how to deploy Federator.ai from source code to a Minishift en
     ```
     $ minishift addons apply admin-user
     ```
-- Create *alameda* project with *admin* user and push Federator.ai images to OpenShift integrated registry
+- Create *alameda* project with *admin* user and push Alameda images to OpenShift integrated registry
     ```
     $ eval $(minishift docker-env)
     $ docker load -i operator.tar
@@ -212,7 +212,7 @@ This section shows how to deploy Federator.ai from source code to a Minishift en
     $ cd <alameda>/example/deployment/openshift
     $ oc apply -f prometheus.yaml
     ```
-- Deploy Federator.ai by:
+- Deploy Alameda by:
     ```
     $ cd <alameda>/example/deployment/openshift
     $ oc adm policy add-scc-to-user anyuid system:serviceaccount:opsmx:tiller
@@ -222,7 +222,7 @@ This section shows how to deploy Federator.ai from source code to a Minishift en
     $ oc apply -f service
     $ oc apply -f deployconfig
     ```
-    Check if Federator.ai *operator*, *datahub* and *alameda-ai* Pods are running or not.
+    Check if Alameda *operator*, *datahub* and *alameda-ai* Pods are running or not.
     ```
     $ oc get pods -n alameda
     NAME                 READY     STATUS    RESTARTS   AGE

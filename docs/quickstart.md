@@ -1,24 +1,24 @@
 # QuickStart
 
-This document guides you from build, deploy to use Federator.ai.
-- Build Federator.ai
-- Deploy Federator.ai
-- Use Federator.ai 
+This document guides you from build, deploy to use Alameda.
+- Build Alameda
+- Deploy Alameda
+- Use Alameda 
 
-## Build Federator.ai
+## Build Alameda
 Please refer to the [build](./build.md) guide.
 
-## Deploy Federator.ai
+## Deploy Alameda
 Please refer to the [deploy](./deploy.md) guide.
 
-## Use Federator.ai
+## Use Alameda
 
-### Specify a target to request Federator.ai services
-User can create a custom resource of *AlamedaScaler* custom resource definition (CRD) to instruct Federator.ai that
+### Specify a target to request Alameda services
+User can create a custom resource of *AlamedaScaler* custom resource definition (CRD) to instruct Alameda that
 1. which Pod(s) to watch by Kubernetes *selector* construct, and
-2. what policy that Federator.ai should use to give recommendations.
+2. what policy that Alameda should use to give recommendations.
 
-Currently Federator.ai provides *stable* and *compact* policy. The following is an example to instruct Federator.ai to watch Pod(s) at *webapp* namespace with *nginx* label and *stable* policy.
+Currently Alameda provides *stable* and *compact* policy. The following is an example to instruct Alameda to watch Pod(s) at *webapp* namespace with *nginx* label and *stable* policy.
 ```
 apiVersion: autoscaling.containers.ai/v1alpha1
 kind: AlamedaScaler
@@ -33,15 +33,15 @@ spec:
       app: nginx
 ```
 
-You can list all Pods that are watched by Federator.ai with:
+You can list all Pods that are watched by Alameda with:
 ```
 $ kubectl get alamedascalers --all-namespaces
 ```
 
-### Retrieve Federator.ai prediction and recommendation result
-Federator.ai outputs raw workload recommendations in a global planning manner for all the pods watched by Federator.ai.
+### Retrieve Alameda prediction and recommendation result
+Alameda outputs raw workload recommendations in a global planning manner for all the pods watched by Alameda.
 They are presented as *alamedarecommendation* CRD.
-You can check Federator.ai recommendation results by:
+You can check Alameda recommendation results by:
 ```
 $ kubectl get alamedarecommendation --all-namespaces
 ```
@@ -53,12 +53,12 @@ $ kubectl get alamedarecommendation --all-namespaces
     $ cd <alameda>/example/samples/nginx
     $ kubectl create -f nginx_deployment.yaml
     ```
-- Request Federator.ai to predict and recommend the resource usage for nginx Pods by:
+- Request Alameda to predict and recommend the resource usage for nginx Pods by:
     ```
     $ cd <alameda>/example/samples/nginx
     $ kubectl create -f alamedascaler.yaml
     ```
-You can check that Federator.ai is watching the nginx Pods by:
+You can check that Alameda is watching the nginx Pods by:
 ```
 $ kubectl get alamedascaler --all-namespaces
 NAMESPACE   NAME      AGE

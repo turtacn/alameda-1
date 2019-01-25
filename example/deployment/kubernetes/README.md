@@ -1,8 +1,8 @@
-# Deploy Federator.ai on a Kubernetes Cluster
+# Deploy Alameda on a Kubernetes Cluster
 
 ## Prerequisites  
 - **A running Kubernetest cluster**  
-It is recommended to use Kubernetes 1.9 or greater. Please follow [Kubernetes setup](https://kubernetes.io/docs/setup/) document to setup a solution that fits your needs. If you just want to have a taste of Federator.ai, you can start from [kubeadm](https://kubernetes.io/docs/setup/independent/install-kubeadm/) to setup a test cluster on a Ubuntu machine in 6 steps.
+It is recommended to use Kubernetes 1.9 or greater. Please follow [Kubernetes setup](https://kubernetes.io/docs/setup/) document to setup a solution that fits your needs. If you just want to have a taste of Alameda, you can start from [kubeadm](https://kubernetes.io/docs/setup/independent/install-kubeadm/) to setup a test cluster on a Ubuntu machine in 6 steps.
     - Install [kubeadm](https://kubernetes.io/docs/setup/independent/install-kubeadm/#k8s-install-0)
     - Disable swap in order for the kubelet to work properly by
     ```
@@ -27,14 +27,14 @@ It is recommended to use Kubernetes 1.9 or greater. Please follow [Kubernetes se
     sysctl net.bridge.bridge-nf-call-iptables=1
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
     ```
-- **A docker registry where to download Federator.ai component images**  
-For now, Federator.ai component images are not yet in any public docker registry such as [docker hub](https://hub.docker.com/). We assume they are already built in local docker repositories and pulled by Kubernetes locally (All nodes in the cluster should have the same pre-pulled images). Please refer to [Build](https://github.com/containers-ai/alameda/blob/master/design/build.md) document for how to build Federator.ai component images and [pre-pulled images](https://kubernetes.io/docs/concepts/containers/images/#pre-pulling-images) for how Kubernetes pulls images from local docker repositories.
+- **A docker registry where to download Alameda component images**  
+For now, Alameda component images are not yet in any public docker registry such as [docker hub](https://hub.docker.com/). We assume they are already built in local docker repositories and pulled by Kubernetes locally (All nodes in the cluster should have the same pre-pulled images). Please refer to [Build](https://github.com/containers-ai/alameda/blob/master/design/build.md) document for how to build Alameda component images and [pre-pulled images](https://kubernetes.io/docs/concepts/containers/images/#pre-pulling-images) for how Kubernetes pulls images from local docker repositories.
 
-As showed in the [Federator.ai architecture design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), Federator.ai includes several components. The following gives an example to deploy them.
+As showed in the [Alameda architecture design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), Alameda includes several components. The following gives an example to deploy them.
 
 ## Deploy Prometheus
 
-Federator.ai leverages [Prometheus](https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/#prometheus) to collect Kubernetes metrics. For those clusters without a running Prometheus, please deploy one with commands:
+Alameda leverages [Prometheus](https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/#prometheus) to collect Kubernetes metrics. For those clusters without a running Prometheus, please deploy one with commands:
 ```
 $ cd <alameda>/example/deployment/kubernetes
 $ kubectl create -f 3rdParty/prometheus.yaml
@@ -46,9 +46,9 @@ For those clusters that already have a running Prometheus, please make sure that
 - cAdvisor metrics is scraped, and
 - [Node exporter](https://github.com/prometheus/node_exporter) metrics is scraped, and
 - [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) metrics is scraped, and
-- recording rules required by Federator.ai is installed.
+- recording rules required by Alameda is installed.
 
-And the following block are recording rules required by Federator.ai.
+And the following block are recording rules required by Alameda.
 ```
 groups:
 - name: k8s.rules
@@ -125,7 +125,7 @@ $ kubectl create -f 3rdParty/influxdb.yaml
 ## Deploy Grafana component (optional)
 
 This component visualizes the predicted metrics. This is optional and can be ignored if you do not need it.
-Federator.ai core function can work without this Grafana component. Please follow the following commands as your needs.
+Alameda core function can work without this Grafana component. Please follow the following commands as your needs.
 
 ```
 $ cd <alameda>/example/deployment/kubernetes
