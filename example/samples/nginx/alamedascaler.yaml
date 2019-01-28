@@ -5,7 +5,7 @@ metadata:
   name: alameda
   namespace: webapp
 spec:
-  policy: compact
+  policy: stable
   enable: true
   selector:
     matchLabels:

@@ -40,7 +40,7 @@ rules:
   - autoscaling.containers.ai
   resources:
   - alamedascalers
-  - alamedaresourcepredictions
+  - alamedarecommendations
   verbs:
   - get
   - list
@@ -49,6 +49,12 @@ rules:
   - update
   - patch
   - delete
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedascalers/finalizers
+  verbs:
+  - update
 # Permission for query prometheus under namespace openshift-monitoring
 - apiGroups:
   - ""
