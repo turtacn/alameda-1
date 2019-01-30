@@ -1,4 +1,4 @@
-FROM grafana/grafana:5.4.2
+FROM grafana/grafana:5.4.3
 
 COPY ["dashboards/", "/var/lib/alameda/dashboards"]
 COPY ["datasource.yaml", "/etc/grafana/provisioning/datasources/"]

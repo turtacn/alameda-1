@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.11.4-alpine as builder
+FROM golang:1.11.5-alpine as builder
 
 # Copy in the go src
 WORKDIR /go/src/github.com/containers-ai/alameda

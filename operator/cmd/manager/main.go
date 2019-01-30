@@ -21,6 +21,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -31,6 +32,7 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	"github.com/containers-ai/alameda/operator/server"
 	appsapi "github.com/openshift/api/apps"
 
@@ -142,6 +144,12 @@ func main() {
 	// Setup all Controllers
 	if err := controller.AddToManager(mgr); err != nil {
 		scope.Error(err.Error())
+	}
+
+	scope.Info("setting up webhooks")
+	if err := webhook.AddToManager(mgr); err != nil {
+		scope.Errorf("unable to register webhooks to the manager: %s", err.Error())
+		os.Exit(1)
 	}
 
 	go registerNodes(mgr.GetClient())
