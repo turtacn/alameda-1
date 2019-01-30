@@ -22,8 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
@@ -32,6 +30,7 @@ import (
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -165,11 +164,20 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		}
 
 		scope.Infof(fmt.Sprintf("AlamedaScaler (%s/%s) found, try to sync latest alamedacontrollers.", alamedaScalerNS, alamedaScalerName))
-		if alamedaDeployments, err := listResources.ListDeploymentsByLabels(alamedaScaler.Spec.Selector.MatchLabels); err == nil {
+		if alamedaDeployments, err := listResources.ListDeploymentsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
 			for _, alamedaDeployment := range alamedaDeployments {
 				alamedaScaler = alamedascalerReconciler.UpdateStatusByDeployment(&alamedaDeployment)
 			}
 			updateResource.UpdateAlamedaScaler(alamedaScaler)
+		}
+
+		if alamedaDeploymentConfigs, err := listResources.ListDeploymentConfigsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
+			for _, alamedaDeploymentConfig := range alamedaDeploymentConfigs {
+				alamedaScaler = alamedascalerReconciler.UpdateStatusByDeploymentConfig(&alamedaDeploymentConfig)
+			}
+			updateResource.UpdateAlamedaScaler(alamedaScaler)
+		} else {
+			scope.Error(err.Error())
 		}
 
 		// after updating AlamedaPod in AlamedaScaler, start create AlamedaRecommendation if necessary and register alameda pod to datahub
@@ -183,65 +191,70 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			} else if strings.ToLower(string(alamedaScaler.Spec.Policy)) == strings.ToLower(string(autoscalingv1alpha1.RecommendationPolicySTABLE)) {
 				policy = datahub_v1alpha1.RecommendationPolicy_STABLE
 			}
-			for _, scalerDeployment := range alamedaScaler.Status.AlamedaController.Deployments {
-				for _, pod := range scalerDeployment.Pods {
-					containers := []*datahub_v1alpha1.Container{}
-					startTime := &timestamp.Timestamp{}
-					for _, container := range pod.Containers {
-						containers = append(containers, &datahub_v1alpha1.Container{
-							Name: container.Name,
-						})
-					}
-					nodeName := ""
-					if pod, err := getResource.GetPod(scalerDeployment.Namespace, pod.Name); err == nil {
-						nodeName = pod.Spec.NodeName
-						startTime = &timestamp.Timestamp{
-							Seconds: pod.ObjectMeta.GetCreationTimestamp().Unix(),
+			for _, predictedResource := range []map[autoscalingv1alpha1.NamespacedName]autoscalingv1alpha1.AlamedaResource{
+				alamedaScaler.Status.AlamedaController.Deployments,
+				alamedaScaler.Status.AlamedaController.DeploymentConfigs,
+			} {
+				for _, scalerDeployment := range predictedResource {
+					for _, pod := range scalerDeployment.Pods {
+						containers := []*datahub_v1alpha1.Container{}
+						startTime := &timestamp.Timestamp{}
+						for _, container := range pod.Containers {
+							containers = append(containers, &datahub_v1alpha1.Container{
+								Name: container.Name,
+							})
 						}
-					} else {
-						scope.Error(err.Error())
-					}
+						nodeName := ""
+						if pod, err := getResource.GetPod(scalerDeployment.Namespace, pod.Name); err == nil {
+							nodeName = pod.Spec.NodeName
+							startTime = &timestamp.Timestamp{
+								Seconds: pod.ObjectMeta.GetCreationTimestamp().Unix(),
+							}
+						} else {
+							scope.Error(err.Error())
+						}
 
-					pods = append(pods, &datahub_v1alpha1.Pod{
-						IsAlameda: true,
-						AlamedaScaler: &datahub_v1alpha1.NamespacedName{
-							Namespace: alamedaScalerNS,
-							Name:      alamedaScalerName,
-						},
-						NamespacedName: &datahub_v1alpha1.NamespacedName{
-							Namespace: scalerDeployment.Namespace,
-							Name:      pod.Name,
-						},
-						Policy:     datahub_v1alpha1.RecommendationPolicy(policy),
-						Containers: containers,
-						NodeName:   nodeName,
-						// TODO
-						ResourceLink: "",
-						StartTime:    startTime,
-					})
-					// try to create the recommendation by pod
-					recommendationNS := scalerDeployment.Namespace
-					recommendationName := pod.Name
-
-					recommendation := &autoscalingv1alpha1.AlamedaRecommendation{
-						ObjectMeta: metav1.ObjectMeta{
-							Name:      recommendationName,
-							Namespace: recommendationNS,
-							Labels: map[string]string{
-								"alamedascaler": fmt.Sprintf("%s.%s", alamedaScaler.GetName(), alamedaScaler.GetNamespace()),
+						pods = append(pods, &datahub_v1alpha1.Pod{
+							IsAlameda: true,
+							AlamedaScaler: &datahub_v1alpha1.NamespacedName{
+								Namespace: alamedaScalerNS,
+								Name:      alamedaScalerName,
 							},
-						},
-						Spec: autoscalingv1alpha1.AlamedaRecommendationSpec{
-							Containers: pod.Containers,
-						},
-					}
+							NamespacedName: &datahub_v1alpha1.NamespacedName{
+								Namespace: scalerDeployment.Namespace,
+								Name:      pod.Name,
+							},
+							Policy:     datahub_v1alpha1.RecommendationPolicy(policy),
+							Containers: containers,
+							NodeName:   nodeName,
+							// TODO
+							ResourceLink: "",
+							StartTime:    startTime,
+						})
+						// try to create the recommendation by pod
+						recommendationNS := scalerDeployment.Namespace
+						recommendationName := pod.Name
 
-					if err := controllerutil.SetControllerReference(alamedaScaler, recommendation, r.scheme); err == nil {
-						_, err := getResource.GetAlamedaRecommendation(recommendationNS, recommendationName)
-						if err != nil && errors.IsNotFound(err) {
-							err = r.Create(context.TODO(), recommendation)
-							if err != nil {
-								scope.Error(err.Error())
+						recommendation := &autoscalingv1alpha1.AlamedaRecommendation{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      recommendationName,
+								Namespace: recommendationNS,
+								Labels: map[string]string{
+									"alamedascaler": fmt.Sprintf("%s.%s", alamedaScaler.GetName(), alamedaScaler.GetNamespace()),
+								},
+							},
+							Spec: autoscalingv1alpha1.AlamedaRecommendationSpec{
+								Containers: pod.Containers,
+							},
+						}
+
+						if err := controllerutil.SetControllerReference(alamedaScaler, recommendation, r.scheme); err == nil {
+							_, err := getResource.GetAlamedaRecommendation(recommendationNS, recommendationName)
+							if err != nil && errors.IsNotFound(err) {
+								err = r.Create(context.TODO(), recommendation)
+								if err != nil {
+									scope.Error(err.Error())
+								}
 							}
 						}
 					}
@@ -265,12 +278,6 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 
 	// Take care of Deployment
 	allAlamedaScalers, _ := listResources.ListAllAlamedaScaler()
-	for _, alamedascaler := range allAlamedaScalers {
-		alamedascalerReconciler := alamedascaler_reconciler.NewReconciler(r, &alamedascaler)
-		if alamedascalerReconciler.HasAlamedaDeployment(request.Namespace, request.Name) {
-			updateResource.UpdateAlamedaScaler(&alamedascaler)
-		}
-	}
 	if deployment, err := getResource.GetDeployment(request.Namespace, request.Name); err != nil && errors.IsNotFound(err) {
 	} else if err == nil {
 		for _, alamedascaler := range allAlamedaScalers {

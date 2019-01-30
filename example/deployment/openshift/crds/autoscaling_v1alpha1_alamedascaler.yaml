@@ -33,6 +33,17 @@ spec:
           - enable
           type: object
         status:
+          properties:
+            alamedaController:
+              properties:
+                deploymentconfigs:
+                  type: object
+                deployments:
+                  type: object
+              required:
+              - deployments
+              - deploymentconfigs
+              type: object
           type: object
   version: v1alpha1
 status:

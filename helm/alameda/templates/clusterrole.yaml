@@ -37,6 +37,14 @@ rules:
   - patch
   - delete
 - apiGroups:
+  - apps.openshift.io
+  resources:
+  - deploymentconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - autoscaling.containers.ai
   resources:
   - alamedascalers

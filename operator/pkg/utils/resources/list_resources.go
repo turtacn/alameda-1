@@ -7,6 +7,7 @@ import (
 
 	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -58,6 +59,38 @@ func (listResources *ListResources) ListDeploymentsByLabels(labels map[string]st
 	return deploymentList.Items, nil
 }
 
+// ListDeploymentsByNamespaceLabels return deployments by namespace and labels
+func (listResources *ListResources) ListDeploymentsByNamespaceLabels(namespace string, labels map[string]string) ([]appsv1.Deployment, error) {
+	deploymentList := &appsv1.DeploymentList{}
+
+	if err := listResources.listResourcesByNamespaceLabels(deploymentList, namespace, labels); err != nil {
+		return []appsv1.Deployment{}, err
+	}
+
+	return deploymentList.Items, nil
+}
+
+// ListDeploymentConfigsByNamespaceLabels return deploymentconfigs by namespace and labels
+func (listResources *ListResources) ListDeploymentConfigsByNamespaceLabels(namespace string, labels map[string]string) ([]appsapi_v1.DeploymentConfig, error) {
+	deploymentConfigList := &appsapi_v1.DeploymentConfigList{}
+
+	if err := listResources.listResourcesByNamespaceLabels(deploymentConfigList, namespace, labels); err != nil {
+		return []appsapi_v1.DeploymentConfig{}, err
+	}
+
+	return deploymentConfigList.Items, nil
+}
+
+// ListDeploymentConfigsByLabels return DeploymentConfigs by labels
+func (listResources *ListResources) ListDeploymentConfigsByLabels(labels map[string]string) ([]appsapi_v1.DeploymentConfig, error) {
+	deploymentConfigList := &appsapi_v1.DeploymentConfigList{}
+	if err := listResources.listResourcesByLabels(deploymentConfigList, labels); err != nil {
+		return []appsapi_v1.DeploymentConfig{}, err
+	}
+
+	return deploymentConfigList.Items, nil
+}
+
 // ListPodsByDeployment return pods by deployment namespace and name
 func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName string) ([]corev1.Pod, error) {
 	deploymentPods := []corev1.Pod{}
@@ -77,6 +110,27 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 	}
 
 	return deploymentPods, nil
+}
+
+// ListPodsByDeploymentConfig return pods by deployment namespace and name
+func (listResources *ListResources) ListPodsByDeploymentConfig(deployNS, deployConfigName string) ([]corev1.Pod, error) {
+	deploymentConfigPods := []corev1.Pod{}
+	podList := &corev1.PodList{}
+	if err := listResources.listResourcesByNamespace(podList, deployNS); err != nil {
+		return deploymentConfigPods, err
+	}
+
+	for _, pod := range podList.Items {
+		podName := pod.GetName()
+		for _, or := range pod.GetOwnerReferences() {
+			if *or.Controller && strings.ToLower(or.Kind) == "replicationcontroller" && strings.HasPrefix(podName, fmt.Sprintf("%s-", deployConfigName)) && strings.HasPrefix(podName, fmt.Sprintf("%s-", or.Name)) {
+				deploymentConfigPods = append(deploymentConfigPods, pod)
+				break
+			}
+		}
+	}
+
+	return deploymentConfigPods, nil
 }
 
 // ListAllAlamedaScaler return all nodes in cluster
@@ -114,6 +168,16 @@ func (listResources *ListResources) listResourcesByLabels(resourceList runtime.O
 		client.MatchingLabels(lbls),
 		resourceList); err != nil {
 		listResourcesScope.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
+func (listResources *ListResources) listResourcesByNamespaceLabels(resourceList runtime.Object, namespace string, lbls map[string]string) error {
+	if err := listResources.client.List(context.TODO(),
+		client.InNamespace(namespace).MatchingLabels(lbls),
+		resourceList); err != nil {
+		listResourcesScope.Debug(err.Error())
 		return err
 	}
 	return nil

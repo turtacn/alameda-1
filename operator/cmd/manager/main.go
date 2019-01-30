@@ -32,6 +32,7 @@ import (
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/operator/server"
+	appsapi "github.com/openshift/api/apps"
 
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -132,6 +133,7 @@ func main() {
 	go watchServer(s)
 
 	scope.Info("Registering Components.")
+	registerThirdPartyCRD()
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
 		scope.Error(err.Error())
@@ -171,4 +173,8 @@ func registerNodes(client client.Client) {
 	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodeList)))
 	createAlamedaNode := datahub_node.NewCreateAlamedaNode()
 	createAlamedaNode.CreateAlamedaNode(nodeList)
+}
+
+func registerThirdPartyCRD() {
+	apis.AddToSchemes = append(apis.AddToSchemes, appsapi.Install)
 }

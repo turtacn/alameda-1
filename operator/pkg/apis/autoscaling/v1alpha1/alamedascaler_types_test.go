@@ -41,7 +41,7 @@ func TestStorageAlamedaScaler(t *testing.T) {
 		},
 		Status: AlamedaScalerStatus{
 			AlamedaController: AlamedaController{
-				Deployments: map[NamespacedName]AlamedaDeployment{},
+				Deployments: map[NamespacedName]AlamedaResource{},
 			},
 		},
 	}

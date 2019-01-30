@@ -6,6 +6,7 @@ import (
 
 	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -34,6 +35,13 @@ func (getResource *GetResource) GetPod(namespace, name string) (*corev1.Pod, err
 	pod := &corev1.Pod{}
 	err := getResource.getResource(pod, namespace, name)
 	return pod, err
+}
+
+// GetDeploymentConfig returns deploymentconfig
+func (getResource *GetResource) GetDeploymentConfig(namespace, name string) (*appsapi_v1.DeploymentConfig, error) {
+	deploymentConfig := &appsapi_v1.DeploymentConfig{}
+	err := getResource.getResource(deploymentConfig, namespace, name)
+	return deploymentConfig, err
 }
 
 // GetDeployment returns deployment

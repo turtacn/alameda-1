@@ -44,7 +44,7 @@ type AlamedaPod struct {
 	Containers []AlamedaContainer `json:"containers" protobuf:"bytes,4,opt,name=containers"`
 }
 
-type AlamedaDeployment struct {
+type AlamedaResource struct {
 	Namespace string                        `json:"namespace" protobuf:"bytes,1,opt,name=namespace"`
 	Name      string                        `json:"name" protobuf:"bytes,2,opt,name=name"`
 	UID       string                        `json:"uid" protobuf:"bytes,3,opt,name=uid"`
@@ -52,7 +52,8 @@ type AlamedaDeployment struct {
 }
 
 type AlamedaController struct {
-	Deployments map[NamespacedName]AlamedaDeployment `json:"deployments" protobuf:"bytes,1,opt,name=deployments"`
+	Deployments       map[NamespacedName]AlamedaResource `json:"deployments" protobuf:"bytes,1,opt,name=deployments"`
+	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentconfigs" protobuf:"bytes,2,opt,name=deploymentconfigs"`
 }
 
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
