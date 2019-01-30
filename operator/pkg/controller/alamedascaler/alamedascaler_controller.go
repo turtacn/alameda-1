@@ -205,11 +205,14 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 							})
 						}
 						nodeName := ""
-						if pod, err := getResource.GetPod(scalerDeployment.Namespace, pod.Name); err == nil {
-							nodeName = pod.Spec.NodeName
+						resourceLink := ""
+						if corePod, err := getResource.GetPod(scalerDeployment.Namespace, pod.Name); err == nil {
+							nodeName = corePod.Spec.NodeName
 							startTime = &timestamp.Timestamp{
-								Seconds: pod.ObjectMeta.GetCreationTimestamp().Unix(),
+								Seconds: corePod.ObjectMeta.GetCreationTimestamp().Unix(),
 							}
+							resourceLink = utilsresource.GetResourceLinkForPod(r.Client, corePod)
+							scope.Infof(fmt.Sprintf("resource link for pod (%s/%s) is %s", corePod.GetNamespace(), corePod.GetName(), resourceLink))
 						} else {
 							scope.Error(err.Error())
 						}
@@ -224,11 +227,10 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 								Namespace: scalerDeployment.Namespace,
 								Name:      pod.Name,
 							},
-							Policy:     datahub_v1alpha1.RecommendationPolicy(policy),
-							Containers: containers,
-							NodeName:   nodeName,
-							// TODO
-							ResourceLink: "",
+							Policy:       datahub_v1alpha1.RecommendationPolicy(policy),
+							Containers:   containers,
+							NodeName:     nodeName,
+							ResourceLink: resourceLink,
 							StartTime:    startTime,
 						})
 						// try to create the recommendation by pod
