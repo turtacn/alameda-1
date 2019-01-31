@@ -58,6 +58,15 @@ var operatorConf operator.Config
 var scope *logUtil.Scope
 var wg sync.WaitGroup
 
+var (
+	// VERSION is sofeware version
+	VERSION string
+	// BUILD_TIME is build time
+	BUILD_TIME string
+	// GO_VERSION is go version
+	GO_VERSION string
+)
+
 func init() {
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
@@ -121,6 +130,7 @@ func main() {
 	// TODO: There are config dependency, this manager should have it's config.
 	initServerConfig(mgr)
 	initLogger()
+	printSoftwareInfo()
 
 	// Setup grpc server config
 	s, err := server.NewServer(&operatorConf)
@@ -185,4 +195,10 @@ func registerNodes(client client.Client) {
 
 func registerThirdPartyCRD() {
 	apis.AddToSchemes = append(apis.AddToSchemes, appsapi.Install)
+}
+
+func printSoftwareInfo() {
+	scope.Infof(fmt.Sprintf("Alameda Version: %s", VERSION))
+	scope.Infof(fmt.Sprintf("Alameda Build Time: %s", BUILD_TIME))
+	scope.Infof(fmt.Sprintf("Alameda GO Version: %s", GO_VERSION))
 }
