@@ -1,7 +1,6 @@
 package impl
 
 import (
-	influxdb_entity_cluster_status "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_cluster_status "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -32,9 +31,7 @@ func (node *Node) ListAlamedaNodes() ([]*datahub_v1alpha1.Node, error) {
 	nodeRepository := influxdb_repository_cluster_status.NewNodeRepository(&node.InfluxDBConfig)
 	entities, _ := nodeRepository.ListAlamedaNodes()
 	for _, entity := range entities {
-		alamedaNodes = append(alamedaNodes, &datahub_v1alpha1.Node{
-			Name: entity.Tags[string(influxdb_entity_cluster_status.NodeName)],
-		})
+		alamedaNodes = append(alamedaNodes, entity.BuildDatahubNode())
 	}
 	return alamedaNodes, nil
 }

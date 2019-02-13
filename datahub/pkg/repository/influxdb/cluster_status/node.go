@@ -44,13 +44,17 @@ func NewNodeRepository(influxDBCfg *influxdb.Config) *NodeRepository {
 func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
 	points := []*influxdb_client.Point{}
 	for _, alamedaNode := range alamedaNodes {
-		tags := map[string]string{
-			string(cluster_status_entity.NodeName): alamedaNode.Name,
+		isInCluster := true
+		entity := cluster_status_entity.NodeEntity{
+			Time:        influxdb.ZeroTime,
+			Name:        &alamedaNode.Name,
+			IsInCluster: &isInCluster,
 		}
-		fields := map[string]interface{}{
-			string(cluster_status_entity.NodeInCluster): true,
+		if nodeCapacity := alamedaNode.GetCapacity(); nodeCapacity != nil {
+			entity.CPUCores = &nodeCapacity.CpuCores
+			entity.MemoryBytes = &nodeCapacity.MemoryBytes
 		}
-		if pt, err := influxdb_client.NewPoint(string(Node), tags, fields, influxdb.ZeroTime); err == nil {
+		if pt, err := entity.InfluxDBPoint(string(Node)); err == nil {
 			points = append(points, pt)
 		} else {
 			scope.Error(err.Error())
@@ -101,29 +105,21 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 	return nil
 }
 
-func (nodeRepository *NodeRepository) ListAlamedaNodes() ([]*influxdb.InfluxDBEntity, error) {
-	entities := []*influxdb.InfluxDBEntity{}
+func (nodeRepository *NodeRepository) ListAlamedaNodes() ([]*cluster_status_entity.NodeEntity, error) {
+
+	nodeEntities := []*cluster_status_entity.NodeEntity{}
 	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s", string(Node), string(cluster_status_entity.NodeInCluster), "true")
 	scope.Infof(fmt.Sprintf("Query nodes in cluster: %s", cmd))
 	if results, _ := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus)); len(results) == 1 && len(results[0].Series) > 0 {
-		for _, value := range results[0].Series[0].Values {
-			newFields := map[string]interface{}{}
-			newTags := map[string]string{}
-			entity := influxdb.InfluxDBEntity{}
-			for columnIdx, column := range results[0].Series[0].Columns {
-				if column == influxdb.Time && value[columnIdx] != nil {
-					entity.Time, _ = utils.ParseTime(value[columnIdx].(string))
-				} else if nodeRepository.IsTag(column) && value[columnIdx] != nil {
-					newTags[column] = value[columnIdx].(string)
-				} else if !nodeRepository.IsTag(column) {
-					newFields[column] = value[columnIdx]
-				}
-			}
-			entity.Tags = newTags
-			entity.Fields = newFields
 
-			entities = append(entities, &entity)
+		influxdbRows := influxdb.PackMap(results)
+		for _, influxdbRow := range influxdbRows {
+			for _, data := range influxdbRow.Data {
+				nodeEntity := cluster_status_entity.NewNodeEntityFromMap(data)
+				nodeEntities = append(nodeEntities, &nodeEntity)
+			}
 		}
 	}
-	return entities, nil
+
+	return nodeEntities, nil
 }

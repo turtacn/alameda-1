@@ -151,6 +151,16 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 	datahub_v1alpha1.RegisterDatahubServiceServer(server, s)
 }
 
+// GetOneControllerPodRecommendationToApply
+func (s *Server) GetOneControllerPodRecommendationToApply(ctx context.Context, in *datahub_v1alpha1.GetOneControllerPodRecommendationToApplyRequest) (*datahub_v1alpha1.GetOneControllerPodRecommendationToApplyResponse, error) {
+	return &datahub_v1alpha1.GetOneControllerPodRecommendationToApplyResponse{
+		Status: &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: "not implement",
+		},
+	}, nil
+}
+
 // ListPodMetrics list pods' metrics
 func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
 
@@ -327,6 +337,7 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 
 // ListAlamedaNodes list nodes in cluster
 func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListNodesResponse, error) {
+
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
