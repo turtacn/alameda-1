@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n+alameda_api/v1alpha1/datahub/resource.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a*alameda_api/v1alpha1/datahub/predict.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\x1a)alameda_api/v1alpha1/datahub/metric.proto\"\xb3\x01\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12J\n\x0elimit_resource\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12L\n\x10request_resource\x18\x03 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xa9\x03\n\x03Pod\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12\x15\n\rresource_link\x18\x02 \x01(\t\x12\x45\n\ncontainers\x18\x03 \x03(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.Container\x12\x12\n\nis_alameda\x18\x04 \x01(\x08\x12N\n\x0e\x61lameda_scaler\x18\x05 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12\x11\n\tnode_name\x18\x06 \x01(\t\x12.\n\nstart_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12L\n\x06policy\x18\x08 \x01(\x0e\x32<.containers_ai.alameda.v1alpha1.datahub.RecommendationPolicy\"\x14\n\x04Node\x12\x0c\n\x04name\x18\x01 \x01(\tb\x06proto3')
+  serialized_pb=_b('\n+alameda_api/v1alpha1/datahub/resource.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a*alameda_api/v1alpha1/datahub/predict.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\x1a)alameda_api/v1alpha1/datahub/metric.proto\"\xb3\x01\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12J\n\x0elimit_resource\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12L\n\x10request_resource\x18\x03 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xa9\x03\n\x03Pod\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12\x15\n\rresource_link\x18\x02 \x01(\t\x12\x45\n\ncontainers\x18\x03 \x03(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.Container\x12\x12\n\nis_alameda\x18\x04 \x01(\x08\x12N\n\x0e\x61lameda_scaler\x18\x05 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12\x11\n\tnode_name\x18\x06 \x01(\t\x12.\n\nstart_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12L\n\x06policy\x18\x08 \x01(\x0e\x32<.containers_ai.alameda.v1alpha1.datahub.RecommendationPolicy\"X\n\x08\x43\x61pacity\x12\x11\n\tcpu_cores\x18\x01 \x01(\x03\x12\x14\n\x0cmemory_bytes\x18\x02 \x01(\x03\x12#\n\x1bnetwotk_megabits_per_second\x18\x03 \x01(\x03\"X\n\x04Node\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x42\n\x08\x63\x61pacity\x18\x02 \x01(\x0b\x32\x30.containers_ai.alameda.v1alpha1.datahub.Capacityb\x06proto3')
   ,
   dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_predict__pb2.DESCRIPTOR,google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2.DESCRIPTOR,])
 
@@ -155,17 +155,31 @@ _POD = _descriptor.Descriptor(
 )
 
 
-_NODE = _descriptor.Descriptor(
-  name='Node',
-  full_name='containers_ai.alameda.v1alpha1.datahub.Node',
+_CAPACITY = _descriptor.Descriptor(
+  name='Capacity',
+  full_name='containers_ai.alameda.v1alpha1.datahub.Capacity',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='containers_ai.alameda.v1alpha1.datahub.Node.name', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='cpu_cores', full_name='containers_ai.alameda.v1alpha1.datahub.Capacity.cpu_cores', index=0,
+      number=1, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='memory_bytes', full_name='containers_ai.alameda.v1alpha1.datahub.Capacity.memory_bytes', index=1,
+      number=2, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='netwotk_megabits_per_second', full_name='containers_ai.alameda.v1alpha1.datahub.Capacity.netwotk_megabits_per_second', index=2,
+      number=3, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -182,7 +196,45 @@ _NODE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=862,
-  serialized_end=882,
+  serialized_end=950,
+)
+
+
+_NODE = _descriptor.Descriptor(
+  name='Node',
+  full_name='containers_ai.alameda.v1alpha1.datahub.Node',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='containers_ai.alameda.v1alpha1.datahub.Node.name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='capacity', full_name='containers_ai.alameda.v1alpha1.datahub.Node.capacity', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=952,
+  serialized_end=1040,
 )
 
 _CONTAINER.fields_by_name['limit_resource'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
@@ -192,8 +244,10 @@ _POD.fields_by_name['containers'].message_type = _CONTAINER
 _POD.fields_by_name['alameda_scaler'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2._NAMESPACEDNAME
 _POD.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _POD.fields_by_name['policy'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_predict__pb2._RECOMMENDATIONPOLICY
+_NODE.fields_by_name['capacity'].message_type = _CAPACITY
 DESCRIPTOR.message_types_by_name['Container'] = _CONTAINER
 DESCRIPTOR.message_types_by_name['Pod'] = _POD
+DESCRIPTOR.message_types_by_name['Capacity'] = _CAPACITY
 DESCRIPTOR.message_types_by_name['Node'] = _NODE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -210,6 +264,13 @@ Pod = _reflection.GeneratedProtocolMessageType('Pod', (_message.Message,), dict(
   # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.Pod)
   ))
 _sym_db.RegisterMessage(Pod)
+
+Capacity = _reflection.GeneratedProtocolMessageType('Capacity', (_message.Message,), dict(
+  DESCRIPTOR = _CAPACITY,
+  __module__ = 'alameda_api.v1alpha1.datahub.resource_pb2'
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.Capacity)
+  ))
+_sym_db.RegisterMessage(Capacity)
 
 Node = _reflection.GeneratedProtocolMessageType('Node', (_message.Message,), dict(
   DESCRIPTOR = _NODE,

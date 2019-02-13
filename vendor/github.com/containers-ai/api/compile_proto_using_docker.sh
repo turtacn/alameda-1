@@ -81,7 +81,7 @@ compile_grpc_go(){
         build_go_image
     fi
     echo "Start compiling proto files to go files."
-    docker run --rm -v $(pwd):$(pwd) -w $(pwd) $ALAMEA_GRPC_GO_IMAGE bash -c "for pt in \$(find . | grep \\\.proto\$ | grep -v ^\\\./include | grep -v ^\\\./google);do protoc -I . -I include/ \$pt --go_out=plugins=grpc:.; done"
+    docker run --rm -v $(pwd):$(pwd) -w $(pwd) $ALAMEA_GRPC_GO_IMAGE bash -c "for pt in \$(find . | grep \\\.proto\$ | grep -v ^\\\./include | grep -v ^\\\./google);do protoc -I . -I include/ \$pt --go_out=paths=source_relative,plugins=grpc:.; done"
     echo "Finish compiling proto files to go files."
 }
 

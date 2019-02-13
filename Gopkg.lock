@@ -27,15 +27,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5a0f06bea7a8cb5bb081370815afdd92ffd81a89ae87a2fb59d72c5bfb8b1780"
+  digest = "1:6b65a6c1336ed73f0ba5e729da57bcaf8f726cffb41a7263a2ecf4b08d0b36cc"
   name = "github.com/containers-ai/api"
   packages = [
-    "alameda_api/v1alpha1/ai_service",
     "alameda_api/v1alpha1/datahub",
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "b6e9c5a76209ff1b7ff02f95e245768d0eecfcde"
+  revision = "eb2ee9b361e13127480e24f8663ba3b061bb94a8"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1122,7 +1121,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/containers-ai/api/alameda_api/v1alpha1/operator",
     "github.com/emicklei/go-restful",

@@ -17,6 +17,11 @@ class DatahubServiceStub(object):
     Args:
       channel: A grpc.Channel.
     """
+    self.GetOneControllerPodRecommendationToApply = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/GetOneControllerPodRecommendationToApply',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyResponse.FromString,
+        )
     self.ListPodMetrics = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodMetrics',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodMetricsRequest.SerializeToString,
@@ -108,6 +113,13 @@ class DatahubServiceServicer(object):
   """*
   Service for providing data stored in the backend
   """
+
+  def GetOneControllerPodRecommendationToApply(self, request, context):
+    """/ Used to get one pod recommendation of a controller need applying
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
 
   def ListPodMetrics(self, request, context):
     """/ Used to list pod metric data
@@ -231,6 +243,11 @@ class DatahubServiceServicer(object):
 
 def add_DatahubServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
+      'GetOneControllerPodRecommendationToApply': grpc.unary_unary_rpc_method_handler(
+          servicer.GetOneControllerPodRecommendationToApply,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyResponse.SerializeToString,
+      ),
       'ListPodMetrics': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodMetrics,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodMetricsRequest.FromString,

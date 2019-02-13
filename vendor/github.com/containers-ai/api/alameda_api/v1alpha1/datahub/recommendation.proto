@@ -44,4 +44,6 @@ message PodRecommendation {
     bool apply_recommendation_now = 2;
     AssignPodPolicy assign_pod_policy = 3;
     repeated ContainerRecommendation container_recommendations = 4;
+    google.protobuf.Timestamp start_time = 5;
+    google.protobuf.Timestamp end_time = 6;
 }

@@ -34,9 +34,20 @@ message Pod {
 }
 
 /**
+ * Represents the capacity of a Kubernetes node
+ * 
+ */
+message Capacity {
+    int64 cpu_cores = 1;
+    int64 memory_bytes = 2;
+    int64 netwotk_megabits_per_second = 3;
+}
+
+/**
  * Represents a Kubernetes node
  * 
  */
 message Node {
     string name = 1;
+    Capacity capacity = 2;
 }
