@@ -14,15 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package deploymentconfig
+package deployment
 
 import (
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	// alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
-	appsapi_v1 "github.com/openshift/api/apps/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	// k8sErrors "k8s.io/apimachinery/pkg/api/errors"
+
+	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -33,10 +36,11 @@ import (
 )
 
 var (
-	scope             = logUtil.RegisterScope("deploymentconfig_controller", "deploymentconfig controller log", 0)
-	cachedFirstSynced = false
-	requeueDuration   = 1 * time.Second
+	scope           = logUtil.RegisterScope("deployment_controller", "deployment controller log", 0)
+	requeueDuration = 1 * time.Second
 )
+
+var cachedFirstSynced = false
 
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
@@ -51,61 +55,71 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileDeploymentConfig{Client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	return &ReconcileDeployment{Client: mgr.GetClient(), scheme: mgr.GetScheme()}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
-	c, err := controller.New("deploymentconfig-controller", mgr, controller.Options{Reconciler: r})
+	c, err := controller.New("deployment-controller", mgr, controller.Options{Reconciler: r})
 	if err != nil {
 		return err
 	}
 
-	// Watch for changes to DeploymentConfig
-	err = c.Watch(&source.Kind{Type: &appsapi_v1.DeploymentConfig{}}, &handler.EnqueueRequestForObject{})
+	// Watch for changes to Deployment
+	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
-		scope.Error(err.Error())
 		return err
 	}
 
 	return nil
 }
 
-var _ reconcile.Reconciler = &ReconcileDeploymentConfig{}
+var _ reconcile.Reconciler = &ReconcileDeployment{}
 
-// ReconcileDeploymentConfig reconciles a DeploymentConfig object
-type ReconcileDeploymentConfig struct {
+// ReconcileDeployment reconciles a Deployment object
+type ReconcileDeployment struct {
 	client.Client
 	scheme *runtime.Scheme
 }
 
-func (r *ReconcileDeploymentConfig) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-
-	if !cachedFirstSynced {
-		time.Sleep(5 * time.Second)
-	}
-	cachedFirstSynced = true
+// Reconcile reads that state of the cluster for a Deployment object and makes changes based on the state read
+// and what is in the Deployment.Spec
+// TODO(user): Modify this Reconcile function to implement your Controller logic.  The scaffolding writes
+// a Deployment as an example
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get;update;patch
+func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 
 	getResource := utilsresource.NewGetResource(r)
 	updateResource := utilsresource.NewUpdateResource(r)
 
-	alamedaScaler, err := getResource.GetObservingAlamedaScalerOfController(autoscalingv1alpha1.DeploymentConfigController, request.Namespace, request.Name)
+	alamedaScaler, err := getResource.GetObservingAlamedaScalerOfController(autoscalingv1alpha1.DeploymentController, request.Namespace, request.Name)
 	if err != nil {
 		scope.Errorf("%s", err.Error())
 		return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 	} else if alamedaScaler == nil {
-		scope.Warnf("observing AlamedaScaler of DeploymentConfig %s/%s not found", request.Namespace, request.Name)
+		scope.Warnf("get observing AlamedaScaler of deployment %s/%s not found", request.Namespace, request.Name)
 		return reconcile.Result{}, nil
 	}
+
+	// deployment, err := getResource.GetDeployment(request.Namespace, request.Name)
+	// if err != nil && !k8sErrors.IsNotFound(err) {
+	// 	// scope.Errorf("update AlamedaScaler %s %s falied: %s", alamedaScaler.GetObjectMeta().GetResourceVersion(), alamedaScaler.Status.CustomResourceVersion, err.Error())
+	// 	scope.Errorf("get deployment %s/%s falied: %s", request.Namespace, request.Name, err.Error())
+	// 	return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+	// }
+
+	// alamedaScalerReconciler := alamedascaler_reconciler.NewReconciler(r, alamedaScaler)
+	// alamedaScaler = alamedaScalerReconciler.UpdateStatusByDeployment(deployment)
 
 	alamedaScaler.SetCustomResourceVersion(alamedaScaler.GenCustomResourceVersion())
 	err = updateResource.UpdateAlamedaScaler(alamedaScaler)
 	if err != nil {
+		// scope.Errorf("update AlamedaScaler %s %s falied: %s", alamedaScaler.GetObjectMeta().GetResourceVersion(), alamedaScaler.Status.CustomResourceVersion, err.Error())
 		scope.Errorf("update AlamedaScaler falied: %s", err.Error())
 		return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 	}
 
 	return reconcile.Result{}, nil
-
 }

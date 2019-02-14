@@ -34,7 +34,7 @@ func (updateResource *UpdateResource) UpdateAlamedaScaler(alamedaScaler *autusca
 func (updateResource *UpdateResource) updateResource(resource runtime.Object) error {
 	if err := updateResource.Update(context.TODO(),
 		resource); err != nil {
-		updateResourceScope.Error(err.Error())
+		updateResourceScope.Debug(err.Error())
 		return err
 	}
 	return nil

@@ -47,14 +47,14 @@ func (in *AlamedaController) DeepCopyInto(out *AlamedaController) {
 	*out = *in
 	if in.Deployments != nil {
 		in, out := &in.Deployments, &out.Deployments
-		*out = make(map[NamespacedName]AlamedaResource, len(*in))
+		*out = make(map[string]AlamedaResource, len(*in))
 		for key, val := range *in {
 			(*out)[key] = *val.DeepCopy()
 		}
 	}
 	if in.DeploymentConfigs != nil {
 		in, out := &in.DeploymentConfigs, &out.DeploymentConfigs
-		*out = make(map[NamespacedName]AlamedaResource, len(*in))
+		*out = make(map[string]AlamedaResource, len(*in))
 		for key, val := range *in {
 			(*out)[key] = *val.DeepCopy()
 		}
@@ -200,7 +200,7 @@ func (in *AlamedaResource) DeepCopyInto(out *AlamedaResource) {
 	*out = *in
 	if in.Pods != nil {
 		in, out := &in.Pods, &out.Pods
-		*out = make(map[NamespacedName]AlamedaPod, len(*in))
+		*out = make(map[string]AlamedaPod, len(*in))
 		for key, val := range *in {
 			(*out)[key] = *val.DeepCopy()
 		}

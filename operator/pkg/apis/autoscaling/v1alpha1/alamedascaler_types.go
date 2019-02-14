@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
+	"github.com/containers-ai/alameda/operator/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -24,9 +26,9 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type predictEnable bool
-type alamedaPolicy string
-type NamespacedName string
+type predictEnable = bool
+type alamedaPolicy = string
+type NamespacedName = string
 
 const (
 	RecommendationPolicySTABLE  alamedaPolicy = "stable"
@@ -39,9 +41,14 @@ type AlamedaContainer struct {
 }
 
 type AlamedaPod struct {
+	Namespace  string             `json:"namespace" protobuf:"bytes,1,opt,name=namespace"`
 	Name       string             `json:"name" protobuf:"bytes,2,opt,name=name"`
 	UID        string             `json:"uid" protobuf:"bytes,3,opt,name=uid"`
 	Containers []AlamedaContainer `json:"containers" protobuf:"bytes,4,opt,name=containers"`
+}
+
+func (p *AlamedaPod) GetNamespacedName() NamespacedName {
+	return utils.GetNamespacedNameKey(p.Namespace, p.Name)
 }
 
 type AlamedaResource struct {
@@ -56,13 +63,21 @@ type AlamedaController struct {
 	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentconfigs" protobuf:"bytes,2,opt,name=deploymentconfigs"`
 }
 
+type AlamedaControllerType int
+
+const (
+	DeploymentController       AlamedaControllerType = 1
+	DeploymentConfigController AlamedaControllerType = 2
+)
+
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
 // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
-	Selector *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
-	Enable   predictEnable         `json:"enable" protobuf:"bytes,2,opt,name=enable"`
-	Policy   alamedaPolicy         `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
+	Selector              *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
+	Enable                predictEnable         `json:"enable" protobuf:"bytes,2,opt,name=enable"`
+	Policy                alamedaPolicy         `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
+	CustomResourceVersion string                `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
 }
 
 // AlamedaScalerStatus defines the observed state of AlamedaScaler
@@ -81,6 +96,48 @@ type AlamedaScaler struct {
 
 	Spec   AlamedaScalerSpec   `json:"spec,omitempty"`
 	Status AlamedaScalerStatus `json:"status,omitempty"`
+}
+
+func (as *AlamedaScaler) SetCustomResourceVersion(v string) {
+	as.Spec.CustomResourceVersion = v
+}
+
+func (as *AlamedaScaler) GenCustomResourceVersion() string {
+	v := as.ResourceVersion
+	return v
+}
+
+func (as *AlamedaScaler) ResetStatusAlamedaController() {
+	as.Status.AlamedaController = AlamedaController{
+		Deployments:       make(map[NamespacedName]AlamedaResource),
+		DeploymentConfigs: make(map[NamespacedName]AlamedaResource),
+	}
+}
+
+func (as *AlamedaScaler) GetMonitoredPods() []*AlamedaPod {
+	pods := make([]*AlamedaPod, 0)
+
+	for _, alamedaResource := range as.Status.AlamedaController.Deployments {
+		for _, pod := range alamedaResource.Pods {
+			cpPod := pod
+			pods = append(pods, &cpPod)
+		}
+	}
+
+	for _, alamedaResource := range as.Status.AlamedaController.DeploymentConfigs {
+		for _, pod := range alamedaResource.Pods {
+			cpPod := pod
+			pods = append(pods, &cpPod)
+		}
+	}
+
+	return pods
+}
+
+func (as *AlamedaScaler) GetLabelMapToSetToAlamedaRecommendationLabel() map[string]string {
+	m := make(map[string]string)
+	m["alamedascaler"] = fmt.Sprintf("%s.%s", as.GetName(), as.GetNamespace())
+	return m
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

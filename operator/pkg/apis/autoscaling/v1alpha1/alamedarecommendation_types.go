@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/containers-ai/alameda/operator/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -45,6 +46,10 @@ type AlamedaRecommendation struct {
 
 	Spec   AlamedaRecommendationSpec   `json:"spec,omitempty"`
 	Status AlamedaRecommendationStatus `json:"status,omitempty"`
+}
+
+func (ar *AlamedaRecommendation) GetNamespacedName() NamespacedName {
+	return utils.GetNamespacedNameKey(ar.Namespace, ar.Name)
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

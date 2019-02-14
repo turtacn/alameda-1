@@ -71,8 +71,8 @@ func (reconciler *Reconciler) RemoveAlamedaDeployment(deploymentNS, deploymentNa
 
 	if _, ok := reconciler.alamedascaler.Status.AlamedaController.Deployments[autoscaling_v1alpha1.NamespacedName(key)]; ok {
 		delete(reconciler.alamedascaler.Status.AlamedaController.Deployments, autoscaling_v1alpha1.NamespacedName(key))
-		return reconciler.alamedascaler
 	}
+
 	return reconciler.alamedascaler
 }
 
@@ -117,6 +117,7 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 	}
 	if alamedaPods, err := listResources.ListPodsByDeployment(alamedaDeploymentNS, alamedaDeploymentName); err == nil && len(alamedaPods) > 0 {
 		for _, alamedaPod := range alamedaPods {
+			alamedaPodNamespace := alamedaPod.GetNamespace()
 			alamedaPodName := alamedaPod.GetName()
 			alamedaPodUID := alamedaPod.GetUID()
 			alamedascalerReconcilerScope.Infof(fmt.Sprintf("Pod (%s/%s) belongs to AlamedaScaler (%s/%s).", alamedaDeploymentNS, alamedaPodName, alamedaScalerNS, alamedaScalerName))
@@ -127,6 +128,7 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 				})
 			}
 			alamedaPodsMap[autoscaling_v1alpha1.NamespacedName(utils.GetNamespacedNameKey(alamedaPod.GetNamespace(), alamedaPodName))] = autoscaling_v1alpha1.AlamedaPod{
+				Namespace:  alamedaPodNamespace,
 				Name:       alamedaPodName,
 				UID:        string(alamedaPodUID),
 				Containers: alamedaContainers,
@@ -160,6 +162,7 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 	}
 	if alamedaPods, err := listResources.ListPodsByDeploymentConfig(deploymentConfigNS, deploymentConfigName); err == nil && len(alamedaPods) > 0 {
 		for _, alamedaPod := range alamedaPods {
+			alamedaPodNamespace := alamedaPod.GetNamespace()
 			alamedaPodName := alamedaPod.GetName()
 			alamedaPodUID := alamedaPod.GetUID()
 			alamedascalerReconcilerScope.Debug(fmt.Sprintf("Pod (%s/%s) belongs to AlamedaScaler (%s/%s).", deploymentConfigNS, alamedaPodName, scalerNS, scalerName))
@@ -170,6 +173,7 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 				})
 			}
 			podsMap[autoscaling_v1alpha1.NamespacedName(utils.GetNamespacedNameKey(alamedaPod.GetNamespace(), alamedaPodName))] = autoscaling_v1alpha1.AlamedaPod{
+				Namespace:  alamedaPodNamespace,
 				Name:       alamedaPodName,
 				UID:        string(alamedaPodUID),
 				Containers: alamedaContainers,

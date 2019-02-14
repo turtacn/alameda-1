@@ -30,6 +30,7 @@ import (
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"google.golang.org/grpc"
+	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -141,8 +142,8 @@ func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (r
 		} else {
 			alamedarecommendationScope.Error(err.Error())
 		}
-	} else {
-		alamedarecommendationScope.Error(err.Error())
+	} else if !k8sErrors.IsNotFound(err) {
+		alamedarecommendationScope.Errorf("get AlamedaRecommendation %s/%s failed: %s", request.Namespace, request.Name, err.Error())
 	}
 
 	return reconcile.Result{}, nil

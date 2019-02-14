@@ -142,13 +142,39 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployNS, deployC
 	return deploymentConfigPods, nil
 }
 
-// ListAllAlamedaScaler return all nodes in cluster
+// ListAllAlamedaScaler return all AlamedaScaler in cluster
 func (listResources *ListResources) ListAllAlamedaScaler() ([]autuscaling.AlamedaScaler, error) {
 	alamedaScalerList := &autuscaling.AlamedaScalerList{}
 	if err := listResources.listAllResources(alamedaScalerList); err != nil {
 		return []autuscaling.AlamedaScaler{}, err
 	}
 	return alamedaScalerList.Items, nil
+}
+
+// ListNamespaceAlamedaScaler return all AlamedaScaler in specific namespace
+func (listResources *ListResources) ListNamespaceAlamedaScaler(namespace string) ([]autuscaling.AlamedaScaler, error) {
+	alamedaScalerList := &autuscaling.AlamedaScalerList{}
+	if err := listResources.listResourcesByNamespace(alamedaScalerList, namespace); err != nil {
+		return []autuscaling.AlamedaScaler{}, err
+	}
+	return alamedaScalerList.Items, nil
+}
+
+// ListAlamedaRecommendationOwnedByAlamedaScaler return all AlamedaRecommendation created by input AlamedaScaler
+func (listResources *ListResources) ListAlamedaRecommendationOwnedByAlamedaScaler(alamedaScaler *autuscaling.AlamedaScaler) ([]autuscaling.AlamedaRecommendation, error) {
+
+	alamedaRecommendationList := &autuscaling.AlamedaRecommendationList{}
+
+	lbls := make(map[string]string)
+	for k, v := range alamedaScaler.GetLabelMapToSetToAlamedaRecommendationLabel() {
+		lbls[k] = v
+	}
+
+	if err := listResources.listResourcesByNamespaceLabels(alamedaRecommendationList, alamedaScaler.Namespace, lbls); err != nil {
+		return []autuscaling.AlamedaRecommendation{}, err
+	}
+
+	return alamedaRecommendationList.Items, nil
 }
 
 func (listResources *ListResources) listAllResources(resourceList runtime.Object) error {

@@ -2,11 +2,11 @@ package resources
 
 import (
 	"context"
-	"fmt"
 
 	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
+	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -65,9 +65,50 @@ func (getResource *GetResource) GetAlamedaRecommendation(namespace, name string)
 	return alamedaRecommendation, err
 }
 
+func (getResource *GetResource) GetObservingAlamedaScalerOfController(controllerType autuscaling.AlamedaControllerType, controllerNamespace, controllerName string) (*autuscaling.AlamedaScaler, error) {
+
+	listResources := NewListResources(getResource)
+
+	alamedaScalers, _ := listResources.ListNamespaceAlamedaScaler(controllerNamespace)
+	for _, alamedaScaler := range alamedaScalers {
+
+		switch controllerType {
+		case autuscaling.DeploymentController:
+
+			matchedLblDeployments, err := listResources.ListDeploymentsByNamespaceLabels(controllerNamespace, alamedaScaler.Spec.Selector.MatchLabels)
+			if err != nil {
+				return nil, errors.Errorf("get observing AlamedaScaler of Deployment %s/%s failed: %s", controllerNamespace, controllerName, err.Error())
+			}
+			for _, matchedLblDeployment := range matchedLblDeployments {
+				// deployment can only join one AlamedaScaler
+				if matchedLblDeployment.GetName() == controllerName {
+					return &alamedaScaler, nil
+				}
+			}
+		case autuscaling.DeploymentConfigController:
+
+			matchedLblDeploymentConfigs, err := listResources.ListDeploymentConfigsByNamespaceLabels(controllerNamespace, alamedaScaler.Spec.Selector.MatchLabels)
+			if err != nil {
+				return nil, errors.Errorf("get observing AlamedaScaler of DeploymentConfig %s/%s failed: %s", controllerNamespace, controllerName, err.Error())
+			}
+			for _, matchedLblDeploymentConfig := range matchedLblDeploymentConfigs {
+				// deploymentConfig can only join one AlamedaScaler
+				if matchedLblDeploymentConfig.GetName() == controllerName {
+					return &alamedaScaler, nil
+				}
+			}
+		default:
+			return nil, errors.Errorf("controllerType: %d not support", controllerType)
+		}
+
+	}
+
+	return nil, nil
+}
+
 func (getResource *GetResource) getResource(resource runtime.Object, namespace, name string) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("Namespace: %s or name: %s is empty", namespace, name)
+		return errors.Errorf("Namespace: %s or name: %s is empty", namespace, name)
 	}
 	if err := getResource.Get(context.TODO(),
 		types.NamespacedName{
@@ -75,7 +116,7 @@ func (getResource *GetResource) getResource(resource runtime.Object, namespace, 
 			Name:      name,
 		},
 		resource); err != nil {
-		getResourcesScope.Error(err.Error())
+		getResourcesScope.Debug(err.Error())
 		return err
 	}
 	return nil
