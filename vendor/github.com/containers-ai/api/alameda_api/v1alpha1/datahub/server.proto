@@ -23,24 +23,6 @@ message QueryCondition {
 }
 
 /**
- * Represents a request for get one pod recommendation to apply of a controller
- * 
- */
-message GetOneControllerPodRecommendationToApplyRequest {
-    string controller_type = 1;
-    NamespacedName namespaced_name = 2;
-} 
-
-/**
- * Represents a response for get one pod recommendation to apply of a controller request
- * 
- */
-message GetOneControllerPodRecommendationToApplyResponse {
-    google.rpc.Status status = 1;
-    PodRecommendation pod_recommendation = 2;
-}
-
-/**
  * Represents a request for listing metric data of a pod
  * 
  */
@@ -248,15 +230,12 @@ message DeleteAlamedaNodesRequest {
  * Service for providing data stored in the backend
  */
 service DatahubService {
-    /// Used to get one pod recommendation of a controller need applying
-    rpc GetOneControllerPodRecommendationToApply(GetOneControllerPodRecommendationToApplyRequest)
-        returns (GetOneControllerPodRecommendationToApplyResponse) {}
-
-    /// Used to list pod metric data
+    
+    // Used to list pod metric data
     rpc ListPodMetrics(ListPodMetricsRequest)
         returns (ListPodMetricsResponse) {}
 
-    /// Used to list node metric data
+    // Used to list node metric data
     rpc ListNodeMetrics(ListNodeMetricsRequest)
         returns (ListNodeMetricsResponse) {}
 
@@ -268,55 +247,55 @@ service DatahubService {
     rpc ListAlamedaNodes(google.protobuf.Empty)
         returns (ListNodesResponse){}
 
-    /// Used to list pod predictions
+    // Used to list pod predictions
     rpc ListPodPredictions(ListPodPredictionsRequest)
         returns (ListPodPredictionsResponse) {}
 
-    /// Used to list node predictions
+    // Used to list node predictions
     rpc ListNodePredictions(ListNodePredictionsRequest)
         returns (ListNodePredictionsResponse) {}
 
-    /// Used to list pod recommenations
+    // Used to list pod recommenations
     rpc ListPodRecommendations(ListPodRecommendationsRequest)
         returns (ListPodRecommendationsResponse) {}
 
-    /// Used to list pods by a node name
+    // Used to list pods by a node name
     rpc ListPodsByNodeName(ListPodsByNodeNamesRequest)
         returns (ListPodsResponse) {} 
         
-    /// Used to list system scores
+    // Used to list system scores
     rpc ListSimulatedSchedulingScores(ListSimulatedSchedulingScoresRequest)
         returns (ListSimulatedSchedulingScoresResponse) {} 
 
-    /// Used to add pods that need to be predicted
+    // Used to add pods that need to be predicted
     rpc CreatePods(CreatePodsRequest)
         returns (google.rpc.Status){}
     
-    /// Used to add nodes that need to be predicted
+    // Used to add nodes that need to be predicted
     rpc CreateAlamedaNodes(CreateAlamedaNodesRequest)
         returns (google.rpc.Status){}
 
-    /// Used to create predictions of pods
+    // Used to create predictions of pods
     rpc CreatePodPredictions(CreatePodPredictionsRequest)
         returns (google.rpc.Status) {}
 
-    /// Used to create predictions of nodes
+    // Used to create predictions of nodes
     rpc CreateNodePredictions(CreateNodePredictionsRequest)
         returns (google.rpc.Status) {}
 
-    /// Used to create recommendations of pods
+    // Used to create recommendations of pods
     rpc CreatePodRecommendations(CreatePodRecommendationsRequest)
         returns (google.rpc.Status) {}
 
-    /// Used to create scores of system 
+    // Used to create scores of system 
     rpc CreateSimulatedSchedulingScores(CreateSimulatedSchedulingScoresRequest)
         returns (google.rpc.Status) {} 
 
-    /// Used to delete info of pods
+    // Used to delete info of pods
     rpc DeletePods(DeletePodsRequest)
         returns (google.rpc.Status){}
 
-    /// Used to stop generating predictions for the nodes
+    // Used to stop generating predictions for the nodes
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}            
 }

@@ -17,11 +17,6 @@ class DatahubServiceStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.GetOneControllerPodRecommendationToApply = channel.unary_unary(
-        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/GetOneControllerPodRecommendationToApply',
-        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyRequest.SerializeToString,
-        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyResponse.FromString,
-        )
     self.ListPodMetrics = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodMetrics',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodMetricsRequest.SerializeToString,
@@ -114,22 +109,15 @@ class DatahubServiceServicer(object):
   Service for providing data stored in the backend
   """
 
-  def GetOneControllerPodRecommendationToApply(self, request, context):
-    """/ Used to get one pod recommendation of a controller need applying
-    """
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
   def ListPodMetrics(self, request, context):
-    """/ Used to list pod metric data
+    """Used to list pod metric data
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListNodeMetrics(self, request, context):
-    """/ Used to list node metric data
+    """Used to list node metric data
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -150,91 +138,91 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def ListPodPredictions(self, request, context):
-    """/ Used to list pod predictions
+    """Used to list pod predictions
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListNodePredictions(self, request, context):
-    """/ Used to list node predictions
+    """Used to list node predictions
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListPodRecommendations(self, request, context):
-    """/ Used to list pod recommenations
+    """Used to list pod recommenations
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListPodsByNodeName(self, request, context):
-    """/ Used to list pods by a node name
+    """Used to list pods by a node name
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def ListSimulatedSchedulingScores(self, request, context):
-    """/ Used to list system scores
+    """Used to list system scores
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePods(self, request, context):
-    """/ Used to add pods that need to be predicted
+    """Used to add pods that need to be predicted
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreateAlamedaNodes(self, request, context):
-    """/ Used to add nodes that need to be predicted
+    """Used to add nodes that need to be predicted
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePodPredictions(self, request, context):
-    """/ Used to create predictions of pods
+    """Used to create predictions of pods
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreateNodePredictions(self, request, context):
-    """/ Used to create predictions of nodes
+    """Used to create predictions of nodes
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreatePodRecommendations(self, request, context):
-    """/ Used to create recommendations of pods
+    """Used to create recommendations of pods
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreateSimulatedSchedulingScores(self, request, context):
-    """/ Used to create scores of system 
+    """Used to create scores of system 
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def DeletePods(self, request, context):
-    """/ Used to delete info of pods
+    """Used to delete info of pods
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def DeleteAlamedaNodes(self, request, context):
-    """/ Used to stop generating predictions for the nodes
+    """Used to stop generating predictions for the nodes
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -243,11 +231,6 @@ class DatahubServiceServicer(object):
 
 def add_DatahubServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'GetOneControllerPodRecommendationToApply': grpc.unary_unary_rpc_method_handler(
-          servicer.GetOneControllerPodRecommendationToApply,
-          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyRequest.FromString,
-          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetOneControllerPodRecommendationToApplyResponse.SerializeToString,
-      ),
       'ListPodMetrics': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodMetrics,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodMetricsRequest.FromString,

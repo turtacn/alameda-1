@@ -27,14 +27,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6b65a6c1336ed73f0ba5e729da57bcaf8f726cffb41a7263a2ecf4b08d0b36cc"
+  digest = "1:0a0286c0f513f0945d5390185671f3cd7e8938c61196444d4fc58c7e11b6b97e"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
     "alameda_api/v1alpha1/operator",
   ]
   pruneopts = "T"
-  revision = "eb2ee9b361e13127480e24f8663ba3b061bb94a8"
+  revision = "19d13903db2e9c623d4032a7818866a7c0587994"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1133,6 +1133,7 @@
     "github.com/onsi/gomega",
     "github.com/openshift/api/apps",
     "github.com/openshift/api/apps/v1",
+    "github.com/pkg/errors",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",

@@ -151,16 +151,6 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 	datahub_v1alpha1.RegisterDatahubServiceServer(server, s)
 }
 
-// GetOneControllerPodRecommendationToApply
-func (s *Server) GetOneControllerPodRecommendationToApply(ctx context.Context, in *datahub_v1alpha1.GetOneControllerPodRecommendationToApplyRequest) (*datahub_v1alpha1.GetOneControllerPodRecommendationToApplyResponse, error) {
-	return &datahub_v1alpha1.GetOneControllerPodRecommendationToApplyResponse{
-		Status: &status.Status{
-			Code:    int32(code.Code_INVALID_ARGUMENT),
-			Message: "not implement",
-		},
-	}, nil
-}
-
 // ListPodMetrics list pods' metrics
 func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
 
