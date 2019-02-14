@@ -31,12 +31,21 @@ func NewListResources(client client.Client) *ListResources {
 }
 
 // ListAllNodes return all nodes in cluster
-func (listResources *ListResources) ListAllNodes() ([]corev1.Node, error) {
+func (listResources *ListResources) ListAllNodes() ([]*corev1.Node, error) {
+
+	nodes := make([]*corev1.Node, 0)
 	nodeList := &corev1.NodeList{}
+
 	if err := listResources.listAllResources(nodeList); err != nil {
-		return []corev1.Node{}, err
+		return nodes, err
 	}
-	return nodeList.Items, nil
+
+	for _, node := range nodeList.Items {
+		copyNode := &node
+		nodes = append(nodes, copyNode)
+	}
+
+	return nodes, nil
 }
 
 // ListPodsByLabels return pods by labels

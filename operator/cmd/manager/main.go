@@ -187,10 +187,14 @@ func watchServer(s *server.Server) {
 func registerNodes(client client.Client) {
 	time.Sleep(3 * time.Second)
 	listResources := resources.NewListResources(client)
-	nodeList, _ := listResources.ListAllNodes()
-	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodeList)))
-	createAlamedaNode := datahub_node.NewCreateAlamedaNode()
-	createAlamedaNode.CreateAlamedaNode(nodeList)
+	nodes, err := listResources.ListAllNodes()
+	if err != nil {
+		scope.Errorf("register nodes to Datahub failed: %s", err.Error())
+		return
+	}
+	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodes)))
+	datahubNodeRepo := datahub_node.NewAlamedaNodeRepository()
+	datahubNodeRepo.CreateAlamedaNode(nodes)
 }
 
 func registerThirdPartyCRD() {

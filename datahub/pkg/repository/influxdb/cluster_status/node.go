@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -60,9 +60,12 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 			scope.Error(err.Error())
 		}
 	}
-	nodeRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
+	err := nodeRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
 		Database: string(influxdb.ClusterStatus),
 	})
+	if err != nil {
+		return errors.Wrapf(err, "add alameda nodes failed: %s", err.Error())
+	}
 	return nil
 }
 
