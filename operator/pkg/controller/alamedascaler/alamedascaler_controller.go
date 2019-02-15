@@ -33,7 +33,7 @@ import (
 	"google.golang.org/grpc"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

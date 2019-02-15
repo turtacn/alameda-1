@@ -2,7 +2,7 @@ package operator
 
 import (
 	datahub "github.com/containers-ai/alameda/operator/datahub"
-	"github.com/containers-ai/alameda/operator/pkg/utils/log"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -26,7 +26,9 @@ func NewConfig(manager manager.Manager) Config {
 
 func (c *Config) init() {
 
-	c.Log = log.NewConfig()
+	defaultLogConfig := log.NewDefaultConfig()
+
+	c.Log = &defaultLogConfig
 	c.Datahub = datahub.NewConfig()
 }
 

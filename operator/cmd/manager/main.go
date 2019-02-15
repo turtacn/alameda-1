@@ -29,7 +29,7 @@ import (
 	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	appsapi "github.com/openshift/api/apps"

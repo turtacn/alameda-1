@@ -26,7 +26,7 @@ import (
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"google.golang.org/grpc"

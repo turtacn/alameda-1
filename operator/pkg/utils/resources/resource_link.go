@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	openshift_appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
