@@ -51,35 +51,6 @@ var (
 
 var cachedFirstSynced = false
 
-// AlamedaK8sController is key of AlamedaScaler annotation
-const AlamedaK8sController = "annotation-k8s-controller"
-
-// Container struct
-type Container struct {
-	Name string
-}
-
-// Pod struct
-type Pod struct {
-	UID        string
-	Namespace  string
-	Name       string
-	Containers []Container
-}
-
-// Deployment struct
-type Deployment struct {
-	UID       string
-	Namespace string
-	Name      string
-	PodMap    map[string]Pod
-}
-
-// K8SControllerAnnotation struct
-type K8SControllerAnnotation struct {
-	DeploymentMap map[string]Deployment
-}
-
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
 * business logic.  Delete these comments after modifying this file.*

@@ -20,10 +20,8 @@ import (
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
-	// alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsv1 "k8s.io/api/apps/v1"
-	// k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 
 	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -103,20 +101,9 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 		return reconcile.Result{}, nil
 	}
 
-	// deployment, err := getResource.GetDeployment(request.Namespace, request.Name)
-	// if err != nil && !k8sErrors.IsNotFound(err) {
-	// 	// scope.Errorf("update AlamedaScaler %s %s falied: %s", alamedaScaler.GetObjectMeta().GetResourceVersion(), alamedaScaler.Status.CustomResourceVersion, err.Error())
-	// 	scope.Errorf("get deployment %s/%s falied: %s", request.Namespace, request.Name, err.Error())
-	// 	return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
-	// }
-
-	// alamedaScalerReconciler := alamedascaler_reconciler.NewReconciler(r, alamedaScaler)
-	// alamedaScaler = alamedaScalerReconciler.UpdateStatusByDeployment(deployment)
-
 	alamedaScaler.SetCustomResourceVersion(alamedaScaler.GenCustomResourceVersion())
 	err = updateResource.UpdateAlamedaScaler(alamedaScaler)
 	if err != nil {
-		// scope.Errorf("update AlamedaScaler %s %s falied: %s", alamedaScaler.GetObjectMeta().GetResourceVersion(), alamedaScaler.Status.CustomResourceVersion, err.Error())
 		scope.Errorf("update AlamedaScaler falied: %s", err.Error())
 		return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 	}
