@@ -1,3 +1,8 @@
+
+# TODO reference security
+# https://access.redhat.com/containers/?architecture=AMD64&tab=docker-file#/registry.access.redhat.com/openshift3/ose-cluster-monitoring-operator/images/v3.11.69-11
+# https://access.redhat.com/containers/?tab=docker-file#/registry.access.redhat.com/openshift3/ose-kube-rbac-proxy/images/v3.11.69-3
+# https://github.com/openshift/cluster-monitoring-operator/blob/master/Dockerfile.rhel7
 # Build the manager binary
 FROM registry.access.redhat.com/devtools/go-toolset-1.10-rhel7 as builder
 

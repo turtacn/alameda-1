@@ -1,0 +1,223 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: alameda-datahub-ephemeral
+  annotations:
+    openshift.io/display-name: "Alameda Datahub Dev (Ephemeral)"
+    description: "Alameda Datahub Dev"
+    iconClass: "icon-go-gopher"
+    tags: "alameda, datahub, autopilot"
+labels:
+  template: alameda-datahub
+  app: alameda-datahub
+objects:
+- kind: ImageStream
+  apiVersion: image.openshift.io/v1
+  metadata:
+    name: "${ALAMEDA_DATAHUB_NAME}"
+    annotations:
+      description: Keeps track of changes in the alameda-datahub image
+- kind: ImageStream
+  apiVersion: image.openshift.io/v1
+  metadata:
+    name: "${ALAMEDA_INFLUXDB_NAME}"
+    annotations:
+      description: Keeps track of changes in the alameda-influxdb image
+  spec:
+    tags:
+    - name: 1.7-alpine
+      from:
+        kind: DockerImage
+        name: influxdb:1.7-alpine
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "${ALAMEDA_DATAHUB_NAME}"
+    annotations:
+      description: Defines how to build alameda-datahub
+      template.alpha.openshift.io/wait-for-ready: "true"
+  spec:
+    source:
+      type: Git
+      git:
+        uri: "${ALAMEDA_DATAHUB_REPOSITORY_URL}"
+        ref: "${ALAMEDA_DATAHUB_REPOSITORY_REF}"
+      contextDir: "${ALAMEDA_DATAHUB_CONTEXT_DIR}"
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "./datahub/Dockerfile"
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${ALAMEDA_DATAHUB_NAME}:latest"
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${ALAMEDA_DATAHUB_GITHUB_WEBHOOK_SECRET}"
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    # This name is related to ClusterRoleBinding in alameda-crd-rbac.yaml.
+    name: alameda-datahub
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: "${ALAMEDA_INFLUXDB_NAME}-tls"
+    labels:
+      app: "${ALAMEDA_INFLUXDB_NAME}"
+    name: "${ALAMEDA_INFLUXDB_NAME}"
+  spec:
+    ports:
+    - port: 8086
+      targetPort: 8086
+    selector:
+      app: "${ALAMEDA_INFLUXDB_NAME}"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${ALAMEDA_INFLUXDB_NAME}"
+    annotations:
+      description: Defines how to deploy the application influxdb
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - influxdb
+        from:
+          kind: ImageStreamTag
+          name: "${ALAMEDA_INFLUXDB_NAME}:1.7-alpine"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+        app: "${ALAMEDA_INFLUXDB_NAME}"
+    template:
+      metadata:
+        labels:
+          app: "${ALAMEDA_INFLUXDB_NAME}"
+      spec:
+        # securityContext:
+        #   runAsUser: 1000
+        containers:
+        - name: influxdb
+          image: ""      
+          env:
+          - name: INFLUXDB_REPORTING_DISABLED
+            value: "true"
+          - name: INFLUXDB_HTTP_HTTPS_ENABLED
+            value: "true"
+          - name: INFLUXDB_HTTP_HTTPS_CERTIFICATE
+            value: "/etc/tls/private/tls.crt"
+          - name: INFLUXDB_HTTP_HTTPS_PRIVATE_KEY
+            value: "/etc/tls/private/tls.key"
+          - name: INFLUXDB_HTTP_AUTH_ENABLED
+            value: "true"
+          - name: INFLUXDB_ADMIN_USER
+            value: "admin"
+          - name: INFLUXDB_ADMIN_PASSWORD
+            value: "adminpass"
+          - name: INFLUXDB_USER
+            value: "user"
+          - name: INFLUXDB_USER_PASSWORD
+            value: "userpass"
+          volumeMounts:
+          - mountPath: /etc/tls/private
+            name: "${ALAMEDA_INFLUXDB_NAME}-tls"
+            readOnly: false
+          - mountPath: /var/lib/influxdb
+            name: influxdb-storage
+        volumes:
+        - name: influxdb-storage
+          emptyDir: {}
+        - name: "${ALAMEDA_INFLUXDB_NAME}-tls"
+          secret:
+            secretName: "${ALAMEDA_INFLUXDB_NAME}-tls"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: "${ALAMEDA_DATAHUB_NAME}"
+    name: "${ALAMEDA_DATAHUB_NAME}"
+  spec:
+    ports:
+    - name: grpc
+      port: 50050
+    selector:
+      app: "${ALAMEDA_DATAHUB_NAME}"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${ALAMEDA_DATAHUB_NAME}"
+    annotations:
+      description: Defines how to deploy the application alameda-datahub
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - alameda-datahub
+        from:
+          kind: ImageStreamTag
+          name: "${ALAMEDA_DATAHUB_NAME}:latest"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      app: "${ALAMEDA_DATAHUB_NAME}"
+    template:
+      metadata:
+        name: "${ALAMEDA_DATAHUB_NAME}"
+        labels:
+          app: "${ALAMEDA_DATAHUB_NAME}"
+      spec:
+        containers:
+        - name: alameda-datahub
+          image: ""
+          env:
+          - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
+            value: https://${ALAMEDA_INFLUXDB_NAME}.${ALAMEDA_NAMESPACE}.svc:8086
+          - name: ALAMEDA_DATAHUB_INFLUXDB_USERNAME
+            value: admin
+          - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
+            value: adminpass
+          - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
+            value: https://prometheus-k8s.openshift-monitoring.svc:9091
+        serviceAccount: alameda-datahub
+        serviceAccountName: alameda-datahub            
+parameters:
+- name: ALAMEDA_NAMESPACE
+  displayName: Name of the alameda namespace
+  required: true
+  value: ""
+- name: ALAMEDA_DATAHUB_NAME
+  displayName: Datahub Name
+  description: The name assigned to all of the alameda-datahub objects defined in this template.
+  required: true
+  value: alameda-datahub
+- name: ALAMEDA_INFLUXDB_NAME
+  displayName: Influxdb Name
+  description: The name assigned to all of the alameda-Influxdb objects defined in this template.
+  required: true
+  value: alameda-influxdb
+- name: ALAMEDA_DATAHUB_REPOSITORY_URL
+  displayName: Alameda Datahub Git Repository URL
+  required: true
+  description: The URL of the repository with your application source code.
+  value: https://github.com/containers-ai/alameda
+- name: ALAMEDA_DATAHUB_REPOSITORY_REF
+  displayName: Git Reference
+  description: Set this to a branch name, tag or other ref of your repository if you are not using the default branch.
+- name: ALAMEDA_DATAHUB_CONTEXT_DIR
+  displayName: Context Directory
+  description: Set this to the relative path to your project if it is not in the root of your repository.
+- name: ALAMEDA_DATAHUB_GITHUB_WEBHOOK_SECRET
+  displayName: GitHub Webhook Secret
+  description: Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted.
+  generate: expression
+  from: "[a-zA-Z0-9]{40}"

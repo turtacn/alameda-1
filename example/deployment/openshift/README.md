@@ -111,7 +111,6 @@ Login as admin, then apply follow yaml files in example/deployment/openshift
 oc login -u admin
 ```
 ```
-oc adm policy add-scc-to-user anyuid system:serviceaccount:opsmx:tiller
 oc adm policy add-scc-to-group anyuid system:authenticated
 oc apply -f prometheus.yaml
 oc apply -f rbac

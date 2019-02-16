@@ -1,0 +1,164 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: alameda-ai-ephemeral
+  annotations:
+    openshift.io/display-name: "Alameda AI Engine (Ephemeral)"
+    description: "An Alameda AI Engine application"
+    iconClass: "icon-python"
+    tags: "ai,alameda,autopilot"
+labels:
+  template: alameda-ai
+  app: alameda-ai
+objects:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: "${ALAMEDA_AI_NAME}"
+    # namespace: ${NAMESPACE}
+  data:
+    ssh-privatekey: "${GITHUB_SSH_PRIVATEKEY}"
+  type: kubernetes.io/ssh-auth
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: "${ALAMEDA_AI_NAME}"
+    annotations:
+      description: Keeps track of changes in the alameda-ai image
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "${ALAMEDA_AI_NAME}"
+    annotations:
+      description: Defines how to build the application
+      template.alpha.openshift.io/wait-for-ready: "true"
+    # namespace: ${NAMESPACE}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${ALAMEDA_AI_NAME}:latest"
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: "${ALAMEDA_AI_CONTEXT_DIR}"
+      git:
+        uri: "${ALAMEDA_AI_REPOSITORY_URL}"
+        ref: "${ALAMEDA_AI_REPOSITORY_REF}"
+      sourceSecret:
+        name: "${ALAMEDA_AI_NAME}"
+      type: Git
+    strategy:
+      dockerStrategy: {}
+      type: Docker
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${ALAMEDA_AI_GITHUB_WEBHOOK_SECRET}"
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: alameda-ai
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${ALAMEDA_AI_NAME}"
+    labels:
+      name: "${ALAMEDA_AI_NAME}"
+    annotations:
+      description: Exposes the alameda-ai server
+  spec:
+    ports:
+    - name: grpc
+      port: 50051
+    selector:
+      name: "${ALAMEDA_AI_NAME}"         
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${ALAMEDA_AI_NAME}"
+    annotations:
+      description: Defines how to deploy the application alameda-ai
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - alameda-ai-engine
+        from:
+          kind: ImageStreamTag
+          name: "${ALAMEDA_AI_NAME}:latest"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: "${ALAMEDA_AI_NAME}"
+    template:
+      metadata:
+        name: "${ALAMEDA_AI_NAME}"
+        labels:
+          name: "${ALAMEDA_AI_NAME}"
+      spec:
+        containers:
+        - name: alameda-ai-engine
+          image: ""
+          ports:
+          - containerPort: 50051
+            protocol: TCP
+          resources: {}
+          env:
+          - name: OPERATOR_ADDRESS
+            value: "${OPERATOR_ADDRESS}"
+          - name: DATAHUB_ADDRESS
+            value: "${DATAHUB_ADDRESS}"          
+        securityContext:
+          runAsUser: 0
+        serviceAccount: alameda-ai
+        serviceAccountName: alameda-ai   
+parameters:
+- name: ALAMEDA_AI_NAME
+  displayName: Name
+  description: The name assigned to all of the alameda-ai objects defined in this template.
+  required: true
+  value: alameda-ai
+# - name: NAMESPACE
+#   displayName: Namespace
+#   required: true
+#   description: The OpenShift Namespace where the ImageStream resides.
+#   value: tutorial-dev
+- name: GITHUB_SSH_PRIVATEKEY
+  displayName: SSH Private Key
+  required: true
+  description: The base64 encode ssh privatekey used to get the alameda-ai private repository.
+- name: ALAMEDA_AI_REPOSITORY_URL
+  displayName: Alameda Ai Git Repository URL
+  required: true
+  description: The URL of the repository with your application source code.
+  value: git@github.com:prophetstor-ai/alameda-ai.git
+- name: ALAMEDA_AI_REPOSITORY_REF
+  displayName: Git Reference
+  description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch.
+- name: ALAMEDA_AI_CONTEXT_DIR
+  displayName: Context Directory
+  description: Set this to the relative path to your project if it is not in the root
+    of your repository.
+- name: ALAMEDA_AI_GITHUB_WEBHOOK_SECRET
+  displayName: GitHub Webhook Secret
+  description: Github trigger secret.  A difficult to guess string encoded as part
+    of the webhook URL.  Not encrypted.
+  generate: expression
+  from: "[a-zA-Z0-9]{40}"
+- name: OPERATOR_ADDRESS
+  displayName: Alameda Operator URL
+  required: true
+  description: Alameda Operator URL.
+  value: operator.tutorial-dev.svc.cluster.local:50050
+- name: DATAHUB_ADDRESS
+  displayName: Alameda Datahub URL
+  required: true
+  description: Alameda Operator URL.
+  value: datahub.tutorial-dev.svc.cluster.local:50050
