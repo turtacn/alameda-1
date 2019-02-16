@@ -4,7 +4,7 @@ import (
 	"context"
 
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"

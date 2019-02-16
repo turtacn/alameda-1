@@ -5,7 +5,7 @@ import (
 
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	utils "github.com/containers-ai/alameda/operator/pkg/utils"
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"

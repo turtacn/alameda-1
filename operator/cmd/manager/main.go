@@ -23,17 +23,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/containers-ai/alameda/operator"
 	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
-	logUtil "github.com/containers-ai/alameda/operator/pkg/utils/log"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
-	"github.com/containers-ai/alameda/operator/server"
 	appsapi "github.com/openshift/api/apps"
 
 	"github.com/spf13/viper"
@@ -56,7 +54,6 @@ var operatorConfigFile string
 
 var operatorConf operator.Config
 var scope *logUtil.Scope
-var wg sync.WaitGroup
 
 var (
 	// VERSION is sofeware version
@@ -127,22 +124,11 @@ func main() {
 	if err != nil {
 		scope.Error(err.Error())
 	}
+
 	// TODO: There are config dependency, this manager should have it's config.
 	initServerConfig(mgr)
 	initLogger()
 	printSoftwareInfo()
-
-	// Setup grpc server config
-	s, err := server.NewServer(&operatorConf)
-
-	if err != nil {
-		scope.Error("Setup server failed: " + err.Error())
-	}
-
-	// Start server
-	wg.Add(1)
-	go s.Start(&wg)
-	go watchServer(s)
 
 	scope.Info("Registering Components.")
 	registerThirdPartyCRD()
@@ -169,19 +155,6 @@ func main() {
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		scope.Error(err.Error())
 	}
-
-	// Wait grpc server goroutine
-	wg.Wait()
-}
-
-func watchServer(s *server.Server) {
-	var err error
-
-	select {
-	case err = <-s.Err():
-		s.Close(&wg)
-	}
-	scope.Error("server runtime failed: " + err.Error())
 }
 
 func registerNodes(client client.Client) {

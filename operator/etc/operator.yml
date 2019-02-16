@@ -1,16 +1,6 @@
-gRPC:
-  bind-address: ":50050"
-  prometheus:
-    url: "https://prometheus-k8s.openshift-monitoring:9091"
-    tls-config:
-      insecure-skip-verify: true
-    bearer-token-file: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 log:
   set-logcallers: true
   output-level: "info" # debug, info, warn, error, fatal, none
-
-ai-server:
-  address: "alameda-ai.alameda.svc.cluster.local:50051"
 
 datahub:
   address: "datahub.alameda.svc.cluster.local:50050"
