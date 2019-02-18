@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"fmt"
+
 	"github.com/containers-ai/alameda/operator/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -68,6 +69,13 @@ type AlamedaControllerType int
 const (
 	DeploymentController       AlamedaControllerType = 1
 	DeploymentConfigController AlamedaControllerType = 2
+)
+
+var (
+	AlamedaControllerTypeName = map[AlamedaControllerType]string{
+		DeploymentController:       "deployment",
+		DeploymentConfigController: "deploymentconfig",
+	}
 )
 
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
