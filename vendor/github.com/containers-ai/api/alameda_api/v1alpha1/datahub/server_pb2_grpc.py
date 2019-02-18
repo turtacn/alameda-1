@@ -37,6 +37,11 @@ class DatahubServiceStub(object):
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.FromString,
         )
+    self.ListNodes = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListNodes',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.FromString,
+        )
     self.ListPodPredictions = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodPredictions',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodPredictionsRequest.SerializeToString,
@@ -131,6 +136,13 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def ListAlamedaNodes(self, request, context):
+    """Used to list nodes need to be predicted
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def ListNodes(self, request, context):
     """Used to list nodes need to be predicted
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -249,6 +261,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'ListAlamedaNodes': grpc.unary_unary_rpc_method_handler(
           servicer.ListAlamedaNodes,
           request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.SerializeToString,
+      ),
+      'ListNodes': grpc.unary_unary_rpc_method_handler(
+          servicer.ListNodes,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.SerializeToString,
       ),
       'ListPodPredictions': grpc.unary_unary_rpc_method_handler(

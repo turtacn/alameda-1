@@ -76,6 +76,14 @@ message ListAlamedaPodsRequest {
 }
 
 /**
+ * Represents a request for listing nodes' information
+ * 
+ */
+message ListNodesRequest {
+    repeated string node_names = 1;
+}
+
+/**
  * Represents a response for a listing nodes request
  * 
  */
@@ -247,6 +255,10 @@ service DatahubService {
     rpc ListAlamedaNodes(google.protobuf.Empty)
         returns (ListNodesResponse){}
 
+    // Used to list nodes' information
+    rpc ListNodes(ListNodesRequest)
+        returns (ListNodesResponse){}
+
     // Used to list pod predictions
     rpc ListPodPredictions(ListPodPredictionsRequest)
         returns (ListPodPredictionsResponse) {}
@@ -299,3 +311,4 @@ service DatahubService {
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}            
 }
+
