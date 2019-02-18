@@ -2,8 +2,10 @@ package clusterstatus
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
+	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -113,7 +115,12 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes() ([]*cluster_status_enti
 	nodeEntities := []*cluster_status_entity.NodeEntity{}
 	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s", string(Node), string(cluster_status_entity.NodeInCluster), "true")
 	scope.Infof(fmt.Sprintf("Query nodes in cluster: %s", cmd))
-	if results, _ := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus)); len(results) == 1 && len(results[0].Series) > 0 {
+	results, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	if err != nil {
+		return nodeEntities, errors.Wrap(err, "list alameda nodes from influxdb failed")
+	}
+
+	if len(results) == 1 && len(results[0].Series) > 0 {
 
 		influxdbRows := influxdb.PackMap(results)
 		for _, influxdbRow := range influxdbRows {
@@ -125,4 +132,50 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes() ([]*cluster_status_enti
 	}
 
 	return nodeEntities, nil
+}
+
+func (nodeRepository *NodeRepository) ListNodes(request cluster_status_dao.ListNodesRequest) ([]*cluster_status_entity.NodeEntity, error) {
+
+	nodeEntities := []*cluster_status_entity.NodeEntity{}
+
+	whereClause := nodeRepository.buildInfluxQLWhereClauseFromRequest(request)
+	cmd := fmt.Sprintf("SELECT * FROM %s %s", string(Node), whereClause)
+	scope.Debug(fmt.Sprintf("Query nodes in cluster: %s", cmd))
+	results, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	if err != nil {
+		return nodeEntities, errors.Wrap(err, "list nodes from influxdb failed")
+	}
+
+	influxdbRows := influxdb.PackMap(results)
+	for _, influxdbRow := range influxdbRows {
+		for _, data := range influxdbRow.Data {
+			nodeEntity := cluster_status_entity.NewNodeEntityFromMap(data)
+			nodeEntities = append(nodeEntities, &nodeEntity)
+		}
+	}
+
+	return nodeEntities, nil
+}
+
+func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(request cluster_status_dao.ListNodesRequest) string {
+
+	var (
+		whereClause string
+		conditions  string
+	)
+
+	conditions += fmt.Sprintf("\"%s\" = %t", cluster_status_entity.NodeInCluster, request.InCluster)
+
+	statementFilteringNodes := ""
+	for _, nodeName := range request.NodeNames {
+		statementFilteringNodes += fmt.Sprintf(`"%s" = '%s' OR `, cluster_status_entity.NodeName, nodeName)
+	}
+	statementFilteringNodes = strings.TrimSuffix(statementFilteringNodes, "OR ")
+	if statementFilteringNodes != "" {
+		conditions = fmt.Sprintf("(%s) AND (%s)", conditions, statementFilteringNodes)
+	}
+
+	whereClause = fmt.Sprintf("WHERE %s", conditions)
+
+	return whereClause
 }

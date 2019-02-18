@@ -9,4 +9,10 @@ type NodeOperation interface {
 	RegisterAlamedaNodes([]*datahub_api.Node) error
 	DeregisterAlamedaNodes([]*datahub_api.Node) error
 	ListAlamedaNodes() ([]*datahub_api.Node, error)
+	ListNodes(ListNodesRequest) ([]*datahub_api.Node, error)
+}
+
+type ListNodesRequest struct {
+	NodeNames []string
+	InCluster bool
 }

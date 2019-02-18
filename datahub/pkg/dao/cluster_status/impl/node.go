@@ -1,10 +1,12 @@
 package impl
 
 import (
+	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_cluster_status "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -29,9 +31,25 @@ func (node *Node) DeregisterAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) 
 func (node *Node) ListAlamedaNodes() ([]*datahub_v1alpha1.Node, error) {
 	alamedaNodes := []*datahub_v1alpha1.Node{}
 	nodeRepository := influxdb_repository_cluster_status.NewNodeRepository(&node.InfluxDBConfig)
-	entities, _ := nodeRepository.ListAlamedaNodes()
+	entities, err := nodeRepository.ListAlamedaNodes()
+	if err != nil {
+		return alamedaNodes, errors.Wrap(err, "list alameda nodes failed")
+	}
 	for _, entity := range entities {
 		alamedaNodes = append(alamedaNodes, entity.BuildDatahubNode())
 	}
 	return alamedaNodes, nil
+}
+
+func (node *Node) ListNodes(request cluster_status_dao.ListNodesRequest) ([]*datahub_v1alpha1.Node, error) {
+	nodes := []*datahub_v1alpha1.Node{}
+	nodeRepository := influxdb_repository_cluster_status.NewNodeRepository(&node.InfluxDBConfig)
+	entities, err := nodeRepository.ListNodes(request)
+	if err != nil {
+		return nodes, errors.Wrap(err, "list nodes failed")
+	}
+	for _, entity := range entities {
+		nodes = append(nodes, entity.BuildDatahubNode())
+	}
+	return nodes, nil
 }

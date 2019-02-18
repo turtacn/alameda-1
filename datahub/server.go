@@ -350,6 +350,34 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 	}
 }
 
+func (s *Server) ListNodes(ctx context.Context, in *datahub_v1alpha1.ListNodesRequest) (*datahub_v1alpha1.ListNodesResponse, error) {
+
+	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	req := cluster_status_dao.ListNodesRequest{
+		NodeNames: in.GetNodeNames(),
+		InCluster: true,
+	}
+	if nodes, err := nodeDAO.ListNodes(req); err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListNodesResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	} else {
+		return &datahub_v1alpha1.ListNodesResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Nodes: nodes,
+		}, nil
+	}
+}
+
 // ListPodPredictions list pods' predictions
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
 
