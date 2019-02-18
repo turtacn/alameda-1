@@ -13,7 +13,7 @@ const (
 	// ContainerPodName is pod name of recommended container
 	ContainerPodName containerTag = "pod_name"
 
-	// ContainerPolicy is recommended CPU request
+	// ContainerPolicy is recommended policy
 	ContainerPolicy containerField = "policy"
 	// ContainerResourceRequestCPU is recommended CPU request
 	ContainerResourceRequestCPU containerField = "resource_request_cpu"
@@ -31,6 +31,10 @@ const (
 	ContainerInitialResourceLimitCPU containerField = "initial_resource_limit_cpu"
 	// ContainerInitialResourceLimitMemory is recommended initial memory limit
 	ContainerInitialResourceLimitMemory containerField = "initial_resource_limit_memory"
+	// ContainerStartTime is recommended start time
+	ContainerStartTime containerField = "start_time"
+	// ContainerEndTime is recommended end time
+	ContainerEndTime containerField = "end_time"
 )
 
 var (

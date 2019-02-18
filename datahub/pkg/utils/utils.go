@@ -84,3 +84,12 @@ func StringToInt64(str string) (int64, error) {
 		return 0, err
 	}
 }
+
+// StringToFloat64 parse str to float64
+func StringToFloat64(str string) (float64, error) {
+	if val, err := strconv.ParseFloat(str, 64); err == nil {
+		return val, err
+	} else {
+		return 0, err
+	}
+}
