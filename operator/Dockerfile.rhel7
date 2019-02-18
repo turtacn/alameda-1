@@ -1,10 +1,4 @@
-
-# TODO reference security
-# https://access.redhat.com/containers/?architecture=AMD64&tab=docker-file#/registry.access.redhat.com/openshift3/ose-cluster-monitoring-operator/images/v3.11.69-11
-# https://access.redhat.com/containers/?tab=docker-file#/registry.access.redhat.com/openshift3/ose-kube-rbac-proxy/images/v3.11.69-3
-# https://github.com/openshift/cluster-monitoring-operator/blob/master/Dockerfile.rhel7
-# Build the manager binary
-FROM registry.access.redhat.com/devtools/go-toolset-1.10-rhel7 as builder
+FROM docker-registry.default.svc:5000/federatorai-tools/go-toolset-1.10-rhel7:1.10.3-15 as builder
 
 # Copy in the go src
 WORKDIR /opt/app-root/src/go/src/github.com/containers-ai/alameda
@@ -14,7 +8,7 @@ ADD . .
 RUN /bin/bash -c 'go build -a -o ./operator/manager github.com/containers-ai/alameda/operator/cmd/manager'
 
 # Copy the controller-manager into a thin image
-FROM registry.access.redhat.com/rhscl/s2i-core-rhel7:1-47
+FROM docker-registry.default.svc:5000/federatorai-tools/s2i-core-rhel7:1-51
 ENV SUMMARY="Alameda Controller (code name: Karina) 0.2 is a controller for reconciling Alameda scaling configuration CRD."	\
     DESCRIPTION="Alameda Controller (code name: Karina) 0.2 is a controller for reconciling Alameda scaling configuration CRD." \
     NAME="Karina (Alameda controller)" \
@@ -32,9 +26,10 @@ LABEL summary="$SUMMARY" \
       vendor="Federator AI"
 
 WORKDIR /opt/app-root/src
+COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/LICENSE /licenses/
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/operator/etc/operator.yml /etc/alameda/operator/operator.yml
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/operator/manager .
-EXPOSE 50049/tcp 50050/tcp
+EXPOSE 50050/tcp
 
 RUN chown -R 1001:0 /etc/alameda/operator/ && chown -R 1001:0 ./
 USER 1001
