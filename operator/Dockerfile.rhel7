@@ -1,5 +1,5 @@
 FROM docker-registry.default.svc:5000/federatorai-tools/go-toolset-1.10-rhel7:1.10.3-15 as builder
-
+USER root
 # Copy in the go src
 WORKDIR /opt/app-root/src/go/src/github.com/containers-ai/alameda
 ADD . .
