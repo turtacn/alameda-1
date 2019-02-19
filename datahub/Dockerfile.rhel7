@@ -1,4 +1,4 @@
-FROM docker-registry.default.svc:5000/federatorai-tools/go-toolset-1.10-rhel7:1.10.3-15 as builder
+FROM registry.access.redhat.com/devtools/go-toolset-1.10-rhel7:1.10.3-15 as builder
 USER root
 # Copy in the go src
 WORKDIR /opt/app-root/src/go/src/github.com/containers-ai/alameda
@@ -8,7 +8,7 @@ ADD . .
 RUN /bin/bash -c 'go build -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd'
 
 # Copy the controller-manager into a thin image
-FROM docker-registry.default.svc:5000/federatorai-tools/s2i-core-rhel7:1-51
+FROM registry.access.redhat.com/rhscl/s2i-core-rhel7:1-51
 ENV SUMMARY="Alameda Datahub (code name: Lorida) 0.2  is an API gateway for handling gRPC requests."	\
     DESCRIPTION="Alameda Datahub (code name: Lorida) 0.2  is an API gateway for handling gRPC requests." \
     NAME="Lorida (Alameda datahub)" \
