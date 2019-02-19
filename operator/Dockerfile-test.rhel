@@ -1,29 +1,24 @@
-FROM openshift3/ose-base:v3.11.69.20190123.135738
+FROM registry.redhat.io/rhel-atomic
 
-ENV GOPATH /go
-ENV PATH="${PATH}:${GOPATH}/bin"
-RUN mkdir $GOPATH
+MAINTAINER connect-tech@redhat.com
 
-# COPY . $GOPATH/src/github.com/openshift/cluster-monitoring-operator
+### Atomic/OpenShift Labels - https://github.com/projectatomic/ContainerApplicationGenericLabels
+LABEL name="WebServer-Atomic" \
+      maintainer="connect-tech@redhat.com" \
+      vendor="RHC" \
+      version="1.2-1" \
+      release="1" \
+      summary="WebServer Example" \
+      description="Starter app will build a webserver" \
 
-# RUN yum install -y golang make git && \
-#     cd $GOPATH/src/github.com/openshift/cluster-monitoring-operator && \
-#     make operator-no-deps && cp $GOPATH/src/github.com/openshift/cluster-monitoring-operator/operator /usr/bin/ && \
-#     yum autoremove -y golang make git && yum clean all
+### add licenses to this directory
+COPY licenses /licenses
 
+### Add your package needs here
+RUN INSTALL_PKGS="httpd" && \
 
-# doesn't require a root user.
-USER 1001
-
-# ENTRYPOINT ["/usr/bin/operator"]
-
-LABEL \
-        io.k8s.description="This is a component of Alameda." \
-        com.redhat.component="cluster-container" \
-        maintainer=" " \
-        name="alameda/alameda-controller" \
-        License="ASL 2.0" \
-        io.k8s.display-name="OpenShift cluster-monitoring-operator" \
-        version="v3.11.69" \
-        vendor="Red Hat" \
-        io.openshift.tags="openshift"
+### Add necessary Red Hat repos here
+    microdnf --enablerepo=rhel-7-server-rpms --enablerepo=rhel-7-server-optional-rpms \
+      install --nodocs ${INSTALL_PKGS} && \
+    microdnf remove ${INSTALL_PKGS} && \
+    microdnf clean all
