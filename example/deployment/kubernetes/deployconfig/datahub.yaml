@@ -93,7 +93,7 @@ spec:
         - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
           value: alameda
         - name: ALAMEDA_DATAHUB_PROMETHEUS_TLS_CONFIG_INSECURE_SKIP_VERIFY
-          value: true
+          value: "true"
         - name: ALAMEDA_DATAHUB_PROMETHEUS_BEARER_TOKEN_FILE
           value: /var/run/secrets/kubernetes.io/serviceaccount/token
         - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
