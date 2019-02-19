@@ -1,4 +1,5 @@
-FROM docker-registry.default.svc:5000/federatorai-tools/go-toolset-1.10-rhel7:1.10.3-15 as builder
+# This Dockerfile is used for building alameda-datahub on https://connect.redhat.com
+FROM registry.access.redhat.com/devtools/go-toolset-1.10-rhel7:1.10.3-15 as builder
 USER root
 # Copy in the go src
 WORKDIR /opt/app-root/src/go/src/github.com/containers-ai/alameda
@@ -8,7 +9,7 @@ ADD . .
 RUN /bin/bash -c 'go build -a -o ./operator/manager github.com/containers-ai/alameda/operator/cmd/manager'
 
 # Copy the controller-manager into a thin image
-FROM docker-registry.default.svc:5000/federatorai-tools/s2i-core-rhel7:1-51
+FROM registry.access.redhat.com/rhscl/s2i-core-rhel7:1-51
 ENV SUMMARY="Alameda Controller (code name: Karina) 0.2 is a controller for reconciling Alameda scaling configuration CRD."	\
     DESCRIPTION="Alameda Controller (code name: Karina) 0.2 is a controller for reconciling Alameda scaling configuration CRD." \
     NAME="Karina (Alameda controller)" \
