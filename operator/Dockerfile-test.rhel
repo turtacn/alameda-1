@@ -1,0 +1,29 @@
+FROM openshift3/ose-base:v3.11.69.20190123.135738
+
+ENV GOPATH /go
+ENV PATH="${PATH}:${GOPATH}/bin"
+RUN mkdir $GOPATH
+
+# COPY . $GOPATH/src/github.com/openshift/cluster-monitoring-operator
+
+# RUN yum install -y golang make git && \
+#     cd $GOPATH/src/github.com/openshift/cluster-monitoring-operator && \
+#     make operator-no-deps && cp $GOPATH/src/github.com/openshift/cluster-monitoring-operator/operator /usr/bin/ && \
+#     yum autoremove -y golang make git && yum clean all
+
+
+# doesn't require a root user.
+USER 1001
+
+# ENTRYPOINT ["/usr/bin/operator"]
+
+LABEL \
+        io.k8s.description="This is a component of Alameda." \
+        com.redhat.component="cluster-container" \
+        maintainer=" " \
+        name="alameda/alameda-controller" \
+        License="ASL 2.0" \
+        io.k8s.display-name="OpenShift cluster-monitoring-operator" \
+        version="v3.11.69" \
+        vendor="Red Hat" \
+        io.openshift.tags="openshift"
