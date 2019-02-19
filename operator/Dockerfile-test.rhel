@@ -1,24 +1,33 @@
-FROM registry.redhat.io/rhel-atomic
-
+FROM registry.redhat.io/rhel7/rhel
 MAINTAINER connect-tech@redhat.com
 
-### Atomic/OpenShift Labels - https://github.com/projectatomic/ContainerApplicationGenericLabels
-LABEL name="WebServer-Atomic" \
-      maintainer="connect-tech@redhat.com" \
-      vendor="RHC" \
+### Required Atomic/OpenShift Labels - https://github.com/projectatomic/ContainerApplicationGenericLabels#####
+LABEL name="Web-app" \
+      vendor="Example-Web-App" \
       version="1.2-1" \
-      release="1" \
-      summary="WebServer Example" \
-      description="Starter app will build a webserver" \
+      release="3" \
+      run='docker run -d -p 8080:80 --name=web-app web-app' \
+      summary="Example Corp's Starter app" \
+      description="Starter app will do build a webserver" 
 
-### add licenses to this directory
-# COPY licenses /licenses
 
-### Add your package needs here
-RUN INSTALL_PKGS="httpd" && \
+COPY LICENSE /licenses
 
 ### Add necessary Red Hat repos here
-    microdnf --enablerepo=rhel-7-server-rpms --enablerepo=rhel-7-server-optional-rpms \
-      install --nodocs ${INSTALL_PKGS} && \
-    microdnf remove ${INSTALL_PKGS} && \
-    microdnf clean all
+RUN REPOLIST=rhel-7-server-rpms,rhel-7-server-optional-rpms \
+### Add your package needs here
+    INSTALL_PKGS="httpd" && \
+    yum -y update-minimal --disablerepo "*" --enablerepo rhel-7-server-rpms --setopt=tsflags=nodocs \
+      --security --sec-severity=Important --sec-severity=Critical && \
+    yum -y install --disablerepo "*" --enablerepo ${REPOLIST} --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
+    yum clean all
+
+
+# Install the application
+RUN echo "This container image was build on:" > /var/www/html/index.html
+RUN date >> /var/www/html/index.html
+EXPOSE 8080
+
+#Start the service
+CMD ["-D", "FOREGROUND"]
+ENTRYPOINT ["/usr/sbin/httpd"]
