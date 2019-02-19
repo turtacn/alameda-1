@@ -12,7 +12,7 @@ LABEL name="WebServer-Atomic" \
       description="Starter app will build a webserver" \
 
 ### add licenses to this directory
-COPY licenses /licenses
+# COPY licenses /licenses
 
 ### Add your package needs here
 RUN INSTALL_PKGS="httpd" && \
