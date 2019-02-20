@@ -1,13 +1,13 @@
 package metric
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryAvailableBytes"
 	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryBytesTotal"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	"github.com/pkg/errors"
 )
 
 // NodeMemoryUsageBytesRepository Repository to access metric from prometheus
@@ -41,7 +41,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, s
 
 	prometheusClient, err = prometheus.New(n.PrometheusConfig)
 	if err != nil {
-		return entities, errors.New("ListMetricsByNodeName failed: " + err.Error())
+		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	}
 
 	nodeMemoryBytesTotalMetricName = nodeMemoryBytesTotal.MetricName
@@ -57,14 +57,14 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, s
 
 	response, err = prometheusClient.QueryRange(queryExpression, startTime, endTime, stepTime)
 	if err != nil {
-		return entities, errors.New("ListMetricsByNodeName failed: " + err.Error())
+		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	} else if response.Status != prometheus.StatusSuccess {
-		return entities, errors.New("ListMetricsByNodeName failed: receive error response from prometheus: " + response.Error)
+		return entities, errors.Errorf("list node memory usage by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
 	entities, err = response.GetEntitis()
 	if err != nil {
-		return entities, errors.New("ListMetricsByNodeName failed: " + err.Error())
+		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	}
 
 	return entities, nil

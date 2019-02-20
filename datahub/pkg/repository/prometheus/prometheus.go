@@ -3,7 +3,6 @@ package prometheus
 import (
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -129,7 +129,7 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 
 	u, err = url.Parse(p.config.URL + endpoint)
 	if err != nil {
-		return Response{}, errors.New("QueryRange failed: url parse failed: " + err.Error())
+		return Response{}, errors.New("prometheus query_range failed: url parse failed: " + err.Error())
 	}
 	u.RawQuery = queryParameters.Encode()
 
@@ -146,11 +146,11 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 
 	httpResponse, err = p.client.Do(httpRequest)
 	if err != nil {
-		return Response{}, errors.New("QueryRange failed: send http request failed" + err.Error())
+		return Response{}, errors.New("prometheus query_range failed: send http request failed" + err.Error())
 	}
 	err = decodeHTTPResponse(httpResponse, &response)
 	if err != nil {
-		return Response{}, errors.New("QueryRange failed: " + err.Error())
+		return Response{}, errors.Wrap(err, "prometheus query_range failed")
 	}
 
 	defer p.Close()

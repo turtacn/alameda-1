@@ -2,7 +2,6 @@ package clusterstatus
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	proto_timestmap "github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -182,7 +182,6 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub
 
 	containersEntityBeforeDelete, err = containerRepository.ListPodsContainers(pods)
 	if err != nil {
-		return errors.New("delete containers failed: " + err.Error())
 	}
 	for _, containerEntity := range containersEntityBeforeDelete {
 		entity := *containerEntity
@@ -191,7 +190,7 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub
 		entity.IsDeleted = &trueValue
 		point, err := entity.InfluxDBPoint(string(Container))
 		if err != nil {
-			return errors.New("delete containers failed: " + err.Error())
+			return errors.Wrap(err, "delete containers failed")
 		}
 
 		pointsToDelete = append(pointsToDelete, point)
@@ -240,7 +239,7 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 	cmd = fmt.Sprintf("%s where %s", cmdSelectString, cmdTagsFilterString)
 	results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
 	if err != nil {
-		return containerEntities, errors.New("list containers' entity failed: " + err.Error())
+		return containerEntities, errors.Wrap(err, "list pod containers failed")
 	}
 
 	rows := influxdb.PackMap(results)

@@ -1,12 +1,12 @@
 package metric
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	"github.com/pkg/errors"
 )
 
 // NodeCPUUsagePercentageRepository Repository to access metric node:node_cpu_utilisation:avg1m from prometheus
@@ -38,7 +38,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 
 	prometheusClient, err = prometheus.New(n.PrometheusConfig)
 	if err != nil {
-		return entities, errors.New("ListMetricsByNodeName failed: " + err.Error())
+		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
 	metricName = nodeCPUUsagePercentage.MetricName
@@ -52,14 +52,14 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 
 	response, err = prometheusClient.QueryRange(queryExpression, startTime, endTime, stepTime)
 	if err != nil {
-		return entities, errors.New("ListMetricsByNodeName failed: " + err.Error())
+		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	} else if response.Status != prometheus.StatusSuccess {
-		return entities, errors.New("ListMetricsByNodeName failed: receive error response from prometheus: " + response.Error)
+		return entities, errors.Errorf("list node cpu usage metrics by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
 	entities, err = response.GetEntitis()
 	if err != nil {
-		return entities, errors.New("ListMetricsByNodeName failed: " + err.Error())
+		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
 	return entities, nil

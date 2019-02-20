@@ -1,8 +1,9 @@
 package influxdb
 
 import (
-	"errors"
 	"net/url"
+
+	"github.com/pkg/errors"
 )
 
 const (

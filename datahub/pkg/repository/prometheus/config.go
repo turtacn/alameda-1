@@ -1,7 +1,7 @@
 package prometheus
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	"net/url"
 )
 
@@ -44,7 +44,7 @@ func (c *Config) Validate() error {
 
 	_, err = url.Parse(c.URL)
 	if err != nil {
-		return errors.New("prometheus config validate failed: " + err.Error())
+		return errors.Errorf("prometheus config validate failed: %s", err.Error())
 	}
 
 	return nil

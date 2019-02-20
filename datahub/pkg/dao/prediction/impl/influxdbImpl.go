@@ -1,13 +1,12 @@
 package impl
 
 import (
-	"errors"
-
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	influxdb_container_preditcion_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/container"
 	influxdb_node_preditcion_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/node"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_preditcion "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/prediction"
+	"github.com/pkg/errors"
 )
 
 type influxDB struct {
@@ -34,7 +33,7 @@ func (i influxDB) CreateContainerPredictions(containerPredictions []*prediction.
 
 	err = predictionRepo.CreateContainerPrediction(containerPredictions)
 	if err != nil {
-		return errors.New("create container prediction failed: " + err.Error())
+		return errors.Wrap(err, "create container prediction failed")
 	}
 
 	return nil
@@ -56,7 +55,7 @@ func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsReques
 
 	influxDBContainerPredictionEntities, err = predictionRepo.ListContainerPredictionsByRequest(request)
 	if err != nil {
-		return podsPredictionMap, errors.New("list pod prediction failed: " + err.Error())
+		return podsPredictionMap, errors.Wrap(err, "list pod prediction failed")
 	}
 
 	for _, entity := range influxDBContainerPredictionEntities {
@@ -81,7 +80,7 @@ func (i influxDB) CreateNodePredictions(nodePredictions []*prediction.NodePredic
 
 	err = predictionRepo.CreateNodePrediction(nodePredictions)
 	if err != nil {
-		return errors.New("create node prediction failed: ")
+		return errors.Wrap(err, "create node prediction failed")
 	}
 
 	return nil
@@ -103,7 +102,7 @@ func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequ
 
 	influxDBNodePredictionEntities, err = predictionRepo.ListNodePredictionsByRequest(request)
 	if err != nil {
-		return nodesPredictionMap, errors.New("create container prediction failed: ")
+		return nodesPredictionMap, errors.Wrap(err, "list node prediction failed")
 	}
 
 	for _, entity := range influxDBNodePredictionEntities {
