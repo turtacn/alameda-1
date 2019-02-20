@@ -27,8 +27,9 @@ It is recommended to use Kubernetes 1.9 or greater. Please follow [Kubernetes se
     sysctl net.bridge.bridge-nf-call-iptables=1
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
     ```
+    
 - **A docker registry where to download Alameda component images**  
-For now, Alameda component images are not yet in any public docker registry such as [docker hub](https://hub.docker.com/). We assume they are already built in local docker repositories and pulled by Kubernetes locally (All nodes in the cluster should have the same pre-pulled images). Please refer to [Build](https://github.com/containers-ai/alameda/blob/master/design/build.md) document for how to build Alameda component images and [pre-pulled images](https://kubernetes.io/docs/concepts/containers/images/#pre-pulling-images) for how Kubernetes pulls images from local docker repositories.
+For now, Alameda component images are not yet in any public docker registry such as [docker hub](https://hub.docker.com/). We assume they are already built in local docker repositories and pulled by Kubernetes locally (All nodes in the cluster should have the same pre-pulled images). Please refer to [Build](https://github.com/containers-ai/alameda/blob/master/docs/build.md) document for how to build Alameda component images and [pre-pulled images](https://kubernetes.io/docs/concepts/containers/images/#pre-pulling-images) for how Kubernetes pulls images from local docker repositories.
 
 As showed in the [Alameda architecture design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), Alameda includes several components. The following gives an example to deploy them.
 
@@ -94,7 +95,7 @@ groups:
       record: node:node_memory_bytes_total:sum
 ```
 
-## Deploy Operator, datahub and Alameda-ai Components
+## Deploy Operator, Datahub and Alameda-ai Components
 
 In the next, we will:
 - Create a *alameda* namespace, service accounts and required RBAC settings

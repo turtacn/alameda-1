@@ -5,20 +5,6 @@ metadata:
   name: alameda
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: operator
-  namespace: alameda
-  labels:
-    app: operator
-spec:
-  selector:
-    app: operator
-  ports:
-  - port: 50050
-    name: grpc
----
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: operator
@@ -35,6 +21,7 @@ rules:
   resources:
   - nodes
   - pods
+  - replicationcontrollers
   verbs:
   - get
   - list
@@ -42,6 +29,7 @@ rules:
 - apiGroups:
   - apps
   resources:
+  - replicasets
   - deployments
   verbs:
   - get
@@ -51,6 +39,14 @@ rules:
   - update
   - patch
   - delete
+- apiGroups:
+  - apps.openshift.io
+  resources:
+  - deploymentconfigs
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - autoscaling.containers.ai
   resources:
@@ -64,6 +60,12 @@ rules:
   - update
   - patch
   - delete
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedascalers/finalizers
+  verbs:
+  - update
 # Permission for query prometheus under namespace openshift-monitoring 
 - apiGroups: 
   - ""

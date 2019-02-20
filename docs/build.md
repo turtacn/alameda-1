@@ -20,13 +20,6 @@ $ cd alameda/datahub
 $ docker build ./.. -t datahub:latest -f Dockerfile
 ```
 
-## Build alameda-ai
-```
-git clone https://github.com/containers-ai/alameda-ai.git
-cd alameda-ai
-docker build -t alameda-ai .
-```
-
 ## Build Grafana
 
 Alameda adds templates and json backend customization to visualize predicted metrics. Please use the following commands to build a customized Grafana image.
