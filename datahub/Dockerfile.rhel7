@@ -35,3 +35,4 @@ EXPOSE 50050/tcp
 RUN chown -R 1001:0 /etc/alameda/datahub/ && chown -R 1001:0 ./
 USER 1001
 ENTRYPOINT ["./datahub"]
+CMD [ "run" ]

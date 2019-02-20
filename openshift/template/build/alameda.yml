@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: alameda-build
+  annotations:
+    openshift.io/display-name: "Alameda Build to Dockerhub"
+    description: "Alameda Build to Dockerhub"
+    iconClass: "icon-openshift"
+    tags: "alameda, build"
+labels:
+  template: alameda
+  app: alameda
+objects:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: "${ALAMEDA_NAME}-docker"
+    # namespace: ${NAMESPACE}
+  data:
+    .dockerconfigjson: "${ALAMEDA_DOCKERHUB_CONFIG}"
+  type: kubernetes.io/dockerconfigjson
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "${ALAMEDA_NAME}-operator"
+    annotations:
+      description: Defines how to build the application alameda-operator
+      template.alpha.openshift.io/wait-for-ready: "true"
+    # namespace: ${NAMESPACE}
+  spec:
+    output:
+      to:
+        kind: DockerImage
+        name: "containersai/alameda-operator:latest"
+      pushSecret:
+        name: "${ALAMEDA_NAME}-docker"        
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: "${ALAMEDA_CONTEXT_DIR}"
+      git:
+        uri: "${ALAMEDA_REPOSITORY_URL}"
+        ref: "${ALAMEDA_REPOSITORY_REF}"
+      type: Git
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "./operator/Dockerfile"
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${ALAMEDA_GITHUB_WEBHOOK_SECRET}"
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "${ALAMEDA_NAME}-datahub"
+    annotations:
+      description: Defines how to build the application alameda-datahub
+      template.alpha.openshift.io/wait-for-ready: "true"
+    # namespace: ${NAMESPACE}
+  spec:
+    output:
+      to:
+        kind: DockerImage
+        name: "containersai/alameda-datahub:latest"
+      pushSecret:
+        name: "${ALAMEDA_NAME}-docker"        
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: "${ALAMEDA_CONTEXT_DIR}"
+      git:
+        uri: "${ALAMEDA_REPOSITORY_URL}"
+        ref: "${ALAMEDA_REPOSITORY_REF}"
+      type: Git
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "./datahub/Dockerfile"
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${ALAMEDA_GITHUB_WEBHOOK_SECRET}"
+parameters:
+- name: ALAMEDA_NAME
+  displayName: Datahub Name
+  description: The name assigned to all of the alameda build objects defined in this template.
+  required: true
+  value: alameda
+- name: ALAMEDA_DOCKERHUB_CONFIG
+  displayName: DockerHub config json
+  required: true
+  description: The DockerHub config json encoded with base64.
+  value:
+- name: ALAMEDA_REPOSITORY_URL
+  displayName: Alameda Git Repository URL
+  required: true
+  description: The URL of the repository with your application source code.
+  value: https://github.com/containers-ai/alameda
+- name: ALAMEDA_REPOSITORY_REF
+  displayName: Git Reference
+  description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch.
+- name: ALAMEDA_CONTEXT_DIR
+  displayName: Context Directory
+  description: Set this to the relative path to your project if it is not in the root
+    of your repository.
+- name: ALAMEDA_GITHUB_WEBHOOK_SECRET
+  displayName: GitHub Webhook Secret
+  description: Github trigger secret.  A difficult to guess string encoded as part
+    of the webhook URL.  Not encrypted.
+  generate: expression
+  from: "[a-zA-Z0-9]{40}"  

@@ -189,7 +189,7 @@ objects:
           - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
             value: https://prometheus-k8s.openshift-monitoring.svc:9091
         serviceAccount: alameda-datahub
-        serviceAccountName: alameda-datahub            
+        serviceAccountName: alameda-datahub
 parameters:
 - name: ALAMEDA_NAMESPACE
   displayName: Name of the alameda namespace

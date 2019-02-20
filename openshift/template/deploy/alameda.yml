@@ -1,0 +1,431 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: alameda-deploy
+  annotations:
+    openshift.io/display-name: "Alameda Deploy"
+    description: "Alameda Deploy"
+    iconClass: "icon-openshift"
+    tags: "alameda, build"
+labels:
+  template: alameda
+  app: alameda
+objects:
+- apiVersion: apiextensions.k8s.io/v1beta1
+  kind: CustomResourceDefinition
+  metadata:
+    labels:
+      controller-tools.k8s.io: "1.0"
+    name: alamedarecommendations.autoscaling.containers.ai
+  spec:
+    group: autoscaling.containers.ai
+    names:
+      kind: AlamedaRecommendation
+      plural: alamedarecommendations
+    scope: Namespaced
+    validation:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              containers:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    resources:
+                      type: object
+                  required:
+                  - name
+                  type: object
+                type: array
+            required:
+            - containers
+            type: object
+          status:
+            type: object
+    version: v1alpha1
+  status:
+    acceptedNames:
+      kind: ""
+      plural: ""
+    conditions: []
+    storedVersions: []
+- apiVersion: apiextensions.k8s.io/v1beta1
+  kind: CustomResourceDefinition
+  metadata:    
+    labels:
+      controller-tools.k8s.io: "1.0"
+    name: alamedascalers.autoscaling.containers.ai
+  spec:
+    group: autoscaling.containers.ai
+    names:
+      kind: AlamedaScaler
+      plural: alamedascalers
+    scope: Namespaced
+    validation:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: >-
+              'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+            type: string
+          kind:
+            description: >-
+              'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              customResourceVersion:
+                type: string
+              enable:
+                type: boolean
+              policy:
+                type: string
+              selector:
+                description: 'Important: Run "make" to regenerate code after modifying this file'
+                type: object
+            required:
+            - selector
+            - enable
+            type: object
+          status:
+            properties:
+              alamedaController:
+                properties:
+                  deploymentconfigs:
+                    type: object
+                  deployments:
+                    type: object
+                required:
+                - deployments
+                - deploymentconfigs
+                type: object
+            type: object
+    version: v1alpha1
+  status:
+    acceptedNames:
+      kind: ""
+      plural: ""
+    conditions: []
+    storedVersions: []
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata:
+    name: "alameda-datahub-${PROJECT_NAME}"
+  rules:
+  # Permission for query prometheus under namespace openshift-monitoring 
+  - apiGroups: 
+    - ""
+    resources: 
+    - namespaces
+    verbs: 
+    - get
+  - apiGroups:
+    - autoscaling.containers.ai
+    resources:
+    - alamedarecommendations
+    verbs:
+    - get
+    - update
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata:
+    creationTimestamp: null
+    name: "alameda-operator-${PROJECT_NAME}"
+  rules:
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    - pods
+    - replicationcontrollers
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - apps
+    resources:
+    - replicasets
+    - deployments
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+  - apiGroups:
+    - apps.openshift.io
+    resources:
+    - deploymentconfigs
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - autoscaling.containers.ai
+    resources:
+    - alamedascalers
+    - alamedarecommendations
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+  - apiGroups:
+    - autoscaling.containers.ai
+    resources:
+    - alamedascalers/finalizers
+    verbs:
+    - update
+  # Permission for query prometheus under namespace openshift-monitoring 
+  - apiGroups: 
+    - ""
+    resources: 
+    - namespaces
+    verbs: 
+    - get
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: "alameda-datahub-${PROJECT_NAME}"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: "alameda-datahub-${PROJECT_NAME}"
+  subjects:
+  - kind: ServiceAccount
+    name: alameda-datahub
+    namespace: "${PROJECT_NAME}"
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: "alameda-operator-${PROJECT_NAME}"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: "alameda-operator-${PROJECT_NAME}"
+  subjects:
+  - kind: ServiceAccount
+    name: alameda-operator
+    namespace: "${PROJECT_NAME}"
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    # This name is related to ClusterRoleBinding in alameda-crd-rbac.yaml.
+    name: alameda-datahub
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: alameda-datahub-tls
+    labels:
+      app: alameda-influxdb
+    name: alameda-influxdb
+  spec:
+    ports:
+    - port: 8086
+      targetPort: 8086
+    selector:
+      app: alameda-influxdb
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: alameda-influxdb
+    annotations:
+      description: Defines how to deploy the application influxdb
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+        app: alameda-influxdb
+    template:
+      metadata:
+        labels:
+          app: alameda-influxdb
+      spec:
+        # securityContext:
+        #   runAsUser: 1000
+        containers:
+        - name: influxdb
+          image: influxdb:1.7-alpine
+          env:
+          - name: INFLUXDB_REPORTING_DISABLED
+            value: "true"
+          - name: INFLUXDB_HTTP_HTTPS_ENABLED
+            value: "true"
+          - name: INFLUXDB_HTTP_HTTPS_CERTIFICATE
+            value: "/etc/tls/private/tls.crt"
+          - name: INFLUXDB_HTTP_HTTPS_PRIVATE_KEY
+            value: "/etc/tls/private/tls.key"
+          - name: INFLUXDB_HTTP_AUTH_ENABLED
+            value: "true"
+          - name: INFLUXDB_ADMIN_USER
+            value: "admin"
+          - name: INFLUXDB_ADMIN_PASSWORD
+            value: "adminpass"
+          - name: INFLUXDB_USER
+            value: "user"
+          - name: INFLUXDB_USER_PASSWORD
+            value: "userpass"
+          volumeMounts:
+          - mountPath: /etc/tls/private
+            name: alameda-datahub-tls
+            readOnly: false
+          - mountPath: /var/lib/influxdb
+            name: influxdb-storage
+        volumes:
+        - name: influxdb-storage
+          emptyDir: {}
+        - name: alameda-datahub-tls
+          secret:
+            secretName: alameda-datahub-tls
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: alameda-datahub
+    name: alameda-datahub
+  spec:
+    ports:
+    - name: grpc
+      port: 50050
+    selector:
+      app: alameda-datahub
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: alameda-datahub
+    annotations:
+      description: Defines how to deploy the application alameda-datahub
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+      app: alameda-datahub
+    template:
+      metadata:
+        name: alameda-datahub
+        labels:
+          app: alameda-datahub
+      spec:
+        containers:
+        - name: alameda-datahub
+          image: containersai/alameda-datahub:latest
+          env:
+          - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
+            value: https://alameda-influxdb.${PROJECT_NAME}.svc:8086
+          - name: ALAMEDA_DATAHUB_INFLUXDB_USERNAME
+            value: admin
+          - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
+            value: adminpass
+          - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
+            value: https://prometheus-k8s.openshift-monitoring.svc:9091
+        serviceAccount: alameda-datahub
+        serviceAccountName: alameda-datahub
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    # This name is related to ClusterRoleBinding in alameda-crd-rbac.yaml. DO NOT EDIT
+    name: alameda-operator
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: alameda-operator
+    annotations:
+      description: Defines how to deploy the application alameda-operator
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+      app: alameda-operator
+    template:
+      metadata:
+        name: alameda-operator
+        labels:
+          app: alameda-operator
+      spec:
+        containers:
+        - name: alameda-operator
+          image: containersai/alameda-operator:latest
+          env:
+          - name: ALAMEDA_DATAHUB_ADDRESS
+            value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
+        serviceAccount: alameda-operator
+        serviceAccountName: alameda-operator
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: "alameda-docker"
+    # namespace: ${NAMESPACE}
+  data:
+    .dockerconfigjson: "${ALAMEDA_DOCKERHUB_CONFIG}"
+  type: kubernetes.io/dockerconfigjson
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: alameda-ai
+  imagePullSecrets:
+    - name: "alameda-docker"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: alameda-ai
+    annotations:
+      description: Defines how to deploy the application alameda-ai
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+      name: alameda-ai
+    template:
+      metadata:
+        name: alameda-ai
+        labels:
+          name: alameda-ai
+      spec:
+        containers:
+        - name: alameda-ai-engine
+          image: containersai/alameda-ai:latest
+          ports:
+          - containerPort: 50051
+            protocol: TCP
+          resources: {}
+          env:
+          - name: OPERATOR_ADDRESS
+            value: "alameda-operator.${PROJECT_NAME}.svc.cluster.local:50050"
+          - name: DATAHUB_ADDRESS
+            value: "alameda-datahub.${PROJECT_NAME}.svc.cluster.local:50050"
+        securityContext:
+          runAsUser: 0
+        serviceAccount: alameda-ai
+        serviceAccountName: alameda-ai
+parameters:
+- name: PROJECT_NAME
+  displayName: alameda namespace
+  description: The project name to deploy alameda.
+  required: true
+  value: ""
+- name: ALAMEDA_DOCKERHUB_CONFIG
+  displayName: DockerHub config json
+  required: true
+  description: The DockerHub config json encoded with base64.
+  value: ""

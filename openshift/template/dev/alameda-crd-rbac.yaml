@@ -227,18 +227,10 @@ objects:
   subjects:
   - kind: ServiceAccount
     name: alameda-operator
-    namespace: "{.metadata.name}"
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: my-template-config
-    annotations:
-      template.openshift.io/expose-username: "{.data['my\\.username']}"
-  data:
-    my.username: foo    
+    namespace: "${PROJECT_NAME}"
 parameters:
 - name: PROJECT_NAME
   displayName: alameda-dev namespace
   description: The project name assigned to the ServiceAccount.
   required: true
-  value: "1"
+  value: ""

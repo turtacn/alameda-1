@@ -97,7 +97,7 @@ objects:
           - name: ALAMEDA_DATAHUB_ADDRESS
             value: "${ALAMEDA_DATAHUB_NAME}.${ALAMEDA_NAMESPACE}.svc:50050"
         serviceAccount: alameda-operator
-        serviceAccountName: alameda-operator             
+        serviceAccountName: alameda-operator
 parameters:
 - name: ALAMEDA_NAMESPACE
   displayName: Name of the alameda namespace
