@@ -29,10 +29,7 @@
   branch = "master"
   digest = "1:b8666c9d2e7c705756263d42dfbe60ec1c7d8d47b273065e4a794ec7d8f4143a"
   name = "github.com/containers-ai/api"
-  packages = [
-    "alameda_api/v1alpha1/ai_service",
-    "alameda_api/v1alpha1/datahub",
-  ]
+  packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
   revision = "4302d88f307b02744c6055c6fe85605826c4c38f"
 
@@ -54,14 +51,6 @@
   pruneopts = "T"
   revision = "3eb9738c1697594ea6e71a7156a9bb32ed216cf0"
   version = "v2.8.0"
-
-[[projects]]
-  digest = "1:90171b862cb6ec187304a593e4d78bfcbcf0f4394870eb66e0eb62cc06b144ad"
-  name = "github.com/evanphx/json-patch"
-  packages = ["."]
-  pruneopts = "T"
-  revision = "72bf35d0ff611848c1dc9df0f976c81192392fa5"
-  version = "v4.1.0"
 
 [[projects]]
   digest = "1:7fc160b460a6fc506b37fcca68332464c3f2cd57b6e3f111f26c5bbfd2d5518e"
@@ -890,7 +879,6 @@
   name = "k8s.io/client-go"
   packages = [
     "discovery",
-    "discovery/fake",
     "dynamic",
     "kubernetes",
     "kubernetes/scheme",
@@ -935,7 +923,6 @@
     "rest",
     "rest/watch",
     "restmapper",
-    "testing",
     "third_party/forked/golang/template",
     "tools/auth",
     "tools/cache",
@@ -1096,7 +1083,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/emicklei/go-restful",
     "github.com/golang/protobuf/ptypes",
@@ -1127,20 +1113,14 @@
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/api/resource",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
-    "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
-    "k8s.io/apimachinery/pkg/runtime/serializer",
+    "k8s.io/apimachinery/pkg/runtime/serializer/json",
     "k8s.io/apimachinery/pkg/types",
-    "k8s.io/apimachinery/pkg/util/runtime",
-    "k8s.io/apimachinery/pkg/watch",
-    "k8s.io/client-go/discovery",
-    "k8s.io/client-go/discovery/fake",
+    "k8s.io/apimachinery/pkg/util/wait",
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/plugin/pkg/client/auth/gcp",
     "k8s.io/client-go/rest",
-    "k8s.io/client-go/testing",
-    "k8s.io/client-go/util/flowcontrol",
     "k8s.io/code-generator/cmd/deepcopy-gen",
     "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",
