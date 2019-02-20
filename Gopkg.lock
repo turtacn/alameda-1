@@ -29,7 +29,10 @@
   branch = "master"
   digest = "1:b8666c9d2e7c705756263d42dfbe60ec1c7d8d47b273065e4a794ec7d8f4143a"
   name = "github.com/containers-ai/api"
-  packages = ["alameda_api/v1alpha1/datahub"]
+  packages = [
+    "alameda_api/v1alpha1/ai_service",
+    "alameda_api/v1alpha1/datahub",
+  ]
   pruneopts = "T"
   revision = "4302d88f307b02744c6055c6fe85605826c4c38f"
 
@@ -51,6 +54,14 @@
   pruneopts = "T"
   revision = "3eb9738c1697594ea6e71a7156a9bb32ed216cf0"
   version = "v2.8.0"
+
+[[projects]]
+  digest = "1:90171b862cb6ec187304a593e4d78bfcbcf0f4394870eb66e0eb62cc06b144ad"
+  name = "github.com/evanphx/json-patch"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "72bf35d0ff611848c1dc9df0f976c81192392fa5"
+  version = "v4.1.0"
 
 [[projects]]
   digest = "1:7fc160b460a6fc506b37fcca68332464c3f2cd57b6e3f111f26c5bbfd2d5518e"
@@ -102,14 +113,6 @@
   pruneopts = "T"
   revision = "636bf0302bc95575d69441b25a2603156ffdddf1"
   version = "v1.1.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:1ba1d79f2810270045c328ae5d674321db34e3aae468eb4233883b473c5c0467"
-  name = "github.com/golang/glog"
-  packages = ["."]
-  pruneopts = "T"
-  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
   branch = "master"
@@ -887,6 +890,7 @@
   name = "k8s.io/client-go"
   packages = [
     "discovery",
+    "discovery/fake",
     "dynamic",
     "kubernetes",
     "kubernetes/scheme",
@@ -931,6 +935,7 @@
     "rest",
     "rest/watch",
     "restmapper",
+    "testing",
     "third_party/forked/golang/template",
     "tools/auth",
     "tools/cache",
@@ -961,7 +966,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e7e1149940784e0b902191de4b579379d1ddf462738575832a6e9e492ed59b0f"
+  digest = "1:56eb477d27b335f2b54cfbb3b08766e8b4083a1184732d698512a7e94a1457f7"
   name = "k8s.io/code-generator"
   packages = [
     "cmd/deepcopy-gen",
@@ -969,11 +974,11 @@
     "pkg/util",
   ]
   pruneopts = "T"
-  revision = "731fd61190482fe9e4b67e30ccb8596966f394dd"
+  revision = "095ce2f23e83e3ee87fb5ff612fabb05e9df0155"
 
 [[projects]]
   branch = "master"
-  digest = "1:f58422ce44ba581f34423e12c951061d139fa3518441b0e791b1f57a6494d603"
+  digest = "1:2b9071c93303f1196cfe959c7f7f69ed1e4a5180f240a259536c5886f79f86d4"
   name = "k8s.io/gengo"
   packages = [
     "args",
@@ -985,7 +990,7 @@
     "types",
   ]
   pruneopts = "T"
-  revision = "4242d8e6c5dba56827bb7bcf14ad11cda38f3991"
+  revision = "0689ccc1d7d65d9dd1bedcc3b0b1ed7df91ba266"
 
 [[projects]]
   digest = "1:7a3ef99d492d30157b8e933624a8f0292b4cee5934c23269f7640c8030eb83cd"
@@ -1091,6 +1096,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/containers-ai/api/alameda_api/v1alpha1/ai_service",
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/emicklei/go-restful",
     "github.com/golang/protobuf/ptypes",
@@ -1117,15 +1123,24 @@
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
+    "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/api/resource",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/labels",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/apimachinery/pkg/runtime/serializer",
     "k8s.io/apimachinery/pkg/types",
+    "k8s.io/apimachinery/pkg/util/runtime",
+    "k8s.io/apimachinery/pkg/watch",
+    "k8s.io/client-go/discovery",
+    "k8s.io/client-go/discovery/fake",
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/plugin/pkg/client/auth/gcp",
     "k8s.io/client-go/rest",
+    "k8s.io/client-go/testing",
+    "k8s.io/client-go/util/flowcontrol",
     "k8s.io/code-generator/cmd/deepcopy-gen",
     "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",

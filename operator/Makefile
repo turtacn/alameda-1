@@ -15,7 +15,7 @@ test-log: generate fmt vet manifests
 
 # Build manager binary
 manager: generate fmt vet
-	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``[[ ! -z $(git status -s -uno) ]] && echo \"-dirty\"` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/manager github.com/containers-ai/alameda/operator/cmd/manager
+	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``[ ! -z $(git status -s -uno) ] && echo \"-dirty\"` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/manager github.com/containers-ai/alameda/operator/cmd/manager
 
 .PHONY: run install deploy manifests
 
@@ -35,6 +35,7 @@ deploy: manifests
 # Generate manifests e.g. CRD
 manifests:
 	go run github.com/containers-ai/alameda/vendor/sigs.k8s.io/controller-tools/cmd/controller-gen crd
+	#../vendor/k8s.io/code-generator/generate-groups.sh client github.com/containers-ai/alameda/operator/pkg/client github.com/containers-ai/alameda/operator/pkg/apis "autoscaling:v1alpha1" --go-header-file hack/boilerplate.go.txt
 
 .PHONY: fmt vet generate docker-build docker-push
 
