@@ -1,29 +1,40 @@
+# Alameda insatll with Template
+
+This directory contains OpenShift application templates for Alameda to install [develop](./dev), [build](./build) and [deploy](./deploy). 
+
+The OpenShift Template documentation as [here](https://docs.okd.io/3.11/dev_guide/templates.html)
+
+# Apply Template to OpenShift
+
+Login as admin, then upload the templates for differe enviroment.
+
 ```
-#!/bin/bash
+oc login -u admin
+```
 
-# For local clusters with `oc cluster up` use the following:
-#
-# $ docker-machine create openshift --virtualbox-memory "4096" --engine-insecure-registry 172.30.0.0/16
-#
-# $ oc cluster up --docker-machine=openshift
-#
-# vi /var/lib/origin/openshift.local.config/node-localhost/node-config.yaml
-#
-#   max-pods:
-#   - "40"
-#   pods-per-core:
-#   - "40"
-#
-# docker restart origin
+## Develop
 
-oc create namespace openshift-monitoring
-oc project openshift-monitoring
-oc annotate ns/openshift-monitoring openshift.io/node-selector=
-oc label ns/openshift-monitoring openshift.io/cluster-monitoring=true
+The Template is used to create 
 
-oc apply -f manifests/01-namespace.yaml
-oc apply -f manifests/02-role-binding.yaml
-oc apply -f manifests/02-role.yaml
+```
+oc create -f ./dev/alameda-crd-rbac.yaml
+oc create -f ./dev/alameda-datahub.yaml
+oc create -f ./dev/alameda-operator.yaml
+oc create -f ./dev/alameda-ai.yaml
+```
 
+## Build
 
+The Template is used to create 
+
+```
+oc create -f ./dev/alameda-ai.yaml
+oc create -f ./dev/alameda-rhel7.yaml
+oc create -f ./dev/alameda.yaml
+```
+
+## Deploy
+
+```
+oc create -f ./dev/alameda.yaml
 ```
