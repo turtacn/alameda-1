@@ -2,8 +2,9 @@ package resources
 
 import (
 	"context"
-	"fmt"
 	"strings"
+
+	openshift_apps_v1 "github.com/openshift/api/apps/v1"
 
 	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
@@ -11,6 +12,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -102,44 +104,82 @@ func (listResources *ListResources) ListDeploymentConfigsByLabels(labels map[str
 
 // ListPodsByDeployment return pods by deployment namespace and name
 func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName string) ([]corev1.Pod, error) {
-	deploymentPods := []corev1.Pod{}
-	podList := &corev1.PodList{}
-	if err := listResources.listResourcesByNamespace(podList, deployNS); err != nil {
-		return deploymentPods, err
+	pods := []corev1.Pod{}
+	deploymentIns := &appsv1.Deployment{}
+
+	err := listResources.client.Get(context.TODO(), types.NamespacedName{
+		Namespace: deployNS,
+		Name:      deployName,
+	}, deploymentIns)
+	if err != nil {
+		return pods, err
 	}
 
-	for _, pod := range podList.Items {
-		podName := pod.GetName()
-		for _, or := range pod.GetOwnerReferences() {
-			if *or.Controller && strings.ToLower(or.Kind) == "replicaset" && strings.HasPrefix(podName, fmt.Sprintf("%s-", deployName)) && strings.HasPrefix(podName, fmt.Sprintf("%s-", or.Name)) {
-				deploymentPods = append(deploymentPods, pod)
-				break
+	replicasetListIns := &appsv1.ReplicaSetList{}
+	err = listResources.client.List(context.TODO(),
+		client.InNamespace(deployNS),
+		replicasetListIns)
+	if err != nil {
+		return pods, err
+	}
+
+	for _, replicasetIns := range replicasetListIns.Items {
+		for _, or := range replicasetIns.GetOwnerReferences() {
+			if *or.Controller && strings.ToLower(or.Kind) == "deployment" && or.Name == deployName {
+				podListIns := &corev1.PodList{}
+				err = listResources.client.List(context.TODO(),
+					client.MatchingLabels(replicasetIns.Spec.Selector.MatchLabels),
+					podListIns)
+				if err != nil {
+					listResourcesScope.Error(err.Error())
+					continue
+				}
+				pods = append(pods, podListIns.Items...)
 			}
 		}
 	}
 
-	return deploymentPods, nil
+	return pods, nil
 }
 
 // ListPodsByDeploymentConfig return pods by deployment namespace and name
-func (listResources *ListResources) ListPodsByDeploymentConfig(deployNS, deployConfigName string) ([]corev1.Pod, error) {
-	deploymentConfigPods := []corev1.Pod{}
-	podList := &corev1.PodList{}
-	if err := listResources.listResourcesByNamespace(podList, deployNS); err != nil {
-		return deploymentConfigPods, err
+func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, deployConfigName string) ([]corev1.Pod, error) {
+	pods := []corev1.Pod{}
+	deploymentConfigIns := &openshift_apps_v1.DeploymentConfig{}
+
+	err := listResources.client.Get(context.TODO(), types.NamespacedName{
+		Namespace: deployConfigNS,
+		Name:      deployConfigName,
+	}, deploymentConfigIns)
+	if err != nil {
+		return pods, err
 	}
 
-	for _, pod := range podList.Items {
-		podName := pod.GetName()
-		for _, or := range pod.GetOwnerReferences() {
-			if *or.Controller && strings.ToLower(or.Kind) == "replicationcontroller" && strings.HasPrefix(podName, fmt.Sprintf("%s-", deployConfigName)) && strings.HasPrefix(podName, fmt.Sprintf("%s-", or.Name)) {
-				deploymentConfigPods = append(deploymentConfigPods, pod)
-				break
+	replicationControllerListIns := &corev1.ReplicationControllerList{}
+	err = listResources.client.List(context.TODO(),
+		client.InNamespace(deployConfigNS),
+		replicationControllerListIns)
+	if err != nil {
+		return pods, err
+	}
+
+	for _, replicationControllerIns := range replicationControllerListIns.Items {
+		for _, or := range replicationControllerIns.GetOwnerReferences() {
+			if *or.Controller && strings.ToLower(or.Kind) == "deploymentconfig" && or.Name == deployConfigName {
+				podListIns := &corev1.PodList{}
+				err = listResources.client.List(context.TODO(),
+					client.MatchingLabels(replicationControllerIns.Spec.Selector),
+					podListIns)
+				if err != nil {
+					listResourcesScope.Error(err.Error())
+					continue
+				}
+				pods = append(pods, podListIns.Items...)
 			}
 		}
 	}
 
-	return deploymentConfigPods, nil
+	return pods, nil
 }
 
 // ListAllAlamedaScaler return all AlamedaScaler in cluster

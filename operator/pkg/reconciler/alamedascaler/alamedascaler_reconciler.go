@@ -5,8 +5,8 @@ import (
 
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	utils "github.com/containers-ai/alameda/operator/pkg/utils"
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -120,7 +120,7 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 			alamedaPodNamespace := alamedaPod.GetNamespace()
 			alamedaPodName := alamedaPod.GetName()
 			alamedaPodUID := alamedaPod.GetUID()
-			alamedascalerReconcilerScope.Infof(fmt.Sprintf("Pod (%s/%s) belongs to AlamedaScaler (%s/%s).", alamedaDeploymentNS, alamedaPodName, alamedaScalerNS, alamedaScalerName))
+			alamedascalerReconcilerScope.Debug(fmt.Sprintf("Pod (%s/%s) belongs to AlamedaScaler (%s/%s).", alamedaDeploymentNS, alamedaPodName, alamedaScalerNS, alamedaScalerName))
 			alamedaContainers := []autoscaling_v1alpha1.AlamedaContainer{}
 			for _, alamedaContainer := range alamedaPod.Spec.Containers {
 				alamedaContainers = append(alamedaContainers, autoscaling_v1alpha1.AlamedaContainer{
