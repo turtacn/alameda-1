@@ -14,7 +14,7 @@ oc login -u admin
 
 ## Develop
 
-The Template is used to create 
+The Template is used to create the alameda development enviroment
 
 ```
 oc create -f ./dev/alameda-crd-rbac.yaml
@@ -25,7 +25,7 @@ oc create -f ./dev/alameda-ai.yaml
 
 ## Build
 
-The Template is used to create 
+The Template is used to create the alameda build enviroment
 
 ```
 oc create -f ./dev/alameda-ai.yaml
@@ -34,6 +34,8 @@ oc create -f ./dev/alameda.yaml
 ```
 
 ## Deploy
+
+The Template is used to create the alameda application enviroment
 
 ```
 oc create -f ./dev/alameda.yaml
