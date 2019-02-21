@@ -1,4 +1,4 @@
-# Alameda insatll with Template
+# Install Alameda with Template
 
 This directory contains OpenShift application templates for Alameda to install [develop](./dev), [build](./build) and [deploy](./deploy). 
 
