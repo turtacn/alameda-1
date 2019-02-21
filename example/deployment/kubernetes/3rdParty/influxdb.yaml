@@ -11,14 +11,14 @@ metadata:
     task: monitoring
     # For use as a Cluster add-on (https://github.com/kubernetes/kubernetes/tree/master/cluster/addons)
     # If you are NOT using this as an addon, you should comment out this line.
-    kubernetes.io/cluster-service: 'true'
+    kubernetes.io/cluster-service: "true"
     kubernetes.io/name: influxdb
   name: influxdb
   namespace: monitoring
 spec:
   ports:
-  - port: 8086
-    targetPort: 8086
+    - port: 8086
+      targetPort: 8086
   selector:
     app: influxdb
 ---
@@ -32,7 +32,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: monitoring-influxdb
-  namespace: kube-system
+  namespace: monitoring
 spec:
   replicas: 1
   template:
@@ -42,13 +42,12 @@ spec:
         app: influxdb
     spec:
       containers:
-      - name: influxdb
-        image: influxdb:1.7-alpine
-        volumeMounts:
-        - mountPath: /data
-          name: influxdb-storage
+        - name: influxdb
+          image: influxdb:1.7-alpine
+          volumeMounts:
+            - mountPath: /data
+              name: influxdb-storage
       volumes:
-      - name: influxdb-storage
-        emptyDir: {}
+        - name: influxdb-storage
+          emptyDir: {}
       serviceAccountName: influxdb
-
