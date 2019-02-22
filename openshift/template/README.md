@@ -28,9 +28,9 @@ oc create -f ./dev/alameda-ai.yaml
 The Template is used to create the alameda build enviroment
 
 ```
-oc create -f ./dev/alameda-ai.yaml
-oc create -f ./dev/alameda-rhel7.yaml
-oc create -f ./dev/alameda.yaml
+oc create -f ./build/alameda-ai.yaml
+oc create -f ./build/alameda-rhel7.yaml
+oc create -f ./build/alameda.yaml
 ```
 
 ## Deploy
@@ -38,5 +38,5 @@ oc create -f ./dev/alameda.yaml
 The Template is used to create the alameda application enviroment
 
 ```
-oc create -f ./dev/alameda.yaml
+oc create -f ./deploy/alameda.yaml
 ```
