@@ -68,35 +68,6 @@ apiVersion: autoscaling.containers.ai/v1alpha1
 kind: AlamedaScaler
 metadata:
   annotations:
-    annotation-k8s-controller: |-
-      {
-        "DeploymentMap": {
-          "2e5055f0-f47e-11e8-8913-88d7f6561288": {
-            "UID": "2e5055f0-f47e-11e8-8913-88d7f6561288",
-            "Name": "nginx-deployment",
-            "PodMap": {
-              "74d476c5-f48b-11e8-8913-88d7f6561288": {
-                "UID": "74d476c5-f48b-11e8-8913-88d7f6561288",
-                "Name": "nginx-deployment-88644cb8c-clwrx",
-                "Containers": [
-                  {
-                    "Name": "nginx"
-                  }
-                ]
-              },
-              "cc73a788-f487-11e8-8913-88d7f6561288": {
-                "UID": "cc73a788-f487-11e8-8913-88d7f6561288",
-                "Name": "nginx-deployment-88644cb8c-xbdgj",
-                "Containers": [
-                  {
-                    "Name": "nginx"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaScaler","metadata":{"annotations":{},"name":"alameda","namespace":"alameda"},"spec":{"enable":true,"policy":"compact","selector":{"matchLabels":{"app":"nginx"}}}}
   creationTimestamp: 2018-11-30T08:59:28Z
@@ -112,7 +83,28 @@ spec:
   selector:
     matchLabels:
       app: nginx
-status: {}
+status:
+  alamedaController:
+    deployments:
+      webapp/nginx-deployment:
+        name: nginx-deployment
+        namespace: webapp
+        pods:
+          webapp/nginx-deployment-88644cb8c-clwrx:
+	    containers:
+            - name: nginx
+              resources: {}
+            name: nginx-deployment-88644cb8c-clwrx
+            namespace: webapp
+            uid: 74d476c5-f48b-11e8-8913-88d7f6561288
+          webapp/nginx-deployment-88644cb8c-xbdgj:
+	    containers:
+            - name: nginx
+              resources: {}
+            name: nginx-deployment-88644cb8c-xbdgj
+            namespace: webapp
+            uid: cc73a788-f487-11e8-8913-88d7f6561288
+        uid: 2e5055f0-f47e-11e8-8913-88d7f6561288
 ```
 And the prediction and recommendation for the nginx Pods are:
 ```
