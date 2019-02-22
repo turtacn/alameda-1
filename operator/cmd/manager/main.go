@@ -228,7 +228,11 @@ func applyCRDs(cfg *rest.Config) {
 		_, createErr := apiextensionsClientSet.ApiextensionsV1beta1().CustomResourceDefinitions().Create(&crdIns)
 		if createErr != nil {
 			scope.Errorf(fmt.Sprintf("Failed to create CRD %s: %s", crdFile, createErr.Error()))
-			continue
+			_, updateErr := apiextensionsClientSet.ApiextensionsV1beta1().CustomResourceDefinitions().Update(&crdIns)
+			if updateErr != nil {
+				scope.Errorf(fmt.Sprintf("Failed to update CRD %s: %s", crdFile, updateErr.Error()))
+				continue
+			}
 		}
 		err = wait.Poll(500*time.Millisecond, 60*time.Second, func() (bool, error) {
 			crd, getErr := apiextensionsClientSet.ApiextensionsV1beta1().CustomResourceDefinitions().Get(crdIns.Name, metav1.GetOptions{})
@@ -252,7 +256,7 @@ func applyCRDs(cfg *rest.Config) {
 			return false, nil
 		})
 		if err != nil {
-			scope.Errorf(fmt.Sprintf("Polling crd for $s failed: %s", crdFile, err.Error()))
+			scope.Errorf(fmt.Sprintf("Polling crd for %s failed: %s", crdFile, err.Error()))
 		}
 	}
 }
