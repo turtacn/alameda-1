@@ -169,7 +169,7 @@ func Generate(
 						Status:      platform.Active,
 						User:        "admin",
 						UserID:      MustIDBase16(oneID),
-						Description: "admin's Token",
+						Description: "Deftok",
 						Permissions: []platform.Permission{
 							platform.CreateUserPermission,
 							platform.DeleteUserPermission,

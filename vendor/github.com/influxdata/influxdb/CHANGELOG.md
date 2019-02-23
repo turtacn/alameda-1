@@ -1,3 +1,39 @@
+v1.7.5 [unreleased]
+-------------------
+
+v1.7.4 [2019-02-13]
+-------------------
+
+### Features
+
+-	[#11604](https://github.com/influxdata/influxdb/pull/11604): Allow TSI bitset cache to be configured.
+
+### Bugfixes
+
+-	[#11616](https://github.com/influxdata/influxdb/pull/11616): Remove copy-on-write when caching bitmaps.
+-	[#11743](https://github.com/influxdata/influxdb/pull/11743): Backport: Use Systemd for Amazon Linux 2.
+-	[#11792](https://github.com/influxdata/influxdb/pull/11792): Revert "Limit force-full and cold compaction size.".
+-	[#11831](https://github.com/influxdata/influxdb/pull/11831): Convert TagValueSeriesIDCache to use string fields.
+-	[#11833](https://github.com/influxdata/influxdb/pull/11833): Ensure that cached series id sets are Go heap backed.
+
+v1.7.3 [2019-01-11]
+-------------------
+
+### Bugfixes
+
+-	[#10584](https://github.com/influxdata/influxdb/pull/10584): Fix invalid UTF-8 bytes preventing shard opening.Treat fields and measurements as raw bytes.
+-	[#10593](https://github.com/influxdata/influxdb/pull/10593): Limit force-full and cold compaction size.
+-	[#10596](https://github.com/influxdata/influxdb/pull/10596): Add user authentication and authorization support for Flux HTTP requests.
+-	[#10598](https://github.com/influxdata/influxdb/pull/10598): Call storage.Group API to correctly map group mode.
+-	[#10950](https://github.com/influxdata/influxdb/pull/10950): Marked functions that always return floats as always returning floats.
+-	[#10998](https://github.com/influxdata/influxdb/pull/10998): Add support for optionally logging Flux queries.
+-	[#11002](https://github.com/influxdata/influxdb/pull/11002): Fix cardinality estimation error.
+
+### Features
+
+-	[#10596](https://github.com/influxdata/influxdb/pull/10596): Update Flux to 0.11.0
+-	[#10614](https://github.com/influxdata/influxdb/pull/10614): Update Flux to 0.12.0
+
 v1.7.2 [2018-12-11]
 -------------------
 
@@ -43,7 +79,7 @@ v1.7.0 [2018-11-06]
 -	[#10333](https://github.com/influxdata/influxdb/pull/10333): Fix subquery functionality when a function references a tag from the subquery.
 -	[#10333](https://github.com/influxdata/influxdb/pull/10333): Strip tags from a subquery when the outer query does not group by that tag.
 
-v1.6.5 [unreleased]
+v1.6.5 [2019-01-09]
 -------------------
 
 ### Bugfixes
@@ -198,6 +234,25 @@ v1.6.0 [2018-07-05]
 -	[#10246](https://github.com/influxdata/influxdb/pull/10246): Fix the inherited interval for derivative and others.
 -	[#10310](https://github.com/influxdata/influxdb/pull/10310): Fix TSI1 Sketch Locking.
 
+v1.5.5 [2018-12-19]
+-------------------
+
+### Features
+
+-	[#10220](https://github.com/influxdata/influxdb/pull/10220): Reduce allocations in TSI TagSets implementation.
+
+### Bugfixes
+
+-	[#10184](https://github.com/influxdata/influxdb/pull/10184): tsdb: Copy return value of IndexSet.MeasurementNamesByExpr
+-	[#10221](https://github.com/influxdata/influxdb/pull/10221): Ensure orhpaned series cleaned up with shard drop.
+-	[#10274](https://github.com/influxdata/influxdb/pull/10274): Fix the derivative and others time ranges for aggregate data.
+-	[#10357](https://github.com/influxdata/influxdb/pull/10357): Backport #9937: Export Shard.Engine()
+-	[#10363](https://github.com/influxdata/influxdb/pull/10363): Fixing the stream iterator to not ignore the error.
+-	[#10372](https://github.com/influxdata/influxdb/pull/10372): Do not panic when a series id iterator is nil.
+-	[#10424](https://github.com/influxdata/influxdb/pull/10424): Fix panic in IndexSet.
+-	[#10559](https://github.com/influxdata/influxdb/pull/10559): Pass the query authorizer to subqueries.
+-	[#10577](https://github.com/influxdata/influxdb/pull/10577): Fix TSM1 panic on reader error.
+
 v1.5.4 [2018-06-21]
 -------------------
 
@@ -308,7 +363,7 @@ v1.5.0 [2018-03-06]
 -	[#9510](https://github.com/influxdata/influxdb/pull/9510): Fix TSI log file recovery.
 -	[#9513](https://github.com/influxdata/influxdb/pull/9513): Fix missing Store.Close() unlock.
 
-v1.4.3 [unreleased]
+v1.4.3 [2018-01-30]
 -------------------
 
 ### Configuration Changes

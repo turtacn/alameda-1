@@ -12,14 +12,11 @@ import (
 	"github.com/influxdata/platform"
 	kerrors "github.com/influxdata/platform/kit/errors"
 	"github.com/julienschmidt/httprouter"
-	"go.uber.org/zap"
 )
 
 // OrgHandler represents an HTTP API handler for orgs.
 type OrgHandler struct {
 	*httprouter.Router
-
-	Logger *zap.Logger
 
 	OrganizationService             platform.OrganizationService
 	OrganizationOperationLogService platform.OrganizationOperationLogService
@@ -47,13 +44,11 @@ const (
 
 // NewOrgHandler returns a new instance of OrgHandler.
 func NewOrgHandler(mappingService platform.UserResourceMappingService,
-	labelService platform.LabelService, userService platform.UserService) *OrgHandler {
+	labelService platform.LabelService) *OrgHandler {
 	h := &OrgHandler{
 		Router:                     NewRouter(),
-		Logger:                     zap.NewNop(),
 		UserResourceMappingService: mappingService,
 		LabelService:               labelService,
-		UserService:                userService,
 	}
 
 	h.HandlerFunc("POST", organizationsPath, h.handlePostOrg)
@@ -160,7 +155,7 @@ func (h *OrgHandler) handlePostOrg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newOrgResponse(req.Org)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -197,7 +192,7 @@ func (h *OrgHandler) handleGetOrg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newOrgResponse(b)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -242,7 +237,7 @@ func (h *OrgHandler) handleGetOrgs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newOrgsResponse(orgs)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -327,7 +322,7 @@ func (h *OrgHandler) handlePatchOrg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newOrgResponse(o)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -377,7 +372,7 @@ func (h *OrgHandler) handleGetSecrets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newSecretsResponse(req.orgID, ks)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -709,7 +704,7 @@ func (h *OrgHandler) handleGetOrgLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newOrganizationLogResponse(req.OrganizationID, log)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }

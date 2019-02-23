@@ -18,6 +18,7 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
+	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -437,11 +438,14 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 
 // ListPodRecommendations list pod recommendations
 func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha1.ListPodRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
+	scope.Debug("Request received from ListPodRecommendations grpc function: " + utils.InterfaceToString(in))
 	var containerDAO recommendation_dao.ContainerOperation = &recommendation_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	if podRecommendations, err := containerDAO.ListPodRecommendations(in.GetNamespacedName(), in.GetQueryCondition()); err != nil {
+	if podRecommendations, err := containerDAO.ListPodRecommendations(in.GetNamespacedName(),
+		in.GetQueryCondition(),
+		in.GetKind()); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodRecommendationsResponse{
 			Status: &status.Status{
@@ -450,12 +454,14 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 			},
 		}, nil
 	} else {
-		return &datahub_v1alpha1.ListPodRecommendationsResponse{
+		res := &datahub_v1alpha1.ListPodRecommendationsResponse{
 			Status: &status.Status{
 				Code: int32(code.Code_OK),
 			},
 			PodRecommendations: podRecommendations,
-		}, nil
+		}
+		scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
+		return res, nil
 	}
 }
 
@@ -523,6 +529,7 @@ func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_
 
 // CreatePods add containers information of pods to database
 func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePodsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreatePods grpc function: " + utils.InterfaceToString(in))
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
@@ -630,6 +637,7 @@ func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1
 
 // CreatePodRecommendations add pod recommendations information to database
 func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreatePodRecommendatoins grpc function: " + utils.InterfaceToString(in))
 	var containerDAO recommendation_dao.ContainerOperation = &recommendation_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}

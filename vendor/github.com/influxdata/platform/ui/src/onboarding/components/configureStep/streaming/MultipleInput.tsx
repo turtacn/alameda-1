@@ -3,29 +3,15 @@ import React, {PureComponent, ChangeEvent} from 'react'
 import _ from 'lodash'
 
 // Components
-import Rows from 'src/onboarding/components/configureStep/streaming/MultipleRow'
+import Rows from './MultipleRow'
 import {ErrorHandling} from 'src/shared/decorators/errors'
-import {
-  Input,
-  InputType,
-  AutoComplete,
-  ComponentStatus,
-  ComponentSize,
-  Grid,
-  Columns,
-  Form,
-} from 'src/clockface'
-
-// Utils
-import {validateURI} from 'src/shared/utils/validateURI'
+import {Input, InputType, AutoComplete} from 'src/clockface'
 
 // Actions
 import {setConfigArrayValue} from 'src/onboarding/actions/dataLoaders'
 
 // Types
-import {TelegrafPluginName, ConfigFieldType} from 'src/types/v2/dataLoaders'
-
-const VALIDATE_DEBOUNCE_MS = 350
+import {TelegrafPluginName} from 'src/types/v2/dataLoaders'
 
 export interface Item {
   text?: string
@@ -36,9 +22,8 @@ interface Props {
   onDeleteRow: (item: string) => void
   tags: Item[]
   title: string
-  helpText: string
+  displayTitle: boolean
   inputID?: string
-  fieldType?: ConfigFieldType
   autoFocus?: boolean
   onSetConfigArrayValue: typeof setConfigArrayValue
   telegrafPluginName: TelegrafPluginName
@@ -46,27 +31,18 @@ interface Props {
 
 interface State {
   editingText: string
-  status: ComponentStatus
 }
 
 @ErrorHandling
 class MultipleInput extends PureComponent<Props, State> {
-  private debouncedValidate: (value: string) => void
-
   constructor(props: Props) {
     super(props)
-    this.state = {editingText: '', status: ComponentStatus.Default}
-
-    this.debouncedValidate = _.debounce(
-      this.handleValidateURI,
-      VALIDATE_DEBOUNCE_MS
-    )
+    this.state = {editingText: ''}
   }
 
   public render() {
     const {
       title,
-      helpText,
       tags,
       autoFocus,
       onSetConfigArrayValue,
@@ -75,43 +51,42 @@ class MultipleInput extends PureComponent<Props, State> {
     const {editingText} = this.state
 
     return (
-      <Grid>
-        <Grid.Row>
-          <Grid.Column widthXS={Columns.Ten} offsetXS={Columns.One}>
-            <Form.Element label={title} key={title} helpText={helpText}>
-              <Input
-                placeholder={`Type and hit 'Enter' to add to list of ${title}`}
-                autocomplete={AutoComplete.Off}
-                type={InputType.Text}
-                onKeyDown={this.handleKeyDown}
-                autoFocus={autoFocus || false}
-                value={editingText}
-                status={this.state.status}
-                onChange={this.handleInputChange}
-                size={ComponentSize.Medium}
-                titleText={title}
-              />
-            </Form.Element>
-            <Rows
-              tags={tags}
-              onDeleteTag={this.handleDeleteRow}
-              onSetConfigArrayValue={onSetConfigArrayValue}
-              fieldName={title}
-              telegrafPluginName={telegrafPluginName}
-            />
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
+      <div className="form-group col-xs-12">
+        {this.label}
+        <Input
+          placeholder={`Type and hit 'Enter' to add to list of ${title}`}
+          autocomplete={AutoComplete.Off}
+          type={InputType.Text}
+          onKeyDown={this.handleKeyDown}
+          autoFocus={autoFocus || false}
+          value={editingText}
+          onChange={this.handleInputChange}
+        />
+        <Rows
+          tags={tags}
+          onDeleteTag={this.handleDeleteRow}
+          onSetConfigArrayValue={onSetConfigArrayValue}
+          fieldName={title}
+          telegrafPluginName={telegrafPluginName}
+        />
+      </div>
     )
   }
 
   private handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const {fieldType} = this.props
-    const {value} = e.target
+    this.setState({editingText: e.target.value})
+  }
 
-    this.setState({editingText: value})
-    if (fieldType === ConfigFieldType.UriArray) {
-      this.debouncedValidate(value)
+  private get id(): string {
+    const {title, inputID} = this.props
+    return inputID || title
+  }
+
+  private get label(): JSX.Element {
+    const {title, displayTitle} = this.props
+
+    if (displayTitle) {
+      return <label htmlFor={this.id}>{title}</label>
     }
   }
 
@@ -134,14 +109,6 @@ class MultipleInput extends PureComponent<Props, State> {
 
   private shouldAddToList(item: Item, tags: Item[]): boolean {
     return !_.isEmpty(item) && !tags.find(l => l === item)
-  }
-
-  private handleValidateURI = (value: string): void => {
-    if (validateURI(value)) {
-      this.setState({status: ComponentStatus.Valid})
-    } else {
-      this.setState({status: ComponentStatus.Error})
-    }
   }
 }
 

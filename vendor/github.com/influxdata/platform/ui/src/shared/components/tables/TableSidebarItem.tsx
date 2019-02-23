@@ -17,10 +17,9 @@ interface Props {
 @ErrorHandling
 export default class TableSidebarItem extends PureComponent<Props> {
   public render() {
-    const {isSelected} = this.props
     return (
       <div
-        className={`time-machine-sidebar-item ${isSelected ? 'active' : ''}`}
+        className={`yield-node--tab ${this.active}`}
         onClick={this.handleClick}
       >
         {this.name}
@@ -43,7 +42,15 @@ export default class TableSidebarItem extends PureComponent<Props> {
       })
   }
 
+  private get active(): string {
+    if (this.props.isSelected) {
+      return 'active'
+    }
+
+    return ''
+  }
+
   private handleClick = (): void => {
-    this.props.onSelect(this.props.name)
+    this.props.onSelect(this.props.id)
   }
 }

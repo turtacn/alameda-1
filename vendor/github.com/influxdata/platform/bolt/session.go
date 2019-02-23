@@ -3,6 +3,7 @@ package bolt
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	bolt "github.com/coreos/bbolt"
@@ -24,7 +25,6 @@ func (c *Client) initializeSessions(ctx context.Context, tx *bolt.Tx) error {
 
 // FindSession retrieves the session found at the provided key.
 func (c *Client) FindSession(ctx context.Context, key string) (*platform.Session, error) {
-	op := getOp(platform.OpFindSession)
 	var sess *platform.Session
 	err := c.db.View(func(tx *bolt.Tx) error {
 		s, err := c.findSession(ctx, tx, key)
@@ -33,49 +33,33 @@ func (c *Client) FindSession(ctx context.Context, key string) (*platform.Session
 		}
 
 		sess = s
+
 		return nil
 	})
 
 	if err != nil {
-		return nil, &platform.Error{
-			Err: err,
-			Op:  op,
-		}
+		return nil, err
 	}
 
-	if err := sess.Expired(); err != nil {
-		// todo(leodido) > do we want to return session also if expired?
-		return sess, &platform.Error{
-			Err: err,
-			Op:  op,
-		}
-	}
-	return sess, nil
+	return sess, sess.Expired()
 }
 
-func (c *Client) findSession(ctx context.Context, tx *bolt.Tx, key string) (*platform.Session, *platform.Error) {
+func (c *Client) findSession(ctx context.Context, tx *bolt.Tx, key string) (*platform.Session, error) {
 	v := tx.Bucket(sessionBucket).Get([]byte(key))
 	if len(v) == 0 {
-		return nil, &platform.Error{
-			Code: platform.ENotFound,
-			Msg:  platform.ErrSessionNotFound,
-		}
+		return nil, fmt.Errorf("session not found")
 	}
 
 	s := &platform.Session{}
 	if err := json.Unmarshal(v, s); err != nil {
-		return nil, &platform.Error{
-			Err: err,
-		}
+		return nil, err
 	}
 
 	// TODO(desa): these values should be cached so it's not so expensive to lookup each time.
 	f := platform.UserResourceMappingFilter{UserID: s.UserID}
 	mappings, err := c.findUserResourceMappings(ctx, tx, f)
 	if err != nil {
-		return nil, &platform.Error{
-			Err: err,
-		}
+		return nil, err
 	}
 
 	ps := make([]platform.Permission, 0, len(mappings))
@@ -89,24 +73,17 @@ func (c *Client) findSession(ctx context.Context, tx *bolt.Tx, key string) (*pla
 // PutSession puts the session at key.
 func (c *Client) PutSession(ctx context.Context, s *platform.Session) error {
 	return c.db.Update(func(tx *bolt.Tx) error {
-		if err := c.putSession(ctx, tx, s); err != nil {
-			return err
-		}
-		return nil
+		return c.putSession(ctx, tx, s)
 	})
 }
 
-func (c *Client) putSession(ctx context.Context, tx *bolt.Tx, s *platform.Session) *platform.Error {
+func (c *Client) putSession(ctx context.Context, tx *bolt.Tx, s *platform.Session) error {
 	v, err := json.Marshal(s)
 	if err != nil {
-		return &platform.Error{
-			Err: err,
-		}
+		return err
 	}
 	if err := tx.Bucket(sessionBucket).Put([]byte(s.Key), v); err != nil {
-		return &platform.Error{
-			Err: err,
-		}
+		return err
 	}
 	return nil
 }
@@ -121,10 +98,7 @@ func (c *Client) ExpireSession(ctx context.Context, key string) error {
 
 		s.ExpiresAt = time.Now()
 
-		if err := c.putSession(ctx, tx, s); err != nil {
-			return err
-		}
-		return nil
+		return c.putSession(ctx, tx, s)
 	})
 }
 
@@ -149,7 +123,7 @@ func (c *Client) CreateSession(ctx context.Context, user string) (*platform.Sess
 	return sess, nil
 }
 
-func (c *Client) createSession(ctx context.Context, tx *bolt.Tx, user string) (*platform.Session, *platform.Error) {
+func (c *Client) createSession(ctx context.Context, tx *bolt.Tx, user string) (*platform.Session, error) {
 	u, pe := c.findUserByName(ctx, tx, user)
 	if pe != nil {
 		return nil, pe
@@ -159,9 +133,7 @@ func (c *Client) createSession(ctx context.Context, tx *bolt.Tx, user string) (*
 	s.ID = c.IDGenerator.ID()
 	k, err := c.TokenGenerator.Token()
 	if err != nil {
-		return nil, &platform.Error{
-			Err: err,
-		}
+		return nil, err
 	}
 	s.Key = k
 	s.UserID = u.ID

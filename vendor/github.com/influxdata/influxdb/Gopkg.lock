@@ -66,6 +66,22 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6eeb95509dbdb79ee2624f83fd9d8163e01f28cdce5cade110c048b0224cf2f4"
+  name = "github.com/apache/arrow"
+  packages = [
+    "go/arrow",
+    "go/arrow/array",
+    "go/arrow/internal/bitutil",
+    "go/arrow/internal/cpu",
+    "go/arrow/internal/debug",
+    "go/arrow/math",
+    "go/arrow/memory",
+  ]
+  pruneopts = "UT"
+  revision = "c6d97c59ef047cc9d5e2836b1945df26cd7c4622"
+
+[[projects]]
+  branch = "master"
   digest = "1:861e7c55835e36c4bb41132ee48a4669429096cc184b634b99809822b416f66b"
   name = "github.com/apex/log"
   packages = [
@@ -396,10 +412,11 @@
   version = "v0.3.6"
 
 [[projects]]
-  digest = "1:d5919f2880c18c7932e0a65208389b58d40ec7b5cb313bfde56b4ca791bfa380"
+  digest = "1:9608dc2c0716b655b535fc0f20f42472e43b6cead49f4c9ad20eded341c5df3b"
   name = "github.com/influxdata/flux"
   packages = [
     ".",
+    "arrow",
     "ast",
     "compiler",
     "control",
@@ -410,7 +427,10 @@
     "functions/outputs",
     "functions/transformations",
     "influxql",
+    "internal/parser",
     "internal/pkg/syncutil",
+    "internal/scanner",
+    "internal/token",
     "interpreter",
     "iocounter",
     "lang",
@@ -423,8 +443,8 @@
     "values",
   ]
   pruneopts = "UT"
-  revision = "adb2411fee9ccc65d671d4ce29861eb387174f6b"
-  version = "v0.7.1"
+  revision = "8c9d0ad49204d3bbb171e96d872cf663ee7f1b4d"
+  version = "v0.12.0"
 
 [[projects]]
   branch = "master"
@@ -446,8 +466,7 @@
   revision = "32c6aa80de5eb09d190ad284a8214a531c6bce57"
 
 [[projects]]
-  branch = "master"
-  digest = "1:423e244b01a2d7c36072f68f589643a41b814c1868865c2009b7bee49983ab04"
+  digest = "1:648b66ad037b167a0eedb199f8088fa4e4d1142a39d4fc4dcd7f40f07e23482d"
   name = "github.com/influxdata/platform"
   packages = [
     ".",
@@ -471,7 +490,7 @@
     "tsdb/cursors",
   ]
   pruneopts = "UT"
-  revision = "dc5616e3f9ed409490e465a02ee3f1da50ad2e13"
+  revision = "0f79e4ea3248354c789cba274542e0a8e55971db"
 
 [[projects]]
   branch = "master"
@@ -1016,12 +1035,13 @@
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
 
 [[projects]]
-  digest = "1:6eaf68fa53735d0b557c7a4d5411d3ad97d98d0afdb0969252d6506e67600285"
+  digest = "1:ec626c5a8d1abbb2e052d195da2d089ff6a3afb60fa7cd45638d648da96d41dd"
   name = "honnef.co/go/tools"
   packages = [
     "callgraph",
     "callgraph/static",
     "cmd/megacheck",
+    "cmd/staticcheck",
     "deprecated",
     "functions",
     "internal/sharedcheck",

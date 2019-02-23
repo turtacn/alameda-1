@@ -25,7 +25,7 @@ export interface TableOptions {
   fixFirstColumn: boolean
 }
 
-export interface SortOptions {
+export interface Sort {
   field: string
   direction: string
 }

@@ -32,9 +32,7 @@ type WriteHandler struct {
 }
 
 const (
-	writePath            = "/api/v2/write"
-	errInvalidGzipHeader = "gzipped HTTP body contains an invalid header"
-	errInvalidPrecision  = "invalid precision; valid precision units are ns, us, ms, and s"
+	writePath = "/api/v2/write"
 )
 
 // NewWriteHandler creates a new handler at /api/v2/write to receive line protocol.
@@ -58,12 +56,7 @@ func (h *WriteHandler) handleWrite(w http.ResponseWriter, r *http.Request) {
 		var err error
 		in, err = gzip.NewReader(r.Body)
 		if err != nil {
-			EncodeError(ctx, &platform.Error{
-				Code: platform.EInvalid,
-				Op:   "http/handleWrite",
-				Msg:  errInvalidGzipHeader,
-				Err:  err,
-			}, w)
+			EncodeError(ctx, errors.Wrap(err, "invalid gzip", errors.InvalidData), w)
 			return
 		}
 		defer in.Close()
@@ -89,7 +82,7 @@ func (h *WriteHandler) handleWrite(w http.ResponseWriter, r *http.Request) {
 		o, err := h.OrganizationService.FindOrganizationByID(ctx, *id)
 		if err == nil {
 			org = o
-		} else if platform.ErrorCode(err) != platform.ENotFound {
+		} else if err != ErrNotFound {
 			EncodeError(ctx, err, w)
 			return
 		}
@@ -114,7 +107,7 @@ func (h *WriteHandler) handleWrite(w http.ResponseWriter, r *http.Request) {
 		})
 		if err == nil {
 			bucket = b
-		} else if platform.ErrorCode(err) != platform.ENotFound {
+		} else if err != ErrNotFound {
 			EncodeError(ctx, err, w)
 			return
 		}
@@ -127,12 +120,7 @@ func (h *WriteHandler) handleWrite(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			logger.Info("Failed to find bucket", zap.Stringer("org_id", org.ID), zap.Error(err))
-			EncodeError(ctx, &platform.Error{
-				Code: platform.ENotFound,
-				Op:   "http/handleWrite",
-				Err:  err,
-				Msg:  fmt.Sprintf("bucket %q not found", req.Bucket),
-			}, w)
+			EncodeError(ctx, fmt.Errorf("bucket %q not found", req.Bucket), w)
 			return
 		}
 
@@ -184,11 +172,7 @@ func decodeWriteRequest(ctx context.Context, r *http.Request) (*postWriteRequest
 	}
 
 	if !models.ValidPrecision(p) {
-		return nil, &platform.Error{
-			Code: platform.EInvalid,
-			Op:   "http/decodeWriteRequest",
-			Msg:  errInvalidPrecision,
-		}
+		return nil, errors.InvalidDataf("invalid precision")
 	}
 
 	return &postWriteRequest{
@@ -221,11 +205,7 @@ func (s *WriteService) Write(ctx context.Context, orgID, bucketID platform.ID, r
 	}
 
 	if !models.ValidPrecision(precision) {
-		return &platform.Error{
-			Code: platform.EInvalid,
-			Op:   "http/Write",
-			Msg:  errInvalidPrecision,
-		}
+		return fmt.Errorf("invalid precision")
 	}
 
 	u, err := newURL(s.Addr, writePath)
@@ -270,7 +250,7 @@ func (s *WriteService) Write(ctx context.Context, orgID, bucketID platform.ID, r
 		return err
 	}
 
-	return CheckError(resp, true)
+	return CheckError(resp)
 }
 
 func compressWithGzip(data io.Reader) (io.Reader, error) {

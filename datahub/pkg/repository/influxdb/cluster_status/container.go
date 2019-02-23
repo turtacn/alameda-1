@@ -117,6 +117,7 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 		podName := pod.GetNamespacedName().GetName()
 		containers := pod.GetContainers()
 		isAlamedaPod := pod.GetIsAlameda()
+		topController := pod.GetTopController()
 
 		for _, container := range containers {
 			tags := map[string]string{
@@ -126,10 +127,13 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 				string(cluster_status_entity.ContainerName):      container.GetName(),
 			}
 			fields := map[string]interface{}{
-				string(cluster_status_entity.ContainerIsDeleted):     false,
-				string(cluster_status_entity.ContainerIsAlameda):     isAlamedaPod,
-				string(cluster_status_entity.ContainerPolicy):        pod.GetPolicy(),
-				string(cluster_status_entity.ContainerPodCreateTime): pod.StartTime.GetSeconds(),
+				string(cluster_status_entity.ContainerIsDeleted):         false,
+				string(cluster_status_entity.ContainerIsAlameda):         isAlamedaPod,
+				string(cluster_status_entity.ContainerPolicy):            pod.GetPolicy(),
+				string(cluster_status_entity.ContainerPodCreateTime):     pod.StartTime.GetSeconds(),
+				string(cluster_status_entity.ContainerResourceLink):      pod.GetResourceLink(),
+				string(cluster_status_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
+				string(cluster_status_entity.ContainerTopControllerKind): topController.GetKind(),
 			}
 			if isAlamedaPod {
 				tags[string(cluster_status_entity.ContainerAlamedaScalerNamespace)] = pod.GetAlamedaScaler().GetNamespace()

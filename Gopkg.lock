@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b8666c9d2e7c705756263d42dfbe60ec1c7d8d47b273065e4a794ec7d8f4143a"
+  digest = "1:e949121d61b493e9523199f6449d83765ea57ea8b11a3b7780553a91e6d8cfcf"
   name = "github.com/containers-ai/api"
   packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
-  revision = "4302d88f307b02744c6055c6fe85605826c4c38f"
+  revision = "1046c38468498f5588c81d1d4cd47e8db7a69539"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -235,7 +235,7 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:7ed2f889c7386a4eaea5c15c9a72103f33c48bbca7f75e1c9fca9f5139f0af21"
+  digest = "1:1dd93d3aa6fe16ced2aa9d306a5ebe3a8e83cea825d263c92940bd2dce744975"
   name = "github.com/influxdata/influxdb"
   packages = [
     "client/v2",
@@ -243,19 +243,18 @@
     "pkg/escape",
   ]
   pruneopts = "T"
-  revision = "76f907b0fada2f16931e37471da695349fcdf8c6"
-  version = "v1.7.2"
+  revision = "ef77e72f435b71b1ad6da7d6a6a4c4a262439379"
+  version = "v1.7.4"
 
 [[projects]]
-  branch = "master"
-  digest = "1:cb7496f82f7d9307d09cae0460229418d5c4963a6eb2e96b278bb367d58e013b"
+  digest = "1:dce89a23d5e3b147ba2cb39e659e85f53a72cff74f7ec61da30f3154a3848f3d"
   name = "github.com/influxdata/platform"
   packages = [
     "models",
     "pkg/escape",
   ]
   pruneopts = "T"
-  revision = "f5b0bdeb12f9d47233fd5008c93fd8b7e6ddfd16"
+  revision = "0f79e4ea3248354c789cba274542e0a8e55971db"
 
 [[projects]]
   digest = "1:ee5840274624ad20cac08227aeca582fbdaf3727ef9dd37ae935706240679e09"

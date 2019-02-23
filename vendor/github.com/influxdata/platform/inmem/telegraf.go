@@ -3,6 +3,7 @@ package inmem
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/influxdata/platform"
 )
@@ -110,7 +111,7 @@ func (s *Service) putTelegrafConfig(ctx context.Context, tc *platform.TelegrafCo
 }
 
 // CreateTelegrafConfig creates a new telegraf config and sets b.ID with the new identifier.
-func (s *Service) CreateTelegrafConfig(ctx context.Context, tc *platform.TelegrafConfig, userID platform.ID) error {
+func (s *Service) CreateTelegrafConfig(ctx context.Context, tc *platform.TelegrafConfig, userID platform.ID, now time.Time) error {
 	op := "inmem/create telegraf config"
 	tc.ID = s.IDGenerator.ID()
 	err := s.CreateUserResourceMapping(ctx, &platform.UserResourceMapping{
@@ -122,6 +123,9 @@ func (s *Service) CreateTelegrafConfig(ctx context.Context, tc *platform.Telegra
 	if err != nil {
 		return err
 	}
+	tc.Created = now
+	tc.LastMod = now
+	tc.LastModBy = userID
 	pErr := s.putTelegrafConfig(ctx, tc)
 	if pErr != nil {
 		pErr.Op = op
@@ -133,16 +137,19 @@ func (s *Service) CreateTelegrafConfig(ctx context.Context, tc *platform.Telegra
 
 // UpdateTelegrafConfig updates a single telegraf config.
 // Returns the new telegraf config after update.
-func (s *Service) UpdateTelegrafConfig(ctx context.Context, id platform.ID, tc *platform.TelegrafConfig, userID platform.ID) (*platform.TelegrafConfig, error) {
+func (s *Service) UpdateTelegrafConfig(ctx context.Context, id platform.ID, tc *platform.TelegrafConfig, userID platform.ID, now time.Time) (*platform.TelegrafConfig, error) {
 	var err error
 	op := "inmem/update telegraf config"
-	_, pErr := s.findTelegrafConfigByID(ctx, id)
+	oldTc, pErr := s.findTelegrafConfigByID(ctx, id)
 	if pErr != nil {
 		pErr.Op = op
 		err = pErr
 		return nil, err
 	}
+	tc.Created = oldTc.Created
 	tc.ID = id
+	tc.LastMod = now
+	tc.LastModBy = userID
 	pErr = s.putTelegrafConfig(ctx, tc)
 	if pErr != nil {
 		pErr.Op = op

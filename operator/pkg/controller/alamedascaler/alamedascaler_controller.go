@@ -24,6 +24,7 @@ import (
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
+	"github.com/containers-ai/alameda/operator/pkg/utils"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -238,6 +239,11 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			continue
 		}
 
+		topCtrl, err := utils.ParseResourceLinkForTopController(resourceLink)
+		if err != nil {
+			scope.Error(err.Error())
+		}
+
 		podsNeedCreating = append(podsNeedCreating, &datahub_v1alpha1.Pod{
 			IsAlameda: true,
 			AlamedaScaler: &datahub_v1alpha1.NamespacedName{
@@ -248,11 +254,12 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 				Namespace: pod.Namespace,
 				Name:      pod.Name,
 			},
-			Policy:       datahub_v1alpha1.RecommendationPolicy(policy),
-			Containers:   containers,
-			NodeName:     nodeName,
-			ResourceLink: resourceLink,
-			StartTime:    startTime,
+			Policy:        datahub_v1alpha1.RecommendationPolicy(policy),
+			Containers:    containers,
+			NodeName:      nodeName,
+			ResourceLink:  resourceLink,
+			StartTime:     startTime,
+			TopController: topCtrl,
 		})
 	}
 

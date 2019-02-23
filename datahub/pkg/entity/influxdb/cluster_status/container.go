@@ -43,6 +43,12 @@ const (
 	ContainerPolicy containerField = "policy"
 	// ContainerPodCreateTime is the creation time of pod
 	ContainerPodCreateTime containerField = "pod_create_time"
+	// ContainerResourceLink is the resource link of pod
+	ContainerResourceLink containerField = "resource_link"
+	// ContainerTopControllerName is top controller name of the pod
+	ContainerTopControllerName containerField = "top_controller_name"
+	// ContainerTopControllerKind is top controller kind of the pod
+	ContainerTopControllerKind containerField = "top_controller_kind"
 )
 
 var (
@@ -56,7 +62,9 @@ var (
 	ContainerFields = []containerField{
 		ContainerResourceRequestCPU, ContainerResourceRequestMemory,
 		ContainerResourceLimitCPU, ContainerResourceLimitMemory,
-		ContainerIsAlameda, ContainerIsDeleted, ContainerPolicy, ContainerPodCreateTime,
+		ContainerIsAlameda, ContainerIsDeleted, ContainerPolicy,
+		ContainerPodCreateTime, ContainerResourceLink, ContainerTopControllerName,
+		ContainerTopControllerKind,
 	}
 )
 

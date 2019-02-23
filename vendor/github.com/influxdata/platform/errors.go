@@ -10,14 +10,13 @@ import (
 // Some error code constant, ideally we want define common platform codes here
 // projects on use platform's error, should have their own central place like this.
 const (
-	EInternal         = "internal error"
-	ENotFound         = "not found"
-	EConflict         = "conflict" // action cannot be performed
-	EInvalid          = "invalid"  // validation failed
-	EEmptyValue       = "empty value"
-	EUnavailable      = "unavailable"
-	EForbidden        = "forbidden"
-	EMethodNotAllowed = "method not allowed"
+	EInternal    = "internal error"
+	ENotFound    = "not found"
+	EConflict    = "conflict" // action cannot be performed
+	EInvalid     = "invalid"  // validation failed
+	EEmptyValue  = "empty value"
+	EUnavailable = "unavailable"
+	EForbidden   = "forbidden"
 )
 
 // Error is the error struct of platform.
@@ -50,10 +49,10 @@ const (
 //         Err: err,
 //     }.
 type Error struct {
-	Code string
-	Msg  string
-	Op   string
-	Err  error
+	Code string `json:"code"`          // Code is the machine-readable error code.
+	Msg  string `json:"msg,omitempty"` // Msg is a human-readable message.
+	Op   string `json:"op,omitempty"`  // Op describes the logical code operation during error.
+	Err  error  `json:"err,omitempty"` // Err is a stack of additional errors.
 }
 
 // Error implement the error interface by outputing the Code and Err.
@@ -118,10 +117,10 @@ func ErrorMessage(err error) string {
 
 // errEncode an JSON encoding helper that is needed to handle the recursive stack of errors.
 type errEncode struct {
-	Code string      `json:"code"`              // Code is the machine-readable error code.
-	Msg  string      `json:"message,omitempty"` // Msg is a human-readable message.
-	Op   string      `json:"op,omitempty"`      // Op describes the logical code operation during error.
-	Err  interface{} `json:"error,omitempty"`   // Err is a stack of additional errors.
+	Code string      `json:"code"`          // Code is the machine-readable error code.
+	Msg  string      `json:"msg,omitempty"` // Msg is a human-readable message.
+	Op   string      `json:"op,omitempty"`  // Op describes the logical code operation during error.
+	Err  interface{} `json:"err,omitempty"` // Err is a stack of additional errors.
 }
 
 // MarshalJSON recursively marshals the stack of Err.
@@ -165,13 +164,13 @@ func decodeInternalError(target interface{}) error {
 		if code, ok := internalErrMap["code"].(string); ok {
 			internalErr.Code = code
 		}
-		if msg, ok := internalErrMap["message"].(string); ok {
+		if msg, ok := internalErrMap["msg"].(string); ok {
 			internalErr.Msg = msg
 		}
 		if op, ok := internalErrMap["op"].(string); ok {
 			internalErr.Op = op
 		}
-		internalErr.Err = decodeInternalError(internalErrMap["error"])
+		internalErr.Err = decodeInternalError(internalErrMap["err"])
 		return internalErr
 	}
 	return nil

@@ -35,6 +35,10 @@ const (
 	ContainerStartTime containerField = "start_time"
 	// ContainerEndTime is recommended end time
 	ContainerEndTime containerField = "end_time"
+	// ContainerTopControllerName is top controller name of the pod
+	ContainerTopControllerName containerField = "top_controller_name"
+	// ContainerTopControllerKind is top controller kind of the pod
+	ContainerTopControllerKind containerField = "top_controller_kind"
 )
 
 var (
@@ -56,5 +60,8 @@ var (
 		ContainerInitialResourceRequestMemory,
 		ContainerInitialResourceLimitCPU,
 		ContainerInitialResourceLimitMemory,
+		ContainerStartTime, ContainerEndTime,
+		ContainerTopControllerName,
+		ContainerTopControllerKind,
 	}
 )

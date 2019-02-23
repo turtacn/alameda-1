@@ -3,17 +3,17 @@ import React, {PureComponent} from 'react'
 import _ from 'lodash'
 
 // Components
+import {Form} from 'src/clockface'
 import MultipleInput, {Item} from './MultipleInput'
 
 // Actions
 import {setConfigArrayValue} from 'src/onboarding/actions/dataLoaders'
 
 // Types
-import {TelegrafPluginName, ConfigFieldType} from 'src/types/v2/dataLoaders'
+import {TelegrafPluginName} from 'src/types/v2/dataLoaders'
 
 interface Props {
   fieldName: string
-  fieldType: ConfigFieldType
   addTagValue: (item: string, fieldName: string) => void
   removeTagValue: (item: string, fieldName: string) => void
   autoFocus: boolean
@@ -27,26 +27,25 @@ class ArrayFormElement extends PureComponent<Props> {
   public render() {
     const {
       fieldName,
-      fieldType,
       autoFocus,
       helpText,
       onSetConfigArrayValue,
       telegrafPluginName,
     } = this.props
-
     return (
       <div className="multiple-input-index">
-        <MultipleInput
-          title={fieldName}
-          helpText={helpText}
-          fieldType={fieldType}
-          autoFocus={autoFocus}
-          onAddRow={this.handleAddRow}
-          onDeleteRow={this.handleRemoveRow}
-          tags={this.tags}
-          onSetConfigArrayValue={onSetConfigArrayValue}
-          telegrafPluginName={telegrafPluginName}
-        />
+        <Form.Element label={fieldName} key={fieldName} helpText={helpText}>
+          <MultipleInput
+            title={fieldName}
+            autoFocus={autoFocus}
+            displayTitle={false}
+            onAddRow={this.handleAddRow}
+            onDeleteRow={this.handleRemoveRow}
+            tags={this.tags}
+            onSetConfigArrayValue={onSetConfigArrayValue}
+            telegrafPluginName={telegrafPluginName}
+          />
+        </Form.Element>
       </div>
     )
   }

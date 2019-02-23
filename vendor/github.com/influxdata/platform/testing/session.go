@@ -41,18 +41,14 @@ type SessionFields struct {
 	Users          []*platform.User
 }
 
-type sessionServiceFunc func(
-	init func(SessionFields, *testing.T) (platform.SessionService, string, func()),
-	t *testing.T,
-)
-
 // SessionService tests all the service functions.
 func SessionService(
-	init func(SessionFields, *testing.T) (platform.SessionService, string, func()), t *testing.T,
+	init func(SessionFields, *testing.T) (platform.SessionService, func()), t *testing.T,
 ) {
 	tests := []struct {
 		name string
-		fn   sessionServiceFunc
+		fn   func(init func(SessionFields, *testing.T) (platform.SessionService, func()),
+			t *testing.T)
 	}{
 		{
 			name: "CreateSession",
@@ -76,7 +72,7 @@ func SessionService(
 
 // CreateSession testing
 func CreateSession(
-	init func(SessionFields, *testing.T) (platform.SessionService, string, func()),
+	init func(SessionFields, *testing.T) (platform.SessionService, func()),
 	t *testing.T,
 ) {
 	type args struct {
@@ -120,11 +116,19 @@ func CreateSession(
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, opPrefix, done := init(tt.fields, t)
+			s, done := init(tt.fields, t)
 			defer done()
 			ctx := context.TODO()
 			session, err := s.CreateSession(ctx, tt.args.user)
-			diffPlatformErrors(tt.name, err, tt.wants.err, opPrefix, t)
+			if (err != nil) != (tt.wants.err != nil) {
+				t.Fatalf("expected error '%v' got '%v'", tt.wants.err, err)
+			}
+
+			if err != nil && tt.wants.err != nil {
+				if err.Error() != tt.wants.err.Error() {
+					t.Fatalf("expected error messages to match '%v' got '%v'", tt.wants.err, err.Error())
+				}
+			}
 
 			if diff := cmp.Diff(session, tt.wants.session, sessionCmpOptions...); diff != "" {
 				t.Errorf("sessions are different -got/+want\ndiff %s", diff)
@@ -135,7 +139,7 @@ func CreateSession(
 
 // FindSession testing
 func FindSession(
-	init func(SessionFields, *testing.T) (platform.SessionService, string, func()),
+	init func(SessionFields, *testing.T) (platform.SessionService, func()),
 	t *testing.T,
 ) {
 	type args struct {
@@ -178,29 +182,24 @@ func FindSession(
 				},
 			},
 		},
-		{
-			name: "look for not exising session",
-			args: args{
-				key: "abc123xyz",
-			},
-			wants: wants{
-				err: &platform.Error{
-					Code: platform.ENotFound,
-					Op:   platform.OpFindSession,
-					Msg:  platform.ErrSessionNotFound,
-				},
-			},
-		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, opPrefix, done := init(tt.fields, t)
+			s, done := init(tt.fields, t)
 			defer done()
 			ctx := context.TODO()
 
 			session, err := s.FindSession(ctx, tt.args.key)
-			diffPlatformErrors(tt.name, err, tt.wants.err, opPrefix, t)
+			if (err != nil) != (tt.wants.err != nil) {
+				t.Fatalf("expected errors to be equal '%v' got '%v'", tt.wants.err, err)
+			}
+
+			if err != nil && tt.wants.err != nil {
+				if err.Error() != tt.wants.err.Error() {
+					t.Fatalf("expected error '%v' got '%v'", tt.wants.err, err)
+				}
+			}
 
 			if diff := cmp.Diff(session, tt.wants.session, sessionCmpOptions...); diff != "" {
 				t.Errorf("session is different -got/+want\ndiff %s", diff)
@@ -211,7 +210,7 @@ func FindSession(
 
 // ExpireSession testing
 func ExpireSession(
-	init func(SessionFields, *testing.T) (platform.SessionService, string, func()),
+	init func(SessionFields, *testing.T) (platform.SessionService, func()),
 	t *testing.T,
 ) {
 	type args struct {
@@ -258,12 +257,20 @@ func ExpireSession(
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s, opPrefix, done := init(tt.fields, t)
+			s, done := init(tt.fields, t)
 			defer done()
 			ctx := context.TODO()
 
 			err := s.ExpireSession(ctx, tt.args.key)
-			diffPlatformErrors(tt.name, err, tt.wants.err, opPrefix, t)
+			if (err != nil) != (tt.wants.err != nil) {
+				t.Fatalf("expected errors to be equal '%v' got '%v'", tt.wants.err, err)
+			}
+
+			if err != nil && tt.wants.err != nil {
+				if err.Error() != tt.wants.err.Error() {
+					t.Fatalf("expected error '%v' got '%v'", tt.wants.err, err)
+				}
+			}
 
 			session, err := s.FindSession(ctx, tt.args.key)
 			if err == nil {

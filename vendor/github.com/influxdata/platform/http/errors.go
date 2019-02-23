@@ -158,10 +158,7 @@ func encodeKError(e kerrors.Error, w http.ResponseWriter) {
 
 // ForbiddenError encodes error with a forbidden status code.
 func ForbiddenError(ctx context.Context, err error, w http.ResponseWriter) {
-	EncodeError(ctx, &platform.Error{
-		Code: platform.EForbidden,
-		Err:  err,
-	}, w)
+	EncodeError(ctx, kerrors.Forbiddenf(err.Error()), w)
 }
 
 // statusCode returns the http status code for an error.
@@ -187,12 +184,11 @@ func statusCode(e kerrors.Error) int {
 
 // statusCodePlatformError is the map convert platform.Error to error
 var statusCodePlatformError = map[string]int{
-	platform.EInternal:         http.StatusInternalServerError,
-	platform.EInvalid:          http.StatusBadRequest,
-	platform.EEmptyValue:       http.StatusBadRequest,
-	platform.EConflict:         http.StatusUnprocessableEntity,
-	platform.ENotFound:         http.StatusNotFound,
-	platform.EUnavailable:      http.StatusServiceUnavailable,
-	platform.EForbidden:        http.StatusForbidden,
-	platform.EMethodNotAllowed: http.StatusMethodNotAllowed,
+	platform.EInternal:    http.StatusInternalServerError,
+	platform.EInvalid:     http.StatusBadRequest,
+	platform.EEmptyValue:  http.StatusBadRequest,
+	platform.EConflict:    http.StatusUnprocessableEntity,
+	platform.ENotFound:    http.StatusNotFound,
+	platform.EUnavailable: http.StatusServiceUnavailable,
+	platform.EForbidden:   http.StatusForbidden,
 }

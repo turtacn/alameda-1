@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/pod_assignment.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
+import "alameda_api/v1alpha1/datahub/resource.proto";
 
 /**
  * Represents a resource configuration recommendation
@@ -46,4 +47,5 @@ message PodRecommendation {
     repeated ContainerRecommendation container_recommendations = 4;
     google.protobuf.Timestamp start_time = 5;
     google.protobuf.Timestamp end_time = 6;
+    TopController top_controller = 7;
 }

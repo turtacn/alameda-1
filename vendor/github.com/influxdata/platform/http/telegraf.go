@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/golang/gddo/httputil"
 	"github.com/influxdata/platform"
 	pctx "github.com/influxdata/platform/context"
 	"github.com/influxdata/platform/kit/errors"
@@ -43,7 +43,6 @@ func NewTelegrafHandler(
 	mappingService platform.UserResourceMappingService,
 	labelService platform.LabelService,
 	telegrafSvc platform.TelegrafConfigStore,
-	userService platform.UserService,
 ) *TelegrafHandler {
 	h := &TelegrafHandler{
 		Router: NewRouter(),
@@ -52,7 +51,6 @@ func NewTelegrafHandler(
 		LabelService:               labelService,
 		TelegrafService:            telegrafSvc,
 		Logger:                     logger,
-		UserService:                userService,
 	}
 	h.HandlerFunc("POST", telegrafsPath, h.handlePostTelegraf)
 	h.HandlerFunc("GET", telegrafsPath, h.handleGetTelegrafs)
@@ -131,11 +129,14 @@ func (h *TelegrafHandler) handleGetTelegrafs(w http.ResponseWriter, r *http.Requ
 	}
 	tcs, _, err := h.TelegrafService.FindTelegrafConfigs(ctx, *filter)
 	if err != nil {
+		if err == platform.ErrViewNotFound {
+			err = errors.New(err.Error(), errors.NotFound)
+		}
 		EncodeError(ctx, err, w)
 		return
 	}
 	if err := encodeResponse(ctx, w, http.StatusOK, newTelegrafResponses(tcs)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -149,13 +150,14 @@ func (h *TelegrafHandler) handleGetTelegraf(w http.ResponseWriter, r *http.Reque
 	}
 	tc, err := h.TelegrafService.FindTelegrafConfigByID(ctx, id)
 	if err != nil {
+		if err == platform.ErrViewNotFound {
+			err = errors.New(err.Error(), errors.NotFound)
+		}
 		EncodeError(ctx, err, w)
 		return
 	}
 
-	offers := []string{"application/toml", "application/json", "application/octet-stream"}
-	defaultOffer := "application/toml"
-	mimeType := httputil.NegotiateContentType(r, offers, defaultOffer)
+	mimeType := r.Header.Get("Accept")
 	switch mimeType {
 	case "application/octet-stream":
 		w.Header().Set("Content-Type", "application/octet-stream")
@@ -164,10 +166,10 @@ func (h *TelegrafHandler) handleGetTelegraf(w http.ResponseWriter, r *http.Reque
 		w.Write([]byte(tc.TOML()))
 	case "application/json":
 		if err := encodeResponse(ctx, w, http.StatusOK, newTelegrafResponse(tc)); err != nil {
-			logEncodingError(h.Logger, r, err)
+			EncodeError(ctx, err, w)
 			return
 		}
-	case "application/toml":
+	default:
 		w.Header().Set("Content-Type", "application/toml; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(tc.TOML()))
@@ -230,19 +232,20 @@ func (h *TelegrafHandler) handlePostTelegraf(w http.ResponseWriter, r *http.Requ
 		EncodeError(ctx, err, w)
 		return
 	}
+	now := time.Now()
 	auth, err := pctx.GetAuthorizer(ctx)
 	if err != nil {
 		EncodeError(ctx, err, w)
 		return
 	}
 
-	if err := h.TelegrafService.CreateTelegrafConfig(ctx, tc, auth.GetUserID()); err != nil {
+	if err := h.TelegrafService.CreateTelegrafConfig(ctx, tc, auth.GetUserID(), now); err != nil {
 		EncodeError(ctx, err, w)
 		return
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newTelegrafResponse(tc)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -256,20 +259,21 @@ func (h *TelegrafHandler) handlePutTelegraf(w http.ResponseWriter, r *http.Reque
 		EncodeError(ctx, err, w)
 		return
 	}
+	now := time.Now()
 	auth, err := pctx.GetAuthorizer(ctx)
 	if err != nil {
 		EncodeError(ctx, err, w)
 		return
 	}
 
-	tc, err = h.TelegrafService.UpdateTelegrafConfig(ctx, tc.ID, tc, auth.GetUserID())
+	tc, err = h.TelegrafService.UpdateTelegrafConfig(ctx, tc.ID, tc, auth.GetUserID(), now)
 	if err != nil {
 		EncodeError(ctx, err, w)
 		return
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newTelegrafResponse(tc)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -288,7 +292,7 @@ func (h *TelegrafHandler) handleDeleteTelegraf(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusNoContent, nil); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }

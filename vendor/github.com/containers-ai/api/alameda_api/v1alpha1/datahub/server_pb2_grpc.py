@@ -143,7 +143,7 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def ListNodes(self, request, context):
-    """Used to list nodes need to be predicted
+    """Used to list nodes' information
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')

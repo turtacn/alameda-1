@@ -13,14 +13,11 @@ import (
 	"github.com/influxdata/platform"
 	"github.com/influxdata/platform/kit/errors"
 	"github.com/julienschmidt/httprouter"
-	"go.uber.org/zap"
 )
 
 // BucketHandler represents an HTTP API handler for buckets.
 type BucketHandler struct {
 	*httprouter.Router
-
-	Logger *zap.Logger
 
 	BucketService              platform.BucketService
 	BucketOperationLogService  platform.BucketOperationLogService
@@ -42,13 +39,11 @@ const (
 )
 
 // NewBucketHandler returns a new instance of BucketHandler.
-func NewBucketHandler(mappingService platform.UserResourceMappingService, labelService platform.LabelService, userService platform.UserService) *BucketHandler {
+func NewBucketHandler(mappingService platform.UserResourceMappingService, labelService platform.LabelService) *BucketHandler {
 	h := &BucketHandler{
 		Router:                     NewRouter(),
-		Logger:                     zap.NewNop(),
 		UserResourceMappingService: mappingService,
 		LabelService:               labelService,
-		UserService:                userService,
 	}
 
 	h.HandlerFunc("POST", bucketsPath, h.handlePostBucket)
@@ -233,7 +228,7 @@ func (h *BucketHandler) handlePostBucket(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newBucketResponse(req.Bucket)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -284,7 +279,7 @@ func (h *BucketHandler) handleGetBucket(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newBucketResponse(b)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -368,7 +363,7 @@ func (h *BucketHandler) handleGetBuckets(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newBucketsResponse(req.opts, req.filter, bs)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -425,7 +420,7 @@ func (h *BucketHandler) handlePatchBucket(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newBucketResponse(b)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -714,7 +709,7 @@ func (h *BucketHandler) handleGetBucketLog(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newBucketLogResponse(req.BucketID, log)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }

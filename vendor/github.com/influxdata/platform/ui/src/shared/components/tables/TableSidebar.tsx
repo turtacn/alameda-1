@@ -1,19 +1,15 @@
-// Libraries
 import React, {PureComponent, ChangeEvent} from 'react'
 import _ from 'lodash'
 
-// Components
+import {FluxTable} from 'src/types'
 import {ErrorHandling} from 'src/shared/decorators/errors'
 import FancyScrollbar from 'src/shared/components/fancy_scrollbar/FancyScrollbar'
 import TableSidebarItem from 'src/shared/components/tables/TableSidebarItem'
 
-// Types
-import {FluxTable} from 'src/types'
-
 interface Props {
   data: FluxTable[]
-  selectedTableName: string
-  onSelectTable: (name: string) => void
+  selectedResultID: string
+  onSelectResult: (id: string) => void
 }
 
 interface State {
@@ -22,21 +18,25 @@ interface State {
 
 @ErrorHandling
 export default class TableSidebar extends PureComponent<Props, State> {
-  public state = {
-    searchTerm: '',
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      searchTerm: '',
+    }
   }
 
   public render() {
-    const {selectedTableName, onSelectTable} = this.props
+    const {selectedResultID, onSelectResult} = this.props
     const {searchTerm} = this.state
 
     return (
-      <div className="time-machine-sidebar">
+      <div className="yield-node--sidebar">
         {!this.isDataEmpty && (
-          <div className="time-machine-sidebar--heading">
+          <div className="yield-node--sidebar-heading">
             <input
               type="text"
-              className="form-control input-xs time-machine-sidebar--filter"
+              className="form-control input-xs yield-node--sidebar-filter"
               onChange={this.handleSearch}
               placeholder="Filter tables"
               value={searchTerm}
@@ -44,16 +44,16 @@ export default class TableSidebar extends PureComponent<Props, State> {
           </div>
         )}
         <FancyScrollbar>
-          <div className="time-machine-sidebar--items">
-            {this.filteredData.map(({groupKey, id, name}) => {
+          <div className="yield-node--tabs">
+            {this.data.map(({groupKey, id}) => {
               return (
                 <TableSidebarItem
                   id={id}
                   key={id}
                   name={name}
                   groupKey={groupKey}
-                  onSelect={onSelectTable}
-                  isSelected={name === selectedTableName}
+                  onSelect={onSelectResult}
+                  isSelected={id === selectedResultID}
                 />
               )
             })}
@@ -63,11 +63,11 @@ export default class TableSidebar extends PureComponent<Props, State> {
     )
   }
 
-  private handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
+  private handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({searchTerm: e.target.value})
   }
 
-  get filteredData(): FluxTable[] {
+  get data(): FluxTable[] {
     const {data} = this.props
     const {searchTerm} = this.state
 

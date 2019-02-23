@@ -18,7 +18,6 @@ require (
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf // indirect
 	github.com/aws/aws-sdk-go v1.15.59 // indirect
-	github.com/benbjohnson/tmpl v1.0.0
 	github.com/bitly/go-hostpool v0.0.0-20171023180738-a3a6125de932 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
@@ -51,7 +50,6 @@ require (
 	github.com/go-test/deep v1.0.1 // indirect
 	github.com/gocql/gocql v0.0.0-20181117210152-33c0e89ca93a // indirect
 	github.com/gogo/protobuf v1.1.1
-	github.com/golang/gddo v0.0.0-20181116215533-9bd4a3295021
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c
 	github.com/google/go-cmp v0.2.0
@@ -140,7 +138,7 @@ require (
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
 	golang.org/x/sys v0.0.0-20181205085412-a5c9d58dba9a
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
-	golang.org/x/tools v0.0.0-20181121193951-91f80e683c10
+	golang.org/x/tools v0.0.0-20181121193951-91f80e683c10 // indirect
 	google.golang.org/api v0.0.0-20181021000519-a2651947f503
 	google.golang.org/appengine v1.2.0 // indirect
 	google.golang.org/genproto v0.0.0-20181016170114-94acd270e44e // indirect

@@ -13,14 +13,11 @@ import (
 	"github.com/influxdata/platform"
 	"github.com/influxdata/platform/kit/errors"
 	"github.com/julienschmidt/httprouter"
-	"go.uber.org/zap"
 )
 
 // DashboardHandler is the handler for the dashboard service
 type DashboardHandler struct {
 	*httprouter.Router
-
-	Logger *zap.Logger
 
 	DashboardService             platform.DashboardService
 	DashboardOperationLogService platform.DashboardOperationLogService
@@ -44,13 +41,11 @@ const (
 )
 
 // NewDashboardHandler returns a new instance of DashboardHandler.
-func NewDashboardHandler(mappingService platform.UserResourceMappingService, labelService platform.LabelService, userService platform.UserService) *DashboardHandler {
+func NewDashboardHandler(mappingService platform.UserResourceMappingService, labelService platform.LabelService) *DashboardHandler {
 	h := &DashboardHandler{
 		Router:                     NewRouter(),
-		Logger:                     zap.NewNop(),
 		UserResourceMappingService: mappingService,
 		LabelService:               labelService,
-		UserService:                userService,
 	}
 
 	h.HandlerFunc("POST", dashboardsPath, h.handlePostDashboard)
@@ -236,7 +231,7 @@ func (h *DashboardHandler) handleGetDashboards(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newGetDashboardsResponse(dashboards)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -325,7 +320,7 @@ func (h *DashboardHandler) handlePostDashboard(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newDashboardResponse(req.Dashboard)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -361,7 +356,7 @@ func (h *DashboardHandler) handleGetDashboard(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newDashboardResponse(dashboard)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -404,7 +399,7 @@ func (h *DashboardHandler) handleGetDashboardLog(w http.ResponseWriter, r *http.
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newDashboardLogResponse(req.DashboardID, log)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -507,7 +502,7 @@ func (h *DashboardHandler) handlePatchDashboard(w http.ResponseWriter, r *http.R
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newDashboardResponse(dashboard)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -605,7 +600,7 @@ func (h *DashboardHandler) handlePostDashboardCell(w http.ResponseWriter, r *htt
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newDashboardCellResponse(req.dashboardID, req.cell)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -651,7 +646,7 @@ func (h *DashboardHandler) handlePutDashboardCells(w http.ResponseWriter, r *htt
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newDashboardCellsResponse(req.dashboardID, req.cells)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }
@@ -763,7 +758,7 @@ func (h *DashboardHandler) handlePatchDashboardCell(w http.ResponseWriter, r *ht
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusOK, newDashboardCellResponse(req.dashboardID, cell)); err != nil {
-		logEncodingError(h.Logger, r, err)
+		EncodeError(ctx, err, w)
 		return
 	}
 }

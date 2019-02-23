@@ -11,7 +11,7 @@ import {TelegrafPluginInputCpu} from 'src/api'
 const setup = (override = {}) => {
   const props = {
     title: '',
-    helpText: '',
+    displayTitle: false,
     onAddRow: jest.fn(),
     onDeleteRow: jest.fn(),
     autoFocus: true,

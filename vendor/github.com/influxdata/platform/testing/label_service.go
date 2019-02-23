@@ -10,6 +10,11 @@ import (
 	"github.com/influxdata/platform"
 )
 
+var (
+	validColor   = "fff000"
+	invalidColor = "xyz123"
+)
+
 var labelCmpOptions = cmp.Options{
 	cmp.Comparer(func(x, y []byte) bool {
 		return bytes.Equal(x, y)
@@ -100,9 +105,6 @@ func CreateLabel(
 				label: &platform.Label{
 					ResourceID: MustIDBase16(bucketOneID),
 					Name:       "Tag2",
-					Properties: map[string]string{
-						"color": "fff000",
-					},
 				},
 			},
 			wants: wants{
@@ -114,9 +116,6 @@ func CreateLabel(
 					{
 						ResourceID: MustIDBase16(bucketOneID),
 						Name:       "Tag2",
-						Properties: map[string]string{
-							"color": "fff000",
-						},
 					},
 				},
 			},
@@ -292,7 +291,7 @@ func UpdateLabel(
 		wants  wants
 	}{
 		{
-			name: "update label properties",
+			name: "update label color",
 			fields: LabelFields{
 				Labels: []*platform.Label{
 					{
@@ -307,9 +306,7 @@ func UpdateLabel(
 					Name:       "Tag1",
 				},
 				update: platform.LabelUpdate{
-					Properties: map[string]string{
-						"color": "fff000",
-					},
+					Color: &validColor,
 				},
 			},
 			wants: wants{
@@ -317,84 +314,7 @@ func UpdateLabel(
 					{
 						ResourceID: MustIDBase16(bucketOneID),
 						Name:       "Tag1",
-						Properties: map[string]string{
-							"color": "fff000",
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "replacing a label property",
-			fields: LabelFields{
-				Labels: []*platform.Label{
-					{
-						ResourceID: MustIDBase16(bucketOneID),
-						Name:       "Tag1",
-						Properties: map[string]string{
-							"color":       "fff000",
-							"description": "description",
-						},
-					},
-				},
-			},
-			args: args{
-				label: platform.Label{
-					ResourceID: MustIDBase16(bucketOneID),
-					Name:       "Tag1",
-				},
-				update: platform.LabelUpdate{
-					Properties: map[string]string{
-						"color": "abc123",
-					},
-				},
-			},
-			wants: wants{
-				labels: []*platform.Label{
-					{
-						ResourceID: MustIDBase16(bucketOneID),
-						Name:       "Tag1",
-						Properties: map[string]string{
-							"color":       "abc123",
-							"description": "description",
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "deleting a label property",
-			fields: LabelFields{
-				Labels: []*platform.Label{
-					{
-						ResourceID: MustIDBase16(bucketOneID),
-						Name:       "Tag1",
-						Properties: map[string]string{
-							"color":       "fff000",
-							"description": "description",
-						},
-					},
-				},
-			},
-			args: args{
-				label: platform.Label{
-					ResourceID: MustIDBase16(bucketOneID),
-					Name:       "Tag1",
-				},
-				update: platform.LabelUpdate{
-					Properties: map[string]string{
-						"description": "",
-					},
-				},
-			},
-			wants: wants{
-				labels: []*platform.Label{
-					{
-						ResourceID: MustIDBase16(bucketOneID),
-						Name:       "Tag1",
-						Properties: map[string]string{
-							"color": "fff000",
-						},
+						Color:      "fff000",
 					},
 				},
 			},
@@ -438,6 +358,39 @@ func UpdateLabel(
 		// 	},
 		// },
 		{
+			name: "invalid label color update",
+			fields: LabelFields{
+				Labels: []*platform.Label{
+					{
+						ResourceID: MustIDBase16(bucketOneID),
+						Name:       "Tag1",
+					},
+				},
+			},
+			args: args{
+				label: platform.Label{
+					ResourceID: MustIDBase16(bucketOneID),
+					Name:       "Tag1",
+				},
+				update: platform.LabelUpdate{
+					Color: &invalidColor,
+				},
+			},
+			wants: wants{
+				labels: []*platform.Label{
+					{
+						ResourceID: MustIDBase16(bucketOneID),
+						Name:       "Tag1",
+					},
+				},
+				err: &platform.Error{
+					Code: platform.EInvalid,
+					Op:   platform.OpUpdateLabel,
+					Msg:  "label color must be valid hex string",
+				},
+			},
+		},
+		{
 			name: "updating a non-existent label",
 			fields: LabelFields{
 				Labels: []*platform.Label{},
@@ -448,9 +401,7 @@ func UpdateLabel(
 					Name:       "Tag1",
 				},
 				update: platform.LabelUpdate{
-					Properties: map[string]string{
-						"color": "fff000",
-					},
+					Color: &validColor,
 				},
 			},
 			wants: wants{

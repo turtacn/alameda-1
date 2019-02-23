@@ -9,9 +9,9 @@ import (
 
 const (
 	// OrgName is the http query parameter to specify an organization by name.
-	OrgName = "org"
+	OrgName = "organization"
 	// OrgID is the http query parameter to specify an organization by ID.
-	OrgID = "orgID"
+	OrgID = "organizationID"
 )
 
 // queryOrganization returns the organization for any http request.

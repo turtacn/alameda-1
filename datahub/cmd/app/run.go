@@ -39,7 +39,6 @@ var (
 			initLogger()
 			setLoggerScopesWithConfig(*config.Log)
 			displayConfig()
-
 			server, err = datahub.NewServer(config)
 			if err != nil {
 				panic(err)

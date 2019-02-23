@@ -201,7 +201,7 @@ export class SelectDataSourceStep extends PureComponent<Props, State> {
     const {onSetCurrentStepIndex, stepStatuses} = this.props
 
     this.handleSetStepStatus()
-    onSetCurrentStepIndex(stepStatuses.length - 2)
+    onSetCurrentStepIndex(stepStatuses.length - 1)
   }
 
   private handleClickNext = () => {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	bolt "github.com/coreos/bbolt"
 	"github.com/influxdata/platform"
@@ -147,7 +148,7 @@ func (c *Client) putTelegrafConfig(ctx context.Context, tx *bolt.Tx, tc *platfor
 }
 
 // CreateTelegrafConfig creates a new telegraf config and sets b.ID with the new identifier.
-func (c *Client) CreateTelegrafConfig(ctx context.Context, tc *platform.TelegrafConfig, userID platform.ID) error {
+func (c *Client) CreateTelegrafConfig(ctx context.Context, tc *platform.TelegrafConfig, userID platform.ID, now time.Time) error {
 	op := "bolt/create telegraf config"
 	return c.db.Update(func(tx *bolt.Tx) error {
 		tc.ID = c.IDGenerator.ID()
@@ -160,6 +161,9 @@ func (c *Client) CreateTelegrafConfig(ctx context.Context, tc *platform.Telegraf
 		if err != nil {
 			return err
 		}
+		tc.Created = now
+		tc.LastMod = now
+		tc.LastModBy = userID
 		pErr := c.putTelegrafConfig(ctx, tx, tc)
 		if pErr != nil {
 			pErr.Op = op
@@ -171,23 +175,25 @@ func (c *Client) CreateTelegrafConfig(ctx context.Context, tc *platform.Telegraf
 
 // UpdateTelegrafConfig updates a single telegraf config.
 // Returns the new telegraf config after update.
-func (c *Client) UpdateTelegrafConfig(ctx context.Context, id platform.ID, tc *platform.TelegrafConfig, userID platform.ID) (*platform.TelegrafConfig, error) {
+func (c *Client) UpdateTelegrafConfig(ctx context.Context, id platform.ID, tc *platform.TelegrafConfig, userID platform.ID, now time.Time) (*platform.TelegrafConfig, error) {
 	op := "bolt/update telegraf config"
 	err := c.db.Update(func(tx *bolt.Tx) (err error) {
-		_, pErr := c.findTelegrafConfigByID(ctx, tx, id)
+		oldTc, pErr := c.findTelegrafConfigByID(ctx, tx, id)
 		if pErr != nil {
 			pErr.Op = op
 			err = pErr
 			return err
 		}
 		tc.ID = id
+		tc.Created = oldTc.Created
+		tc.LastMod = now
+		tc.LastModBy = userID
 		pErr = c.putTelegrafConfig(ctx, tx, tc)
 		if pErr != nil {
-			return &platform.Error{
-				Err: pErr,
-			}
+			pErr.Op = op
+			err = pErr
 		}
-		return nil
+		return err
 	})
 	return tc, err
 }
