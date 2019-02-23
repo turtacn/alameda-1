@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/containers-ai/alameda/cmd/app"
 	"github.com/containers-ai/alameda/datahub"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
@@ -33,7 +34,7 @@ var (
 
 				server *datahub.Server
 			)
-
+			app.PrintSoftwareVer()
 			initConfig()
 			initLogger()
 			setLoggerScopesWithConfig(*config.Log)

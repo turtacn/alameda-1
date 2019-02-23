@@ -61,6 +61,7 @@ var isLogOutput bool
 var serverPort int
 var operatorConfigFile string
 var crdLocation string
+var showVer bool
 
 var operatorConf operator.Config
 var scope *logUtil.Scope
@@ -75,6 +76,7 @@ var (
 )
 
 func init() {
+	flag.BoolVar(&showVer, "version", false, "show version")
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
@@ -123,6 +125,10 @@ func initServerConfig(mgr manager.Manager) {
 
 func main() {
 	flag.Parse()
+	if showVer {
+		printSoftwareInfo()
+		return
+	}
 
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()

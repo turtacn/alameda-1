@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/containers-ai/alameda/datahub/cmd/app"
+	"github.com/containers-ai/alameda/cmd/app"
+	datahub_app "github.com/containers-ai/alameda/datahub/cmd/app"
 	"github.com/spf13/cobra"
 )
 
@@ -23,16 +22,18 @@ var (
 )
 
 func init() {
-	RootCmd.AddCommand(app.RunCmd)
+	RootCmd.AddCommand(datahub_app.RunCmd)
+	RootCmd.AddCommand(app.VersionCmd)
 }
 
 func main() {
-	printSoftwareInfo()
+	setSoftwareInfo()
 	RootCmd.Execute()
 }
 
-func printSoftwareInfo() {
-	fmt.Println(fmt.Sprintf("Datahub Version: %s", VERSION))
-	fmt.Println(fmt.Sprintf("Datahub Build Time: %s", BUILD_TIME))
-	fmt.Println(fmt.Sprintf("Datahub GO Version: %s", GO_VERSION))
+func setSoftwareInfo() {
+	app.VERSION = VERSION
+	app.BUILD_TIME = BUILD_TIME
+	app.GO_VERSION = GO_VERSION
+	app.PRODUCT_NAME = "datahub"
 }
