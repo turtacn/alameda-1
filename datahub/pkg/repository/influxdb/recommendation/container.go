@@ -71,7 +71,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 				string(recommendation_entity.ContainerStartTime):         recStartTime.GetSeconds(),
 				string(recommendation_entity.ContainerEndTime):           recEndTime.GetSeconds(),
 				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
-				string(recommendation_entity.ContainerTopControllerKind): topController.GetKind(),
+				string(recommendation_entity.ContainerTopControllerKind): int32(topController.GetKind()),
 			}
 
 			for _, metricData := range containerRecommendation.GetLimitRecommendations() {
@@ -240,7 +240,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	}
 
 	if kind != datahub_v1alpha1.Kind_POD {
-		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", string(recommendation_entity.ContainerTopControllerKind), kind)
+		kindConditionStr := fmt.Sprintf("\"%s\"=%v", string(recommendation_entity.ContainerTopControllerKind), int32(kind))
 		if whereStr == "" {
 			whereStr = fmt.Sprintf("WHERE %s", kindConditionStr)
 		} else if whereStr != "" {
@@ -261,6 +261,8 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 			for _, ser := range result.Series {
 				podName := ser.Tags[string(recommendation_entity.ContainerPodName)]
 				podNS := ser.Tags[string(recommendation_entity.ContainerNamespace)]
+				topControllerName := ""
+				var topControllerKind int32 = 0
 				containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
 					Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
 					InitialLimitRecommendations:   []*datahub_v1alpha1.MetricData{},
@@ -322,6 +324,11 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 							startTime, _ = val[columnIdx].(json.Number).Int64()
 						} else if column == string(recommendation_entity.ContainerEndTime) {
 							endTime, _ = val[columnIdx].(json.Number).Int64()
+						} else if column == string(recommendation_entity.ContainerTopControllerName) {
+							topControllerName = val[columnIdx].(string)
+						} else if column == string(recommendation_entity.ContainerTopControllerKind) {
+							topControllerKindInt, _ := val[columnIdx].(json.Number).Int64()
+							topControllerKind = int32(topControllerKindInt)
 						}
 					}
 				}
@@ -408,6 +415,13 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 						},
 						ContainerRecommendations: []*datahub_v1alpha1.ContainerRecommendation{
 							containerRecommendation,
+						},
+						TopController: &datahub_v1alpha1.TopController{
+							NamespacedName: &datahub_v1alpha1.NamespacedName{
+								Namespace: podNS,
+								Name:      topControllerName,
+							},
+							Kind: datahub_v1alpha1.Kind(topControllerKind),
 						},
 					}
 					if startTime != 0 {

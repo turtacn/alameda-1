@@ -83,6 +83,11 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, 
 						Name:      podName,
 						Namespace: contanerNS,
 					},
+					TopController: &datahub_v1alpha1.TopController{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: contanerNS,
+						},
+					},
 				}
 				if len(ser.Values) > 0 {
 					for colIdx, col := range ser.Columns {
@@ -97,6 +102,11 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, 
 							}
 						} else if col == cluster_status_entity.ContainerNodeName && ser.Values[0][colIdx] != nil {
 							thePod.NodeName = ser.Values[0][colIdx].(string)
+						} else if col == cluster_status_entity.ContainerTopControllerName {
+							thePod.TopController.NamespacedName.Name = ser.Values[0][colIdx].(string)
+						} else if col == cluster_status_entity.ContainerTopControllerKind {
+							kindInt, _ := ser.Values[0][colIdx].(json.Number).Int64()
+							thePod.TopController.Kind = datahub_v1alpha1.Kind(int32(kindInt))
 						}
 					}
 				}
@@ -133,7 +143,7 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 				string(cluster_status_entity.ContainerPodCreateTime):     pod.StartTime.GetSeconds(),
 				string(cluster_status_entity.ContainerResourceLink):      pod.GetResourceLink(),
 				string(cluster_status_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
-				string(cluster_status_entity.ContainerTopControllerKind): topController.GetKind(),
+				string(cluster_status_entity.ContainerTopControllerKind): int32(topController.GetKind()),
 			}
 			if isAlamedaPod {
 				tags[string(cluster_status_entity.ContainerAlamedaScalerNamespace)] = pod.GetAlamedaScaler().GetNamespace()
