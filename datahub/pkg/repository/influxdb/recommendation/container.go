@@ -6,6 +6,7 @@ import (
 	"time"
 
 	recommendation_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/recommendation"
+	"github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/utils/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -71,7 +72,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 				string(recommendation_entity.ContainerStartTime):         recStartTime.GetSeconds(),
 				string(recommendation_entity.ContainerEndTime):           recEndTime.GetSeconds(),
 				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
-				string(recommendation_entity.ContainerTopControllerKind): int32(topController.GetKind()),
+				string(recommendation_entity.ContainerTopControllerKind): enumconv.TopControllerDisp[(topController.GetKind())],
 			}
 
 			for _, metricData := range containerRecommendation.GetLimitRecommendations() {
@@ -240,7 +241,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	}
 
 	if kind != datahub_v1alpha1.Kind_POD {
-		kindConditionStr := fmt.Sprintf("\"%s\"=%v", string(recommendation_entity.ContainerTopControllerKind), int32(kind))
+		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", string(recommendation_entity.ContainerTopControllerKind), enumconv.TopControllerDisp[kind])
 		if whereStr == "" {
 			whereStr = fmt.Sprintf("WHERE %s", kindConditionStr)
 		} else if whereStr != "" {
@@ -262,7 +263,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 				podName := ser.Tags[string(recommendation_entity.ContainerPodName)]
 				podNS := ser.Tags[string(recommendation_entity.ContainerNamespace)]
 				topControllerName := ""
-				var topControllerKind int32 = 0
+				topControllerKind := datahub_v1alpha1.Kind_POD
 				containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
 					Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
 					InitialLimitRecommendations:   []*datahub_v1alpha1.MetricData{},
@@ -327,8 +328,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 						} else if column == string(recommendation_entity.ContainerTopControllerName) {
 							topControllerName = val[columnIdx].(string)
 						} else if column == string(recommendation_entity.ContainerTopControllerKind) {
-							topControllerKindInt, _ := val[columnIdx].(json.Number).Int64()
-							topControllerKind = int32(topControllerKindInt)
+							topControllerKind = enumconv.TopControllerEnum[val[columnIdx].(string)]
 						}
 					}
 				}
@@ -421,7 +421,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 								Namespace: podNS,
 								Name:      topControllerName,
 							},
-							Kind: datahub_v1alpha1.Kind(topControllerKind),
+							Kind: topControllerKind,
 						},
 					}
 					if startTime != 0 {

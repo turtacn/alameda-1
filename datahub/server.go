@@ -278,6 +278,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 // ListAlamedaPods returns predicted pods
 func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+	scope.Debug("Request received from ListAlamedaPods grpc function: " + utils.InterfaceToString(in))
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
@@ -296,12 +297,14 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 			},
 		}, nil
 	} else {
-		return &datahub_v1alpha1.ListPodsResponse{
+		res := &datahub_v1alpha1.ListPodsResponse{
 			Pods: alamedaPods,
 			Status: &status.Status{
 				Code: int32(code.Code_OK),
 			},
-		}, nil
+		}
+		scope.Debug("Request received from ListAlamedaPods grpc function: " + utils.InterfaceToString(res))
+		return res, nil
 	}
 }
 
