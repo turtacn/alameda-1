@@ -6,7 +6,7 @@ WORKDIR /go/src/github.com/containers-ai/alameda
 ADD . .
 
 # Build
-RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \"-X github.com/containers-ai/alameda/cmd/app.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``[[ ! -z $(git status -s -uno) ]] && echo '-dirty'` -X 'github.com/containers-ai/alameda/cmd/app.BUILD_TIME=`date`' -X 'github.com/containers-ai/alameda/cmd/app.GO_VERSION=`go version`'\" -a -o ./bin/admission-controller  github.com/containers-ai/alameda/admission-controller/cmd"]
+RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \"-X github.com/containers-ai/alameda/cmd/app.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'github.com/containers-ai/alameda/cmd/app.BUILD_TIME=`date`' -X 'github.com/containers-ai/alameda/cmd/app.GO_VERSION=`go version`'\" -a -o ./bin/admission-controller  github.com/containers-ai/alameda/admission-controller/cmd"]
 
 # Copy the controller-manager into a thin image
 FROM alpine:latest
