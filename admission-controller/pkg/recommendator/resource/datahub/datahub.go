@@ -1,0 +1,199 @@
+package datahub
+
+import (
+	"context"
+
+	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
+	"github.com/containers-ai/alameda/pkg/framework/datahub"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+	core_v1 "k8s.io/api/core/v1"
+	k8s_resource "k8s.io/apimachinery/pkg/api/resource"
+)
+
+var (
+	scope               = log.RegisterScope("Datahub resource recommendator", "Datahub resource recommendator", 0)
+	k8sKind_DatahubKind = map[string]datahub_v1alpha1.Kind{
+		"Pod":              datahub_v1alpha1.Kind_POD,
+		"Deployment":       datahub_v1alpha1.Kind_DEPLOYMENT,
+		"DeploymentConfig": datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
+	}
+	datahubMetricType_K8SResourceName = map[datahub_v1alpha1.MetricType]core_v1.ResourceName{
+		datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE: core_v1.ResourceCPU,
+		datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:           core_v1.ResourceMemory,
+	}
+)
+
+var _ resource.ResourceRecommendator = &datahubResourceRecommendator{}
+
+type datahubResourceRecommendator struct {
+	config *datahub.Config
+}
+
+func NewDatahubResourceRecommendatorWithConfig(cfg *datahub.Config) (resource.ResourceRecommendator, error) {
+
+	if cfg == nil {
+		return nil, errors.Errorf("must provide Datahub configuration")
+	}
+
+	return &datahubResourceRecommendator{
+		config: cfg,
+	}, nil
+}
+
+func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations(req resource.ListControllerPodResourceRecommendationsRequest) ([]*resource.PodResourceRecommendation, error) {
+
+	recommendations := make([]*resource.PodResourceRecommendation, 0)
+
+	conn, err := grpc.Dial(dr.config.Address, grpc.WithInsecure())
+	if err != nil {
+		return recommendations, errors.Wrap(err, "dial failed")
+	}
+	defer conn.Close()
+	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
+
+	datahubRequest, err := buildDatahhubListPodRecommendationRequestFrom(req)
+	if err != nil {
+		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
+	}
+	resp, err := datahubClient.ListPodRecommendations(context.Background(), datahubRequest)
+	if err != nil {
+		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
+	} else if _, err := datahub.IsResponseStatusOK(resp.Status); err != nil {
+		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
+	}
+
+	for _, datahubPodRecommendation := range resp.GetPodRecommendations() {
+		podRecommendation := buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation)
+		recommendations = append(recommendations, podRecommendation)
+	}
+
+	return recommendations, nil
+}
+
+func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsRequest, error) {
+
+	var datahubRequest *datahub_v1alpha1.ListPodRecommendationsRequest
+
+	datahubKind, exist := k8sKind_DatahubKind[request.Kind]
+	if !exist {
+		return datahubRequest, errors.Errorf("build Datahub ListPodRecommendationsRequest failed: no mapping Datahub kind for k8s kind: %s", request.Kind)
+	}
+
+	var quertTime *timestamp.Timestamp
+	var err error
+	if request.Time != nil {
+		quertTime, err = ptypes.TimestampProto(*request.Time)
+		if err != nil {
+			return datahubRequest, errors.Errorf("build Datahub ListPodRecommendationsRequest failed: convert time.Time to google.Timestamp failed: %s", err.Error())
+		}
+	}
+
+	datahubRequest = &datahub_v1alpha1.ListPodRecommendationsRequest{
+		NamespacedName: &datahub_v1alpha1.NamespacedName{
+			Namespace: request.Namespace,
+			Name:      request.Name,
+		},
+		Kind: datahubKind,
+		QueryCondition: &datahub_v1alpha1.QueryCondition{
+			TimeRange: &datahub_v1alpha1.TimeRange{
+				StartTime: quertTime,
+			},
+			Order: datahub_v1alpha1.QueryCondition_DESC,
+		},
+	}
+
+	return datahubRequest, nil
+}
+
+func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation *datahub_v1alpha1.PodRecommendation) *resource.PodResourceRecommendation {
+
+	namespace := ""
+	name := ""
+	if namespacedName := datahubPodRecommendation.GetNamespacedName(); namespacedName != nil {
+		namespace = namespacedName.Namespace
+		name = namespacedName.Name
+	}
+
+	startTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetStartTime())
+	endTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetEndTime())
+
+	podRecommendation := &resource.PodResourceRecommendation{
+		Namespace:                        namespace,
+		Name:                             name,
+		ContainerResourceRecommendations: make([]*resource.ContainerResourceRecommendation, 0),
+		ValidStartTime:                   startTime,
+		ValidEndTime:                     endTime,
+	}
+	for _, datahubContainerRecommendation := range datahubPodRecommendation.GetContainerRecommendations() {
+		containerResourceRecommendation := buildContainerResourceRecommendationFromDatahubContainerRecommendation(datahubContainerRecommendation)
+		podRecommendation.ContainerResourceRecommendations = append(podRecommendation.ContainerResourceRecommendations, containerResourceRecommendation)
+	}
+
+	return podRecommendation
+}
+
+func buildContainerResourceRecommendationFromDatahubContainerRecommendation(datahubContainerRecommendation *datahub_v1alpha1.ContainerRecommendation) *resource.ContainerResourceRecommendation {
+
+	containerResourceRecommendation := &resource.ContainerResourceRecommendation{
+		Name: datahubContainerRecommendation.Name,
+	}
+
+	resourceLimitMap := datahubMetricDataSliceToMetricTypeValueMap(datahubContainerRecommendation.GetLimitRecommendations())
+	containerResourceRecommendation.Limits = buildK8SReosurceListFromMetricTypeValueMap(resourceLimitMap)
+
+	resourceRequestMap := datahubMetricDataSliceToMetricTypeValueMap(datahubContainerRecommendation.GetRequestRecommendations())
+	containerResourceRecommendation.Requests = buildK8SReosurceListFromMetricTypeValueMap(resourceRequestMap)
+
+	return containerResourceRecommendation
+}
+
+func datahubMetricDataSliceToMetricTypeValueMap(metricDataSlice []*datahub_v1alpha1.MetricData) map[datahub_v1alpha1.MetricType]string {
+
+	resourceMap := make(map[datahub_v1alpha1.MetricType]string)
+
+	for _, metricData := range metricDataSlice {
+		sample := choseOneSample(metricData.GetData())
+		if sample != nil {
+			resourceMap[metricData.MetricType] = sample.NumValue
+		}
+	}
+
+	return resourceMap
+}
+
+func choseOneSample(samples []*datahub_v1alpha1.Sample) *datahub_v1alpha1.Sample {
+
+	if len(samples) > 0 {
+		return samples[0]
+	} else {
+		return nil
+	}
+}
+
+func buildK8SReosurceListFromMetricTypeValueMap(metricTypeValueMap map[datahub_v1alpha1.MetricType]string) core_v1.ResourceList {
+
+	resourceList := make(core_v1.ResourceList)
+
+	for metricType, value := range metricTypeValueMap {
+
+		quantity, err := k8s_resource.ParseQuantity(value)
+		if err != nil {
+			scope.Warnf("parse value to k8s resource.Quantity failed, skip this recommendation: metricType:%s, value: %s, errMsg: %s", datahub_v1alpha1.MetricType_name[int32(metricType)], value, err.Error())
+			continue
+		}
+
+		if k8sResourceName, exist := datahubMetricType_K8SResourceName[metricType]; !exist {
+			scope.Warnf("no mapping k8s core_v1.ResourceName found for Datahub MetricType, skip this recommendation: metricType: %d", metricType)
+			continue
+		} else {
+			resourceList[k8sResourceName] = quantity
+		}
+	}
+
+	return resourceList
+}

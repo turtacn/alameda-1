@@ -1,0 +1,10 @@
+tls-cert-file: "/etc/tls-certs/serverCert.pem"
+tls-private-key-file: "/etc/tls-certs/serverKey.pem"
+enable: false
+
+log:
+  set-logcallers: true
+  output-level: "info" # debug, info, warn, error, fatal, none
+
+datahub:
+  address: datahub.alameda.svc:50050
