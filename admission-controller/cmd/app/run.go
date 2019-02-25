@@ -1,14 +1,16 @@
-package main
+package app
 
 import (
+	"errors"
 	"flag"
 	"net/http"
 	"strings"
 
+	"github.com/containers-ai/alameda/admission-controller"
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource/datahub"
 	"github.com/containers-ai/alameda/admission-controller/pkg/server"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -18,8 +20,37 @@ const (
 )
 
 var (
+	scope  *log.Scope
+	config *admission_controller.Config
+
 	configurationFilePath string
-	config                *Config
+
+	RunCmd = &cobra.Command{
+		Use:   "run",
+		Short: "start alameda admission-controller server",
+		Long:  "",
+		Run: func(cmd *cobra.Command, args []string) {
+
+			flag.Parse()
+
+			initConfig()
+			initLog()
+			datahubResourceRecommendator, err := datahub.NewDatahubResourceRecommendatorWithConfig(config.Datahub)
+			if err != nil {
+				panic(err.Error())
+			}
+			admissionController, err := server.NewAdmissionControllerWithConfig(server.Config{Enable: config.Enable}, datahubResourceRecommendator)
+			if err != nil {
+				panic(err.Error())
+			}
+
+			mux := http.NewServeMux()
+			registerHandlerFunc(mux, admissionController)
+
+			server := newHTTPServer(*config, mux)
+			server.ListenAndServeTLS("", "")
+		},
+	}
 )
 
 func init() {
@@ -28,7 +59,7 @@ func init() {
 
 func initConfig() {
 
-	defaultConfig := NewDefaultConfig()
+	defaultConfig := admission_controller.NewDefaultConfig()
 	config = &defaultConfig
 	initViperSetting()
 	mergeConfigFileValueWithDefaultConfigValue()
@@ -67,38 +98,18 @@ func initLog() {
 	}
 }
 
-func main() {
-
-	initConfig()
-	initLog()
-	datahubResourceRecommendator, err := datahub.NewDatahubResourceRecommendatorWithConfig(config.Datahub)
-	if err != nil {
-		panic(err.Error())
-	}
-	admissionController, err := server.NewAdmissionControllerWithConfig(server.Config{Enable: config.Enable}, datahubResourceRecommendator)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	mux := http.NewServeMux()
-	registerHandlerFunc(mux, admissionController)
-
-	server := newHTTPServer(*config, mux)
-	server.ListenAndServeTLS("", "")
-}
-
 func registerHandlerFunc(mux *http.ServeMux, ac server.AdmissionController) {
 	mux.HandleFunc("/pods", ac.MutatePod)
 }
 
-func newHTTPServer(cfg Config, mux *http.ServeMux) *http.Server {
+func newHTTPServer(cfg admission_controller.Config, mux *http.ServeMux) *http.Server {
 
-	clientset := getClient()
+	clientset := admission_controller.GetK8SClient()
 
 	server := &http.Server{
 		Addr:      ":443",
 		Handler:   mux,
-		TLSConfig: configTLS(cfg, clientset),
+		TLSConfig: admission_controller.ConfigTLS(cfg, clientset),
 	}
 
 	return server

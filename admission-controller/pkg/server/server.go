@@ -107,6 +107,8 @@ func (ac *admissionController) serve(w http.ResponseWriter, r *http.Request, adm
 
 func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) *admission_v1beta1.AdmissionResponse {
 
+	scope.Debug("mutate pod")
+
 	namespace := ar.Request.Namespace
 
 	podResource := meta_v1.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
@@ -157,8 +159,6 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 }
 
 func (ac *admissionController) getPodResourceRecommendationByControllerID(controllerID namespaceKindName) (*resource.PodResourceRecommendation, error) {
-
-	scope.Debug("get pod resource recommendation")
 
 	var recommendation *resource.PodResourceRecommendation
 

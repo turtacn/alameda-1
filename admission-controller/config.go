@@ -1,4 +1,4 @@
-package main
+package admission_controller
 
 import (
 	"crypto/tls"
@@ -33,7 +33,7 @@ func NewDefaultConfig() Config {
 	}
 }
 
-func getClient() *kubernetes.Clientset {
+func GetK8SClient() *kubernetes.Clientset {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		glog.Fatal(err)
@@ -45,7 +45,7 @@ func getClient() *kubernetes.Clientset {
 	return clientset
 }
 
-func configTLS(config Config, clientset *kubernetes.Clientset) *tls.Config {
+func ConfigTLS(config Config, clientset *kubernetes.Clientset) *tls.Config {
 	sCert, err := tls.LoadX509KeyPair(config.CertFile, config.KeyFile)
 	if err != nil {
 		glog.Fatal(err)

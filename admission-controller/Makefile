@@ -12,7 +12,7 @@ test: generate fmt vet
 
 # Build admission-controller binary
 admission-controller: generate fmt vet
-	go build -o bin/admission-controller github.com/containers-ai/alameda/admission-controller
+	go build -o bin/admission-controller github.com/containers-ai/alameda/admission-controller/cmd
 
 .PHONY: run
 
