@@ -12,7 +12,7 @@ test: generate fmt vet
 
 # Build admission-controller binary
 admission-controller: generate fmt vet
-	go build -o bin/admission-controller github.com/containers-ai/alameda/admission-controller/cmd
+	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/admission-controller github.com/containers-ai/alameda/admission-controller/cmd
 
 .PHONY: run
 
