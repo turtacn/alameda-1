@@ -1,0 +1,9 @@
+log:
+  set-logcallers: true
+  output-level: "info" # debug, info, warn, error, fatal, none
+
+datahub:
+  address: "datahub.alameda.svc.cluster.local:50050"
+
+eviction:
+  check-cycle: 3 # second
