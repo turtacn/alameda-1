@@ -11,7 +11,7 @@ test: generate fmt vet
 
 # Build evictioner binary
 evictioner: generate fmt vet
-	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``[ -z $(git status -s -uno) ] && echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/evictioner github.com/containers-ai/alameda/evictioner/cmd
+	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/evictioner github.com/containers-ai/alameda/evictioner/cmd
 
 .PHONY: run
 

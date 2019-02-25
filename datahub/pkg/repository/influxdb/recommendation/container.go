@@ -68,7 +68,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 			}
 			fields := map[string]interface{}{
 				//TODO
-				string(recommendation_entity.ContainerPolicy):            "",
+				//string(recommendation_entity.ContainerPolicy):            "",
 				string(recommendation_entity.ContainerStartTime):         recStartTime.GetSeconds(),
 				string(recommendation_entity.ContainerEndTime):           recEndTime.GetSeconds(),
 				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
@@ -392,7 +392,9 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 
 				foundPodRec := false
 				for podRecommendationIdx, podRecommendation := range podRecommendations {
-					if podRecommendation.GetNamespacedName().GetNamespace() == podNS && podRecommendation.GetNamespacedName().GetName() == podName {
+					if podRecommendation.GetStartTime() != nil && startTime != 0 && podRecommendation.GetStartTime().GetSeconds() == startTime &&
+						podRecommendation.GetEndTime() != nil && endTime != 0 && podRecommendation.GetEndTime().GetSeconds() == endTime &&
+						podRecommendation.GetNamespacedName().GetNamespace() == podNS && podRecommendation.GetNamespacedName().GetName() == podName {
 						foundPodRec = true
 						podRecommendations[podRecommendationIdx].ContainerRecommendations = append(podRecommendations[podRecommendationIdx].ContainerRecommendations, containerRecommendation)
 						if startTime != 0 {

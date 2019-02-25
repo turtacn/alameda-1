@@ -6,7 +6,7 @@ WORKDIR /opt/app-root/src/go/src/github.com/containers-ai/alameda
 ADD . .
 
 # Build
-RUN /bin/bash -c 'go build -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd'
+RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd"]
 
 # Copy the controller-manager into a thin image
 FROM registry.access.redhat.com/rhscl/s2i-core-rhel7:1-51

@@ -98,6 +98,8 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(scalerNS, 
 							thePod.TopController.NamespacedName.Name = ser.Values[0][colIdx].(string)
 						} else if col == cluster_status_entity.ContainerTopControllerKind {
 							thePod.TopController.Kind = enumconv.TopControllerEnum[ser.Values[0][colIdx].(string)]
+						} else if col == cluster_status_entity.ContainerPolicy {
+							thePod.Policy = enumconv.RecommendationPolicyEnum[ser.Values[0][colIdx].(string)]
 						} else if col == cluster_status_entity.ContainerPodCreateTime && ser.Values[0][colIdx] != nil {
 							if createTime, err := ser.Values[0][colIdx].(json.Number).Int64(); err == nil {
 								thePod.StartTime = &proto_timestmap.Timestamp{
@@ -138,7 +140,7 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 			fields := map[string]interface{}{
 				string(cluster_status_entity.ContainerIsDeleted):         false,
 				string(cluster_status_entity.ContainerIsAlameda):         isAlamedaPod,
-				string(cluster_status_entity.ContainerPolicy):            pod.GetPolicy(),
+				string(cluster_status_entity.ContainerPolicy):            enumconv.RecommendationPolicyDisp[pod.GetPolicy()],
 				string(cluster_status_entity.ContainerPodCreateTime):     pod.StartTime.GetSeconds(),
 				string(cluster_status_entity.ContainerResourceLink):      pod.GetResourceLink(),
 				string(cluster_status_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
