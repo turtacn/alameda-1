@@ -9,11 +9,19 @@ import (
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	core_v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var (
 	alamedascalerReconcilerScope = logUtil.RegisterScope("alamedascaler_reconciler", "alamedascaler_reconciler", 0)
+	podPhaseNeedsMonitoring      = map[core_v1.PodPhase]bool{
+		core_v1.PodPending:   true,
+		core_v1.PodRunning:   true,
+		core_v1.PodSucceeded: false,
+		core_v1.PodFailed:    false,
+		core_v1.PodUnknown:   true,
+	}
 )
 
 // Reconciler reconciles AlamedaScaler object
@@ -117,6 +125,9 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 	}
 	if alamedaPods, err := listResources.ListPodsByDeployment(alamedaDeploymentNS, alamedaDeploymentName); err == nil && len(alamedaPods) > 0 {
 		for _, alamedaPod := range alamedaPods {
+			if !podIsMonitoredByAlameda(&alamedaPod) {
+				continue
+			}
 			alamedaPodNamespace := alamedaPod.GetNamespace()
 			alamedaPodName := alamedaPod.GetName()
 			alamedaPodUID := alamedaPod.GetUID()
@@ -162,6 +173,9 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 	}
 	if alamedaPods, err := listResources.ListPodsByDeploymentConfig(deploymentConfigNS, deploymentConfigName); err == nil && len(alamedaPods) > 0 {
 		for _, alamedaPod := range alamedaPods {
+			if !podIsMonitoredByAlameda(&alamedaPod) {
+				continue
+			}
 			alamedaPodNamespace := alamedaPod.GetNamespace()
 			alamedaPodName := alamedaPod.GetName()
 			alamedaPodUID := alamedaPod.GetUID()
@@ -189,4 +203,18 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 	}
 	reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs = deploymentConfigsMap
 	return reconciler.alamedascaler
+}
+
+func podIsMonitoredByAlameda(pod *core_v1.Pod) bool {
+	if !podPhaseIsMonitoredByAlameda(pod.Status.Phase) || pod.ObjectMeta.DeletionTimestamp != nil {
+		return false
+	}
+	return true
+}
+
+func podPhaseIsMonitoredByAlameda(podPhase core_v1.PodPhase) bool {
+	if isMonitored, exist := podPhaseNeedsMonitoring[podPhase]; exist {
+		return isMonitored
+	}
+	return false
 }
