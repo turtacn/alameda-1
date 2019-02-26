@@ -52,23 +52,6 @@ func (ar *AlamedaRecommendation) GetNamespacedName() NamespacedName {
 	return utils.GetNamespacedNameKey(ar.Namespace, ar.Name)
 }
 
-// GenAlamedaUpdation creates AlamedaUpdations base on AlamedaRecommendations
-func (ar *AlamedaRecommendation) GenAlamedaUpdation(alamedaScalerName, alamedaControllerName string, alamedaControllerType AlamedaControllerType) *AlamedaUpdation {
-
-	updation := &AlamedaUpdation{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: ar.Namespace,
-			Name:      ar.Name,
-			Labels:    GenerateMonitoringAlamedaScalerAlamedaControllerIdentityLabels(alamedaScalerName, alamedaControllerName, alamedaControllerType),
-		},
-		Spec: AlamedaUpdationSpec{
-			ar.Spec,
-		},
-	}
-
-	return updation
-}
-
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // AlamedaRecommendationList contains a list of AlamedaRecommendation
