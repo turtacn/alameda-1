@@ -419,6 +419,16 @@ objects:
         serviceAccount: alameda-ai
         serviceAccountName: alameda-ai
 - apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: alameda-grafana
+    name: alameda-grafana
+  spec:
+    to:
+      kind: Service
+      name: alameda-grafana
+- apiVersion: v1
   kind: Service
   metadata:
     labels:
@@ -430,6 +440,33 @@ objects:
       targetPort: 3000
     selector:
       app: alameda-grafana
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: grafana-datasources
+  data:
+    prometheus.yaml: |-
+      {
+          "apiVersion": 1,
+          "datasources": [
+              {
+                  "orgId": 1,
+                  "name": "InfluxDB",                  
+                  "type": "influxdb",
+                  "access": "proxy",
+                  "url": "https://alameda-influxdb.${PROJECT_NAME}.svc:8086",
+                  "password": "adminpass",
+                  "user": "admin",
+                  "database": "_internal",
+                  "basicAuth": false,
+                  "isDefault": true,
+                  "jsonData": {
+                    "tlsSkipVerify": true
+                  },
+                  "readOnly": false
+              }
+          ]
+      }      
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -462,7 +499,20 @@ objects:
               memory: 200Mi
             requests:
               cpu: 100m
-              memory: 100Mi           
+              memory: 100Mi        
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: grafana-storage
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: grafana-datasources
+        volumes:
+          - emptyDir: {}
+            name: grafana-storage
+          - configMap:
+              defaultMode: 420
+              name: grafana-datasources
+            name: grafana-datasources            
+
 parameters:
 - name: PROJECT_NAME
   displayName: alameda namespace
