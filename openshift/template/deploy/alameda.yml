@@ -418,6 +418,51 @@ objects:
           runAsUser: 0
         serviceAccount: alameda-ai
         serviceAccountName: alameda-ai
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: alameda-grafana
+    name: alameda-grafana
+  spec:
+    ports:
+    - port: 3000
+      targetPort: 3000
+    selector:
+      app: alameda-grafana
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: alameda-grafana
+    annotations:
+      description: Defines how to deploy the application grafana
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+        app: alameda-grafana
+    template:
+      metadata:
+        labels:
+          app: alameda-grafana
+      spec:
+        # securityContext:
+        #   runAsUser: 1000
+        containers:
+        - name: grafana
+          image: grafana/grafana:5.4.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi           
 parameters:
 - name: PROJECT_NAME
   displayName: alameda namespace
