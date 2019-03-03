@@ -48,4 +48,5 @@ message PodRecommendation {
     google.protobuf.Timestamp start_time = 5;
     google.protobuf.Timestamp end_time = 6;
     TopController top_controller = 7;
+    string recommendation_id = 8;
 }

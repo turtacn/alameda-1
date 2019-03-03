@@ -278,17 +278,21 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 // ListAlamedaPods returns predicted pods
 func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListAlamedaPodsRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+
 	scope.Debug("Request received from ListAlamedaPods grpc function: " + utils.InterfaceToString(in))
+
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	scalerNS, scalerName := "", ""
-	if scaler := in.GetAlamedaScaler(); scaler != nil {
-		scalerNS = scaler.GetNamespace()
-		scalerName = scaler.GetName()
-	}
 
-	if alamedaPods, err := containerDAO.ListAlamedaPods(scalerNS, scalerName); err != nil {
+	namespace, name := "", ""
+	if namespacedName := in.GetNamespacedName(); namespacedName != nil {
+		namespace = namespacedName.GetNamespace()
+		name = namespacedName.GetName()
+	}
+	kind := in.GetKind()
+
+	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, kind); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodsResponse{
 			Status: &status.Status{

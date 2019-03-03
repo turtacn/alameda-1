@@ -351,10 +351,11 @@ func getPodsObservedByAlamedaScalerFromDatahub(alamedaScaler *autoscalingv1alpha
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
 	req := datahub_v1alpha1.ListAlamedaPodsRequest{
-		AlamedaScaler: &datahub_v1alpha1.NamespacedName{
+		NamespacedName: &datahub_v1alpha1.NamespacedName{
 			Namespace: alamedaScaler.Namespace,
 			Name:      alamedaScaler.Name,
 		},
+		Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 	}
 	resp, err := datahubServiceClnt.ListAlamedaPods(context.Background(), &req)
 	if err != nil {

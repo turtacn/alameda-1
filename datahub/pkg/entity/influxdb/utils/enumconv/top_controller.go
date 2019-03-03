@@ -8,16 +8,19 @@ const (
 	Pod              string = "Pod"
 	Deployment       string = "Deployment"
 	DeploymentConfig string = "DeploymentConfig"
+	AlamedaScaler    string = "AlamedaScaler"
 )
 
-var TopControllerEnum map[string]datahub_v1alpha1.Kind = map[string]datahub_v1alpha1.Kind{
+var KindEnum map[string]datahub_v1alpha1.Kind = map[string]datahub_v1alpha1.Kind{
 	Pod:              datahub_v1alpha1.Kind_POD,
 	Deployment:       datahub_v1alpha1.Kind_DEPLOYMENT,
 	DeploymentConfig: datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
+	AlamedaScaler:    datahub_v1alpha1.Kind_ALAMEDASCALER,
 }
 
-var TopControllerDisp map[datahub_v1alpha1.Kind]string = map[datahub_v1alpha1.Kind]string{
+var KindDisp map[datahub_v1alpha1.Kind]string = map[datahub_v1alpha1.Kind]string{
 	datahub_v1alpha1.Kind_POD:              Pod,
 	datahub_v1alpha1.Kind_DEPLOYMENT:       Deployment,
 	datahub_v1alpha1.Kind_DEPLOYMENTCONFIG: DeploymentConfig,
+	datahub_v1alpha1.Kind_ALAMEDASCALER:    AlamedaScaler,
 }

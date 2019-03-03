@@ -32,6 +32,7 @@ message Pod {
     google.protobuf.Timestamp start_time = 7;
     RecommendationPolicy policy = 8;
     TopController top_controller = 9;
+    string used_recommendation_id = 10;
 }
 
 /**
@@ -61,6 +62,7 @@ enum Kind {
     POD = 0;
     DEPLOYMENT = 1;
     DEPLOYMENTCONFIG = 2;
+    ALAMEDASCALER = 3;
 }
 
 /**

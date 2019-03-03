@@ -72,7 +72,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 				string(recommendation_entity.ContainerStartTime):         recStartTime.GetSeconds(),
 				string(recommendation_entity.ContainerEndTime):           recEndTime.GetSeconds(),
 				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
-				string(recommendation_entity.ContainerTopControllerKind): enumconv.TopControllerDisp[(topController.GetKind())],
+				string(recommendation_entity.ContainerTopControllerKind): enumconv.KindDisp[(topController.GetKind())],
 			}
 
 			for _, metricData := range containerRecommendation.GetLimitRecommendations() {
@@ -241,7 +241,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	}
 
 	if kind != datahub_v1alpha1.Kind_POD {
-		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", string(recommendation_entity.ContainerTopControllerKind), enumconv.TopControllerDisp[kind])
+		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", string(recommendation_entity.ContainerTopControllerKind), enumconv.KindDisp[kind])
 		if whereStr == "" {
 			whereStr = fmt.Sprintf("WHERE %s", kindConditionStr)
 		} else if whereStr != "" {
@@ -328,7 +328,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 						} else if column == string(recommendation_entity.ContainerTopControllerName) {
 							topControllerName = val[columnIdx].(string)
 						} else if column == string(recommendation_entity.ContainerTopControllerKind) {
-							topControllerKind = enumconv.TopControllerEnum[val[columnIdx].(string)]
+							topControllerKind = enumconv.KindEnum[val[columnIdx].(string)]
 						}
 					}
 				}

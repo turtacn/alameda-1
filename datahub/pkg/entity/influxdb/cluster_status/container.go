@@ -49,6 +49,8 @@ const (
 	ContainerTopControllerName containerField = "top_controller_name"
 	// ContainerTopControllerKind is top controller kind of the pod
 	ContainerTopControllerKind containerField = "top_controller_kind"
+	// ContainerUsedRecommendationID is the recommendation id that the pod applied
+	ContainerUsedRecommendationID containerField = "used_recommendation_id"
 )
 
 var (
@@ -84,6 +86,11 @@ type ContainerEntity struct {
 	IsAlameda              *bool
 	IsDeleted              *bool
 	Policy                 *string
+	PodCreatedTime         *int64
+	ResourceLink           *string
+	TopControllerName      *string
+	TopControllerKind      *string
+	UsedRecommendationID   *string
 }
 
 // NewContainerEntityFromMap Build entity from map
@@ -141,6 +148,22 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 	if policy, exist := data[ContainerPolicy]; exist {
 		entity.Policy = &policy
 	}
+	if podCreatedTime, exist := data[ContainerPodCreateTime]; exist {
+		value, _ := strconv.ParseInt(podCreatedTime, 10, 64)
+		entity.PodCreatedTime = &value
+	}
+	if resourceLink, exist := data[ContainerResourceLink]; exist {
+		entity.ResourceLink = &resourceLink
+	}
+	if topControllerName, exist := data[ContainerTopControllerName]; exist {
+		entity.TopControllerName = &topControllerName
+	}
+	if topControllerKind, exist := data[ContainerTopControllerKind]; exist {
+		entity.TopControllerKind = &topControllerKind
+	}
+	if usedRecommendationID, exist := data[ContainerUsedRecommendationID]; exist {
+		entity.UsedRecommendationID = &usedRecommendationID
+	}
 
 	return entity
 }
@@ -188,6 +211,21 @@ func (e ContainerEntity) InfluxDBPoint(measurementName string) (*influxdb_client
 	}
 	if e.ResourceLimitMemory != nil {
 		fields[ContainerResourceLimitMemory] = *e.ResourceLimitMemory
+	}
+	if e.PodCreatedTime != nil {
+		fields[ContainerPodCreateTime] = *e.PodCreatedTime
+	}
+	if e.ResourceLink != nil {
+		fields[ContainerResourceLink] = *e.ResourceLink
+	}
+	if e.TopControllerName != nil {
+		fields[ContainerTopControllerName] = *e.TopControllerName
+	}
+	if e.TopControllerKind != nil {
+		fields[ContainerTopControllerKind] = *e.TopControllerKind
+	}
+	if e.UsedRecommendationID != nil {
+		fields[ContainerUsedRecommendationID] = *e.UsedRecommendationID
 	}
 
 	return influxdb_client.NewPoint(measurementName, tags, fields, e.Time)
