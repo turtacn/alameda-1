@@ -2,19 +2,24 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"sync"
 	"time"
 
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
 	admission_controller_utils "github.com/containers-ai/alameda/admission-controller/pkg/utils"
+	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 	admission_v1beta1 "k8s.io/api/admission/v1beta1"
 	core_v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var (
@@ -27,12 +32,16 @@ type admitFunc func(*admission_v1beta1.AdmissionReview) *admission_v1beta1.Admis
 type admissionController struct {
 	config *Config
 
-	lock                                   *sync.Mutex
-	controllerPodResourceRecommendationMap map[namespaceKindName]*controllerPodResourceRecommendation
-	resourceRecommendator                  resource.ResourceRecommendator
-	resourceRecommendatorSyncTimeout       time.Duration
-	resourceRecommendatorSyncWaitInterval  time.Duration
-	ownerReferenceTracer                   *metadata_utils.OwnerReferenceTracer
+	lock                                       *sync.Mutex
+	controllerPodResourceRecommendationMap     map[namespaceKindName]*controllerPodResourceRecommendation
+	controllerPodResourceRecommendationLockMap map[namespaceKindName]*sync.Mutex
+	resourceRecommendator                      resource.ResourceRecommendator
+	resourceRecommendatorSyncTimeout           time.Duration
+	resourceRecommendatorSyncRetryTime         int
+	resourceRecommendatorSyncWaitInterval      time.Duration
+
+	k8sConfig            *rest.Config
+	ownerReferenceTracer *metadata_utils.OwnerReferenceTracer
 }
 
 func NewAdmissionControllerWithConfig(cfg Config, resourceRecommendator resource.ResourceRecommendator) (AdmissionController, error) {
@@ -42,15 +51,24 @@ func NewAdmissionControllerWithConfig(cfg Config, resourceRecommendator resource
 		return nil, errors.Wrap(err, "new AdmissionController failed")
 	}
 
+	k8sConfig, err := rest.InClusterConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "new AdmissionController failed")
+	}
+
 	ac := &admissionController{
 		config: &cfg,
 
 		lock:                                   &sync.Mutex{},
 		controllerPodResourceRecommendationMap: make(map[namespaceKindName]*controllerPodResourceRecommendation),
-		resourceRecommendator:                  resourceRecommendator,
-		resourceRecommendatorSyncTimeout:       10 * time.Second,
-		resourceRecommendatorSyncWaitInterval:  5 * time.Second,
-		ownerReferenceTracer:                   defaultOwnerReferenceTracer,
+		controllerPodResourceRecommendationLockMap: make(map[namespaceKindName]*sync.Mutex),
+		resourceRecommendator:                      resourceRecommendator,
+		resourceRecommendatorSyncTimeout:           10 * time.Second,
+		resourceRecommendatorSyncRetryTime:         3,
+		resourceRecommendatorSyncWaitInterval:      5 * time.Second,
+
+		k8sConfig:            k8sConfig,
+		ownerReferenceTracer: defaultOwnerReferenceTracer,
 	}
 
 	return ac, nil
@@ -163,20 +181,26 @@ func (ac *admissionController) getPodResourceRecommendationByControllerID(contro
 	var recommendation *resource.PodResourceRecommendation
 
 	controllerRecommendation := ac.getControllerPodResourceRecommendation(controllerID)
+	controllerRecommendationLock := ac.getControllerPodResourceRecommendationLock(controllerID)
 
-	recommendation = controllerRecommendation.dispatchOneValidRecommendation(time.Now())
-	if recommendation == nil {
-
-		state := controllerRecommendation.waitOrSync()
-		if state != recommendationWaitsSynchronizing {
-			if err := ac.doRecommendationSync(controllerID); err != nil {
-				return recommendation, errors.Wrap(err, "fetch controller pod resource recommendation failed")
-			}
+	retryTime := ac.resourceRecommendatorSyncRetryTime
+	controllerRecommendationLock.Lock()
+	defer controllerRecommendationLock.Unlock()
+	for recommendation == nil && retryTime > 0 {
+		if newRecommendations, err := ac.fetchNewRecommendations(controllerID); err != nil {
+			scope.Error(err.Error())
 		} else {
-			ac.waitRecommendationSync(controllerID)
+			controllerRecommendation.setRecommendations(newRecommendations)
+			break
 		}
-		recommendation = controllerRecommendation.dispatchOneValidRecommendation(time.Now())
+		retryTime--
 	}
+	validRecommedations, err := ac.listValidRecommendations(controllerID, controllerRecommendation.getRecommendations())
+	if err != nil {
+		scope.Error(err.Error())
+	}
+	controllerRecommendation.setRecommendations(validRecommedations)
+	recommendation = controllerRecommendation.dispatchOneValidRecommendation(time.Now())
 
 	return recommendation, nil
 }
@@ -195,19 +219,82 @@ func (ac *admissionController) getControllerPodResourceRecommendation(controller
 	return controllerRecommendation
 }
 
-func (ac *admissionController) doRecommendationSync(controllerID namespaceKindName) error {
+func (ac *admissionController) getControllerPodResourceRecommendationLock(controllerID namespaceKindName) *sync.Mutex {
 
-	controllerRecommendation := ac.getControllerPodResourceRecommendation(controllerID)
-
-	// unblock others waiting goroutine
-	defer controllerRecommendation.finishSync()
-
-	if newRecommendations, err := ac.fetchNewRecommendations(controllerID); err != nil {
-		return errors.Wrapf(err, "do recommendation sync failed: controllerID: %s", controllerID)
-	} else {
-		controllerRecommendation.appendRecommendations(newRecommendations)
+	ac.lock.Lock()
+	controllerRecommendationLock, exist := ac.controllerPodResourceRecommendationLockMap[controllerID]
+	if !exist {
+		scope.Debugf("controllerID: %s, controller recommendation not exist, create new recommendation.", controllerID)
+		ac.controllerPodResourceRecommendationLockMap[controllerID] = &sync.Mutex{}
+		controllerRecommendationLock = ac.controllerPodResourceRecommendationLockMap[controllerID]
 	}
-	return nil
+	ac.lock.Unlock()
+
+	return controllerRecommendationLock
+}
+
+func (ac *admissionController) listValidRecommendations(controllerID namespaceKindName, recommendations []*resource.PodResourceRecommendation) ([]*resource.PodResourceRecommendation, error) {
+
+	validRecommendations := make([]*resource.PodResourceRecommendation, 0)
+
+	initRecommendationNumberMap := buildRecommendationNumberMap(recommendations)
+	scope.Debugf("initRecommendationNumberMap %+v", initRecommendationNumberMap)
+
+	pods, err := ac.listPodControlledByControllerID(controllerID)
+	if err != nil {
+		return validRecommendations, errors.Wrap(err, "list valid recommendations failed")
+	}
+	currentRunningPods := make([]*core_v1.Pod, 0)
+	for _, pod := range pods {
+		if pod.ObjectMeta.DeletionTimestamp != nil {
+			continue
+		}
+		currentRunningPods = append(currentRunningPods, pod)
+	}
+	decreaseRecommendationNuberMapByPods(initRecommendationNumberMap, pods)
+
+	validRecommendations = getValidRecommedationFromRecommendationNumberMap(initRecommendationNumberMap, recommendations)
+	scope.Debugf("validRecommendations %+v", validRecommendations)
+
+	return validRecommendations, nil
+}
+
+func (ac *admissionController) listPodControlledByControllerID(controllerID namespaceKindName) ([]*core_v1.Pod, error) {
+	pods := make([]*core_v1.Pod, 0)
+
+	sigsK8SClient, err := ac.newSigsK8SIOClient()
+	if err != nil {
+		return pods, errors.Wrapf(err, "list pods controlled by controllerID: %s failed", controllerID.String())
+	}
+
+	podsInCluster := make([]core_v1.Pod, 0)
+	listResource := resources.NewListResources(sigsK8SClient)
+	switch controllerID.getKind() {
+	case "Deployment":
+		podsInCluster, err = listResource.ListPodsByDeployment(controllerID.getNamespace(), controllerID.getName())
+		if err != nil {
+			return pods, errors.Wrapf(err, "list pods controlled by controllerID: %s failed", controllerID.String())
+		}
+	case "DeploymentConfig":
+		podsInCluster, err = listResource.ListPodsByDeploymentConfig(controllerID.getNamespace(), controllerID.getName())
+		if err != nil {
+			return pods, errors.Wrapf(err, "list pods controlled by controllerID: %s failed", controllerID.String())
+		}
+	default:
+		return pods, errors.Errorf("no matching resource lister for controller kind: %s", controllerID.getKind())
+	}
+
+	for _, pod := range podsInCluster {
+		copyPod := pod
+		pods = append(pods, &copyPod)
+	}
+
+	return pods, nil
+}
+
+func (ac *admissionController) newSigsK8SIOClient() (client.Client, error) {
+
+	return client.New(ac.k8sConfig, client.Options{})
 }
 
 func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKindName) ([]*resource.PodResourceRecommendation, error) {
@@ -238,9 +325,90 @@ func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKin
 	return recommendations, err
 }
 
-func (ac *admissionController) waitRecommendationSync(controllerID namespaceKindName) {
-	scope.Debug("waiting recommendations synchronizning")
-	controllerRecommendation := ac.getControllerPodResourceRecommendation(controllerID)
-	<-controllerRecommendation.syncChan
-	scope.Debug("finish waiting recommendations synchronizning")
+func buildRecommendationNumberMap(recommendations []*resource.PodResourceRecommendation) map[string]int {
+	currentTime := time.Now()
+	recommendationNumberMap := make(map[string]int)
+	for _, recommendation := range recommendations {
+		if !(recommendation.ValidStartTime.Unix() < currentTime.Unix() && currentTime.Unix() < recommendation.ValidEndTime.Unix()) {
+			continue
+		}
+		recommendationID := buildPodResourceIDFromPodRecommendation(recommendation)
+		recommendationNumberMap[recommendationID]++
+	}
+	return recommendationNumberMap
+}
+
+func decreaseRecommendationNuberMapByPods(recommendationNumberMap map[string]int, pods []*core_v1.Pod) {
+	for _, pod := range pods {
+		scope.Debugf("try to decrease recommendation from pod: %+v", pod)
+		if pod.ObjectMeta.DeletionTimestamp != nil {
+			scope.Debugf("skip decreate recommendation cause pod %s/%s has deletion timestamp", pod.Namespace, pod.Name)
+			continue
+		}
+		recommendationID := buildPodResourceIDFromPod(pod)
+		if _, exist := recommendationNumberMap[recommendationID]; exist {
+			scope.Debugf("decreate recommendation for pod %s/%s", pod.Namespace, pod.Name)
+			recommendationNumberMap[recommendationID]--
+		} else {
+			scope.Debugf("no matched key founf in recommendationMap: key: %s", recommendationID)
+		}
+	}
+}
+
+func getValidRecommedationFromRecommendationNumberMap(recommendationNumberMap map[string]int, recommendations []*resource.PodResourceRecommendation) []*resource.PodResourceRecommendation {
+
+	validRecommendations := make([]*resource.PodResourceRecommendation, 0)
+	for _, recommendation := range recommendations {
+		copyRecommendation := recommendation
+		recommendationID := buildPodResourceIDFromPodRecommendation(recommendation)
+		if remainRecommendationsNum := recommendationNumberMap[recommendationID]; remainRecommendationsNum > 0 {
+			recommendationNumberMap[recommendationID]--
+			validRecommendations = append(validRecommendations, copyRecommendation)
+		}
+	}
+	return validRecommendations
+}
+
+func buildPodResourceIDFromPod(pod *core_v1.Pod) string {
+
+	containers := pod.Spec.Containers
+
+	sort.SliceStable(containers, func(i, j int) bool {
+		return containers[i].Name < containers[j].Name
+	})
+
+	id := ""
+	for _, container := range containers {
+		requestCPU := container.Resources.Requests[core_v1.ResourceCPU]
+		requestMem := container.Resources.Requests[core_v1.ResourceMemory]
+		limitsCPU := container.Resources.Limits[core_v1.ResourceCPU]
+		limitsMem := container.Resources.Limits[core_v1.ResourceMemory]
+		id += fmt.Sprintf("container-name-%s/requset-cpu-%s-mem-%s/limit-cpu-%s-mem-%s/", container.Name,
+			requestCPU.String(), requestMem.String(),
+			limitsCPU.String(), limitsMem.String(),
+		)
+	}
+
+	return id
+}
+
+func buildPodResourceIDFromPodRecommendation(recommendation *resource.PodResourceRecommendation) string {
+
+	containerRecommendations := recommendation.ContainerResourceRecommendations
+	sort.SliceStable(containerRecommendations, func(i, j int) bool {
+		return containerRecommendations[i].Name < containerRecommendations[j].Name
+	})
+
+	id := ""
+	for _, containerRecommendation := range containerRecommendations {
+		requestCPU := containerRecommendation.Requests[core_v1.ResourceCPU]
+		requestMem := containerRecommendation.Requests[core_v1.ResourceMemory]
+		limitsCPU := containerRecommendation.Limits[core_v1.ResourceCPU]
+		limitsMem := containerRecommendation.Limits[core_v1.ResourceMemory]
+		id += fmt.Sprintf("container-name-%s/requset-cpu-%s-mem-%s/limit-cpu-%s-mem-%s/", containerRecommendation.Name,
+			requestCPU.String(), requestMem.String(),
+			limitsCPU.String(), limitsMem.String(),
+		)
+	}
+	return id
 }

@@ -70,6 +70,19 @@ func (c *controllerPodResourceRecommendation) appendRecommendations(recommendati
 	c.lock.Unlock()
 }
 
+func (c *controllerPodResourceRecommendation) setRecommendations(recommendations []*resource.PodResourceRecommendation) {
+	c.lock.Lock()
+	c.recommendations = recommendations
+	c.lock.Unlock()
+}
+
+func (c *controllerPodResourceRecommendation) getRecommendations() []*resource.PodResourceRecommendation {
+	c.lock.Lock()
+	recommendations := c.recommendations
+	c.lock.Unlock()
+	return recommendations
+}
+
 // DispatchOneValidRecommendation dispatch one recommendation that timestamp is in time interval between recommendation.ValidStartTime and recommendation.ValidEndTime,
 // return nil if no valid recommendation can provide
 func (c *controllerPodResourceRecommendation) dispatchOneValidRecommendation(timestamp time.Time) *resource.PodResourceRecommendation {

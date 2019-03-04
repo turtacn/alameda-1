@@ -22,6 +22,11 @@ var (
 		"Deployment":       datahub_v1alpha1.Kind_DEPLOYMENT,
 		"DeploymentConfig": datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
 	}
+	datahubKind_K8SKind = map[datahub_v1alpha1.Kind]string{
+		datahub_v1alpha1.Kind_POD:              "Pod",
+		datahub_v1alpha1.Kind_DEPLOYMENT:       "Deployment",
+		datahub_v1alpha1.Kind_DEPLOYMENTCONFIG: "DeploymentConfig",
+	}
 	datahubMetricType_K8SResourceName = map[datahub_v1alpha1.MetricType]core_v1.ResourceName{
 		datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE: core_v1.ResourceCPU,
 		datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:           core_v1.ResourceMemory,
@@ -110,6 +115,7 @@ func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControll
 	return datahubRequest, nil
 }
 
+// TODO assign value of datahub.PodRecommendation.AssignedPodName to resource.Recommendation.AssignedPodName
 func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation *datahub_v1alpha1.PodRecommendation) *resource.PodResourceRecommendation {
 
 	namespace := ""
@@ -122,9 +128,20 @@ func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecomm
 	startTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetStartTime())
 	endTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetEndTime())
 
+	topControllerKind := ""
+	topControllerName := ""
+	if datahubPodRecommendation.TopController != nil {
+		topControllerKind = datahubKind_K8SKind[datahubPodRecommendation.TopController.Kind]
+		if datahubPodRecommendation.TopController.NamespacedName != nil {
+			topControllerName = datahubPodRecommendation.TopController.NamespacedName.Name
+		}
+	}
+
 	podRecommendation := &resource.PodResourceRecommendation{
 		Namespace:                        namespace,
 		Name:                             name,
+		TopControllerKind:                topControllerKind,
+		TopControllerName:                topControllerName,
 		ContainerResourceRecommendations: make([]*resource.ContainerResourceRecommendation, 0),
 		ValidStartTime:                   startTime,
 		ValidEndTime:                     endTime,

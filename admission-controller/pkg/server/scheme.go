@@ -1,8 +1,10 @@
 package server
 
 import (
+	openshift_apps "github.com/openshift/api/apps"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
-	corev1 "k8s.io/api/core/v1"
+	apps_v1 "k8s.io/api/apps/v1"
+	core_v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
@@ -15,6 +17,11 @@ func init() {
 }
 
 func addToScheme(scheme *runtime.Scheme) {
-	corev1.AddToScheme(scheme)
+	core_v1.AddToScheme(scheme)
+	apps_v1.AddToScheme(scheme)
 	admissionregistrationv1beta1.AddToScheme(scheme)
+	err := openshift_apps.Install(scheme)
+	if err != nil {
+		panic(err)
+	}
 }

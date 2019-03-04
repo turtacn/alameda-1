@@ -15,6 +15,8 @@ type ContainerResourceRecommendation struct {
 type PodResourceRecommendation struct {
 	Namespace                        string
 	Name                             string
+	TopControllerKind                string
+	TopControllerName                string
 	ContainerResourceRecommendations []*ContainerResourceRecommendation
 	ValidStartTime                   time.Time
 	ValidEndTime                     time.Time

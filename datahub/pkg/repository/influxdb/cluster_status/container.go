@@ -536,5 +536,5 @@ func getDatahubPodIDString(containerEntity *cluster_status_entity.ContainerEntit
 		nodeName = *containerEntity.NodeName
 	}
 
-	return fmt.Sprintf("%s.%s.%s.%s.%s.%s", namespace, podName, alamedaScalerNS, alamedaScalerName, nodeName)
+	return fmt.Sprintf("%s.%s.%s.%s.%s", namespace, podName, alamedaScalerNS, alamedaScalerName, nodeName)
 }
