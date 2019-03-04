@@ -13,6 +13,7 @@ import (
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -213,16 +214,23 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	}
 
 	whereStr := ""
+	fieldToCompareRequestName := ""
+	switch kind {
+	case datahub_v1alpha1.Kind_POD:
+		fieldToCompareRequestName = string(recommendation_entity.ContainerPodName)
+	case datahub_v1alpha1.Kind_DEPLOYMENT:
+		fieldToCompareRequestName = string(recommendation_entity.ContainerTopControllerName)
+	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+		fieldToCompareRequestName = string(recommendation_entity.ContainerTopControllerName)
+	default:
+		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", datahub_v1alpha1.Kind_name[int32(kind)])
+	}
 	if reqNS != "" && reqName == "" {
 		whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS)
 	} else if reqNS == "" && reqName != "" {
-		if kind != datahub_v1alpha1.Kind_POD {
-			whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", string(recommendation_entity.ContainerTopControllerName), reqName)
-		} else {
-			whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", string(recommendation_entity.ContainerPodName), reqName)
-		}
+		whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", fieldToCompareRequestName, reqName)
 	} else if reqNS != "" && reqName != "" {
-		whereStr = fmt.Sprintf("WHERE \"%s\"='%s' AND \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS, string(recommendation_entity.ContainerPodName), reqName)
+		whereStr = fmt.Sprintf("WHERE \"%s\"='%s' AND \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS, fieldToCompareRequestName, reqName)
 	}
 
 	timeConditionStr := ""
