@@ -33,6 +33,9 @@ spec:
             enable:
               type: boolean
             policy:
+              enum:
+              - stable
+              - compact
               type: string
             selector:
               description: 'Important: Run "make" to regenerate code after modifying

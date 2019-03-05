@@ -35,6 +35,9 @@ spec:
             enable:
               type: boolean
             policy:
+              enum:
+              - stable
+              - compact
               type: string
             selector:
               description:
