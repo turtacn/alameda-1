@@ -6,10 +6,6 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
-const (
-	defaultBindAddress = ":50050"
-)
-
 // Config is evict configuration
 type Config struct {
 	Log      *log.Config      `mapstructure:"log"`
