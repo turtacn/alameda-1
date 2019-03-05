@@ -43,8 +43,8 @@ func (listResources *ListResources) ListAllNodes() ([]*corev1.Node, error) {
 	}
 
 	for _, node := range nodeList.Items {
-		copyNode := &node
-		nodes = append(nodes, copyNode)
+		copyNode := node
+		nodes = append(nodes, &copyNode)
 	}
 
 	return nodes, nil
