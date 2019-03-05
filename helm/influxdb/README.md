@@ -1,4 +1,4 @@
-For more details, please goto https://github.com/helm/charts/tree/master/stable/influxdb
+This chart installation is intended to install the influxdb chart of version 1.7 at https://kubernetes-charts.storage.googleapis.com. For more details, please goto https://github.com/helm/charts/tree/master/stable/influxdb
 
 # InfluxDB
 
@@ -9,5 +9,5 @@ For more details, please goto https://github.com/helm/charts/tree/master/stable/
 ## QuickStart
 
 ```bash
-$ helm install stable/influxdb --name influxdb --namespace monitoring
+$ helm install stable/influxdb --version 1.7 --name influxdb --namespace monitoring
 ```

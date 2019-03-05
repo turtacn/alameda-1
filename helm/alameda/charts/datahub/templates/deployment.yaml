@@ -40,7 +40,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
     {{- if .Values.global.rbacEnable }}
-      serviceAccountName: {{ include "alameda.fullname" . }}
+      serviceAccountName: {{ include "datahub.name" . }}
     {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -1,4 +1,4 @@
-For more details, please goto https://github.com/helm/charts/tree/master/stable/prometheus
+This chart installation is intended to install the prometheus chart of version 2.6.0 at https://kubernetes-charts.storage.googleapis.com and overwrite the *value.yaml* with supplied one in this folder. The changed value in the *value.yaml* are explained in the following. For more details, please goto https://github.com/helm/charts/tree/master/stable/prometheus
 
 # Prometheus
 
@@ -7,10 +7,10 @@ For more details, please goto https://github.com/helm/charts/tree/master/stable/
 ## TL;DR;
 
 ```console
-$ helm install stable/prometheus --name prometheus --namespace monitoring -f values.yaml
+$ helm install stable/prometheus --version 2.6.0 --name prometheus --namespace monitoring -f values.yaml
 ```
 
-Compared to the upstream `helm/charts/stable/prometheus/values.yaml`, the supplied `values.yaml` in this folder  adds a relabel target *kubernetes_pod* in job *kubernetes-service-endpoints* and the following recording rules:  
+Compared to the origin *values.yaml*, the supplied `values.yaml` in this folder adds a relabel target *kubernetes_pod* in job *kubernetes-service-endpoints* and the following recording rules:  
 ```
 groups:
 - name: k8s.rules
