@@ -27,12 +27,7 @@ spec:
         deploymentconfig: operator
     spec:
       containers:
-      - env:
-        - name: ALAMEDA_GRPC_PROMETHEUS_BEARER_TOKEN_FILE
-          value: /var/run/secrets/kubernetes.io/serviceaccount/token
-        - name: ALAMEDA_GRPC_PROMETHEUS_URL
-          value: http://prometheus24.kube-system.svc.cluster.local:80
-        imagePullPolicy: Always
+      - imagePullPolicy: Always
         name: operator
         resources: {}
         terminationMessagePath: /dev/termination-log

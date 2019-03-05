@@ -367,7 +367,7 @@ objects:
         - name: alameda-operator
           image: containersai/alameda-operator:latest
           env:
-          - name: ALAMEDA_DATAHUB_ADDRESS
+          - name: ALAMEDA_OPERATOR_DATAHUB_ADDRESS
             value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
         serviceAccount: alameda-operator
         serviceAccountName: alameda-operator

@@ -52,7 +52,7 @@ import (
 )
 
 const (
-	envVarPrefix = "ALAMEDA"
+	envVarPrefix = "ALAMEDA_OPERATOR"
 )
 
 const JSONIndent = "  "

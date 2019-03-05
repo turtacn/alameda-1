@@ -115,13 +115,6 @@ spec:
       - image: operator:latest
         imagePullPolicy: IfNotPresent
         name: operator
-        env:
-        - name: ALAMEDA_GRPC_PROMETHEUS_BEARER_TOKEN_FILE
-          value: /var/run/secrets/kubernetes.io/serviceaccount/token
-        - name: ALAMEDA_AI_SERVER_ADDRESS
-          value: alameda-ai.alameda:50051
-        - name: ALAMEDA_GRPC_PROMETHEUS_URL
-          value: http://prometheus.monitoring:9090
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
