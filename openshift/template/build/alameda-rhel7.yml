@@ -85,6 +85,72 @@ objects:
     - type: GitHub
       github:
         secret: "${ALAMEDA_GITHUB_WEBHOOK_SECRET}"
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "${ALAMEDA_NAME}-evictioner"
+    annotations:
+      description: Defines how to build the application alameda-evictioner
+      template.alpha.openshift.io/wait-for-ready: "true"
+    # namespace: ${NAMESPACE}
+  spec:
+    output:
+      to:
+        kind: DockerImage
+        name: "containersai/alameda-evictioner-rhel:latest"
+      pushSecret:
+        name: "${ALAMEDA_NAME}-docker"
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: "${ALAMEDA_CONTEXT_DIR}"
+      git:
+        uri: "${ALAMEDA_REPOSITORY_URL}"
+        ref: "${ALAMEDA_REPOSITORY_REF}"
+      type: Git
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "./evictioner/Dockerfile.okd.rhel7"
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${ALAMEDA_GITHUB_WEBHOOK_SECRET}"
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "${ALAMEDA_NAME}-admission"
+    annotations:
+      description: Defines how to build the application alameda-admission
+      template.alpha.openshift.io/wait-for-ready: "true"
+    # namespace: ${NAMESPACE}
+  spec:
+    output:
+      to:
+        kind: DockerImage
+        name: "containersai/alameda-admission-rhel:latest"
+      pushSecret:
+        name: "${ALAMEDA_NAME}-docker"
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: "${ALAMEDA_CONTEXT_DIR}"
+      git:
+        uri: "${ALAMEDA_REPOSITORY_URL}"
+        ref: "${ALAMEDA_REPOSITORY_REF}"
+      type: Git
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "./admission-controller/Dockerfile.okd.rhel7"
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${ALAMEDA_GITHUB_WEBHOOK_SECRET}"        
 parameters:
 - name: ALAMEDA_NAME
   displayName: Datahub Name
