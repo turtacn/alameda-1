@@ -128,7 +128,7 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 			if *or.Controller && strings.ToLower(or.Kind) == "deployment" && or.Name == deployName {
 				podListIns := &corev1.PodList{}
 				err = listResources.client.List(context.TODO(),
-					client.MatchingLabels(replicasetIns.Spec.Selector.MatchLabels),
+					client.InNamespace(deployNS).MatchingLabels(replicasetIns.Spec.Selector.MatchLabels),
 					podListIns)
 				if err != nil {
 					listResourcesScope.Error(err.Error())
@@ -168,7 +168,7 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 			if *or.Controller && strings.ToLower(or.Kind) == "deploymentconfig" && or.Name == deployConfigName {
 				podListIns := &corev1.PodList{}
 				err = listResources.client.List(context.TODO(),
-					client.MatchingLabels(replicationControllerIns.Spec.Selector),
+					client.InNamespace(deployConfigNS).MatchingLabels(replicationControllerIns.Spec.Selector),
 					podListIns)
 				if err != nil {
 					listResourcesScope.Error(err.Error())
