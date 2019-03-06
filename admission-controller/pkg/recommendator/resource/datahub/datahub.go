@@ -108,7 +108,7 @@ func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControll
 		Kind: datahubKind,
 		QueryCondition: &datahub_v1alpha1.QueryCondition{
 			TimeRange: &datahub_v1alpha1.TimeRange{
-				StartTime: quertTime,
+				EndTime: quertTime,
 			},
 			Order: datahub_v1alpha1.QueryCondition_DESC,
 		},
