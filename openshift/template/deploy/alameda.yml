@@ -218,6 +218,49 @@ objects:
     - get
     - delete
 - apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata:
+    name: "admission-controller-${PROJECT_NAME}"
+  rules:
+    - apiGroups:
+        - "admissionregistration.k8s.io"
+      resources:
+        - mutatingwebhookconfigurations
+      verbs:
+        - get
+        - create
+        - update
+    - apiGroups:
+        - ""
+      resources:
+        - pods
+      verbs:
+        - get
+        - list
+        - patch
+    - apiGroups:
+        - apps
+      resources:
+        - replicasets
+        - deployments
+      verbs:
+        - get
+        - list
+    - apiGroups:
+        - ""
+      resources:
+        - replicationcontrollers
+      verbs:
+        - get
+        - list
+    - apiGroups:
+        - apps.openshift.io
+      resources:
+        - deploymentconfigs
+      verbs:
+        - get
+        - list
+- apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRoleBinding
   metadata:
     name: "alameda-datahub-${PROJECT_NAME}"
@@ -253,6 +296,19 @@ objects:
   - kind: ServiceAccount
     name: alameda-evictioner
     namespace: "${PROJECT_NAME}"
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: "admission-controller-${PROJECT_NAME}"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: "admission-controller-${PROJECT_NAME}"
+  subjects:
+    - kind: ServiceAccount
+      name: admission-controller
+      namespace: "${PROJECT_NAME}"
+
 - apiVersion: v1
   kind: ServiceAccount
   metadata:
@@ -355,7 +411,7 @@ objects:
       spec:
         containers:
         - name: alameda-datahub
-          image: containersai/alameda-datahub:latest
+          image: containersai/alameda-datahub-rhel:latest
           resources:
             limits:
               cpu: 100m
@@ -398,7 +454,7 @@ objects:
       spec:
         containers:
         - name: alameda-operator
-          image: containersai/alameda-operator:latest
+          image: containersai/alameda-operator-rhel:latest
           resources:
             limits:
               cpu: 20m
@@ -457,9 +513,9 @@ objects:
               memory: 250Mi
           env:
           - name: OPERATOR_ADDRESS
-            value: "alameda-operator.${PROJECT_NAME}.svc.cluster.local:50050"
+            value: "alameda-operator.${PROJECT_NAME}.svc:50050"
           - name: DATAHUB_ADDRESS
-            value: "alameda-datahub.${PROJECT_NAME}.svc.cluster.local:50050"
+            value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
         serviceAccount: alameda-ai
         serviceAccountName: alameda-ai
 - apiVersion: v1
@@ -577,19 +633,89 @@ objects:
       spec:
         containers:
         - name: alameda-evictioner
-          image: containersai/alameda-evictioner:latest
+          image: containersai/alameda-evictioner-rhel:latest
           resources:
             limits:
               cpu: 60m
               memory: 90Mi
             requests:
               cpu: 45m
-              memory: 75Mi          
+              memory: 75Mi
           env:
           - name: ALAMEDA_EVICTIONER_DATAHUB_ADDRESS
-            value: "alameda-datahub.${PROJECT_NAME}.svc.cluster.local:50050"        
+            value: "alameda-datahub.${PROJECT_NAME}.svc:50050"        
         serviceAccount: alameda-evictioner
         serviceAccountName: alameda-evictioner
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+  name: admission-controller
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: admission-controller-tls
+    labels:
+      app: admission-controller
+    name: admission-controller
+  spec:
+    ports:
+    - port: 443
+      targetPort: 443
+    selector:
+      app: admission-controller
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: admission-controller
+    annotations:
+      description: Defines how to deploy the admission-controller
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+      app: admission-controller
+    template:
+      metadata:
+        name: admission-controller
+        labels:
+          app: admission-controller
+      spec:
+        containers:
+        - name: admission-controller
+          image: containersai/alameda-admission-rhel:latest
+          resources:
+            limits:
+              cpu: 60m
+              memory: 90Mi
+            requests:
+              cpu: 45m
+              memory: 75Mi
+          env:
+          - name: ALAMEDA_ADMCTL_DEPLOYED_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: ALAMEDA_ADMCTL_DATAHUB_ADDRESS
+            value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
+          - name: ALAMEDA_ADMCTL_ENABLE
+            value: 'flase'
+          - name: ALAMEDA_ADMCTL_TLS_CERT_FILE
+            value: /etc/tls-certs/tls.crt
+          - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
+            value: /etc/tls-certs/tls.key
+          - name: ALAMEDA_ADMCTL_CA_CERT_FILE
+            value: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+          volumeMounts:
+          - mountPath: /etc/tls-certs
+            name: tls-certs
+            readOnly: false
+        volumes:
+        - name: tls-certs
+          secret:
+            secretName: admission-controller-tls
+        serviceAccount: admission-controller
+        serviceAccountName: admission-controller
 parameters:
 - name: PROJECT_NAME
   displayName: alameda namespace
