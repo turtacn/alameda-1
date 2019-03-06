@@ -13,6 +13,5 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/evictioner/etc/evictioner.yml /etc/alameda/evictioner/evictioner.yml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/evictioner/evictioner .
-EXPOSE 50050/tcp
 ENTRYPOINT ["./evictioner"]
 CMD [ "run" ]

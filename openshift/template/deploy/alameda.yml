@@ -146,7 +146,6 @@ objects:
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRole
   metadata:
-    creationTimestamp: null
     name: "alameda-operator-${PROJECT_NAME}"
   rules:
   - apiGroups:
@@ -207,6 +206,18 @@ objects:
     verbs: 
     - get
 - apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata:
+    name: "alameda-evictioner-${PROJECT_NAME}"
+  rules:
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+    - get
+    - delete
+- apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRoleBinding
   metadata:
     name: "alameda-datahub-${PROJECT_NAME}"
@@ -229,6 +240,18 @@ objects:
   subjects:
   - kind: ServiceAccount
     name: alameda-operator
+    namespace: "${PROJECT_NAME}"
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: "alameda-evictioner-${PROJECT_NAME}"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: alameda-evictioner-${PROJECT_NAME}
+  subjects:
+  - kind: ServiceAccount
+    name: alameda-evictioner
     namespace: "${PROJECT_NAME}"
 - apiVersion: v1
   kind: ServiceAccount
@@ -333,6 +356,13 @@ objects:
         containers:
         - name: alameda-datahub
           image: containersai/alameda-datahub:latest
+          resources:
+            limits:
+              cpu: 100m
+              memory: 150Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
           env:
           - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
             value: https://alameda-influxdb.${PROJECT_NAME}.svc:8086
@@ -369,6 +399,13 @@ objects:
         containers:
         - name: alameda-operator
           image: containersai/alameda-operator:latest
+          resources:
+            limits:
+              cpu: 20m
+              memory: 40Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
           env:
           - name: ALAMEDA_OPERATOR_DATAHUB_ADDRESS
             value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
@@ -411,14 +448,18 @@ objects:
           ports:
           - containerPort: 50051
             protocol: TCP
-          resources: {}
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 450Mi
+            requests:
+              cpu: 2000m
+              memory: 250Mi
           env:
           - name: OPERATOR_ADDRESS
             value: "alameda-operator.${PROJECT_NAME}.svc.cluster.local:50050"
           - name: DATAHUB_ADDRESS
             value: "alameda-datahub.${PROJECT_NAME}.svc.cluster.local:50050"
-        securityContext:
-          runAsUser: 0
         serviceAccount: alameda-ai
         serviceAccountName: alameda-ai
 - apiVersion: v1
@@ -486,8 +527,6 @@ objects:
         labels:
           app: alameda-grafana
       spec:
-        # securityContext:
-        #   runAsUser: 1000
         containers:
         - name: grafana
           image: grafana/grafana:5.4.3
@@ -502,7 +541,7 @@ objects:
               memory: 200Mi
             requests:
               cpu: 100m
-              memory: 100Mi        
+              memory: 100Mi
           volumeMounts:
             - mountPath: /var/lib/grafana
               name: grafana-storage
@@ -515,7 +554,42 @@ objects:
               defaultMode: 420
               name: grafana-datasources
             name: grafana-datasources            
-
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: alameda-evictioner
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: alameda-evictioner
+    annotations:
+      description: Defines how to deploy the alameda-evictioner
+      template.alpha.openshift.io/wait-for-ready: 'true'
+  spec:
+    replicas: 1
+    selector:
+      app: alameda-evictioner
+    template:
+      metadata:
+        name: alameda-evictioner
+        labels:
+          app: alameda-evictioner
+      spec:
+        containers:
+        - name: alameda-evictioner
+          image: containersai/alameda-evictioner:latest
+          resources:
+            limits:
+              cpu: 60m
+              memory: 90Mi
+            requests:
+              cpu: 45m
+              memory: 75Mi          
+          env:
+          - name: ALAMEDA_EVICTIONER_DATAHUB_ADDRESS
+            value: "alameda-datahub.${PROJECT_NAME}.svc.cluster.local:50050"        
+        serviceAccount: alameda-evictioner
+        serviceAccountName: alameda-evictioner
 parameters:
 - name: PROJECT_NAME
   displayName: alameda namespace

@@ -114,8 +114,6 @@ objects:
             value: "${OPERATOR_ADDRESS}"
           - name: DATAHUB_ADDRESS
             value: "${DATAHUB_ADDRESS}"          
-        securityContext:
-          runAsUser: 0
         serviceAccount: alameda-ai
         serviceAccountName: alameda-ai   
 parameters:
