@@ -699,7 +699,7 @@ objects:
           - name: ALAMEDA_ADMCTL_DATAHUB_ADDRESS
             value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
           - name: ALAMEDA_ADMCTL_ENABLE
-            value: 'flase'
+            value: 'false'
           - name: ALAMEDA_ADMCTL_TLS_CERT_FILE
             value: /etc/tls-certs/tls.crt
           - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
