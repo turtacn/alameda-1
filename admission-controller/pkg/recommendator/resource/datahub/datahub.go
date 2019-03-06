@@ -65,7 +65,9 @@ func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations
 	if err != nil {
 		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
 	}
+	scope.Debugf("query ListPodRecommendations to datahub, send request: %+v", datahubRequest)
 	resp, err := datahubClient.ListPodRecommendations(context.Background(), datahubRequest)
+	scope.Debugf("query ListPodRecommendations to datahub, received response: %+v", resp)
 	if err != nil {
 		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
 	} else if _, err := datahub.IsResponseStatusOK(resp.Status); err != nil {
