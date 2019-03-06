@@ -27,9 +27,9 @@ func NewDefaultConfig() Config {
 	defaultLogConfig := log.NewDefaultConfig()
 
 	return Config{
-		CACertFile:        "/var/run/secrets/kubernetes.io/serviceaccount/ca.cert",
-		CertFile:          "/etc/tls-certs/serverCert.pem",
-		KeyFile:           "/etc/tls-certs/serverKey.pem",
+		CACertFile:        "",
+		CertFile:          "",
+		KeyFile:           "",
 		Enable:            false,
 		DeployedNamespace: "alameda",
 		Log:               &defaultLogConfig,

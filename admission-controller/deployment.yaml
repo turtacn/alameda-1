@@ -107,6 +107,10 @@ spec:
               value: "false"
             - name: ALAMEDA_ADMCTL_CA_CERT_FILE
               value: "/etc/tls-certs/caCert.pem"
+            - name: ALAMEDA_ADMCTL_TLS_CERT_FILE
+              value: "/etc/tls-certs/serverCert.pem"
+            - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
+              value: "/etc/tls-certs/serverKey.pem"
           ports:
             - containerPort: 443
           volumeMounts:

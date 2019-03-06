@@ -1,11 +1,11 @@
 # CA certificate file to provide in k8s object MutatingWebhookConfiguration
-ca-cert-file: "/var/run/secrets/kubernetes.io/serviceaccount/ca.cert"
+ca-cert-file: ""
 
 # The ssl certificate file to use to run HTTPS server.
-tls-cert-file: "/etc/tls-certs/serverCert.pem"
+tls-cert-file: ""
 
 # The ssl key file to use to run HTTPS server.
-tls-private-key-file: "/etc/tls-certs/serverKey.pem"
+tls-private-key-file: ""
 
 # Determines whether admission-controller is enabled.
 enable: false
