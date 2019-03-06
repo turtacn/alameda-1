@@ -12,11 +12,13 @@ import (
 
 // Config contains the server (the webhook) cert and key.
 type Config struct {
-	CertFile string          `mapstructure:"tls-cert-file"`
-	KeyFile  string          `mapstructure:"tls-private-key-file"`
-	Enable   bool            `mapstructure:"enable"`
-	Log      *log.Config     `mapstructure:"log"`
-	Datahub  *datahub.Config `mapstructure:"datahub"`
+	CACertFile        string          `mapstructure:"ca-cert-file"`
+	CertFile          string          `mapstructure:"tls-cert-file"`
+	KeyFile           string          `mapstructure:"tls-private-key-file"`
+	Enable            bool            `mapstructure:"enable"`
+	DeployedNamespace string          `mapstructure:"deployed-namespace"`
+	Log               *log.Config     `mapstructure:"log"`
+	Datahub           *datahub.Config `mapstructure:"datahub"`
 }
 
 func NewDefaultConfig() Config {
@@ -25,11 +27,13 @@ func NewDefaultConfig() Config {
 	defaultLogConfig := log.NewDefaultConfig()
 
 	return Config{
-		CertFile: "/etc/tls-certs/serverCert.pem",
-		KeyFile:  "/etc/tls-certs/serverKey.pem",
-		Enable:   false,
-		Log:      &defaultLogConfig,
-		Datahub:  &defaultDatahubConfig,
+		CACertFile:        "/var/run/secrets/kubernetes.io/serviceaccount/ca.cert",
+		CertFile:          "/etc/tls-certs/serverCert.pem",
+		KeyFile:           "/etc/tls-certs/serverKey.pem",
+		Enable:            false,
+		DeployedNamespace: "alameda",
+		Log:               &defaultLogConfig,
+		Datahub:           &defaultDatahubConfig,
 	}
 }
 
