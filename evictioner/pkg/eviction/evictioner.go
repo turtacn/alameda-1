@@ -118,6 +118,10 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 			continue
 		}
 		getResource := utilsresource.NewGetResource(evictioner.k8sClienit)
+		if rec.GetNamespacedName() == nil {
+			scope.Warn("receive pod recommendation with nil NamespacedName, skip this recommendation")
+			continue
+		}
 		pod, err := getResource.GetPod(rec.GetNamespacedName().GetNamespace(), rec.GetNamespacedName().GetName())
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
