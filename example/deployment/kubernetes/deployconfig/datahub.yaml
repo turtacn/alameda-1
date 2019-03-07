@@ -84,7 +84,7 @@ spec:
       containers:
       - image: datahub:latest
         imagePullPolicy: IfNotPresent
-        name: dayahub
+        name: datahub
         env:
         - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
           value: http://influxdb.monitoring:8086

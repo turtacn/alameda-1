@@ -21,7 +21,6 @@ func NewDefaultConfig() Config {
 		defaultDatahubConfig  = datahub.NewConfig()
 		defaultEvictionConfig = eviction.NewDefaultConfig()
 		config                = Config{
-
 			Log:      &defaultlogConfig,
 			Datahub:  defaultDatahubConfig,
 			Eviction: &defaultEvictionConfig,

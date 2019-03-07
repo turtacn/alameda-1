@@ -64,6 +64,9 @@ spec:
       containers:
       - image: evictioner:latest
         imagePullPolicy: IfNotPresent
+        env:
+        - name: ALAMEDA_EVICTIONER_EVICTION_ENABLE
+          value: "false"
         name: evictioner
         resources: {}
         terminationMessagePath: /dev/termination-log

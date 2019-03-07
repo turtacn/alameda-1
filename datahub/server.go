@@ -153,6 +153,7 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 
 // ListPodMetrics list pods' metrics
 func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
+	scope.Debug("Request received from ListPodMetrics grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -218,6 +219,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 
 // ListNodeMetrics list nodes' metrics
 func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListNodeMetricsRequest) (*datahub_v1alpha1.ListNodeMetricsResponse, error) {
+	scope.Debug("Request received from ListNodeMetrics grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -314,6 +316,7 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 
 // ListAlamedaNodes list nodes in cluster
 func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListNodesResponse, error) {
+	scope.Debug("Request received from ListAlamedaNodes grpc function: " + utils.InterfaceToString(in))
 
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
@@ -338,6 +341,7 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahu
 }
 
 func (s *Server) ListNodes(ctx context.Context, in *datahub_v1alpha1.ListNodesRequest) (*datahub_v1alpha1.ListNodesResponse, error) {
+	scope.Debug("Request received from ListNodes grpc function: " + utils.InterfaceToString(in))
 
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
@@ -367,6 +371,7 @@ func (s *Server) ListNodes(ctx context.Context, in *datahub_v1alpha1.ListNodesRe
 
 // ListPodPredictions list pods' predictions
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
+	scope.Debug("Request received from ListPodPredictions grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -408,6 +413,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 
 // ListNodePredictions list nodes' predictions
 func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.ListNodePredictionsRequest) (*datahub_v1alpha1.ListNodePredictionsResponse, error) {
+	scope.Debug("Request received from ListNodePredictions grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -474,6 +480,7 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 
 // ListPodsByNodeName list pods running on specific nodes
 func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNamesRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
+	scope.Debug("Request received from ListPodsByNodeName grpc function: " + utils.InterfaceToString(in))
 
 	return &datahub_v1alpha1.ListPodsResponse{
 		Status: &status.Status{
@@ -485,6 +492,7 @@ func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.Li
 
 // ListSimulatedSchedulingScores list simulated scheduling scores
 func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.ListSimulatedSchedulingScoresRequest) (*datahub_v1alpha1.ListSimulatedSchedulingScoresResponse, error) {
+	scope.Debug("Request received from ListSimulatedSchedulingScores grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -555,6 +563,8 @@ func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePods
 
 // DeletePods update containers information of pods to database
 func (s *Server) DeletePods(ctx context.Context, in *datahub_v1alpha1.DeletePodsRequest) (*status.Status, error) {
+	scope.Debug("Request received from DeletePods grpc function: " + utils.InterfaceToString(in))
+
 	var containerDAO cluster_status_dao.ContainerOperation = &cluster_status_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
@@ -572,6 +582,8 @@ func (s *Server) DeletePods(ctx context.Context, in *datahub_v1alpha1.DeletePods
 
 // CreateAlamedaNodes add node information to database
 func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.CreateAlamedaNodesRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateAlamedaNodes grpc function: " + utils.InterfaceToString(in))
+
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
@@ -590,6 +602,7 @@ func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.Cr
 
 // CreatePodPredictions add pod predictions information to database
 func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreatePodPredictions grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -617,6 +630,7 @@ func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.
 
 // CreateNodePredictions add node predictions information to database
 func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateNodePredictions grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -685,6 +699,7 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 
 // CreateSimulatedSchedulingScores add simulated scheduling scores to database
 func (s *Server) CreateSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.CreateSimulatedSchedulingScoresRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateSimulatedSchedulingScores grpc function: " + utils.InterfaceToString(in))
 
 	var (
 		err error
@@ -726,6 +741,8 @@ func (s *Server) CreateSimulatedSchedulingScores(ctx context.Context, in *datahu
 
 // DeleteAlamedaNodes remove node information to database
 func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.DeleteAlamedaNodesRequest) (*status.Status, error) {
+	scope.Debug("Request received from DeleteAlamedaNodes grpc function: " + utils.InterfaceToString(in))
+
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}

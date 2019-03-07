@@ -146,6 +146,7 @@ func startEvictioner() {
 	evictioner := eviction.NewEvictioner(config.Eviction.CheckCycle,
 		datahubServiceClnt,
 		k8sCli,
+		*config.Eviction,
 	)
 	evictioner.Start()
 	var wg sync.WaitGroup
