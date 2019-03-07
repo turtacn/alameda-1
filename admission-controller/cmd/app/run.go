@@ -36,7 +36,7 @@ var (
 		Use:   "run",
 		Short: "start alameda admission-controller server",
 		Long:  "",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 
 			flag.Parse()
 
@@ -63,7 +63,11 @@ var (
 			registerHandlerFunc(mux, admissionController)
 
 			server := newHTTPServer(*config, mux)
-			server.ListenAndServeTLS("", "")
+			if err := server.ListenAndServeTLS("", ""); err != nil {
+				panic(err.Error())
+			}
+
+			return nil
 		},
 	}
 )
