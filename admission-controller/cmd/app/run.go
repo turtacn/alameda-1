@@ -213,17 +213,18 @@ func createMutatingWebhookConfigurationIfNotExist(instance admissionregistration
 		if err != nil {
 			return errors.Errorf("create MutatingWebhookConfigurations failed: %s", err.Error())
 		}
-
 	} else if err != nil {
 
 		return errors.Errorf("get MutatingWebhookConfigurations failed: %s", err.Error())
-	}
+	} else {
 
-	scope.Debugf("found existing MutatingWebhookConfiguration, update. Previous: %+v, Updated: %+v .", *currentInstance, instance)
-	currentInstance.Webhooks = instance.Webhooks
-	_, err = clientset.AdmissionregistrationV1beta1().MutatingWebhookConfigurations().Update(currentInstance)
-	if err != nil {
-		return errors.Errorf("update MutatingWebhookConfigurations failed: %s", err.Error())
+		scope.Debugf("found existing MutatingWebhookConfiguration, update. Previous: %+v, Updated: %+v .", *currentInstance, instance)
+
+		currentInstance.Webhooks = instance.Webhooks
+		_, err = clientset.AdmissionregistrationV1beta1().MutatingWebhookConfigurations().Update(currentInstance)
+		if err != nil {
+			return errors.Errorf("update MutatingWebhookConfigurations failed: %s", err.Error())
+		}
 	}
 
 	return nil
