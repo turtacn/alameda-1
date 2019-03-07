@@ -93,20 +93,20 @@ $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 	
 3. Put in the following yaml information to tell **AlamedaScaler** which Deployment/DeploymentConfig is applicable and click the **Create** button. (Click **Continue Anyway** to ignore the warning.)
 
-	<pre><code>apiVersion: autoscaling.containers.ai/v1alpha1
-	kind: AlamedaScaler
-	metadata:
-	  name: alameda
-	  namespace: ocp-smoke-test #(YOUR_PROJECT_NAME)
-	spec:
-	  policy: stable
-	  enable: true
-	  selector:
-	    matchLabels:
-	      app: ocp-smoke-test #(Your Deployment/DeploymentConfig labels)
-	</code></pre>
-	
-	![](./img/openshift_guide/19.png)
+```
+apiVersion: autoscaling.containers.ai/v1alpha1
+kind: AlamedaScaler
+metadata:
+    name: alameda
+    namespace: ocp-smoke-test #(YOUR_PROJECT_NAME)
+spec:
+    policy: stable
+    enable: true
+    selector:
+        matchLabels:
+            app: ocp-smoke-test #(Your Deployment/DeploymentConfig labels)
+```
+![](./img/openshift_guide/19.png)
 
 4. Use the following oc command to check if **AlamedaScaler** successfully found the pods under the desired project. You will see **deploymentconfigs:{}** and **deployments:{}** if the AlamedaScaler didn't find any applicable pods.
 	
