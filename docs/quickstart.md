@@ -1,24 +1,19 @@
 # QuickStart
 
-This document guides you from build, deploy to use Alameda.
-- Build Alameda
-- Deploy Alameda
-- Use Alameda 
+This document helps you get started to use Alameda. If you do not have Alameda deployed in your environment yet, please reference [deployment](./deploy.md) guide first.
 
-## Build Alameda
-Please refer to the [build](./build.md) guide.
+## Using Alameda
 
-## Deploy Alameda
-Please refer to the [deploy](./deploy.md) guide.
+To have Alameda resource usage recommendations for you, first thing is to tell Alameda what are the target containers and the policies. Then you can see the recommendations by checking the *alamedarecommendation* CRs. Grafana dashboards are also provided to visualize these information.
 
-## Use Alameda
+### Specify a target object
 
-### Specify a target to request Alameda services
-User can create a custom resource of *AlamedaScaler* custom resource definition (CRD) to instruct Alameda that
-1. which Pod(s) to watch by Kubernetes *selector* construct, and
+Users can create a custom resource of *AlamedaScaler* custom resource definition (CRD) to instruct Alameda that:
+1. which container needs resource usage recommendations, and
 2. what policy that Alameda should use to give recommendations.
 
-Currently Alameda provides *stable* and *compact* policy. The following is an example to instruct Alameda to watch Pod(s) at *webapp* namespace with *nginx* label and *stable* policy.
+Currently Alameda watches containers that are deployed by *Deployment* or *DeploymentConfig* apis and provides *stable* and *compact* policies. For more details, please refer to the [*AlamedaScaler* design](../design/crd_alamedascaler.md). The following is an example to instruct Alameda to watch containers in *webapp* namespace with *nginx* label and *stable* policy.
+
 ```
 apiVersion: autoscaling.containers.ai/v1alpha1
 kind: AlamedaScaler
@@ -33,142 +28,166 @@ spec:
       app: nginx
 ```
 
-You can list all Pods that are watched by Alameda with:
+You can list all the *AlamedaScaler* CRs in your namespace by:
 ```
-$ kubectl get alamedascalers --all-namespaces
+$ kubectl get alamedascalers -n <your namespace>
 ```
+and see the details by adding `-o yaml` flag.
 
-### Retrieve Alameda prediction and recommendation result
-Alameda outputs raw workload recommendations in a global planning manner for all the pods watched by Alameda.
+> **Note**: an *AlamedaScaler* CR only looks for containers in the same namespace.
+
+### Retrieve Alameda recommendations
+
+Alameda outputs recommendations in a global planning manner for all the containers watched by Alameda.
 They are presented as *alamedarecommendation* CRD.
 You can check Alameda recommendation results by:
 ```
-$ kubectl get alamedarecommendation --all-namespaces
+$ kubectl get alamedarecommendation -n <your namespace>
 ```
+and see the details by adding `-o yaml` flag.
 
-### Example
+For more details, please refer to the [*alamedarecommendation* CRD design](./design/crd_alamedarecommendation.md).
 
-- Deploy a nginx application example by:
+### Visualize Alameda recommendations
+
+If Grafana and Alameda dashboards are deployed, users can visualize Alameda workload predictions and recommendations through the provided dashboards.
+
+## Example
+
+The following is an example of the Alameda workflow.
+
+- First we need a target application such as nginx by:
     ```
     $ cd <alameda>/example/samples/nginx
     $ kubectl create -f nginx_deployment.yaml
     ```
-- Request Alameda to predict and recommend the resource usage for nginx Pods by:
+- Then we request Alameda to recommend resource usage for nginx by:
     ```
     $ cd <alameda>/example/samples/nginx
     $ kubectl create -f alamedascaler.yaml
     ```
-You can check that Alameda is watching the nginx Pods by:
+
+You can check that Alameda is watching containers running in the nginx application by:
 ```
 $ kubectl get alamedascaler --all-namespaces
 NAMESPACE   NAME      AGE
 webapp      alameda   5h
 $ kubectl get alamedascaler alameda -n webapp -o yaml
-apiVersion: autoscaling.containers.ai/v1alpha1
-kind: AlamedaScaler
+apiVersion: v1
+items:
+- apiVersion: autoscaling.containers.ai/v1alpha1
+  kind: AlamedaScaler
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaScaler","metadata":{"annotations":{},"name":"alameda","namespace":"webapp"},"spec":{"enable":true,"policy":"stable","selector":{"matchLabels":{"app":"nginx"}}}}
+    creationTimestamp: "2019-02-15T10:51:29Z"
+    generation: 3
+    name: alameda
+    namespace: webapp
+    resourceVersion: "2158849"
+    selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedascalers/alameda
+    uid: a60c4c47-310f-11e9-accd-000c29b48f2a
+  spec:
+    enable: true
+    policy: stable
+    selector:
+      matchLabels:
+        app: nginx
+  status:
+    alamedaController:
+      deployments:
+        webapp/nginx-deployment:
+          name: nginx-deployment
+          namespace: webapp
+          pods:
+            webapp/nginx-deployment-7bdddc58f9-6l677:
+              containers:
+              - name: nginx
+                resources: {}
+              name: nginx-deployment-7bdddc58f9-6l677
+              uid: 960374db-310f-11e9-accd-000c29b48f2a
+            webapp/nginx-deployment-7bdddc58f9-wfrbh:
+              containers:
+              - name: nginx
+                resources: {}
+              name: nginx-deployment-7bdddc58f9-wfrbh
+              uid: 9602a059-310f-11e9-accd-000c29b48f2a
+          uid: 95fd011b-310f-11e9-accd-000c29b48f2a
+kind: List
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaScaler","metadata":{"annotations":{},"name":"alameda","namespace":"alameda"},"spec":{"enable":true,"policy":"compact","selector":{"matchLabels":{"app":"nginx"}}}}
-  creationTimestamp: 2018-11-30T08:59:28Z
-  generation: 1
-  name: alameda
-  namespace: webapp
-  resourceVersion: "67988"
-  selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedascaler/alameda
-  uid: 3e8ea661-f47e-11e8-8913-88d7f6561288
-spec:
-  enable: true
-  policy: compact
-  selector:
-    matchLabels:
-      app: nginx
-status:
-  alamedaController:
-    deployments:
-      webapp/nginx-deployment:
-        name: nginx-deployment
-        namespace: webapp
-        pods:
-          webapp/nginx-deployment-88644cb8c-clwrx:
-	    containers:
-            - name: nginx
-              resources: {}
-            name: nginx-deployment-88644cb8c-clwrx
-            namespace: webapp
-            uid: 74d476c5-f48b-11e8-8913-88d7f6561288
-          webapp/nginx-deployment-88644cb8c-xbdgj:
-	    containers:
-            - name: nginx
-              resources: {}
-            name: nginx-deployment-88644cb8c-xbdgj
-            namespace: webapp
-            uid: cc73a788-f487-11e8-8913-88d7f6561288
-        uid: 2e5055f0-f47e-11e8-8913-88d7f6561288
+  resourceVersion: ""
+  selfLink: ""
 ```
-And the prediction and recommendation for the nginx Pods are:
+And the resource usage recommendations are:
 ```
 $ kubectl get alamedarecommendation alameda -n webapp -o yaml
-apiVersion: autoscaling.containers.ai/v1alpha1
-kind: AlamedaResourcePrediction
+apiVersion: v1
+items:
+- apiVersion: autoscaling.containers.ai/v1alpha1
+  kind: AlamedaRecommendation
+  metadata:
+    creationTimestamp: "2019-02-15T10:51:29Z"
+    generation: 13
+    labels:
+      alamedascaler: alameda.webapp
+    name: nginx-deployment-7bdddc58f9-6l677
+    namespace: webapp
+    ownerReferences:
+    - apiVersion: autoscaling.containers.ai/v1alpha1
+      blockOwnerDeletion: true
+      controller: true
+      kind: AlamedaScaler
+      name: alameda
+      uid: a60c4c47-310f-11e9-accd-000c29b48f2a
+    resourceVersion: "2482218"
+    selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedarecommendations/nginx-deployment-7bdddc58f9-6l677
+    uid: a60f32f8-310f-11e9-accd-000c29b48f2a
+  spec:
+    containers:
+    - name: nginx
+      resources:
+        limits:
+          cpu: "0"
+          memory: 9636Ki
+        requests:
+          cpu: "0"
+          memory: 9636Ki
+  status: {}
+- apiVersion: autoscaling.containers.ai/v1alpha1
+  kind: AlamedaRecommendation
+  metadata:
+    creationTimestamp: "2019-02-15T10:51:29Z"
+    generation: 14
+    labels:
+      alamedascaler: alameda.webapp
+    name: nginx-deployment-7bdddc58f9-wfrbh
+    namespace: webapp
+    ownerReferences:
+    - apiVersion: autoscaling.containers.ai/v1alpha1
+      blockOwnerDeletion: true
+      controller: true
+      kind: AlamedaScaler
+      name: alameda
+      uid: a60c4c47-310f-11e9-accd-000c29b48f2a
+    resourceVersion: "2482651"
+    selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedarecommendations/nginx-deployment-7bdddc58f9-wfrbh
+    uid: a61017e6-310f-11e9-accd-000c29b48f2a
+  spec:
+    containers:
+    - name: nginx
+      resources:
+        limits:
+          cpu: "0"
+          memory: 9384Ki
+        requests:
+          cpu: "0"
+          memory: 9384Ki
+  status: {}
+kind: List
 metadata:
-  creationTimestamp: 2018-11-30T08:59:28Z
-  generation: 1
-  name: alameda
-  namespace: webapp
-  resourceVersion: "70278"
-  selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedarecommendation/alameda
-  uid: 3e9dc05e-f47e-11e8-8913-88d7f6561288
-spec:
-  selector:
-    matchLabels:
-      app: nginx
-status:
-  prediction:
-    Deployments:
-      2e5055f0-f47e-11e8-8913-88d7f6561288:
-        Name: alameda
-        Namespace: alameda
-        Pods:
-          74d476c5-f48b-11e8-8913-88d7f6561288:
-            Containers:
-              nginx:
-                InitialResource:
-                  limits:
-                    memory: "200Mi"
-                  requests:
-                    memory: "100Mi"
-                Name: nginx
-                Recommendations:
-                - Date: 2018-11-30 10:43:30 +0000 UTC
-                  Resources:
-                    limits:
-                      memory: "200Mi"
-                    requests:
-                      memory: "100Mi"
-                  Time: 1543574610
-                - Date: 2018-11-30 10:46:30 +0000 UTC
-                  Resources:
-                    limits:
-                      memory: "200Mi"
-                    requests:
-                      memory: "100Mi"
-                  Time: 1543574790
-                - Date: 2018-11-30 10:49:30 +0000 UTC
-                  Resources:
-                    limits:
-                      memory: "200Mi"
-                    requests:
-                      memory: "100Mi"
-                  Time: 1543574970
-            Name: nginx-deployment-88644cb8c-clwrx
-          cc73a788-f487-11e8-8913-88d7f6561288:
-            Containers:
-              nginx:
-                InitialResource: {}
-                Name: nginx
-                RawPredict: {}
-                Recommendations: []
-            Name: nginx-deployment-88644cb8c-xbdgj
-        UID: 2e5055f0-f47e-11e8-8913-88d7f6561288
+  resourceVersion: ""
+  selfLink: ""
 ```
+By checking the Grafana dashboards, users can also visualize the resource recommendations.
+
