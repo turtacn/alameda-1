@@ -130,7 +130,7 @@ persistence:
 
 # Administrator credentials when not using an existing secret (see below)
 adminUser: admin
-# adminPassword: strongpassword
+adminPassword: admin
 
 # Use an existing secret for the admin user.
 admin:
@@ -181,7 +181,7 @@ datasources:
     datasources:
     - name: Prometheus
       type: prometheus
-      url: http://prometheus-server
+      url: http://prometheus-prometheus-oper-prometheus.monitoring:9090
       access: proxy
       isDefault: true
     - name: InfluxDB
@@ -217,10 +217,12 @@ dashboardProviders:
 ##
 dashboards:
   alameda:
-    clusterStatus :
-      json: dashboards/clusterHealth.json
-    prediction :
+    prediction:
       json: dashboards/prediction.json
+    clusterHealth:
+      json: dashboards/clusterhealth.json
+    nodeHealth:
+      json: dashboards/nodehealth.json
 #    prometheus-stats:
 #      gnetId: 2
 #      revision: 2

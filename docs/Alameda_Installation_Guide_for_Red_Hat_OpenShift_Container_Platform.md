@@ -75,7 +75,7 @@ $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 	
 	![](./img/openshift_guide/14.png)
 	
-14. Go to the plus button to import two grafana json files **clusterHealth.json** and **prediction.json** which can be downloaded here: [link](https://github.com/containers-ai/alameda/tree/release-0.2/helm/grafana/dashboards)
+14. Go to the plus button to import the grafana dashboard json files in [helm/grafana/dashboards](../helm/grafana/dashboards/)
 
 	![](./img/openshift_guide/15.png)
 

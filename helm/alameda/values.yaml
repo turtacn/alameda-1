@@ -34,8 +34,8 @@ global:
         name: grpc
       prometheusConfig:
         scheme: "http"
-        url: "prometheus-server.monitoring"
-        port: 80
+        url: "prometheus-prometheus-oper-prometheus.monitoring"
+        port: 9090
         insecureSkipVerify: true
         bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
       influxdbConfig:
