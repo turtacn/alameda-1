@@ -131,35 +131,17 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 
 // DeleteContainers set containers' field is_deleted to true into container measurement
 func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub_v1alpha1.Pod) error {
-
-	var (
-		err error
-
-		containersEntityBeforeDelete = make([]*cluster_status_entity.ContainerEntity, 0)
-
-		pointsToDelete = make([]*influxdb_client.Point, 0)
-	)
-
-	containersEntityBeforeDelete, err = containerRepository.ListPodsContainers(pods)
-	if err != nil {
-		return errors.Wrap(err, "delete container failed")
-	}
-	for _, containerEntity := range containersEntityBeforeDelete {
-		entity := *containerEntity
-
-		trueValue := true
-		entity.IsDeleted = &trueValue
-		point, err := entity.InfluxDBPoint(string(Container))
+	for _, pod := range pods {
+		podNS := pod.GetNamespacedName().GetNamespace()
+		podName := pod.GetNamespacedName().GetName()
+		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s' AND \"%s\"='%s'", Container,
+			cluster_status_entity.ContainerNamespace, podNS, cluster_status_entity.ContainerPodName, podName)
+		scope.Debugf("DeleteContainers command: %s", cmd)
+		_, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
 		if err != nil {
-			return errors.Wrap(err, "delete containers failed")
+			scope.Errorf(err.Error())
 		}
-
-		pointsToDelete = append(pointsToDelete, point)
 	}
-
-	containerRepository.influxDB.WritePoints(pointsToDelete, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.ClusterStatus),
-	})
 	return nil
 }
 
