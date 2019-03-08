@@ -411,7 +411,7 @@ objects:
       spec:
         containers:
         - name: alameda-datahub
-          image: containersai/alameda-datahub-rhel:latest
+          image: containersai/alameda-datahub-rhel:${TAG_NUMBER}
           resources:
             limits:
               cpu: 100m
@@ -454,7 +454,7 @@ objects:
       spec:
         containers:
         - name: alameda-operator
-          image: containersai/alameda-operator-rhel:latest
+          image: containersai/alameda-operator-rhel:${TAG_NUMBER}
           resources:
             limits:
               cpu: 20m
@@ -633,7 +633,7 @@ objects:
       spec:
         containers:
         - name: alameda-evictioner
-          image: containersai/alameda-evictioner-rhel:latest
+          image: containersai/alameda-evictioner-rhel:${TAG_NUMBER}
           resources:
             limits:
               cpu: 60m
@@ -685,7 +685,7 @@ objects:
       spec:
         containers:
         - name: admission-controller
-          image: containersai/alameda-admission-rhel:latest
+          image: containersai/alameda-admission-rhel:${TAG_NUMBER}
           resources:
             limits:
               cpu: 60m
@@ -729,3 +729,8 @@ parameters:
   required: true
   description: The DockerHub config json encoded with base64.
   value: ""
+- name: TAG_NUMBER
+  displayName: Alameda image tag
+  required: true
+  description: Alameda image tag to be used.
+  value: "latest"
