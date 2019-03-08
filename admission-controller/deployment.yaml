@@ -7,7 +7,7 @@ metadata:
 spec:
   ports:
     - port: 443
-      targetPort: 443
+      targetPort: 8000
   selector:
     app: admission-controller
 ---
@@ -112,7 +112,7 @@ spec:
             - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
               value: "/etc/tls-certs/serverKey.pem"
           ports:
-            - containerPort: 443
+            - containerPort: 8000
           volumeMounts:
             - name: tls-certs
               mountPath: "/etc/tls-certs"

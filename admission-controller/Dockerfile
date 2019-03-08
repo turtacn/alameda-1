@@ -13,5 +13,5 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/bin/admission-controller .
 COPY --from=builder /go/src/github.com/containers-ai/alameda/admission-controller/etc/admission-controller.yml /etc/alameda/admission-controller/admission-controller.yml
-EXPOSE 443/tcp
+EXPOSE 8000/tcp
 ENTRYPOINT ["./admission-controller", "run"]

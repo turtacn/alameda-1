@@ -663,7 +663,7 @@ objects:
   spec:
     ports:
     - port: 443
-      targetPort: 443
+      targetPort: 8000
     selector:
       app: admission-controller
 - apiVersion: v1
