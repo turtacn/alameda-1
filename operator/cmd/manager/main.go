@@ -36,6 +36,7 @@ import (
 
 	"github.com/containers-ai/alameda/operator"
 	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
+	k8swhsrv "github.com/containers-ai/alameda/operator/k8s-webhook-server"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
@@ -167,6 +168,7 @@ func main() {
 	}
 
 	go registerNodes(mgr.GetClient())
+	go launchWebhook(&mgr, operatorConf.K8SWebhookServer)
 	scope.Info("Starting the Cmd.")
 
 	// Start the Cmd
@@ -265,4 +267,9 @@ func applyCRDs(cfg *rest.Config) {
 			scope.Errorf(fmt.Sprintf("Polling crd for %s failed: %s", crdFile, err.Error()))
 		}
 	}
+}
+
+func launchWebhook(mgr *manager.Manager, config *k8swhsrv.Config) {
+	k8sWebhookSrv := k8swhsrv.NewK8SWebhookServer(mgr, config)
+	k8sWebhookSrv.Launch()
 }
