@@ -11,6 +11,7 @@ import (
 
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
 	admission_controller_utils "github.com/containers-ai/alameda/admission-controller/pkg/utils"
+	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -294,7 +295,7 @@ func (ac *admissionController) listPodControlledByControllerID(controllerID name
 
 func (ac *admissionController) newSigsK8SIOClient() (client.Client, error) {
 
-	return client.New(ac.k8sConfig, client.Options{})
+	return client.New(ac.k8sConfig, client.Options{Scheme: scheme})
 }
 
 func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKindName) ([]*resource.PodResourceRecommendation, error) {
@@ -345,12 +346,16 @@ func decreaseRecommendationNuberMapByPods(recommendationNumberMap map[string]int
 			scope.Debugf("skip decreate recommendation cause pod %s/%s has deletion timestamp", pod.Namespace, pod.Name)
 			continue
 		}
+		if !alamedascaler_reconciler.PodIsMonitoredByAlameda(pod) {
+			scope.Debugf("skip decreate recommendation cause pod's %s/%s phase: %s is not monitored by Alameda", pod.Namespace, pod.Name, pod.Status.Phase)
+			continue
+		}
 		recommendationID := buildPodResourceIDFromPod(pod)
 		if _, exist := recommendationNumberMap[recommendationID]; exist {
 			scope.Debugf("decreate recommendation for pod %s/%s", pod.Namespace, pod.Name)
 			recommendationNumberMap[recommendationID]--
 		} else {
-			scope.Debugf("no matched key founf in recommendationMap: key: %s", recommendationID)
+			scope.Debugf("no matched key found in recommendationMap: key: %s", recommendationID)
 		}
 	}
 }

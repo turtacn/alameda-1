@@ -125,7 +125,7 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 	}
 	if alamedaPods, err := listResources.ListPodsByDeployment(alamedaDeploymentNS, alamedaDeploymentName); err == nil && len(alamedaPods) > 0 {
 		for _, alamedaPod := range alamedaPods {
-			if !podIsMonitoredByAlameda(&alamedaPod) {
+			if !PodIsMonitoredByAlameda(&alamedaPod) {
 				continue
 			}
 			alamedaPodNamespace := alamedaPod.GetNamespace()
@@ -173,7 +173,7 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 	}
 	if alamedaPods, err := listResources.ListPodsByDeploymentConfig(deploymentConfigNS, deploymentConfigName); err == nil && len(alamedaPods) > 0 {
 		for _, alamedaPod := range alamedaPods {
-			if !podIsMonitoredByAlameda(&alamedaPod) {
+			if !PodIsMonitoredByAlameda(&alamedaPod) {
 				continue
 			}
 			alamedaPodNamespace := alamedaPod.GetNamespace()
@@ -205,7 +205,7 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 	return reconciler.alamedascaler
 }
 
-func podIsMonitoredByAlameda(pod *core_v1.Pod) bool {
+func PodIsMonitoredByAlameda(pod *core_v1.Pod) bool {
 	if !podPhaseIsMonitoredByAlameda(pod.Status.Phase) || pod.ObjectMeta.DeletionTimestamp != nil {
 		return false
 	}
