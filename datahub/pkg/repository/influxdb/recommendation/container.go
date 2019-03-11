@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	containerScope = log.RegisterScope("recommendation_db_container_measurement", "recommendation DB container measurement", 0)
+	scope = log.RegisterScope("recommendation_db_measurement", "recommendation DB measurement", 0)
 )
 
 // ContainerRepository is used to operate node measurement of recommendation database
@@ -98,7 +98,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
-							containerScope.Error(err.Error())
+							scope.Error(err.Error())
 						}
 					}
 				}
@@ -127,7 +127,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 							time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
-							containerScope.Error(err.Error())
+							scope.Error(err.Error())
 						}
 					}
 				}
@@ -154,7 +154,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
-							containerScope.Error(err.Error())
+							scope.Error(err.Error())
 						}
 					}
 				}
@@ -181,7 +181,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
-							containerScope.Error(err.Error())
+							scope.Error(err.Error())
 						}
 					}
 				}
@@ -263,35 +263,39 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" %s %s",
 		string(Container), whereStr, recommendation_entity.ContainerName,
 		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName, orderStr, limitStr)
-	containerScope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
+	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 	if results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.Recommendation)); err == nil {
 		for _, result := range results {
-			//container recommendation time series data
+			//individual contaniners
 			for _, ser := range result.Series {
 				podName := ser.Tags[string(recommendation_entity.ContainerPodName)]
 				podNS := ser.Tags[string(recommendation_entity.ContainerNamespace)]
 				topControllerName := ""
 				topControllerKind := datahub_v1alpha1.Kind_POD
-				containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
-					Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
-					InitialLimitRecommendations:   []*datahub_v1alpha1.MetricData{},
-					InitialRequestRecommendations: []*datahub_v1alpha1.MetricData{},
-					LimitRecommendations:          []*datahub_v1alpha1.MetricData{},
-					RequestRecommendations:        []*datahub_v1alpha1.MetricData{},
-				}
-				initialResourceLimitCPUData := []*datahub_v1alpha1.Sample{}
-				initialResourceRequestCPUData := []*datahub_v1alpha1.Sample{}
-				resourceLimitCPUData := []*datahub_v1alpha1.Sample{}
-				resourceRequestCPUData := []*datahub_v1alpha1.Sample{}
-				initialResourceLimitMemoryData := []*datahub_v1alpha1.Sample{}
-				initialResourceRequestMemoryData := []*datahub_v1alpha1.Sample{}
-				resourceLimitMemoryData := []*datahub_v1alpha1.Sample{}
-				resourceRequestMemoryData := []*datahub_v1alpha1.Sample{}
+
 				var startTime int64 = 0
 				var endTime int64 = 0
+				// per container time series data
 				for _, val := range ser.Values {
 					timeColIdx := utils.GetTimeIdxFromColumns(ser.Columns)
 					timeObj, _ := utils.ParseTime(val[timeColIdx].(string))
+
+					containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
+						Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
+						InitialLimitRecommendations:   []*datahub_v1alpha1.MetricData{},
+						InitialRequestRecommendations: []*datahub_v1alpha1.MetricData{},
+						LimitRecommendations:          []*datahub_v1alpha1.MetricData{},
+						RequestRecommendations:        []*datahub_v1alpha1.MetricData{},
+					}
+					initialResourceLimitCPUData := []*datahub_v1alpha1.Sample{}
+					initialResourceRequestCPUData := []*datahub_v1alpha1.Sample{}
+					resourceLimitCPUData := []*datahub_v1alpha1.Sample{}
+					resourceRequestCPUData := []*datahub_v1alpha1.Sample{}
+					initialResourceLimitMemoryData := []*datahub_v1alpha1.Sample{}
+					initialResourceRequestMemoryData := []*datahub_v1alpha1.Sample{}
+					resourceLimitMemoryData := []*datahub_v1alpha1.Sample{}
+					resourceRequestMemoryData := []*datahub_v1alpha1.Sample{}
+
 					for columnIdx, column := range ser.Columns {
 						if val[columnIdx] == nil {
 							continue
@@ -339,112 +343,111 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 							topControllerKind = enumconv.KindEnum[val[columnIdx].(string)]
 						}
 					}
-				}
+					if len(initialResourceLimitCPUData) > 0 {
+						containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+								Data:       initialResourceLimitCPUData,
+							})
+					}
+					if len(initialResourceLimitMemoryData) > 0 {
+						containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+								Data:       initialResourceLimitMemoryData,
+							})
+					}
+					if len(initialResourceRequestCPUData) > 0 {
+						containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+								Data:       initialResourceRequestCPUData,
+							})
+					}
+					if len(initialResourceRequestMemoryData) > 0 {
+						containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+								Data:       initialResourceRequestMemoryData,
+							})
+					}
+					if len(resourceLimitCPUData) > 0 {
+						containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+								Data:       resourceLimitCPUData,
+							})
+					}
+					if len(resourceLimitMemoryData) > 0 {
+						containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+								Data:       resourceLimitMemoryData,
+							})
+					}
+					if len(resourceRequestCPUData) > 0 {
+						containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+								Data:       resourceRequestCPUData,
+							})
+					}
+					if len(resourceRequestMemoryData) > 0 {
+						containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations,
+							&datahub_v1alpha1.MetricData{
+								MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+								Data:       resourceRequestMemoryData,
+							})
+					}
 
-				if len(initialResourceLimitCPUData) > 0 {
-					containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-							Data:       initialResourceLimitCPUData,
-						})
-				}
-				if len(initialResourceLimitMemoryData) > 0 {
-					containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-							Data:       initialResourceLimitMemoryData,
-						})
-				}
-				if len(initialResourceRequestCPUData) > 0 {
-					containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-							Data:       initialResourceRequestCPUData,
-						})
-				}
-				if len(initialResourceRequestMemoryData) > 0 {
-					containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-							Data:       initialResourceRequestMemoryData,
-						})
-				}
-				if len(resourceLimitCPUData) > 0 {
-					containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-							Data:       resourceLimitCPUData,
-						})
-				}
-				if len(resourceLimitMemoryData) > 0 {
-					containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-							Data:       resourceLimitMemoryData,
-						})
-				}
-				if len(resourceRequestCPUData) > 0 {
-					containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-							Data:       resourceRequestCPUData,
-						})
-				}
-				if len(resourceRequestMemoryData) > 0 {
-					containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations,
-						&datahub_v1alpha1.MetricData{
-							MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-							Data:       resourceRequestMemoryData,
-						})
-				}
-
-				foundPodRec := false
-				for podRecommendationIdx, podRecommendation := range podRecommendations {
-					if podRecommendation.GetStartTime() != nil && startTime != 0 && podRecommendation.GetStartTime().GetSeconds() == startTime &&
-						podRecommendation.GetEndTime() != nil && endTime != 0 && podRecommendation.GetEndTime().GetSeconds() == endTime &&
-						podRecommendation.GetNamespacedName().GetNamespace() == podNS && podRecommendation.GetNamespacedName().GetName() == podName {
-						foundPodRec = true
-						podRecommendations[podRecommendationIdx].ContainerRecommendations = append(podRecommendations[podRecommendationIdx].ContainerRecommendations, containerRecommendation)
+					foundPodRec := false
+					for podRecommendationIdx, podRecommendation := range podRecommendations {
+						if podRecommendation.GetStartTime() != nil && startTime != 0 && podRecommendation.GetStartTime().GetSeconds() == startTime &&
+							podRecommendation.GetEndTime() != nil && endTime != 0 && podRecommendation.GetEndTime().GetSeconds() == endTime &&
+							podRecommendation.GetNamespacedName().GetNamespace() == podNS && podRecommendation.GetNamespacedName().GetName() == podName {
+							foundPodRec = true
+							podRecommendations[podRecommendationIdx].ContainerRecommendations = append(podRecommendations[podRecommendationIdx].ContainerRecommendations, containerRecommendation)
+							if startTime != 0 {
+								podRecommendations[podRecommendationIdx].StartTime = &timestamp.Timestamp{
+									Seconds: startTime,
+								}
+							}
+							if endTime != 0 {
+								podRecommendations[podRecommendationIdx].EndTime = &timestamp.Timestamp{
+									Seconds: endTime,
+								}
+							}
+						}
+					}
+					if !foundPodRec {
+						podRec := &datahub_v1alpha1.PodRecommendation{
+							NamespacedName: &datahub_v1alpha1.NamespacedName{
+								Namespace: podNS,
+								Name:      podName,
+							},
+							ContainerRecommendations: []*datahub_v1alpha1.ContainerRecommendation{
+								containerRecommendation,
+							},
+							TopController: &datahub_v1alpha1.TopController{
+								NamespacedName: &datahub_v1alpha1.NamespacedName{
+									Namespace: podNS,
+									Name:      topControllerName,
+								},
+								Kind: topControllerKind,
+							},
+						}
 						if startTime != 0 {
-							podRecommendations[podRecommendationIdx].StartTime = &timestamp.Timestamp{
+							podRec.StartTime = &timestamp.Timestamp{
 								Seconds: startTime,
 							}
 						}
 						if endTime != 0 {
-							podRecommendations[podRecommendationIdx].EndTime = &timestamp.Timestamp{
+							podRec.EndTime = &timestamp.Timestamp{
 								Seconds: endTime,
 							}
 						}
+						podRecommendations = append(podRecommendations, podRec)
 					}
-				}
-				if !foundPodRec {
-					podRec := &datahub_v1alpha1.PodRecommendation{
-						NamespacedName: &datahub_v1alpha1.NamespacedName{
-							Namespace: podNS,
-							Name:      podName,
-						},
-						ContainerRecommendations: []*datahub_v1alpha1.ContainerRecommendation{
-							containerRecommendation,
-						},
-						TopController: &datahub_v1alpha1.TopController{
-							NamespacedName: &datahub_v1alpha1.NamespacedName{
-								Namespace: podNS,
-								Name:      topControllerName,
-							},
-							Kind: topControllerKind,
-						},
-					}
-					if startTime != 0 {
-						podRec.StartTime = &timestamp.Timestamp{
-							Seconds: startTime,
-						}
-					}
-					if endTime != 0 {
-						podRec.EndTime = &timestamp.Timestamp{
-							Seconds: endTime,
-						}
-					}
-					podRecommendations = append(podRecommendations, podRec)
 				}
 			}
 		}

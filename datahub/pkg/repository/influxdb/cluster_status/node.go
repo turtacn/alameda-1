@@ -9,14 +9,9 @@ import (
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
-)
-
-var (
-	scope = log.RegisterScope("influxdb_repo_node_measurement", "InfluxDB repository node measurement", 0)
 )
 
 type NodeRepository struct {

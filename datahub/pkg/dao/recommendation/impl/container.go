@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	containerImplScope = log.RegisterScope("recommendation_container_dao_implement", "recommended container dao implement", 0)
+	scope = log.RegisterScope("recommendation_dao_implement", "recommended dao implement", 0)
 )
 
 // Container Implements ContainerOperation interface

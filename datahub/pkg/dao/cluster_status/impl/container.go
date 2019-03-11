@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	containerImplScope = log.RegisterScope("container_dao_implement", "container dao implement", 0)
+	scope = log.RegisterScope("dao_implement", "dao implement", 0)
 )
 
 // Implement ContainerOperation interface
