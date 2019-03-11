@@ -100,6 +100,7 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 				},
 			},
 			Order: datahub_v1alpha1.QueryCondition_DESC,
+			Limit: 1,
 		},
 	}
 	resp, err := evictioner.datahubClnt.ListPodRecommendations(ctx, in)
