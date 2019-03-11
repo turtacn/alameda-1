@@ -4,13 +4,8 @@ import (
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_cluster_status "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/cluster_status"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/pkg/errors"
-)
-
-var (
-	scope = log.RegisterScope("node_dao_implement", "node dao implement", 0)
 )
 
 // Implement Node interface

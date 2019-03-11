@@ -6,7 +6,7 @@ import (
 
 // InterfaceToString encodes interface to string
 func InterfaceToString(data interface{}) string {
-	if configBin, err := json.MarshalIndent(data, "", "  "); err != nil {
+	if configBin, err := json.Marshal(data); err != nil {
 		return ""
 	} else {
 		return string(configBin)

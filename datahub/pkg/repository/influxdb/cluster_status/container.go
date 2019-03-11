@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	containerScope = log.RegisterScope("cluster_status_db_container_measurement", "cluster_status DB container measurement", 0)
+	scope = log.RegisterScope("cluster_status_db_measurement", "cluster_status DB measurement", 0)
 )
 
 // ContainerRepository is used to operate node measurement of cluster_status database
