@@ -2,16 +2,17 @@ package metadata
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
 )
 
 var (
@@ -24,9 +25,7 @@ type OwnerReferenceTracer struct {
 	k8sClient          kubernetes.Interface
 	k8sDynamicClient   dynamic.Interface
 	k8sDiscoveryClient *discovery.DiscoveryClient
-
-	// apiGroupVersion_Resource_KindMap write once in method initResourcesKindMap
-	apiGroupVersion_Resource_KindMap map[string]map[string]string
+	k8sRestMapper      meta.RESTMapper
 }
 
 // NewDefaultOwnerReferenceTracer build OwnerReferenceTracer
@@ -52,14 +51,18 @@ func NewDefaultOwnerReferenceTracer() (*OwnerReferenceTracer, error) {
 		return nil, errors.Errorf("new OwnerReferenceTracer failed: %s", err.Error())
 	}
 
-	o := &OwnerReferenceTracer{
-		k8sClient:                        client,
-		k8sDynamicClient:                 dynamicClient,
-		k8sDiscoveryClient:               discoveryClient,
-		apiGroupVersion_Resource_KindMap: make(map[string]map[string]string),
+	gr, err := restmapper.GetAPIGroupResources(discoveryClient)
+	if err != nil {
+		return nil, errors.Errorf("new OwnerReferenceTracer failed: %s", err.Error())
 	}
+	restMapper := restmapper.NewDiscoveryRESTMapper(gr)
 
-	o.initResourcesKindMap()
+	o := &OwnerReferenceTracer{
+		k8sClient:          client,
+		k8sDynamicClient:   dynamicClient,
+		k8sDiscoveryClient: discoveryClient,
+		k8sRestMapper:      restMapper,
+	}
 
 	return o, nil
 }
@@ -84,38 +87,20 @@ func NewOwnerReferenceTracerWithConfig(cfg rest.Config) (*OwnerReferenceTracer, 
 		return nil, errors.Errorf("new resource recommendator failed: %s", err.Error())
 	}
 
+	gr, err := restmapper.GetAPIGroupResources(discoveryClient)
+	if err != nil {
+		return nil, errors.Errorf("new OwnerReferenceTracer failed: %s", err.Error())
+	}
+	restMapper := restmapper.NewDiscoveryRESTMapper(gr)
+
 	impl := &OwnerReferenceTracer{
 		k8sClient:          client,
 		k8sDynamicClient:   dynamicClient,
 		k8sDiscoveryClient: discoveryClient,
+		k8sRestMapper:      restMapper,
 	}
-
-	impl.initResourcesKindMap()
 
 	return impl, nil
-}
-
-func (ort *OwnerReferenceTracer) initResourcesKindMap() error {
-
-	apiResourceLists, err := ort.k8sDiscoveryClient.ServerResources()
-	if err != nil {
-		return errors.Errorf("initialize Kubernetes resource kind mapping failed: %s", err.Error())
-	}
-
-	resourcesKindMapMutex.Lock()
-	defer resourcesKindMapMutex.Unlock()
-
-	for _, apiResourceList := range apiResourceLists {
-		gv := apiResourceList.GroupVersion
-		if _, exist := ort.apiGroupVersion_Resource_KindMap[gv]; !exist {
-			ort.apiGroupVersion_Resource_KindMap[gv] = make(map[string]string)
-		}
-		for _, resource := range apiResourceList.APIResources {
-			ort.apiGroupVersion_Resource_KindMap[gv][resource.Name] = resource.Kind
-		}
-	}
-
-	return nil
 }
 
 // GetRootControllerKindAndNameOfOwnerReferences gets root owner references that is Controller
@@ -163,10 +148,15 @@ func (ort *OwnerReferenceTracer) getOwnerRefsOfResource(namespace, name string, 
 
 	ownerRefs := make([]meta_v1.OwnerReference, 0)
 
+	restMapping, err := ort.k8sRestMapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	if err != nil {
+		return ownerRefs, errors.Errorf("get owner references of %s/%s gvk: %s failed: %s", namespace, name, gvk.String(), err.Error())
+	}
+
 	gvr := schema.GroupVersionResource{
 		Group:    gvk.Group,
 		Version:  gvk.Version,
-		Resource: fmt.Sprintf("namespaces/%s/%s", namespace, ort.findPossibleResourceOfGVKInLocalCache(gvk)),
+		Resource: fmt.Sprintf("namespaces/%s/%s", namespace, restMapping.Resource.Resource),
 	}
 	us, err := ort.k8sDynamicClient.Resource(gvr).Get(name, meta_v1.GetOptions{})
 	if err != nil {
@@ -175,25 +165,4 @@ func (ort *OwnerReferenceTracer) getOwnerRefsOfResource(namespace, name string, 
 	ownerRefs = us.GetOwnerReferences()
 
 	return ownerRefs, nil
-}
-
-func (ort *OwnerReferenceTracer) findPossibleResourceOfGVKInLocalCache(gvk schema.GroupVersionKind) string {
-
-	candidatesResource := make([]string, 0)
-
-	if resourceKindMap, exist := ort.apiGroupVersion_Resource_KindMap[gvk.GroupVersion().String()]; exist {
-		for resourceName, kindName := range resourceKindMap {
-			if kindName == gvk.Kind {
-				candidatesResource = append(candidatesResource, resourceName)
-			}
-		}
-	}
-
-	for _, resource := range candidatesResource {
-		if !strings.Contains(resource, "/") {
-			return resource
-		}
-	}
-
-	return ""
 }
