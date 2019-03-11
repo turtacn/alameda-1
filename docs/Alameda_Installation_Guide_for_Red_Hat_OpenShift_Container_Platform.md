@@ -49,7 +49,7 @@ $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 	
 	![](./img/openshift_guide/8.png)
 	
-10. After deployment is done, switch to the openshift-monitoring prject (a default project in OCP). Go to **Resources > Secrets > grafana-datasources** and reveal the secret.
+10. After deployment is done, switch to the openshift-monitoring project (a default project in OCP). Go to **Resources > Secrets > grafana-datasources** and reveal the secret.
 	
 	![](./img/openshift_guide/9.png)
 	
