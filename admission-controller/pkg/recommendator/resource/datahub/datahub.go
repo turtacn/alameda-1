@@ -111,6 +111,7 @@ func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControll
 				EndTime: quertTime,
 			},
 			Order: datahub_v1alpha1.QueryCondition_DESC,
+			Limit: 1,
 		},
 	}
 
