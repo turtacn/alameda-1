@@ -7,17 +7,12 @@ import (
 	openshift_apps_v1 "github.com/openshift/api/apps/v1"
 
 	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-var (
-	listResourcesScope = logUtil.RegisterScope("listresources", "List resources", 0)
 )
 
 // ListResources define resource list functions
@@ -131,7 +126,7 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 					client.InNamespace(deployNS).MatchingLabels(replicasetIns.Spec.Selector.MatchLabels),
 					podListIns)
 				if err != nil {
-					listResourcesScope.Error(err.Error())
+					scope.Error(err.Error())
 					continue
 				}
 				pods = append(pods, podListIns.Items...)
@@ -171,7 +166,7 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 					client.InNamespace(deployConfigNS).MatchingLabels(replicationControllerIns.Spec.Selector),
 					podListIns)
 				if err != nil {
-					listResourcesScope.Error(err.Error())
+					scope.Error(err.Error())
 					continue
 				}
 				pods = append(pods, podListIns.Items...)
@@ -221,7 +216,7 @@ func (listResources *ListResources) listAllResources(resourceList runtime.Object
 	if err := listResources.client.List(context.TODO(),
 		&client.ListOptions{},
 		resourceList); err != nil {
-		listResourcesScope.Error(err.Error())
+		scope.Error(err.Error())
 		return err
 	}
 	return nil
@@ -232,7 +227,7 @@ func (listResources *ListResources) listResourcesByNamespace(resourceList runtim
 		&client.ListOptions{
 			Namespace: namespace,
 		}, resourceList); err != nil {
-		listResourcesScope.Error(err.Error())
+		scope.Error(err.Error())
 		return err
 	}
 	return nil
@@ -242,7 +237,7 @@ func (listResources *ListResources) listResourcesByLabels(resourceList runtime.O
 	if err := listResources.client.List(context.TODO(),
 		client.MatchingLabels(lbls),
 		resourceList); err != nil {
-		listResourcesScope.Error(err.Error())
+		scope.Error(err.Error())
 		return err
 	}
 	return nil
@@ -252,7 +247,7 @@ func (listResources *ListResources) listResourcesByNamespaceLabels(resourceList 
 	if err := listResources.client.List(context.TODO(),
 		client.InNamespace(namespace).MatchingLabels(lbls),
 		resourceList); err != nil {
-		listResourcesScope.Debug(err.Error())
+		scope.Debug(err.Error())
 		return err
 	}
 	return nil

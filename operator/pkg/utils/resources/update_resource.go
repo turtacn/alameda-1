@@ -4,13 +4,8 @@ import (
 	"context"
 
 	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-var (
-	updateResourceScope = logUtil.RegisterScope("updateresource", "Update resource", 0)
 )
 
 // UpdateResource define resource update functions
@@ -34,7 +29,7 @@ func (updateResource *UpdateResource) UpdateAlamedaScaler(alamedaScaler *autusca
 func (updateResource *UpdateResource) updateResource(resource runtime.Object) error {
 	if err := updateResource.Update(context.TODO(),
 		resource); err != nil {
-		updateResourceScope.Debug(err.Error())
+		scope.Debug(err.Error())
 		return err
 	}
 	return nil

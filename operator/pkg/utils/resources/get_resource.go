@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	getResourcesScope = logUtil.RegisterScope("getresources", "Get resource", 0)
+	scope = logUtil.RegisterScope("resource_utils", "resource utils", 0)
 )
 
 // GetResource define resource list functions
@@ -116,7 +116,7 @@ func (getResource *GetResource) getResource(resource runtime.Object, namespace, 
 			Name:      name,
 		},
 		resource); err != nil {
-		getResourcesScope.Debug(err.Error())
+		scope.Debug(err.Error())
 		return err
 	}
 	return nil
