@@ -12,6 +12,19 @@ A user bound with the "cluster-admin" role is needed for deployment (no longer n
 $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 ```
 
+3.**OpenShift Persistent Volumes**
+
+Cluster admin needs to prepare **3 Persistent Volumes (PV)** for Alameda OpenShift template to do **Persistent Volume Claims(PVC)**. PV needs to meet following requirements:
+
+* **InfluxDB PV**:
+	1. Access Mode: ReadWriteOnce
+	2. Capacity: No less than 10GB (You can also specify the InfluxDB PVC size during deployment, see **Alameda Installation step 7**)
+* **Grafana PV**:
+	1. Access Mode: ReadWriteOnce
+	2. Capacity: 2GB
+* **Alameda-ai PV**:
+	1. Access Mode: ReadWriteOnce
+	2. Capacity: 2GB
 
 # Alameda Installation
 
@@ -37,7 +50,7 @@ $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 	
 	![](./img/openshift_guide/5.png)
 	
-7. Click on the Alameda Deploy icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key, please obtain it from a ProphetStor sales representative. 
+7. Click on the Alameda Deploy icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key and **Alameda image tag**, please obtain it from a ProphetStor sales representative. You can also specify the InfluxDB database capacity if you want but remember to match the PV size which you created in **Prerequisites** section.
 	
 	![](./img/openshift_guide/6.png)
 	
