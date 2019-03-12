@@ -107,3 +107,42 @@ rules:
   - update
   - list
 {{- end }}
+---
+{{- if .Values.global.rbacEnable }}
+{{- if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1beta1" }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+{{- else if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1alpha1" }}
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1
+{{- end }}
+kind: ClusterRole
+metadata:
+  name: {{ include "alameda.fullname" . }}-aggregate-alameda-admin-edit
+  labels:
+    app.kubernetes.io/name: {{ include "alameda.name" . }}
+    helm.sh/chart: {{ include "alameda.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+rules:
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedascalers
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedarecommendations
+  verbs:
+  - get
+  - list
+  - watch
+{{- end }}
