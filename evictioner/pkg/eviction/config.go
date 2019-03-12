@@ -2,7 +2,7 @@ package eviction
 
 import "fmt"
 
-type triggerThreashold struct {
+type triggerThreshold struct {
 	CPU    float64 `mapstructure:"cpu"`
 	Memory float64 `mapstructure:"memory"`
 }
@@ -11,7 +11,7 @@ type triggerThreashold struct {
 type Config struct {
 	CheckCycle        int64             `mapstructure:"check-cycle"`
 	Enable            bool              `mapstructure:"enable"`
-	TriggerThreashold triggerThreashold `mapstructure:"trigger-threashold"`
+	TriggerThreshold triggerThreshold `mapstructure:"trigger-threshold"`
 }
 
 // NewDefaultConfig returns Config instance
@@ -19,7 +19,7 @@ func NewDefaultConfig() Config {
 	return Config{
 		CheckCycle: 3,
 		Enable:     false,
-		TriggerThreashold: triggerThreashold{
+		TriggerThreshold: triggerThreshold{
 			CPU:    1,
 			Memory: 1,
 		},
@@ -27,11 +27,11 @@ func NewDefaultConfig() Config {
 }
 
 func (c *Config) Validate() error {
-	if c.TriggerThreashold.CPU <= 0 {
-		return fmt.Errorf("Invalid CPU trigger threashold value %v", c.TriggerThreashold.CPU)
+	if c.TriggerThreshold.CPU <= 0 {
+		return fmt.Errorf("Invalid CPU trigger threshold value %v", c.TriggerThreshold.CPU)
 	}
-	if c.TriggerThreashold.Memory <= 0 {
-		return fmt.Errorf("Invalid Memory trigger threashold value %v", c.TriggerThreashold.Memory)
+	if c.TriggerThreshold.Memory <= 0 {
+		return fmt.Errorf("Invalid Memory trigger threshold value %v", c.TriggerThreshold.Memory)
 	}
 	return nil
 }

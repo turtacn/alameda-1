@@ -8,6 +8,6 @@ datahub:
 eviction:
   check-cycle: 3 # second
   enable: false
-  trigger-threashold: #percentage
+  trigger-threshold: #percentage
     cpu: 1
     memory: 1
