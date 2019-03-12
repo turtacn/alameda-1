@@ -5,17 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	openshift_appsapi_v1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-var (
-	resourceLinkScope = logUtil.RegisterScope("resourcelink", "resource link", 0)
 )
 
 // GetResourceLinkForPod returns resource link for pod
@@ -41,7 +36,7 @@ func getControlleHierarchy(client client.Client, curOwnerRef metav1.OwnerReferen
 			Name:      orName,
 		}, deploymentFound)
 		if err != nil {
-			resourceLinkScope.Error(err.Error())
+			scope.Error(err.Error())
 		} else {
 			controllerOwnerRef := getControllerOwnerRef(deploymentFound.OwnerReferences)
 			resultStr = fmt.Sprintf("/deployments/%s", deploymentFound.GetName())
@@ -58,7 +53,7 @@ func getControlleHierarchy(client client.Client, curOwnerRef metav1.OwnerReferen
 			Name:      orName,
 		}, replicasetFound)
 		if err != nil {
-			resourceLinkScope.Error(err.Error())
+			scope.Error(err.Error())
 		} else {
 			controllerOwnerRef := getControllerOwnerRef(replicasetFound.OwnerReferences)
 			resultStr = fmt.Sprintf("/replicasets/%s", replicasetFound.GetName())
@@ -75,7 +70,7 @@ func getControlleHierarchy(client client.Client, curOwnerRef metav1.OwnerReferen
 			Name:      orName,
 		}, deploymentConfigFound)
 		if err != nil {
-			resourceLinkScope.Error(err.Error())
+			scope.Error(err.Error())
 		} else {
 			controllerOwnerRef := getControllerOwnerRef(deploymentConfigFound.OwnerReferences)
 			resultStr = fmt.Sprintf("/deploymentconfigs/%s", deploymentConfigFound.GetName())
@@ -92,7 +87,7 @@ func getControlleHierarchy(client client.Client, curOwnerRef metav1.OwnerReferen
 			Name:      orName,
 		}, replicationControllerFound)
 		if err != nil {
-			resourceLinkScope.Error(err.Error())
+			scope.Error(err.Error())
 		} else {
 			controllerOwnerRef := getControllerOwnerRef(replicationControllerFound.OwnerReferences)
 			resultStr = fmt.Sprintf("/replicationcontrollers/%s", replicationControllerFound.GetName())

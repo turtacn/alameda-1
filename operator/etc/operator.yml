@@ -6,9 +6,9 @@ datahub:
   address: "datahub.alameda.svc.cluster.local:50050"
 
 k8s-webhook-server:
-  port: 443
+  port: 50443
   validating-webhook-config-name: "operator-k8s-admission-validation"
-  cert-dir: "/k8s-webhook-server/cert/"
+  cert-dir: "/tmp/k8s-webhook-server/cert/"
   service:
     namespace: alameda
     name: operator-admission-service
