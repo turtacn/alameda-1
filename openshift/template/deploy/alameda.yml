@@ -205,6 +205,40 @@ objects:
     - namespaces
     verbs: 
     - get
+  - apiGroups:
+    - apiextensions.k8s.io
+    resources:
+    - customresourcedefinitions
+    verbs:
+    - get
+    - create
+    - update
+  - apiGroups:
+    - ""
+    resources:
+    - secrets
+    verbs:
+    - create
+    - watch
+    - list
+  - apiGroups:
+    - admissionregistration.k8s.io
+    resources:
+    - validatingwebhookconfigurations
+    verbs:
+    - watch
+    - create
+    - update
+    - list
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    verbs:
+    - watch
+    - create
+    - update
+    - list
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRole
   metadata:
@@ -329,6 +363,36 @@ objects:
     selector:
       app: alameda-influxdb
 - apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: '${PROJECT_NAME}.influxdb.pvc'
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: '${INFLUXDB_SIZE}'
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: '${PROJECT_NAME}.grafana.pvc'
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 2Gi
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: '${PROJECT_NAME}.alameda-ai.pvc'
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 2Gi
+- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     name: alameda-influxdb
@@ -349,6 +413,7 @@ objects:
         containers:
         - name: influxdb
           image: influxdb:1.7-alpine
+          imagePullPolicy: IfNotPresent
           env:
           - name: INFLUXDB_REPORTING_DISABLED
             value: "true"
@@ -374,9 +439,11 @@ objects:
             readOnly: false
           - mountPath: /var/lib/influxdb
             name: influxdb-storage
+            subPath: influxdb
         volumes:
         - name: influxdb-storage
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: '${PROJECT_NAME}.influxdb.pvc'
         - name: alameda-datahub-tls
           secret:
             secretName: alameda-datahub-tls
@@ -412,6 +479,7 @@ objects:
         containers:
         - name: alameda-datahub
           image: containersai/alameda-datahub-rhel:${TAG_NUMBER}
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: 100m
@@ -455,6 +523,7 @@ objects:
         containers:
         - name: alameda-operator
           image: containersai/alameda-operator-rhel:${TAG_NUMBER}
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: 20m
@@ -500,7 +569,8 @@ objects:
       spec:
         containers:
         - name: alameda-ai-engine
-          image: containersai/alameda-ai:latest
+          image: containersai/alameda-ai:${TAG_NUMBER}
+          imagePullPolicy: IfNotPresent
           ports:
           - containerPort: 50051
             protocol: TCP
@@ -516,6 +586,14 @@ objects:
             value: "alameda-operator.${PROJECT_NAME}.svc:50050"
           - name: DATAHUB_ADDRESS
             value: "alameda-datahub.${PROJECT_NAME}.svc:50050"
+          volumeMounts:
+            - mountPath: /var/log
+              name: alameda-ai-log-storage
+              subPath: alameda-ai
+        volumes:
+          - name: alameda-ai-log-storage
+            persistentVolumeClaim:
+              claimName: '${PROJECT_NAME}.alameda-ai.pvc'
         serviceAccount: alameda-ai
         serviceAccountName: alameda-ai
 - apiVersion: v1
@@ -601,11 +679,13 @@ objects:
           volumeMounts:
             - mountPath: /var/lib/grafana
               name: grafana-storage
+              subPath: grafana
             - mountPath: /etc/grafana/provisioning/datasources
               name: grafana-datasources
         volumes:
-          - emptyDir: {}
-            name: grafana-storage
+          - name: grafana-storage
+            persistentVolumeClaim:
+              claimName: '${PROJECT_NAME}.grafana.pvc'
           - configMap:
               defaultMode: 420
               name: grafana-datasources
@@ -634,6 +714,7 @@ objects:
         containers:
         - name: alameda-evictioner
           image: containersai/alameda-evictioner-rhel:${TAG_NUMBER}
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: 60m
@@ -686,6 +767,7 @@ objects:
         containers:
         - name: admission-controller
           image: containersai/alameda-admission-rhel:${TAG_NUMBER}
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: 60m
@@ -760,3 +842,8 @@ parameters:
   required: true
   description: Alameda image tag to be used.
   value: "latest"
+- name: INFLUXDB_SIZE
+  displayName: InfluxDB database capacity
+  required: true
+  description: Capacity of InfluxDB ( > 10GB)
+  value: "10Gi"
