@@ -10,5 +10,4 @@ k8s-webhook-server:
   validating-webhook-config-name: "operator-k8s-admission-validation"
   cert-dir: "/tmp/k8s-webhook-server/cert/"
   service:
-    namespace: alameda
     name: operator-admission-service

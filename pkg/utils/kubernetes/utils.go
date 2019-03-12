@@ -1,6 +1,11 @@
 package kubernetes
 
 import (
+	"bufio"
+	"log"
+	"os"
+	"strings"
+
 	"github.com/containers-ai/alameda/pkg/consts"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"k8s.io/client-go/discovery"
@@ -31,4 +36,23 @@ func IsOKDCluster() (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func GetRunningNamespace() string {
+	ns := ""
+	nsFile, err := os.Open("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		scope.Errorf(err.Error())
+	}
+	defer nsFile.Close()
+
+	scanner := bufio.NewScanner(nsFile)
+	for scanner.Scan() {
+		ns = ns + scanner.Text()
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return strings.TrimSpace(ns)
 }

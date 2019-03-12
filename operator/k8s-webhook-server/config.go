@@ -1,6 +1,10 @@
 package k8swhsrv
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/containers-ai/alameda/pkg/utils/kubernetes"
+)
 
 type secret struct {
 	Namespace string `mapstructure:"namespace"`
@@ -22,16 +26,16 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-
+	runngingNS := kubernetes.GetRunningNamespace()
 	c := Config{
 		Port:    443,
 		CertDir: "/k8s-webhook-server/cert/",
 		Service: service{
-			Namespace: "alameda",
+			Namespace: runngingNS,
 			Name:      "operator-admission-service",
 		},
 		Secret: secret{
-			Namespace: "alameda",
+			Namespace: runngingNS,
 			Name:      "operator-admission-secret",
 		},
 		ValidatingWebhookConfigName: "operator-k8s-admission-validation",
