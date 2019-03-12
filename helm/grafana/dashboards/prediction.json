@@ -66,7 +66,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1551952375762,
+  "iteration": 1552366932614,
   "links": [],
   "panels": [
     {
@@ -603,7 +603,7 @@
         },
         {
           "datasource": "${DS_PROMETHEUS}",
-          "expr": "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\"}",
+          "expr": "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -825,7 +825,7 @@
         },
         {
           "datasource": "${DS_PROMETHEUS}",
-          "expr": "container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\"}",
+          "expr": "container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1081,6 +1081,6 @@
   },
   "timezone": "",
   "title": "Prediction",
-  "uid": "7ddddmz",
+  "uid": "7ddddmzdd",
   "version": 3
 }
