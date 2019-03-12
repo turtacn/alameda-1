@@ -718,6 +718,32 @@ objects:
             secretName: admission-controller-tls
         serviceAccount: admission-controller
         serviceAccountName: admission-controller
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata:
+    name: "aggregate-alameda-admin-edit-${PROJECT_NAME}"
+    labels:
+      rbac.authorization.k8s.io/aggregate-to-admin: "true"
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  rules:
+  - apiGroups:
+    - autoscaling.containers.ai
+    resources:
+    - alamedascalers
+    verbs:
+    - get
+    - list
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - autoscaling.containers.ai
+    resources:
+    - alamedarecommendations
+    verbs:
+    - get
+    - list
+    - watch
 parameters:
 - name: PROJECT_NAME
   displayName: alameda namespace
