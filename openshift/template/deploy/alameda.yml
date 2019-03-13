@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: Federator.ai
+  name: federator.ai
   annotations:
     openshift.io/display-name: "Federator.ai"
     description: "Alameda is a prediction engine that foresees future resource usage of your Kubernetes cluster from the cloud layer down to the pod level. We use machine learning technology to provide intelligence that enables dynamic scaling and scheduling of your containers - effectively making us the “brain” of Kubernetes resource orchestration. By providing full foresight of resource availability, demand, health, impact and SLA, we enable cloud strategies that involve changing provisioned resources in real time."
