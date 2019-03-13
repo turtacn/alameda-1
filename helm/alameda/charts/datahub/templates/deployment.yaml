@@ -39,6 +39,10 @@ spec:
               value: "{{ .Values.global.component.datahub.prometheusConfig.scheme }}://{{ .Values.global.component.datahub.prometheusConfig.url }}:{{ .Values.global.component.datahub.prometheusConfig.port }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+    {{- if .Values.image.accessToken }}
+      imagePullSecrets:
+        - name: {{ include "alameda-ai.fullname" . }}
+    {{- end }}
     {{- if .Values.global.rbacEnable }}
       serviceAccountName: {{ include "datahub.name" . }}
     {{- end }}

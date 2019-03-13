@@ -49,6 +49,7 @@ image:
   repository: operator
   tag: latest
   pullPolicy: IfNotPresent
+  #  accessToken: ""
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
