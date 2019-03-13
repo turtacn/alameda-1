@@ -3,30 +3,30 @@
 # Prerequisites
 1. **Platform Requirement**
 
-OpenShift Container Platform
+   OpenShift Container Platform
 
 2. **OpenShift Cluster Admin User**
 
-A user bound with the "cluster-admin" role is needed for deployment (no longer needed afterward)
-```
-$ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
-```
+   A user bound with the "cluster-admin" role is needed for deployment (no longer needed afterward)
+   ```
+   $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
+   ```
 
 3. **OpenShift Persistent Volumes**
 
-Cluster admin needs to prepare **3 Persistent Volumes (PV)** to serve **3 Persistent Volume Claims (PVC)** made by Alameda at deployment. The PVs need to meet following requirements:
+   Cluster admin needs to prepare **3 Persistent Volumes (PV)** to serve **3 Persistent Volume Claims (PVC)** made by Alameda at deployment. The PVs need to meet following requirements:
 
-* **InfluxDB PV**:
-	1. Access Mode: ReadWriteOnce
-	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
-* **Alameda-AI PV**:
-	1. Access Mode: ReadWriteOnce
-	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
-* **Grafana PV**:
-	1. Access Mode: ReadWriteOnce
-	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GB)
+   * **InfluxDB PV**:
+	  1. Access Mode: ReadWriteOnce
+	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
+   * **Alameda-AI PV**:
+	  1. Access Mode: ReadWriteOnce
+	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
+   * **Grafana PV**:
+	  1. Access Mode: ReadWriteOnce
+	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GB)
 
-Note: Check **Alameda Installation step 7** for details about specifying PVCs capacity to meet the PVs created here.
+   Note: Check **Alameda Installation step 7** for details about specifying PVCs capacity to meet the PVs created here.
 # Alameda Installation
 
 1. Go to the OpenShift web console and login using a user with the **cluster-admin** role binding.
@@ -109,22 +109,26 @@ Note: Check **Alameda Installation step 7** for details about specifying PVCs ca
 	
 3. Put in the following yaml information to tell **AlamedaScaler** which Deployment/DeploymentConfig is applicable and click the **Create** button. (Click **Continue Anyway** to acknowledge the warning.)
 
-```
-apiVersion: autoscaling.containers.ai/v1alpha1
-kind: AlamedaScaler
-metadata:
-    name: alameda
-    namespace: ocp-smoke-test #(YOUR_PROJECT_NAME)
-spec:
-    policy: stable
-    enable: true
-    selector:
-        matchLabels:
-            app: ocp-smoke-test #(Your Deployment/DeploymentConfig labels)
-```
+	```
+	apiVersion: autoscaling.containers.ai/v1alpha1
+	kind: AlamedaScaler
+	metadata:
+	    name: alameda
+	    namespace: ocp-smoke-test #(YOUR_PROJECT_NAME)
+	spec:
+	    policy: stable
+	    enable: true
+	    selector:
+	        matchLabels:
+	            app: ocp-smoke-test #(Your Deployment/DeploymentConfig labels)
+	```
 ![](./img/openshift_guide/19.png)
 
 4. Use the following oc command to check if **AlamedaScaler** successfully found the pods under the desired project. You will see **deploymentconfigs:{}** and **deployments:{}** if the AlamedaScaler didn't find any applicable pods.
+
+	```
+	oc get alamedascaler -o yaml
+	```
 	
 	![](./img/openshift_guide/20.png)
 	
