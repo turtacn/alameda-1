@@ -3,7 +3,7 @@
 # Prerequisites
 1.**Platform Requirement**
 
-OpenShift
+OpenShift Container Platform
 
 2.**OpenShift Cluster Admin User**
 
@@ -14,7 +14,7 @@ $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 
 3.**OpenShift Persistent Volumes**
 
-Cluster admin needs to prepare **3 Persistent Volumes (PV)** for Alameda OpenShift template to do **Persistent Volume Claims(PVC)**. PV needs to meet following requirements:
+Cluster admin needs to prepare **3 Persistent Volumes (PV)** to serve **3 Persistent Volume Claims (PVC)** made by Alameda at deployment. The PVs need to meet following requirements:
 
 * **InfluxDB PV**:
 	1. Access Mode: ReadWriteOnce
@@ -26,10 +26,10 @@ Cluster admin needs to prepare **3 Persistent Volumes (PV)** for Alameda OpenShi
 	1. Access Mode: ReadWriteOnce
 	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GiB)
 
-Note: Check **Alameda Installation step 7** for detail about specifying PVCs capacity to meet the PVs created here.
+Note: Check **Alameda Installation step 7** for details about specifying PVCs capacity to meet the PVs created here.
 # Alameda Installation
 
-1. Go to OpenShift GUI and login using a user with the **cluster-admin** role binding.
+1. Go to the OpenShift web console and login using a user with the **cluster-admin** role binding.
 
 2. Create a project. (ex: alameda)
 	
@@ -39,7 +39,7 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 	
 	![](./img/openshift_guide/2.png)
 	
-4. Download alameda.yml from github [openshift/template/deploy/](../openshift/template/deploy/) and either upload the file or just directly paste the content into the text area.
+4. Download alameda.yml from our github [openshift/template/deploy/](../openshift/template/deploy/) and either upload the file or just directly paste the content into the text area.
 
 	![](./img/openshift_guide/3.png)
 	
@@ -51,11 +51,13 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 	
 	![](./img/openshift_guide/5.png)
 	
-7. Click on the Federator.ai icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key and **Alameda image tag**, please obtain them from a ProphetStor sales representative. You can also specify the InfluxDB database capacity, Alameda-AI capacity, and Grafana database capacity if you want but remember to match the PVs size which you created in **Prerequisites** section.
+7. Click on the Federator.ai icon then click Next. Fill in the project where alameda will be deployed as **Alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. You will need to obtain the **DockerHub config json** secret key and **Alameda image tag** from a ProphetStor sales representative. 
+
+   You can also specify the three PVC capacities, but remember to match the PVs size described in our **Prerequisites** section.
 	
 	![](./img/openshift_guide/6.png)
 	
-8. Click **Continue Anyway** to ignore the warning.
+8. Click **Continue Anyway** to acknowledge the warning.
 	
 	![](./img/openshift_guide/7.png)
 	
@@ -63,7 +65,7 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 	
 	![](./img/openshift_guide/8.png)
 	
-10. After deployment is done, switch to the openshift-monitoring project (a default project in OCP). Go to **Resources > Secrets > grafana-datasources** and reveal the secret.
+10. After deployment has finished, switch to the openshift-monitoring project (a default project in OCP). Go to **Resources > Secrets > grafana-datasources** and reveal the secret.
 	
 	![](./img/openshift_guide/9.png)
 	
@@ -97,7 +99,7 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 
 # Alameda Configuration
 
-1. Go to the project where you would like resource predictions and recommendations. Go to its **Deployment or DeploymentConfig** and edit the yaml file. Record the labels value of Deployment or DeploymentConfig (ex: **app: ocp-smoke-test**) 
+1. Go to the project where you would like resource predictions and recommendations. Go to its **Deployment or DeploymentConfig** and view the yaml file. Record the labels section of Deployment or DeploymentConfig (ex: **app: ocp-smoke-test**) 
 	
 	![](./img/openshift_guide/16.png)
 	
