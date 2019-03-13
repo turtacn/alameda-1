@@ -1,18 +1,18 @@
 <P style="font-size:24pt; bold">Alameda Installation Guide for Red Hat OpenShift Container Platform</p>
 
 # Prerequisites
-1.**Platform Requirement**
+1. **Platform Requirement**
 
 OpenShift Container Platform
 
-2.**OpenShift Cluster Admin User**
+2. **OpenShift Cluster Admin User**
 
 A user bound with the "cluster-admin" role is needed for deployment (no longer needed afterward)
 ```
 $ oc adm policy add-cluster-role-to-user cluster-admin <user_name>
 ```
 
-3.**OpenShift Persistent Volumes**
+3. **OpenShift Persistent Volumes**
 
 Cluster admin needs to prepare **3 Persistent Volumes (PV)** to serve **3 Persistent Volume Claims (PVC)** made by Alameda at deployment. The PVs need to meet following requirements:
 
@@ -109,7 +109,7 @@ Note: Check **Alameda Installation step 7** for details about specifying PVCs ca
 	
 	![](./img/openshift_guide/18.png)
 	
-3. Put in the following yaml information to tell **AlamedaScaler** which Deployment/DeploymentConfig is applicable and click the **Create** button. (Click **Continue Anyway** to ignore the warning.)
+3. Put in the following yaml information to tell **AlamedaScaler** which Deployment/DeploymentConfig is applicable and click the **Create** button. (Click **Continue Anyway** to acknowledge the warning.)
 
 ```
 apiVersion: autoscaling.containers.ai/v1alpha1
