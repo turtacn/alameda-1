@@ -47,11 +47,11 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 	
 	![](./img/openshift_guide/4.png)
 	
-6. After you've finished importing, go to ***Catalog*** in the sidebar, and you should see the **Alameda Deploy** icon.
+6. After you've finished importing, go to ***Catalog*** in the sidebar, and you should see the **Federator.ai** icon.
 	
 	![](./img/openshift_guide/5.png)
 	
-7. Click on the Alameda Deploy icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key and **Alameda image tag**, please obtain it from a ProphetStor sales representative. You can also specify the InfluxDB database capacity, Alameda-AI capacity, and Grafana database capacity if you want but remember to match the PVs size which you created in **Prerequisites** section.
+7. Click on the Federator.ai icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key and **Alameda image tag**, please obtain them from a ProphetStor sales representative. You can also specify the InfluxDB database capacity, Alameda-AI capacity, and Grafana database capacity if you want but remember to match the PVs size which you created in **Prerequisites** section.
 	
 	![](./img/openshift_guide/6.png)
 	
