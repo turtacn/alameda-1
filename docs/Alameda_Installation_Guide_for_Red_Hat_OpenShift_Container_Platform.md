@@ -18,14 +18,15 @@ Cluster admin needs to prepare **3 Persistent Volumes (PV)** for Alameda OpenShi
 
 * **InfluxDB PV**:
 	1. Access Mode: ReadWriteOnce
-	2. Capacity: No less than 10GB (You can also specify the InfluxDB PVC size during deployment, see **Alameda Installation step 7**)
+	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
+* **Alameda-AI PV**:
+	1. Access Mode: ReadWriteOnce
+	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
 * **Grafana PV**:
 	1. Access Mode: ReadWriteOnce
-	2. Capacity: 2GB
-* **Alameda-ai PV**:
-	1. Access Mode: ReadWriteOnce
-	2. Capacity: 2GB
+	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GB)
 
+Note: Check **Alameda Installation step 7** for detail about specifying PVCs capacity to meet the PVs created here.
 # Alameda Installation
 
 1. Go to OpenShift GUI and login using a user with the **cluster-admin** role binding.
@@ -50,7 +51,7 @@ Cluster admin needs to prepare **3 Persistent Volumes (PV)** for Alameda OpenShi
 	
 	![](./img/openshift_guide/5.png)
 	
-7. Click on the Alameda Deploy icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key and **Alameda image tag**, please obtain it from a ProphetStor sales representative. You can also specify the InfluxDB database capacity if you want but remember to match the PV size which you created in **Prerequisites** section.
+7. Click on the Alameda Deploy icon then click Next. Fill in the project where alameda will be deployed as **alameda namespace** (ex. alameda) - note this needs to match the current project being accessed. For the **DockerHub config json** secret key and **Alameda image tag**, please obtain it from a ProphetStor sales representative. You can also specify the InfluxDB database capacity, Alameda-AI capacity, and Grafana database capacity if you want but remember to match the PVs size which you created in **Prerequisites** section.
 	
 	![](./img/openshift_guide/6.png)
 	
