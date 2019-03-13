@@ -20,7 +20,7 @@ func NewPodContainerCPUUsagePercentageRepositoryWithConfig(cfg prometheus.Config
 }
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, startTime, endTime *time.Time, stepTime *time.Duration) ([]prometheus.Entity, error) {
+func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, options ...Option) ([]prometheus.Entity, error) {
 
 	var (
 		err error
@@ -41,6 +41,11 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
+	opt := buildDefaultOptions()
+	for _, option := range options {
+		option(&opt)
+	}
+
 	metricName = containerCPUUsagePercentage.MetricName
 	queryLabelsString = c.buildQueryLabelsStringByNamespaceAndPodName(namespace, podName)
 
@@ -50,7 +55,13 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 		queryExpression = fmt.Sprintf("%s", metricName)
 	}
 
-	response, err = prometheusClient.QueryRange(queryExpression, startTime, endTime, stepTime)
+	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))
+	queryExpression, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression, opt.aggregateFunc, stepTimeInSeconds)
+	if err != nil {
+		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
+	}
+
+	response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	} else if response.Status != prometheus.StatusSuccess {

@@ -20,7 +20,7 @@ func NewPodContainerMemoryUsageBytesRepositoryWithConfig(cfg prometheus.Config) 
 }
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(namespace string, podName string, startTime, endTime *time.Time, stepTime *time.Duration) ([]prometheus.Entity, error) {
+func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(namespace string, podName string, options ...Option) ([]prometheus.Entity, error) {
 
 	var (
 		err error
@@ -41,6 +41,11 @@ func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(n
 		return entities, errors.Wrap(err, "list pod container memory usage metrics failed")
 	}
 
+	opt := buildDefaultOptions()
+	for _, option := range options {
+		option(&opt)
+	}
+
 	metricName = containerMemoryUsageBytes.MetricName
 	queryLabelsString = c.buildQueryLabelsStringByNamespaceAndPodName(namespace, podName)
 
@@ -50,7 +55,13 @@ func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(n
 		queryExpression = fmt.Sprintf("%s", metricName)
 	}
 
-	response, err = prometheusClient.QueryRange(queryExpression, startTime, endTime, stepTime)
+	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))
+	queryExpression, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression, opt.aggregateFunc, stepTimeInSeconds)
+	if err != nil {
+		return entities, errors.Wrap(err, "list pod container memory usage metric by namespaced name failed")
+	}
+
+	response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container memory usage metrics failed")
 	} else if response.Status != prometheus.StatusSuccess {

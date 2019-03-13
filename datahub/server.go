@@ -185,7 +185,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 		namespace = in.GetNamespacedName().GetNamespace()
 		podName = in.GetNamespacedName().GetName()
 	}
-	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.metricDAOQueryCondition()
+	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.daoQueryCondition()
 	listPodMetricsRequest := metric_dao.ListPodMetricsRequest{
 		Namespace:      namespace,
 		PodName:        podName,
@@ -247,7 +247,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 	metricDAO = prometheusMetricDAO.NewWithConfig(*s.Config.Prometheus)
 
 	nodeNames = in.GetNodeNames()
-	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.metricDAOQueryCondition()
+	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.daoQueryCondition()
 	listNodeMetricsRequest := metric_dao.ListNodeMetricsRequest{
 		NodeNames:      nodeNames,
 		QueryCondition: queryCondition,

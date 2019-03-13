@@ -216,62 +216,15 @@ func (r datahubListSimulatedSchedulingScoresRequestExtended) daoLisRequest() sco
 	return listRequest
 }
 
+var (
+	datahubAggregateFunction_DAOAggregateFunction = map[datahub_v1alpha1.QueryCondition_AggregateFunction]dao.AggregateFunction{
+		datahub_v1alpha1.QueryCondition_NONE: dao.None,
+		datahub_v1alpha1.QueryCondition_MAX:  dao.Max,
+	}
+)
+
 type datahubQueryConditionExtend struct {
 	queryCondition *datahub_v1alpha1.QueryCondition
-}
-
-func (d datahubQueryConditionExtend) metricDAOQueryCondition() dao.QueryCondition {
-
-	var (
-		queryStartTime      *time.Time
-		queryEndTime        *time.Time
-		queryStepTime       *time.Duration
-		queryTimestampOrder int
-		queryLimit          int
-		queryCondition      = dao.QueryCondition{}
-	)
-
-	if d.queryCondition == nil {
-		return queryCondition
-	}
-
-	if d.queryCondition.GetTimeRange() != nil {
-		timeRange := d.queryCondition.GetTimeRange()
-		if timeRange.GetStartTime() != nil {
-			tmpTime, _ := ptypes.Timestamp(timeRange.GetStartTime())
-			queryStartTime = &tmpTime
-		}
-		if timeRange.GetEndTime() != nil {
-			tmpTime, _ := ptypes.Timestamp(timeRange.GetEndTime())
-			queryEndTime = &tmpTime
-		}
-		if timeRange.GetStep() != nil {
-			tmpTime, _ := ptypes.Duration(timeRange.GetStep())
-			queryStepTime = &tmpTime
-		}
-
-		switch d.queryCondition.GetOrder() {
-		case datahub_v1alpha1.QueryCondition_ASC:
-			queryTimestampOrder = dao.Asc
-		case datahub_v1alpha1.QueryCondition_DESC:
-			queryTimestampOrder = dao.Desc
-		default:
-			queryTimestampOrder = dao.Asc
-		}
-
-		queryLimit = int(d.queryCondition.GetLimit())
-	}
-	queryTimestampOrder = int(d.queryCondition.GetOrder())
-	queryLimit = int(d.queryCondition.GetLimit())
-
-	queryCondition = dao.QueryCondition{
-		StartTime:      queryStartTime,
-		EndTime:        queryEndTime,
-		StepTime:       queryStepTime,
-		TimestampOrder: queryTimestampOrder,
-		Limit:          queryLimit,
-	}
-	return queryCondition
 }
 
 func (d datahubQueryConditionExtend) daoQueryCondition() dao.QueryCondition {
@@ -283,6 +236,7 @@ func (d datahubQueryConditionExtend) daoQueryCondition() dao.QueryCondition {
 		queryTimestampOrder int
 		queryLimit          int
 		queryCondition      = dao.QueryCondition{}
+		aggregateFunc       = dao.None
 	)
 
 	if d.queryCondition == nil {
@@ -318,12 +272,17 @@ func (d datahubQueryConditionExtend) daoQueryCondition() dao.QueryCondition {
 	queryTimestampOrder = int(d.queryCondition.GetOrder())
 	queryLimit = int(d.queryCondition.GetLimit())
 
+	if aggFunc, exist := datahubAggregateFunction_DAOAggregateFunction[datahub_v1alpha1.QueryCondition_AggregateFunction(d.queryCondition.AggregateFunction)]; exist {
+		aggregateFunc = aggFunc
+	}
+
 	queryCondition = dao.QueryCondition{
-		StartTime:      queryStartTime,
-		EndTime:        queryEndTime,
-		StepTime:       queryStepTime,
-		TimestampOrder: queryTimestampOrder,
-		Limit:          queryLimit,
+		StartTime:         queryStartTime,
+		EndTime:           queryEndTime,
+		StepTime:          queryStepTime,
+		TimestampOrder:    queryTimestampOrder,
+		Limit:             queryLimit,
+		AggregateFunction: aggregateFunc,
 	}
 	return queryCondition
 }

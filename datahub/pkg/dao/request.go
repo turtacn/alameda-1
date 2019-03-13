@@ -14,11 +14,19 @@ const (
 	Desc Order = 1
 )
 
+type AggregateFunction = int
+
+const (
+	None AggregateFunction = 0
+	Max  AggregateFunction = 1
+)
+
 // QueryCondition Others query condition
 type QueryCondition struct {
-	StartTime      *time.Time
-	EndTime        *time.Time
-	StepTime       *time.Duration
-	TimestampOrder Order
-	Limit          int
+	StartTime         *time.Time
+	EndTime           *time.Time
+	StepTime          *time.Duration
+	TimestampOrder    Order
+	Limit             int
+	AggregateFunction AggregateFunction
 }

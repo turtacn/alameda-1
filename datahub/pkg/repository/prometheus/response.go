@@ -51,9 +51,9 @@ type VectorResult struct {
 	Value  Value             `json:"value"`
 }
 
-type ScalarResult Value
+type ScalarResult UnixTimeWithScalarValue
 
-type StringResult Value
+type StringResult UnixTimeWithStringValue
 
 type Value []interface{}
 

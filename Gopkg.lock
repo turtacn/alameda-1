@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a07e08d8c0bd6c5d4273fd45187d3bdfdc75d151195b62765d5363ef989fd0b8"
+  digest = "1:36eb03b6db906e84fd3e3ac1b11db49bdd9e1bef1dc004248d3425a5ee395078"
   name = "github.com/containers-ai/api"
   packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
-  revision = "f371e376d565f7747dd3adf4de00f779018215d2"
+  revision = "f78c22b43f8c4ec2b7b55e9729f54c558ad982fd"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1043,6 +1043,7 @@
     "pkg/source/internal",
     "pkg/webhook",
     "pkg/webhook/admission",
+    "pkg/webhook/admission/builder",
     "pkg/webhook/admission/types",
     "pkg/webhook/internal/cert",
     "pkg/webhook/internal/cert/generator",
@@ -1127,9 +1128,11 @@
     "k8s.io/api/admissionregistration/v1beta1",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
+    "k8s.io/api/extensions/v1beta1",
     "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1",
     "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset",
     "k8s.io/apimachinery/pkg/api/errors",
+    "k8s.io/apimachinery/pkg/api/meta",
     "k8s.io/apimachinery/pkg/api/resource",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
@@ -1144,6 +1147,7 @@
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/plugin/pkg/client/auth/gcp",
     "k8s.io/client-go/rest",
+    "k8s.io/client-go/restmapper",
     "k8s.io/code-generator/cmd/deepcopy-gen",
     "sigs.k8s.io/controller-runtime/pkg/client",
     "sigs.k8s.io/controller-runtime/pkg/client/config",
@@ -1153,9 +1157,14 @@
     "sigs.k8s.io/controller-runtime/pkg/handler",
     "sigs.k8s.io/controller-runtime/pkg/manager",
     "sigs.k8s.io/controller-runtime/pkg/reconcile",
+    "sigs.k8s.io/controller-runtime/pkg/runtime/inject",
     "sigs.k8s.io/controller-runtime/pkg/runtime/scheme",
     "sigs.k8s.io/controller-runtime/pkg/runtime/signals",
     "sigs.k8s.io/controller-runtime/pkg/source",
+    "sigs.k8s.io/controller-runtime/pkg/webhook",
+    "sigs.k8s.io/controller-runtime/pkg/webhook/admission",
+    "sigs.k8s.io/controller-runtime/pkg/webhook/admission/builder",
+    "sigs.k8s.io/controller-runtime/pkg/webhook/admission/types",
     "sigs.k8s.io/controller-tools/cmd/controller-gen",
     "sigs.k8s.io/testing_frameworks/integration",
   ]
