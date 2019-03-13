@@ -39,7 +39,7 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 	
 	![](./img/openshift_guide/2.png)
 	
-4. Download alameda.yml from github [openshift/template/deploy/](..openshift/template/deploy/) and either upload the file or just directly paste the content into the text area.
+4. Download alameda.yml from github [openshift/template/deploy/](../openshift/template/deploy/) and either upload the file or just directly paste the content into the text area.
 
 	![](./img/openshift_guide/3.png)
 	
