@@ -1,54 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_INFLUXDB",
-      "label": "InfluxDB",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.4.3"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -65,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1552366932614,
+  "id": 4,
+  "iteration": 1552462506910,
   "links": [],
   "panels": [
     {
@@ -84,7 +34,7 @@
     },
     {
       "columns": [],
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": "InfluxDB",
       "description": "",
       "fontSize": "100%",
       "gridPos": {
@@ -349,7 +299,7 @@
     },
     {
       "columns": [],
-      "datasource": "${DS_INFLUXDB}",
+      "datasource": "InfluxDB",
       "fontSize": "100%",
       "gridPos": {
         "h": 6,
@@ -553,11 +503,11 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Recommendation: cpu limit",
+          "alias": "Recommendation: CPU limit",
           "color": "#f2c96d"
         },
         {
-          "alias": "Recommendation: cpu request",
+          "alias": "Recommendation: CPU request",
           "color": "#7eb26d"
         }
       ],
@@ -567,7 +517,7 @@
       "targets": [
         {
           "alias": "Prediction: cpu_usage_seconds_percentage",
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "InfluxDB",
           "groupBy": [],
           "hide": true,
           "measurement": "node_prediction",
@@ -602,7 +552,7 @@
           ]
         },
         {
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "Prometheus",
           "expr": "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
           "format": "time_series",
           "hide": false,
@@ -613,7 +563,7 @@
         },
         {
           "alias": "Recommendation: CPU limit",
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "InfluxDB",
           "groupBy": [
             {
               "params": [
@@ -653,7 +603,7 @@
         },
         {
           "alias": "Recommendation: CPU request",
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "InfluxDB",
           "groupBy": [
             {
               "params": [
@@ -789,7 +739,7 @@
       "targets": [
         {
           "alias": "Prediction: memory_usage_bytes",
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "InfluxDB",
           "groupBy": [],
           "hide": true,
           "measurement": "node_prediction",
@@ -824,7 +774,7 @@
           ]
         },
         {
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "Prometheus",
           "expr": "container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
           "format": "time_series",
           "instant": false,
@@ -834,7 +784,7 @@
         },
         {
           "alias": "Recommendation: memory limit",
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "InfluxDB",
           "groupBy": [
             {
               "params": [
@@ -873,7 +823,7 @@
         },
         {
           "alias": "Recommendation: memory request",
-          "datasource": "${DS_INFLUXDB}",
+          "datasource": "InfluxDB",
           "groupBy": [
             {
               "params": [
@@ -962,8 +912,11 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_INFLUXDB}",
+        "current": {
+          "text": "alameda",
+          "value": "alameda"
+        },
+        "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
         "hide": 0,
         "includeAll": false,
@@ -984,8 +937,11 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_INFLUXDB}",
+        "current": {
+          "text": "ai",
+          "value": "ai"
+        },
+        "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
         "hide": 0,
         "includeAll": false,
@@ -1006,8 +962,11 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_INFLUXDB}",
+        "current": {
+          "text": "alameda-ai-7f5b6b6d8-28zsd",
+          "value": "alameda-ai-7f5b6b6d8-28zsd"
+        },
+        "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
         "hide": 0,
         "includeAll": false,
@@ -1028,8 +987,11 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_INFLUXDB}",
+        "current": {
+          "text": "alameda-ai",
+          "value": "alameda-ai"
+        },
+        "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
         "hide": 0,
         "includeAll": false,
@@ -1082,5 +1044,5 @@
   "timezone": "",
   "title": "Prediction",
   "uid": "7ddddmzdd",
-  "version": 3
+  "version": 1
 }
