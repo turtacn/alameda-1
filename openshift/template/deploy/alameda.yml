@@ -381,7 +381,7 @@ objects:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 2Gi
+        storage: '${GRAFANA_SIZE}'
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
@@ -391,7 +391,7 @@ objects:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 2Gi
+        storage: '${ALAMEDA_AI_SIZE}'
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -841,9 +841,19 @@ parameters:
   displayName: Alameda image tag
   required: true
   description: Alameda image tag to be used.
-  value: "latest"
+  value: ""
 - name: INFLUXDB_SIZE
   displayName: InfluxDB database capacity
   required: true
-  description: Capacity of InfluxDB ( > 10GB)
+  description: Capacity of InfluxDB database ( > 10GB)
   value: "10Gi"
+- name: ALAMEDA_AI_SIZE
+  displayName: Alameda-AI capacity
+  required: true
+  description: Capacity of Alameda-AI ( > 10GB)
+  value: "10Gi"
+- name: GRAFANA_SIZE
+  displayName: Grafana database capacity
+  required: true
+  description: Capacity of Grafana database ( > 10GB)
+  value: "2Gi"
