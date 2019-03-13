@@ -3,10 +3,10 @@ kind: Template
 metadata:
   name: alameda-deploy
   annotations:
-    openshift.io/display-name: "Alameda Deploy"
-    description: "Alameda Deploy"
+    openshift.io/display-name: "Federator.ai"
+    description: "Alameda is a prediction engine that foresees future resource usage of your Kubernetes cluster from the cloud layer down to the pod level. We use machine learning technology to provide intelligence that enables dynamic scaling and scheduling of your containers - effectively making us the “brain” of Kubernetes resource orchestration. By providing full foresight of resource availability, demand, health, impact and SLA, we enable cloud strategies that involve changing provisioned resources in real time."
     iconClass: "icon-openshift"
-    tags: "alameda, build"
+    openshift.io/provider-display-name: 'ProphetStor, Inc.'
 labels:
   template: alameda
   app: alameda
@@ -828,7 +828,7 @@ objects:
     - watch
 parameters:
 - name: PROJECT_NAME
-  displayName: alameda namespace
+  displayName: Alameda namespace
   description: The project name to deploy alameda.
   required: true
   value: ""
