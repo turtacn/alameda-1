@@ -5,7 +5,7 @@
 
 OpenShift
 
-2.**OpenShift Clsuter Admin User**
+2.**OpenShift Cluster Admin User**
 
 A user bound with the "cluster-admin" role is needed for deployment (no longer needed afterward)
 ```
