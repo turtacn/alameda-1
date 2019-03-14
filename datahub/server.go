@@ -309,7 +309,7 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 				Code: int32(code.Code_OK),
 			},
 		}
-		scope.Debug("Request received from ListAlamedaPods grpc function: " + utils.InterfaceToString(res))
+		scope.Debug("Request sent from ListAlamedaPods grpc function: " + utils.InterfaceToString(res))
 		return res, nil
 	}
 }
