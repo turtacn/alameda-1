@@ -134,10 +134,16 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 // DeleteContainers set containers' field is_deleted to true into container measurement
 func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub_v1alpha1.Pod) error {
 	for _, pod := range pods {
+		if pod.GetNamespacedName() == nil || pod.GetAlamedaScaler() == nil {
+			continue
+		}
 		podNS := pod.GetNamespacedName().GetNamespace()
 		podName := pod.GetNamespacedName().GetName()
-		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s' AND \"%s\"='%s'", Container,
-			cluster_status_entity.ContainerNamespace, podNS, cluster_status_entity.ContainerPodName, podName)
+		alaScalerNS := pod.GetAlamedaScaler().GetNamespace()
+		alaScalerName := pod.GetAlamedaScaler().GetName()
+		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s' AND \"%s\"='%s' AND \"%s\"='%s' AND \"%s\"='%s'", Container,
+			cluster_status_entity.ContainerNamespace, podNS, cluster_status_entity.ContainerPodName, podName,
+			cluster_status_entity.ContainerAlamedaScalerNamespace, alaScalerNS, cluster_status_entity.ContainerAlamedaScalerName, alaScalerName)
 		scope.Debugf("DeleteContainers command: %s", cmd)
 		_, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
 		if err != nil {

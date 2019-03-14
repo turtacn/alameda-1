@@ -309,6 +309,10 @@ func deletePodsFromDatahub(scalerNamespacedName *types.NamespacedName, existingP
 				Namespace: pod.Namespace,
 				Name:      pod.Name,
 			},
+			AlamedaScaler: &datahub_v1alpha1.NamespacedName{
+				Namespace: scalerNamespacedName.Namespace,
+				Name:      scalerNamespacedName.Name,
+			},
 		})
 	}
 
