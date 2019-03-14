@@ -35,10 +35,6 @@ const (
 	ContainerResourceLimitCPU containerField = "resource_limit_cpu"
 	// ContainerResourceLimitMemory is memory limit of the container
 	ContainerResourceLimitMemory containerField = "resource_limit_memory"
-	// ContainerIsAlameda is the state that container is predicted or not
-	ContainerIsAlameda containerField = "is_alameda"
-	// ContainerIsDeleted is the state that container is deleted or not
-	ContainerIsDeleted containerField = "is_deleted"
 	// ContainerPolicy is the prediction policy of container
 	ContainerPolicy containerField = "policy"
 	// ContainerPodCreateTime is the creation time of pod
@@ -64,7 +60,7 @@ var (
 	ContainerFields = []containerField{
 		ContainerResourceRequestCPU, ContainerResourceRequestMemory,
 		ContainerResourceLimitCPU, ContainerResourceLimitMemory,
-		ContainerIsAlameda, ContainerIsDeleted, ContainerPolicy,
+		ContainerPolicy,
 		ContainerPodCreateTime, ContainerResourceLink, ContainerTopControllerName,
 		ContainerTopControllerKind,
 	}
@@ -83,8 +79,6 @@ type ContainerEntity struct {
 	ResourceRequestMemory  *int64
 	ResourceLimitCPU       *float64
 	ResourceLimitMemory    *int64
-	IsAlameda              *bool
-	IsDeleted              *bool
 	Policy                 *string
 	PodCreatedTime         *int64
 	ResourceLink           *string
@@ -137,14 +131,6 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 		value, _ := strconv.ParseInt(resourceLimitMemory, 10, 64)
 		entity.ResourceLimitMemory = &value
 	}
-	if isAlameda, exist := data[ContainerIsAlameda]; exist {
-		value, _ := strconv.ParseBool(isAlameda)
-		entity.IsAlameda = &value
-	}
-	if isDeleted, exist := data[ContainerIsDeleted]; exist {
-		value, _ := strconv.ParseBool(isDeleted)
-		entity.IsDeleted = &value
-	}
 	if policy, exist := data[ContainerPolicy]; exist {
 		entity.Policy = &policy
 	}
@@ -191,12 +177,6 @@ func (e ContainerEntity) InfluxDBPoint(measurementName string) (*influxdb_client
 	}
 
 	fields := map[string]interface{}{}
-	if e.IsDeleted != nil {
-		fields[ContainerIsDeleted] = *e.IsDeleted
-	}
-	if e.IsAlameda != nil {
-		fields[ContainerIsAlameda] = *e.IsAlameda
-	}
 	if e.Policy != nil {
 		fields[ContainerPolicy] = *e.Policy
 	}
