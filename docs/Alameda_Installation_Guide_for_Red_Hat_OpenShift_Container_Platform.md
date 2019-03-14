@@ -89,9 +89,11 @@ Note: Check **Alameda Installation step 7** for detail about specifying PVCs cap
 	
 	![](./img/openshift_guide/14.png)
 	
-14. Go to the plus button to import the grafana dashboard json files in [helm/grafana/dashboards](../helm/grafana/dashboards/)
+14. Go to the plus button to import the 3 grafana JSON files located here [helm/grafana/dashboards](../helm/grafana/dashboards/). Then on the same import page select the correct InfluxDB and Prometheus data sources.
 
 	![](./img/openshift_guide/15.png)
+
+	![](./img/openshift_guide/15-1.png)
 
 # Alameda Configuration
 
