@@ -48,9 +48,7 @@ func NewContainerRepository(influxDBCfg *influxdb.Config) *ContainerRepository {
 // ListAlamedaContainers list predicted containers have relation with arguments
 func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name string, kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.Pod, error) {
 	pods := []*datahub_v1alpha1.Pod{}
-	// SELECT * FROM container WHERE is_deleted=false AND is_alameda=true GROUP BY namespace,pod_name,alameda_scaler_namespace,alameda_scaler_name
-	whereStr := fmt.Sprintf("WHERE \"%s\"=%s AND \"%s\"=%s", string(cluster_status_entity.ContainerIsAlameda), "true",
-		string(cluster_status_entity.ContainerIsDeleted), "false")
+	whereStr := ""
 
 	relationStatement := ""
 	switch kind {
@@ -77,7 +75,11 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
 	}
 	if relationStatement != "" {
-		whereStr = fmt.Sprintf("%s AND %s", whereStr, relationStatement)
+		if whereStr != "" {
+			whereStr = fmt.Sprintf("%s AND %s", whereStr, relationStatement)
+		} else {
+			whereStr = fmt.Sprintf("WHERE %s", relationStatement)
+		}
 	}
 
 	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
@@ -108,7 +110,7 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub_v1alpha1.Pod) error {
 	points := []*influxdb_client.Point{}
 	for _, pod := range pods {
-		containerEntities, err := buildContainerEntitiesFromDatahubPod(pod, false)
+		containerEntities, err := buildContainerEntitiesFromDatahubPod(pod)
 		if err != nil {
 			return errors.Wrap(err, "create containers failed")
 		}
@@ -196,7 +198,7 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 	return containerEntities, nil
 }
 
-func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod, isDeleted bool) ([]*cluster_status_entity.ContainerEntity, error) {
+func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster_status_entity.ContainerEntity, error) {
 
 	var (
 		namespace              *string
@@ -209,17 +211,16 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod, isDeleted b
 		resourceRequestMemory  *int64
 		resourceLimitCPU       *float64
 		resourceLimitMemory    *int64
-		isAlameda              *bool
-		policy                 *string
-		podCreatedTime         *int64
-		resourceLink           *string
-		topControllerName      *string
-		topControllerKind      *string
-		usedRecommendationID   *string
+
+		policy               *string
+		podCreatedTime       *int64
+		resourceLink         *string
+		topControllerName    *string
+		topControllerKind    *string
+		usedRecommendationID *string
 	)
 
 	nodeName = &pod.NodeName
-	isAlameda = &pod.IsAlameda
 	resourceLink = &pod.ResourceLink
 	usedRecommendationID = &pod.UsedRecommendationId
 
@@ -305,8 +306,6 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod, isDeleted b
 			ResourceRequestMemory:  resourceRequestMemory,
 			ResourceLimitCPU:       resourceLimitCPU,
 			ResourceLimitMemory:    resourceLimitMemory,
-			IsAlameda:              isAlameda,
-			IsDeleted:              &isDeleted,
 			Policy:                 policy,
 			PodCreatedTime:         podCreatedTime,
 			ResourceLink:           resourceLink,
@@ -336,7 +335,6 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 				podName                string
 				namespace              string
 				resourceLink           string
-				isAlameda              bool
 				alamedaScalerNamespace string
 				alamedaScalerName      string
 				nodeName               string
@@ -356,9 +354,6 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 			}
 			if containerEntity.ResourceLink != nil {
 				resourceLink = *containerEntity.ResourceLink
-			}
-			if containerEntity.IsAlameda != nil {
-				isAlameda = *containerEntity.IsAlameda
 			}
 			if containerEntity.AlamedaScalerNamespace != nil {
 				alamedaScalerNamespace = *containerEntity.AlamedaScalerNamespace
@@ -395,7 +390,6 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 				},
 				ResourceLink: resourceLink,
 				Containers:   make([]*datahub_v1alpha1.Container, 0),
-				IsAlameda:    isAlameda,
 				AlamedaScaler: &datahub_v1alpha1.NamespacedName{
 					Name:      alamedaScalerName,
 					Namespace: alamedaScalerNamespace,
