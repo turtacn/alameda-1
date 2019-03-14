@@ -2,7 +2,6 @@ package kubernetes
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"strings"
 
@@ -52,7 +51,7 @@ func GetRunningNamespace() string {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		scope.Errorf(err.Error())
 	}
 	return strings.TrimSpace(ns)
 }

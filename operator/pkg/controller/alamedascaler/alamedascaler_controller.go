@@ -38,6 +38,7 @@ import (
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -109,6 +110,13 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 
 	// Take care of AlamedaScaler
 	if alamedaScaler, err := getResource.GetAlamedaScaler(request.Namespace, request.Name); err != nil && k8sErrors.IsNotFound(err) {
+		scope.Infof("AlamedaScaler (%s/%s) is deleted, remove alameda pods from datahub.", request.Namespace, request.Name)
+		err := deletePodsFromDatahub(&request.NamespacedName, make(map[autoscalingv1alpha1.NamespacedName]bool))
+		if err != nil {
+			scope.Errorf("Remove alameda pods of alamedascaler (%s/%s) from datahub failed. %s", request.Namespace, request.Name, err.Error())
+		} else {
+			scope.Infof("Remove alameda pods of alamedascaler (%s/%s) from datahub successed.", request.Namespace, request.Name)
+		}
 	} else if err == nil {
 		// TODO: deployment already in the AlamedaScaler cannot join the other
 		alamedaScalerNS := alamedaScaler.GetNamespace()
@@ -189,7 +197,10 @@ func (r *ReconcileAlamedaScaler) syncDatahubResource(done chan bool, errChan cha
 		errChan <- errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
 	}
 
-	if err := deletePodsFromDatahub(alamedaScaler, existingPodsMap); err != nil {
+	if err := deletePodsFromDatahub(&types.NamespacedName{
+		Namespace: alamedaScaler.GetNamespace(),
+		Name:      alamedaScaler.GetName(),
+	}, existingPodsMap); err != nil {
 		errChan <- errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
 	}
 
@@ -245,7 +256,6 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		}
 
 		podsNeedCreating = append(podsNeedCreating, &datahub_v1alpha1.Pod{
-			IsAlameda: true,
 			AlamedaScaler: &datahub_v1alpha1.NamespacedName{
 				Namespace: scaler.Namespace,
 				Name:      scaler.Name,
@@ -277,9 +287,9 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 	return nil
 }
 
-func deletePodsFromDatahub(scaler *autoscalingv1alpha1.AlamedaScaler, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {
+func deletePodsFromDatahub(scalerNamespacedName *types.NamespacedName, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {
 
-	pods, err := getPodsNeedDeleting(scaler, existingPodsMap)
+	pods, err := getPodsNeedDeleting(scalerNamespacedName, existingPodsMap)
 	if err != nil {
 		return errors.Wrapf(err, "delete pods from datahub failed: %s", err.Error())
 	}
@@ -307,18 +317,18 @@ func deletePodsFromDatahub(scaler *autoscalingv1alpha1.AlamedaScaler, existingPo
 	}
 	resp, err := datahubServiceClnt.DeletePods(context.Background(), &req)
 	if err != nil {
-		return errors.Errorf("remove alameda pods for AlamedaScaler (%s/%s) failed: %s", scaler.GetNamespace(), scaler.GetName(), err.Error())
+		return errors.Errorf("remove alameda pods for AlamedaScaler (%s/%s) failed: %s", scalerNamespacedName.Namespace, scalerNamespacedName.Name, err.Error())
 	} else if resp.Code != int32(code.Code_OK) {
-		return errors.Errorf("remove alameda pods for AlamedaScaler (%s/%s) failed: receive response: code: %d, message: %s", scaler.GetNamespace(), scaler.GetName(), resp.Code, resp.Message)
+		return errors.Errorf("remove alameda pods for AlamedaScaler (%s/%s) failed: receive response: code: %d, message: %s", scalerNamespacedName.Namespace, scalerNamespacedName.Name, resp.Code, resp.Message)
 	}
-	scope.Infof(fmt.Sprintf("remove alameda pods for AlamedaScaler (%s/%s) successfully", scaler.GetNamespace(), scaler.GetName()))
+	scope.Infof(fmt.Sprintf("remove alameda pods for AlamedaScaler (%s/%s) successfully", scalerNamespacedName.Namespace, scalerNamespacedName.Name))
 
 	return nil
 }
 
-func getPodsNeedDeleting(alamedaScaler *autoscalingv1alpha1.AlamedaScaler, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) ([]*autoscalingv1alpha1.AlamedaPod, error) {
+func getPodsNeedDeleting(scalerNamespacedName *types.NamespacedName, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) ([]*autoscalingv1alpha1.AlamedaPod, error) {
 
-	copyScaler := *alamedaScaler
+	copyScaler := *scalerNamespacedName
 
 	needDeletingPods := make([]*autoscalingv1alpha1.AlamedaPod, 0)
 	podsInDatahub, err := getPodsObservedByAlamedaScalerFromDatahub(&copyScaler)
@@ -338,7 +348,7 @@ func getPodsNeedDeleting(alamedaScaler *autoscalingv1alpha1.AlamedaScaler, exist
 	return needDeletingPods, nil
 }
 
-func getPodsObservedByAlamedaScalerFromDatahub(alamedaScaler *autoscalingv1alpha1.AlamedaScaler) ([]*autoscalingv1alpha1.AlamedaPod, error) {
+func getPodsObservedByAlamedaScalerFromDatahub(scalerNamespacedName *types.NamespacedName) ([]*autoscalingv1alpha1.AlamedaPod, error) {
 
 	podsInDatahub := make([]*autoscalingv1alpha1.AlamedaPod, 0)
 
@@ -352,24 +362,24 @@ func getPodsObservedByAlamedaScalerFromDatahub(alamedaScaler *autoscalingv1alpha
 
 	req := datahub_v1alpha1.ListAlamedaPodsRequest{
 		NamespacedName: &datahub_v1alpha1.NamespacedName{
-			Namespace: alamedaScaler.Namespace,
-			Name:      alamedaScaler.Name,
+			Namespace: scalerNamespacedName.Namespace,
+			Name:      scalerNamespacedName.Name,
 		},
 		Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 	}
 	resp, err := datahubServiceClnt.ListAlamedaPods(context.Background(), &req)
 	if err != nil {
-		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: %s", alamedaScaler.GetNamespace(), alamedaScaler.GetName(), err.Error())
+		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: %s", scalerNamespacedName.Namespace, scalerNamespacedName.Name, err.Error())
 	} else if resp.Status == nil {
-		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: receive null status", alamedaScaler.GetNamespace(), alamedaScaler.GetName())
+		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: receive null status", scalerNamespacedName.Namespace, scalerNamespacedName.Name)
 	} else if resp.Status.Code != int32(code.Code_OK) {
-		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: receive response: code: %d, message: %s", alamedaScaler.GetNamespace(), alamedaScaler.GetName(), resp.Status.Code, resp.Status.Message)
+		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: receive response: code: %d, message: %s", scalerNamespacedName.Namespace, scalerNamespacedName.Name, resp.Status.Code, resp.Status.Message)
 	}
 
 	for _, pod := range resp.GetPods() {
 
 		namespacedName := pod.GetNamespacedName()
-		if namespacedName == nil || !pod.IsAlameda {
+		if namespacedName == nil {
 			continue
 		}
 
