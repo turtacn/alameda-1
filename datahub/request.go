@@ -217,9 +217,9 @@ func (r datahubListSimulatedSchedulingScoresRequestExtended) daoLisRequest() sco
 }
 
 var (
-	datahubAggregateFunction_DAOAggregateFunction = map[datahub_v1alpha1.QueryCondition_AggregateFunction]dao.AggregateFunction{
-		datahub_v1alpha1.QueryCondition_NONE: dao.None,
-		datahub_v1alpha1.QueryCondition_MAX:  dao.Max,
+	datahubAggregateFunction_DAOAggregateFunction = map[datahub_v1alpha1.TimeRange_AggregateFunction]dao.AggregateFunction{
+		datahub_v1alpha1.TimeRange_NONE: dao.None,
+		datahub_v1alpha1.TimeRange_MAX:  dao.Max,
 	}
 )
 
@@ -272,17 +272,17 @@ func (d datahubQueryConditionExtend) daoQueryCondition() dao.QueryCondition {
 	queryTimestampOrder = int(d.queryCondition.GetOrder())
 	queryLimit = int(d.queryCondition.GetLimit())
 
-	if aggFunc, exist := datahubAggregateFunction_DAOAggregateFunction[datahub_v1alpha1.QueryCondition_AggregateFunction(d.queryCondition.AggregateFunction)]; exist {
+	if aggFunc, exist := datahubAggregateFunction_DAOAggregateFunction[datahub_v1alpha1.TimeRange_AggregateFunction(d.queryCondition.TimeRange.AggregateFunction)]; exist {
 		aggregateFunc = aggFunc
 	}
 
 	queryCondition = dao.QueryCondition{
-		StartTime:         queryStartTime,
-		EndTime:           queryEndTime,
-		StepTime:          queryStepTime,
-		TimestampOrder:    queryTimestampOrder,
-		Limit:             queryLimit,
-		AggregateFunction: aggregateFunc,
+		StartTime:                 queryStartTime,
+		EndTime:                   queryEndTime,
+		StepTime:                  queryStepTime,
+		TimestampOrder:            queryTimestampOrder,
+		Limit:                     queryLimit,
+		AggregateOverTimeFunction: aggregateFunc,
 	}
 	return queryCondition
 }

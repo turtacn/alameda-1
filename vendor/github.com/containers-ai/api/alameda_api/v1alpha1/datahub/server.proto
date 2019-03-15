@@ -20,11 +20,6 @@ message QueryCondition {
     }
     Order order = 2;
     uint64 limit = 3;
-    enum AggregateFunction {
-        NONE = 0;
-        MAX = 1;
-    }
-    AggregateFunction aggregateFunction = 4;
 }
 
 /**

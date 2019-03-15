@@ -56,7 +56,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 	}
 
 	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))
-	queryExpression, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression, opt.aggregateFunc, stepTimeInSeconds)
+	queryExpression, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression, opt.aggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}

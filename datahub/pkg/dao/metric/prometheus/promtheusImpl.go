@@ -41,7 +41,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 		promRepository.StartTime(req.StartTime),
 		promRepository.EndTime(req.EndTime),
 		promRepository.StepDuration(req.StepTime),
-		promRepository.AggregateFunction(req.AggregateFunction),
+		promRepository.AggregateOverTimeFunction(req.AggregateOverTimeFunction),
 	}
 
 	podContainerCPURepo = promRepository.NewPodContainerCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
@@ -98,7 +98,7 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 		promRepository.StartTime(req.StartTime),
 		promRepository.EndTime(req.EndTime),
 		promRepository.StepDuration(req.StepTime),
-		promRepository.AggregateFunction(req.AggregateFunction),
+		promRepository.AggregateOverTimeFunction(req.AggregateOverTimeFunction),
 	}
 
 	errChan = make(chan error, len(nodeNames))

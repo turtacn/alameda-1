@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/metric.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\"h\n\x0f\x43ontainerMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xb0\x01\n\tPodMetric\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12R\n\x11\x63ontainer_metrics\x18\x02 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.ContainerMetric\"c\n\nNodeMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"E\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tnum_value\x18\x02 \x01(\t\"\x92\x01\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\"\x93\x01\n\nMetricData\x12G\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricType\x12<\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32..containers_ai.alameda.v1alpha1.datahub.Sample*U\n\nMetricType\x12\r\n\tUNDEFINED\x10\x00\x12 \n\x1c\x43PU_USAGE_SECONDS_PERCENTAGE\x10\x01\x12\x16\n\x12MEMORY_USAGE_BYTES\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/metric.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\"h\n\x0f\x43ontainerMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xb0\x01\n\tPodMetric\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12R\n\x11\x63ontainer_metrics\x18\x02 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.ContainerMetric\"c\n\nNodeMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"E\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tnum_value\x18\x02 \x01(\t\"\x9a\x02\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12^\n\x11\x61ggregateFunction\x18\x04 \x01(\x0e\x32\x43.containers_ai.alameda.v1alpha1.datahub.TimeRange.AggregateFunction\"&\n\x11\x41ggregateFunction\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03MAX\x10\x01\"\x93\x01\n\nMetricData\x12G\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricType\x12<\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32..containers_ai.alameda.v1alpha1.datahub.Sample*U\n\nMetricType\x12\r\n\tUNDEFINED\x10\x00\x12 \n\x1c\x43PU_USAGE_SECONDS_PERCENTAGE\x10\x01\x12\x16\n\x12MEMORY_USAGE_BYTES\x10\x02\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,])
 
@@ -48,8 +48,8 @@ _METRICTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=951,
-  serialized_end=1036,
+  serialized_start=1087,
+  serialized_end=1172,
 )
 _sym_db.RegisterEnumDescriptor(_METRICTYPE)
 
@@ -58,6 +58,28 @@ UNDEFINED = 0
 CPU_USAGE_SECONDS_PERCENTAGE = 1
 MEMORY_USAGE_BYTES = 2
 
+
+_TIMERANGE_AGGREGATEFUNCTION = _descriptor.EnumDescriptor(
+  name='AggregateFunction',
+  full_name='containers_ai.alameda.v1alpha1.datahub.TimeRange.AggregateFunction',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='NONE', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MAX', index=1, number=1,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=897,
+  serialized_end=935,
+)
+_sym_db.RegisterEnumDescriptor(_TIMERANGE_AGGREGATEFUNCTION)
 
 
 _CONTAINERMETRIC = _descriptor.Descriptor(
@@ -240,11 +262,19 @@ _TIMERANGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='aggregateFunction', full_name='containers_ai.alameda.v1alpha1.datahub.TimeRange.aggregateFunction', index=3,
+      number=4, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
+    _TIMERANGE_AGGREGATEFUNCTION,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -253,7 +283,7 @@ _TIMERANGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=653,
-  serialized_end=799,
+  serialized_end=935,
 )
 
 
@@ -290,8 +320,8 @@ _METRICDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=802,
-  serialized_end=949,
+  serialized_start=938,
+  serialized_end=1085,
 )
 
 _CONTAINERMETRIC.fields_by_name['metric_data'].message_type = _METRICDATA
@@ -302,6 +332,8 @@ _SAMPLE.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp_
 _TIMERANGE.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TIMERANGE.fields_by_name['end_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _TIMERANGE.fields_by_name['step'].message_type = google_dot_protobuf_dot_duration__pb2._DURATION
+_TIMERANGE.fields_by_name['aggregateFunction'].enum_type = _TIMERANGE_AGGREGATEFUNCTION
+_TIMERANGE_AGGREGATEFUNCTION.containing_type = _TIMERANGE
 _METRICDATA.fields_by_name['metric_type'].enum_type = _METRICTYPE
 _METRICDATA.fields_by_name['data'].message_type = _SAMPLE
 DESCRIPTOR.message_types_by_name['ContainerMetric'] = _CONTAINERMETRIC

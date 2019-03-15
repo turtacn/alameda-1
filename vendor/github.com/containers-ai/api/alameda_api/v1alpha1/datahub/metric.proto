@@ -56,6 +56,11 @@ message TimeRange {
     google.protobuf.Timestamp start_time = 1;
     google.protobuf.Timestamp end_time = 2;
     google.protobuf.Duration step = 3;
+    enum AggregateFunction {
+        NONE = 0;
+        MAX = 1;
+    }
+    AggregateFunction aggregateFunction = 4;
 }
 
 /**

@@ -7,10 +7,10 @@ import (
 )
 
 type Options struct {
-	startTime     *time.Time
-	endTime       *time.Time
-	stepTime      *time.Duration
-	aggregateFunc dao.AggregateFunction
+	startTime             *time.Time
+	endTime               *time.Time
+	stepTime              *time.Duration
+	aggregateOverTimeFunc dao.AggregateFunction
 }
 
 func buildDefaultOptions() Options {
@@ -18,8 +18,8 @@ func buildDefaultOptions() Options {
 	copyDefaultStepTime := defaultStepTime
 
 	return Options{
-		stepTime:      &copyDefaultStepTime,
-		aggregateFunc: dao.None,
+		stepTime:              &copyDefaultStepTime,
+		aggregateOverTimeFunc: dao.None,
 	}
 }
 
@@ -43,8 +43,8 @@ func StepDuration(d *time.Duration) Option {
 	}
 }
 
-func AggregateFunction(f dao.AggregateFunction) Option {
+func AggregateOverTimeFunction(f dao.AggregateFunction) Option {
 	return func(o *Options) {
-		o.aggregateFunc = f
+		o.aggregateOverTimeFunc = f
 	}
 }

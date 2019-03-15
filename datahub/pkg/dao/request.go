@@ -23,10 +23,10 @@ const (
 
 // QueryCondition Others query condition
 type QueryCondition struct {
-	StartTime         *time.Time
-	EndTime           *time.Time
-	StepTime          *time.Duration
-	TimestampOrder    Order
-	Limit             int
-	AggregateFunction AggregateFunction
+	StartTime                 *time.Time
+	EndTime                   *time.Time
+	StepTime                  *time.Duration
+	TimestampOrder            Order
+	Limit                     int
+	AggregateOverTimeFunction AggregateFunction
 }
