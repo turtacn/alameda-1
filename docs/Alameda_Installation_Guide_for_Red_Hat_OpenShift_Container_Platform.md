@@ -18,13 +18,13 @@ Cluster admin needs to prepare **3 Persistent Volumes (PV)** for Alameda OpenShi
 
 * **InfluxDB PV**:
 	1. Access Mode: ReadWriteOnce
-	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
+	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GiB)
 * **Alameda-AI PV**:
 	1. Access Mode: ReadWriteOnce
-	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GB)
+	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GiB)
 * **Grafana PV**:
 	1. Access Mode: ReadWriteOnce
-	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GB)
+	2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GiB)
 
 Note: Check **Alameda Installation step 7** for detail about specifying PVCs capacity to meet the PVs created here.
 # Alameda Installation
