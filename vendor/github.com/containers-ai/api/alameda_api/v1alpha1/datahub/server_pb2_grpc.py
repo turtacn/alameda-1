@@ -2,7 +2,6 @@
 import grpc
 
 from alameda_api.v1alpha1.datahub import server_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
@@ -34,7 +33,7 @@ class DatahubServiceStub(object):
         )
     self.ListAlamedaNodes = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListAlamedaNodes',
-        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListAlamedaNodesRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.FromString,
         )
     self.ListNodes = channel.unary_unary(
@@ -260,7 +259,7 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       ),
       'ListAlamedaNodes': grpc.unary_unary_rpc_method_handler(
           servicer.ListAlamedaNodes,
-          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListAlamedaNodesRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.SerializeToString,
       ),
       'ListNodes': grpc.unary_unary_rpc_method_handler(

@@ -13,6 +13,7 @@ import (
 	proto_timestmap "github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
+	"time"
 )
 
 var (
@@ -46,31 +47,40 @@ func NewContainerRepository(influxDBCfg *influxdb.Config) *ContainerRepository {
 }
 
 // ListAlamedaContainers list predicted containers have relation with arguments
-func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name string, kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.Pod, error) {
+func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name, granularity string, kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.Pod, error) {
 	pods := []*datahub_v1alpha1.Pod{}
 	whereStr := ""
 
 	relationStatement := ""
+	granularityPeriod := containerRepository.getGranularityPeriod(granularity)
+
 	switch kind {
 	// bypass if Kind is Pod
 	case datahub_v1alpha1.Kind_POD:
 		// relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s')`,
 		// 	cluster_status_entity.ContainerNamespace, namespace,
 		// 	cluster_status_entity.ContainerPodName, name)
+		if granularityPeriod != "" {
+			relationStatement = fmt.Sprintf(`(%s)`, granularityPeriod)
+			relationStatement = strings.Replace(relationStatement, "AND", "", 1)
+		}
 	case datahub_v1alpha1.Kind_DEPLOYMENT:
-		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' )`,
+		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' %s)`,
 			cluster_status_entity.ContainerNamespace, namespace,
 			cluster_status_entity.ContainerTopControllerName, name,
-			cluster_status_entity.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENT])
+			cluster_status_entity.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENT],
+			granularityPeriod)
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
-		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' )`,
+		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' %s)`,
 			cluster_status_entity.ContainerNamespace, namespace,
 			cluster_status_entity.ContainerTopControllerName, name,
-			cluster_status_entity.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENTCONFIG])
+			cluster_status_entity.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENTCONFIG],
+			granularityPeriod)
 	case datahub_v1alpha1.Kind_ALAMEDASCALER:
-		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s')`,
+		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' %s)`,
 			cluster_status_entity.ContainerAlamedaScalerNamespace, namespace,
-			cluster_status_entity.ContainerAlamedaScalerName, name)
+			cluster_status_entity.ContainerAlamedaScalerName, name,
+			granularityPeriod)
 	default:
 		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
 	}
@@ -202,6 +212,19 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 	}
 
 	return containerEntities, nil
+}
+
+func (containerRepository *ContainerRepository) getGranularityPeriod(granularity string) string {
+	before24h := time.Now().UTC().Add(time.Hour * -24).Unix()
+	period := ""
+
+	if granularity == "30s" {
+		period = fmt.Sprintf(`AND "pod_create_time" > %d`, before24h)
+	} else if granularity == "1h" {
+		period = fmt.Sprintf(`AND "pod_create_time" <= %d`, before24h)
+	}
+
+	return period
 }
 
 func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster_status_entity.ContainerEntity, error) {

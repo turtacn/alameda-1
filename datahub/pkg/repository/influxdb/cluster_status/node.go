@@ -105,10 +105,14 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 	return nil
 }
 
-func (nodeRepository *NodeRepository) ListAlamedaNodes() ([]*cluster_status_entity.NodeEntity, error) {
+func (nodeRepository *NodeRepository) ListAlamedaNodes(granularity string) ([]*cluster_status_entity.NodeEntity, error) {
 
 	nodeEntities := []*cluster_status_entity.NodeEntity{}
-	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s", string(Node), string(cluster_status_entity.NodeInCluster), "true")
+	granularityPeriod := nodeRepository.getGranularityPeriod(granularity)
+
+	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s %s",
+		string(Node), string(cluster_status_entity.NodeInCluster), "true", granularityPeriod)
+
 	scope.Infof(fmt.Sprintf("Query nodes in cluster: %s", cmd))
 	results, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
 	if err != nil {
@@ -173,4 +177,17 @@ func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(reques
 	whereClause = fmt.Sprintf("WHERE %s", conditions)
 
 	return whereClause
+}
+
+func (nodeRepository *NodeRepository) getGranularityPeriod(granularity string) string {
+	before24h := time.Now().UTC().Add(time.Hour * -24).Unix()
+	period := ""
+
+	if granularity == "30s" {
+		period = fmt.Sprintf(`AND "create_time" > %d`, before24h)
+	} else if granularity == "1h" {
+		period = fmt.Sprintf(`AND "create_time" <= %d`, before24h)
+	}
+
+	return period
 }

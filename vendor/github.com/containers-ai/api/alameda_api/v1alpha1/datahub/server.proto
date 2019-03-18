@@ -74,6 +74,15 @@ message ListPodsResponse {
 message ListAlamedaPodsRequest {
     NamespacedName namespaced_name = 1;
     Kind kind = 2;
+    string granularity = 3;
+}
+
+/**
+ * Represents a request for listing nodes that need to be predicted
+ *
+ */
+message ListAlamedaNodesRequest {
+    string granularity = 1;
 }
 
 /**
@@ -254,7 +263,7 @@ service DatahubService {
         returns (ListPodsResponse){}
 
     // Used to list nodes need to be predicted
-    rpc ListAlamedaNodes(google.protobuf.Empty)
+    rpc ListAlamedaNodes(ListAlamedaNodesRequest)
         returns (ListNodesResponse){}
 
     // Used to list nodes' information

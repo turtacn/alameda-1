@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:29f58dfebf12fc83938ca50c25ae93fd794a41b46bd0089cbd4f61d1fe0192ca"
+  digest = "1:c39702ed46707f257b550cedc80d79b5aa030602c937046562c2901cd7b6648c"
   name = "github.com/containers-ai/api"
   packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
-  revision = "8a7330505d4cc408ba5dc2a3b04fb0ac73ac31e4"
+  revision = "ef2c19f7480f24271841221bcb6d3c21a2ad6891"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1103,7 +1103,6 @@
     "github.com/emicklei/go-restful",
     "github.com/golang/glog",
     "github.com/golang/protobuf/ptypes",
-    "github.com/golang/protobuf/ptypes/empty",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/influxdata/influxdb/client/v2",
     "github.com/mattbaird/jsonpatch",

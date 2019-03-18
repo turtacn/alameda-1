@@ -22,7 +22,6 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -293,8 +292,9 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 		name = namespacedName.GetName()
 	}
 	kind := in.GetKind()
+	granularity := in.GetGranularity()
 
-	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, kind); err != nil {
+	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, granularity, kind); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodsResponse{
 			Status: &status.Status{
@@ -315,14 +315,14 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 }
 
 // ListAlamedaNodes list nodes in cluster
-func (s *Server) ListAlamedaNodes(ctx context.Context, in *empty.Empty) (*datahub_v1alpha1.ListNodesResponse, error) {
+func (s *Server) ListAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.ListAlamedaNodesRequest) (*datahub_v1alpha1.ListNodesResponse, error) {
 	scope.Debug("Request received from ListAlamedaNodes grpc function: " + utils.InterfaceToString(in))
 
 	var nodeDAO cluster_status_dao.NodeOperation = &cluster_status_dao_impl.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	if alamedaNodes, err := nodeDAO.ListAlamedaNodes(); err != nil {
+	if alamedaNodes, err := nodeDAO.ListAlamedaNodes(in.GetGranularity()); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListNodesResponse{
 			Status: &status.Status{

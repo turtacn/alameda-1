@@ -23,10 +23,10 @@ func (node *Node) DeregisterAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) 
 	return nodeRepository.RemoveAlamedaNodes(alamedaNodes)
 }
 
-func (node *Node) ListAlamedaNodes() ([]*datahub_v1alpha1.Node, error) {
+func (node *Node) ListAlamedaNodes(granularity string) ([]*datahub_v1alpha1.Node, error) {
 	alamedaNodes := []*datahub_v1alpha1.Node{}
 	nodeRepository := influxdb_repository_cluster_status.NewNodeRepository(&node.InfluxDBConfig)
-	entities, err := nodeRepository.ListAlamedaNodes()
+	entities, err := nodeRepository.ListAlamedaNodes(granularity)
 	if err != nil {
 		return alamedaNodes, errors.Wrap(err, "list alameda nodes failed")
 	}
