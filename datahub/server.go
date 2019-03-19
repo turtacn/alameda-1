@@ -292,9 +292,9 @@ func (s *Server) ListAlamedaPods(ctx context.Context, in *datahub_v1alpha1.ListA
 		name = namespacedName.GetName()
 	}
 	kind := in.GetKind()
-	granularity := in.GetGranularity()
+	timeRange := in.GetTimeRange()
 
-	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, granularity, kind); err != nil {
+	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, kind, timeRange); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodsResponse{
 			Status: &status.Status{
@@ -322,7 +322,9 @@ func (s *Server) ListAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.List
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	if alamedaNodes, err := nodeDAO.ListAlamedaNodes(in.GetGranularity()); err != nil {
+	timeRange := in.GetTimeRange()
+
+	if alamedaNodes, err := nodeDAO.ListAlamedaNodes(timeRange); err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListNodesResponse{
 			Status: &status.Status{

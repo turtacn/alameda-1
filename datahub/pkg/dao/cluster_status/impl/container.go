@@ -26,7 +26,7 @@ func (container *Container) DeletePods(pods []*datahub_v1alpha1.Pod) error {
 	return containerRepository.DeleteContainers(pods)
 }
 
-func (container *Container) ListAlamedaPods(ns, name, granularity string, kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.Pod, error) {
+func (container *Container) ListAlamedaPods(ns, name string, kind datahub_v1alpha1.Kind, timeRange *datahub_v1alpha1.TimeRange) ([]*datahub_v1alpha1.Pod, error) {
 	containerRepository := influxdb_repository_cluster_status.NewContainerRepository(&container.InfluxDBConfig)
-	return containerRepository.ListAlamedaContainers(ns, name, granularity, kind)
+	return containerRepository.ListAlamedaContainers(ns, name, kind, timeRange)
 }

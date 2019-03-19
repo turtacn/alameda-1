@@ -26,6 +26,8 @@ const (
 	NodeCPUCores nodeField = "node_cpu_cores"
 	// NodeMemoryBytes is the amount of momory bytes in node
 	NodeMemoryBytes nodeField = "node_memory_bytes"
+
+	NodeCreateTime nodeField = "create_time"
 )
 
 var (
@@ -43,6 +45,7 @@ type NodeEntity struct {
 	IsInCluster *bool
 	CPUCores    *int64
 	MemoryBytes *int64
+	CreatedTime *int64
 }
 
 // NewNodeEntityFromMap Build entity from map
@@ -96,6 +99,9 @@ func (e NodeEntity) InfluxDBPoint(measurementName string) (*influxdb_client.Poin
 	}
 	if e.MemoryBytes != nil {
 		fields[NodeMemoryBytes] = *e.MemoryBytes
+	}
+	if e.CreatedTime != nil {
+		fields[NodeCreateTime] = *e.CreatedTime
 	}
 
 	return influxdb_client.NewPoint(measurementName, tags, fields, e.Time)

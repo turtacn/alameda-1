@@ -52,6 +52,7 @@ message Capacity {
 message Node {
     string name = 1;
     Capacity capacity = 2;
+    google.protobuf.Timestamp start_time = 3;
 }
 
 /**

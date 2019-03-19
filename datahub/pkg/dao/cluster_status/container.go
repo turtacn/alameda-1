@@ -8,5 +8,5 @@ import (
 type ContainerOperation interface {
 	AddPods([]*datahub_api.Pod) error
 	DeletePods([]*datahub_api.Pod) error
-	ListAlamedaPods(string, string, string, datahub_api.Kind) ([]*datahub_api.Pod, error)
+	ListAlamedaPods(string, string, datahub_api.Kind, *datahub_api.TimeRange) ([]*datahub_api.Pod, error)
 }

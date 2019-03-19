@@ -9,6 +9,7 @@ import (
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
+	datahub_api "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
@@ -42,10 +43,12 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 	points := []*influxdb_client.Point{}
 	for _, alamedaNode := range alamedaNodes {
 		isInCluster := true
+		startTime := alamedaNode.StartTime.GetSeconds()
 		entity := cluster_status_entity.NodeEntity{
 			Time:        influxdb.ZeroTime,
 			Name:        &alamedaNode.Name,
 			IsInCluster: &isInCluster,
+			CreatedTime: &startTime,
 		}
 		if nodeCapacity := alamedaNode.GetCapacity(); nodeCapacity != nil {
 			entity.CPUCores = &nodeCapacity.CpuCores
@@ -105,13 +108,13 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 	return nil
 }
 
-func (nodeRepository *NodeRepository) ListAlamedaNodes(granularity string) ([]*cluster_status_entity.NodeEntity, error) {
+func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_api.TimeRange) ([]*cluster_status_entity.NodeEntity, error) {
 
 	nodeEntities := []*cluster_status_entity.NodeEntity{}
-	granularityPeriod := nodeRepository.getGranularityPeriod(granularity)
+	nodeCreatePeriodCondition := nodeRepository.getNodeCreatePeriodCondition(timeRange)
 
 	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s %s",
-		string(Node), string(cluster_status_entity.NodeInCluster), "true", granularityPeriod)
+		string(Node), string(cluster_status_entity.NodeInCluster), "true", nodeCreatePeriodCondition)
 
 	scope.Infof(fmt.Sprintf("Query nodes in cluster: %s", cmd))
 	results, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
@@ -179,15 +182,34 @@ func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(reques
 	return whereClause
 }
 
-func (nodeRepository *NodeRepository) getGranularityPeriod(granularity string) string {
-	before24h := time.Now().UTC().Add(time.Hour * -24).Unix()
-	period := ""
-
-	if granularity == "30s" {
-		period = fmt.Sprintf(`AND "create_time" > %d`, before24h)
-	} else if granularity == "1h" {
-		period = fmt.Sprintf(`AND "create_time" <= %d`, before24h)
+func (nodeRepository *NodeRepository) getNodeCreatePeriodCondition(timeRange *datahub_api.TimeRange) string {
+	if timeRange == nil {
+		return ""
 	}
 
-	return period
+	var start int64 = 0
+	var end int64 = 0
+
+	if timeRange.StartTime != nil {
+		start = timeRange.StartTime.Seconds
+	}
+
+	if timeRange.EndTime != nil {
+		end = timeRange.EndTime.Seconds
+	}
+
+	if start == 0 && end == 0 {
+		return ""
+	} else if start == 0 && end != 0 {
+		period := fmt.Sprintf(`AND "create_time" < %d`, end)
+		return period
+	} else if start != 0 && end == 0 {
+		period := fmt.Sprintf(`AND "create_time" >= %d`, start)
+		return period
+	} else if start != 0 && end != 0 {
+		period := fmt.Sprintf(`AND "create_time" >= %d AND "create_time" < %d`, start, end)
+		return period
+	}
+
+	return ""
 }

@@ -4,6 +4,7 @@ import (
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_cluster_status "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/cluster_status"
+	datahub_api "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/pkg/errors"
 )
@@ -23,10 +24,10 @@ func (node *Node) DeregisterAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) 
 	return nodeRepository.RemoveAlamedaNodes(alamedaNodes)
 }
 
-func (node *Node) ListAlamedaNodes(granularity string) ([]*datahub_v1alpha1.Node, error) {
+func (node *Node) ListAlamedaNodes(timeRange *datahub_api.TimeRange) ([]*datahub_v1alpha1.Node, error) {
 	alamedaNodes := []*datahub_v1alpha1.Node{}
 	nodeRepository := influxdb_repository_cluster_status.NewNodeRepository(&node.InfluxDBConfig)
-	entities, err := nodeRepository.ListAlamedaNodes(granularity)
+	entities, err := nodeRepository.ListAlamedaNodes(timeRange)
 	if err != nil {
 		return alamedaNodes, errors.Wrap(err, "list alameda nodes failed")
 	}

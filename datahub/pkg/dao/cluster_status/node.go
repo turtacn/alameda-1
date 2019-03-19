@@ -8,7 +8,7 @@ import (
 type NodeOperation interface {
 	RegisterAlamedaNodes([]*datahub_api.Node) error
 	DeregisterAlamedaNodes([]*datahub_api.Node) error
-	ListAlamedaNodes(string) ([]*datahub_api.Node, error)
+	ListAlamedaNodes(timeRange *datahub_api.TimeRange) ([]*datahub_api.Node, error)
 	ListNodes(ListNodesRequest) ([]*datahub_api.Node, error)
 }
 

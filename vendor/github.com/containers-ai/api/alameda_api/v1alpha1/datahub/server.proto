@@ -4,7 +4,6 @@ syntax = "proto3";
 package containers_ai.alameda.v1alpha1.datahub;
 
 import "google/rpc/status.proto";
-import "google/protobuf/empty.proto";
 import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/predict.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
@@ -74,7 +73,7 @@ message ListPodsResponse {
 message ListAlamedaPodsRequest {
     NamespacedName namespaced_name = 1;
     Kind kind = 2;
-    string granularity = 3;
+    TimeRange time_range = 3;
 }
 
 /**
@@ -82,7 +81,7 @@ message ListAlamedaPodsRequest {
  *
  */
 message ListAlamedaNodesRequest {
-    string granularity = 1;
+    TimeRange time_range = 1;
 }
 
 /**
