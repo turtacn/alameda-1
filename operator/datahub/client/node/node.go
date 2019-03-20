@@ -6,6 +6,7 @@ import (
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
@@ -49,6 +50,9 @@ func (repo *AlamedaNodeRepository) CreateAlamedaNode(nodes []*corev1.Node) error
 			Capacity: &datahub_v1alpha1.Capacity{
 				CpuCores:    cpuCores,
 				MemoryBytes: memoryBytes,
+			},
+			StartTime: &timestamp.Timestamp{
+				Seconds: node.ObjectMeta.GetCreationTimestamp().Unix(),
 			},
 		})
 	}
