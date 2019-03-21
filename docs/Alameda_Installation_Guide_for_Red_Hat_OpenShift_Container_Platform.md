@@ -22,6 +22,7 @@
 	  1. Access Mode: ReadWriteOnce
 	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GiB)
 	  3. Label: Set up PV label "**storage-name: alameda-influxdb**"
+
 	  Example:
 	  ```
       metadata:
