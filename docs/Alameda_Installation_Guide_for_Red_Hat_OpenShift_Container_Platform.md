@@ -16,15 +16,27 @@
 
    Cluster admin needs to prepare **3 Persistent Volumes (PV)** to serve **3 Persistent Volume Claims (PVC)** made by Alameda at deployment. The PVs need to meet following requirements:
 
+   **Note:** We suggest specifying **persistentVolumeReclaimPolicy** of PV as **Retain**
+
    * **InfluxDB PV**:
 	  1. Access Mode: ReadWriteOnce
 	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GiB)
+	  3. Label: Set up PV label "**storage-name: alameda-influxdb**"
+	  Example:
+	  ```
+      metadata:
+        name: pv1
+        labels:
+          storage-name: alameda-influxdb
+	  ```
    * **Alameda-AI PV**:
 	  1. Access Mode: ReadWriteOnce
 	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 10GiB)
+	  3. Label: Set up PV label "**storage-name: alameda-ai**"
    * **Grafana PV**:
 	  1. Access Mode: ReadWriteOnce
 	  2. Capacity: Meets requirement for PVC capacity inputed during deployment (at least 2GiB)
+	  3. Label: Set up PV label "**storage-name: alameda-grafana**"
 
    Note: Check **Alameda Installation step 7** for details about specifying PVCs capacity to meet the PVs created here.
 # Alameda Installation
@@ -65,7 +77,7 @@
 	
 	![](./img/openshift_guide/8.png)
 	
-10. After deployment has finished, switch to the openshift-monitoring project (a default project in OCP). Go to **Resources > Secrets > grafana-datasources** and reveal the secret.
+10. After deployment has finished, switch to the **openshift-monitoring** project (a default project in OCP). Go to **Resources > Secrets > grafana-datasources** and click **Reveal Secret**.
 	
 	![](./img/openshift_guide/9.png)
 	
