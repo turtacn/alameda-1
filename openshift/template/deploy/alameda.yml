@@ -372,6 +372,9 @@ objects:
     resources:
       requests:
         storage: '${INFLUXDB_SIZE}'
+    selector:
+      matchLabels:
+        storage-name: alameda-influxdb
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
@@ -382,6 +385,9 @@ objects:
     resources:
       requests:
         storage: '${GRAFANA_SIZE}'
+    selector:
+      matchLabels:
+        storage-name: alameda-grafana
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
@@ -392,6 +398,9 @@ objects:
     resources:
       requests:
         storage: '${ALAMEDA_AI_SIZE}'
+    selector:
+      matchLabels:
+        storage-name: alameda-ai
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -845,15 +854,15 @@ parameters:
 - name: INFLUXDB_SIZE
   displayName: InfluxDB database capacity
   required: true
-  description: Capacity of InfluxDB database ( > 10GB)
+  description: Capacity of InfluxDB database ( > 10GiB)
   value: "10Gi"
 - name: ALAMEDA_AI_SIZE
   displayName: Alameda-AI capacity
   required: true
-  description: Capacity of Alameda-AI ( > 10GB)
+  description: Capacity of Alameda-AI ( > 10GiB)
   value: "10Gi"
 - name: GRAFANA_SIZE
   displayName: Grafana database capacity
   required: true
-  description: Capacity of Grafana database ( > 10GB)
+  description: Capacity of Grafana database ( > 2GiB)
   value: "2Gi"
