@@ -238,7 +238,7 @@ func (containerRepository *ContainerRepository) getPodCreatePeriodCondition(time
 		period := fmt.Sprintf(`AND "pod_create_time" >= %d`, start)
 		return period
 	} else if start != 0 && end != 0 {
-		period := fmt.Sprintf(`AND "pod_create_time" >= %d AND "create_time" < %d`, start, end)
+		period := fmt.Sprintf(`AND "pod_create_time" >= %d AND "pod_create_time" < %d`, start, end)
 		return period
 	}
 
