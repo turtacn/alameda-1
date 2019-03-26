@@ -120,7 +120,7 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 
 	for _, replicasetIns := range replicasetListIns.Items {
 		for _, or := range replicasetIns.GetOwnerReferences() {
-			if *or.Controller && strings.ToLower(or.Kind) == "deployment" && or.Name == deployName {
+			if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "deployment" && or.Name == deployName {
 				podListIns := &corev1.PodList{}
 				err = listResources.client.List(context.TODO(),
 					client.InNamespace(deployNS).MatchingLabels(replicasetIns.Spec.Selector.MatchLabels),
@@ -160,7 +160,7 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 
 	for _, replicationControllerIns := range replicationControllerListIns.Items {
 		for _, or := range replicationControllerIns.GetOwnerReferences() {
-			if *or.Controller && strings.ToLower(or.Kind) == "deploymentconfig" && or.Name == deployConfigName {
+			if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "deploymentconfig" && or.Name == deployConfigName {
 				podListIns := &corev1.PodList{}
 				err = listResources.client.List(context.TODO(),
 					client.InNamespace(deployConfigNS).MatchingLabels(replicationControllerIns.Spec.Selector),

@@ -102,7 +102,7 @@ func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (r
 	if alamedaRecommendation, err := getResource.GetAlamedaRecommendation(request.Namespace, request.Name); err == nil {
 		// Remove AlamedaResource if target is not existed
 		for _, or := range alamedaRecommendation.OwnerReferences {
-			if *or.Controller && strings.ToLower(or.Kind) == "alamedascaler" {
+			if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "alamedascaler" {
 				if scalers, err := listResources.ListAllAlamedaScaler(); err == nil {
 					for _, scaler := range scalers {
 						if scaler.GetUID() == or.UID {
