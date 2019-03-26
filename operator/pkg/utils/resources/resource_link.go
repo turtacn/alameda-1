@@ -103,7 +103,7 @@ func getControlleHierarchy(client client.Client, curOwnerRef metav1.OwnerReferen
 
 func getControllerOwnerRef(ownerRefs []metav1.OwnerReference) *metav1.OwnerReference {
 	for _, or := range ownerRefs {
-		if *or.Controller {
+		if or.Controller != nil && *or.Controller {
 			return &or
 		}
 	}
