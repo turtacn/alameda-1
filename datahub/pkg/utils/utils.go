@@ -41,12 +41,16 @@ func NanoSecondToSecond(nanosecond int64) int64 {
 }
 
 // GetSampleInstance get Sample instance
-func GetSampleInstance(timeObj *time.Time, numVal string) *datahub_v1alpha1.Sample {
+func GetSampleInstance(timeObj, endTimeObj *time.Time, numVal string) *datahub_v1alpha1.Sample {
 	seconds := timeObj.Unix()
-	if timeObj != nil {
+	endSeconds := endTimeObj.Unix()
+	if timeObj != nil && endTimeObj != nil {
 		return &datahub_v1alpha1.Sample{
 			Time: &timestamp.Timestamp{
 				Seconds: seconds,
+			},
+			EndTime: &timestamp.Timestamp{
+				Seconds: endSeconds,
 			},
 			NumValue: numVal,
 		}
@@ -60,6 +64,16 @@ func GetSampleInstance(timeObj *time.Time, numVal string) *datahub_v1alpha1.Samp
 func GetTimeIdxFromColumns(columns []string) int {
 	for idx, column := range columns {
 		if column == influxdb.Time {
+			return idx
+		}
+	}
+	return 0
+}
+
+// GetTimeIdxFromColumns get index of end_time column
+func GetEndTimeIdxFromColumns(columns []string) int {
+	for idx, column := range columns {
+		if column == influxdb.EndTime {
 			return idx
 		}
 	}

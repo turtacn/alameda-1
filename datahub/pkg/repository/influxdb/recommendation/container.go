@@ -57,8 +57,6 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 		podNS := podRecommendation.GetNamespacedName().GetNamespace()
 		podName := podRecommendation.GetNamespacedName().GetName()
 		containerRecommendations := podRecommendation.GetContainerRecommendations()
-		recStartTime := podRecommendation.GetStartTime()
-		recEndTime := podRecommendation.GetEndTime()
 		topController := podRecommendation.GetTopController()
 
 		for _, containerRecommendation := range containerRecommendations {
@@ -70,8 +68,6 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 			fields := map[string]interface{}{
 				//TODO
 				//string(recommendation_entity.ContainerPolicy):            "",
-				string(recommendation_entity.ContainerStartTime):         recStartTime.GetSeconds(),
-				string(recommendation_entity.ContainerEndTime):           recEndTime.GetSeconds(),
 				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
 				string(recommendation_entity.ContainerTopControllerKind): enumconv.KindDisp[(topController.GetKind())],
 			}
@@ -83,6 +79,8 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						for key, value := range fields {
 							newFields[key] = value
 						}
+						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
+						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
 
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
@@ -95,7 +93,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 							}
 						}
 
-						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
+						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
 							scope.Error(err.Error())
@@ -111,6 +109,8 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						for key, value := range fields {
 							newFields[key] = value
 						}
+						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
+						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
 
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
@@ -124,7 +124,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						}
 						if pt, err := influxdb_client.NewPoint(string(Container),
 							tags, newFields,
-							time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
+							time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
 							scope.Error(err.Error())
@@ -140,6 +140,8 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						for key, value := range fields {
 							newFields[key] = value
 						}
+						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
+						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
 
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
@@ -151,7 +153,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 								newFields[string(recommendation_entity.ContainerInitialResourceLimitMemory)] = numVal
 							}
 						}
-						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
+						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
 							scope.Error(err.Error())
@@ -167,6 +169,8 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						for key, value := range fields {
 							newFields[key] = value
 						}
+						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
+						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
 
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
@@ -178,7 +182,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 								newFields[string(recommendation_entity.ContainerInitialResourceRequestMemory)] = numVal
 							}
 						}
-						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(recStartTime.GetSeconds(), 0)); err == nil {
+						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
 							points = append(points, pt)
 						} else {
 							scope.Error(err.Error())
@@ -266,7 +270,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 	if results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.Recommendation)); err == nil {
 		for _, result := range results {
-			//individual contaniners
+			//individual containers
 			for _, ser := range result.Series {
 				podName := ser.Tags[string(recommendation_entity.ContainerPodName)]
 				podNS := ser.Tags[string(recommendation_entity.ContainerNamespace)]
@@ -279,6 +283,10 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 				for _, val := range ser.Values {
 					timeColIdx := utils.GetTimeIdxFromColumns(ser.Columns)
 					timeObj, _ := utils.ParseTime(val[timeColIdx].(string))
+
+					endTimeColIdx := utils.GetEndTimeIdxFromColumns(ser.Columns)
+					ts, _ := val[endTimeColIdx].(json.Number).Int64()
+					endTimeObj := time.Unix(ts, 0)
 
 					containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
 						Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
@@ -303,35 +311,35 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 
 						if column == string(recommendation_entity.ContainerInitialResourceLimitCPU) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							initialResourceLimitCPUData = append(initialResourceLimitCPUData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerInitialResourceRequestCPU) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							initialResourceRequestCPUData = append(initialResourceRequestCPUData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerResourceLimitCPU) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							resourceLimitCPUData = append(resourceLimitCPUData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerResourceRequestCPU) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							resourceRequestCPUData = append(resourceRequestCPUData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerInitialResourceLimitMemory) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							initialResourceLimitMemoryData = append(initialResourceLimitMemoryData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerInitialResourceRequestMemory) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							initialResourceRequestMemoryData = append(initialResourceRequestMemoryData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerResourceLimitMemory) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							resourceLimitMemoryData = append(resourceLimitMemoryData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerResourceRequestMemory) {
 							colVal := val[columnIdx].(json.Number).String()
-							sampleObj := utils.GetSampleInstance(&timeObj, colVal)
+							sampleObj := utils.GetSampleInstance(&timeObj, &endTimeObj, colVal)
 							resourceRequestMemoryData = append(resourceRequestMemoryData, sampleObj)
 						} else if column == string(recommendation_entity.ContainerStartTime) {
 							startTime, _ = val[columnIdx].(json.Number).Int64()
