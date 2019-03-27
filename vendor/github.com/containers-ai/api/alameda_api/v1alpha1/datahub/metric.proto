@@ -45,7 +45,8 @@ message NodeMetric {
  */
 message Sample {
     google.protobuf.Timestamp time = 1;
-    string num_value = 2;
+    google.protobuf.Timestamp end_time = 2;
+    string num_value = 3;
 }
 
 /**
