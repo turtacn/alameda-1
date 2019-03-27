@@ -1,9 +1,12 @@
 package containerCPUUsagePercentage
 
 import (
+	"fmt"
 	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+	"strconv"
 )
 
 const (
@@ -15,6 +18,10 @@ const (
 	PodLabelName = "pod_name"
 	// ContainerLabel container label name in the metric
 	ContainerLabel = "container_name"
+)
+
+var (
+	scope = log.RegisterScope("prometheus", "metrics repository", 0)
 )
 
 // Entity Container cpu usage percentage entity
@@ -37,9 +44,15 @@ func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
 	samples = make([]metric.Sample, 0)
 
 	for _, value := range e.Values {
+		v := "0"
+		if s, err := strconv.ParseFloat(value.SampleValue, 64); err == nil {
+			v = fmt.Sprintf("%f", s*1000)
+		} else {
+			scope.Errorf("containerCPUUsagePercentage.NewEntityFromPrometheusEntity: %s", err.Error())
+		}
 		sample := metric.Sample{
 			Timestamp: value.UnixTime,
-			Value:     value.SampleValue,
+			Value:     v,
 		}
 		samples = append(samples, sample)
 	}
