@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1552462506910,
+  "id": 23,
+  "iteration": 1553764753105,
   "links": [],
   "panels": [
     {
@@ -271,7 +271,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select alameda_scaler_namespace as namespace, alameda_scaler_name as \"alameda scaler\", pod_name as pod, \"name\" as \"container\", node_name as node, \"policy\", is_alameda from alameda_cluster_status..container where is_alameda = true and is_deleted = false group by \"alameda_scaler_namespace\", \"alameda_scaler_name\", \"pod_name\", \"name\" order by time desc limit 1",
+          "query": "select alameda_scaler_namespace as namespace, alameda_scaler_name as \"alameda scaler\", pod_name as pod, \"name\" as \"container\", node_name as node, \"policy\", is_alameda from alameda_cluster_status..container group by \"alameda_scaler_namespace\", \"alameda_scaler_name\", \"pod_name\", \"name\" order by time desc limit 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -509,6 +509,13 @@
         {
           "alias": "Recommendation: CPU request",
           "color": "#7eb26d"
+        },
+        {
+          "alias": "Prediction: CPU usage",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -516,10 +523,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Prediction: cpu_usage_seconds_percentage",
+          "alias": "Prediction: CPU usage",
           "datasource": "InfluxDB",
           "groupBy": [],
-          "hide": true,
+          "hide": false,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
@@ -553,7 +560,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
+          "expr": "1000 * namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -581,7 +588,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_limit_cpu * 0.001 from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select resource_limit_cpu from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -621,7 +628,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_request_cpu * 0.001 from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select resource_request_cpu from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -646,9 +653,9 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Container CPU Usage: Observation, Prediction and Recommendation (in cpu core)",
+      "title": "Container CPU Usage: Observation, Prediction and Recommendation (in CPU milicore)",
       "tooltip": {
-        "shared": true,
+        "shared": false,
         "sort": 0,
         "value_type": "individual"
       },
@@ -731,6 +738,13 @@
         {
           "alias": "Recommendation: memory request",
           "color": "#7eb26d"
+        },
+        {
+          "alias": "Prediction: memory usage",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -738,10 +752,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Prediction: memory_usage_bytes",
+          "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
           "groupBy": [],
-          "hide": true,
+          "hide": false,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
@@ -867,7 +881,7 @@
       "timeShift": null,
       "title": "Container Memory Usage: Observation, Prediction  and Recommendation",
       "tooltip": {
-        "shared": true,
+        "shared": false,
         "sort": 0,
         "value_type": "individual"
       },
@@ -882,7 +896,7 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "decbytes",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -963,8 +977,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-ai-7f5b6b6d8-28zsd",
-          "value": "alameda-ai-7f5b6b6d8-28zsd"
+          "text": "alameda-ai-d56b865c6-hspgz",
+          "value": "alameda-ai-d56b865c6-hspgz"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
@@ -1014,7 +1028,7 @@
   },
   "time": {
     "from": "now-1h",
-    "to": "now"
+    "to": "now+30m"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -1043,6 +1057,6 @@
   },
   "timezone": "",
   "title": "Prediction",
-  "uid": "7ddddmzdd",
-  "version": 1
+  "uid": "7damzdd",
+  "version": 4
 }
