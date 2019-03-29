@@ -99,7 +99,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerResourceLimitCPU)] = int(numVal * 1000)
+								newFields[string(recommendation_entity.ContainerResourceLimitCPU)] = numVal
 							}
 							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
@@ -143,7 +143,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerResourceRequestCPU)] = int(numVal * 1000)
+								newFields[string(recommendation_entity.ContainerResourceRequestCPU)] = numVal
 							}
 							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
@@ -188,7 +188,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = int(numVal * 1000)
+								newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = numVal
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
@@ -217,7 +217,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = int(numVal * 1000)
+								newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = numVal
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
