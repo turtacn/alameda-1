@@ -86,17 +86,17 @@ func (ac *admissionController) serve(w http.ResponseWriter, r *http.Request, adm
 	if ac.config.Enable {
 		contentType := r.Header.Get("Content-Type")
 		if contentType != "application/json" {
-			scope.Errorf("contentType=%s, expect application/json", contentType)
+			scope.Warnf("serve failed, skip serving: receive contentType=%s, expect application/json", contentType)
 		}
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			scope.Errorf("read http request failed: %s", err.Error())
+			scope.Warnf("serve failed, skip serving: read http request failed: %s", err.Error())
 		}
 
 		admissionReview := &admission_v1beta1.AdmissionReview{}
 		if err := json.Unmarshal(body, admissionReview); err != nil {
-			scope.Errorf("unmarshal AdmissionReview failed: %s", err.Error())
+			scope.Warnf("serve failed, skip serving:: unmarshal AdmissionReview failed: %s", err.Error())
 		} else {
 			admissionResponse = admit(admissionReview)
 			if admissionResponse == nil {
@@ -126,14 +126,14 @@ func (ac *admissionController) serve(w http.ResponseWriter, r *http.Request, adm
 
 func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) *admission_v1beta1.AdmissionResponse {
 
-	scope.Debug("mutate pod")
+	scope.Info("mutating pod")
 
 	namespace := ar.Request.Namespace
 
 	podResource := meta_v1.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	if ar.Request.Resource != podResource {
-		err := errors.Errorf("expect resource to be %s, get %s", podResource.String(), ar.Request.Resource.String())
-		scope.Error(err.Error())
+		err := errors.Errorf("mutating pod failed: expect resource to be %s, get %s, skip mutating pod", podResource.String(), ar.Request.Resource.String())
+		scope.Warnf(err.Error())
 		return nil
 	}
 
@@ -141,7 +141,7 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	pod := core_v1.Pod{}
 	deserializer := codecs.UniversalDeserializer()
 	if _, _, err := deserializer.Decode(raw, nil, &pod); err != nil {
-		scope.Errorf("deserialize admission request raw to Pod struct failed: %s", err.Error())
+		scope.Warnf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
 		return nil
 	}
 
@@ -151,23 +151,23 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 
 	controllerKind, controllerName, err := ac.ownerReferenceTracer.GetRootControllerKindAndNameOfOwnerReferences(namespace, pod.OwnerReferences)
 	if err != nil {
-		scope.Warnf("get root controller information of Pod failed, skip mutate pod, errMsg: %s", err.Error())
+		scope.Warnf("mutating pod failed: get root controller information of Pod failed, skip mutating pod: Pod: %+v : errMsg: %s", pod, err.Error())
 		return &reviewResponse
 	}
 
 	controllerID := newNamespaceKindName(namespace, controllerKind, controllerName)
 	recommendation, err := ac.getPodResourceRecommendationByControllerID(controllerID)
 	if err != nil {
-		scope.Error(err.Error())
+		scope.Warnf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod, err.Error())
 		return nil
 	} else if recommendation == nil {
-		scope.Error("fetch empty recommendation, skip mutate pod")
+		scope.Warnf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod)
 		return &reviewResponse
 	}
 
 	patches, err := admission_controller_utils.GetPatchesFromPodResourceRecommendation(&pod, recommendation)
 	if err != nil {
-		scope.Errorf("get patches to mutate pod resource failed: %s", err.Error())
+		scope.Warnf("get patches to mutate pod resource failed, skip mutating pod: Pod: %+v, errMsg: %s", pod, err.Error())
 		return nil
 	}
 
@@ -189,7 +189,7 @@ func (ac *admissionController) getPodResourceRecommendationByControllerID(contro
 	defer controllerRecommendationLock.Unlock()
 	for recommendation == nil && retryTime > 0 {
 		if newRecommendations, err := ac.fetchNewRecommendations(controllerID); err != nil {
-			scope.Error(err.Error())
+			scope.Warnf("fetch new recommendation failed, retry fetching, errMsg: %s", err.Error())
 		} else {
 			controllerRecommendation.setRecommendations(newRecommendations)
 			break
@@ -198,7 +198,7 @@ func (ac *admissionController) getPodResourceRecommendationByControllerID(contro
 	}
 	validRecommedations, err := ac.listValidRecommendations(controllerID, controllerRecommendation.getRecommendations())
 	if err != nil {
-		scope.Error(err.Error())
+		return nil, err
 	}
 	controllerRecommendation.setRecommendations(validRecommedations)
 	recommendation = controllerRecommendation.dispatchOneValidRecommendation(time.Now())
@@ -239,11 +239,11 @@ func (ac *admissionController) listValidRecommendations(controllerID namespaceKi
 	validRecommendations := make([]*resource.PodResourceRecommendation, 0)
 
 	initRecommendationNumberMap := buildRecommendationNumberMap(recommendations)
-	scope.Debugf("initRecommendationNumberMap %+v", initRecommendationNumberMap)
+	scope.Debugf("list valid recommdendations: controllerID: %s, initRecommendationNumberMap %+v", controllerID.String(), initRecommendationNumberMap)
 
 	pods, err := ac.listPodControlledByControllerID(controllerID)
 	if err != nil {
-		return validRecommendations, errors.Wrap(err, "list valid recommendations failed")
+		return validRecommendations, errors.Wrapf(err, "list valid recommendations failed, controllerID: %s", controllerID.String())
 	}
 	currentRunningPods := make([]*core_v1.Pod, 0)
 	for _, pod := range pods {
@@ -255,7 +255,7 @@ func (ac *admissionController) listValidRecommendations(controllerID namespaceKi
 	decreaseRecommendationNuberMapByPods(initRecommendationNumberMap, pods)
 
 	validRecommendations = getValidRecommedationFromRecommendationNumberMap(initRecommendationNumberMap, recommendations)
-	scope.Debugf("validRecommendations %+v", validRecommendations)
+	scope.Debugf("list valid recommdendations: controllerID: %s, validRecommendations %+v", controllerID.String(), validRecommendations)
 
 	return validRecommendations, nil
 }
@@ -300,7 +300,7 @@ func (ac *admissionController) newSigsK8SIOClient() (client.Client, error) {
 
 func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKindName) ([]*resource.PodResourceRecommendation, error) {
 
-	scope.Debug("fetching new recommendations from recommendator")
+	scope.Debugf("fetching new recommendations from recommendator, controllerID: %s", controllerID.String())
 
 	var err error
 	recommendations := make([]*resource.PodResourceRecommendation, 0)
@@ -320,7 +320,7 @@ func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKin
 	select {
 	case _ = <-done:
 	case _ = <-time.After(ac.resourceRecommendatorSyncTimeout):
-		err = errors.Errorf("fetch recommendations failed: timeout after %f seconds", ac.resourceRecommendatorSyncTimeout.Seconds())
+		err = errors.Errorf("fetch recommendations failed: controllerID: %s, timeout after %f seconds", controllerID.String(), ac.resourceRecommendatorSyncTimeout.Seconds())
 	}
 
 	return recommendations, err
