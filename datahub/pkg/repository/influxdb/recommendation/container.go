@@ -71,6 +71,20 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
 				string(recommendation_entity.ContainerTopControllerKind): enumconv.KindDisp[(topController.GetKind())],
 			}
+			initialLimitRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
+			if containerRecommendation.GetInitialLimitRecommendations() != nil {
+				for _, rec := range containerRecommendation.GetInitialLimitRecommendations() {
+					// One and only one record in initial limit recommendation
+					initialLimitRecommendation[rec.GetMetricType()] = rec.Data[0].NumValue
+				}
+			}
+			initialRequestRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
+			if containerRecommendation.GetInitialRequestRecommendations() != nil {
+				for _, rec := range containerRecommendation.GetInitialRequestRecommendations() {
+					// One and only one record in initial request recommendation
+					initialRequestRecommendation[rec.GetMetricType()] = rec.Data[0].NumValue
+				}
+			}
 
 			for _, metricData := range containerRecommendation.GetLimitRecommendations() {
 				if data := metricData.GetData(); len(data) > 0 {
@@ -87,9 +101,23 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
 								newFields[string(recommendation_entity.ContainerResourceLimitCPU)] = int(numVal * 1000)
 							}
+							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
+								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
+									newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = int(numVal * 1000)
+								}
+							} else {
+								newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = 0
+							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
 								newFields[string(recommendation_entity.ContainerResourceLimitMemory)] = numVal
+							}
+							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
+								if numVal, err := utils.StringToInt64(value.(string)); err == nil {
+									newFields[string(recommendation_entity.ContainerInitialResourceLimitMemory)] = numVal
+								}
+							} else {
+								newFields[string(recommendation_entity.ContainerInitialResourceLimitMemory)] = 0
 							}
 						}
 
@@ -117,9 +145,23 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
 								newFields[string(recommendation_entity.ContainerResourceRequestCPU)] = int(numVal * 1000)
 							}
+							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
+								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
+									newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = int(numVal * 1000)
+								}
+							} else {
+								newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = 0
+							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
 								newFields[string(recommendation_entity.ContainerResourceRequestMemory)] = numVal
+							}
+							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
+								if numVal, err := utils.StringToInt64(value.(string)); err == nil {
+									newFields[string(recommendation_entity.ContainerInitialResourceRequestMemory)] = numVal
+								}
+							} else {
+								newFields[string(recommendation_entity.ContainerInitialResourceRequestMemory)] = 0
 							}
 						}
 						if pt, err := influxdb_client.NewPoint(string(Container),
@@ -133,7 +175,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 				}
 			}
 
-			for _, metricData := range containerRecommendation.GetInitialLimitRecommendations() {
+			/*for _, metricData := range containerRecommendation.GetInitialLimitRecommendations() {
 				if data := metricData.GetData(); len(data) > 0 {
 					for _, datum := range data {
 						newFields := map[string]interface{}{}
@@ -189,7 +231,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						}
 					}
 				}
-			}
+			}*/
 		}
 	}
 	containerRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
