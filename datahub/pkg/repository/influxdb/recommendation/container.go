@@ -103,7 +103,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 							}
 							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = int(numVal * 1000)
+									newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = numVal
 								}
 							} else {
 								newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = 0
@@ -147,7 +147,7 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 							}
 							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = int(numVal * 1000)
+									newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = numVal
 								}
 							} else {
 								newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = 0
