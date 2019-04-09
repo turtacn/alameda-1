@@ -11,3 +11,6 @@ k8s-webhook-server:
   cert-dir: "/tmp/k8s-webhook-server/cert/"
   service:
     name: operator-admission-service
+
+pod-info:
+  labels-file: "/etc/podinfo/labels"

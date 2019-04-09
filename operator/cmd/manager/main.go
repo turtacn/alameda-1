@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containers-ai/alameda/operator/podinfo"
+
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s_serializer_json "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -59,7 +61,6 @@ const (
 const JSONIndent = "  "
 
 var isLogOutput bool
-var serverPort int
 var operatorConfigFile string
 var crdLocation string
 var showVer bool
@@ -79,7 +80,6 @@ var (
 func init() {
 	flag.BoolVar(&showVer, "version", false, "show version")
 	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
-	flag.IntVar(&serverPort, "server-port", 50050, "Local gRPC server port")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
 	flag.StringVar(&crdLocation, "crd-location", "/etc/alameda/operator/crds", "CRD location")
 
@@ -168,7 +168,7 @@ func main() {
 	}
 
 	go registerNodes(mgr.GetClient())
-	go launchWebhook(&mgr, operatorConf.K8SWebhookServer)
+	go launchWebhook(&mgr, &operatorConf)
 	scope.Info("Starting the Cmd.")
 
 	// Start the Cmd
@@ -269,7 +269,8 @@ func applyCRDs(cfg *rest.Config) {
 	}
 }
 
-func launchWebhook(mgr *manager.Manager, config *k8swhsrv.Config) {
-	k8sWebhookSrv := k8swhsrv.NewK8SWebhookServer(mgr, config)
+func launchWebhook(mgr *manager.Manager, config *operator.Config) {
+	podInfo := podinfo.NewPodInfo(config.PodInfo)
+	k8sWebhookSrv := k8swhsrv.NewK8SWebhookServer(mgr, config.K8SWebhookServer, podInfo.Labels)
 	k8sWebhookSrv.Launch()
 }

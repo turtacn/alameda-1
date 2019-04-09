@@ -3,6 +3,7 @@ package k8swhsrv
 import (
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	operatorwebhook "github.com/containers-ai/alameda/operator/pkg/webhook"
+	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	osappsapi "github.com/openshift/api/apps/v1"
@@ -17,14 +18,16 @@ import (
 var scope = logUtil.RegisterScope("k8s_webhook_server", "K8S Webhook Server.", 0)
 
 type K8SWebhookServer struct {
-	manager *manager.Manager
-	config  *Config
+	manager     *manager.Manager
+	config      *Config
+	svcSelector *map[string]string
 }
 
-func NewK8SWebhookServer(mgr *manager.Manager, config *Config) *K8SWebhookServer {
+func NewK8SWebhookServer(mgr *manager.Manager, config *Config, svcSelector *map[string]string) *K8SWebhookServer {
 	return &K8SWebhookServer{
-		manager: mgr,
-		config:  config,
+		manager:     mgr,
+		config:      config,
+		svcSelector: svcSelector,
 	}
 }
 
@@ -50,9 +53,7 @@ func (srv *K8SWebhookServer) registerWebhooks() {
 				Namespace: srv.config.Service.Namespace,
 				Name:      srv.config.Service.Name,
 				// Selectors should select the pods that runs this webhook server.
-				Selectors: map[string]string{
-					"app": "operator",
-				},
+				Selectors: *srv.svcSelector,
 			},
 		},
 	})
@@ -60,6 +61,9 @@ func (srv *K8SWebhookServer) registerWebhooks() {
 		scope.Errorf(err.Error())
 		return
 	}
+	scope.Infof("Create webhook service (%s,%s) with labels (%s) successfully.",
+		srv.config.Service.Namespace, srv.config.Service.Name, utils.InterfaceToString(*srv.svcSelector))
+
 	wh, err := builder.NewWebhookBuilder().Name("deployment.validating.containers.ai").
 		NamespaceSelector(&metav1.LabelSelector{}).Validating().
 		Operations(admissionregistrationv1beta1.Create, admissionregistrationv1beta1.Update).
