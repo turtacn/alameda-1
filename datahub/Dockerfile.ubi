@@ -13,7 +13,7 @@ COPY . .
 RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd"]
 
 # Copy the alameda-datahub into a thin image
-FROM registry.access.redhat.com/ubi7-dev-preview/ubi-minimal:7.6
+FROM registry.access.redhat.com/ubi8-dev-preview/ubi-minimal:8.0
 ENV SUMMARY="Alameda Datahub (code name: Lorida) is an API gateway for handling gRPC requests."	\
     DESCRIPTION="Alameda Datahub (code name: Lorida) is an API gateway for handling gRPC requests." \
     NAME="Lorida (Alameda datahub)" \
