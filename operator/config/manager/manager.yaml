@@ -53,3 +53,15 @@ spec:
           requests:
             cpu: 100m
             memory: 20Mi
+        volumeMounts:
+        - name: podinfo
+          mountPath: /etc/podinfo
+          readOnly: false
+      volumes:
+      - name: podinfo
+        downwardAPI:
+          items:
+          - path: "labels"
+            fieldRef:
+              fieldPath: metadata.labels
+

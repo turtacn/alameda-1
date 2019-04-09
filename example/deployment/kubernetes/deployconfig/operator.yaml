@@ -152,6 +152,17 @@ spec:
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
+        volumeMounts:
+        - name: podinfo
+          mountPath: /etc/podinfo
+          readOnly: false
+      volumes:
+      - name: podinfo
+        downwardAPI:
+          items:
+          - path: "labels"
+            fieldRef:
+              fieldPath: metadata.labels
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
