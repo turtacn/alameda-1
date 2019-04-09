@@ -264,13 +264,13 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 				switch metricData.GetMetricType() {
 				case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 					val, err := strconv.ParseFloat(data[0].NumValue, 64)
-					if err == nil {
+					if err != nil {
 						scope.Warnf("convert string: %s to float64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceLimitCPU = &val
 				case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 					val, err := strconv.ParseInt(data[0].NumValue, 10, 64)
-					if err == nil {
+					if err != nil {
 						scope.Warnf("convert string: %s to int64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceLimitMemory = &val
@@ -284,13 +284,13 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 				switch metricData.GetMetricType() {
 				case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 					val, err := strconv.ParseFloat(data[0].NumValue, 64)
-					if err == nil {
+					if err != nil {
 						scope.Warnf("convert string: %s to float64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceRequestCPU = &val
 				case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 					val, err := strconv.ParseInt(data[0].NumValue, 10, 64)
-					if err == nil {
+					if err != nil {
 						scope.Warnf("convert string: %s to int64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceRequestMemory = &val
