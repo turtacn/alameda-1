@@ -13,7 +13,7 @@ COPY . .
 RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./operator/manager github.com/containers-ai/alameda/operator/cmd/manager"]
 
 # Copy the alameda-operator into a thin image
-FROM registry.access.redhat.com/ubi7-dev-preview/ubi-minimal:7.6
+FROM registry.access.redhat.com/ubi8-dev-preview/ubi-minimal:8.0
 ENV SUMMARY="Alameda Controller (code name: Karina) is a controller for reconciling Alameda scaling configuration CRD."	\
     DESCRIPTION="Alameda Controller (code name: Karina) is a controller for reconciling Alameda scaling configuration CRD." \
     NAME="Karina (Alameda controller)" \
