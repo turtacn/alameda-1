@@ -21,34 +21,17 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
-	"time"
-
-	"github.com/containers-ai/alameda/operator/podinfo"
-
-	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8s_serializer_json "k8s.io/apimachinery/pkg/runtime/serializer/json"
-	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/kubernetes/scheme"
-
-	"k8s.io/client-go/rest"
 
 	"github.com/containers-ai/alameda/operator"
-	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
-	k8swhsrv "github.com/containers-ai/alameda/operator/k8s-webhook-server"
+
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
-	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
-	appsapi "github.com/openshift/api/apps"
 	"github.com/spf13/viper"
-	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
@@ -168,6 +151,7 @@ func main() {
 	}
 
 	go registerNodes(mgr.GetClient())
+	go syncAlamedaPodsWithDatahub(mgr.GetClient())
 	go launchWebhook(&mgr, &operatorConf)
 	scope.Info("Starting the Cmd.")
 
@@ -175,102 +159,4 @@ func main() {
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		scope.Error(err.Error())
 	}
-}
-
-func registerNodes(client client.Client) {
-	time.Sleep(3 * time.Second)
-	listResources := resources.NewListResources(client)
-	nodes, err := listResources.ListAllNodes()
-	if err != nil {
-		scope.Errorf("register nodes to Datahub failed: %s", err.Error())
-		return
-	}
-	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodes)))
-	datahubNodeRepo := datahub_node.NewAlamedaNodeRepository()
-	datahubNodeRepo.CreateAlamedaNode(nodes)
-}
-
-func registerThirdPartyCRD() {
-	apis.AddToSchemes = append(apis.AddToSchemes, appsapi.Install)
-}
-
-func printSoftwareInfo() {
-	scope.Infof(fmt.Sprintf("Alameda Version: %s", VERSION))
-	scope.Infof(fmt.Sprintf("Alameda Build Time: %s", BUILD_TIME))
-	scope.Infof(fmt.Sprintf("Alameda GO Version: %s", GO_VERSION))
-}
-
-func applyCRDs(cfg *rest.Config) {
-	apiextensionsClientSet, err := apiextensionsclient.NewForConfig(cfg)
-	if err != nil {
-		panic(err)
-	}
-	crdFiles := []string{}
-	if files, err := ioutil.ReadDir(crdLocation); err == nil {
-		for _, file := range files {
-			if !file.IsDir() {
-				crdFiles = append(crdFiles, crdLocation+string(os.PathSeparator)+file.Name())
-			}
-		}
-	} else {
-		scope.Error("Failed to read CRDs: " + err.Error())
-	}
-
-	for _, crdFile := range crdFiles {
-		yamlBin, rfErr := ioutil.ReadFile(crdFile)
-		if rfErr != nil {
-			scope.Errorf(fmt.Sprintf("Read crd file %s failed.", crdFile))
-			continue
-		}
-
-		s := k8s_serializer_json.NewYAMLSerializer(k8s_serializer_json.DefaultMetaFactory, scheme.Scheme,
-			scheme.Scheme)
-
-		var crdIns apiextensionsv1beta1.CustomResourceDefinition
-		_, _, decErr := s.Decode(yamlBin, nil, &crdIns)
-		if decErr != nil {
-			scope.Errorf(fmt.Sprintf("Decode crd file %s failed: %s", crdFile, decErr.Error()))
-			continue
-		}
-
-		_, createErr := apiextensionsClientSet.ApiextensionsV1beta1().CustomResourceDefinitions().Create(&crdIns)
-		if createErr != nil {
-			scope.Errorf(fmt.Sprintf("Failed to create CRD %s: %s", crdFile, createErr.Error()))
-			_, updateErr := apiextensionsClientSet.ApiextensionsV1beta1().CustomResourceDefinitions().Update(&crdIns)
-			if updateErr != nil {
-				scope.Errorf(fmt.Sprintf("Failed to update CRD %s: %s", crdFile, updateErr.Error()))
-				continue
-			}
-		}
-		err = wait.Poll(500*time.Millisecond, 60*time.Second, func() (bool, error) {
-			crd, getErr := apiextensionsClientSet.ApiextensionsV1beta1().CustomResourceDefinitions().Get(crdIns.Name, metav1.GetOptions{})
-			if getErr != nil {
-				scope.Warnf(fmt.Sprintf("Failed to wait for CRD %s creation: %s", crdFile, getErr.Error()))
-				return false, nil
-			}
-			for _, cond := range crd.Status.Conditions {
-				switch cond.Type {
-				case apiextensionsv1beta1.Established:
-					if cond.Status == apiextensionsv1beta1.ConditionTrue {
-						scope.Infof(fmt.Sprintf("CRD %s created.", crdIns.Name))
-						return true, nil
-					}
-				case apiextensionsv1beta1.NamesAccepted:
-					if cond.Status == apiextensionsv1beta1.ConditionFalse {
-						scope.Errorf(fmt.Sprintf("CRD name conflict: %v, %v", cond.Reason, err))
-					}
-				}
-			}
-			return false, nil
-		})
-		if err != nil {
-			scope.Errorf(fmt.Sprintf("Polling crd for %s failed: %s", crdFile, err.Error()))
-		}
-	}
-}
-
-func launchWebhook(mgr *manager.Manager, config *operator.Config) {
-	podInfo := podinfo.NewPodInfo(config.PodInfo)
-	k8sWebhookSrv := k8swhsrv.NewK8SWebhookServer(mgr, config.K8SWebhookServer, podInfo.Labels)
-	k8sWebhookSrv.Launch()
 }
