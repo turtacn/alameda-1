@@ -82,6 +82,7 @@ func (srv *K8SWebhookServer) registerWebhooks() {
 		scope.Error(err.Error())
 	}
 	if okdCluster {
+		scope.Info("build admission registration webhook for OKD cluster.")
 		wh, err = builder.NewWebhookBuilder().Name("deploymentconfig.validating.containers.ai").
 			NamespaceSelector(&metav1.LabelSelector{}).Validating().
 			Operations(admissionregistrationv1beta1.Create, admissionregistrationv1beta1.Update).
@@ -90,7 +91,7 @@ func (srv *K8SWebhookServer) registerWebhooks() {
 			WithManager(*srv.manager).
 			Build()
 		if err != nil {
-			scope.Errorf(err.Error())
+			scope.Errorf("build admission registration webhook for OKD cluster failed due to %s.", err.Error())
 		} else {
 			webhooks = append(webhooks, wh)
 		}
