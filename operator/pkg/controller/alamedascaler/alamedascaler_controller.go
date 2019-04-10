@@ -19,6 +19,7 @@ package alamedascaler
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -32,6 +33,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
+	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
@@ -232,13 +234,76 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		containers := []*datahub_v1alpha1.Container{}
 		startTime := &timestamp.Timestamp{}
 		for _, container := range pod.Containers {
+			limitRes := []*datahub_v1alpha1.MetricData{}
+			requestRes := []*datahub_v1alpha1.MetricData{}
 			containers = append(containers, &datahub_v1alpha1.Container{
-				Name: container.Name,
+				Name:            container.Name,
+				LimitResource:   limitRes,
+				RequestResource: requestRes,
 			})
 		}
+
 		nodeName := ""
 		resourceLink := ""
 		if corePod, err := getResource.GetPod(pod.Namespace, pod.Name); err == nil {
+			for _, podContainer := range corePod.Spec.Containers {
+				for containerIdx := range containers {
+					if podContainer.Name == containers[containerIdx].GetName() {
+						for _, resourceType := range []corev1.ResourceName{
+							corev1.ResourceCPU, corev1.ResourceMemory,
+						} {
+							if &podContainer.Resources != nil && podContainer.Resources.Limits != nil {
+								resVal, ok := podContainer.Resources.Limits[resourceType]
+								if ok && resourceType == corev1.ResourceCPU {
+									containers[containerIdx].LimitResource = append(containers[containerIdx].LimitResource, &datahub_v1alpha1.MetricData{
+										MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+										Data: []*datahub_v1alpha1.Sample{
+											&datahub_v1alpha1.Sample{
+												NumValue: strconv.FormatInt(resVal.MilliValue(), 10),
+											},
+										},
+									})
+								}
+								if ok && resourceType == corev1.ResourceMemory {
+									containers[containerIdx].LimitResource = append(containers[containerIdx].LimitResource, &datahub_v1alpha1.MetricData{
+										MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+										Data: []*datahub_v1alpha1.Sample{
+											&datahub_v1alpha1.Sample{
+												NumValue: strconv.FormatInt(resVal.Value(), 10),
+											},
+										},
+									})
+								}
+							}
+							if &podContainer.Resources != nil && podContainer.Resources.Requests != nil {
+								resVal, ok := podContainer.Resources.Requests[resourceType]
+								if ok && resourceType == corev1.ResourceCPU {
+									containers[containerIdx].RequestResource = append(containers[containerIdx].RequestResource, &datahub_v1alpha1.MetricData{
+										MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+										Data: []*datahub_v1alpha1.Sample{
+											&datahub_v1alpha1.Sample{
+												NumValue: strconv.FormatInt(resVal.MilliValue(), 10),
+											},
+										},
+									})
+								}
+								if ok && resourceType == corev1.ResourceMemory {
+									containers[containerIdx].RequestResource = append(containers[containerIdx].RequestResource, &datahub_v1alpha1.MetricData{
+										MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+										Data: []*datahub_v1alpha1.Sample{
+											&datahub_v1alpha1.Sample{
+												NumValue: strconv.FormatInt(resVal.Value(), 10),
+											},
+										},
+									})
+								}
+							}
+						}
+						break
+					}
+				}
+			}
+
 			nodeName = corePod.Spec.NodeName
 			startTime = &timestamp.Timestamp{
 				Seconds: corePod.ObjectMeta.GetCreationTimestamp().Unix(),
