@@ -205,6 +205,14 @@ message CreatePodRecommendationsRequest {
 }
 
 /**
+ * Represents a request for creating a controller's recommendation
+ *
+ */
+message CreateControllerRecommendationsRequest {
+    repeated ControllerRecommendation controller_recommendations = 1;
+}
+
+/**
  * Represents a request for creating pods
  * 
  */
@@ -277,7 +285,7 @@ service DatahubService {
     rpc ListNodePredictions(ListNodePredictionsRequest)
         returns (ListNodePredictionsResponse) {}
 
-    // Used to list pod recommenations
+    // Used to list pod recommendations
     rpc ListPodRecommendations(ListPodRecommendationsRequest)
         returns (ListPodRecommendationsResponse) {}
 
@@ -309,6 +317,10 @@ service DatahubService {
     rpc CreatePodRecommendations(CreatePodRecommendationsRequest)
         returns (google.rpc.Status) {}
 
+    // Used to create recommendations of controller
+    rpc CreateControllerRecommendations(CreateControllerRecommendationsRequest)
+        returns (google.rpc.Status) {}
+
     // Used to create scores of system 
     rpc CreateSimulatedSchedulingScores(CreateSimulatedSchedulingScoresRequest)
         returns (google.rpc.Status) {} 
@@ -321,4 +333,3 @@ service DatahubService {
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}            
 }
-

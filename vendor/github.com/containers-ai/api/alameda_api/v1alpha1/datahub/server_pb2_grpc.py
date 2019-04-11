@@ -91,6 +91,11 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
+    self.CreateControllerRecommendations = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateControllerRecommendations',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateControllerRecommendationsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
     self.CreateSimulatedSchedulingScores = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateSimulatedSchedulingScores',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateSimulatedSchedulingScoresRequest.SerializeToString,
@@ -163,7 +168,7 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def ListPodRecommendations(self, request, context):
-    """Used to list pod recommenations
+    """Used to list pod recommendations
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -212,6 +217,13 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def CreatePodRecommendations(self, request, context):
+    """Used to create recommendations of pods
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CreateControllerRecommendations(self, request, context):
     """Used to create recommendations of pods
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -315,6 +327,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'CreatePodRecommendations': grpc.unary_unary_rpc_method_handler(
           servicer.CreatePodRecommendations,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodRecommendationsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'CreateControllerRecommendations': grpc.unary_unary_rpc_method_handler(
+          servicer.CreateControllerRecommendations,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateControllerRecommendationsRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'CreateSimulatedSchedulingScores': grpc.unary_unary_rpc_method_handler(

@@ -699,6 +699,30 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 	}, nil
 }
 
+// CreatePodRecommendations add pod recommendations information to database
+func (s *Server) CreateControllerRecommendations(ctx context.Context, in *datahub_v1alpha1.CreateControllerRecommendationsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateControllerRecommendations grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := recommendation_dao_impl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	controllerRecommendationList := in.GetControllerRecommendations()
+	err := controllerDAO.AddControllerRecommendations(controllerRecommendationList)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, err
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
 // CreateSimulatedSchedulingScores add simulated scheduling scores to database
 func (s *Server) CreateSimulatedSchedulingScores(ctx context.Context, in *datahub_v1alpha1.CreateSimulatedSchedulingScoresRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateSimulatedSchedulingScores grpc function: " + utils.InterfaceToString(in))

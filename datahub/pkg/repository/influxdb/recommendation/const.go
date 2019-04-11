@@ -6,5 +6,6 @@ import (
 
 const (
 	// Container is container measurement
-	Container influxdb.Measurement = "container"
+	Container  influxdb.Measurement = "container"
+	Controller influxdb.Measurement = "controller"
 )
