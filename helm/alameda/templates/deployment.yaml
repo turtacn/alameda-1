@@ -29,10 +29,10 @@ spec:
               value: "{{ .Values.global.component.datahub.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.datahub.service.port }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        volumeMounts:
-        - name: podinfo
-          mountPath: /etc/podinfo
-          readOnly: false
+          volumeMounts:
+          - name: podinfo
+            mountPath: /etc/podinfo
+            readOnly: false
       volumes:
       - name: podinfo
         downwardAPI:
