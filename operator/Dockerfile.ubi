@@ -17,7 +17,7 @@ FROM registry.access.redhat.com/ubi8-dev-preview/ubi-minimal:8.0
 ENV SUMMARY="Alameda Controller (code name: Karina) is a controller for reconciling Alameda scaling configuration CRD."	\
     DESCRIPTION="Alameda Controller (code name: Karina) is a controller for reconciling Alameda scaling configuration CRD." \
     NAME="Karina (Alameda controller)" \
-    VERSION="0.3" \
+    VERSION="latest" \
     USER_UID=1001 \
     USER_NAME=alameda
 
