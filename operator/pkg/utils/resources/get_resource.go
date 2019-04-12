@@ -37,6 +37,20 @@ func (getResource *GetResource) GetPod(namespace, name string) (*corev1.Pod, err
 	return pod, err
 }
 
+// GetReplicationController returns replicationController
+func (getResource *GetResource) GetReplicationController(namespace, name string) (*corev1.ReplicationController, error) {
+	replicationController := &corev1.ReplicationController{}
+	err := getResource.getResource(replicationController, namespace, name)
+	return replicationController, err
+}
+
+// GetReplicaSet returns replicaSet
+func (getResource *GetResource) GetReplicaSet(namespace, name string) (*appsv1.ReplicaSet, error) {
+	replicaSet := &appsv1.ReplicaSet{}
+	err := getResource.getResource(replicaSet, namespace, name)
+	return replicaSet, err
+}
+
 // GetDeploymentConfig returns deploymentconfig
 func (getResource *GetResource) GetDeploymentConfig(namespace, name string) (*appsapi_v1.DeploymentConfig, error) {
 	deploymentConfig := &appsapi_v1.DeploymentConfig{}

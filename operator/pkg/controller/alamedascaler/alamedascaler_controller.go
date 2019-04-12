@@ -28,6 +28,9 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/utils"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	alamutils "github.com/containers-ai/alameda/pkg/utils"
+	datahubutilscontainer "github.com/containers-ai/alameda/pkg/utils/datahub/container"
+	datahubutilspod "github.com/containers-ai/alameda/pkg/utils/datahub/pod"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
@@ -245,7 +248,21 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 
 		nodeName := ""
 		resourceLink := ""
+		podStatus := &datahub_v1alpha1.PodStatus{}
+		replicas := int32(1)
 		if corePod, err := getResource.GetPod(pod.Namespace, pod.Name); err == nil {
+			podStatus = datahubutilspod.NewStatus(corePod)
+			replicas = datahubutilspod.GetReplicasFromPod(corePod, r)
+
+			for _, containerStatus := range corePod.Status.ContainerStatuses {
+				for containerIdx := range containers {
+					if containerStatus.Name == containers[containerIdx].GetName() {
+						containers[containerIdx].Status = datahubutilscontainer.NewStatus(&containerStatus)
+						break
+					}
+				}
+			}
+
 			for _, podContainer := range corePod.Spec.Containers {
 				for containerIdx := range containers {
 					if podContainer.Name == containers[containerIdx].GetName() {
@@ -316,8 +333,11 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		}
 
 		topCtrl, err := utils.ParseResourceLinkForTopController(resourceLink)
+
 		if err != nil {
 			scope.Error(err.Error())
+		} else {
+			topCtrl.Replicas = replicas
 		}
 
 		podsNeedCreating = append(podsNeedCreating, &datahub_v1alpha1.Pod{
@@ -335,12 +355,14 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			ResourceLink:  resourceLink,
 			StartTime:     startTime,
 			TopController: topCtrl,
+			Status:        podStatus,
 		})
 	}
 
 	req := datahub_v1alpha1.CreatePodsRequest{
 		Pods: podsNeedCreating,
 	}
+	scope.Debugf("Create pods to datahub with request %s.", alamutils.InterfaceToString(req))
 	resp, err := datahubServiceClnt.CreatePods(context.Background(), &req)
 	if err != nil {
 		return errors.Errorf("add alameda pods for AlamedaScaler (%s/%s) failed: %s", scaler.GetNamespace(), scaler.GetName(), err.Error())
