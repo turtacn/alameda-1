@@ -404,7 +404,6 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 		datahubPodPrediction := podPredicitonExtended.datahubPodPrediction()
 		datahubPodPredicitons = append(datahubPodPredicitons, datahubPodPrediction)
 	}
-
 	return &datahub_v1alpha1.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
@@ -478,6 +477,42 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 		scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
 		return res, nil
 	}
+}
+
+// ListControllerRecommendations list controller recommendations
+func (s *Server) ListControllerRecommendations(ctx context.Context, in *datahub_v1alpha1.ListControllerRecommendationsRequest) (*datahub_v1alpha1.ListControllerRecommendationsResponse, error) {
+	scope.Debug("Request received from ListControllerRecommendations grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := &recommendation_dao_impl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	namespace := in.GetNamespacedName()
+	queryCondition := in.GetQueryCondition()
+
+	controllerRecommendations, err := controllerDAO.ListControllerRecommendations(namespace, queryCondition)
+	if err != nil {
+		scope.Errorf("api ListControllerRecommendations failed: %v", err)
+		response := &datahub_v1alpha1.ListControllerRecommendationsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+			ControllerRecommendations: controllerRecommendations,
+		}
+		return response, nil
+	}
+
+	response := &datahub_v1alpha1.ListControllerRecommendationsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		ControllerRecommendations: controllerRecommendations,
+	}
+
+	scope.Debug("Response sent from ListControllerRecommendations grpc function: " + utils.InterfaceToString(response))
+	return response, nil
+
 }
 
 // ListPodsByNodeName list pods running on specific nodes

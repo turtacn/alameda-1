@@ -8,6 +8,7 @@ const (
 	ControllerNamespace controllerTag = "namespace"
 	ControllerName      controllerTag = "name"
 
+	ControllerType            controllerField = "type"
 	ControllerCurrentReplicas controllerField = "current_replicas"
 	ControllerDesiredReplicas controllerField = "desired_replicas"
 	ControllerCreateTime      controllerField = "create_time"
@@ -25,5 +26,6 @@ var (
 		ControllerCurrentReplicas,
 		ControllerDesiredReplicas,
 		ControllerCreateTime,
+		ControllerType,
 	}
 )

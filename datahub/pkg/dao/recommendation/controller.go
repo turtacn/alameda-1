@@ -7,7 +7,5 @@ import (
 // ContainerOperation defines container measurement operation of recommendation database
 type ControllerOperation interface {
 	AddControllerRecommendations([]*datahub_v1alpha1.ControllerRecommendation) error
-	//	ListPodRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName,
-	//		queryCondition *datahub_v1alpha1.QueryCondition,
-	//		kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.PodRecommendation, error)
+	ListControllerRecommendations(controllerNamespacedName *datahub_v1alpha1.NamespacedName, queryCondition *datahub_v1alpha1.QueryCondition) ([]*datahub_v1alpha1.ControllerRecommendation, error)
 }

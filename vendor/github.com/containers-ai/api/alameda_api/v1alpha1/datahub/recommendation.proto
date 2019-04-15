@@ -38,7 +38,7 @@ message AssignPodPolicy {
 
 /**
  * Represents a set of container resource configuration recommendations of a pod
- * 
+ *
  */
 message PodRecommendation {
     NamespacedName namespaced_name = 1;
@@ -51,12 +51,14 @@ message PodRecommendation {
     string recommendation_id = 8;
 }
 
+enum ControllerRecommendedType {
+    CRT_Undefined = 0;
+    CRT_Primitive = 1;
+    CRT_K8s = 2;
+}
+
 message ControllerRecommendation {
-    enum RecommendedType {
-        primitive = 0;
-        k8s = 1;
-    }
-    RecommendedType           recommended_type = 1;
+    ControllerRecommendedType recommended_type = 1;
     ControllerRecommendedSpec recommended_spec = 2;
 }
 

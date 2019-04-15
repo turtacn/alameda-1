@@ -56,6 +56,11 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsResponse.FromString,
         )
+    self.ListControllerRecommendations = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListControllerRecommendations',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllerRecommendationsRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllerRecommendationsResponse.FromString,
+        )
     self.ListPodsByNodeName = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodsByNodeName',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodsByNodeNamesRequest.SerializeToString,
@@ -174,6 +179,13 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ListControllerRecommendations(self, request, context):
+    """Used to list controller recommendations
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def ListPodsByNodeName(self, request, context):
     """Used to list pods by a node name
     """
@@ -224,7 +236,7 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def CreateControllerRecommendations(self, request, context):
-    """Used to create recommendations of pods
+    """Used to create recommendations of controller
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -293,6 +305,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           servicer.ListPodRecommendations,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsResponse.SerializeToString,
+      ),
+      'ListControllerRecommendations': grpc.unary_unary_rpc_method_handler(
+          servicer.ListControllerRecommendations,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllerRecommendationsRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllerRecommendationsResponse.SerializeToString,
       ),
       'ListPodsByNodeName': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodsByNodeName,

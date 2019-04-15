@@ -7,13 +7,14 @@ import "google/protobuf/timestamp.proto";
 
 // The valid statuses of pods
 enum PodPhase {
-    Pending = 0;
-    Running = 1;
-    Succeeded = 2;
-    Failed = 3;
-    Unknown = 4;
-    Completed = 5;
-    CrashLoopBackOff = 6;
+    Undefined = 0;
+    Pending = 1;
+    Running = 2;
+    Succeeded = 3;
+    Failed = 4;
+    Unknown = 5;
+    Completed = 6;
+    CrashLoopBackOff = 7;
 }
 
 // ContainerStateWaiting is a waiting state of a container
