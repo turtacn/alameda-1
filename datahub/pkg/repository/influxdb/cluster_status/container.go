@@ -12,6 +12,7 @@ import (
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	proto_timestmap "github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 )
 
@@ -248,27 +249,47 @@ func (containerRepository *ContainerRepository) getPodCreatePeriodCondition(time
 func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster_status_entity.ContainerEntity, error) {
 
 	var (
-		namespace              *string
-		podName                *string
-		alamedaScalerNamespace *string
-		alamedaScalerName      *string
-		nodeName               *string
-		name                   *string
-		resourceRequestCPU     *float64
-		resourceRequestMemory  *int64
-		resourceLimitCPU       *float64
-		resourceLimitMemory    *int64
-
-		policy               *string
-		podCreatedTime       *int64
-		resourceLink         *string
-		topControllerName    *string
-		topControllerKind    *string
-		usedRecommendationID *string
+		namespace                                 *string
+		podName                                   *string
+		podPhase                                  *string
+		podMessage                                *string
+		podReason                                 *string
+		alamedaScalerNamespace                    *string
+		alamedaScalerName                         *string
+		nodeName                                  *string
+		name                                      *string
+		statusWaitingReason                       *string
+		statusWaitingMessage                      *string
+		statusRunningStartedAt                    *int64
+		statusTerminatedExitCode                  *int32
+		statusTerminatedReason                    *string
+		statusTerminatedMessage                   *string
+		statusTerminatedStartedAt                 *int64
+		statusTerminatedFinishedAt                *int64
+		lastTerminationStatusWaitingReason        *string
+		lastTerminationStatusWaitingMessage       *string
+		lastTerminationStatusRunningStartedAt     *int64
+		lastTerminationStatusTerminatedExitCode   *int32
+		lastTerminationStatusTerminatedReason     *string
+		lastTerminationStatusTerminatedMessage    *string
+		lastTerminationStatusTerminatedStartedAt  *int64
+		lastTerminationStatusTerminatedFinishedAt *int64
+		restartCount                              *int32
+		resourceRequestCPU                        *float64
+		resourceRequestMemory                     *int64
+		resourceLimitCPU                          *float64
+		resourceLimitMemory                       *int64
+		policy                                    *string
+		podCreatedTime                            *int64
+		resourceLink                              *string
+		topControllerName                         *string
+		topControllerKind                         *string
+		topControllerReplicas                     *int32
+		usedRecommendationID                      *string
 	)
 
-	nodeName = &pod.NodeName
-	resourceLink = &pod.ResourceLink
+	nodeName             = &pod.NodeName
+	resourceLink         = &pod.ResourceLink
 	usedRecommendationID = &pod.UsedRecommendationId
 
 	if pod.NamespacedName != nil {
@@ -290,9 +311,20 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 		if k, exist := enumconv.KindDisp[pod.TopController.Kind]; exist {
 			topControllerKind = &k
 		}
+		topControllerReplicas = &pod.TopController.Replicas
 	}
 	if p, exist := enumconv.RecommendationPolicyDisp[pod.GetPolicy()]; exist {
 		policy = &p
+	}
+	if pod.Status != nil {
+		if val, ok := datahub_v1alpha1.PodPhase_name[int32(pod.Status.Phase)]; ok {
+			podPhase = &val
+		} else {
+			val = datahub_v1alpha1.PodPhase_name[int32(datahub_v1alpha1.PodPhase_Unknown)]
+			podPhase = &val
+		}
+		podMessage = &pod.Status.Message
+		podReason = &pod.Status.Reason
 	}
 
 	containerEntities := make([]*cluster_status_entity.ContainerEntity, 0)
@@ -306,13 +338,13 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 				case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 					val, err := strconv.ParseFloat(data[0].NumValue, 64)
 					if err != nil {
-						scope.Warnf("convert string: %s to float64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
+						scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceLimitCPU = &val
 				case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 					val, err := strconv.ParseInt(data[0].NumValue, 10, 64)
 					if err != nil {
-						scope.Warnf("convert string: %s to int64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
+						scope.Warnf("convert string: %s to int64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceLimitMemory = &val
 				default:
@@ -326,13 +358,13 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 				case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 					val, err := strconv.ParseFloat(data[0].NumValue, 64)
 					if err != nil {
-						scope.Warnf("convert string: %s to float64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
+						scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceRequestCPU = &val
 				case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 					val, err := strconv.ParseInt(data[0].NumValue, 10, 64)
 					if err != nil {
-						scope.Warnf("convert string: %s to int64 faild, skip assigning value, err: %s", data[0].NumValue, err.Error())
+						scope.Warnf("convert string: %s to int64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
 					}
 					resourceRequestMemory = &val
 				default:
@@ -340,25 +372,84 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 				}
 			}
 		}
+		if datahubContainer.GetStatus() != nil {
+			containerStatus := datahubContainer.GetStatus()
+			if containerStatus.GetState() != nil {
+				state := containerStatus.GetState()
+				if state.GetWaiting() != nil {
+					statusWaitingReason  = &state.GetWaiting().Reason
+					statusWaitingMessage = &state.GetWaiting().Message
+				}
+				if state.GetRunning() != nil {
+					statusRunningStartedAt = &state.GetRunning().GetStartedAt().Seconds
+				}
+				if state.GetTerminated() != nil {
+					statusTerminatedExitCode   = &state.GetTerminated().ExitCode
+					statusTerminatedReason     = &state.GetTerminated().Reason
+					statusTerminatedMessage    = &state.GetTerminated().Message
+					statusTerminatedStartedAt  = &state.GetTerminated().GetStartedAt().Seconds
+					statusTerminatedFinishedAt = &state.GetTerminated().GetFinishedAt().Seconds
+				}
+			}
+			if containerStatus.GetLastTerminationState() != nil {
+				state := containerStatus.GetLastTerminationState()
+				if state.GetWaiting() != nil {
+					lastTerminationStatusWaitingReason  = &state.GetWaiting().Reason
+					lastTerminationStatusWaitingMessage = &state.GetWaiting().Message
+				}
+				if state.GetRunning() != nil {
+					lastTerminationStatusRunningStartedAt = &state.GetRunning().GetStartedAt().Seconds
+				}
+				if state.GetTerminated() != nil {
+					lastTerminationStatusTerminatedExitCode   = &state.GetTerminated().ExitCode
+					lastTerminationStatusTerminatedReason     = &state.GetTerminated().Reason
+					lastTerminationStatusTerminatedMessage    = &state.GetTerminated().Message
+					lastTerminationStatusTerminatedStartedAt  = &state.GetTerminated().GetStartedAt().Seconds
+					lastTerminationStatusTerminatedFinishedAt = &state.GetTerminated().GetFinishedAt().Seconds
+				}
+			}
+			restartCount = &containerStatus.RestartCount
+		}
 
 		containerEntity := &cluster_status_entity.ContainerEntity{
-			Time:                   influxdb.ZeroTime,
-			Namespace:              namespace,
-			PodName:                podName,
-			AlamedaScalerNamespace: alamedaScalerNamespace,
-			AlamedaScalerName:      alamedaScalerName,
-			NodeName:               nodeName,
-			Name:                   name,
-			ResourceRequestCPU:     resourceRequestCPU,
-			ResourceRequestMemory:  resourceRequestMemory,
-			ResourceLimitCPU:       resourceLimitCPU,
-			ResourceLimitMemory:    resourceLimitMemory,
-			Policy:                 policy,
-			PodCreatedTime:         podCreatedTime,
-			ResourceLink:           resourceLink,
-			TopControllerName:      topControllerName,
-			TopControllerKind:      topControllerKind,
-			UsedRecommendationID:   usedRecommendationID,
+			Time:                                      influxdb.ZeroTime,
+			Namespace:                                 namespace,
+			PodName:                                   podName,
+			PodPhase:                                  podPhase,
+			PodMessage:                                podMessage,
+			PodReason:                                 podReason,
+			AlamedaScalerNamespace:                    alamedaScalerNamespace,
+			AlamedaScalerName:                         alamedaScalerName,
+			NodeName:                                  nodeName,
+			Name:                                      name,
+			StatusWaitingReason:                       statusWaitingReason,
+			StatusWaitingMessage:                      statusWaitingMessage,
+			StatusRunningStartedAt:                    statusRunningStartedAt,
+			StatusTerminatedExitCode:                  statusTerminatedExitCode,
+			StatusTerminatedReason:                    statusTerminatedReason,
+			StatusTerminatedMessage:                   statusTerminatedMessage,
+			StatusTerminatedStartedAt:                 statusTerminatedStartedAt,
+			StatusTerminatedFinishedAt:                statusTerminatedFinishedAt,
+			LastTerminationStatusWaitingReason:        lastTerminationStatusWaitingReason,
+			LastTerminationStatusWaitingMessage:       lastTerminationStatusWaitingMessage,
+			LastTerminationStatusRunningStartedAt:     lastTerminationStatusRunningStartedAt,
+			LastTerminationStatusTerminatedExitCode:   lastTerminationStatusTerminatedExitCode,
+			LastTerminationStatusTerminatedReason:     lastTerminationStatusTerminatedReason,
+			LastTerminationStatusTerminatedMessage:    lastTerminationStatusTerminatedMessage,
+			LastTerminationStatusTerminatedStartedAt:  lastTerminationStatusTerminatedStartedAt,
+			LastTerminationStatusTerminatedFinishedAt: lastTerminationStatusTerminatedFinishedAt,
+			RestartCount:                              restartCount,
+			ResourceRequestCPU:                        resourceRequestCPU,
+			ResourceRequestMemory:                     resourceRequestMemory,
+			ResourceLimitCPU:                          resourceLimitCPU,
+			ResourceLimitMemory:                       resourceLimitMemory,
+			Policy:                                    policy,
+			PodCreatedTime:                            podCreatedTime,
+			ResourceLink:                              resourceLink,
+			TopControllerName:                         topControllerName,
+			TopControllerKind:                         topControllerKind,
+			TpoControllerReplicas:                     topControllerReplicas,
+			UsedRecommendationID:                      usedRecommendationID,
 		}
 		containerEntities = append(containerEntities, containerEntity)
 	}
@@ -380,6 +471,9 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 
 			var (
 				podName                string
+				podPhase               string
+				podMessage             string
+				podReason              string
 				namespace              string
 				resourceLink           string
 				alamedaScalerNamespace string
@@ -390,11 +484,21 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 				topControllerNamespace string
 				topControllerName      string
 				topControllerKind      string
+				topControllerReplicas  int32
 				usedRecommendationID   string
 			)
 
 			if containerEntity.PodName != nil {
 				podName = *containerEntity.PodName
+			}
+			if containerEntity.PodPhase != nil {
+				podPhase = *containerEntity.PodPhase
+			}
+			if containerEntity.PodMessage != nil {
+				podMessage = *containerEntity.PodMessage
+			}
+			if containerEntity.PodReason != nil {
+				podReason = *containerEntity.PodReason
 			}
 			if containerEntity.Namespace != nil {
 				namespace = *containerEntity.Namespace
@@ -426,6 +530,9 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 			if containerEntity.TopControllerKind != nil {
 				topControllerKind = *containerEntity.TopControllerKind
 			}
+			if containerEntity.TpoControllerReplicas != nil {
+				topControllerReplicas = *containerEntity.TpoControllerReplicas
+			}
 			if containerEntity.UsedRecommendationID != nil {
 				usedRecommendationID = *containerEntity.UsedRecommendationID
 			}
@@ -451,9 +558,15 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 						Namespace: topControllerNamespace,
 						Name:      topControllerName,
 					},
-					Kind: enumconv.KindEnum[topControllerKind],
+					Replicas: topControllerReplicas,
+					Kind:     enumconv.KindEnum[topControllerKind],
 				},
 				UsedRecommendationId: usedRecommendationID,
+				Status: &datahub_v1alpha1.PodStatus{
+					Phase:   datahub_v1alpha1.PodPhase(datahub_v1alpha1.PodPhase_value[podPhase]),
+					Message: podMessage,
+					Reason:  podReason,
+				},
 			}
 			datahubPodMap[podID] = datahubPod
 		}
@@ -473,12 +586,80 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 func containerEntityToDatahubContainer(containerEntity *cluster_status_entity.ContainerEntity) *datahub_v1alpha1.Container {
 
 	var (
-		resourceLimitCPU      float64
-		resourceLimitMemory   int64
-		resourceRequestCPU    float64
-		resourceRequestMemory int64
+		statusWaitingReason                       string
+		statusWaitingMessage                      string
+		statusRunningStartedAt                    int64
+		statusTerminatedExitCode                  int32
+		statusTerminatedReason                    string
+		statusTerminatedMessage                   string
+		statusTerminatedStartedAt                 int64
+		statusTerminatedFinishedAt                int64
+		lastTerminationStatusWaitingReason        string
+		lastTerminationStatusWaitingMessage       string
+		lastTerminationStatusRunningStartedAt     int64
+		lastTerminationStatusTerminatedExitCode   int32
+		lastTerminationStatusTerminatedReason     string
+		lastTerminationStatusTerminatedMessage    string
+		lastTerminationStatusTerminatedStartedAt  int64
+		lastTerminationStatusTerminatedFinishedAt int64
+		restartCount                              int32
+		resourceLimitCPU                          float64
+		resourceLimitMemory                       int64
+		resourceRequestCPU                        float64
+		resourceRequestMemory                     int64
 	)
 
+	if containerEntity.StatusWaitingReason != nil {
+		statusWaitingReason = *containerEntity.StatusWaitingReason
+	}
+	if containerEntity.StatusWaitingMessage != nil {
+		statusWaitingMessage = *containerEntity.StatusWaitingMessage
+	}
+	if containerEntity.StatusRunningStartedAt != nil {
+		statusRunningStartedAt = *containerEntity.StatusRunningStartedAt
+	}
+	if containerEntity.StatusTerminatedExitCode != nil {
+		statusTerminatedExitCode = *containerEntity.StatusTerminatedExitCode
+	}
+	if containerEntity.StatusTerminatedReason != nil {
+		statusTerminatedReason = *containerEntity.StatusTerminatedReason
+	}
+	if containerEntity.StatusTerminatedMessage != nil {
+		statusTerminatedMessage = *containerEntity.StatusTerminatedMessage
+	}
+	if containerEntity.StatusTerminatedStartedAt != nil {
+		statusTerminatedStartedAt = *containerEntity.StatusTerminatedStartedAt
+	}
+	if containerEntity.StatusTerminatedFinishedAt != nil {
+		statusTerminatedFinishedAt = *containerEntity.StatusTerminatedFinishedAt
+	}
+	if containerEntity.LastTerminationStatusWaitingReason != nil {
+		lastTerminationStatusWaitingReason = *containerEntity.LastTerminationStatusWaitingReason
+	}
+	if containerEntity.LastTerminationStatusWaitingMessage != nil {
+		lastTerminationStatusWaitingMessage = *containerEntity.LastTerminationStatusWaitingMessage
+	}
+	if containerEntity.LastTerminationStatusRunningStartedAt != nil {
+		lastTerminationStatusRunningStartedAt = *containerEntity.LastTerminationStatusRunningStartedAt
+	}
+	if containerEntity.LastTerminationStatusTerminatedExitCode != nil {
+		lastTerminationStatusTerminatedExitCode = *containerEntity.LastTerminationStatusTerminatedExitCode
+	}
+	if containerEntity.LastTerminationStatusTerminatedReason != nil {
+		lastTerminationStatusTerminatedReason = *containerEntity.LastTerminationStatusTerminatedReason
+	}
+	if containerEntity.LastTerminationStatusTerminatedMessage != nil {
+		lastTerminationStatusTerminatedMessage = *containerEntity.LastTerminationStatusTerminatedMessage
+	}
+	if containerEntity.LastTerminationStatusTerminatedStartedAt != nil {
+		lastTerminationStatusTerminatedStartedAt = *containerEntity.LastTerminationStatusTerminatedStartedAt
+	}
+	if containerEntity.LastTerminationStatusTerminatedFinishedAt != nil {
+		lastTerminationStatusTerminatedFinishedAt = *containerEntity.LastTerminationStatusTerminatedFinishedAt
+	}
+	if containerEntity.RestartCount != nil {
+		restartCount = *containerEntity.RestartCount
+	}
 	if containerEntity.ResourceLimitCPU != nil {
 		resourceLimitCPU = *containerEntity.ResourceLimitCPU
 	}
@@ -529,6 +710,41 @@ func containerEntityToDatahubContainer(containerEntity *cluster_status_entity.Co
 					},
 				},
 			},
+		},
+		Status: &datahub_v1alpha1.ContainerStatus{
+			State: &datahub_v1alpha1.ContainerState{
+				Waiting: &datahub_v1alpha1.ContainerStateWaiting{
+					Reason: statusWaitingReason,
+					Message: statusWaitingMessage,
+				},
+				Running: &datahub_v1alpha1.ContainerStateRunning{
+					StartedAt: &timestamp.Timestamp{Seconds: statusRunningStartedAt},
+				},
+				Terminated: &datahub_v1alpha1.ContainerStateTerminated{
+					ExitCode: statusTerminatedExitCode,
+					Reason: statusTerminatedReason,
+					Message: statusTerminatedMessage,
+					StartedAt: &timestamp.Timestamp{Seconds: statusTerminatedStartedAt},
+					FinishedAt: &timestamp.Timestamp{Seconds: statusTerminatedFinishedAt},
+				},
+			},
+			LastTerminationState: &datahub_v1alpha1.ContainerState{
+				Waiting: &datahub_v1alpha1.ContainerStateWaiting{
+					Reason: lastTerminationStatusWaitingReason,
+					Message: lastTerminationStatusWaitingMessage,
+				},
+				Running: &datahub_v1alpha1.ContainerStateRunning{
+					StartedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusRunningStartedAt},
+				},
+				Terminated: &datahub_v1alpha1.ContainerStateTerminated{
+					ExitCode: lastTerminationStatusTerminatedExitCode,
+					Reason: lastTerminationStatusTerminatedReason,
+					Message: lastTerminationStatusTerminatedMessage,
+					StartedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedStartedAt},
+					FinishedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedFinishedAt},
+				},
+			},
+			RestartCount: restartCount,
 		},
 	}
 }
