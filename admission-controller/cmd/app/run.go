@@ -22,6 +22,10 @@ import (
 const (
 	envVarPrefix  = "ALAMEDA_ADMCTL"
 	allowEmptyEnv = true
+
+	defaultRotationMaxSizeMegabytes = 100
+	defaultRotationMaxBackups       = 7
+	defaultLogRotateOutputFile      = "/var/log/alameda/alameda-adm-ctrl.log"
 )
 
 var (
@@ -106,6 +110,16 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 }
 
 func initLog() {
+
+	opt := log.DefaultOptions()
+	opt.RotationMaxSize = defaultRotationMaxSizeMegabytes
+	opt.RotationMaxBackups = defaultRotationMaxBackups
+	opt.RotateOutputPath = defaultLogRotateOutputFile
+	err := log.Configure(opt)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, scope := range log.Scopes() {
 		scope.SetLogCallers(config.Log.SetLogCallers == true)
 		if outputLvl, ok := log.StringToLevel(config.Log.OutputLevel); ok {

@@ -39,11 +39,14 @@ import (
 
 const (
 	envVarPrefix = "ALAMEDA_OPERATOR"
+
+	defaultRotationMaxSizeMegabytes = 100
+	defaultRotationMaxBackups       = 7
+	defaultLogRotateOutputFile      = "/var/log/alameda/alameda-operator.log"
 )
 
 const JSONIndent = "  "
 
-var isLogOutput bool
 var operatorConfigFile string
 var crdLocation string
 var showVer bool
@@ -62,7 +65,6 @@ var (
 
 func init() {
 	flag.BoolVar(&showVer, "version", false, "show version")
-	flag.BoolVar(&isLogOutput, "logfile", false, "output log file")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
 	flag.StringVar(&crdLocation, "crd-location", "/etc/alameda/operator/crds", "CRD location")
 
@@ -70,6 +72,16 @@ func init() {
 }
 
 func initLogger() {
+
+	opt := logUtil.DefaultOptions()
+	opt.RotationMaxSize = defaultRotationMaxSizeMegabytes
+	opt.RotationMaxBackups = defaultRotationMaxBackups
+	opt.RotateOutputPath = defaultLogRotateOutputFile
+	err := logUtil.Configure(opt)
+	if err != nil {
+		panic(err)
+	}
+
 	scope.Infof("Log output level is %s.", operatorConf.Log.OutputLevel)
 	scope.Infof("Log stacktrace level is %s.", operatorConf.Log.StackTraceLevel)
 	for _, scope := range logUtil.Scopes() {

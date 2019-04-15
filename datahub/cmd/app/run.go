@@ -15,6 +15,10 @@ import (
 
 const (
 	envVarPrefix = "ALAMEDA_DATAHUB"
+
+	defaultRotationMaxSizeMegabytes = 100
+	defaultRotationMaxBackups       = 7
+	defaultLogRotateOutputFile      = "/var/log/alameda/alameda-datahub.log"
 )
 
 var (
@@ -94,6 +98,15 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 }
 
 func initLogger() {
+
+	opt := log.DefaultOptions()
+	opt.RotationMaxSize = defaultRotationMaxSizeMegabytes
+	opt.RotationMaxBackups = defaultRotationMaxBackups
+	opt.RotateOutputPath = defaultLogRotateOutputFile
+	err := log.Configure(opt)
+	if err != nil {
+		panic(err)
+	}
 
 	scope = log.RegisterScope("datahub", "datahub server log", 0)
 }
