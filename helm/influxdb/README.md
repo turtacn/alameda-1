@@ -9,5 +9,5 @@ This chart installation is intended to install the influxdb chart of version 1.7
 ## QuickStart
 
 ```bash
-$ helm install stable/influxdb --version 1.7 --name influxdb --namespace monitoring
+$ helm install stable/influxdb --version 1.1.0 --name influxdb --namespace monitoring
 ```

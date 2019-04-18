@@ -2,31 +2,24 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-nameOverride: "operator"
-fullnameOverride: "operator"
+nameOverride: "alameda-operator"
+fullnameOverride: "alameda-operator"
 
 global:
   ## If true, create & use RBAC resources
   ##
   rbacEnable: true
+  executionEnable: false
 
   component:
     operator:
-      name: "operator"
+      name: "alameda-operator"
       replicaCount: 1
-      service:
-        type: ClusterIP
-        port: 50050
-        name: grpc
     alamedaai:
       name: "alameda-ai"
       replicaCount: 1
-      service:
-        type: ClusterIP
-        port: 50051
-        name: grpc
     datahub:
-      name: "datahub"
+      name: "alameda-datahub"
       replicaCount: 1
       service:
         type: ClusterIP
@@ -44,6 +37,12 @@ global:
         port: 8086
         username: "alameda"
         password: "alameda"
+    evictioner:
+      name: "alameda-evictioner"
+      replicaCount: 1
+    admission:
+      name: "admission-controller"
+      replicaCount: 1
 
 image:
   repository: operator

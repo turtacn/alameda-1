@@ -4,6 +4,8 @@ metadata:
   name: {{ include "alameda.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
+    app: alameda
+    component: {{ .Values.global.component.operator.name }}
     app.kubernetes.io/name: {{ include "alameda.name" . }}
     helm.sh/chart: {{ include "alameda.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -42,7 +44,7 @@ spec:
               fieldPath: metadata.labels
     {{- if .Values.image.accessToken }}
       imagePullSecrets:
-        - name: {{ include "alameda.fullname" . }}
+        - name: {{ include "alameda.fullname" . }}-imagepull
     {{- end }}
     {{- if .Values.global.rbacEnable }}
       serviceAccountName: {{ include "alameda.fullname" . }}

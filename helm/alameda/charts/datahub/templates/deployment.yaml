@@ -4,6 +4,8 @@ metadata:
   name: {{ include "datahub.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
+    app: alameda
+    component: {{ .Values.global.component.datahub.name }}
     app.kubernetes.io/name: {{ include "datahub.name" . }}
     helm.sh/chart: {{ include "datahub.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -41,10 +43,10 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
     {{- if .Values.image.accessToken }}
       imagePullSecrets:
-        - name: {{ include "alameda-ai.fullname" . }}
+        - name: {{ include "datahub.fullname" . }}-imagepull
     {{- end }}
     {{- if .Values.global.rbacEnable }}
-      serviceAccountName: {{ include "datahub.name" . }}
+      serviceAccountName: {{ include "datahub.fullname" . }}
     {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
