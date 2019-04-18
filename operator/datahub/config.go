@@ -7,8 +7,13 @@ import (
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 )
 
+type retryInterval struct {
+	Default int64 `mapstructure:"default"`
+}
+
 type Config struct {
-	Address string `mapstructure:"address"`
+	Address       string        `mapstructure:"address"`
+	RetryInterval retryInterval `mapstructure:"retry-interval"`
 }
 
 func NewConfig() *Config {
@@ -20,6 +25,9 @@ func NewConfig() *Config {
 
 func (c *Config) init() {
 	c.Address = datahubutils.GetDatahubAddress()
+	c.RetryInterval = retryInterval{
+		Default: 3,
+	}
 }
 
 func (c *Config) Validate() error {

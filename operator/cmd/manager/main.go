@@ -162,8 +162,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	go registerNodes(mgr.GetClient())
-	go syncAlamedaPodsWithDatahub(mgr.GetClient())
+	go registerNodes(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+	go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
 	go launchWebhook(&mgr, &operatorConf)
 	scope.Info("Starting the Cmd.")
 

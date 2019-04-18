@@ -36,9 +36,9 @@ func (repo *PodRepository) ListAlamedaPods() ([]*datahub_v1alpha1.Pod, error) {
 	}
 	aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	if resp, err := aiServiceClnt.ListAlamedaPods(context.Background(), &req); err != nil {
-		return alamedaPods, errors.Wrapf(err, "delete pods from Datahub failed: %s", err.Error())
+		return alamedaPods, errors.Wrapf(err, "list Alameda pods from Datahub failed: %s", err.Error())
 	} else if resp.Status != nil && resp.Status.Code != int32(code.Code_OK) {
-		return alamedaPods, errors.Errorf("delete pods from Datahub failed: receive code: %d, message: %s", resp.Status.Code, resp.Status.Message)
+		return alamedaPods, errors.Errorf("list Alameda pods from Datahub failed: receive code: %d, message: %s", resp.Status.Code, resp.Status.Message)
 	} else {
 		alamedaPods = resp.GetPods()
 	}

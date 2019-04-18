@@ -27,7 +27,21 @@ func NewAlamedaNodeRepository() *AlamedaNodeRepository {
 
 // CreateAlamedaNode creates predicted node to datahub
 func (repo *AlamedaNodeRepository) CreateAlamedaNode(nodes []*corev1.Node) error {
+	retries := 3
+	for retry := 1; retry <= retries; retry++ {
+		err := repo.createAlamedaNode(nodes)
+		if err == nil {
+			break
+		}
+		scope.Debugf("Create Alameda node failed. (%v try)", retry)
+		if retry == retries {
+			return err
+		}
+	}
+	return nil
+}
 
+func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*corev1.Node) error {
 	alamedaNodes := []*datahub_v1alpha1.Node{}
 	for _, node := range nodes {
 
