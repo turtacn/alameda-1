@@ -115,7 +115,7 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 
 	for _, rec := range resp.GetPodRecommendations() {
 		evictPod := false
-		if rec.GetStartTime().GetSeconds() >= nowTimestamp || nowTimestamp <= rec.GetEndTime().GetSeconds() {
+		if rec.GetStartTime().GetSeconds() >= nowTimestamp || nowTimestamp >= rec.GetEndTime().GetSeconds() {
 			continue
 		}
 		getResource := utilsresource.NewGetResource(evictioner.k8sClienit)
