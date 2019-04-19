@@ -695,7 +695,7 @@ func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1
 
 // CreatePodRecommendations add pod recommendations information to database
 func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
-	scope.Debug("Request received from CreatePodRecommendatoins grpc function: " + utils.InterfaceToString(in))
+	scope.Debug("Request received from CreatePodRecommendations grpc function: " + utils.InterfaceToString(in))
 	var containerDAO recommendation_dao.ContainerOperation = &recommendation_dao_impl.Container{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}

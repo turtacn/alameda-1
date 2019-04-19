@@ -22,5 +22,12 @@ rules:
   verbs:
     - get
     - delete
+- apiGroups:
+    - autoscaling.containers.ai
+  resources:
+    - alamedascalers
+    - alamedarecommendations
+  verbs:
+    - get
 {{- end }}
 

@@ -27,7 +27,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type predictEnable = bool
+type enableExecution = bool
 type alamedaPolicy = string
 type NamespacedName = string
 
@@ -82,8 +82,8 @@ var (
 // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
-	Selector *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
-	Enable   predictEnable         `json:"enable" protobuf:"bytes,2,opt,name=enable"`
+	Selector       *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
+	EnableExcution enableExecution       `json:"enableexcution" protobuf:"bytes,2,opt,name=enableexcution"`
 	// +kubebuilder:validation:Enum=stable,compact
 	Policy                alamedaPolicy `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
 	CustomResourceVersion string        `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`

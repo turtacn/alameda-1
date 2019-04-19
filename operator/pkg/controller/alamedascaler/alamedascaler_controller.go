@@ -103,7 +103,6 @@ type ReconcileAlamedaScaler struct {
 // Reconcile reads that state of the cluster for a AlamedaScaler object and makes changes based on the state read
 // and what is in the AlamedaScaler .Spec
 func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile.Result, error) {
-
 	if !cachedFirstSynced {
 		time.Sleep(5 * time.Second)
 	}
@@ -153,6 +152,7 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		}
 
 		// after updating AlamedaPod in AlamedaScaler, start create AlamedaRecommendation if necessary and register alameda pod to datahub
+		scope.Debugf("Start syncing alamedascaler to datahub. %s", alamutils.InterfaceToString(alamedaScaler))
 		if err := r.syncAlamedaScalerWithDepResources(alamedaScaler); err != nil {
 			scope.Error(err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
@@ -198,8 +198,10 @@ func (r *ReconcileAlamedaScaler) syncDatahubResource(done chan bool, errChan cha
 
 	currentPods := alamedaScaler.GetMonitoredPods()
 
-	if err := r.createPodsToDatahub(alamedaScaler, currentPods); err != nil {
-		errChan <- errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
+	if len(currentPods) > 0 {
+		if err := r.createPodsToDatahub(alamedaScaler, currentPods); err != nil {
+			errChan <- errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
+		}
 	}
 
 	if err := deletePodsFromDatahub(&types.NamespacedName{
