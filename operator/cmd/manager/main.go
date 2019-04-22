@@ -32,6 +32,7 @@ import (
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
@@ -52,6 +53,7 @@ var crdLocation string
 var showVer bool
 
 var operatorConf operator.Config
+var k8sConfig *rest.Config
 var scope *logUtil.Scope
 
 var (
@@ -131,15 +133,16 @@ func main() {
 	if err != nil {
 		scope.Error("Get configuration failed: " + err.Error())
 	}
+	k8sConfig = cfg
 
 	// Create a new Cmd to provide shared dependencies and start components
-	mgr, err := manager.New(cfg, manager.Options{})
+	mgr, err := manager.New(k8sConfig, manager.Options{})
 	if err != nil {
 		scope.Error(err.Error())
 	}
 
 	// TODO: There are config dependency, this manager should have it's config.
-	applyCRDs(cfg)
+	applyCRDs(k8sConfig)
 	initServerConfig(mgr)
 	initLogger()
 	printSoftwareInfo()
@@ -165,6 +168,7 @@ func main() {
 	go registerNodes(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
 	go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
 	go launchWebhook(&mgr, &operatorConf)
+	go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
 	scope.Info("Starting the Cmd.")
 
 	// Start the Cmd

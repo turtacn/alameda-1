@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"sync"
 
+	openshiftappsv1 "github.com/openshift/api/apps/v1"
+	"github.com/openshift/client-go/apps/clientset/versioned"
 	"github.com/pkg/errors"
+	appsv1 "k8s.io/api/apps/v1"
+	core_v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -26,6 +30,8 @@ type OwnerReferenceTracer struct {
 	k8sDynamicClient   dynamic.Interface
 	k8sDiscoveryClient *discovery.DiscoveryClient
 	k8sRestMapper      meta.RESTMapper
+
+	openshiftClientset versioned.Interface
 }
 
 // NewDefaultOwnerReferenceTracer build OwnerReferenceTracer
@@ -57,11 +63,17 @@ func NewDefaultOwnerReferenceTracer() (*OwnerReferenceTracer, error) {
 	}
 	restMapper := restmapper.NewDiscoveryRESTMapper(gr)
 
+	openshiftClientset, err := versioned.NewForConfig(config)
+	if err != nil {
+		return nil, errors.Errorf("new OwnerReferenceTracer failed: %s", err.Error())
+	}
+
 	o := &OwnerReferenceTracer{
 		k8sClient:          client,
 		k8sDynamicClient:   dynamicClient,
 		k8sDiscoveryClient: discoveryClient,
 		k8sRestMapper:      restMapper,
+		openshiftClientset: openshiftClientset,
 	}
 
 	return o, nil
@@ -93,11 +105,17 @@ func NewOwnerReferenceTracerWithConfig(cfg rest.Config) (*OwnerReferenceTracer, 
 	}
 	restMapper := restmapper.NewDiscoveryRESTMapper(gr)
 
+	openshiftClientset, err := versioned.NewForConfig(&copyCfg)
+	if err != nil {
+		return nil, errors.Errorf("new OwnerReferenceTracer failed: %s", err.Error())
+	}
+
 	impl := &OwnerReferenceTracer{
 		k8sClient:          client,
 		k8sDynamicClient:   dynamicClient,
 		k8sDiscoveryClient: discoveryClient,
 		k8sRestMapper:      restMapper,
+		openshiftClientset: openshiftClientset,
 	}
 
 	return impl, nil
@@ -142,6 +160,60 @@ func (ort *OwnerReferenceTracer) GetRootControllerKindAndNameOfOwnerReferences(n
 	}
 
 	return kind, name, err
+}
+
+func (ort *OwnerReferenceTracer) GetDeploymentOrDeploymentConfigOwningPod(pod core_v1.Pod) (*appsv1.Deployment, *openshiftappsv1.DeploymentConfig, error) {
+
+	searchingNamespace := pod.Namespace
+	ownerRefs := pod.GetOwnerReferences()
+
+	var controllerOwnerRef *meta_v1.OwnerReference
+	finish := false
+	for !finish {
+
+		if len(ownerRefs) == 0 {
+			finish = true
+			break
+		}
+
+		// get owner that is controller
+		for _, ownerRef := range ownerRefs {
+			if ownerRef.Controller != nil && *ownerRef.Controller {
+				ownerName := ownerRef.Name
+				switch ownerRef.Kind {
+				case "Deployment":
+					dep, err := ort.k8sClient.AppsV1().Deployments(searchingNamespace).Get(ownerName, meta_v1.GetOptions{})
+					if err != nil {
+						return nil, nil, errors.Errorf("get deployment owning pod %s/%s failed, %s", err.Error())
+					}
+					return dep, nil, nil
+				case "DeploymentConfig":
+					depConfig, err := ort.openshiftClientset.AppsV1().DeploymentConfigs(searchingNamespace).Get(ownerName, meta_v1.GetOptions{})
+					if err != nil {
+						return nil, nil, errors.Errorf("get deployment owning pod %s/%s failed, %s", err.Error())
+					}
+					return nil, depConfig, nil
+				}
+				controllerOwnerRef = &ownerRef
+				break
+			}
+		}
+
+		// there is no ownerReference that is Controller, need no tracing
+		if controllerOwnerRef == nil {
+			finish = true
+			break
+		}
+
+		gvk := schema.FromAPIVersionAndKind(controllerOwnerRef.APIVersion, controllerOwnerRef.Kind)
+		resOwnerRefs, err := ort.getOwnerRefsOfResource(searchingNamespace, controllerOwnerRef.Name, gvk)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "get deployment or deploymentConfig owning pod failed")
+		}
+		ownerRefs = resOwnerRefs
+	}
+
+	return nil, nil, nil
 }
 
 func (ort *OwnerReferenceTracer) getOwnerRefsOfResource(namespace, name string, gvk schema.GroupVersionKind) ([]meta_v1.OwnerReference, error) {

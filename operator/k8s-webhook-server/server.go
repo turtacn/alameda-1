@@ -109,5 +109,8 @@ func (srv *K8SWebhookServer) registerWebhooks() {
 	} else {
 		webhooks = append(webhooks, wh)
 	}
-	svr.Register(webhooks...)
+
+	if err := svr.Register(webhooks...); err != nil {
+		scope.Errorf(err.Error())
+	}
 }

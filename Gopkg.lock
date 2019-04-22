@@ -397,6 +397,18 @@
   revision = "bbc4289c54e0f41709ed1ad57b96cd1a858005e0"
 
 [[projects]]
+  digest = "1:7da30d36edabf50fb5bc07f759991589c5ca72e75b3dd50fa58c57d94e96fd15"
+  name = "github.com/openshift/client-go"
+  packages = [
+    "apps/clientset/versioned",
+    "apps/clientset/versioned/scheme",
+    "apps/clientset/versioned/typed/apps/v1",
+  ]
+  pruneopts = "T"
+  revision = "1fa528d3be060e4c7178eb69e76d37cf7e699e3c"
+  version = "v3.9.0"
+
+[[projects]]
   digest = "1:e5d0bd87abc2781d14e274807a470acd180f0499f8bf5bb18606e9ec22ad9de9"
   name = "github.com/pborman/uuid"
   packages = ["."]
@@ -1109,6 +1121,7 @@
     "github.com/onsi/gomega",
     "github.com/openshift/api/apps",
     "github.com/openshift/api/apps/v1",
+    "github.com/openshift/client-go/apps/clientset/versioned",
     "github.com/pkg/errors",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",

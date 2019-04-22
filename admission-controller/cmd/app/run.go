@@ -10,13 +10,21 @@ import (
 	"github.com/containers-ai/alameda/admission-controller"
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource/datahub"
 	"github.com/containers-ai/alameda/admission-controller/pkg/server"
+	utils "github.com/containers-ai/alameda/pkg/utils"
+	k8sUtils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
+	"github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	openshiftappsv1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	admissionregistration_v1beta1 "k8s.io/api/admissionregistration/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	sigsK8SClientConfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 const (
@@ -29,23 +37,29 @@ const (
 )
 
 var (
-	scope  = log.RegisterScope("admission-controller run", "admission-controller", 0)
-	config *admission_controller.Config
-
-	configurationFilePath string
+	scope         = log.RegisterScope("admission-controller run", "admission-controller", 0)
+	config        *admission_controller.Config
+	k8sRestConfig *rest.Config
 
 	mutatingWebhookConfigurationInstance admissionregistration_v1beta1.MutatingWebhookConfiguration
 
+	ownerReferenceOfControllerOwningAdmissionController meta_v1.OwnerReference
+
 	RunCmd = &cobra.Command{
-		Use:   "run",
-		Short: "start alameda admission-controller server",
-		Long:  "",
+		Use:              "run",
+		Short:            "start alameda admission-controller server",
+		Long:             "",
+		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			flag.Parse()
 
 			initConfig()
 			initLog()
+
+			if err := initOwnerReferenceOfControllerOwningAdmissionController(); err != nil {
+				panic(err)
+			}
 
 			if err := prepareRequirements(); err != nil {
 				panic(err)
@@ -86,6 +100,13 @@ func initConfig() {
 	config = &defaultConfig
 	initViperSetting()
 	mergeConfigFileValueWithDefaultConfigValue()
+
+	k8sCfg, err := sigsK8SClientConfig.GetConfig()
+	if err != nil {
+		panic(errors.Errorf("initialization failed: get k8s rest configuration failed: %s", err.Error()))
+	}
+	k8sRestConfig = k8sCfg
+
 }
 
 func initViperSetting() {
@@ -131,6 +152,43 @@ func initLog() {
 	}
 }
 
+func initOwnerReferenceOfControllerOwningAdmissionController() error {
+
+	pod, err := k8sUtils.GetPodByNamespaceNameWithConfig(utils.GetRunningNamespace(), utils.GetRunnningPodName(), *k8sRestConfig)
+	if err != nil {
+		return errors.Wrap(err, "initialization failed: get deployment or deploymentconfig owning admission-controller failed")
+	}
+
+	ort, err := metadata.NewOwnerReferenceTracerWithConfig(*k8sRestConfig)
+	if err != nil {
+		return errors.Wrap(err, "initialization failed: get deployment or deploymentconfig owning admission-controller failed")
+	}
+
+	dep, dc, err := ort.GetDeploymentOrDeploymentConfigOwningPod(pod)
+	if err != nil {
+		return errors.Wrapf(err, "initialization failed: get deployment or deploymentconfig owning admission-controller failed")
+	}
+
+	if dep == nil && dc == nil {
+		return errors.New("initialization failed: cannot get deployment or deploymentConfig owning admission-controller")
+	}
+
+	var ownerType meta_v1.TypeMeta
+	var ownerMeta meta_v1.ObjectMeta
+	if dep != nil {
+		ownerType.APIVersion = appsv1.SchemeGroupVersion.String()
+		ownerType.Kind = "Deployment"
+		ownerMeta = dep.ObjectMeta
+	} else if dc != nil {
+		ownerType.APIVersion = openshiftappsv1.SchemeGroupVersion.String()
+		ownerType.Kind = "DeploymentConfig"
+		ownerMeta = dc.ObjectMeta
+	}
+	ownerReferenceOfControllerOwningAdmissionController = k8sUtils.NewOwnerReference(ownerType, ownerMeta, false)
+
+	return nil
+}
+
 func prepareRequirements() error {
 
 	scope.Debugf("preparing requirements")
@@ -166,7 +224,8 @@ func prepareMutatingWebhookConfigurationInstance() error {
 			APIVersion: "admissionregistration.k8s.io/v1beta1",
 		},
 		ObjectMeta: meta_v1.ObjectMeta{
-			Name: fmt.Sprintf("mutating-webhook.admission-controller.%s.svc", namespace),
+			Name:            fmt.Sprintf("mutating-webhook.admission-controller.%s.svc", namespace),
+			OwnerReferences: []meta_v1.OwnerReference{ownerReferenceOfControllerOwningAdmissionController},
 		},
 		Webhooks: []admissionregistration_v1beta1.Webhook{
 			admissionregistration_v1beta1.Webhook{
@@ -208,7 +267,7 @@ func setupRequirements() error {
 
 	scope.Debugf("setting up requirements")
 
-	err := createMutatingWebhookConfigurationIfNotExist(mutatingWebhookConfigurationInstance)
+	err := createOrUpdateMutatingWebhookConfiguration(mutatingWebhookConfigurationInstance)
 	if err != nil {
 		return errors.Wrap(err, "setup requirements failed")
 	}
@@ -216,11 +275,14 @@ func setupRequirements() error {
 	return nil
 }
 
-func createMutatingWebhookConfigurationIfNotExist(instance admissionregistration_v1beta1.MutatingWebhookConfiguration) error {
+func createOrUpdateMutatingWebhookConfiguration(instance admissionregistration_v1beta1.MutatingWebhookConfiguration) error {
 
 	scope.Debugf("setting up MutatingWebhookConfiguration")
 
-	clientset := admission_controller.GetK8SClient()
+	clientset, err := getK8SClient()
+	if err != nil {
+		return errors.Wrap(err, "create MutatingWebhookConfigurations failed")
+	}
 
 	currentInstance, err := clientset.AdmissionregistrationV1beta1().MutatingWebhookConfigurations().Get(instance.Name, meta_v1.GetOptions{})
 	if err != nil && k8s_errors.IsNotFound(err) {
@@ -239,6 +301,7 @@ func createMutatingWebhookConfigurationIfNotExist(instance admissionregistration
 		scope.Debugf("found existing MutatingWebhookConfiguration, update. Previous: %+v, Updated: %+v .", *currentInstance, instance)
 
 		currentInstance.Webhooks = instance.Webhooks
+		currentInstance.ObjectMeta.OwnerReferences = []meta_v1.OwnerReference{ownerReferenceOfControllerOwningAdmissionController}
 		_, err = clientset.AdmissionregistrationV1beta1().MutatingWebhookConfigurations().Update(currentInstance)
 		if err != nil {
 			return errors.Errorf("update MutatingWebhookConfigurations failed: %s", err.Error())
@@ -254,13 +317,25 @@ func registerHandlerFunc(mux *http.ServeMux, ac server.AdmissionController) {
 
 func newHTTPServer(cfg admission_controller.Config, mux *http.ServeMux) *http.Server {
 
-	clientset := admission_controller.GetK8SClient()
+	tlsConfig, err := config.ConfigTLS()
+	if err != nil {
+		panic(err.Error())
+	}
 
 	server := &http.Server{
 		Addr:      ":8000",
 		Handler:   mux,
-		TLSConfig: admission_controller.ConfigTLS(cfg, clientset),
+		TLSConfig: tlsConfig,
 	}
 
 	return server
+}
+
+func getK8SClient() (*kubernetes.Clientset, error) {
+
+	clientset, err := kubernetes.NewForConfig(k8sRestConfig)
+	if err != nil {
+		return nil, errors.Errorf("get k8s client failed: %s", err.Error())
+	}
+	return clientset, nil
 }

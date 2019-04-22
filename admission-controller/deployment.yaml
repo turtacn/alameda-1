@@ -111,6 +111,14 @@ spec:
               value: "/etc/tls-certs/serverCert.pem"
             - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
               value: "/etc/tls-certs/serverKey.pem"
+            - name: NAMESPACE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace   
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name 
           ports:
             - containerPort: 8000
           volumeMounts:

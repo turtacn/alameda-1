@@ -5,9 +5,7 @@ import (
 
 	"github.com/containers-ai/alameda/pkg/framework/datahub"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	"github.com/golang/glog"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
+	"github.com/pkg/errors"
 )
 
 // Config contains the server (the webhook) cert and key.
@@ -37,26 +35,14 @@ func NewDefaultConfig() Config {
 	}
 }
 
-func GetK8SClient() *kubernetes.Clientset {
-	config, err := rest.InClusterConfig()
+func (c Config) ConfigTLS() (*tls.Config, error) {
+	sCert, err := tls.LoadX509KeyPair(c.CertFile, c.KeyFile)
 	if err != nil {
-		glog.Fatal(err)
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		glog.Fatal(err)
-	}
-	return clientset
-}
-
-func ConfigTLS(config Config, clientset *kubernetes.Clientset) *tls.Config {
-	sCert, err := tls.LoadX509KeyPair(config.CertFile, config.KeyFile)
-	if err != nil {
-		glog.Fatal(err)
+		return nil, errors.Errorf("get tls config failed: %s", err.Error())
 	}
 	return &tls.Config{
 		Certificates: []tls.Certificate{sCert},
 		// TODO: uses mutual tls after we agree on what cert the apiserver should use.
 		// ClientAuth:   tls.RequireAndVerifyClientCert,
-	}
+	}, nil
 }
