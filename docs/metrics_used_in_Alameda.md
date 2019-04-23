@@ -1,21 +1,20 @@
 # Metrics Used in Alameda
 
-Alameda leverage *Prometheus* to observe metrics of containers and nodes and this document summarizes all those metrics used by Alameda.
-> *Note:* Install Prometheus by [Prometheus Operator chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator) with default settings should already have all the metrics Alameda need.
+Alameda leverage *Prometheus* to observe metrics of containers and nodes and this document summarizes those metrics used by Alameda.
+> *Note:* Prometheus installed by [Prometheus Operator chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator) or pre-installed in [Openshift 3.11](https://docs.openshift.com/container-platform/3.11/install_config/prometheus_cluster_monitoring.html) and above should already have all the metrics Alameda need.
 
-In the following list, each item represents a metric and each subitem is a property of the item. Possible properties of a metric are:
-- **purpose**  
-  This property shows the metric is used in prediction, GUI or both.
+In the next section, the summarized metrics are represented as a list of items with subitems as annotations of a metric. Those annotations are:
+- *purpose**  
+  This annotation shows the metric is used in prediction, GUI or both. If the metric is only used for GUI, Alameda core function can still run well without the metric. Only _cluster status_ and _node status_ dashboards can not display well.
 - **exporters**  
-  This property shows the Prometheus exporters that expose the metric.
-> *Note:* Some metric is produced by Prometheus rule record. Therefore the synthesized metric could use metrics from several exporters.
+  A metric in Prometheus is either directly exposed by an exporter or synthesized from other metrics. This annotation shows the exporter(s) that exposes the raw metric(s) in any case and the next _rule expression_ annotation will show how a metric is produced if it is a synthesized result.
 - **rule expression**  
-  This property shows what Prometheus rule record produced the metric if it is not directly exposed by an exporter.
+  This annotation shows what Prometheus [_rule_](https://prometheus.io/docs/practices/rules/) produces the metric if it is not a raw metric.
 
 ## List of Metrics Used in Alameda
 - metric name: namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate
   - purpose: prediction, GUI
-  - exporters: cAdvisor (kubelet)
+  - exporters: kubelet
   - rule expression:  
   ```sum by(namespace, pod_name, container_name) (rate(container_cpu_usage_seconds_total{container_name!="",image!="",job="kubelet"}[5m]))```
 - metric name: kube_pod_container_resource_requests_cpu_cores
@@ -26,7 +25,7 @@ In the following list, each item represents a metric and each subitem is a prope
   - exporters: kube-state-metrics
 - metric name: container_memory_usage_bytes
   - purpose: prediction, GUI
-  - exporters: cAdvisor (kubelet)
+  - exporters: kubelet
 - metric name: kube_pod_container_resource_requests_memory_bytes
   - purpose: GUI
   - exporters: kube-state-metrics
@@ -98,7 +97,7 @@ In the following list, each item represents a metric and each subitem is a prope
   ```1 - sum by(node) ((node_memory_MemFree_bytes{job="node-exporter"} + node_memory_Cached_bytes{job="node-exporter"} + node_memory_Buffers_bytes{job="node-exporter"}) * on(namespace, pod) group_left(node) node_namespace_pod:kube_pod_info:) / sum by(node) (node_memory_MemTotal_bytes{job="node-exporter"} * on(namespace, pod) group_left(node) node_namespace_pod:kube_pod_info:)```
 - metric name: container_cpu_usage_seconds_total
   - purpose: GUI
-  - exporters: cAdvisor (kubelet)
+  - exporters: kubelet
 - metric name: node_namespace_pod:kube_pod_info:
   - purpose: GUI
   - exporters: kube-state-metrics
