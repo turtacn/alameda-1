@@ -8,6 +8,9 @@ import (
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	osappsapi "github.com/openshift/api/apps/v1"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
+	appsv1beta1 "k8s.io/api/apps/v1beta1"
+	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	extensionsv1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -66,8 +69,26 @@ func (srv *K8SWebhookServer) registerWebhooks() {
 
 	wh, err := builder.NewWebhookBuilder().Name("deployment.validating.containers.ai").
 		NamespaceSelector(&metav1.LabelSelector{}).Validating().
-		Operations(admissionregistrationv1beta1.Create, admissionregistrationv1beta1.Update).
-		ForType(&extensionsv1.Deployment{}).
+		Rules([]admissionregistrationv1beta1.RuleWithOperations{
+			admissionregistrationv1beta1.RuleWithOperations{
+				Operations: []admissionregistrationv1beta1.OperationType{admissionregistrationv1beta1.Create, admissionregistrationv1beta1.Update},
+				Rule: admissionregistrationv1beta1.Rule{
+					APIGroups: []string{
+						extensionsv1.GroupName,
+						appsv1.GroupName,
+						appsv1beta1.GroupName,
+						appsv1beta2.GroupName,
+					},
+					APIVersions: []string{
+						extensionsv1.SchemeGroupVersion.Version,
+						appsv1.SchemeGroupVersion.Version,
+						appsv1beta1.SchemeGroupVersion.Version,
+						appsv1beta2.SchemeGroupVersion.Version,
+					},
+					Resources: []string{"deployments"},
+				},
+			},
+		}...).
 		Handlers(operatorwebhook.GetDeploymentHandler()).
 		WithManager(*srv.manager).
 		Build()
