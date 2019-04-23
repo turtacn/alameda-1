@@ -4,7 +4,7 @@ Alameda leverage *Prometheus* to observe metrics of containers and nodes and thi
 > *Note:* Prometheus installed by [Prometheus Operator chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator) or pre-installed in [Openshift 3.11](https://docs.openshift.com/container-platform/3.11/install_config/prometheus_cluster_monitoring.html) and above should already have all the metrics Alameda need.
 
 In the next section, the summarized metrics are represented as a list of items with subitems as annotations of a metric. Those annotations are:
-- *purpose**  
+- **purpose**  
   This annotation shows the metric is used in prediction, GUI or both. If the metric is only used for GUI, Alameda core function can still run well without the metric. Only _cluster status_ and _node status_ dashboards can not display well.
 - **exporters**  
   A metric in Prometheus is either directly exposed by an exporter or synthesized from other metrics. This annotation shows the exporter(s) that exposes the raw metric(s) in any case and the next _rule expression_ annotation will show how a metric is produced if it is a synthesized result.
