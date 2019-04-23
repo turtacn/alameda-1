@@ -1,7 +1,7 @@
 # Metrics Used in Alameda
 
-Alameda leverage *Prometheus* to observe metrics of containers and nodes and this document summarizes those metrics used by Alameda.
-> *Note:* Prometheus installed by [Prometheus Operator chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator) or pre-installed in [Openshift 3.11](https://docs.openshift.com/container-platform/3.11/install_config/prometheus_cluster_monitoring.html) and above should already have all the metrics Alameda need.
+Alameda leverages *Prometheus* to observe metrics of containers and nodes and this document summarizes those metrics used by Alameda.
+> *Note:* Prometheus installed by [Prometheus Operator chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator) or pre-installed in [Openshift 3.11](https://docs.openshift.com/container-platform/3.11/install_config/prometheus_cluster_monitoring.html) and above should already have all the metrics Alameda needs.
 
 In the next section, the summarized metrics are represented as a list of items with subitems as annotations of a metric. Those annotations are:
 - **purpose**  
