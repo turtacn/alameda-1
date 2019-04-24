@@ -13,13 +13,13 @@ Here is an example _alamedascaler_ CR:
     namespace: webapp
   spec:
     policy: stable
-    enableexecution: false
+    enableExecution: false
     selector:
       matchLabels:
         app: nginx
 ```
 
-In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s api objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda. The `policy` field also instructs Alameda to make recommendations with _stable_ policy. The `enableexecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR. For detailed _AlamedaScaler_ schema, please check out the last section of this document.
+In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s api objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda. The `policy` field also instructs Alameda to make recommendations with _stable_ policy. The `enableExecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR. For detailed _AlamedaScaler_ schema, please check out the last section of this document.
 
 > **Note:** The supported K8s api objects are created by resource _kind_:
 - ```Deployment``` of _groupversion_ ```apps/v1```, ```apps/v1beta1```, ```apps/v1beta2```, ```extentions/v1beta1``` and
@@ -44,7 +44,7 @@ items:
     selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/alameda/alamedascalers/as
     uid: bb9e1b3f-3f0a-11e9-b062-08606e0a1cbb
   spec:
-    enableexecution: false
+    enableExecution: false
     policy: stable
     selector:
       matchLabels:
@@ -95,7 +95,7 @@ alameda-ai-7f5b6b6d8-8fqrv   18m
 - Field: policy
   - type: string
   - description: Policy used by Alameda for resource recommendations. _stable_ and _compact_ are supported. Default is _stable_.
-- Field: enableexecution
+- Field: enableExecution
   - type: boolean
   - description: Set to _true_ to enable recommendation execution for api objects selected by this AlamedaScaler. Default is _false_.
 - Field: selector

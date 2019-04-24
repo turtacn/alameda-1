@@ -91,7 +91,7 @@ objects:
             properties:
               customResourceVersion:
                 type: string
-              enableexecution:
+              enableExecution:
                 type: boolean
               policy:
                 enum:

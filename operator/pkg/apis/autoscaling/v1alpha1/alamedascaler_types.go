@@ -61,7 +61,7 @@ type AlamedaResource struct {
 
 type AlamedaController struct {
 	Deployments       map[NamespacedName]AlamedaResource `json:"deployments" protobuf:"bytes,1,opt,name=deployments"`
-	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentconfigs" protobuf:"bytes,2,opt,name=deploymentconfigs"`
+	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentConfigs" protobuf:"bytes,2,opt,name=deployment_configs"`
 }
 
 type AlamedaControllerType int
@@ -82,8 +82,8 @@ var (
 // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
-	Selector       *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
-	EnableExecution enableExecution       `json:"enableexecution" protobuf:"bytes,2,opt,name=enableexecution"`
+	Selector        *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,name=selector"`
+	EnableExecution enableExecution       `json:"enableExecution" protobuf:"bytes,2,name=enable_execution"`
 	// +kubebuilder:validation:Enum=stable,compact
 	Policy                alamedaPolicy `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
 	CustomResourceVersion string        `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
