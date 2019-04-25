@@ -15,6 +15,7 @@ import (
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
+	datahubUtil "github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
@@ -32,6 +33,7 @@ import (
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -154,9 +156,14 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
 	scope.Debug("Request received from ListPodMetrics grpc function: " + utils.InterfaceToString(in))
 
-	var (
-		err error
+	//--------------------------------------------------------
+	_, err := os.Stat("metric_cpu.csv")
+	if !os.IsNotExist(err) {
+		return s.ListPodMetricsDemo(ctx, in)
+	}
 
+	//--------------------------------------------------------
+	var (
 		metricDAO metric_dao.MetricsDAO
 
 		requestExt     datahubListPodMetricsRequestExtended
@@ -213,6 +220,93 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 			Code: int32(code.Code_OK),
 		},
 		PodMetrics: datahubPodMetrics,
+	}, nil
+}
+
+// ListPodMetrics list pods' metrics for demo
+func (s *Server) ListPodMetricsDemo(ctx context.Context, in *datahub_v1alpha1.ListPodMetricsRequest) (*datahub_v1alpha1.ListPodMetricsResponse, error) {
+	scope.Debug("Request received from ListPodMetricsDemo grpc function: " + utils.InterfaceToString(in))
+
+	demoPodMetricList := make([]*datahub_v1alpha1.PodMetric, 0)
+	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
+
+	if endTime == 0 {
+		return &datahub_v1alpha1.ListPodMetricsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INVALID_ARGUMENT),
+			},
+			PodMetrics: demoPodMetricList,
+		}, errors.Errorf("Invalid EndTime")
+	}
+
+	if endTime%3600 != 0 {
+		endTime = endTime - (endTime % 3600) + 3600
+	}
+
+	//step := int(in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
+	step := 3600
+	if step == 0 {
+		step = 3600
+	}
+
+	tempNamespacedName := datahub_v1alpha1.NamespacedName{
+		Namespace: in.NamespacedName.Namespace,
+		Name:      in.NamespacedName.Name,
+	}
+
+	demoContainerMetricList := make([]*datahub_v1alpha1.ContainerMetric, 0)
+	demoContainerMetric := datahub_v1alpha1.ContainerMetric{
+		Name:       in.NamespacedName.Name,
+		MetricData: make([]*datahub_v1alpha1.MetricData, 0),
+	}
+	demoContainerMetricList = append(demoContainerMetricList, &demoContainerMetric)
+
+	demoMetricDataCPU := datahub_v1alpha1.MetricData{
+		MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		Data:       make([]*datahub_v1alpha1.Sample, 0),
+	}
+
+	demoMetricDataMem := datahub_v1alpha1.MetricData{
+		MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		Data:       make([]*datahub_v1alpha1.Sample, 0),
+	}
+
+	demoDataMapCPU, _ := datahubUtil.ReadCSV("metric_cpu.csv")
+	demoDataMapMem, _ := datahubUtil.ReadCSV("metric_memory.csv")
+
+	demoKey := in.NamespacedName.Namespace + "_" + in.NamespacedName.Name
+
+	startTime := endTime - int64(step*len(demoDataMapCPU[demoKey]))
+	for index, value := range demoDataMapCPU[demoKey] {
+		second := startTime + int64(index*step)
+		demoMetricDataCPU.Data = append(demoMetricDataCPU.Data, &datahub_v1alpha1.Sample{
+			Time:     &timestamp.Timestamp{Seconds: int64(second)},
+			NumValue: value,
+		})
+	}
+
+	for index, value := range demoDataMapMem[demoKey] {
+		second := startTime + int64(index*step)
+		demoMetricDataMem.Data = append(demoMetricDataMem.Data, &datahub_v1alpha1.Sample{
+			Time:     &timestamp.Timestamp{Seconds: int64(second)},
+			NumValue: value,
+		})
+	}
+
+	demoContainerMetric.MetricData = append(demoContainerMetric.MetricData, &demoMetricDataCPU)
+	demoContainerMetric.MetricData = append(demoContainerMetric.MetricData, &demoMetricDataMem)
+
+	demoPodMetric := datahub_v1alpha1.PodMetric{
+		NamespacedName:   &tempNamespacedName,
+		ContainerMetrics: demoContainerMetricList,
+	}
+	demoPodMetricList = append(demoPodMetricList, &demoPodMetric)
+
+	return &datahub_v1alpha1.ListPodMetricsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodMetrics: demoPodMetricList,
 	}, nil
 }
 
@@ -375,9 +469,14 @@ func (s *Server) ListNodes(ctx context.Context, in *datahub_v1alpha1.ListNodesRe
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
 	scope.Debug("Request received from ListPodPredictions grpc function: " + utils.InterfaceToString(in))
 
-	var (
-		err error
+	//--------------------------------------------------------
+	_, err := os.Stat("prediction_cpu.csv")
+	if !os.IsNotExist(err) {
+		return s.ListPodPredictionsDemo(ctx, in)
+	}
 
+	//--------------------------------------------------------
+	var (
 		predictionDAO prediction_dao.DAO
 
 		podsPredicitonMap     *prediction_dao.PodsPredictionMap
@@ -409,6 +508,102 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 			Code: int32(code.Code_OK),
 		},
 		PodPredictions: datahubPodPredicitons,
+	}, nil
+}
+
+// ListPodPredictions list pods' predictions for demo
+func (s *Server) ListPodPredictionsDemo(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
+	scope.Debug("Request received from ListPodPredictionsDemo grpc function: " + utils.InterfaceToString(in))
+
+	demoPodPredictionList := make([]*datahub_v1alpha1.PodPrediction, 0)
+	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
+
+	if endTime == 0 {
+		return &datahub_v1alpha1.ListPodPredictionsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INVALID_ARGUMENT),
+			},
+			PodPredictions: demoPodPredictionList,
+		}, errors.Errorf("Invalid EndTime")
+	}
+
+	if endTime%3600 != 0 {
+		endTime = endTime - (endTime % 3600) + 3600
+	}
+
+	//step := int(in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
+	step := 3600
+	if step == 0 {
+		step = 3600
+	}
+
+	if endTime == 0 {
+		return &datahub_v1alpha1.ListPodPredictionsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INVALID_ARGUMENT),
+			},
+			PodPredictions: demoPodPredictionList,
+		}, errors.Errorf("Invalid EndTime")
+	}
+
+	tempNamespacedName := datahub_v1alpha1.NamespacedName{
+		Namespace: in.NamespacedName.Namespace,
+		Name:      in.NamespacedName.Name,
+	}
+
+	demoContainerPredictionList := make([]*datahub_v1alpha1.ContainerPrediction, 0)
+	demoContainerPrediction := datahub_v1alpha1.ContainerPrediction{
+		Name:             in.NamespacedName.Name,
+		PredictedRawData: make([]*datahub_v1alpha1.MetricData, 0),
+	}
+	demoContainerPredictionList = append(demoContainerPredictionList, &demoContainerPrediction)
+
+	demoPredictionDataCPU := datahub_v1alpha1.MetricData{
+		MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		Data:       make([]*datahub_v1alpha1.Sample, 0),
+	}
+
+	demoPredictionDataMem := datahub_v1alpha1.MetricData{
+		MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		Data:       make([]*datahub_v1alpha1.Sample, 0),
+	}
+
+	demoDataMapCPU, _ := datahubUtil.ReadCSV("prediction_cpu.csv")
+	demoDataMapMem, _ := datahubUtil.ReadCSV("prediction_memory.csv")
+
+	demoKey := in.NamespacedName.Namespace + "_" + in.NamespacedName.Name
+	startTime := endTime - int64(step*len(demoDataMapCPU[demoKey]))
+
+	for index, value := range demoDataMapCPU[demoKey] {
+		second := startTime + int64(index*step)
+		demoPredictionDataCPU.Data = append(demoPredictionDataCPU.Data, &datahub_v1alpha1.Sample{
+			Time:     &timestamp.Timestamp{Seconds: int64(second)},
+			NumValue: value,
+		})
+	}
+
+	for index, value := range demoDataMapMem[demoKey] {
+		second := startTime + int64(index*step)
+		demoPredictionDataMem.Data = append(demoPredictionDataMem.Data, &datahub_v1alpha1.Sample{
+			Time:     &timestamp.Timestamp{Seconds: int64(second)},
+			NumValue: value,
+		})
+	}
+
+	demoContainerPrediction.PredictedRawData = append(demoContainerPrediction.PredictedRawData, &demoPredictionDataCPU)
+	demoContainerPrediction.PredictedRawData = append(demoContainerPrediction.PredictedRawData, &demoPredictionDataMem)
+
+	demoPodMetric := datahub_v1alpha1.PodPrediction{
+		NamespacedName:       &tempNamespacedName,
+		ContainerPredictions: demoContainerPredictionList,
+	}
+	demoPodPredictionList = append(demoPodPredictionList, &demoPodMetric)
+
+	return &datahub_v1alpha1.ListPodPredictionsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodPredictions: demoPodPredictionList,
 	}, nil
 }
 

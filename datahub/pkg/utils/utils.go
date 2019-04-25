@@ -4,10 +4,12 @@ import (
 	"strconv"
 	"time"
 
+	"encoding/csv"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"os"
 )
 
 var (
@@ -106,4 +108,27 @@ func StringToFloat64(str string) (float64, error) {
 	} else {
 		return 0, err
 	}
+}
+
+func ReadCSV(file string) (map[string][]string, error) {
+	retMap := map[string][]string{}
+
+	csvFile, err := os.Open(file)
+	if err != nil {
+		return retMap, nil
+	}
+	defer csvFile.Close()
+
+	csvReader := csv.NewReader(csvFile)
+	rows, err := csvReader.ReadAll()
+
+	for _, row := range rows {
+		podName := row[0]
+		retMap[podName] = make([]string, 0)
+		for _, data := range row[1:] {
+			retMap[podName] = append(retMap[podName], data)
+		}
+	}
+
+	return retMap, nil
 }
