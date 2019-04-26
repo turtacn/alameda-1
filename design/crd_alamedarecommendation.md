@@ -1,13 +1,13 @@
 ## AlamedaRecommendation Custom Resource Definition
 
-`AlamedaRecommendation` CRD is one of the ways to expose Alameda recommendation results. When users create [`AlamedaScaler` CRs](./crd_alamedascaler.md), Alameda will create `AlamedaRecommendation` CRs for all the seleted pods. Users can get it by calling K8s api calls.
+_AlamedaRecommendation_ CRD is one of the three ways to expose Alameda recommendation results. When users create [`AlamedaScaler` CRs](./crd_alamedascaler.md), Alameda will create _AlamedaRecommendation_ CRs for each seleted pods. The main purpose of this CRD is to provide an integration point for programs (including Alameda itself) to leverage the Alameda outputs which are resource orchestration recommendations.
 
-> **Note**: Currently there are three ways to get Alameda recommendation results:
-- `AlamedaRecommendation` CRs. Users can get it by calling K8s api calls.
-- Visualized with Grafana dashboards. The data is pulled directly from influxDB.
-- gRPC API calls to `datahub` component. `Datahub` component runs as a gRPC server to handle all the data access needed in Alameda.
+> **Note**: Currently there are three ways to see Alameda recommendation results:
+- _AlamedaRecommendation_ CR. Users can get it by calling K8s api calls or watch it to get notification when the CR is updated.
+- Visualized with Grafana dashboards. The data is pulled directly from InfluxDB.
+- gRPC API calls to **datahub** component. **Datahub** component runs as a gRPC server to handle all the data access of Alameda including recommendation results.
 
-Here is an example of `alamedarecommendation` CR:
+Here is an example _alamedarecommendation_ CR:
 
 ```
 apiVersion: v1
@@ -48,7 +48,34 @@ metadata:
   selfLink: ""
 ```
 
-In this example, this `AlamedaRecommendation` CR responds to `AlamedaScaler` *as* of namespace *alameda* and is created for pod `alameda-ai-7f5b6b6d8-8fqrv`. The recommendations for this pod is to set cpu request and limit to 1649m and 1654m, and to set memory request and limit to 388136Ki and 388136Ki.
+In this example, this _AlamedaRecommendation_ CR responds to _AlamedaScaler_ _as_ in namespace _alameda_ and is created for pod _alameda-ai-7f5b6b6d8-8fqrv_. The recommendations for this pod is to set cpu request and limit to 1649m and 1654m, and to set memory request and limit to 388136Ki and 388136Ki.
 
 > **Note:**: The recommendations will be updated when new recommendations are available.
+
+## Schema of AlamedaRecommendation
+
+- Field: metadata
+  - type: ObjectMeta
+  - description: This follows the ObjectMeta definition in [Kubernetes API Reference](https://kubernetes.io/docs/reference/#api-reference)
+- Field: spec
+  - type: [AlamedaRecommendationSpec](#alamedarecommendationspec)
+  - description: Spec of AlamedaRecommendation
+
+### AlamedaRecommendationSpec
+
+- Field: containers
+  - type: [ContainerResourceRecommendation](#containerresourcerecommendation) array
+  - description: List of containers with resource recommendations.
+
+### ContainerResourceRecommendation
+
+- Field: name
+  - type: string
+  - description: name of container.
+- Field: limits
+  - type: object
+  - description: Limits describes the **recommended** maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+- Field: requests
+  - type: object
+  - description: Requests describes the **recommended** minimum amount of compute resources required. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 

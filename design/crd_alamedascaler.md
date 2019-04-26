@@ -1,9 +1,9 @@
 ## AlamedaScaler Custom Resource Definition
 
 After Alameda is installed, it does not orchestrate any pod resources by default.
-Alameda use `alamedascaler` [CRD](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) as a channel for users to tell Alameda which pods needs autoscaling services and what policy to follow.
+Alameda use _alamedascaler_ [CRD](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) as a channel for users to tell Alameda which pods needs autoscaling services and what policy to follow.
 
-Here is an example of `alamedascaler` CR:
+Here is an example _alamedascaler_ CR:
 
 ```
   apiVersion: autoscaling.containers.ai/v1alpha1
@@ -13,16 +13,21 @@ Here is an example of `alamedascaler` CR:
     namespace: webapp
   spec:
     policy: stable
+    enableexecution: false
     selector:
       matchLabels:
         app: nginx
 ```
 
-In this example, it creates an `AlamedaScaler` CR with name `alameda` in namespace `webapp`. With this CR, Alameda will look for K8s api objects with label `app` equals to `nginx` of the same `webapp` namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda. The `policy` field also instructs Alameda to recommend resource usage with `stable` policy.
+In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s api objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda. The `policy` field also instructs Alameda to make recommendations with _stable_ policy. The `enableexecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR. For detailed _AlamedaScaler_ schema, please check out the last section of this document.
 
-When `AlamedaScaler` CR is created in K8s, Alameda will process it and add selected pods information to it. For example, the above `AlamedaScaler` CR example will have the following contents when it is got from K8s with yaml format.
+> **Note:** The supported K8s api objects are created by resource _kind_:
+- ```Deployment``` of _groupversion_ ```apps/v1```, ```apps/v1beta1```, ```apps/v1beta2```, ```extentions/v1beta1``` and
+- ```DeploymentConfig``` of _groupversion_ ```apps.openshift.io/v1```
 
+When an _AlamedaScaler_ CR is created, Alameda will process it and add the selected K8s api objects information. For example, you can see from the `status` field of the following _AlamedaScaler_ CR to know what K8s resources are watched:
 ```
+$ kubectl get alamedascaler -n alameda -o yaml
 apiVersion: v1
 items:
 - apiVersion: autoscaling.containers.ai/v1alpha1
@@ -39,7 +44,7 @@ items:
     selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/alameda/alamedascalers/as
     uid: bb9e1b3f-3f0a-11e9-b062-08606e0a1cbb
   spec:
-    enable: true
+    enableexecution: false
     policy: stable
     selector:
       matchLabels:
@@ -67,27 +72,33 @@ metadata:
 
 ```
 
-The `status` field shows no `deploymentconfigs` is selected and one `deployment` called `alameda-ai` is seleted.
+The `status` field shows no _deploymentconfigs_ is selected and one _deployment_ called _alameda-ai_ is seleted.
 
-When an `AlamedaScaler` CR is created in K8s, Alameda will also create `AlamedaRecommendation` CR(s) for each selected pod to expose resource recommendations. For example, in the above example, users can see a `AlamedaRecommendation` CR called `alameda-ai-7f5b6b6d8-8fqrv` is created. Here you can find more information about [`AlamedaRecommendation` CRD](./crd_alamedarecommendation.md).
+Besides the selected api objects information is kept in an _AlamedaScaler_ CR, Alameda will also create _AlamedaRecommendation_ CR(s) for each selected pod to expose resource recommendations. This is an integration point for any programs (including Alameda itself) to leverage the resource usage recommendations. For example, in the above example, users can see an _AlamedaRecommendation_ CR called `alameda-ai-7f5b6b6d8-8fqrv` is created. Here you can find more information about [`AlamedaRecommendation` CRD](./crd_alamedarecommendation.md).
 ```
 $ kubectl get alamedarecommendations -n alameda
 NAME                         AGE
 alameda-ai-7f5b6b6d8-8fqrv   18m
-
 ```
 
-## Current configurable settings
+## Schema of AlamedaScaler
 
-- Current supported K8s api objects are:
-  - ```Deployment``` of api ```apps/v1```, and
-  - ```DeploymentConfig``` of api ```apps.openshift.io/v1```
+- Field: metadata
+  - type: ObjectMeta
+  - description: This follows the ObjectMeta definition in [Kubernetes API Reference](https://kubernetes.io/docs/reference/#api-reference).
+- Field: spec
+  - type: [AlamedaScalerSpec](#alamedascalerspec)
+  - description: Spec of AlamedaScaler.
 
-  Alameda will automatically look up those supported K8s api objects of the matched label.
+### AlamedaScalerSpec
 
-- The supported policies are:
-  - `stable`, and
-  - `compact` (cost-saving).
-
-- And Alameda only process the `matchLabels` field of `selector`.
+- Field: policy
+  - type: string
+  - description: Policy used by Alameda for resource recommendations. _stable_ and _compact_ are supported. Default is _stable_.
+- Field: enableexecution
+  - type: boolean
+  - description: Set to _true_ to enable recommendation execution for api objects selected by this AlamedaScaler. Default is _false_.
+- Field: selector
+  - type: LabelSelector
+  - description: This follows the _LabelSelector_ definition in [Kubernetes API Reference](https://kubernetes.io/docs/reference/#api-reference) except that Alameda only processes the `matchLabels` field of `LabelSelector`.
 
