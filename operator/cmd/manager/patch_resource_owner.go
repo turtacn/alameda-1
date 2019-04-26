@@ -38,7 +38,7 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 		ownerType.Kind = "DeploymentConfig"
 		ownerMeta = dc.ObjectMeta
 	}
-	ownerRef := k8sUtils.NewOwnerReference(ownerType, ownerMeta,false)
+	ownerRef := k8sUtils.NewOwnerReference(ownerType, ownerMeta, false)
 
 	retryPeriod := 60 * time.Second
 	retryTicker := time.NewTicker(retryPeriod)
@@ -50,13 +50,13 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 		for _, servicesKey := range serviceKeys {
 			service := corev1.Service{}
 			if err := sigsK8SClient.Get(context.TODO(), servicesKey, &service); err != nil {
-				scope.Warnf("add ownerReferences to service: %s/%s failed, retry after %d seconds, %s.", servicesKey.Namespace, servicesKey.Name, retryPeriod, err.Error())
+				scope.Warnf("add ownerReferences to service: %s/%s failed, retry after %f seconds, %s.", servicesKey.Namespace, servicesKey.Name, retryPeriod.Seconds(), err.Error())
 				retry = true
 				break
 			}
 			k8sUtils.AddOwnerRefToObject(&service, ownerRef)
 			if err := sigsK8SClient.Update(context.TODO(), &service); err != nil {
-				scope.Warnf("add ownerReferences to service: %s/%s failed, retry after %d seconds, %s.", servicesKey.Namespace, servicesKey.Name, retryPeriod, err.Error())
+				scope.Warnf("add ownerReferences to service: %s/%s failed, retry after %f seconds, %s.", servicesKey.Namespace, servicesKey.Name, retryPeriod.Seconds(), err.Error())
 				retry = true
 				break
 			}
@@ -66,13 +66,13 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 		for _, webhookConfigKey := range validatingWebhookConfigKeys {
 			webhookConfig := admissionregistrationv1beta1.ValidatingWebhookConfiguration{}
 			if err := sigsK8SClient.Get(context.TODO(), webhookConfigKey, &webhookConfig); err != nil {
-				scope.Warnf("add ownerReferences to validatingWebhookConfiguration: %s failed, retry after %d seconds, %s", webhookConfigKey.Name, retryPeriod, err.Error())
+				scope.Warnf("add ownerReferences to validatingWebhookConfiguration: %s failed, retry after %f seconds, %s", webhookConfigKey.Name, retryPeriod.Seconds(), err.Error())
 				retry = true
 				break
 			}
 			k8sUtils.AddOwnerRefToObject(&webhookConfig, ownerRef)
 			if err := sigsK8SClient.Update(context.TODO(), &webhookConfig); err != nil {
-				scope.Warnf("add ownerReferences to validatingWebhookConfiguration: %s failed, retry after %d seconds, %s", webhookConfig.Name, retryPeriod, err.Error())
+				scope.Warnf("add ownerReferences to validatingWebhookConfiguration: %s failed, retry after %f seconds, %s", webhookConfig.Name, retryPeriod.Seconds(), err.Error())
 				retry = true
 				break
 			}
@@ -82,14 +82,14 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 		// for _, webhookConfigKey := range mutatingWebhookConfigKeys {
 		// 	webhookConfig := admissionregistrationv1beta1.MutatingWebhookConfiguration{}
 		// 	if err := sigsK8SClient.Get(context.TODO(), webhookConfigKey, &webhookConfig); err != nil {
-		// 		scope.Errorf("add ownerReferences to mutatingWebhookConfiguration: %s failed, retry after %d seconds, %s", webhookConfig.Name,retryPeriod, err.Error())
-		// 		retry = false
+		// 		scope.Errorf("add ownerReferences to mutatingWebhookConfiguration: %s failed, retry after %f seconds, %s", webhookConfig.Name,retryPeriod.Seconds(), err.Error())
+		// 		retry = true
 		// 		break
 		// 	}
 		// 	k8sUtils.AddOwnerRefToObject(&webhookConfig, ownerRef)
 		// 	if err := sigsK8SClient.Update(context.TODO(), &webhookConfig); err != nil {
-		// 		scope.Errorf("add ownerReferences to mutatingWebhookConfiguration: %s failed, retry after %d seconds, %s", webhookConfig.Name,retryPeriod, err.Error())
-		// 		retry = false
+		// 		scope.Errorf("add ownerReferences to mutatingWebhookConfiguration: %s failed, retry after %f seconds, %s", webhookConfig.Name,retryPeriod.Seconds(), err.Error())
+		// 		retry = true
 		// 		break
 		// 	}
 		// }

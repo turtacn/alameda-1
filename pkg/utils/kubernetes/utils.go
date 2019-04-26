@@ -88,6 +88,10 @@ func GetPodByNamespaceNameWithConfig(namespace, name string, config rest.Config)
 
 	pod := corev1.Pod{}
 
+	if namespace == "" || name == "" {
+		return pod, errors.New("get pod by namespace and name failed, cannot get pod if namespace and name do not provide")
+	}
+
 	k8sClient, err := kubernetes.NewForConfig(&config)
 	if err != nil {
 		return pod, errors.Errorf("get pod by namespace and name failed, create k8s api client failed: %s", err.Error())
