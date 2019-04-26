@@ -6,3 +6,5 @@ docker-build.operator:
 
 docker-build.admission-controller:
 	cd admission-controller && $(MAKE) docker-build
+manifests:
+	./scripts/generate_manifests.sh ./example/deployment/kubernetes/ helm/alameda/values.yaml

@@ -8,26 +8,49 @@ For more details, please refer to https://github.com/containers-ai/alameda
 
 > **Note**: To deploy Alameda by Helm charts, please install [Helm](https://docs.helm.sh/using_helm/#quickstart-guide) first.
 
-According to Alameda [design](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), it is composed of several components. You can find their Helm charts in the respective subfolders. 
+According to Alameda [architecture](https://github.com/containers-ai/alameda/blob/master/design/architecture.md), it is composed of:
+- alameda-operator
+- alameda-datahub
+- alameda-ai
+- alameda-evictioner
+- admission-controller
+- alameda-influxdb (leverage the opensource InfluxDB)
+- alameda-grafana (leverage the opensource Grafana)
 
-- Charts of the following components are located at `./alameda`
-  - operator
-  - alameda-ai
-  - datahub
-- Prometheus chart is located at `./prometheus`
-- InfluxDB chart is located at `./influxdb`
-- Grafana chart is located at `./grafana`. Alameda also provides customized dashboard json files at `./grafana/dashboards/` and they will be imported when Grafana chart is deployed.
+and assumes **Prometheus** is running in your cluster.
 
-To get Alameda running, *operator*, *alameda-ai*, *datahub*, *Prometheus* and *InfluxDB* must be deployed.
-> **Note**: You can levarage the running *Prometheus*, *InfluxDB* and *Grafana* instances in your cluster. Please refer to ./alameda/values.yaml to configure the connections between Alameda and these components.
+Users can install Alameda by following:
+1. Install InfluxDB chart by executing:
+```
+$ helm install stable/influxdb --version 1.1.3 --name alameda-influxdb --namespace alameda
+```
+2. Install Alameda chart for component _alameda-operator_, _alameda-datahub_, _alameda-ai_, _alameda-evictioner_ and _admission-controller_ by executing:
+```
+$ helm install --name alameda --namespace alameda ./alameda
+```
+> **Note 1**: Alameda needs to collaborate with Prometheus to see historical pod/node metrics. The default URL is set to _http://prometheus-prometheus-oper-prometheus.monitoring:9090_ in this chart. Please modify it according to your environment before installing this chart.  
+> **Note 2**: The images of Alameda components are assumed existed in local docker environment and pulled from it. Please refer to [build guide](../docs/build.md) for building images from source code or change the image repository settings before installing this chart.
+
+3. Install Grafana chart by executing:
+```
+$ helm install --name alameda-grafana --namespace alameda ./grafana/
+```
+> **Note**: This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 2.0.1 with customized dashboards.
+
+4. (Optional) If your environment does not have a running Prometheus, you can install it by executing:
+```
+$ helm install stable/prometheus-operator --version 4.3.1 --name prometheus --namespace monitoring
+```
+This will install Prometheus and the default setting will have all the metrics that Alameda needs. For detail metrics needed by Alameda, please visit [metrics_used_in_Alameda.md](../docs/metrics_used_in_Alameda.md) document.
 
 ## TL;DR;
 
 ```console
 $ git clone https://github.com/containers-ai/alameda
-$ helm install stable/influxdb --version 1.1.0 --name influxdb --namespace monitoring
-$ helm install stable/prometheus-operator --version 4.3.1 --name prometheus --namespace monitoring -f ./prometheus-operator/values.yaml
-$ helm install --name alameda --namespace alameda ./alameda
-$ helm install --name grafana --namespace monitoring ./grafana/
+$ helm install stable/influxdb --version 1.1.3 --name alameda-influxdb --namespace alameda
+### Install Prometheus if no existed one
+# $ helm install stable/prometheus-operator --version 4.3.1 --name prometheus --namespace monitoring
+$ helm install --name alameda --namespace alameda ./alameda/
+$ helm install --name alameda-grafana --namespace alameda ./grafana/
 ```
 

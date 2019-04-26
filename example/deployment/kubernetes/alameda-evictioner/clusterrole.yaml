@@ -1,0 +1,26 @@
+---
+# Source: alameda/charts/evictioner/templates/clusterrole.yaml
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: alameda
+    component: alameda-evictioner
+  name: alameda-evictioner
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - get
+    - delete
+- apiGroups:
+    - autoscaling.containers.ai
+  resources:
+    - alamedascalers
+    - alamedarecommendations
+  verbs:
+    - get
+

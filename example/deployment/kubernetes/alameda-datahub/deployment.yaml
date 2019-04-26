@@ -1,0 +1,43 @@
+---
+# Source: alameda/charts/datahub/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alameda-datahub
+  namespace: alameda
+  labels:
+    app: alameda
+    component: alameda-datahub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alameda
+      component: alameda-datahub
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: alameda-datahub
+    spec:
+      containers:
+        - name: datahub
+          image: "datahub:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
+              value: "http://alameda-influxdb:8086"
+            - name: ALAMEDA_DATAHUB_INFLUXDB_USERNAME
+              value: "alameda"
+            - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
+              value: "alameda"
+            - name: ALAMEDA_DATAHUB_PROMETHEUS_TLS_CONFIG_INSECURE_SKIP_VERIFY
+              value: "true"
+            - name: ALAMEDA_DATAHUB_PROMETHEUS_BEARER_TOKEN_FILE
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
+              value: "http://prometheus-prometheus-oper-prometheus.monitoring:9090"
+          resources:
+            {}
+            
+      serviceAccountName: alameda-datahub

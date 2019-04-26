@@ -6,21 +6,17 @@ metadata:
   labels:
     app: alameda
     component: {{ .Values.global.component.operator.name }}
-    app.kubernetes.io/name: {{ include "alameda.name" . }}
-    helm.sh/chart: {{ include "alameda.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.global.component.operator.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "alameda.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: alameda
+      component: {{ .Values.global.component.operator.name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "alameda.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: alameda
+        component: {{ .Values.global.component.operator.name }}
     spec:
       containers:
         - name: {{ .Chart.Name }}

@@ -1,0 +1,33 @@
+---
+# Source: alameda/charts/alameda-ai/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alameda-alameda-ai
+  namespace: alameda
+  labels:
+    app: alameda
+    component: alameda-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alameda
+      component: alameda-ai
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: alameda-ai
+    spec:
+      containers:
+        - name: alameda-ai
+          image: "alameda-ai:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATAHUB_ADDRESS
+              value: "alameda-datahub.alameda:50050"
+          resources:
+            {}
+            
+      serviceAccountName: alameda-alameda-ai

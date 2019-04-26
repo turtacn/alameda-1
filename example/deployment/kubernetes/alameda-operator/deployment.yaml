@@ -1,0 +1,44 @@
+---
+# Source: alameda/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alameda-operator
+  namespace: alameda
+  labels:
+    app: alameda
+    component: alameda-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alameda
+      component: alameda-operator
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: alameda-operator
+    spec:
+      containers:
+        - name: alameda
+          image: "operator:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ALAMEDA_OPERATOR_DATAHUB_ADDRESS
+              value: "alameda-datahub.alameda:50050"
+          resources:
+            {}
+            
+          volumeMounts:
+          - name: podinfo
+            mountPath: /etc/podinfo
+            readOnly: false
+      volumes:
+      - name: podinfo
+        downwardAPI:
+          items:
+          - path: "labels"
+            fieldRef:
+              fieldPath: metadata.labels
+      serviceAccountName: alameda-operator

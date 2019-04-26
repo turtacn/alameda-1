@@ -1,0 +1,52 @@
+---
+# Source: alameda/charts/admission-controller/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alameda-admission-controller
+  labels:
+    app: alameda
+    component: admission-controller
+spec:
+  replicas: 
+  selector:
+    matchLabels:
+      app: alameda
+      component: admission-controller
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: admission-controller
+    spec:
+      containers:
+        - name: admission-controller
+          image: "admission-controller:latest"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ALAMEDA_ADMCTL_CA_CERT_FILE
+              value: "/etc/tls-certs/ca.crt"
+            - name: ALAMEDA_ADMCTL_TLS_CERT_FILE
+              value: "/etc/tls-certs/tls.crt"
+            - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
+              value: "/etc/tls-certs/tls.key"
+            - name: ALAMEDA_ADMCTL_DEPLOYED_NAMESPACE
+              value: "alameda"
+            - name: ALAMEDA_ADMCTL_ENABLE
+              value: "false"
+            - name: ALAMEDA_ADMCTL_DATAHUB_ADDRESS
+              value: "alameda-datahub.alameda:50050"
+#            - name: ALAMEDA_ADMCTL_LOG_OUTPUT_LEVEL
+#              value: "debug"
+          resources:
+            {}
+            
+          volumeMounts:
+          - mountPath: /etc/tls-certs
+            name: tls-certs
+            readOnly: true
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: alameda-admission-controller-tls
+      serviceAccountName: alameda-admission-controller

@@ -1,0 +1,6 @@
+---
+# Source: alameda/charts/datahub/templates/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: alameda
