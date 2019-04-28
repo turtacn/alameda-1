@@ -304,8 +304,8 @@ func (evictioner *Evictioner) isPodEnableExecution(alamRecomm *autoscalingv1alph
 
 		scaler, err := evictioner.getAlamedaScalerInfo(alamRecomm.GetNamespace(), or.Name)
 		if err == nil {
-			enableScalerMap[fmt.Sprintf("%s/%s", alamRecomm.GetNamespace(), or.Name)] = scaler.Spec.EnableExcution
-			return scaler.Spec.EnableExcution
+			enableScalerMap[fmt.Sprintf("%s/%s", alamRecomm.GetNamespace(), or.Name)] = scaler.Spec.EnableExecution
+			return scaler.Spec.EnableExecution
 		}
 		return false
 	}

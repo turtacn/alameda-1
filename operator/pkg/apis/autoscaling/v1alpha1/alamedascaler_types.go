@@ -83,7 +83,7 @@ var (
 type AlamedaScalerSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 	Selector       *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,opt,name=selector"`
-	EnableExcution enableExecution       `json:"enableexcution" protobuf:"bytes,2,opt,name=enableexcution"`
+	EnableExecution enableExecution       `json:"enableexecution" protobuf:"bytes,2,opt,name=enableexecution"`
 	// +kubebuilder:validation:Enum=stable,compact
 	Policy                alamedaPolicy `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
 	CustomResourceVersion string        `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
