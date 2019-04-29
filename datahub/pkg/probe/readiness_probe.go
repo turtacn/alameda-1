@@ -31,7 +31,6 @@ func pingInfluxdb(influxdbAddr string) error {
 func queryPrometheus(prometheusConfig *prometheus.Config) error {
 	emr := "exceeded maximum resolution"
 	options := []promRepository.Option{}
-	prometheusAddr := prometheusConfig.URL
 
 	podContainerCPURepo := promRepository.NewPodContainerCPUUsagePercentageRepositoryWithConfig(*prometheusConfig)
 	containerCPUEntities, err := podContainerCPURepo.ListMetricsByPodNamespacedName("", "", options...)
