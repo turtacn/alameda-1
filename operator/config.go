@@ -28,6 +28,14 @@ func NewConfig(manager manager.Manager) Config {
 	return c
 }
 
+func NewConfigWithoutMgr() Config {
+
+	c := Config{}
+	c.init()
+
+	return c
+}
+
 func (c *Config) init() {
 
 	defaultLogConfig := log.NewDefaultConfig()

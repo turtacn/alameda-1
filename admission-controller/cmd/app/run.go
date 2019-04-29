@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/containers-ai/alameda/admission-controller"
+	admission_controller "github.com/containers-ai/alameda/admission-controller"
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource/datahub"
 	"github.com/containers-ai/alameda/admission-controller/pkg/server"
 	utils "github.com/containers-ai/alameda/pkg/utils"
@@ -89,10 +89,6 @@ var (
 		},
 	}
 )
-
-func init() {
-	flag.StringVar(&configurationFilePath, "config", "/etc/alameda/admission-controller/admission-controller.yml", "File path to admission-controller coniguration")
-}
 
 func initConfig() {
 
@@ -207,7 +203,7 @@ func prepareMutatingWebhookConfigurationInstance() error {
 	var (
 		namespace         string
 		caBundle          []byte
-		serviceName       = "admission-controller"
+		serviceName       = config.Service.Name
 		mutatePodEndPoint = "/pods"
 	)
 
@@ -316,14 +312,14 @@ func registerHandlerFunc(mux *http.ServeMux, ac server.AdmissionController) {
 }
 
 func newHTTPServer(cfg admission_controller.Config, mux *http.ServeMux) *http.Server {
-
 	tlsConfig, err := config.ConfigTLS()
 	if err != nil {
 		panic(err.Error())
 	}
 
+	addr := fmt.Sprintf(":%s", fmt.Sprint(config.Port))
 	server := &http.Server{
-		Addr:      ":8000",
+		Addr:      addr,
 		Handler:   mux,
 		TLSConfig: tlsConfig,
 	}

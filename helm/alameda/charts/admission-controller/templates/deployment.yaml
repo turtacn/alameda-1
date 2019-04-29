@@ -46,6 +46,24 @@ spec:
 #              value: "debug"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/admission-controller
+              - probe
+              - --type=readiness
+            failureThreshold: 20
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/admission-controller
+              - probe
+              - --type=liveness
+            failureThreshold: 20
+            initialDelaySeconds: 5
+            periodSeconds: 5
           volumeMounts:
           - mountPath: /etc/tls-certs
             name: tls-certs

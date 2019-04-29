@@ -3,14 +3,7 @@ package main
 import (
 	"github.com/containers-ai/alameda/cmd/app"
 	datahub_app "github.com/containers-ai/alameda/datahub/cmd/app"
-	"github.com/spf13/cobra"
 )
-
-var RootCmd = &cobra.Command{
-	Use:   "datahub",
-	Short: "alameda datahub",
-	Long:  "",
-}
 
 var (
 	// VERSION is sofeware version
@@ -22,13 +15,7 @@ var (
 )
 
 func init() {
-	RootCmd.AddCommand(datahub_app.RunCmd)
-	RootCmd.AddCommand(app.VersionCmd)
-}
-
-func main() {
 	setSoftwareInfo()
-	RootCmd.Execute()
 }
 
 func setSoftwareInfo() {
@@ -36,4 +23,8 @@ func setSoftwareInfo() {
 	app.BUILD_TIME = BUILD_TIME
 	app.GO_VERSION = GO_VERSION
 	app.PRODUCT_NAME = "datahub"
+}
+
+func main() {
+	datahub_app.RootCmd.Execute()
 }

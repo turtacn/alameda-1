@@ -14,6 +14,7 @@ type secret struct {
 type service struct {
 	Namespace string `mapstructure:"namespace"`
 	Name      string `mapstructure:"name"`
+	Port      int32  `mapstructure:"port"`
 }
 
 type Config struct {
@@ -33,6 +34,7 @@ func NewConfig() *Config {
 		Service: service{
 			Namespace: runngingNS,
 			Name:      "operator-admission-service",
+			Port:      443,
 		},
 		Secret: secret{
 			Namespace: runngingNS,

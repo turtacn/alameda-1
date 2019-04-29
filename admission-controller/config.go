@@ -3,6 +3,7 @@ package admission_controller
 import (
 	"crypto/tls"
 
+	"github.com/containers-ai/alameda/admission-controller/pkg/service"
 	"github.com/containers-ai/alameda/pkg/framework/datahub"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
@@ -17,13 +18,15 @@ type Config struct {
 	DeployedNamespace string          `mapstructure:"deployed-namespace"`
 	Log               *log.Config     `mapstructure:"log"`
 	Datahub           *datahub.Config `mapstructure:"datahub"`
+	Port              int32           `mapstructure:"port"`
+	Service           *service.Config `mapstructure:"service"`
 }
 
 func NewDefaultConfig() Config {
 
 	defaultDatahubConfig := datahub.NewDefaultConfig()
 	defaultLogConfig := log.NewDefaultConfig()
-
+	defaultSvcConfig := service.NewDefaultConfig()
 	return Config{
 		CACertFile:        "",
 		CertFile:          "",
@@ -32,6 +35,8 @@ func NewDefaultConfig() Config {
 		DeployedNamespace: "alameda",
 		Log:               &defaultLogConfig,
 		Datahub:           &defaultDatahubConfig,
+		Port:              8000,
+		Service:           defaultSvcConfig,
 	}
 }
 

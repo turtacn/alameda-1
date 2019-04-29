@@ -28,6 +28,7 @@ import (
 
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
+	"github.com/containers-ai/alameda/operator/pkg/probe"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/viper"
@@ -51,6 +52,8 @@ const JSONIndent = "  "
 var operatorConfigFile string
 var crdLocation string
 var showVer bool
+var readinessProbeFlag bool
+var livenessProbeFlag bool
 
 var operatorConf operator.Config
 var k8sConfig *rest.Config
@@ -67,6 +70,8 @@ var (
 
 func init() {
 	flag.BoolVar(&showVer, "version", false, "show version")
+	flag.BoolVar(&readinessProbeFlag, "readiness-probe", false, "probe for readiness")
+	flag.BoolVar(&livenessProbeFlag, "liveness-probe", false, "probe for liveness")
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
 	flag.StringVar(&crdLocation, "crd-location", "/etc/alameda/operator/crds", "CRD location")
 
@@ -97,9 +102,12 @@ func initLogger() {
 	}
 }
 
-func initServerConfig(mgr manager.Manager) {
+func initServerConfig(mgr *manager.Manager) {
 
-	operatorConf = operator.NewConfig(mgr)
+	operatorConf = operator.NewConfigWithoutMgr()
+	if mgr != nil {
+		operatorConf = operator.NewConfig(*mgr)
+	}
 
 	viper.SetEnvPrefix(envVarPrefix)
 	viper.AutomaticEnv()
@@ -128,6 +136,28 @@ func main() {
 		return
 	}
 
+	if readinessProbeFlag && livenessProbeFlag {
+		scope.Error("Cannot run readiness probe and liveness probe at the same time")
+		return
+	} else if readinessProbeFlag {
+		initServerConfig(nil)
+		readinessProbe(&probe.ReadinessProbeConfig{
+			ValidationSrvPort: operatorConf.K8SWebhookServer.Port,
+			DatahubAddr:       operatorConf.Datahub.Address,
+		})
+		return
+	} else if livenessProbeFlag {
+		initServerConfig(nil)
+		livenessProbe(&probe.LivenessProbeConfig{
+			ValidationSvc: &probe.ValidationSvc{
+				SvcName: operatorConf.K8SWebhookServer.Service.Name,
+				SvcNS:   operatorConf.K8SWebhookServer.Service.Namespace,
+				SvcPort: operatorConf.K8SWebhookServer.Service.Port,
+			},
+		})
+		return
+	}
+
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -143,7 +173,7 @@ func main() {
 
 	// TODO: There are config dependency, this manager should have it's config.
 	applyCRDs(k8sConfig)
-	initServerConfig(mgr)
+	initServerConfig(&mgr)
 	initLogger()
 	printSoftwareInfo()
 

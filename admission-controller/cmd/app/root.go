@@ -18,6 +18,7 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(RunCmd)
 	RootCmd.AddCommand(VersionCmd)
+	RootCmd.AddCommand(ProbeCmd)
 
 	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/admission-controller/admission-controller.yml", "File path to admission-controller coniguration")
 }

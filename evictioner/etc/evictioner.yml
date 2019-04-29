@@ -11,3 +11,7 @@ eviction:
   trigger-threshold: #percentage
     cpu: 1
     memory: 1
+
+admission-controller:
+  service-name: admission-controller
+  service-port: 443

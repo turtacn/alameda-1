@@ -19,3 +19,10 @@ log:
 
 datahub:
   address: datahub.alameda.svc:50050
+
+port: 8000
+
+service:
+  name: admission-controller
+  port: 443
+

@@ -3,14 +3,7 @@ package main
 import (
 	"github.com/containers-ai/alameda/cmd/app"
 	evictioner_app "github.com/containers-ai/alameda/evictioner/cmd/app"
-	"github.com/spf13/cobra"
 )
-
-var RootCmd = &cobra.Command{
-	Use:   "evictioner",
-	Short: "alameda evictioner",
-	Long:  "",
-}
 
 var (
 	// VERSION is sofeware version
@@ -22,13 +15,11 @@ var (
 )
 
 func init() {
-	RootCmd.AddCommand(evictioner_app.RunCmd)
-	RootCmd.AddCommand(app.VersionCmd)
+	setSoftwareInfo()
 }
 
 func main() {
-	setSoftwareInfo()
-	RootCmd.Execute()
+	evictioner_app.RootCmd.Execute()
 }
 
 func setSoftwareInfo() {
