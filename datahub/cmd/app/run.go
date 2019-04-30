@@ -39,6 +39,8 @@ var (
 				panic(err)
 			}
 
+			server.InitInfluxdbDatabase()
+
 			if err = server.Run(); err != nil {
 				server.Stop()
 				panic(err)

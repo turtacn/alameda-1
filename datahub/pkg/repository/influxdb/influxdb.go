@@ -38,23 +38,36 @@ var (
 
 // InfluxDBRepository interacts with database
 type InfluxDBRepository struct {
-	Address  string
-	Username string
-	Password string
+	Address                string
+	Username               string
+	Password               string
+	RetentionDuration      string
+	RetentionShardDuration string
 }
 
 // New returns InfluxDBRepository instance
 func New(influxCfg *Config) *InfluxDBRepository {
 	return &InfluxDBRepository{
-		Address:  influxCfg.Address,
-		Username: influxCfg.Username,
-		Password: influxCfg.Password,
+		Address:                influxCfg.Address,
+		Username:               influxCfg.Username,
+		Password:               influxCfg.Password,
+		RetentionDuration:      influxCfg.RetentionDuration,
+		RetentionShardDuration: influxCfg.RetentionShardDuration,
 	}
 }
 
 // CreateDatabase creates database
 func (influxDBRepository *InfluxDBRepository) CreateDatabase(db string) error {
 	_, err := influxDBRepository.QueryDB(fmt.Sprintf("CREATE DATABASE %s", db), db)
+	return err
+}
+
+// Modify default retention policy
+func (influxDBRepository *InfluxDBRepository) ModifyDefaultRetentionPolicy(db string) error {
+	duration := influxDBRepository.RetentionDuration
+	shardGroupDuration := influxDBRepository.RetentionShardDuration
+	retentionCmd := fmt.Sprintf("ALTER RETENTION POLICY \"autogen\" on \"%s\" DURATION %s SHARD DURATION %s", db, duration, shardGroupDuration)
+	_, err := influxDBRepository.QueryDB(retentionCmd, db)
 	return err
 }
 

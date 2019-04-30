@@ -245,7 +245,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	queryCondition *datahub_v1alpha1.QueryCondition,
 	kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.PodRecommendation, error) {
 
-	podRecommendations := []*datahub_v1alpha1.PodRecommendation{}
+	podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
 	reqNS := podNamespacedName.GetNamespace()
 	reqName := podNamespacedName.GetName()
 
@@ -310,7 +310,67 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 		string(Container), whereStr, recommendation_entity.ContainerName,
 		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName, orderStr, limitStr)
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
-	if results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.Recommendation)); err == nil {
+
+	podRecommendations, err := containerRepository.queryRecommendation(cmd)
+	if err != nil {
+		return podRecommendations, err
+	}
+
+	return podRecommendations, nil
+
+}
+
+func (containerRepository *ContainerRepository) buildOrderClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
+	if queryCondition == nil {
+		return "ORDER BY time ASC"
+	}
+	if queryCondition.GetOrder() == datahub_v1alpha1.QueryCondition_DESC {
+		return "ORDER BY time DESC"
+	} else if queryCondition.GetOrder() == datahub_v1alpha1.QueryCondition_ASC {
+		return "ORDER BY time ASC"
+	}
+	return "ORDER BY time ASC"
+}
+
+func (containerRepository *ContainerRepository) buildLimitClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
+	if queryCondition == nil {
+		return ""
+	}
+	limit := queryCondition.GetLimit()
+	if queryCondition.GetLimit() > 0 {
+		return fmt.Sprintf("LIMIT %v", limit)
+	}
+	return ""
+}
+
+func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {
+	//podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
+
+	whereStrName := c.buildNameClause(in)
+	whereStrKind := c.buildKindClause(in)
+	whereStrTime := c.buildApplyTimeClause(in)
+
+	whereStr := c.combineClause([]string{whereStrName, whereStrKind, whereStrTime})
+
+	orderStr := c.buildOrderClause(in.QueryCondition)
+	limitStr := c.buildLimitClause(in.QueryCondition)
+
+	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" %s %s",
+		string(Container), whereStr, recommendation_entity.ContainerName,
+		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName, orderStr, limitStr)
+
+	podRecommendations, err := c.queryRecommendation(cmd)
+	if err != nil {
+		return podRecommendations, err
+	}
+
+	return podRecommendations, nil
+}
+
+func (c *ContainerRepository) queryRecommendation(cmd string) ([]*datahub_v1alpha1.PodRecommendation, error) {
+	podRecommendations := []*datahub_v1alpha1.PodRecommendation{}
+
+	if results, err := c.influxDB.QueryDB(cmd, string(influxdb.Recommendation)); err == nil {
 		for _, result := range results {
 			//individual containers
 			for _, ser := range result.Series {
@@ -331,7 +391,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 					endTimeObj := time.Unix(ts, 0)
 
 					containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
-						Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
+						Name: ser.Tags[string(recommendation_entity.ContainerName)],
 						InitialLimitRecommendations:   []*datahub_v1alpha1.MetricData{},
 						InitialRequestRecommendations: []*datahub_v1alpha1.MetricData{},
 						LimitRecommendations:          []*datahub_v1alpha1.MetricData{},
@@ -507,25 +567,66 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	}
 }
 
-func (containerRepository *ContainerRepository) buildOrderClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
-	if queryCondition == nil {
-		return "ORDER BY time ASC"
+func (c *ContainerRepository) combineClause(strList []string) string {
+	ret := ""
+	whereFlag := false
+
+	for _, value := range strList {
+		if value != "" && whereFlag == false {
+			ret = fmt.Sprintf("WHERE %s", value)
+			whereFlag = true
+		} else if value != "" {
+			ret += fmt.Sprintf(" AND %s", value)
+		}
 	}
-	if queryCondition.GetOrder() == datahub_v1alpha1.QueryCondition_DESC {
-		return "ORDER BY time DESC"
-	} else if queryCondition.GetOrder() == datahub_v1alpha1.QueryCondition_ASC {
-		return "ORDER BY time ASC"
-	}
-	return "ORDER BY time ASC"
+
+	return ret
 }
 
-func (containerRepository *ContainerRepository) buildLimitClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
-	if queryCondition == nil {
+func (c *ContainerRepository) buildNameClause(in *datahub_v1alpha1.ListPodRecommendationsRequest) string {
+	ret := ""
+	namespace := in.GetNamespacedName().GetNamespace()
+	if namespace == "" {
+		return ret
+	}
+
+	ret = fmt.Sprintf(" \"namespace\"='%s'", namespace)
+	return ret
+}
+
+func (c *ContainerRepository) buildKindClause(in *datahub_v1alpha1.ListPodRecommendationsRequest) string {
+	ret := ""
+	col := ""
+
+	name := in.GetNamespacedName().GetName()
+	if name == "" {
+		return ret
+	}
+
+	kind := in.GetKind()
+
+	switch kind {
+	case datahub_v1alpha1.Kind_POD:
+		col = string(recommendation_entity.ContainerPodName)
+	case datahub_v1alpha1.Kind_DEPLOYMENT:
+		col = string(recommendation_entity.ContainerTopControllerName)
+	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+		col = string(recommendation_entity.ContainerTopControllerName)
+	default:
 		return ""
 	}
-	limit := queryCondition.GetLimit()
-	if queryCondition.GetLimit() > 0 {
-		return fmt.Sprintf("LIMIT %v", limit)
+
+	ret = fmt.Sprintf(" \"%s\"='%s'", col, name)
+	return ret
+}
+
+func (c *ContainerRepository) buildApplyTimeClause(in *datahub_v1alpha1.ListPodRecommendationsRequest) string {
+	ret := ""
+
+	applyTime := in.GetQueryCondition().GetTimeRange().GetApplyTime().GetSeconds()
+	if applyTime > 0 {
+		ret = fmt.Sprintf(" \"end_time\">=%d AND \"start_time\"<=%d", applyTime, applyTime)
 	}
-	return ""
+
+	return ret
 }

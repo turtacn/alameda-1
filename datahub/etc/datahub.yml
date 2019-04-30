@@ -11,6 +11,8 @@ influxdb:
   address: "https://influxdb.alameda.svc.cluster.local:8086"
   username: "alameda"
   password: "alameda"
+  retentionDuration: "14d"
+  retentionShardDuration: "1d"
     
 log:
   set-logcallers: true

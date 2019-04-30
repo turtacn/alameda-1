@@ -7,22 +7,28 @@ import (
 )
 
 const (
-	defaultAddress  = "https://influxdb.alameda.svc.cluster.local:8086"
-	defaultUsername = "datahub"
-	defaultPassword = "datahub"
+	defaultAddress                = "https://influxdb.alameda.svc.cluster.local:8086"
+	defaultUsername               = "datahub"
+	defaultPassword               = "datahub"
+	defaultRetentionDuration      = "15d"
+	defaultRetentionShardDuration = "1d"
 )
 
 type Config struct {
-	Address  string `mapstructure:"address"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
+	Address                string `mapstructure:"address"`
+	Username               string `mapstructure:"username"`
+	Password               string `mapstructure:"password"`
+	RetentionDuration      string `mapstructure:"retentionDuration"`
+	RetentionShardDuration string `mapstructure:"retentionShardDuration"`
 }
 
 func NewDefaultConfig() Config {
 	var config = Config{
-		Address:  defaultAddress,
-		Username: defaultUsername,
-		Password: defaultPassword,
+		Address:                defaultAddress,
+		Username:               defaultUsername,
+		Password:               defaultPassword,
+		RetentionDuration:      defaultRetentionDuration,
+		RetentionShardDuration: defaultRetentionShardDuration,
 	}
 	return config
 }

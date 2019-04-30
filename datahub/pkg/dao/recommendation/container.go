@@ -10,4 +10,5 @@ type ContainerOperation interface {
 	ListPodRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName,
 		queryCondition *datahub_v1alpha1.QueryCondition,
 		kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.PodRecommendation, error)
+	ListAvailablePodRecommendations(*datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error)
 }

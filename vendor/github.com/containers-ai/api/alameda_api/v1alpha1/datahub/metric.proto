@@ -62,6 +62,7 @@ message TimeRange {
         MAX = 1;
     }
     AggregateFunction aggregateFunction = 4;
+    google.protobuf.Timestamp apply_time = 5;
 }
 
 /**

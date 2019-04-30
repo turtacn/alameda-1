@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:875895ccb7ebddf73c76be0b63e04e146b69e83d500374ccfffe3ae7d5c71e18"
+  digest = "1:c3ced89c0ff7e6fdbbbdc7341e18dacd493eb5e00683901c52b13d4f45c5c03b"
   name = "github.com/containers-ai/api"
   packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
-  revision = "b2d192c21cdf76601eaec2e5946325c9a56b7a11"
+  revision = "bc4e6c0f00f0e49c95ab48294aa69f82319c5724"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1112,7 +1112,6 @@
   input-imports = [
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/emicklei/go-restful",
-    "github.com/golang/glog",
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/influxdata/influxdb/client/v2",

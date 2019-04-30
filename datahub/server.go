@@ -37,6 +37,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	influxdbBase "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 )
 
 type Server struct {
@@ -134,6 +136,35 @@ func (s *Server) Stop() error {
 
 func (s *Server) Err() <-chan error {
 	return s.err
+}
+
+func (s *Server) InitInfluxdbDatabase() {
+	influxdbClient := influxdbBase.New(&influxdbBase.Config{
+		Address:                s.Config.InfluxDB.Address,
+		Username:               s.Config.InfluxDB.Username,
+		Password:               s.Config.InfluxDB.Password,
+		RetentionDuration:      s.Config.InfluxDB.RetentionDuration,
+		RetentionShardDuration: s.Config.InfluxDB.RetentionShardDuration,
+	})
+
+	databaseList := []string{
+		"alameda_cluster_status",
+		"alameda_prediction",
+		"alameda_recommendation",
+		"alameda_score",
+	}
+
+	for _, db := range databaseList {
+		err := influxdbClient.CreateDatabase(db)
+		if err != nil {
+			scope.Error(err.Error())
+		}
+
+		err = influxdbClient.ModifyDefaultRetentionPolicy(db)
+		if err != nil {
+			scope.Error(err.Error())
+		}
+	}
 }
 
 func (s *Server) newGRPCServer() (*grpc.Server, error) {
@@ -672,6 +703,35 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 		scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
 		return res, nil
 	}
+}
+
+// ListAvailablePodRecommendations list pod recommendations
+func (s *Server) ListAvailablePodRecommendations(ctx context.Context, in *datahub_v1alpha1.ListPodRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
+	scope.Debug("Request received from ListAvailablePodRecommendations grpc function: " + utils.InterfaceToString(in))
+	containerDAO := &recommendation_dao_impl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	podRecommendations, err := containerDAO.ListAvailablePodRecommendations(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListPodRecommendationsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	res := &datahub_v1alpha1.ListPodRecommendationsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodRecommendations: podRecommendations,
+	}
+	scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
+	return res, nil
+
 }
 
 // ListControllerRecommendations list controller recommendations

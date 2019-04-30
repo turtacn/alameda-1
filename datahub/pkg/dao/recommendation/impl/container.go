@@ -30,3 +30,8 @@ func (container *Container) ListPodRecommendations(podNamespacedName *datahub_v1
 	containerRepository := influxdb_repository_recommendation.NewContainerRepository(&container.InfluxDBConfig)
 	return containerRepository.ListContainerRecommendations(podNamespacedName, queryCondition, kind)
 }
+
+func (container *Container) ListAvailablePodRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {
+	containerRepository := influxdb_repository_recommendation.NewContainerRepository(&container.InfluxDBConfig)
+	return containerRepository.ListAvailablePodRecommendations(in)
+}

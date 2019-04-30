@@ -307,6 +307,10 @@ service DatahubService {
     rpc ListPodRecommendations(ListPodRecommendationsRequest)
         returns (ListPodRecommendationsResponse) {}
 
+    // Used to list pod recommendations
+    rpc ListAvailablePodRecommendations(ListPodRecommendationsRequest)
+        returns (ListPodRecommendationsResponse) {}
+
     // Used to list controller recommendations
     rpc ListControllerRecommendations(ListControllerRecommendationsRequest)
         returns (ListControllerRecommendationsResponse) {}

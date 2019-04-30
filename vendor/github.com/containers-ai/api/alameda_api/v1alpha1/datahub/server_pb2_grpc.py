@@ -56,6 +56,11 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsResponse.FromString,
         )
+    self.ListAvailablePodRecommendations = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListAvailablePodRecommendations',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsResponse.FromString,
+        )
     self.ListControllerRecommendations = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListControllerRecommendations',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllerRecommendationsRequest.SerializeToString,
@@ -173,6 +178,13 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def ListPodRecommendations(self, request, context):
+    """Used to list pod recommendations
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def ListAvailablePodRecommendations(self, request, context):
     """Used to list pod recommendations
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -303,6 +315,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       ),
       'ListPodRecommendations': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodRecommendations,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsResponse.SerializeToString,
+      ),
+      'ListAvailablePodRecommendations': grpc.unary_unary_rpc_method_handler(
+          servicer.ListAvailablePodRecommendations,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodRecommendationsResponse.SerializeToString,
       ),
