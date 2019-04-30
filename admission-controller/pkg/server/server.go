@@ -170,6 +170,7 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 		scope.Warnf("get patches to mutate pod resource failed, skip mutating pod: Pod: %+v, errMsg: %s", pod, err.Error())
 		return nil
 	}
+	scope.Infof("patch %s to pod %+v ", patches, pod.ObjectMeta)
 
 	reviewResponse.Patch = []byte(patches)
 	reviewResponse.PatchType = &patchType
@@ -384,13 +385,13 @@ func buildPodResourceIDFromPod(pod *core_v1.Pod) string {
 
 	id := ""
 	for _, container := range containers {
-		requestCPU := container.Resources.Requests[core_v1.ResourceCPU]
-		requestMem := container.Resources.Requests[core_v1.ResourceMemory]
-		limitsCPU := container.Resources.Limits[core_v1.ResourceCPU]
-		limitsMem := container.Resources.Limits[core_v1.ResourceMemory]
-		id += fmt.Sprintf("container-name-%s/requset-cpu-%s-mem-%s/limit-cpu-%s-mem-%s/", container.Name,
-			requestCPU.String(), requestMem.String(),
-			limitsCPU.String(), limitsMem.String(),
+		requestCPU := container.Resources.Requests.Cpu().MilliValue()
+		requestMem := container.Resources.Requests.Memory().Value()
+		limitsCPU := container.Resources.Limits.Cpu().MilliValue()
+		limitsMem := container.Resources.Limits.Memory().Value()
+		id += fmt.Sprintf("container-name-%s/requset-cpu-%d-mem-%d/limit-cpu-%d-mem-%d/", container.Name,
+			requestCPU, requestMem,
+			limitsCPU, limitsMem,
 		)
 	}
 
@@ -406,13 +407,13 @@ func buildPodResourceIDFromPodRecommendation(recommendation *resource.PodResourc
 
 	id := ""
 	for _, containerRecommendation := range containerRecommendations {
-		requestCPU := containerRecommendation.Requests[core_v1.ResourceCPU]
-		requestMem := containerRecommendation.Requests[core_v1.ResourceMemory]
-		limitsCPU := containerRecommendation.Limits[core_v1.ResourceCPU]
-		limitsMem := containerRecommendation.Limits[core_v1.ResourceMemory]
-		id += fmt.Sprintf("container-name-%s/requset-cpu-%s-mem-%s/limit-cpu-%s-mem-%s/", containerRecommendation.Name,
-			requestCPU.String(), requestMem.String(),
-			limitsCPU.String(), limitsMem.String(),
+		requestCPU := containerRecommendation.Requests.Cpu().MilliValue()
+		requestMem := containerRecommendation.Requests.Memory().Value()
+		limitsCPU := containerRecommendation.Limits.Cpu().MilliValue()
+		limitsMem := containerRecommendation.Limits.Memory().Value()
+		id += fmt.Sprintf("container-name-%s/requset-cpu-%d-mem-%d/limit-cpu-%d-mem-%d/", containerRecommendation.Name,
+			requestCPU, requestMem,
+			limitsCPU, limitsMem,
 		)
 	}
 	return id

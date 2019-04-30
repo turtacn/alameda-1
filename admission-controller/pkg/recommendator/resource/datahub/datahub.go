@@ -2,6 +2,8 @@ package datahub
 
 import (
 	"context"
+	"math"
+	"strconv"
 
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
 	"github.com/containers-ai/alameda/pkg/framework/datahub"
@@ -200,6 +202,18 @@ func buildK8SReosurceListFromMetricTypeValueMap(metricTypeValueMap map[datahub_v
 	resourceList := make(core_v1.ResourceList)
 
 	for metricType, value := range metricTypeValueMap {
+
+		resourceUnit := ""
+		if metricType == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
+			cpuMilliCores, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+
+			}
+			cpuMilliCores = math.Ceil(cpuMilliCores)
+			value = strconv.FormatFloat(cpuMilliCores, 'f', 0, 64)
+			resourceUnit = "m"
+		}
+		value = value + resourceUnit
 
 		quantity, err := k8s_resource.ParseQuantity(value)
 		if err != nil {
