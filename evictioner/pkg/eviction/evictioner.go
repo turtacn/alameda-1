@@ -147,11 +147,10 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
 	in := &datahub_v1alpha1.ListPodRecommendationsRequest{
 		QueryCondition: &datahub_v1alpha1.QueryCondition{
 			TimeRange: &datahub_v1alpha1.TimeRange{
-				EndTime: &timestamp.Timestamp{
+				ApplyTime: &timestamp.Timestamp{
 					Seconds: nowTimestamp,
 				},
 			},
@@ -159,7 +158,9 @@ func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) 
 			Limit: 1,
 		},
 	}
-	return evictioner.datahubClnt.ListPodRecommendations(ctx, in)
+	scope.Debugf("Request of ListAvailablePodRecommendations is %s.", utils.InterfaceToString(in))
+
+	return evictioner.datahubClnt.ListAvailablePodRecommendations(ctx, in)
 }
 
 func (evictioner *Evictioner) getPodInfo(namespace, name string) (*corev1.Pod, error) {
