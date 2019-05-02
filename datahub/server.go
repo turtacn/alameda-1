@@ -148,7 +148,6 @@ func (s *Server) InitInfluxdbDatabase() {
 	})
 
 	databaseList := []string{
-		"alameda_cluster_status",
 		"alameda_prediction",
 		"alameda_recommendation",
 		"alameda_score",
