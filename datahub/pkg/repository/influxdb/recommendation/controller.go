@@ -102,8 +102,8 @@ func (c *ControllerRepository) convertQueryCondition(queryCondition *datahub_v1a
 		return ret
 	}
 
-	start := queryCondition.GetTimeRange().StartTime.Seconds
-	end := queryCondition.GetTimeRange().EndTime.Seconds
+	start := queryCondition.GetTimeRange().GetStartTime().GetSeconds()
+	end := queryCondition.GetTimeRange().GetEndTime().GetSeconds()
 
 	order := queryCondition.GetOrder()
 	limit := queryCondition.GetLimit()
