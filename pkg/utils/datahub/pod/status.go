@@ -29,14 +29,14 @@ func GetReplicasFromPod(pod *corev1.Pod, client client.Client) int32 {
 
 	for _, or := range pod.OwnerReferences {
 		if or.Kind == consts.K8S_KIND_REPLICASET {
-			rs, err := getResource.GetReplicaSet(pod.GetNamespace(), pod.GetName())
+			rs, err := getResource.GetReplicaSet(pod.GetNamespace(), or.Name)
 			if err == nil {
 				return rs.Status.Replicas
 			} else {
 				scope.Errorf("Get replicaset for number of replicas failed due to %s", err.Error())
 			}
 		} else if or.Kind == consts.K8S_KIND_REPLICATIONCONTROLLER {
-			rc, err := getResource.GetReplicationController(pod.GetNamespace(), pod.GetName())
+			rc, err := getResource.GetReplicationController(pod.GetNamespace(), or.Name)
 			if err == nil {
 				return rc.Status.Replicas
 			} else {
