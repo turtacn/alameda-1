@@ -4,15 +4,16 @@ This document helps you get started to use Alameda. If you do not have Alameda d
 
 ## Using Alameda
 
-To have Alameda resource usage recommendations for you, first thing is to tell Alameda what are the target containers and the policies. Then you can see the recommendations by checking the *alamedarecommendation* CRs. Grafana dashboards are also provided to visualize these information.
+To have Alameda makes resource usage recommendations for you, first thing is to tell Alameda what are the target containers by creating [_AlamedaScaler_](../design/crd_alamedascaler.md) CRs. Then you can see the recommendations by checking the [_alamedarecommendation_](../design/crd_alamedarecommendation.md) CRs or Grafana dashboards visualize them.
 
 ### Specify a target object
 
-Users can create a custom resource of *AlamedaScaler* custom resource definition (CRD) to instruct Alameda that:
+Users can create a custom resource of _AlamedaScaler_ custom resource definition (CRD) to instruct Alameda that:
 1. which container needs resource usage recommendations, and
 2. what policy that Alameda should use to give recommendations.
+3. whether or not to execute the recommendations.
 
-Currently Alameda watches containers that are deployed by *Deployment* or *DeploymentConfig* apis and provides *stable* and *compact* policies. For more details, please refer to the [*AlamedaScaler* design](../design/crd_alamedascaler.md). The following is an example to instruct Alameda to watch containers in *webapp* namespace with *nginx* label and *stable* policy.
+Currently Alameda watches containers that are deployed by _Deployment_ or _DeploymentConfig_ kinds and provides *stable* and *compact* policies. For more detail _AlamedaScaler_ schema, please refer to the [*AlamedaScaler* design](../design/crd_alamedascaler.md). The following is an example _AlamedaScaler_ CR.
 
 ```
 apiVersion: autoscaling.containers.ai/v1alpha1
@@ -22,11 +23,12 @@ metadata:
   namespace: webapp
 spec:
   policy: stable
-  enable: true
+  enableexecution: true
   selector:
     matchLabels:
       app: nginx
 ```
+This CR instructs Alameda to look up _Deployment_/_DeploymentConfig_ objects in _webapp_ namespaces with _nginx_ label. For any pods derived from them, Alameda will predict their resource usage and make recommendations with _stable_ considerations. Once new recommendations are available, Alameda will execute it according the _enableexecution_ switch.
 
 You can list all the *AlamedaScaler* CRs in your namespace by:
 ```
@@ -34,25 +36,25 @@ $ kubectl get alamedascalers -n <your namespace>
 ```
 and see the details by adding `-o yaml` flag.
 
-> **Note**: an *AlamedaScaler* CR only looks for containers in the same namespace.
+> **Note**: an *AlamedaScaler* CR only looks for _Deployment_/_DeploymentConfig_ objects in the same namespace.
 
 ### Retrieve Alameda recommendations
 
-Alameda outputs recommendations in a global planning manner for all the containers watched by Alameda.
-They are presented as *alamedarecommendation* CRD.
-You can check Alameda recommendation results by:
+Alameda outputs recommendations and presents them as *alamedarecommendation* CRD.
+You can check Alameda recommendations by:
 ```
 $ kubectl get alamedarecommendation -n <your namespace>
 ```
 and see the details by adding `-o yaml` flag.
 
-For more details, please refer to the [*alamedarecommendation* CRD design](./design/crd_alamedarecommendation.md).
+This _AlamedaRecommendation_ CR serves as a good intermediate for programs (including Alameda itself) to reference the recommendations and react to them. For more details, please refer to the [*alamedarecommendation* CRD design](./design/crd_alamedarecommendation.md).
 
 ### Visualize Alameda recommendations
 
-If Grafana and Alameda dashboards are deployed, users can visualize Alameda workload predictions and recommendations through the provided dashboards.
+If alameda-grafana is deployed, users can also visualize Alameda workload predictions and recommendations through the pre-installed dashboards.
+The Grafana URL can be figured out by checking the _alameda-grafana_ service name. To access it from outside the cluster, please either modify the service to  _NodePort_ type or consider to enable [_ingress_](https://kubernetes.io/docs/concepts/services-networking/ingress/) or [_route_](https://docs.openshift.com/container-platform/3.11/architecture/networking/routes.html). The default account is _admin_ with password _admin_.
 
-## Example
+## An Example Use Case
 
 The following is an example of the Alameda workflow.
 
@@ -80,7 +82,7 @@ items:
   metadata:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaScaler","metadata":{"annotations":{},"name":"alameda","namespace":"webapp"},"spec":{"enable":true,"policy":"stable","selector":{"matchLabels":{"app":"nginx"}}}}
+        {"apiVersion":"autoscaling.containers.ai/v1alpha1","kind":"AlamedaScaler","metadata":{"annotations":{},"name":"alameda","namespace":"webapp"},"spec":{"enableexecution":true,"policy":"stable","selector":{"matchLabels":{"app":"nginx"}}}}
     creationTimestamp: "2019-02-15T10:51:29Z"
     generation: 3
     name: alameda
@@ -89,7 +91,7 @@ items:
     selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/webapp/alamedascalers/alameda
     uid: a60c4c47-310f-11e9-accd-000c29b48f2a
   spec:
-    enable: true
+    enableexecution: true
     policy: stable
     selector:
       matchLabels:
@@ -189,5 +191,5 @@ metadata:
   resourceVersion: ""
   selfLink: ""
 ```
-By checking the Grafana dashboards, users can also visualize the resource recommendations.
+By checking the Grafana dashboards, users can also visualize the resource prediction and recommendations.
 
