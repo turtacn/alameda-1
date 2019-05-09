@@ -6,6 +6,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	"math"
 	"strconv"
 )
 
@@ -46,7 +47,10 @@ func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
 	for _, value := range e.Values {
 		v := "0"
 		if s, err := strconv.ParseFloat(value.SampleValue, 64); err == nil {
-			v = fmt.Sprintf("%f", s*1000)
+			v = fmt.Sprintf("%d", int(math.Ceil(s*1000)))
+			if v == "0" {
+				v = "1"
+			}
 		} else {
 			scope.Errorf("containerCPUUsagePercentage.NewEntityFromPrometheusEntity: %s", err.Error())
 		}
