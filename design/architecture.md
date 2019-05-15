@@ -36,14 +36,16 @@ As the following figure shows, Alameda works with following components:
 
 1. Prometheus and those data exporters: Alameda leverages Prometheus and third-party data exporters to get historical metrics for model training. Alameda itself does not implement data collection agents. Currently Alameda requires cAdvisor for cpu and memory metrics prediction.
 2. operator: The Alameda operator introduces a CRD call *alamedascaler* to provide a channel for users to match Pods for recommendations. It will register those Pods and cluster nodes to alameda-ai for prediction and recommendation.
-3. alameda-ai: This is the machine learning engine for model training and workload prediction. It can increase its replica based on how heavy the loading is. Note: it requires a persistent volume to store trained ML models.
-4. InfluxDB: This time-series DB is used to store metrics that happened in the future and some global data of Alameda.
-5. datahub: datahub plays an API and data gateway to access Prometheus, InfluxDB and recommendation CRs. This gateway provides API to alameda-ai for reading metrics and reading/writing predictions and recommendations. Any downstream orchestrator can also access those predictions and recommendations through these API or directly react to InfluxDB and *alamedarecommendation* CRs. This components can increase its replica based on how heavy the loading is.
-6. evictioner (optional): for executing Alameda recommendations.
-7. admission controller (optional): for executing Alameda recommendations.
-7. grafana (optional): Users can visualize the predicted workload by this component. A dashboard template of Alameda is provided.
+3. alameda-ai: This is the machine learning engine for model training and workload prediction. It can increase its replica based on how heavy the loading is.
+4. recommender: This is the component to give recommendations based on the predicted workloads.
+5. InfluxDB: This time-series DB is used to store metrics that happened in the future and some global data of Alameda.
+6. datahub: datahub plays an API and data gateway to access Prometheus, InfluxDB and recommendation CRs. This gateway provides API to alameda-ai for reading metrics and reading/writing predictions and recommendations. Any downstream orchestrator can also access those predictions and recommendations through these API or directly react to InfluxDB and *alamedarecommendation* CRs. This components can increase its replica based on how heavy the loading is.
+7. evictioner (optional): for executing Alameda recommendations.
+8. admission controller (optional): for executing Alameda recommendations.
+9. executor (optional): for executing Alameda recommendations. 
+10. grafana (optional): Alameda dashboards are pre-installed in this component.
 
-To have a minimum set of components of Alameda, users just need to deploy *operator*, *alameda-ai*, and *datahub* and provides endpoints for *datahub* to access Prometheus and InfluxDB. The following animated figure shows the decomposition of Alameda.
+To have a minimum set of components of Alameda, users just need to deploy *operator*, *alameda-ai*, *recommender* and *datahub* and provides endpoints for *datahub* to access Prometheus and InfluxDB. The following animated figure shows the decomposition of Alameda.
 ![decomposition](./img/components_animate.gif)
 
 The following message sequence chart demonstrates how Alameda normally works.
