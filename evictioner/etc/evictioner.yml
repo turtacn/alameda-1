@@ -9,8 +9,8 @@ eviction:
   check-cycle: 3 # second
   enable: false
   trigger-threshold: #percentage
-    cpu: 1
-    memory: 1
+    cpu: 10
+    memory: 10
 
 admission-controller:
   service-name: admission-controller
