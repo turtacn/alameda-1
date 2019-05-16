@@ -34,15 +34,15 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 			recommendedSpec := conrollerRecommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
-				string(recommendation_entity.ControllerNamespace): recommendedSpec.NamespacedName.Namespace,
-				string(recommendation_entity.ControllerName):      recommendedSpec.NamespacedName.Name,
+				string(recommendation_entity.ControllerNamespace): recommendedSpec.GetNamespacedName().GetNamespace(),
+				string(recommendation_entity.ControllerName):      recommendedSpec.GetNamespacedName().GetName(),
 			}
 
 			fields := map[string]interface{}{
 				string(recommendation_entity.ControllerType):            strconv.Itoa(int(datahub_v1alpha1.ControllerRecommendedType_CRT_Primitive)),
-				string(recommendation_entity.ControllerCurrentReplicas): recommendedSpec.CurrentReplicas,
-				string(recommendation_entity.ControllerDesiredReplicas): recommendedSpec.DesiredReplicas,
-				string(recommendation_entity.ControllerCreateTime):      recommendedSpec.CreateTime.Seconds,
+				string(recommendation_entity.ControllerCurrentReplicas): recommendedSpec.GetCurrentReplicas(),
+				string(recommendation_entity.ControllerDesiredReplicas): recommendedSpec.GetDesiredReplicas(),
+				string(recommendation_entity.ControllerCreateTime):      recommendedSpec.GetCreateTime().GetSeconds(),
 			}
 
 			pt, err := influxdb_client.NewPoint(string(Controller), tags, fields, time.Now())

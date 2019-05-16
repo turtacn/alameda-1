@@ -78,3 +78,14 @@ message TopController {
     Kind kind = 2;
     int32 Replicas = 3;
 }
+
+message ResourceInfo {
+    NamespacedName namespaced_name = 1;
+    Kind kind = 2;
+}
+
+message Controller {
+    ResourceInfo controller_info = 1;
+    repeated ResourceInfo owner_info = 2;
+    int32 Replicas = 3;
+}

@@ -101,6 +101,16 @@ message ListNodesResponse {
     repeated Node nodes = 2;
 }
 
+message ListControllersRequest {
+    NamespacedName namespaced_name = 1;
+    QueryCondition query_condition = 2;
+}
+
+message ListControllersResponse {
+    google.rpc.Status status = 1;
+    repeated Controller controllers = 2;
+}
+
 /**
  * Represents a request for listing predictions of pods
  * 
@@ -238,6 +248,10 @@ message CreatePodsRequest {
     repeated Pod pods = 1;
 }
 
+message CreateControllersRequest {
+    repeated Controller controllers = 1;
+}
+
 /**
  * Represents a request for adding nodes that need to be predicted
  * 
@@ -295,6 +309,9 @@ service DatahubService {
     rpc ListNodes(ListNodesRequest)
         returns (ListNodesResponse){}
 
+    rpc ListControllers(ListControllersRequest)
+        returns (ListControllersResponse){}
+
     // Used to list pod predictions
     rpc ListPodPredictions(ListPodPredictionsRequest)
         returns (ListPodPredictionsResponse) {}
@@ -325,6 +342,9 @@ service DatahubService {
 
     // Used to add pods that need to be predicted
     rpc CreatePods(CreatePodsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateControllers(CreateControllersRequest)
         returns (google.rpc.Status){}
     
     // Used to add nodes that need to be predicted

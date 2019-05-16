@@ -21,6 +21,8 @@ enum RecommendationPolicy {
 message ContainerPrediction {
     string name = 1;
     repeated MetricData predicted_raw_data = 2;
+    repeated MetricData predicted_upperbound_data = 3;
+    repeated MetricData predicted_lowerbound_data = 4;
 }
 
 /**
@@ -38,4 +40,6 @@ message NodePrediction {
     string name = 1;
     repeated MetricData predicted_raw_data = 2;
     bool is_scheduled =3;
+    repeated MetricData predicted_upperbound_data = 4;
+    repeated MetricData predicted_lowerbound_data = 5;
 }

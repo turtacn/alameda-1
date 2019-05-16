@@ -495,6 +495,33 @@ func (s *Server) ListNodes(ctx context.Context, in *datahub_v1alpha1.ListNodesRe
 	}
 }
 
+func (s *Server) ListControllers(ctx context.Context, in *datahub_v1alpha1.ListControllersRequest) (*datahub_v1alpha1.ListControllersResponse, error) {
+	scope.Debug("Request received from ListControllers grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := &cluster_status_dao_impl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	controllers, err := controllerDAO.ListControllers(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListControllersResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	response := datahub_v1alpha1.ListControllersResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		Controllers: controllers,
+	}
+	return &response, nil
+}
+
 // ListPodPredictions list pods' predictions
 func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.ListPodPredictionsRequest) (*datahub_v1alpha1.ListPodPredictionsResponse, error) {
 	scope.Debug("Request received from ListPodPredictions grpc function: " + utils.InterfaceToString(in))
@@ -847,6 +874,27 @@ func (s *Server) CreatePods(ctx context.Context, in *datahub_v1alpha1.CreatePods
 			Message: err.Error(),
 		}, nil
 	}
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+func (s *Server) CreateControllers(ctx context.Context, in *datahub_v1alpha1.CreateControllersRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateControllers grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := &cluster_status_dao_impl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	err := controllerDAO.CreateControllers(in.GetControllers())
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

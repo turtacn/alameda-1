@@ -41,6 +41,11 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.FromString,
         )
+    self.ListControllers = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListControllers',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllersRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllersResponse.FromString,
+        )
     self.ListPodPredictions = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodPredictions',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodPredictionsRequest.SerializeToString,
@@ -79,6 +84,11 @@ class DatahubServiceStub(object):
     self.CreatePods = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreatePods',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
+    self.CreateControllers = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateControllers',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateControllersRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
     self.CreateAlamedaNodes = channel.unary_unary(
@@ -163,6 +173,13 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ListControllers(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def ListPodPredictions(self, request, context):
     """Used to list pod predictions
     """
@@ -215,6 +232,13 @@ class DatahubServiceServicer(object):
   def CreatePods(self, request, context):
     """Used to add pods that need to be predicted
     """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CreateControllers(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -303,6 +327,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListNodesResponse.SerializeToString,
       ),
+      'ListControllers': grpc.unary_unary_rpc_method_handler(
+          servicer.ListControllers,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllersRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListControllersResponse.SerializeToString,
+      ),
       'ListPodPredictions': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodPredictions,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodPredictionsRequest.FromString,
@@ -341,6 +370,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'CreatePods': grpc.unary_unary_rpc_method_handler(
           servicer.CreatePods,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'CreateControllers': grpc.unary_unary_rpc_method_handler(
+          servicer.CreateControllers,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateControllersRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'CreateAlamedaNodes': grpc.unary_unary_rpc_method_handler(

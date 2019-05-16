@@ -167,6 +167,8 @@ func PackMap(results []client.Result) []*InfluxDBRow {
 						default:
 							data[col] = value.(string)
 						}
+					} else {
+						data[col] = ""
 					}
 				}
 				row.Data = append(row.Data, data)
