@@ -36,6 +36,10 @@ message Pod {
     TopController top_controller = 9;
     string used_recommendation_id = 10;
     PodStatus status = 11;
+    bool enable_VPA = 12;
+    bool enable_HPA = 13;
+    string app_name = 14;
+    string app_part_of = 15;
 }
 
 /**

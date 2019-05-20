@@ -25,7 +25,9 @@ const (
 	// ContainerNodeName is the name of node that container is running in
 	ContainerNodeName containerTag = "node_name"
 	// ContainerName is the container name
-	ContainerName containerTag = "name"
+	ContainerName      containerTag = "name"
+	ContainerAppName   containerTag = "app_name"
+	ContainerAppPartOf containerTag = "app_part_of"
 
 	// ContainerPodPhase is a label for the condition of a pod at the current time
 	ContainerPodPhase containerField = "pod_phase"
@@ -89,6 +91,8 @@ const (
 	ContainerTpoControllerReplicas containerField = "top_controller_replicas"
 	// ContainerUsedRecommendationID is the recommendation id that the pod applied
 	ContainerUsedRecommendationID containerField = "used_recommendation_id"
+	ContainerEnableVPA            containerField = "enable_VPA"
+	ContainerEnableHPA            containerField = "enable_HPA"
 )
 
 var (
@@ -96,7 +100,7 @@ var (
 	ContainerTags = []containerTag{
 		ContainerTime, ContainerNamespace, ContainerPodName,
 		ContainerAlamedaScalerNamespace, ContainerAlamedaScalerName,
-		ContainerNodeName, ContainerName,
+		ContainerNodeName, ContainerName, ContainerAppName, ContainerAppPartOf,
 	}
 	// ContainerFields is the list of container measurement fields
 	ContainerFields = []containerField{
@@ -115,6 +119,7 @@ var (
 		ContainerPolicy,
 		ContainerPodCreateTime, ContainerResourceLink,
 		ContainerTopControllerName, ContainerTopControllerKind, ContainerTpoControllerReplicas,
+		ContainerEnableHPA, ContainerEnableVPA,
 	}
 )
 
@@ -130,6 +135,8 @@ type ContainerEntity struct {
 	AlamedaScalerName                         *string
 	NodeName                                  *string
 	Name                                      *string
+	AppName                                   *string
+	AppPartOf                                 *string
 	StatusWaitingReason                       *string
 	StatusWaitingMessage                      *string
 	StatusRunningStartedAt                    *int64
@@ -158,6 +165,8 @@ type ContainerEntity struct {
 	TopControllerKind                         *string
 	TpoControllerReplicas                     *int32
 	UsedRecommendationID                      *string
+	EnableVPA                                 *bool
+	EnableHPA                                 *bool
 }
 
 // NewContainerEntityFromMap Build entity from map
@@ -300,6 +309,20 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 	if usedRecommendationID, exist := data[ContainerUsedRecommendationID]; exist {
 		entity.UsedRecommendationID = &usedRecommendationID
 	}
+	if appName, exist := data[ContainerAppName]; exist {
+		entity.AppName = &appName
+	}
+	if appPartOf, exist := data[ContainerAppPartOf]; exist {
+		entity.AppPartOf = &appPartOf
+	}
+	if enableVPA, exist := data[ContainerEnableVPA]; exist {
+		b, _ := strconv.ParseBool(enableVPA)
+		entity.EnableVPA = &b
+	}
+	if enableHPA, exist := data[ContainerEnableHPA]; exist {
+		b, _ := strconv.ParseBool(enableHPA)
+		entity.EnableHPA = &b
+	}
 
 	return entity
 }
@@ -324,6 +347,12 @@ func (e ContainerEntity) InfluxDBPoint(measurementName string) (*influxdb_client
 	}
 	if e.AlamedaScalerName != nil {
 		tags[ContainerAlamedaScalerName] = *e.AlamedaScalerName
+	}
+	if e.AppName != nil {
+		tags[ContainerAppName] = *e.AppName
+	}
+	if e.AppPartOf != nil {
+		tags[ContainerAppPartOf] = *e.AppPartOf
 	}
 
 	fields := map[string]interface{}{}
@@ -419,6 +448,12 @@ func (e ContainerEntity) InfluxDBPoint(measurementName string) (*influxdb_client
 	}
 	if e.UsedRecommendationID != nil {
 		fields[ContainerUsedRecommendationID] = *e.UsedRecommendationID
+	}
+	if e.EnableVPA != nil {
+		fields[ContainerEnableVPA] = *e.EnableVPA
+	}
+	if e.EnableHPA != nil {
+		fields[ContainerEnableHPA] = *e.EnableHPA
 	}
 
 	return influxdb_client.NewPoint(measurementName, tags, fields, e.Time)

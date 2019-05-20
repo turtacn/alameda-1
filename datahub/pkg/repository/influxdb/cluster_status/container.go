@@ -10,9 +10,9 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	proto_timestmap "github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 )
 
@@ -288,8 +288,8 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 		usedRecommendationID                      *string
 	)
 
-	nodeName             = &pod.NodeName
-	resourceLink         = &pod.ResourceLink
+	nodeName = &pod.NodeName
+	resourceLink = &pod.ResourceLink
 	usedRecommendationID = &pod.UsedRecommendationId
 
 	if pod.NamespacedName != nil {
@@ -326,6 +326,11 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 		podMessage = &pod.Status.Message
 		podReason = &pod.Status.Reason
 	}
+
+	appName := pod.GetAppName()
+	appPartOf := pod.GetAppPartOf()
+	enableVPA := pod.GetEnable_VPA()
+	enableHPA := pod.GetEnable_HPA()
 
 	containerEntities := make([]*cluster_status_entity.ContainerEntity, 0)
 	for _, datahubContainer := range pod.Containers {
@@ -377,34 +382,34 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 			if containerStatus.GetState() != nil {
 				state := containerStatus.GetState()
 				if state.GetWaiting() != nil {
-					statusWaitingReason  = &state.GetWaiting().Reason
+					statusWaitingReason = &state.GetWaiting().Reason
 					statusWaitingMessage = &state.GetWaiting().Message
 				}
 				if state.GetRunning() != nil {
 					statusRunningStartedAt = &state.GetRunning().GetStartedAt().Seconds
 				}
 				if state.GetTerminated() != nil {
-					statusTerminatedExitCode   = &state.GetTerminated().ExitCode
-					statusTerminatedReason     = &state.GetTerminated().Reason
-					statusTerminatedMessage    = &state.GetTerminated().Message
-					statusTerminatedStartedAt  = &state.GetTerminated().GetStartedAt().Seconds
+					statusTerminatedExitCode = &state.GetTerminated().ExitCode
+					statusTerminatedReason = &state.GetTerminated().Reason
+					statusTerminatedMessage = &state.GetTerminated().Message
+					statusTerminatedStartedAt = &state.GetTerminated().GetStartedAt().Seconds
 					statusTerminatedFinishedAt = &state.GetTerminated().GetFinishedAt().Seconds
 				}
 			}
 			if containerStatus.GetLastTerminationState() != nil {
 				state := containerStatus.GetLastTerminationState()
 				if state.GetWaiting() != nil {
-					lastTerminationStatusWaitingReason  = &state.GetWaiting().Reason
+					lastTerminationStatusWaitingReason = &state.GetWaiting().Reason
 					lastTerminationStatusWaitingMessage = &state.GetWaiting().Message
 				}
 				if state.GetRunning() != nil {
 					lastTerminationStatusRunningStartedAt = &state.GetRunning().GetStartedAt().Seconds
 				}
 				if state.GetTerminated() != nil {
-					lastTerminationStatusTerminatedExitCode   = &state.GetTerminated().ExitCode
-					lastTerminationStatusTerminatedReason     = &state.GetTerminated().Reason
-					lastTerminationStatusTerminatedMessage    = &state.GetTerminated().Message
-					lastTerminationStatusTerminatedStartedAt  = &state.GetTerminated().GetStartedAt().Seconds
+					lastTerminationStatusTerminatedExitCode = &state.GetTerminated().ExitCode
+					lastTerminationStatusTerminatedReason = &state.GetTerminated().Reason
+					lastTerminationStatusTerminatedMessage = &state.GetTerminated().Message
+					lastTerminationStatusTerminatedStartedAt = &state.GetTerminated().GetStartedAt().Seconds
 					lastTerminationStatusTerminatedFinishedAt = &state.GetTerminated().GetFinishedAt().Seconds
 				}
 			}
@@ -450,6 +455,10 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 			TopControllerKind:                         topControllerKind,
 			TpoControllerReplicas:                     topControllerReplicas,
 			UsedRecommendationID:                      usedRecommendationID,
+			AppName:                                   &appName,
+			AppPartOf:                                 &appPartOf,
+			EnableHPA:                                 &enableHPA,
+			EnableVPA:                                 &enableVPA,
 		}
 		containerEntities = append(containerEntities, containerEntity)
 	}
@@ -567,6 +576,10 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 					Message: podMessage,
 					Reason:  podReason,
 				},
+				AppName:    *containerEntity.AppName,
+				AppPartOf:  *containerEntity.AppPartOf,
+				Enable_HPA: *containerEntity.EnableHPA,
+				Enable_VPA: *containerEntity.EnableVPA,
 			}
 			datahubPodMap[podID] = datahubPod
 		}
@@ -714,33 +727,33 @@ func containerEntityToDatahubContainer(containerEntity *cluster_status_entity.Co
 		Status: &datahub_v1alpha1.ContainerStatus{
 			State: &datahub_v1alpha1.ContainerState{
 				Waiting: &datahub_v1alpha1.ContainerStateWaiting{
-					Reason: statusWaitingReason,
+					Reason:  statusWaitingReason,
 					Message: statusWaitingMessage,
 				},
 				Running: &datahub_v1alpha1.ContainerStateRunning{
 					StartedAt: &timestamp.Timestamp{Seconds: statusRunningStartedAt},
 				},
 				Terminated: &datahub_v1alpha1.ContainerStateTerminated{
-					ExitCode: statusTerminatedExitCode,
-					Reason: statusTerminatedReason,
-					Message: statusTerminatedMessage,
-					StartedAt: &timestamp.Timestamp{Seconds: statusTerminatedStartedAt},
+					ExitCode:   statusTerminatedExitCode,
+					Reason:     statusTerminatedReason,
+					Message:    statusTerminatedMessage,
+					StartedAt:  &timestamp.Timestamp{Seconds: statusTerminatedStartedAt},
 					FinishedAt: &timestamp.Timestamp{Seconds: statusTerminatedFinishedAt},
 				},
 			},
 			LastTerminationState: &datahub_v1alpha1.ContainerState{
 				Waiting: &datahub_v1alpha1.ContainerStateWaiting{
-					Reason: lastTerminationStatusWaitingReason,
+					Reason:  lastTerminationStatusWaitingReason,
 					Message: lastTerminationStatusWaitingMessage,
 				},
 				Running: &datahub_v1alpha1.ContainerStateRunning{
 					StartedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusRunningStartedAt},
 				},
 				Terminated: &datahub_v1alpha1.ContainerStateTerminated{
-					ExitCode: lastTerminationStatusTerminatedExitCode,
-					Reason: lastTerminationStatusTerminatedReason,
-					Message: lastTerminationStatusTerminatedMessage,
-					StartedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedStartedAt},
+					ExitCode:   lastTerminationStatusTerminatedExitCode,
+					Reason:     lastTerminationStatusTerminatedReason,
+					Message:    lastTerminationStatusTerminatedMessage,
+					StartedAt:  &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedStartedAt},
 					FinishedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedFinishedAt},
 				},
 			},

@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:48c169779108c8c7bf0f95613e9cbe80e9a90074394aa914af07b60b746d8199"
+  digest = "1:f0f35f179057f104997ee2056570ab989434a0690265e54ebc95729701210b3b"
   name = "github.com/containers-ai/api"
   packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
-  revision = "4806d243a1cfd6a7f07ae5488041546eea14b947"
+  revision = "d34583bf31ee4dc7021232dc16e8b5fb74856a28"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1132,7 +1132,6 @@
     "google.golang.org/genproto/googleapis/rpc/status",
     "google.golang.org/grpc",
     "google.golang.org/grpc/grpclog",
-    "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/reflection",
     "gopkg.in/natefinch/lumberjack.v2",
     "k8s.io/api/admission/v1beta1",
