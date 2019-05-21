@@ -495,6 +495,10 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 				topControllerKind      string
 				topControllerReplicas  int32
 				usedRecommendationID   string
+				appName                string
+				appPartOf              string
+				enableHPA              bool
+				enableVPA              bool
 			)
 
 			if containerEntity.PodName != nil {
@@ -546,6 +550,19 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 				usedRecommendationID = *containerEntity.UsedRecommendationID
 			}
 
+			if containerEntity.AppName != nil {
+				appName = *containerEntity.AppName
+			}
+			if containerEntity.AppPartOf != nil {
+				appPartOf = *containerEntity.AppPartOf
+			}
+			if containerEntity.EnableHPA != nil {
+				enableHPA = *containerEntity.EnableHPA
+			}
+			if containerEntity.EnableVPA != nil {
+				enableVPA = *containerEntity.EnableVPA
+			}
+
 			datahubPod = &datahub_v1alpha1.Pod{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
 					Name:      podName,
@@ -576,10 +593,10 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 					Message: podMessage,
 					Reason:  podReason,
 				},
-				AppName:    *containerEntity.AppName,
-				AppPartOf:  *containerEntity.AppPartOf,
-				Enable_HPA: *containerEntity.EnableHPA,
-				Enable_VPA: *containerEntity.EnableVPA,
+				AppName:    appName,
+				AppPartOf:  appPartOf,
+				Enable_HPA: enableHPA,
+				Enable_VPA: enableVPA,
 			}
 			datahubPodMap[podID] = datahubPod
 		}

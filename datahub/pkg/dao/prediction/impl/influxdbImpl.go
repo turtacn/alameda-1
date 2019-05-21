@@ -6,6 +6,7 @@ import (
 	influxdb_node_preditcion_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/node"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_preditcion "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/prediction"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/pkg/errors"
 )
 
@@ -21,17 +22,15 @@ func NewInfluxDBWithConfig(config influxdb_repository.Config) prediction.DAO {
 }
 
 // CreateContainerPredictions Implementation of prediction dao interface
-func (i influxDB) CreateContainerPredictions(containerPredictions []*prediction.ContainerPrediction) error {
-
+func (i influxDB) CreateContainerPredictions(in *datahub_v1alpha1.CreatePodPredictionsRequest) error {
 	var (
-		err error
-
+		err            error
 		predictionRepo *influxdb_repository_preditcion.ContainerRepository
 	)
 
 	predictionRepo = influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
 
-	err = predictionRepo.CreateContainerPrediction(containerPredictions)
+	err = predictionRepo.CreateContainerPrediction(in)
 	if err != nil {
 		return errors.Wrap(err, "create container prediction failed")
 	}
@@ -40,7 +39,7 @@ func (i influxDB) CreateContainerPredictions(containerPredictions []*prediction.
 }
 
 // ListPodPredictions Implementation of prediction dao interface
-func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsRequest) (*prediction.PodsPredictionMap, error) {
+func (i influxDB) ListPodPredictionsOld(request prediction.ListPodPredictionsRequest) (*prediction.PodsPredictionMap, error) {
 
 	var (
 		err error
@@ -53,18 +52,23 @@ func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsReques
 	podsPredictionMap = &prediction.PodsPredictionMap{}
 	predictionRepo = influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
 
-	influxDBContainerPredictionEntities, err = predictionRepo.ListContainerPredictionsByRequest(request)
+	influxDBContainerPredictionEntities, err = predictionRepo.ListContainerPredictionsByRequestOld(request)
 	if err != nil {
 		return podsPredictionMap, errors.Wrap(err, "list pod prediction failed")
 	}
 
 	for _, entity := range influxDBContainerPredictionEntities {
-
 		containerPrediction := entity.ContainerPrediction()
 		podsPredictionMap.AddContainerPrediction(&containerPrediction)
 	}
 
 	return podsPredictionMap, nil
+}
+
+// ListPodPredictions Implementation of prediction dao interface
+func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsRequest) ([]*datahub_v1alpha1.PodPrediction, error) {
+	predictionRepo := influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
+	return predictionRepo.ListContainerPredictionsByRequest(request)
 }
 
 // CreateNodePredictions Implementation of prediction dao interface

@@ -533,18 +533,13 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 	}
 
 	//--------------------------------------------------------
-	var (
-		predictionDAO prediction_dao.DAO
-
-		podsPredicitonMap     *prediction_dao.PodsPredictionMap
-		datahubPodPredicitons []*datahub_v1alpha1.PodPrediction
-	)
-
-	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+	predictionDAO := prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
 
 	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{in}
 	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
-	podsPredicitonMap, err = predictionDAO.ListPodPredictions(listPodPredictionsRequest)
+
+	podsPredicitons, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
+
 	if err != nil {
 		scope.Errorf("ListPodPrediction failed: %+v", err)
 		return &datahub_v1alpha1.ListPodPredictionsResponse{
@@ -555,16 +550,11 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 		}, nil
 	}
 
-	for _, ptrPodPrediction := range *podsPredicitonMap {
-		podPredicitonExtended := daoPtrPodPredictionExtended{ptrPodPrediction}
-		datahubPodPrediction := podPredicitonExtended.datahubPodPrediction()
-		datahubPodPredicitons = append(datahubPodPredicitons, datahubPodPrediction)
-	}
 	return &datahub_v1alpha1.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		PodPredictions: datahubPodPredicitons,
+		PodPredictions: podsPredicitons,
 	}, nil
 }
 
@@ -943,17 +933,8 @@ func (s *Server) CreateAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.Cr
 func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodPredictions grpc function: " + utils.InterfaceToString(in))
 
-	var (
-		err error
-
-		predictionDAO        prediction_dao.DAO
-		containersPrediciton []*prediction_dao.ContainerPrediction
-	)
-
-	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
-
-	containersPrediciton = datahubCreatePodPredictionsRequestExtended{*in}.daoContainerPredictions()
-	err = predictionDAO.CreateContainerPredictions(containersPrediciton)
+	predictionDAO := prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+	err := predictionDAO.CreateContainerPredictions(in)
 	if err != nil {
 		scope.Errorf("create pod predictions failed: %+v", err.Error())
 		return &status.Status{

@@ -72,4 +72,5 @@ message MetricData {
     MetricType metric_type = 1;
     // data can be time series or non-time series
     repeated Sample data = 2;
+    int64 granularity = 3;
 }

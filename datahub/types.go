@@ -141,7 +141,7 @@ func (c daoContainerPredictionExtended) datahubContainerPrediction() *datahub_v1
 		Name: string(c.ContainerName),
 	}
 
-	for metricType, samples := range c.Predictions {
+	for metricType, samples := range c.PredictionsRaw {
 		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
 			numOfGoroutine++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)

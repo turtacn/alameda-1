@@ -13,18 +13,20 @@ type Tag = string
 type MetricType = string
 
 const (
-	Time      Tag = "time"
-	Namespace Tag = "namespace"
-	PodName   Tag = "pod_name"
-	Name      Tag = "name"
-	Metric    Tag = "metric"
+	Time        Tag = "time"
+	Namespace   Tag = "namespace"
+	PodName     Tag = "pod_name"
+	Name        Tag = "name"
+	Metric      Tag = "metric"
+	Granularity Tag = "granularity"
+	Kind        Tag = "kind"
 
 	Value Field = "value"
 )
 
 var (
 	// Tags Tags' name in influxdb
-	Tags = []Tag{Namespace, PodName, Name, Metric}
+	Tags = []Tag{Namespace, PodName, Name, Metric, Granularity, Kind}
 	// Fields Fields' name in influxdb
 	Fields = []Field{Value}
 	// MetricTypeCPUUsage Enum of tag "metric"
@@ -49,11 +51,13 @@ var (
 type Entity struct {
 	Timestamp time.Time
 
-	Namespace *string
-	PodName   *string
-	Name      *string
-	Metric    *MetricType
-	Value     *string
+	Namespace   *string
+	PodName     *string
+	Name        *string
+	Metric      MetricType
+	Value       *string
+	Kind        string
+	Granularity *string
 }
 
 // NewEntityFromMap Build entity from map
@@ -79,11 +83,19 @@ func NewEntityFromMap(data map[string]string) Entity {
 	}
 
 	if metric, exist := data[Metric]; exist {
-		entity.Metric = &metric
+		entity.Metric = metric
 	}
 
 	if value, exist := data[Value]; exist {
 		entity.Value = &value
+	}
+
+	if kind, exist := data[Kind]; exist {
+		entity.Kind = kind
+	}
+
+	if granularity, exist := data[Granularity]; exist {
+		entity.Granularity = &granularity
 	}
 
 	return entity
@@ -100,14 +112,24 @@ func (e Entity) ContainerPrediction() prediction.ContainerPrediction {
 	samples = append(samples, metric.Sample{Timestamp: e.Timestamp, Value: *e.Value})
 
 	containerPrediction = prediction.ContainerPrediction{
-		Namespace:     *e.Namespace,
-		PodName:       *e.PodName,
-		ContainerName: *e.Name,
-		Predictions:   map[metric.ContainerMetricType][]metric.Sample{},
+		Namespace:        *e.Namespace,
+		PodName:          *e.PodName,
+		ContainerName:    *e.Name,
+		PredictionsRaw:   map[metric.ContainerMetricType][]metric.Sample{},
+		PredictionsUpper: map[metric.ContainerMetricType][]metric.Sample{},
+		PredictionsLower: map[metric.ContainerMetricType][]metric.Sample{},
 	}
 
-	metricType := LocalMetricTypeToPkgMetricType[*e.Metric]
-	containerPrediction.Predictions[metricType] = samples
+	//metricType := LocalMetricTypeToPkgMetricType[*e.Metric]
+	metricType := e.Metric
+
+	if e.Kind == metric.ContainerMetricKindUpperbound {
+		containerPrediction.PredictionsUpper[metricType] = samples
+	} else if e.Kind == metric.ContainerMetricKindLowerbound {
+		containerPrediction.PredictionsLower[metricType] = samples
+	} else {
+		containerPrediction.PredictionsRaw[metricType] = samples
+	}
 
 	return containerPrediction
 }

@@ -9,6 +9,9 @@ import (
 // ContainerMetricType Type alias
 type ContainerMetricType = string
 
+// ContainerMetricKind Kind alias
+type ContainerMetricKind = string
+
 // NodeMetricType Type alias
 type NodeMetricType = string
 
@@ -26,6 +29,12 @@ const (
 	TypeNodeMemoryAvailableBytes NodeMetricType = "node_memory_available_bytes"
 	// TypeNodeMemoryUsageBytes Metric type of memory usage
 	TypeNodeMemoryUsageBytes NodeMetricType = "node_memory_usage_bytes"
+)
+
+const (
+	ContainerMetricKindRaw        ContainerMetricKind = "raw"
+	ContainerMetricKindUpperbound ContainerMetricKind = "upper_bound"
+	ContainerMetricKindLowerbound ContainerMetricKind = "lower_bound"
 )
 
 var (

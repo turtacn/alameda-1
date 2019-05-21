@@ -53,43 +53,59 @@ func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []
 		for _, datahubContainerPrediction := range datahubPodPrediction.GetContainerPredictions() {
 			containerName := datahubContainerPrediction.GetName()
 
-			for _, rawData := range datahubContainerPrediction.GetPredictedRawData() {
-
-				containerPrediction := prediction_dao.ContainerPrediction{
-					Namespace:     podNamespace,
-					PodName:       podName,
-					ContainerName: containerName,
-					Predictions:   make(map[metric.ContainerMetricType][]metric.Sample),
-				}
-
-				samples := []metric.Sample{}
-				for _, datahubSample := range rawData.GetData() {
-					time, err := ptypes.Timestamp(datahubSample.GetTime())
-					if err != nil {
-						scope.Error(" failed: " + err.Error())
-					}
-					sample := metric.Sample{
-						Timestamp: time,
-						Value:     datahubSample.GetNumValue(),
-					}
-					samples = append(samples, sample)
-				}
-
-				var metricType metric.ContainerMetricType
-				switch rawData.GetMetricType() {
-				case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-					metricType = metric.TypeContainerCPUUsageSecondsPercentage
-				case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-					metricType = metric.TypeContainerMemoryUsageBytes
-				}
-				containerPrediction.Predictions[metricType] = samples
-
-				containerPredictions = append(containerPredictions, &containerPrediction)
+			containerPrediction := prediction_dao.ContainerPrediction{
+				Namespace:        podNamespace,
+				PodName:          podName,
+				ContainerName:    containerName,
+				PredictionsRaw:   make(map[metric.ContainerMetricType][]metric.Sample),
+				PredictionsUpper: make(map[metric.ContainerMetricType][]metric.Sample),
+				PredictionsLower: make(map[metric.ContainerMetricType][]metric.Sample),
 			}
+
+			r.fillMetricData(datahubContainerPrediction.GetPredictedRawData(), &containerPrediction, metric.ContainerMetricKindRaw)
+			r.fillMetricData(datahubContainerPrediction.GetPredictedUpperboundData(), &containerPrediction, metric.ContainerMetricKindUpperbound)
+			r.fillMetricData(datahubContainerPrediction.GetPredictedLowerboundData(), &containerPrediction, metric.ContainerMetricKindLowerbound)
+
+			containerPredictions = append(containerPredictions, &containerPrediction)
 		}
 	}
 
 	return containerPredictions
+}
+
+func (r datahubCreatePodPredictionsRequestExtended) fillMetricData(data []*datahub_v1alpha1.MetricData, containerPrediction *prediction_dao.ContainerPrediction, kind metric.ContainerMetricKind) {
+	for _, rawData := range data {
+		samples := []metric.Sample{}
+		for _, datahubSample := range rawData.GetData() {
+			time, err := ptypes.Timestamp(datahubSample.GetTime())
+			if err != nil {
+				scope.Error(" failed: " + err.Error())
+			}
+			sample := metric.Sample{
+				Timestamp: time,
+				Value:     datahubSample.GetNumValue(),
+			}
+			samples = append(samples, sample)
+		}
+
+		var metricType metric.ContainerMetricType
+		switch rawData.GetMetricType() {
+		case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+			metricType = metric.TypeContainerCPUUsageSecondsPercentage
+		case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+			metricType = metric.TypeContainerMemoryUsageBytes
+		}
+
+		if kind == metric.ContainerMetricKindRaw {
+			containerPrediction.PredictionsRaw[metricType] = samples
+		}
+		if kind == metric.ContainerMetricKindUpperbound {
+			containerPrediction.PredictionsUpper[metricType] = samples
+		}
+		if kind == metric.ContainerMetricKindLowerbound {
+			containerPrediction.PredictionsLower[metricType] = samples
+		}
+	}
 }
 
 type datahubCreateNodePredictionsRequestExtended struct {
@@ -158,6 +174,7 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 		namespace      string
 		podName        string
 		queryCondition dao.QueryCondition
+		granularity    int64
 	)
 
 	if r.request.GetNamespacedName() != nil {
@@ -165,11 +182,18 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 		podName = r.request.GetNamespacedName().GetName()
 	}
 
+	if r.request.GetGranularity() == 0 {
+		granularity = 30
+	} else {
+		granularity = r.request.GetGranularity()
+	}
+
 	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.daoQueryCondition()
 	listContainerPredictionsRequest := prediction_dao.ListPodPredictionsRequest{
 		Namespace:      namespace,
 		PodName:        podName,
 		QueryCondition: queryCondition,
+		Granularity:    granularity,
 	}
 
 	return listContainerPredictionsRequest
@@ -277,11 +301,11 @@ func (d datahubQueryConditionExtend) daoQueryCondition() dao.QueryCondition {
 	}
 
 	queryCondition = dao.QueryCondition{
-		StartTime:                 queryStartTime,
-		EndTime:                   queryEndTime,
-		StepTime:                  queryStepTime,
-		TimestampOrder:            queryTimestampOrder,
-		Limit:                     queryLimit,
+		StartTime:      queryStartTime,
+		EndTime:        queryEndTime,
+		StepTime:       queryStepTime,
+		TimestampOrder: queryTimestampOrder,
+		Limit:          queryLimit,
 		AggregateOverTimeFunction: aggregateFunc,
 	}
 	return queryCondition

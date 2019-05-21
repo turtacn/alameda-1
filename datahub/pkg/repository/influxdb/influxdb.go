@@ -145,6 +145,7 @@ func PackMap(results []client.Result) []*InfluxDBRow {
 	for _, result := range results {
 		for _, r := range result.Series {
 			row := InfluxDBRow{Name: r.Name, Partial: r.Partial}
+			row.Tags = r.Tags
 			for _, v := range r.Values {
 				data := make(map[string]string)
 				// Pack tag
@@ -185,6 +186,7 @@ func NormalizeResult(rows []*InfluxDBRow) []*InfluxDBRow {
 
 	for _, r := range rows {
 		row := InfluxDBRow{Name: r.Name, Partial: r.Partial}
+		row.Tags = r.Tags
 		for _, d := range r.Data {
 			data := make(map[string]string)
 			for key, value := range d {
