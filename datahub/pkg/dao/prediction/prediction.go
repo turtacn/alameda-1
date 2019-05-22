@@ -18,6 +18,7 @@ type DAO interface {
 	ListNodePredictions(ListNodePredictionsRequest) (*NodesPredictionMap, error)
 	CreateContainerPredictions(in *datahub_v1alpha1.CreatePodPredictionsRequest) error
 	CreateNodePredictions([]*NodePrediction) error
+	FillPodPredictions(predictions []*datahub_v1alpha1.PodPrediction, fillDays int64) error
 }
 
 // ListPodPredictionsRequest ListPodPredictionsRequest

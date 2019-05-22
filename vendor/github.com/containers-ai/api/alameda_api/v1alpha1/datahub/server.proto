@@ -119,6 +119,7 @@ message ListPodPredictionsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
     int64 granularity = 3;
+    int64 fill_days   = 4;
 }
 
 /**

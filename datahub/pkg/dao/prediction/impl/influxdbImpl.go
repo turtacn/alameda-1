@@ -7,6 +7,7 @@ import (
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_preditcion "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/prediction"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 )
 
@@ -69,6 +70,44 @@ func (i influxDB) ListPodPredictionsOld(request prediction.ListPodPredictionsReq
 func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsRequest) ([]*datahub_v1alpha1.PodPrediction, error) {
 	predictionRepo := influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
 	return predictionRepo.ListContainerPredictionsByRequest(request)
+}
+
+func (i influxDB) FillPodPredictions(predictions []*datahub_v1alpha1.PodPrediction, fillDays int64) error {
+	for _, podPrediction := range predictions {
+		for _, containerPrediction := range podPrediction.ContainerPredictions {
+			for _, metricData := range containerPrediction.PredictedRawData {
+				if len(metricData.Data) < 2 {
+					continue
+				}
+
+				tempSampleList := make([]*datahub_v1alpha1.Sample, 0)
+				step := metricData.Data[1].Time.Seconds - metricData.Data[0].Time.Seconds
+
+				if step <= 0 {
+					continue
+				}
+
+				startTime := metricData.Data[len(metricData.Data)-1].Time.Seconds + step
+				endTime := metricData.Data[0].Time.Seconds + 86400*fillDays
+				for _, sample := range metricData.Data {
+					tempSampleList = append(tempSampleList, sample)
+				}
+
+				index := 0
+				for a := startTime; a <= endTime; a += step {
+					tempIndex := index % len(tempSampleList)
+					tempSample := &datahub_v1alpha1.Sample{
+						Time:     &timestamp.Timestamp{Seconds: a},
+						NumValue: tempSampleList[tempIndex].NumValue,
+					}
+					metricData.Data = append(metricData.Data, tempSample)
+					index++
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 // CreateNodePredictions Implementation of prediction dao interface
