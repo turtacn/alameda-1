@@ -124,39 +124,41 @@ func NewOwnerReferenceTracerWithConfig(cfg rest.Config) (*OwnerReferenceTracer, 
 // GetRootControllerKindAndNameOfOwnerReferences gets root owner references that is Controller
 func (ort *OwnerReferenceTracer) GetRootControllerKindAndNameOfOwnerReferences(namespace string, ownerRefs []meta_v1.OwnerReference) (kind, name string, err error) {
 
-	var controllerOwnerRef *meta_v1.OwnerReference
-	finish := false
-	for !finish {
+	var nextControllerOwnerRef *meta_v1.OwnerReference
+	var foundControllerOwnerRef *meta_v1.OwnerReference
 
-		if len(ownerRefs) == 0 {
-			finish = true
-			break
-		}
+	for true {
+
+		nextControllerOwnerRef = nil
 
 		// get owner that is controller
 		for _, ownerRef := range ownerRefs {
 			if ownerRef.Controller != nil && *ownerRef.Controller {
-				controllerOwnerRef = &ownerRef
+				nextControllerOwnerRef = &ownerRef
 				break
 			}
 		}
 
-		// there is no ownerReference that is Controller, need no tracing
-		if controllerOwnerRef == nil {
-			finish = true
+		// no next controller ownerReference find
+		if nextControllerOwnerRef == nil {
 			break
+		} else {
+			foundControllerOwnerRef = nextControllerOwnerRef
 		}
 
-		gvk := schema.FromAPIVersionAndKind(controllerOwnerRef.APIVersion, controllerOwnerRef.Kind)
-		ownerRefs, err = ort.getOwnerRefsOfResource(namespace, controllerOwnerRef.Name, gvk)
+		gvk := schema.FromAPIVersionAndKind(nextControllerOwnerRef.APIVersion, nextControllerOwnerRef.Kind)
+		ownerRefs, err = ort.getOwnerRefsOfResource(namespace, nextControllerOwnerRef.Name, gvk)
 		if err != nil {
 			return "", "", errors.Wrap(err, "get root controller name from owner references failed")
 		}
+
 	}
 
-	if controllerOwnerRef != nil {
-		kind = controllerOwnerRef.Kind
-		name = controllerOwnerRef.Name
+	if foundControllerOwnerRef == nil {
+		err = errors.Errorf("none of ownerReferences is controller")
+	} else {
+		kind = foundControllerOwnerRef.Kind
+		name = foundControllerOwnerRef.Name
 	}
 
 	return kind, name, err
