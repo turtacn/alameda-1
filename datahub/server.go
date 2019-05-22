@@ -550,6 +550,10 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 		}, nil
 	}
 
+	if in.GetFillDays() > 0 {
+		predictionDAO.FillPodPredictions(podsPredicitons, in.GetFillDays())
+	}
+
 	return &datahub_v1alpha1.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
