@@ -42,101 +42,9 @@ func (r *ContainerRepository) CreateContainerPrediction(in *datahub_v1alpha1.Cre
 		for _, containerPrediction := range podPrediction.GetContainerPredictions() {
 			containerName := containerPrediction.GetName()
 
-			//raw
-			for _, metricData := range containerPrediction.GetPredictedRawData() {
-				metricType := metricData.GetMetricType().String()
-				granularity := metricData.GetGranularity()
-
-				if granularity == 0 {
-					granularity = 30
-				}
-
-				for _, data := range metricData.GetData() {
-					tempTimeSeconds := data.GetTime().Seconds
-					value := data.GetNumValue()
-
-					tags := map[string]string{
-						container_entity.Namespace:   podNamespace,
-						container_entity.PodName:     podName,
-						container_entity.Name:        containerName,
-						container_entity.Metric:      metricType,
-						container_entity.Kind:        metric.ContainerMetricKindRaw,
-						container_entity.Granularity: strconv.FormatInt(granularity, 10),
-					}
-					fields := map[string]interface{}{
-						container_entity.Value: value,
-					}
-					point, err := influxdb_client.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
-					if err != nil {
-						return errors.Wrap(err, "new influxdb data point failed")
-					}
-					points = append(points, point)
-				}
-			}
-
-			//upper_bound
-			for _, metricData := range containerPrediction.GetPredictedUpperboundData() {
-				metricType := metricData.GetMetricType().String()
-				granularity := metricData.GetGranularity()
-
-				if granularity == 0 {
-					granularity = 30
-				}
-
-				for _, data := range metricData.GetData() {
-					tempTimeSeconds := data.GetTime().Seconds
-					value := data.GetNumValue()
-
-					tags := map[string]string{
-						container_entity.Namespace:   podNamespace,
-						container_entity.PodName:     podName,
-						container_entity.Name:        containerName,
-						container_entity.Metric:      metricType,
-						container_entity.Kind:        metric.ContainerMetricKindUpperbound,
-						container_entity.Granularity: strconv.FormatInt(granularity, 10),
-					}
-					fields := map[string]interface{}{
-						container_entity.Value: value,
-					}
-					point, err := influxdb_client.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
-					if err != nil {
-						return errors.Wrap(err, "new influxdb data point failed")
-					}
-					points = append(points, point)
-				}
-			}
-
-			//lower_bound
-			for _, metricData := range containerPrediction.GetPredictedLowerboundData() {
-				metricType := metricData.GetMetricType().String()
-				granularity := metricData.GetGranularity()
-
-				if granularity == 0 {
-					granularity = 30
-				}
-
-				for _, data := range metricData.GetData() {
-					tempTimeSeconds := data.GetTime().Seconds
-					value := data.GetNumValue()
-
-					tags := map[string]string{
-						container_entity.Namespace:   podNamespace,
-						container_entity.PodName:     podName,
-						container_entity.Name:        containerName,
-						container_entity.Metric:      metricType,
-						container_entity.Kind:        metric.ContainerMetricKindLowerbound,
-						container_entity.Granularity: strconv.FormatInt(granularity, 10),
-					}
-					fields := map[string]interface{}{
-						container_entity.Value: value,
-					}
-					point, err := influxdb_client.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
-					if err != nil {
-						return errors.Wrap(err, "new influxdb data point failed")
-					}
-					points = append(points, point)
-				}
-			}
+			r.appendMetricDataToPoints(metric.ContainerMetricKindRaw, containerPrediction.GetPredictedRawData(), &points, podNamespace, podName, containerName)
+			r.appendMetricDataToPoints(metric.ContainerMetricKindUpperbound, containerPrediction.GetPredictedUpperboundData(), &points, podNamespace, podName, containerName)
+			r.appendMetricDataToPoints(metric.ContainerMetricKindLowerbound, containerPrediction.GetPredictedLowerboundData(), &points, podNamespace, podName, containerName)
 		}
 	}
 
@@ -145,6 +53,51 @@ func (r *ContainerRepository) CreateContainerPrediction(in *datahub_v1alpha1.Cre
 	})
 	if err != nil {
 		return errors.Wrap(err, "create container prediction failed")
+	}
+
+	return nil
+}
+
+func (r *ContainerRepository) appendMetricDataToPoints(kind metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*influxdb_client.Point, podNamespace string, podName string, containerName string) error {
+	for _, metricData := range metricDataList {
+		metricType := ""
+		switch metricData.GetMetricType() {
+		case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+			metricType = metric.TypeContainerCPUUsageSecondsPercentage
+		case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+			metricType = metric.TypeContainerMemoryUsageBytes
+		}
+
+		if metricType == "" {
+			return errors.New("No corresponding metricType")
+		}
+
+		granularity := metricData.GetGranularity()
+		if granularity == 0 {
+			granularity = 30
+		}
+
+		for _, data := range metricData.GetData() {
+			tempTimeSeconds := data.GetTime().Seconds
+			value := data.GetNumValue()
+
+			tags := map[string]string{
+				container_entity.Namespace:   podNamespace,
+				container_entity.PodName:     podName,
+				container_entity.Name:        containerName,
+				container_entity.Metric:      metricType,
+				container_entity.Kind:        kind,
+				container_entity.Granularity: strconv.FormatInt(granularity, 10),
+			}
+			fields := map[string]interface{}{
+				container_entity.Value: value,
+			}
+			point, err := influxdb_client.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
+			if err != nil {
+				return errors.Wrap(err, "new influxdb data point failed")
+			}
+			*points = append(*points, point)
+		}
 	}
 
 	return nil
@@ -242,7 +195,14 @@ func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*influxdb.I
 		podName := row.Tags[container_entity.PodName]
 		name := row.Tags[container_entity.Name]
 		metricType := row.Tags[container_entity.Metric]
+
 		metricValue := datahub_v1alpha1.MetricType(datahub_v1alpha1.MetricType_value[metricType])
+		switch metricType {
+		case metric.TypeContainerCPUUsageSecondsPercentage:
+			metricValue = datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE
+		case metric.TypeContainerMemoryUsageBytes:
+			metricValue = datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES
+		}
 
 		kind := metric.ContainerMetricKindRaw
 		if val, ok := row.Tags[container_entity.Kind]; ok {
