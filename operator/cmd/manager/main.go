@@ -172,7 +172,6 @@ func main() {
 	}
 
 	// TODO: There are config dependency, this manager should have it's config.
-	applyCRDs(k8sConfig)
 	initServerConfig(&mgr)
 	initLogger()
 	printSoftwareInfo()
@@ -195,6 +194,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// go applyCRDs(k8sConfig)
 	go registerNodes(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
 	go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
 	go launchWebhook(&mgr, &operatorConf)
