@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	datahubclient "github.com/containers-ai/alameda/operator/datahub/client"
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
@@ -130,6 +131,7 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		alamedaScaler.ResetStatusAlamedaController()
 
 		scope.Infof(fmt.Sprintf("AlamedaScaler (%s/%s) found, try to sync latest alamedacontrollers.", alamedaScalerNS, alamedaScalerName))
+		// select matched deployments
 		if alamedaDeployments, err := listResources.ListDeploymentsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
 			for _, alamedaDeployment := range alamedaDeployments {
 				alamedaScaler = alamedascalerReconciler.UpdateStatusByDeployment(&alamedaDeployment)
@@ -138,6 +140,7 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			scope.Error(err.Error())
 		}
 
+		// select matched deploymentConfigs
 		if alamedaDeploymentConfigs, err := listResources.ListDeploymentConfigsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
 			for _, alamedaDeploymentConfig := range alamedaDeploymentConfigs {
 				alamedaScaler = alamedascalerReconciler.UpdateStatusByDeploymentConfig(&alamedaDeploymentConfig)
@@ -148,6 +151,11 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 
 		if err := updateResource.UpdateAlamedaScaler(alamedaScaler); err != nil {
 			scope.Errorf("update AlamedaScaler %s/%s failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
+			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
+		}
+
+		if err := r.createAlamedaWatchedResourcesToDatahub(alamedaScaler); err != nil {
+			scope.Errorf("create watched resources to datahub failed: %s", err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
@@ -213,6 +221,52 @@ func (r *ReconcileAlamedaScaler) syncDatahubResource(done chan bool, errChan cha
 
 	done <- true
 	return nil
+}
+
+func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler) error {
+	k8sRes := datahubclient.NewK8SResource()
+	watchedReses := []*datahub_v1alpha1.Controller{}
+	for _, dc := range scaler.Status.AlamedaController.DeploymentConfigs {
+
+		watchedReses = append(watchedReses, &datahub_v1alpha1.Controller{
+			ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: dc.Namespace,
+					Name:      dc.Name,
+				},
+				Kind: datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
+			},
+			OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: scaler.GetNamespace(),
+					Name:      scaler.GetName(),
+				},
+				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
+			}},
+			Replicas: int32(len(dc.Pods)),
+		})
+	}
+	for _, deploy := range scaler.Status.AlamedaController.Deployments {
+		watchedReses = append(watchedReses, &datahub_v1alpha1.Controller{
+			ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: deploy.Namespace,
+					Name:      deploy.Name,
+				},
+				Kind: datahub_v1alpha1.Kind_DEPLOYMENT,
+			},
+			OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: scaler.GetNamespace(),
+					Name:      scaler.GetName(),
+				},
+				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
+			}},
+			Replicas: int32(len(deploy.Pods)),
+		})
+	}
+	err := k8sRes.CreateAlamedaWatchedResource(watchedReses)
+	return err
 }
 
 func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler, pods []*autoscalingv1alpha1.AlamedaPod) error {
