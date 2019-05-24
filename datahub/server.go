@@ -9,7 +9,6 @@ import (
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
-	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	recommendation_dao "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
@@ -662,20 +661,11 @@ func (s *Server) ListPodPredictionsDemo(ctx context.Context, in *datahub_v1alpha
 func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.ListNodePredictionsRequest) (*datahub_v1alpha1.ListNodePredictionsResponse, error) {
 	scope.Debug("Request received from ListNodePredictions grpc function: " + utils.InterfaceToString(in))
 
-	var (
-		err error
-
-		predictionDAO prediction_dao.DAO
-
-		nodesPredicitonMap     *prediction_dao.NodesPredictionMap
-		datahubNodePredicitons []*datahub_v1alpha1.NodePrediction
-	)
-
-	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+	predictionDAO := prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
 
 	datahubListNodePredictionsRequestExtended := datahubListNodePredictionsRequestExtended{in}
 	listNodePredictionRequest := datahubListNodePredictionsRequestExtended.daoListNodePredictionsRequest()
-	nodesPredicitonMap, err = predictionDAO.ListNodePredictions(listNodePredictionRequest)
+	nodePredictions, err := predictionDAO.ListNodePredictions(listNodePredictionRequest)
 	if err != nil {
 		scope.Errorf("ListNodePredictions failed: %+v", err)
 		return &datahub_v1alpha1.ListNodePredictionsResponse{
@@ -686,13 +676,11 @@ func (s *Server) ListNodePredictions(ctx context.Context, in *datahub_v1alpha1.L
 		}, nil
 	}
 
-	datahubNodePredicitons = daoPtrNodesPredictionMapExtended{nodesPredicitonMap}.datahubNodePredictions()
-
 	return &datahub_v1alpha1.ListNodePredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		NodePredictions: datahubNodePredicitons,
+		NodePredictions: nodePredictions,
 	}, nil
 }
 
@@ -956,17 +944,8 @@ func (s *Server) CreatePodPredictions(ctx context.Context, in *datahub_v1alpha1.
 func (s *Server) CreateNodePredictions(ctx context.Context, in *datahub_v1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNodePredictions grpc function: " + utils.InterfaceToString(in))
 
-	var (
-		err error
-
-		predictionDAO   prediction_dao.DAO
-		nodesPrediciton []*prediction_dao.NodePrediction
-	)
-
-	predictionDAO = prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
-
-	nodesPrediciton = datahubCreateNodePredictionsRequestExtended{*in}.daoNodePredictions()
-	err = predictionDAO.CreateNodePredictions(nodesPrediciton)
+	predictionDAO := prediction_dao_impl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+	err := predictionDAO.CreateNodePredictions(in)
 	if err != nil {
 		scope.Errorf("create node predictions failed: %+v", err.Error())
 		return &status.Status{

@@ -18,13 +18,15 @@ const (
 	Name        Tag = "name"
 	Metric      Tag = "metric"
 	IsScheduled Tag = "is_scheduled"
+	Granularity Tag = "granularity"
+	Kind        Tag = "kind"
 
 	Value Field = "value"
 )
 
 var (
 	// Tags Tags' name in influxdb
-	Tags = []Tag{Name, Metric, IsScheduled}
+	Tags = []Tag{Name, Metric, IsScheduled, Granularity, Kind}
 	// Fields Fields' name in influxdb
 	Fields = []Field{Value}
 	// MetricTypeCPUUsage Enum of tag "metric"

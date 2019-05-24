@@ -15,6 +15,8 @@ type ContainerMetricKind = string
 // NodeMetricType Type alias
 type NodeMetricType = string
 
+type NodeMetricKind = string
+
 const (
 	// TypeContainerCPUUsageSecondsPercentage Metric type of container cpu usage
 	TypeContainerCPUUsageSecondsPercentage ContainerMetricType = "cpu_usage_seconds_percentage"
@@ -35,6 +37,10 @@ const (
 	ContainerMetricKindRaw        ContainerMetricKind = "raw"
 	ContainerMetricKindUpperbound ContainerMetricKind = "upper_bound"
 	ContainerMetricKindLowerbound ContainerMetricKind = "lower_bound"
+
+	NodeMetricKindRaw        NodeMetricKind = "raw"
+	NodeMetricKindUpperbound NodeMetricKind = "upper_bound"
+	NodeMetricKindLowerbound NodeMetricKind = "lower_bound"
 )
 
 var (
