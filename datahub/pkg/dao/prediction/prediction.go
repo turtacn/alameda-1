@@ -15,10 +15,11 @@ type IsScheduled = bool
 // DAO DAO interface of prediction
 type DAO interface {
 	ListPodPredictions(ListPodPredictionsRequest) ([]*datahub_v1alpha1.PodPrediction, error)
-	ListNodePredictions(ListNodePredictionsRequest) (*NodesPredictionMap, error)
 	CreateContainerPredictions(in *datahub_v1alpha1.CreatePodPredictionsRequest) error
-	CreateNodePredictions([]*NodePrediction) error
 	FillPodPredictions(predictions []*datahub_v1alpha1.PodPrediction, fillDays int64) error
+
+	ListNodePredictions(ListNodePredictionsRequest) ([]*datahub_v1alpha1.NodePrediction, error)
+	CreateNodePredictions(in *datahub_v1alpha1.CreateNodePredictionsRequest) error
 }
 
 // ListPodPredictionsRequest ListPodPredictionsRequest
@@ -31,7 +32,8 @@ type ListPodPredictionsRequest struct {
 
 // ListNodePredictionsRequest ListNodePredictionsRequest
 type ListNodePredictionsRequest struct {
-	NodeNames []string
+	NodeNames   []string
+	Granularity int64
 	dao.QueryCondition
 }
 

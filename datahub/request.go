@@ -208,15 +208,24 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 	var (
 		nodeNames      []string
 		queryCondition dao.QueryCondition
+		granularity    int64
 	)
 
 	for _, nodeName := range r.request.GetNodeNames() {
 		nodeNames = append(nodeNames, nodeName)
 	}
+
+	if r.request.GetGranularity() == 0 {
+		granularity = 30
+	} else {
+		granularity = r.request.GetGranularity()
+	}
+
 	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.daoQueryCondition()
 	listNodePredictionsRequest := prediction_dao.ListNodePredictionsRequest{
 		NodeNames:      nodeNames,
 		QueryCondition: queryCondition,
+		Granularity:    granularity,
 	}
 
 	return listNodePredictionsRequest

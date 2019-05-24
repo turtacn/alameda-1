@@ -104,55 +104,6 @@ func (r *ContainerRepository) appendMetricDataToPoints(kind metric.ContainerMetr
 }
 
 // ListContainerPredictionsByRequest list containers' prediction from influxDB
-func (r *ContainerRepository) ListContainerPredictionsByRequestOld(request prediction_dao.ListPodPredictionsRequest) ([]*container_entity.Entity, error) {
-
-	var (
-		err error
-
-		results  []influxdb_client.Result
-		rows     []*influxdb.InfluxDBRow
-		entities []*container_entity.Entity
-	)
-
-	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
-	influxdbStatement := influxdb.Statement{
-		Measurement: Container,
-		WhereClause: whereClause,
-		GroupByTags: []string{container_entity.Namespace, container_entity.PodName, container_entity.Name, container_entity.Metric, container_entity.Kind, container_entity.Granularity},
-	}
-
-	queryCondition := influxdb.QueryCondition{
-		StartTime:      request.QueryCondition.StartTime,
-		EndTime:        request.QueryCondition.EndTime,
-		StepTime:       request.QueryCondition.StepTime,
-		TimestampOrder: request.QueryCondition.TimestampOrder,
-		Limit:          request.QueryCondition.Limit,
-	}
-	influxdbStatement.AppendTimeConditionIntoWhereClause(queryCondition)
-	influxdbStatement.SetLimitClauseFromQueryCondition(queryCondition)
-	influxdbStatement.SetOrderClauseFromQueryCondition(queryCondition)
-	cmd := influxdbStatement.BuildQueryCmd()
-
-	results, err = r.influxDB.QueryDB(cmd, string(influxdb.Prediction))
-	if err != nil {
-		return entities, errors.Wrap(err, "list container prediction failed")
-	}
-
-	rows = influxdb.PackMap(results)
-	for _, row := range rows {
-		for _, data := range row.Data {
-			entity := container_entity.NewEntityFromMap(data)
-			entities = append(entities, &entity)
-		}
-	}
-
-	podPredictions := r.getPodPredictionsFromInfluxRows(rows)
-	fmt.Print(podPredictions)
-
-	return entities, nil
-}
-
-// ListContainerPredictionsByRequest list containers' prediction from influxDB
 func (r *ContainerRepository) ListContainerPredictionsByRequest(request prediction_dao.ListPodPredictionsRequest) ([]*datahub_v1alpha1.PodPrediction, error) {
 	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
 	influxdbStatement := influxdb.Statement{
@@ -206,12 +157,16 @@ func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*influxdb.I
 
 		kind := metric.ContainerMetricKindRaw
 		if val, ok := row.Tags[container_entity.Kind]; ok {
-			kind = val
+			if val != "" {
+				kind = val
+			}
 		}
 
 		granularity := int64(30)
 		if val, ok := row.Tags[container_entity.Granularity]; ok {
-			granularity, _ = strconv.ParseInt(val, 10, 64)
+			if val != "" {
+				granularity, _ = strconv.ParseInt(val, 10, 64)
+			}
 		}
 
 		podMap[namespace+"|"+podName] = &datahub_v1alpha1.PodPrediction{}
@@ -301,9 +256,17 @@ func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(request predic
 	}
 
 	if conditions != "" {
-		conditions += fmt.Sprintf(` AND "%s"='%d'`, container_entity.Granularity, request.Granularity)
+		if request.Granularity == 30 {
+			conditions += fmt.Sprintf(` AND ("%s"='' OR "%s"='%d')`, container_entity.Granularity, container_entity.Granularity, request.Granularity)
+		} else {
+			conditions += fmt.Sprintf(` AND "%s"='%d'`, container_entity.Granularity, request.Granularity)
+		}
 	} else {
-		conditions += fmt.Sprintf(`"%s"='%d'`, container_entity.Granularity, request.Granularity)
+		if request.Granularity == 30 {
+			conditions += fmt.Sprintf(`("%s"='' OR "%s"='%d')`, container_entity.Granularity, container_entity.Granularity, request.Granularity)
+		} else {
+			conditions += fmt.Sprintf(`"%s"='%d'`, container_entity.Granularity, request.Granularity)
+		}
 	}
 
 	if conditions != "" {

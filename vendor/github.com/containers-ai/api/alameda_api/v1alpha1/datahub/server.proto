@@ -138,6 +138,7 @@ message ListPodPredictionsResponse {
 message ListNodePredictionsRequest {
     repeated string node_names = 1;
     QueryCondition query_condition = 2;
+    int64 granularity = 3;
 }
 
 /**

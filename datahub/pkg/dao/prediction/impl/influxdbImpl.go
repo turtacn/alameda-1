@@ -2,8 +2,6 @@ package impl
 
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
-	influxdb_container_preditcion_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/container"
-	influxdb_node_preditcion_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/node"
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	influxdb_repository_preditcion "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/prediction"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -37,33 +35,6 @@ func (i influxDB) CreateContainerPredictions(in *datahub_v1alpha1.CreatePodPredi
 	}
 
 	return nil
-}
-
-// ListPodPredictions Implementation of prediction dao interface
-func (i influxDB) ListPodPredictionsOld(request prediction.ListPodPredictionsRequest) (*prediction.PodsPredictionMap, error) {
-
-	var (
-		err error
-
-		predictionRepo                      *influxdb_repository_preditcion.ContainerRepository
-		influxDBContainerPredictionEntities []*influxdb_container_preditcion_entity.Entity
-		podsPredictionMap                   *prediction.PodsPredictionMap
-	)
-
-	podsPredictionMap = &prediction.PodsPredictionMap{}
-	predictionRepo = influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
-
-	influxDBContainerPredictionEntities, err = predictionRepo.ListContainerPredictionsByRequestOld(request)
-	if err != nil {
-		return podsPredictionMap, errors.Wrap(err, "list pod prediction failed")
-	}
-
-	for _, entity := range influxDBContainerPredictionEntities {
-		containerPrediction := entity.ContainerPrediction()
-		podsPredictionMap.AddContainerPrediction(&containerPrediction)
-	}
-
-	return podsPredictionMap, nil
 }
 
 // ListPodPredictions Implementation of prediction dao interface
@@ -111,17 +82,10 @@ func (i influxDB) FillPodPredictions(predictions []*datahub_v1alpha1.PodPredicti
 }
 
 // CreateNodePredictions Implementation of prediction dao interface
-func (i influxDB) CreateNodePredictions(nodePredictions []*prediction.NodePrediction) error {
+func (i influxDB) CreateNodePredictions(in *datahub_v1alpha1.CreateNodePredictionsRequest) error {
+	predictionRepo := influxdb_repository_preditcion.NewNodeRepositoryWithConfig(i.influxDBConfig)
 
-	var (
-		err error
-
-		predictionRepo *influxdb_repository_preditcion.NodeRepository
-	)
-
-	predictionRepo = influxdb_repository_preditcion.NewNodeRepositoryWithConfig(i.influxDBConfig)
-
-	err = predictionRepo.CreateNodePrediction(nodePredictions)
+	err := predictionRepo.CreateNodePrediction(in)
 	if err != nil {
 		return errors.Wrap(err, "create node prediction failed")
 	}
@@ -130,28 +94,7 @@ func (i influxDB) CreateNodePredictions(nodePredictions []*prediction.NodePredic
 }
 
 // ListNodePredictions Implementation of prediction dao interface
-func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequest) (*prediction.NodesPredictionMap, error) {
-
-	var (
-		err error
-
-		predictionRepo                 *influxdb_repository_preditcion.NodeRepository
-		influxDBNodePredictionEntities []*influxdb_node_preditcion_entity.Entity
-		nodesPredictionMap             *prediction.NodesPredictionMap
-	)
-
-	nodesPredictionMap = &prediction.NodesPredictionMap{}
-	predictionRepo = influxdb_repository_preditcion.NewNodeRepositoryWithConfig(i.influxDBConfig)
-
-	influxDBNodePredictionEntities, err = predictionRepo.ListNodePredictionsByRequest(request)
-	if err != nil {
-		return nodesPredictionMap, errors.Wrap(err, "list node prediction failed")
-	}
-
-	for _, entity := range influxDBNodePredictionEntities {
-		nodePrediction := entity.NodePrediction()
-		nodesPredictionMap.AddNodePrediction(&nodePrediction)
-	}
-
-	return nodesPredictionMap, nil
+func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequest) ([]*datahub_v1alpha1.NodePrediction, error) {
+	predictionRepo := influxdb_repository_preditcion.NewNodeRepositoryWithConfig(i.influxDBConfig)
+	return predictionRepo.ListNodePredictionsByRequest(request)
 }
