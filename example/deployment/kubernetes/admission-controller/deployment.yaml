@@ -49,6 +49,24 @@ spec:
           resources:
             {}
             
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/admission-controller
+              - probe
+              - --type=readiness
+            failureThreshold: 20
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/admission-controller
+              - probe
+              - --type=liveness
+            failureThreshold: 20
+            initialDelaySeconds: 5
+            periodSeconds: 5
           volumeMounts:
           - mountPath: /etc/tls-certs
             name: tls-certs

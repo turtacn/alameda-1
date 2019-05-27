@@ -91,7 +91,7 @@ objects:
             properties:
               customResourceVersion:
                 type: string
-              enableExecution:
+              enableexecution:
                 type: boolean
               policy:
                 enum:
@@ -112,9 +112,6 @@ objects:
                     type: object
                   deployments:
                     type: object
-                required:
-                - deployments
-                - deploymentconfigs
                 type: object
             type: object
     version: v1alpha1

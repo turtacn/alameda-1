@@ -40,4 +40,20 @@ spec:
           resources:
             {}
             
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/datahub
+              - probe
+              - --type=readiness
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/datahub
+              - probe
+              - --type=liveness
+            initialDelaySeconds: 5
+            periodSeconds: 5
       serviceAccountName: alameda-datahub

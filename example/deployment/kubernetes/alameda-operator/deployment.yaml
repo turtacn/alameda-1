@@ -42,6 +42,22 @@ spec:
           - name: podinfo
             mountPath: /etc/podinfo
             readOnly: false
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/manager
+              - --readiness-probe
+            initialDelaySeconds: 5
+            failureThreshold: 20
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/manager
+              - --liveness-probe
+            initialDelaySeconds: 5
+            failureThreshold: 20
+            periodSeconds: 5
       volumes:
       - name: podinfo
         downwardAPI:
