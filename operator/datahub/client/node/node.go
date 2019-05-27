@@ -116,3 +116,44 @@ func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(nodes []*corev1.Node) erro
 	}
 	return nil
 }
+
+// ListAlamedaNodes lists nodes to datahub
+func (repo *AlamedaNodeRepository) ListAlamedaNodes() ([]*datahub_v1alpha1.Node, error) {
+	retries := 3
+	alamNodes := []*datahub_v1alpha1.Node{}
+	for retry := 1; retry <= retries; retry++ {
+		nodes, err := repo.listAlamedaNodes()
+		if err == nil {
+			alamNodes = nodes
+			break
+		}
+		scope.Debugf("List alameda nodes failed. (%v try)", retry)
+		if retry == retries {
+			return nil, err
+		}
+	}
+	return alamNodes, nil
+}
+
+func (repo *AlamedaNodeRepository) listAlamedaNodes() ([]*datahub_v1alpha1.Node, error) {
+	alamNodes := []*datahub_v1alpha1.Node{}
+	req := datahub_v1alpha1.ListAlamedaNodesRequest{}
+	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
+	defer conn.Close()
+
+	if err != nil {
+		scope.Error(err.Error())
+		return nil, err
+	}
+
+	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
+	if reqRes, err := datahubServiceClnt.ListAlamedaNodes(context.Background(), &req); err != nil {
+		if reqRes.Status != nil {
+			scope.Error(reqRes.Status.GetMessage())
+		}
+		return alamNodes, err
+	} else {
+		alamNodes = reqRes.GetNodes()
+	}
+	return alamNodes, nil
+}

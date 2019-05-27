@@ -7,7 +7,9 @@ import (
 	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	datahub_pod "github.com/containers-ai/alameda/operator/datahub/client/pod"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	alamutils "github.com/containers-ai/alameda/pkg/utils"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	corev1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -41,6 +43,35 @@ func startRegisteringNodes(client client.Client) error {
 	scope.Infof(fmt.Sprintf("%v nodes found in cluster.", len(nodes)))
 	datahubNodeRepo := datahub_node.NewAlamedaNodeRepository()
 	err = datahubNodeRepo.CreateAlamedaNode(nodes)
+	if err != nil {
+		return err
+	}
+	nodesToDel := []*corev1.Node{}
+	alamNodes, err := datahubNodeRepo.ListAlamedaNodes()
+	for _, alamNode := range alamNodes {
+		toDel := true
+		for _, node := range nodes {
+			if node.GetName() == alamNode.GetName() {
+				toDel = false
+				break
+			}
+		}
+		if !toDel {
+			continue
+		}
+		delNode := &corev1.Node{}
+		delNode.SetName(alamNode.GetName())
+		nodesToDel = append(nodesToDel, delNode)
+	}
+
+	if len(nodesToDel) > 0 {
+		scope.Debugf("Nodes removed from datahub. %s", alamutils.InterfaceToString(nodesToDel))
+		err := datahubNodeRepo.DeleteAlamedaNodes(nodesToDel)
+		if err != nil {
+			return err
+		}
+	}
+
 	return err
 }
 
