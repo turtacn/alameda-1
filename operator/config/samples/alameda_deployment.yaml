@@ -10,7 +10,7 @@ metadata:
   namespace: alameda
 spec:
   policy: compact
-  enableExecution: true
+  enableexecution: true
   selector:
     matchLabels:
       app: nginx

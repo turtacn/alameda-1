@@ -5,7 +5,7 @@ metadata:
   namespace: webapp
 spec:
   policy: stable
-  enableExecution: true
+  enableexecution: true
   selector:
     matchLabels:
       app: nginx
