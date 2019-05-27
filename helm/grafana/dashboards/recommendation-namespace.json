@@ -7,7 +7,9 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
         "name": "Annotations & Alerts",
+        "showIn": 0,
         "type": "dashboard"
       }
     ]
@@ -15,8 +17,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 23,
-  "iteration": 1553764753105,
+  "id": 31,
+  "iteration": 1557986629778,
   "links": [],
   "panels": [
     {
@@ -29,7 +31,7 @@
       },
       "id": 12,
       "panels": [],
-      "title": "Cluster-Wide Orchestration Objects",
+      "title": "Managed Objects",
       "type": "row"
     },
     {
@@ -49,7 +51,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 0,
+        "col": 7,
         "desc": true
       },
       "styles": [
@@ -271,7 +273,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select alameda_scaler_namespace as namespace, alameda_scaler_name as \"alameda scaler\", pod_name as pod, \"name\" as \"container\", node_name as node, \"policy\", is_alameda from alameda_cluster_status..container group by \"alameda_scaler_namespace\", \"alameda_scaler_name\", \"pod_name\", \"name\" order by time desc limit 1",
+          "query": "select \"name\" as \"container\", alameda_scaler_namespace as namespace, alameda_scaler_name as \"alameda scaler\", pod_name as pod, node_name as node, \"policy\", is_alameda from alameda_cluster_status..container where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ group by \"alameda_scaler_namespace\", \"alameda_scaler_name\", \"pod_name\", \"name\" order by time desc limit 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -292,7 +294,7 @@
           "tags": []
         }
       ],
-      "title": "Resource Orchestration Configuration (AlamedaScaler CRs)",
+      "title": "Managed Containers",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -444,7 +446,7 @@
           "tags": []
         }
       ],
-      "title": "Cluster Nodes",
+      "title": "Managed Nodes",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -459,7 +461,7 @@
       },
       "id": 7,
       "panels": [],
-      "title": "Container Resource Usage and Recommendation",
+      "title": "Resource Usage and Recommendation of Namespace",
       "type": "row"
     },
     {
@@ -504,11 +506,13 @@
         },
         {
           "alias": "Recommendation: CPU limit",
-          "color": "#f2c96d"
+          "color": "#f2c96d",
+          "steppedLine": true
         },
         {
           "alias": "Recommendation: CPU request",
-          "color": "#7eb26d"
+          "color": "#7eb26d",
+          "steppedLine": true
         },
         {
           "alias": "Prediction: CPU usage",
@@ -526,7 +530,7 @@
           "alias": "Prediction: CPU usage",
           "datasource": "InfluxDB",
           "groupBy": [],
-          "hide": false,
+          "hide": true,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
@@ -560,7 +564,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "1000 * namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
+          "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -588,7 +592,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_limit_cpu from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select sum(mean) from (select mean(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -628,7 +632,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_request_cpu from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select sum(mean) from (select mean(resource_request_cpu ) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -653,7 +657,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Container CPU Usage: Observation, Prediction and Recommendation (in CPU milicore)",
+      "title": "CPU: Observation and Recommendation (in CPU milicore)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -733,11 +737,13 @@
         },
         {
           "alias": "Recommendation: memory limit",
-          "color": "#f2c96d"
+          "color": "#f2c96d",
+          "steppedLine": true
         },
         {
           "alias": "Recommendation: memory request",
-          "color": "#7eb26d"
+          "color": "#7eb26d",
+          "steppedLine": true
         },
         {
           "alias": "Prediction: memory usage",
@@ -755,7 +761,7 @@
           "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
           "groupBy": [],
-          "hide": false,
+          "hide": true,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
@@ -789,7 +795,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
+          "expr": "sum(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -813,9 +819,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_limit_memory from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select sum(mean) from (select mean(resource_limit_memory ) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -852,9 +859,10 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_request_memory from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select sum(mean) from (select mean(resource_request_memory ) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -879,7 +887,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Container Memory Usage: Observation, Prediction  and Recommendation",
+      "title": "Memory: Observation and Recommendation",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -952,18 +960,20 @@
       {
         "allValue": null,
         "current": {
-          "text": "ai",
-          "value": "ai"
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Alameda Scaler",
-        "multi": false,
+        "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ ",
+        "hide": 2,
+        "includeAll": true,
+        "label": "AlamedaScaler",
+        "multi": true,
         "name": "scaler",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
+        "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ ",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -977,18 +987,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-ai-d56b865c6-hspgz",
-          "value": "alameda-ai-d56b865c6-hspgz"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
-        "hide": 0,
-        "includeAll": false,
+        "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/  and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
+        "hide": 2,
+        "includeAll": true,
         "label": "pod",
-        "multi": false,
+        "multi": true,
         "name": "pod",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
+        "query": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/  and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1000,35 +1010,29 @@
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {
-          "text": "alameda-ai",
-          "value": "alameda-ai"
+          "text": "5m",
+          "value": "5m"
         },
-        "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
-        "hide": 0,
-        "includeAll": false,
-        "label": "container",
-        "multi": false,
-        "name": "container",
-        "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
-        "refresh": 2,
-        "regex": "",
+        "hide": 2,
+        "label": null,
+        "name": "recomInterval",
+        "options": [
+          {
+            "selected": true,
+            "text": "5m",
+            "value": "5m"
+          }
+        ],
+        "query": "5m",
         "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "type": "constant"
       }
     ]
   },
   "time": {
     "from": "now-1h",
-    "to": "now+30m"
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -1056,7 +1060,7 @@
     ]
   },
   "timezone": "",
-  "title": "Prediction",
-  "uid": "7damzdd",
-  "version": 4
+  "title": "Per Namespace Resource Recommendations",
+  "uid": "awdasdqwe",
+  "version": 21
 }
