@@ -882,6 +882,27 @@ func (s *Server) CreateControllers(ctx context.Context, in *datahub_v1alpha1.Cre
 	}, nil
 }
 
+func (s *Server) DeleteControllers(ctx context.Context, in *datahub_v1alpha1.DeleteControllersRequest) (*status.Status, error) {
+	scope.Debug("Request received from DeleteControllers grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := &cluster_status_dao_impl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	err := controllerDAO.DeleteControllers(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
 // DeletePods update containers information of pods to database
 func (s *Server) DeletePods(ctx context.Context, in *datahub_v1alpha1.DeletePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeletePods grpc function: " + utils.InterfaceToString(in))

@@ -19,3 +19,8 @@ func (c *Controller) ListControllers(in *datahub_api.ListControllersRequest) ([]
 	controllerRepository := influxdb_repository_cluster_status.NewControllerRepository(&c.InfluxDBConfig)
 	return controllerRepository.ListControllers(in)
 }
+
+func (c *Controller) DeleteControllers(in *datahub_api.DeleteControllersRequest) error {
+	controllerRepository := influxdb_repository_cluster_status.NewControllerRepository(&c.InfluxDBConfig)
+	return controllerRepository.DeleteControllers(in)
+}
