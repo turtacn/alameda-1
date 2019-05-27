@@ -159,6 +159,19 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
+		// list all controller with namespace same as alamedaScaler
+		controllers, err := r.listAlamedaWatchedResourcesToDatahub(alamedaScaler)
+		if err != nil {
+			scope.Errorf("list watched resources to datahub failed: %s", err.Error())
+			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
+		}
+
+		err = r.deleteAlamedaWatchedResourcesToDatahub(alamedaScaler, controllers)
+		if err != nil {
+			scope.Errorf("delete watched resources to datahub failed: %s", err.Error())
+			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
+		}
+
 		// after updating AlamedaPod in AlamedaScaler, start create AlamedaRecommendation if necessary and register alameda pod to datahub
 		scope.Debugf("Start syncing alamedascaler to datahub. %s", alamutils.InterfaceToString(alamedaScaler))
 		if err := r.syncAlamedaScalerWithDepResources(alamedaScaler); err != nil {
@@ -223,11 +236,24 @@ func (r *ReconcileAlamedaScaler) syncDatahubResource(done chan bool, errChan cha
 	return nil
 }
 
+func (r *ReconcileAlamedaScaler) listAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler) ([]*datahub_v1alpha1.Controller, error) {
+	k8sRes := datahubclient.NewK8SResource()
+	controllers, err := k8sRes.ListAlamedaWatchedResource(&datahub_v1alpha1.NamespacedName{
+		Namespace: scaler.GetNamespace(),
+	})
+	return controllers, err
+}
+
 func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler) error {
 	k8sRes := datahubclient.NewK8SResource()
 	watchedReses := []*datahub_v1alpha1.Controller{}
 	for _, dc := range scaler.Status.AlamedaController.DeploymentConfigs {
-
+		policy := datahub_v1alpha1.RecommendationPolicy_RECOMMENDATIONPOLICY_UNDEFINED
+		if scaler.Spec.Policy == autoscalingv1alpha1.RecommendationPolicySTABLE {
+			policy = datahub_v1alpha1.RecommendationPolicy_STABLE
+		} else if scaler.Spec.Policy == autoscalingv1alpha1.RecommendationPolicyCOMPACT {
+			policy = datahub_v1alpha1.RecommendationPolicy_COMPACT
+		}
 		watchedReses = append(watchedReses, &datahub_v1alpha1.Controller{
 			ControllerInfo: &datahub_v1alpha1.ResourceInfo{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
@@ -243,10 +269,18 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				},
 				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 			}},
-			Replicas: int32(len(dc.Pods)),
+			Policy:                        policy,
+			EnableRecommendationExecution: scaler.Spec.EnableExecution,
+			Replicas:                      int32(len(dc.Pods)),
 		})
 	}
 	for _, deploy := range scaler.Status.AlamedaController.Deployments {
+		policy := datahub_v1alpha1.RecommendationPolicy_RECOMMENDATIONPOLICY_UNDEFINED
+		if scaler.Spec.Policy == autoscalingv1alpha1.RecommendationPolicySTABLE {
+			policy = datahub_v1alpha1.RecommendationPolicy_STABLE
+		} else if scaler.Spec.Policy == autoscalingv1alpha1.RecommendationPolicyCOMPACT {
+			policy = datahub_v1alpha1.RecommendationPolicy_COMPACT
+		}
 		watchedReses = append(watchedReses, &datahub_v1alpha1.Controller{
 			ControllerInfo: &datahub_v1alpha1.ResourceInfo{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
@@ -262,11 +296,92 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				},
 				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 			}},
-			Replicas: int32(len(deploy.Pods)),
+			Policy:                        policy,
+			EnableRecommendationExecution: scaler.Spec.EnableExecution,
+			Replicas:                      int32(len(deploy.Pods)),
 		})
 	}
 	err := k8sRes.CreateAlamedaWatchedResource(watchedReses)
 	return err
+}
+
+func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler, ctlrsFromDH []*datahub_v1alpha1.Controller) error {
+	delCtlrs := []*datahub_v1alpha1.Controller{}
+
+	for _, ctlr := range ctlrsFromDH {
+		isOwnedScaler := false
+		for _, ownedInfo := range ctlr.GetOwnerInfo() {
+			if ownedInfo.Kind == datahub_v1alpha1.Kind_ALAMEDASCALER && ownedInfo.GetNamespacedName().GetName() == scaler.GetName() {
+				isOwnedScaler = true
+				break
+			}
+		}
+		if !isOwnedScaler {
+			continue
+		}
+		ctlrKind := ctlr.GetControllerInfo().GetKind()
+		ctlrName := ctlr.GetControllerInfo().GetNamespacedName().GetName()
+		ctlrNS := ctlr.GetControllerInfo().GetNamespacedName().GetNamespace()
+		inScaler := false
+		if ctlrKind == datahub_v1alpha1.Kind_DEPLOYMENTCONFIG {
+			for _, dc := range scaler.Status.AlamedaController.DeploymentConfigs {
+				if ctlrName == dc.Name {
+					inScaler = true
+					break
+				}
+			}
+			if !inScaler {
+				delCtlrs = append(delCtlrs, &datahub_v1alpha1.Controller{
+					ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: ctlrNS,
+							Name:      ctlrName,
+						},
+						Kind: datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
+					},
+					OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: scaler.GetNamespace(),
+							Name:      scaler.GetName(),
+						},
+						Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
+					}},
+				})
+			}
+		} else if ctlrKind == datahub_v1alpha1.Kind_DEPLOYMENT {
+			for _, deploy := range scaler.Status.AlamedaController.Deployments {
+				if ctlrName == deploy.Name {
+					inScaler = true
+					break
+				}
+			}
+			if !inScaler {
+				delCtlrs = append(delCtlrs, &datahub_v1alpha1.Controller{
+					ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: ctlrNS,
+							Name:      ctlrName,
+						},
+						Kind: datahub_v1alpha1.Kind_DEPLOYMENT,
+					},
+					OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: scaler.GetNamespace(),
+							Name:      scaler.GetName(),
+						},
+						Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
+					}},
+				})
+			}
+		}
+	}
+
+	k8sRes := datahubclient.NewK8SResource()
+	if len(delCtlrs) > 0 {
+		err := k8sRes.DeleteAlamedaWatchedResource(delCtlrs)
+		return err
+	}
+	return nil
 }
 
 func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler, pods []*autoscalingv1alpha1.AlamedaPod) error {
