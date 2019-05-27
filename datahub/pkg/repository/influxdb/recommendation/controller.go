@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -26,7 +27,7 @@ func NewControllerRepository(influxDBCfg *influxdb.Config) *ControllerRepository
 }
 
 func (c *ControllerRepository) CreateControllerRecommendations(controllerRecommendations []*datahub_v1alpha1.ControllerRecommendation) error {
-	points := []*influxdb_client.Point{}
+	points := make([]*influxdb_client.Point, 0)
 	for _, conrollerRecommendation := range controllerRecommendations {
 		recommendedType := conrollerRecommendation.GetRecommendedType()
 
@@ -34,15 +35,16 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 			recommendedSpec := conrollerRecommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
-				string(recommendation_entity.ControllerNamespace): recommendedSpec.GetNamespacedName().GetNamespace(),
-				string(recommendation_entity.ControllerName):      recommendedSpec.GetNamespacedName().GetName(),
+				recommendation_entity.ControllerNamespace: recommendedSpec.GetNamespacedName().GetNamespace(),
+				recommendation_entity.ControllerName:      recommendedSpec.GetNamespacedName().GetName(),
 			}
 
 			fields := map[string]interface{}{
-				string(recommendation_entity.ControllerType):            strconv.Itoa(int(datahub_v1alpha1.ControllerRecommendedType_CRT_Primitive)),
-				string(recommendation_entity.ControllerCurrentReplicas): recommendedSpec.GetCurrentReplicas(),
-				string(recommendation_entity.ControllerDesiredReplicas): recommendedSpec.GetDesiredReplicas(),
-				string(recommendation_entity.ControllerCreateTime):      recommendedSpec.GetCreateTime().GetSeconds(),
+				recommendation_entity.ControllerType:            datahub_v1alpha1.ControllerRecommendedType_CRT_Primitive,
+				recommendation_entity.ControllerCurrentReplicas: recommendedSpec.GetCurrentReplicas(),
+				recommendation_entity.ControllerDesiredReplicas: recommendedSpec.GetDesiredReplicas(),
+				recommendation_entity.ControllerCreateTime:      recommendedSpec.GetCreateTime().GetSeconds(),
+				recommendation_entity.ControllerKind:            recommendedSpec.GetKind().String(),
 			}
 
 			pt, err := influxdb_client.NewPoint(string(Controller), tags, fields, time.Now())
@@ -69,36 +71,39 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 func (c *ControllerRepository) ListControllerRecommendations(controllerNamespacedName *datahub_v1alpha1.NamespacedName,
 	queryCondition *datahub_v1alpha1.QueryCondition) ([]*datahub_v1alpha1.ControllerRecommendation, error) {
 
-	response := make([]*datahub_v1alpha1.ControllerRecommendation, 0)
-
 	namespace := controllerNamespacedName.GetNamespace()
 	name := controllerNamespacedName.GetName()
 
-	conditionStr := c.convertQueryCondition(queryCondition)
-	whereStr := fmt.Sprintf("WHERE \"name\"='%s' AND \"namespace\"='%s' %s", name, namespace, conditionStr)
-
+	whereStr := c.convertQueryCondition(namespace, name, queryCondition)
 	cmd := fmt.Sprintf("SELECT * FROM %s %s", string(Controller), whereStr)
 
 	results, err := c.influxDB.QueryDB(cmd, string(influxdb.Recommendation))
 	if err != nil {
-		return response, err
+		return make([]*datahub_v1alpha1.ControllerRecommendation, 0), err
 	}
 
 	influxdbRows := influxdb.PackMap(results)
-	for _, influxdbRow := range influxdbRows {
-		for _, data := range influxdbRow.Data {
-			tempRecommendation := c.NewRecommendationFromMap(data)
-			response = append(response, tempRecommendation)
-		}
-	}
+	recommendations := c.getControllersRecommendationsFromInfluxRows(influxdbRows)
 
-	return response, nil
+	return recommendations, nil
 }
 
-func (c *ControllerRepository) convertQueryCondition(queryCondition *datahub_v1alpha1.QueryCondition) string {
+func (c *ControllerRepository) convertQueryCondition(namespace string, name string, queryCondition *datahub_v1alpha1.QueryCondition) string {
 	ret := ""
 
+	if namespace != "" {
+		ret += fmt.Sprintf("\"namespace\"='%s' ", namespace)
+	}
+
+	if name != "" {
+		ret += fmt.Sprintf("AND \"name\"='%s' ", name)
+	}
+
 	if queryCondition == nil {
+		ret = strings.TrimPrefix(ret, "AND")
+		if ret != "" {
+			ret = "WHERE " + ret
+		}
 		return ret
 	}
 
@@ -128,39 +133,54 @@ func (c *ControllerRepository) convertQueryCondition(queryCondition *datahub_v1a
 		ret += fmt.Sprintf("LIMIT %d ", limit)
 	}
 
+	ret = strings.TrimPrefix(ret, "AND")
+	if ret != "" {
+		ret = "WHERE " + ret
+	}
 	return ret
 }
 
-// NewEntityFromMap Build entity from map
-func (c *ControllerRepository) NewRecommendationFromMap(data map[string]string) *datahub_v1alpha1.ControllerRecommendation {
+func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows []*influxdb.InfluxDBRow) []*datahub_v1alpha1.ControllerRecommendation {
+	recommendations := make([]*datahub_v1alpha1.ControllerRecommendation, 0)
+	for _, influxdbRow := range rows {
+		for _, data := range influxdbRow.Data {
+			currentReplicas, _ := strconv.ParseInt(data[recommendation_entity.ControllerCurrentReplicas], 10, 64)
+			desiredReplicas, _ := strconv.ParseInt(data[recommendation_entity.ControllerDesiredReplicas], 10, 64)
+			createTime, _ := strconv.ParseInt(data[recommendation_entity.ControllerCreateTime], 10, 64)
 
-	currentReplicas, _ := strconv.ParseInt(data[string(recommendation_entity.ControllerCurrentReplicas)], 10, 64)
-	desiredReplicas, _ := strconv.ParseInt(data[string(recommendation_entity.ControllerDesiredReplicas)], 10, 64)
-	createTime, _ := strconv.ParseInt(data[string(recommendation_entity.ControllerCreateTime)], 10, 64)
+			var commendationType datahub_v1alpha1.ControllerRecommendedType
+			if tempType, exist := data[recommendation_entity.ControllerType]; exist {
+				if value, ok := datahub_v1alpha1.ControllerRecommendedType_value[tempType]; ok {
+					commendationType = datahub_v1alpha1.ControllerRecommendedType(value)
+				}
+			}
 
-	var commendationType datahub_v1alpha1.ControllerRecommendedType
+			var commendationKind datahub_v1alpha1.Kind
+			if tempKind, exist := data[recommendation_entity.ControllerKind]; exist {
+				if value, ok := datahub_v1alpha1.Kind_value[tempKind]; ok {
+					commendationKind = datahub_v1alpha1.Kind(value)
+				}
+			}
 
-	if tempType, exist := data[string(recommendation_entity.ControllerType)]; exist {
-		i, _ := strconv.ParseInt(tempType, 10, 32)
-		commendationType = datahub_v1alpha1.ControllerRecommendedType(i)
-	} else {
-		commendationType = datahub_v1alpha1.ControllerRecommendedType_CRT_Primitive
+			tempRecommendation := &datahub_v1alpha1.ControllerRecommendation{
+				RecommendedType: commendationType,
+				RecommendedSpec: &datahub_v1alpha1.ControllerRecommendedSpec{
+					NamespacedName: &datahub_v1alpha1.NamespacedName{
+						Namespace: data[string(recommendation_entity.ControllerNamespace)],
+						Name:      data[string(recommendation_entity.ControllerName)],
+					},
+					CurrentReplicas: int32(currentReplicas),
+					DesiredReplicas: int32(desiredReplicas),
+					CreateTime: &timestamp.Timestamp{
+						Seconds: createTime,
+					},
+					Kind: commendationKind,
+				},
+			}
+
+			recommendations = append(recommendations, tempRecommendation)
+		}
 	}
 
-	tempRecommendation := datahub_v1alpha1.ControllerRecommendation{
-		RecommendedType: commendationType,
-		RecommendedSpec: &datahub_v1alpha1.ControllerRecommendedSpec{
-			NamespacedName: &datahub_v1alpha1.NamespacedName{
-				Namespace: data[string(recommendation_entity.ControllerNamespace)],
-				Name:      data[string(recommendation_entity.ControllerName)],
-			},
-			CurrentReplicas: int32(currentReplicas),
-			DesiredReplicas: int32(desiredReplicas),
-			CreateTime: &timestamp.Timestamp{
-				Seconds: createTime,
-			},
-		},
-	}
-
-	return &tempRecommendation
+	return recommendations
 }
