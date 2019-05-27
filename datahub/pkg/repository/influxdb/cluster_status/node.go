@@ -3,12 +3,10 @@ package clusterstatus
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	datahub_api "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
@@ -70,41 +68,20 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 }
 
 func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
-	points := []*influxdb_client.Point{}
+	hasErr := false
+	errMsg := ""
 	for _, alamedaNode := range alamedaNodes {
-		// SELECT * FROM node WHERE "name"='%s' AND in_cluster=true ORDER BY time ASC LIMIT 1
-		cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"='%s' AND \"%s\"=%s ORDER BY time ASC LIMIT 1",
-			string(Node), string(cluster_status_entity.NodeName), alamedaNode.Name,
-			string(cluster_status_entity.NodeInCluster), "true")
-		if results, _ := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus)); len(results) == 1 && len(results[0].Series) == 1 {
-			newFields := map[string]interface{}{}
-			newTags := map[string]string{}
-			originTime := time.Now()
-			for columnIdx, column := range results[0].Series[0].Columns {
-				colVal := results[0].Series[0].Values[0][columnIdx]
-				if column == influxdb.Time && colVal != nil {
-					originTime, _ = utils.ParseTime(colVal.(string))
-				} else if nodeRepository.IsTag(column) && column != influxdb.Time && colVal != nil {
-					newTags[column] = colVal.(string)
-				} else if !nodeRepository.IsTag(column) {
-					if column == string(cluster_status_entity.NodeInCluster) {
-						newFields[column] = false
-					} else {
-						newFields[column] = results[0].Series[0].Values[0][columnIdx]
-					}
-				}
-			}
-
-			if pt, err := influxdb_client.NewPoint(string(Node), newTags, newFields, originTime); err == nil {
-				points = append(points, pt)
-			} else {
-				scope.Error(err.Error())
-			}
+		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s'",
+			string(Node), string(cluster_status_entity.NodeName), alamedaNode.Name)
+		_, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+		if err != nil {
+			hasErr = true
+			errMsg += errMsg + err.Error()
 		}
 	}
-	nodeRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.ClusterStatus),
-	})
+	if hasErr {
+		return fmt.Errorf(errMsg)
+	}
 	return nil
 }
 
