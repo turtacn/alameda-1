@@ -7,4 +7,5 @@ import (
 type ControllerOperation interface {
 	CreateControllers([]*datahub_api.Controller) error
 	ListControllers(*datahub_api.ListControllersRequest) ([]*datahub_api.Controller, error)
+	DeleteControllers(*datahub_api.DeleteControllersRequest) error
 }

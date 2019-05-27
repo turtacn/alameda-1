@@ -1,13 +1,14 @@
 package recommendation
 
-type controllerTag string
-type controllerField string
+type controllerTag = string
+type controllerField = string
 
 const (
 	ControllerTime      controllerTag = "time"
 	ControllerNamespace controllerTag = "namespace"
 	ControllerName      controllerTag = "name"
 
+	ControllerKind            controllerField = "kind"
 	ControllerType            controllerField = "type"
 	ControllerCurrentReplicas controllerField = "current_replicas"
 	ControllerDesiredReplicas controllerField = "desired_replicas"
@@ -27,5 +28,6 @@ var (
 		ControllerDesiredReplicas,
 		ControllerCreateTime,
 		ControllerType,
+		ControllerKind,
 	}
 )

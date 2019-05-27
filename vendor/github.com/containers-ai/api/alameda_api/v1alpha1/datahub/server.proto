@@ -279,6 +279,10 @@ message DeletePodsRequest {
     repeated Pod pods = 1;
 }
 
+message DeleteControllersRequest {
+    repeated Controller controllers = 1;
+}
+
 /**
  * Represents a request for stoping predicting nodes 
  * 
@@ -286,6 +290,8 @@ message DeletePodsRequest {
 message DeleteAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
+
+
 
 /**
  * Service for providing data stored in the backend
@@ -378,7 +384,10 @@ service DatahubService {
     rpc DeletePods(DeletePodsRequest)
         returns (google.rpc.Status){}
 
+    rpc DeleteControllers(DeleteControllersRequest)
+        returns (google.rpc.Status){}
+
     // Used to stop generating predictions for the nodes
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
-        returns (google.rpc.Status){}            
+        returns (google.rpc.Status){}
 }

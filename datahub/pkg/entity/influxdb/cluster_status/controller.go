@@ -1,7 +1,7 @@
 package clusterstatus
 
-type controllerTag string
-type controllerField string
+type controllerTag = string
+type controllerField = string
 
 const (
 	ControllerTime           controllerTag = "time"
@@ -10,9 +10,11 @@ const (
 	ControllerOwnerNamespace controllerTag = "owner_namespace"
 	ControllerOwnerName      controllerTag = "owner_name"
 
-	ControllerKind      controllerField = "kind"
-	ControllerOwnerKind controllerField = "owner_kind"
-	ControllerReplicas  controllerField = "replicas"
+	ControllerKind            controllerField = "kind"
+	ControllerOwnerKind       controllerField = "owner_kind"
+	ControllerReplicas        controllerField = "replicas"
+	ControllerEnableExecution controllerField = "enable_execution"
+	ControllerPolicy          controllerField = "policy"
 )
 
 var (
@@ -25,9 +27,11 @@ var (
 		ControllerOwnerName,
 	}
 	// ControllerFields is list of fields of alameda_controller_recommendation measurement
-	ControllerField = []controllerField{
+	ControllerFields = []controllerField{
 		ControllerKind,
 		ControllerOwnerKind,
 		ControllerReplicas,
+		ControllerEnableExecution,
+		ControllerPolicy,
 	}
 )
