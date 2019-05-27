@@ -53,14 +53,23 @@ spec:
             - name: storage
               mountPath: "/var/lib/grafana"
             - name: dashboards-alameda
-              mountPath: "/var/lib/grafana/dashboards/alameda/clusterHealth.json"
-              subPath: "clusterHealth.json"
+              mountPath: "/var/lib/grafana/dashboards/alameda/clusterhealth.json"
+              subPath: "clusterhealth.json"
             - name: dashboards-alameda
-              mountPath: "/var/lib/grafana/dashboards/alameda/nodeHealth.json"
-              subPath: "nodeHealth.json"
+              mountPath: "/var/lib/grafana/dashboards/alameda/nodehealth.json"
+              subPath: "nodehealth.json"
             - name: dashboards-alameda
-              mountPath: "/var/lib/grafana/dashboards/alameda/prediction.json"
-              subPath: "prediction.json"
+              mountPath: "/var/lib/grafana/dashboards/alameda/prediction-recommendation.json"
+              subPath: "prediction-recommendation.json"
+            - name: dashboards-alameda
+              mountPath: "/var/lib/grafana/dashboards/alameda/recommendation-alamedascaler.json"
+              subPath: "recommendation-alamedascaler.json"
+            - name: dashboards-alameda
+              mountPath: "/var/lib/grafana/dashboards/alameda/recommendation-cluster.json"
+              subPath: "recommendation-cluster.json"
+            - name: dashboards-alameda
+              mountPath: "/var/lib/grafana/dashboards/alameda/recommendation-namespace.json"
+              subPath: "recommendation-namespace.json"
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: datasources.yaml
