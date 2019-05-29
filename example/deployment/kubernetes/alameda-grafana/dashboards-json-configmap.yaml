@@ -2410,8 +2410,7 @@ data:
         "editable": true,
         "gnetId": null,
         "graphTooltip": 0,
-        "id": 10,
-        "iteration": 1558948564153,
+        "iteration": 1559117845685,
         "links": [],
         "panels": [
           {
@@ -2902,15 +2901,13 @@ data:
                 "alias": "Recommendation: CPU limit",
                 "color": "#f2c96d",
                 "pointradius": 1,
-                "points": true,
-                "steppedLine": true
+                "points": true
               },
               {
                 "alias": "Recommendation: CPU request",
                 "color": "#7eb26d",
                 "pointradius": 1,
-                "points": true,
-                "steppedLine": true
+                "points": true
               },
               {
                 "alias": "Prediction: CPU usage (in 15m)",
@@ -3359,15 +3356,13 @@ data:
                 "alias": "Recommendation: memory limit",
                 "color": "#f2c96d",
                 "pointradius": 1,
-                "points": true,
-                "steppedLine": true
+                "points": true
               },
               {
                 "alias": "Recommendation: memory request",
                 "color": "#7eb26d",
                 "pointradius": 1,
-                "points": true,
-                "steppedLine": true
+                "points": true
               },
               {
                 "alias": "Prediction: memory usage (in 15m)",
@@ -3781,9 +3776,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "selected": true,
-                "text": "federatorai",
-                "value": "federatorai"
+                "text": "utimbox",
+                "value": "utimbox"
               },
               "datasource": "InfluxDB",
               "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
@@ -3807,9 +3801,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "selected": true,
-                "text": "alameda-app",
-                "value": "alameda-app"
+                "text": "utimbox",
+                "value": "utimbox"
               },
               "datasource": "InfluxDB",
               "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
@@ -3833,9 +3826,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "selected": false,
-                "text": "alameda-datahub-67cfc645cb-kkwd9",
-                "value": "alameda-datahub-67cfc645cb-kkwd9"
+                "text": "utimbox-6d7889c989-tskln",
+                "value": "utimbox-6d7889c989-tskln"
               },
               "datasource": "InfluxDB",
               "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
@@ -3859,9 +3851,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "selected": true,
-                "text": "alameda-datahub",
-                "value": "alameda-datahub"
+                "text": "utimbox",
+                "value": "utimbox"
               },
               "datasource": "InfluxDB",
               "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
@@ -3916,7 +3907,7 @@ data:
         "timezone": "",
         "title": "Prediction and Recommendation",
         "uid": "7dadaada",
-        "version": 2
+        "version": 1
       }
     
   recommendation-alamedascaler.json:
