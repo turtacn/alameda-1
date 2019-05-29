@@ -18,17 +18,15 @@ type Container struct {
 }
 
 // AddPodRecommendations add pod recommendations to database
-func (container *Container) AddPodRecommendations(podRecommendations []*datahub_v1alpha1.PodRecommendation) error {
+func (container *Container) AddPodRecommendations(in *datahub_v1alpha1.CreatePodRecommendationsRequest) error {
 	containerRepository := influxdb_repository_recommendation.NewContainerRepository(&container.InfluxDBConfig)
-	return containerRepository.CreateContainerRecommendations(podRecommendations)
+	return containerRepository.CreateContainerRecommendations(in)
 }
 
 // ListPodRecommendations list pod recommendations
-func (container *Container) ListPodRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName,
-	queryCondition *datahub_v1alpha1.QueryCondition,
-	kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.PodRecommendation, error) {
+func (container *Container) ListPodRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {
 	containerRepository := influxdb_repository_recommendation.NewContainerRepository(&container.InfluxDBConfig)
-	return containerRepository.ListContainerRecommendations(podNamespacedName, queryCondition, kind)
+	return containerRepository.ListContainerRecommendations(in)
 }
 
 func (container *Container) ListAvailablePodRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {

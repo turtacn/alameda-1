@@ -1,7 +1,7 @@
 package recommendation
 
-type containerTag string
-type containerField string
+type containerTag = string
+type containerField = string
 
 const (
 	// ContainerTime is the time to apply recommendation
@@ -11,7 +11,8 @@ const (
 	// ContainerName is recommended container name
 	ContainerName containerTag = "name"
 	// ContainerPodName is pod name of recommended container
-	ContainerPodName containerTag = "pod_name"
+	ContainerPodName     containerTag = "pod_name"
+	ContainerGranularity containerTag = "granularity"
 
 	// ContainerPolicy is recommended policy
 	ContainerPolicy containerField = "policy"
@@ -41,6 +42,22 @@ const (
 	ContainerTopControllerKind containerField = "top_controller_kind"
 )
 
+const (
+	ContainerMetricKindLimit       = "limit"
+	ContainerMetricKindRequest     = "request"
+	ContainerMetricKindInitLimit   = "initLimit"
+	ContainerMetricKindInitRequest = "initRequest"
+)
+
+var (
+	ContainerMetricKinds = []string{
+		ContainerMetricKindLimit,
+		ContainerMetricKindRequest,
+		ContainerMetricKindInitLimit,
+		ContainerMetricKindInitRequest,
+	}
+)
+
 var (
 	// ContainerTags is list of tags of alameda_container_recommendation measurement
 	ContainerTags = []containerTag{
@@ -48,6 +65,7 @@ var (
 		ContainerNamespace,
 		ContainerName,
 		ContainerPodName,
+		ContainerGranularity,
 	}
 	// ContainerFields is list of fields of alameda_container_recommendation measurement
 	ContainerFields = []containerField{
