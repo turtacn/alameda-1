@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package containersai.apiserver.ping;
+
+option go_package = "github.com/containers-ai/federatorai-api/apiserver/ping";
+
+message PingRequest {
+}
+
+message PingResponse {
+}
+
+service PingService {
+    rpc Ping(PingRequest)
+        returns (PingResponse) {}
+}

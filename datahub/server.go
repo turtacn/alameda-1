@@ -1111,3 +1111,18 @@ func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.De
 		Code: int32(code.Code_OK),
 	}, nil
 }
+
+// Read rawdata from database
+func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawdataRequest) (*datahub_v1alpha1.ReadRawdataResponse, error) {
+	scope.Debug("Request received from ReadRawdata grpc function: " + utils.InterfaceToString(in))
+
+	out := new(datahub_v1alpha1.ReadRawdataResponse)
+	return out, nil
+}
+
+// Write rawdata to database
+func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRawdataRequest) (*status.Status, error) {
+	scope.Debug("Request received from WriteRawdata grpc function: " + utils.InterfaceToString(in))
+
+	return &status.Status{ Code: int32(code.Code_OK) }, nil
+}

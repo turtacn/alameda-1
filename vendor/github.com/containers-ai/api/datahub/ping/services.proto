@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package containersai.datahub.ping;
+
+option go_package = "github.com/containers-ai/api/datahub/ping";
+
+message PingRequest {
+}
+
+message PingResponse {
+}
+
+service PingService {
+    rpc Ping(PingRequest)
+        returns (PingResponse) {}
+}

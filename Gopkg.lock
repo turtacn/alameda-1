@@ -26,12 +26,41 @@
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
 
 [[projects]]
-  branch = "master"
-  digest = "1:bc15715cbd1ea9db5020d0660593baed7e87f26b774e59ca82fe78106beeb6a3"
+  branch = "development"
+  digest = "1:38cab211bdf45c48c28163f824cd56fe9073c02574bea645517713783343ffff"
   name = "github.com/containers-ai/api"
-  packages = ["alameda_api/v1alpha1/datahub"]
+  packages = [
+    "alameda_api/v1alpha1/datahub",
+    "common",
+    "datahub/metrics",
+    "datahub/predictions",
+    "datahub/rawdata",
+    "datahub/recommendations",
+    "datahub/resources",
+    "datahub/scores",
+    "datapipe/metrics",
+    "datapipe/ping",
+    "datapipe/predictions",
+    "datapipe/rawdata",
+    "datapipe/recommendations",
+    "datapipe/resources",
+    "datapipe/scores",
+  ]
   pruneopts = "T"
-  revision = "cfabf3a84861994e3c285f03e592dacc83ca699c"
+  revision = "2be648220968479cc275c3b0879109bf77f18fa5"
+
+[[projects]]
+  branch = "development"
+  digest = "1:f81cbe36254fdb4ce0b408c1d9a792c180dd88f74682209a3ca58089e8a216bc"
+  name = "github.com/containers-ai/federatorai-api"
+  packages = [
+    "apiserver/accounts",
+    "apiserver/agents",
+    "apiserver/ping",
+    "apiserver/rawdata",
+  ]
+  pruneopts = "T"
+  revision = "7b9ec2d43e9692af1f83915096aaeaea8c3eb32e"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1111,6 +1140,18 @@
   analyzer-version = 1
   input-imports = [
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
+    "github.com/containers-ai/api/datahub/rawdata",
+    "github.com/containers-ai/api/datapipe/metrics",
+    "github.com/containers-ai/api/datapipe/ping",
+    "github.com/containers-ai/api/datapipe/predictions",
+    "github.com/containers-ai/api/datapipe/rawdata",
+    "github.com/containers-ai/api/datapipe/recommendations",
+    "github.com/containers-ai/api/datapipe/resources",
+    "github.com/containers-ai/api/datapipe/scores",
+    "github.com/containers-ai/federatorai-api/apiserver/accounts",
+    "github.com/containers-ai/federatorai-api/apiserver/agents",
+    "github.com/containers-ai/federatorai-api/apiserver/ping",
+    "github.com/containers-ai/federatorai-api/apiserver/rawdata",
     "github.com/emicklei/go-restful",
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/timestamp",

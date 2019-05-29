@@ -1,0 +1,156 @@
+// This file has messages related to compute resources
+
+syntax = "proto3";
+
+package containersai.datahub.resources;
+
+import "common/common.proto";
+import "datahub/resources/resources.proto";
+import "datahub/resources/types.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/resources";
+
+// Represents a request for creating containers
+message CreateContainersRequest {
+    repeated Container containers = 1;
+}
+
+// Represents a request for creating pods
+message CreatePodsRequest {
+    repeated Pod pods = 1;
+}
+
+// Represents a request for creating controllers
+message CreateControllersRequest {
+    repeated Controller controllers = 1;
+}
+
+// Represents a request for create nodes
+// Represents a request for adding nodes that need to be predicted
+message CreateNodesRequest {
+    repeated Node nodes = 1;
+}
+
+// Represents a request for a listing containers request
+message ListContainersRequest {
+    NamespacedName namespaced_name = 1;
+    common.QueryCondition query_condition = 2;
+}
+
+// Represents a response for a listing containers request
+message ListContainersResponse {
+    google.rpc.Status status = 1;
+    repeated Container containers = 2;
+}
+
+// Represents a request for a listing pods request
+// Represents a request for listing pods that need to be predicted
+message ListPodsRequest {
+    NamespacedName namespaced_name = 1;
+    Kind kind = 2;
+    common.TimeRange time_range = 3;
+}
+
+// Represents a response for a listing pods request
+message ListPodsResponse {
+    google.rpc.Status status = 1;
+    repeated Pod pods = 2;
+}
+
+// Represents a response for a listing controllers request
+message ListControllersRequest {
+    NamespacedName namespaced_name = 1;
+    common.QueryCondition query_condition = 2;
+}
+
+// Represents a response for a listing controllers request
+message ListControllersResponse {
+    google.rpc.Status status = 1;
+    repeated Controller controllers = 2;
+}
+
+// Represents a request for listing nodes' information
+// Represents a request for listing nodes that need to be predicted
+message ListNodesRequest {
+    repeated string node_names = 1;
+}
+
+// Represents a response for a listing nodes request
+message ListNodesResponse {
+    google.rpc.Status status = 1;
+    repeated Node nodes = 2;
+}
+
+// Represents a request for deleting containers data
+message DeleteContainersRequest {
+    repeated NamespacedName namespaced_names = 1;
+}
+
+// Represents a request for deleting pods data
+message DeletePodsRequest {
+    repeated NamespacedName namespaced_names = 1;
+}
+
+// Represents a request for deleting controllers data
+message DeleteControllersRequest {
+    repeated NamespacedName namespaced_names = 1;
+}
+
+// Represents a request for deleting nodes data
+// Represents a request for stoping predicting nodes
+message DeleteNodesRequest {
+    repeated string node_names = 1;
+}
+
+/**
+ * Service for providing data stored in the backend
+ */
+service ResourcesService {
+    // Used to add containers that need to be predicted
+    rpc CreateContainers(CreateContainersRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to add pods that need to be predicted
+    rpc CreatePods(CreatePodsRequest)
+        returns (google.rpc.Status) {}
+
+    rpc CreateControllers(CreateControllersRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to add nodes that need to be predicted
+    rpc CreateNodes(CreateNodesRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to list containers' information
+    rpc ListContainers(ListContainersRequest)
+        returns (ListContainersResponse) {}
+
+    // Used to list pods' information
+    rpc ListPods(ListPodsRequest)
+        returns (ListPodsResponse) {}
+
+    // Used to list controllers' information
+    rpc ListControllers(ListControllersRequest)
+        returns (ListControllersResponse) {}
+
+    // Used to list nodes' information
+    rpc ListNodes(ListNodesRequest)
+        returns (ListNodesResponse) {}
+
+    // Used to delete info of containers
+    rpc DeleteContainers(DeleteContainersRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to delete info of pods
+    rpc DeletePods(DeletePodsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to delete info of controllers
+    rpc DeleteControllers(DeleteControllersRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to stop generating predictions for the nodes
+    rpc DeleteNodes(DeleteNodesRequest)
+        returns (google.rpc.Status) {}
+}

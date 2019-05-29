@@ -1,0 +1,39 @@
+// This file has messages related to recommendations of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.datahub.recommendations;
+
+import "datahub/recommendations/types.proto";
+import "datahub/resources/resources.proto";
+import "datahub/resources/types.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/recommendations";
+
+// Represents a resource configuration recommendation
+// It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
+message ContainerRecommendation {
+    string name = 1;
+    int64 granularity = 2;
+    google.protobuf.Timestamp start_time = 3;
+    google.protobuf.Timestamp end_time = 4;
+    resources.ResourceRequirements resources = 5;
+    resources.ResourceRequirements initial_resources = 6;
+}
+
+// Represents a set of container resource configuration recommendations of a pod
+message PodRecommendation {
+    resources.NamespacedName namespaced_name = 1;
+    resources.Controller top_controller = 2;
+    string recommendation_id = 3;
+    bool apply_recommendation_now = 4;
+    AssignPodPolicy assign_pod_policy = 5;
+    repeated ContainerRecommendation container_recommendations = 6;
+
+}
+
+message ControllerRecommendation {
+    ControllerRecommendationType recommendation_type = 1;
+    ControllerRecommendationSpec recommendation_spec = 2;
+}

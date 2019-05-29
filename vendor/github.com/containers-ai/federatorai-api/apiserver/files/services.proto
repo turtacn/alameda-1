@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package containersai.apiserver.files;
+
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/federatorai-api/apiserver/files";
+
+message DownloadRequest {
+}
+
+message UploadRequest {
+}
+
+service FilesService {
+    rpc Download(DownloadRequest)
+        returns (google.rpc.Status) {}
+
+    rpc Upload(UploadRequest)
+        returns (google.rpc.Status) {}
+}

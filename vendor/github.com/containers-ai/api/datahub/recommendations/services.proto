@@ -1,0 +1,74 @@
+// This file has messages related to recommendations of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.datahub.recommendations;
+
+import "common/common.proto";
+import "datahub/recommendations/recommendations.proto";
+import "datahub/resources/types.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/recommendations";
+
+// Represents a request for creating a pod's recommendation
+message CreatePodRecommendationsRequest {
+    repeated PodRecommendation pod_recommendations = 1;
+    int64 granularity = 2;
+}
+
+// Represents a request for creating a controller's recommendation
+message CreateControllerRecommendationsRequest {
+    repeated ControllerRecommendation controller_recommendations = 1;
+}
+
+// Represents a request for listing recommendations of pods
+message ListPodRecommendationsRequest {
+    resources.NamespacedName namespaced_name = 1;
+    common.QueryCondition query_condition = 2;
+    resources.Kind kind = 3;
+    int64 granularity = 4;
+}
+
+// Represents a response for listing pod recommendations request
+message ListPodRecommendationsResponse {
+    google.rpc.Status status = 1;
+    repeated PodRecommendation pod_recommendations = 2;
+}
+
+// Represents a request for listing recommendations of controllers
+message ListControllerRecommendationsRequest {
+    resources.NamespacedName namespaced_name = 1;
+    common.QueryCondition query_condition = 2;
+}
+
+// Represents a response for listing controller recommendations request
+message ListControllerRecommendationsResponse {
+    google.rpc.Status status = 1;
+    repeated ControllerRecommendation controller_recommendations = 2;
+}
+
+/**
+ * Service for providing data stored in the backend
+ */
+service RecommendationsService {
+    // Used to create recommendations of pods
+    rpc CreatePodRecommendations(CreatePodRecommendationsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to create recommendations of controller
+    rpc CreateControllerRecommendations(CreateControllerRecommendationsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to list pod recommendations
+    rpc ListPodRecommendations(ListPodRecommendationsRequest)
+        returns (ListPodRecommendationsResponse) {}
+
+    // Used to list pod recommendations
+    rpc ListAvailablePodRecommendations(ListPodRecommendationsRequest)
+        returns (ListPodRecommendationsResponse) {}
+
+    // Used to list controller recommendations
+    rpc ListControllerRecommendations(ListControllerRecommendationsRequest)
+        returns (ListControllerRecommendationsResponse) {}
+}

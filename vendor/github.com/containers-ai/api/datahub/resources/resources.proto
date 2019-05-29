@@ -1,0 +1,48 @@
+// This file has messages related to compute resources
+
+syntax = "proto3";
+
+package containersai.datahub.resources;
+
+import "datahub/resources/types.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/resources";
+
+// A single application container that you want to run within a pod
+// and its containing limit and requeset configurations
+message Container {
+    string name = 1;
+    ResourceRequirements resources = 2;
+    ContainerStatus status = 3;
+}
+
+// Pod is a collection of containers that can run on a host. This resource is created
+// by clients and scheduled onto hosts.
+message Pod {
+    NamespacedName namespaced_name = 1;
+    ObjectMeta meta = 2;
+    string node_name = 3;
+    string resource_link = 4;
+    repeated Container containers = 5;
+    PodStatus status = 6;
+    Controller top_controller = 7;
+    google.protobuf.Timestamp start_time = 8;
+    AlamedaPodSpec alameda_pod_spec = 9;
+}
+
+message Controller {
+    NamespacedName namespaced_name = 1;
+    Kind kind = 2;
+    repeated OwnerReference owner_references = 3;
+    int32 Replicas = 4;
+    AlamedaControllerSpec alameda_controller_spec = 5;
+}
+
+// Node is a worker node in Kubernetes.
+message Node {
+    NamespacedName namespaced_name = 1;
+    ObjectMeta meta = 2;
+    Capacity capacity = 3;
+    google.protobuf.Timestamp start_time = 4;
+}

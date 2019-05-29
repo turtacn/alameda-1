@@ -1,0 +1,9 @@
+
+bind-address: ":50055"
+
+datahub:
+  address: "127.0.0.1:50050"
+
+log:
+  set-logcallers: true
+  output-level: "info" # debug, info, warn, error, fatal, none

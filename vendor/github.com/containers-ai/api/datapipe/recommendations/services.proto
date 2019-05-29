@@ -1,0 +1,54 @@
+// This file has messages related to recommendations of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.datapipe.recommendations;
+
+import "common/common.proto";
+import "datahub/recommendations/recommendations.proto";
+import "datahub/resources/types.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/datapipe/recommendations";
+
+// Represents a request for listing recommendations of pods
+message ListPodRecommendationsRequest {
+    datahub.resources.NamespacedName namespaced_name = 1;
+    common.QueryCondition query_condition = 2;
+    datahub.resources.Kind kind = 3;
+}
+
+// Represents a response for listing pod recommendations request
+message ListPodRecommendationsResponse {
+    google.rpc.Status status = 1;
+    repeated datahub.recommendations.PodRecommendation pod_recommendations = 2;
+}
+
+// Represents a request for listing recommendations of controllers
+message ListControllerRecommendationsRequest {
+    datahub.resources.NamespacedName namespaced_name = 1;
+    common.QueryCondition query_condition = 2;
+}
+
+// Represents a response for listing controller recommendations request
+message ListControllerRecommendationsResponse {
+    google.rpc.Status status = 1;
+    repeated datahub.recommendations.ControllerRecommendation controller_recommendations = 2;
+}
+
+/**
+ * Service for providing data stored in the backend
+ */
+service RecommendationsService {
+    // Used to list pod recommendations
+    rpc ListPodRecommendations (ListPodRecommendationsRequest)
+        returns (ListPodRecommendationsResponse) {}
+
+    // Used to list available pod recommendations
+    rpc ListAvailablePodRecommendations (ListPodRecommendationsRequest)
+        returns (ListPodRecommendationsResponse) {}
+
+    // Used to list controller recommendations
+    rpc ListControllerRecommendations (ListControllerRecommendationsRequest)
+        returns (ListControllerRecommendationsResponse) {}
+}

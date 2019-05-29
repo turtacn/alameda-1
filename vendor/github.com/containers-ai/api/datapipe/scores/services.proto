@@ -1,0 +1,31 @@
+// This file has messages and services related to Containers.ai
+
+syntax = "proto3";
+
+package containersai.datapipe.scores;
+
+import "common/common.proto";
+import "datahub/scores/scores.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/datapipe/scores";
+
+// Represents a request for listing system scores of pod scheduled on node
+message ListSimulatedSchedulingScoresRequest {
+    common.QueryCondition query_condition = 1;
+}
+
+// Represents a response for listing system scores request
+message ListSimulatedSchedulingScoresResponse {
+    google.rpc.Status status = 1;
+    repeated containersai.datahub.scores.SimulatedSchedulingScore scores = 2;
+}
+
+/**
+ * Service for providing data stored in the backend
+ */
+service ScoresService {
+    // Used to list system scores
+    rpc ListSimulatedSchedulingScores(ListSimulatedSchedulingScoresRequest)
+        returns (ListSimulatedSchedulingScoresResponse) {}
+}

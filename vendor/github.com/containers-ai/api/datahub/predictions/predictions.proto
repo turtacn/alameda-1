@@ -1,0 +1,35 @@
+// This file has messages related to predictions of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.datahub.predictions;
+
+import "datahub/metrics/types.proto";
+import "datahub/resources/types.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/predictions";
+
+// Represents a list of predicted metrics data of a container
+message ContainerPrediction {
+    string name = 1;
+    // use containersai.datahub.metrics.MetricType as key
+    map<int32, metrics.MetricData> predicted_raw_data = 2;
+    map<int32, metrics.MetricData> predicted_upperbound_data = 3;
+    map<int32, metrics.MetricData> predicted_lowerbound_data = 4;
+}
+
+// Represents a list of predicted metrics data of a pod
+message PodPrediction {
+    resources.NamespacedName namespaced_name = 1;
+    repeated ContainerPrediction container_predictions = 2;
+}
+
+// Represents a list of predicted metrics data of a node
+message NodePrediction {
+    string name = 1;
+    bool is_scheduled =2;
+    // use containersai.datahub.metrics.MetricType as key
+    map<int32, metrics.MetricData> predicted_raw_data = 3;
+    map<int32, metrics.MetricData> predicted_upperbound_data = 4;
+    map<int32, metrics.MetricData> predicted_lowerbound_data = 5;
+}

@@ -1,0 +1,36 @@
+// This file has messages related to write rawdata to database
+
+syntax = "proto3";
+
+package containersai.datapipe.rawdata;
+
+import "common/common.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/datapipe/rawdata";
+
+// Represents a request for reading rawdata from database
+message ReadRawdataRequest {
+    repeated common.Query queries = 1;
+}
+
+// Represents a response for listing rawdata from database
+message ReadRawdataResponse {
+    google.rpc.Status status = 1;
+    repeated common.Rawdata rawdata = 2;
+}
+
+// Represents a request for writing rawdata to database
+message WriteRawdataRequest {
+    repeated common.Rawdata rawdata = 2;
+}
+
+service RawdataService {
+    // Used to read rawdata from database
+    rpc ReadRawdata(ReadRawdataRequest)
+        returns (ReadRawdataResponse) {}
+
+    // Used to write rawdata to database
+    rpc WriteRawdata(WriteRawdataRequest)
+        returns (google.rpc.Status) {}
+}

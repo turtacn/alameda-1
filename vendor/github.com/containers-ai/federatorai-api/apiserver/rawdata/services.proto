@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package containersai.apiserver.rawdata;
+
+import "containers-ai/api/common/common.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/federatorai-api/apiserver/rawdata";
+
+message WriteRawdataRequest {
+    repeated common.Rawdata rawdata = 1;
+}
+
+message ReadRawdataRequest {
+    repeated common.Query queries = 1;
+}
+
+message ReadRawdataResponse {
+    repeated common.Rawdata rawdata = 1;
+}
+
+service RawdataService {
+    rpc WriteRawdata(WriteRawdataRequest)
+        returns (google.rpc.Status) {}
+
+    rpc ReadRawdata(ReadRawdataRequest)
+        returns (ReadRawdataResponse) {}
+}

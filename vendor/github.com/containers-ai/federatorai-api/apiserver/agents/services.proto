@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package containersai.apiserver.agents;
+
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/federatorai-api/apiserver/agents";
+
+message RegisterRequest {
+
+}
+
+message RegisterResponse {
+
+}
+
+message GetAgentVersionRequest {
+
+}
+
+message GetAgentVersionResponse {
+
+}
+
+message DownloadAgentRequest {
+
+}
+
+service AgentsService {
+    rpc Register(RegisterRequest)
+        returns (RegisterResponse) {}
+
+    rpc GetAgentVersion(GetAgentVersionRequest)
+        returns (GetAgentVersionResponse) {}
+
+    rpc DownloadAgent(DownloadAgentRequest)
+        returns (google.rpc.Status) {}
+}

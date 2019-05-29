@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package containersai.common;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/common";
+
+// Represents a time range definition
+message TimeRange {
+    google.protobuf.Timestamp start_time = 1;
+    google.protobuf.Timestamp end_time = 2;
+    google.protobuf.Duration step = 3;
+    enum AggregateFunction {
+        NONE = 0;
+        MAX = 1;
+    }
+    AggregateFunction aggregateFunction = 4;
+    google.protobuf.Timestamp apply_time = 5;
+}
+
+message QueryCondition {
+    TimeRange time_range = 1;
+    enum Order {
+        ASC = 0;
+        DESC = 1;
+    }
+    Order order = 2;
+    uint64 limit = 3;
+}
+
+message Query {
+    string database = 1;
+    string table = 2;
+    QueryCondition condition = 3;
+}
+
+message Column {
+     repeated string values = 1;
+}
+
+message Row {
+    repeated string values = 1;
+}
+
+message Rawdata {
+    Query query = 1;
+    Column column = 2;
+    repeated Row rows = 3;
+}

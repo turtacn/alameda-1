@@ -1,0 +1,127 @@
+// This file has messages related to compute resources
+
+syntax = "proto3";
+
+package containersai.datahub.resources;
+
+import "common/policies.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/resources";
+
+enum ResourceName {
+    RESOURCE_NAME_UNDEFINED = 0;
+    CPU = 1;
+    MEMORY = 2;
+}
+
+// Represents kubernetes resource kind
+enum Kind {
+    KIND_UNDEFINED = 0;
+    POD = 1;
+    DEPLOYMENT = 2;
+    DEPLOYMENTCONFIG = 3;
+    ALAMEDASCALER = 4;
+}
+
+// The valid statuses of pods
+enum PodPhase {
+    POD_PHASE_UNDEFINED = 0;
+    PENDING = 1;
+    RUNNING = 2;
+    SUCCEEDED = 3;
+    FAILED = 4;
+    UNKOWN = 5;
+    COMPLETED = 6;
+    CRASHLOOPBACKOFF = 7;
+}
+
+// Represents kubernetes resource with namespace and name
+message NamespacedName {
+    string namespace = 1;
+    string name = 2;
+}
+
+message ObjectMeta {
+    string uid = 1;
+    string cluster_name = 2;
+    google.protobuf.Timestamp creation_timestamp = 3;
+    google.protobuf.Timestamp deletion_timestamp = 4;
+}
+
+message OwnerReference {
+    NamespacedName namespaced_name = 1;
+    Kind kind = 2;
+}
+
+// ContainerStateWaiting is a waiting state of a container
+message ContainerStateWaiting {
+    string reason = 1;
+    string message = 2;
+}
+
+// ContainerStateRunning is a running state of a container
+message ContainerStateRunning {
+    google.protobuf.Timestamp started_at = 1;
+}
+
+// ContainerStateTerminated is a terminated state of a container
+message ContainerStateTerminated {
+    int32 exit_code = 1;
+    string reason = 2;
+    string message = 3;
+    google.protobuf.Timestamp started_at = 4;
+    google.protobuf.Timestamp finished_at = 5;
+}
+
+// ContainerState holds a possible state of container
+message ContainerState {
+    ContainerStateWaiting waiting = 1;
+    ContainerStateRunning running = 2;
+    ContainerStateTerminated terminated = 3;
+}
+
+// ContainerStatus contains details for the current status of this container
+message ContainerStatus {
+    ContainerState state = 1;
+    ContainerState last_termination_state = 2;
+    int32 restart_count = 3;
+}
+
+// PodStatus represents information about the status of a pod
+message PodStatus {
+    PodPhase phase = 1;
+    string message = 2;
+    string reason = 3;
+    repeated ContainerStatus container_statuses = 4;
+}
+
+message ResourceRequirements {
+    map<int32, string> limits = 1;
+    map<int32, string> requests = 2;
+}
+
+// Represents the capacity of a Kubernetes node
+message Capacity {
+    int64 cpu_cores = 1;
+    int64 memory_bytes = 2;
+    int64 netwotk_megabits_per_second = 3;
+}
+
+message AlamedaPodSpec {
+    NamespacedName scaler = 1;
+
+    common.RecommendationPolicy policy = 2;
+    string used_recommendation_id = 3;
+
+    bool enable_VPA = 4;
+    bool enable_HPA = 5;
+
+    string app_name = 6;
+    string app_part_of = 7;
+}
+
+message AlamedaControllerSpec {
+    bool enable_recommendation_execution = 1;
+    common.RecommendationPolicy policy = 2;
+}
