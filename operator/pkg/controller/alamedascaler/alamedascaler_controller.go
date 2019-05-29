@@ -124,6 +124,7 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		}
 	} else if err == nil {
 		// TODO: deployment already in the AlamedaScaler cannot join the other
+		alamedaScaler.SetDefaultValue()
 		alamedaScalerNS := alamedaScaler.GetNamespace()
 		alamedaScalerName := alamedaScaler.GetName()
 		alamedascalerReconciler := alamedascaler_reconciler.NewReconciler(r, alamedaScaler)
@@ -527,6 +528,8 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			StartTime:     startTime,
 			TopController: topCtrl,
 			Status:        podStatus,
+			Enable_VPA:    autoscalingv1alpha1.ScalingTool.VpaFlag,
+			Enable_HPA:    autoscalingv1alpha1.ScalingTool.HpaFlag,
 		})
 	}
 

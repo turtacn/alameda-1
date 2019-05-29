@@ -78,6 +78,14 @@ var (
 	}
 )
 
+type scalingToolType string
+
+const (
+	EnableVPA          scalingToolType = "vpa"
+	EnableHPA          scalingToolType = "hpa"
+	DefaultScalingTool bool            = true
+)
+
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
 // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
@@ -85,8 +93,9 @@ type AlamedaScalerSpec struct {
 	Selector        *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,name=selector"`
 	EnableExecution enableExecution       `json:"enableexecution" protobuf:"bytes,2,name=enable_execution"`
 	// +kubebuilder:validation:Enum=stable,compact
-	Policy                alamedaPolicy `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
-	CustomResourceVersion string        `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
+	Policy                alamedaPolicy     `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
+	CustomResourceVersion string            `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
+	ScalingTools          []scalingToolType `json:"scalingTools,omitempty" protobuf:"bytes,5,opt,name=scaling_tools"`
 }
 
 // AlamedaScalerStatus defines the observed state of AlamedaScaler
@@ -105,6 +114,36 @@ type AlamedaScaler struct {
 
 	Spec   AlamedaScalerSpec   `json:"spec,omitempty"`
 	Status AlamedaScalerStatus `json:"status,omitempty"`
+}
+
+type ScalingToolstruct struct {
+	VpaFlag bool
+	HpaFlag bool
+}
+
+var (
+	ScalingTool ScalingToolstruct = ScalingToolstruct{VpaFlag: false, HpaFlag: false}
+)
+
+func (as *AlamedaScaler) setDefaultValueToScalingTools() {
+	sct := ScalingToolstruct{VpaFlag: false, HpaFlag: false}
+	if len(as.Spec.ScalingTools) > 0 {
+		for _, value := range as.Spec.ScalingTools {
+			if value == EnableVPA {
+				sct.VpaFlag = true
+			}
+			if value == EnableHPA {
+				sct.HpaFlag = true
+			}
+		}
+	} else { //default scalingTool is vpa
+		sct.VpaFlag = DefaultScalingTool
+	}
+	ScalingTool = sct
+}
+
+func (as *AlamedaScaler) SetDefaultValue() { //this function is set alamedascaler default value
+	as.setDefaultValueToScalingTools()
 }
 
 func (as *AlamedaScaler) SetCustomResourceVersion(v string) {
