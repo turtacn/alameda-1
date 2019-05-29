@@ -11,6 +11,8 @@ metadata:
 spec:
   policy: compact
   enableexecution: true
+  scalingTools:
+  - vpa
   selector:
     matchLabels:
       app: nginx

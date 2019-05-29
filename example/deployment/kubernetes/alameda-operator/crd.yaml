@@ -41,6 +41,13 @@ spec:
               - stable
               - compact
               type: string
+            scalingTools:
+              items:
+                enum:
+                - vpa
+                - hpa
+                type: string
+              type: array
             selector:
               description:
                 'Important: Run "make" to regenerate code after modifying

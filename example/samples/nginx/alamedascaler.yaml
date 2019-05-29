@@ -6,6 +6,8 @@ metadata:
 spec:
   policy: stable
   enableexecution: true
+  scalingTools:
+  - vpa
   selector:
     matchLabels:
       app: nginx
