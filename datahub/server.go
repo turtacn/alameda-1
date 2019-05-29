@@ -691,9 +691,8 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	if podRecommendations, err := containerDAO.ListPodRecommendations(in.GetNamespacedName(),
-		in.GetQueryCondition(),
-		in.GetKind()); err != nil {
+	podRecommendations, err := containerDAO.ListPodRecommendations(in)
+	if err != nil {
 		scope.Error(err.Error())
 		return &datahub_v1alpha1.ListPodRecommendationsResponse{
 			Status: &status.Status{
@@ -701,16 +700,16 @@ func (s *Server) ListPodRecommendations(ctx context.Context, in *datahub_v1alpha
 				Message: err.Error(),
 			},
 		}, nil
-	} else {
-		res := &datahub_v1alpha1.ListPodRecommendationsResponse{
-			Status: &status.Status{
-				Code: int32(code.Code_OK),
-			},
-			PodRecommendations: podRecommendations,
-		}
-		scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
-		return res, nil
 	}
+
+	res := &datahub_v1alpha1.ListPodRecommendationsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodRecommendations: podRecommendations,
+	}
+	scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
+	return res, nil
 }
 
 // ListAvailablePodRecommendations list pod recommendations
@@ -1008,7 +1007,7 @@ func (s *Server) CreatePodRecommendations(ctx context.Context, in *datahub_v1alp
 		}
 	}
 
-	if err := containerDAO.AddPodRecommendations(podRecommendations); err != nil {
+	if err := containerDAO.AddPodRecommendations(in); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

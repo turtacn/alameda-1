@@ -109,6 +109,7 @@ func (influxDBRepository *InfluxDBRepository) WritePoints(points []*client.Point
 		}
 		if err != nil {
 			scope.Error(err.Error())
+			fmt.Print(err.Error())
 			return err
 		}
 	}
@@ -232,4 +233,38 @@ func NormalizeResult(rows []*InfluxDBRow) []*InfluxDBRow {
 	}
 
 	return rowList
+}
+
+func (influxDBRepository *InfluxDBRepository) AddWhereCondition(whereStr *string, key string, operator string, value string) {
+	if value == "" {
+		return
+	}
+
+	if *whereStr == "" {
+		*whereStr += fmt.Sprintf("WHERE \"%s\"%s'%s' ", key, operator, value)
+	} else {
+		*whereStr += fmt.Sprintf("AND \"%s\"%s'%s' ", key, operator, value)
+	}
+}
+
+func (influxDBRepository *InfluxDBRepository) AddWhereConditionDirect(whereStr *string, condition string) {
+	if condition == "" {
+		return
+	}
+
+	if *whereStr == "" {
+		*whereStr += fmt.Sprintf("WHERE %s ", condition)
+	} else {
+		*whereStr += fmt.Sprintf("AND %s ", condition)
+	}
+}
+
+func (influxDBRepository *InfluxDBRepository) AddTimeCondition(whereStr *string, operator string, value int64) {
+	tm := time.Unix(int64(value), 0)
+
+	if *whereStr == "" {
+		*whereStr += fmt.Sprintf("WHERE time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
+	} else {
+		*whereStr += fmt.Sprintf("AND time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
+	}
 }

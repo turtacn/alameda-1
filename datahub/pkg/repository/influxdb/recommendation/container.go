@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
+	"strconv"
 )
 
 var (
@@ -47,8 +48,14 @@ func NewContainerRepository(influxDBCfg *influxdb.Config) *ContainerRepository {
 }
 
 // CreateContainerRecommendations add containers information container measurement
-func (containerRepository *ContainerRepository) CreateContainerRecommendations(podRecommendations []*datahub_v1alpha1.PodRecommendation) error {
-	points := []*influxdb_client.Point{}
+func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha1.CreatePodRecommendationsRequest) error {
+	podRecommendations := in.GetPodRecommendations()
+	granularity := in.GetGranularity()
+	if granularity == 0 {
+		granularity = 30
+	}
+
+	points := make([]*influxdb_client.Point, 0)
 	for _, podRecommendation := range podRecommendations {
 		if podRecommendation.GetApplyRecommendationNow() {
 			//TODO
@@ -61,16 +68,18 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 
 		for _, containerRecommendation := range containerRecommendations {
 			tags := map[string]string{
-				string(recommendation_entity.ContainerNamespace): podNS,
-				string(recommendation_entity.ContainerPodName):   podName,
-				string(recommendation_entity.ContainerName):      containerRecommendation.GetName(),
+				recommendation_entity.ContainerNamespace:   podNS,
+				recommendation_entity.ContainerPodName:     podName,
+				recommendation_entity.ContainerName:        containerRecommendation.GetName(),
+				recommendation_entity.ContainerGranularity: strconv.FormatInt(granularity, 10),
 			}
 			fields := map[string]interface{}{
 				//TODO
 				//string(recommendation_entity.ContainerPolicy):            "",
-				string(recommendation_entity.ContainerTopControllerName): topController.GetNamespacedName().GetName(),
-				string(recommendation_entity.ContainerTopControllerKind): enumconv.KindDisp[(topController.GetKind())],
+				recommendation_entity.ContainerTopControllerName: topController.GetNamespacedName().GetName(),
+				recommendation_entity.ContainerTopControllerKind: enumconv.KindDisp[(topController.GetKind())],
 			}
+
 			initialLimitRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
 			if containerRecommendation.GetInitialLimitRecommendations() != nil {
 				for _, rec := range containerRecommendation.GetInitialLimitRecommendations() {
@@ -93,31 +102,31 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						for key, value := range fields {
 							newFields[key] = value
 						}
-						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
-						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
+						newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
+						newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
 
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerResourceLimitCPU)] = numVal
+								newFields[recommendation_entity.ContainerResourceLimitCPU] = numVal
 							}
 							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = numVal
+									newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = numVal
 								}
 							} else {
-								newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = 0
+								newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = 0
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerResourceLimitMemory)] = numVal
+							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
+								newFields[recommendation_entity.ContainerResourceLimitMemory] = numVal
 							}
 							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
-								if numVal, err := utils.StringToInt64(value.(string)); err == nil {
-									newFields[string(recommendation_entity.ContainerInitialResourceLimitMemory)] = numVal
+								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
+									newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = numVal
 								}
 							} else {
-								newFields[string(recommendation_entity.ContainerInitialResourceLimitMemory)] = 0
+								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = "0"
 							}
 						}
 
@@ -137,31 +146,31 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 						for key, value := range fields {
 							newFields[key] = value
 						}
-						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
-						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
+						newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
+						newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
 
 						switch metricData.GetMetricType() {
 						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerResourceRequestCPU)] = numVal
+								newFields[recommendation_entity.ContainerResourceRequestCPU] = numVal
 							}
 							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = numVal
+									newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = numVal
 								}
 							} else {
-								newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = 0
+								newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = 0
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerResourceRequestMemory)] = numVal
+							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
+								newFields[recommendation_entity.ContainerResourceRequestMemory] = numVal
 							}
 							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
-								if numVal, err := utils.StringToInt64(value.(string)); err == nil {
-									newFields[string(recommendation_entity.ContainerInitialResourceRequestMemory)] = numVal
+								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
+									newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = numVal
 								}
 							} else {
-								newFields[string(recommendation_entity.ContainerInitialResourceRequestMemory)] = 0
+								newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = 0
 							}
 						}
 						if pt, err := influxdb_client.NewPoint(string(Container),
@@ -174,76 +183,20 @@ func (containerRepository *ContainerRepository) CreateContainerRecommendations(p
 					}
 				}
 			}
-
-			/*for _, metricData := range containerRecommendation.GetInitialLimitRecommendations() {
-				if data := metricData.GetData(); len(data) > 0 {
-					for _, datum := range data {
-						newFields := map[string]interface{}{}
-						for key, value := range fields {
-							newFields[key] = value
-						}
-						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
-						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
-
-						switch metricData.GetMetricType() {
-						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerInitialResourceLimitCPU)] = numVal
-							}
-						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerInitialResourceLimitMemory)] = numVal
-							}
-						}
-						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
-							points = append(points, pt)
-						} else {
-							scope.Error(err.Error())
-						}
-					}
-				}
-			}
-
-			for _, metricData := range containerRecommendation.GetInitialRequestRecommendations() {
-				if data := metricData.GetData(); len(data) > 0 {
-					for _, datum := range data {
-						newFields := map[string]interface{}{}
-						for key, value := range fields {
-							newFields[key] = value
-						}
-						newFields[string(recommendation_entity.ContainerStartTime)] = datum.GetTime().GetSeconds()
-						newFields[string(recommendation_entity.ContainerEndTime)] = datum.GetEndTime().GetSeconds()
-
-						switch metricData.GetMetricType() {
-						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerInitialResourceRequestCPU)] = numVal
-							}
-						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-							if numVal, err := utils.StringToInt64(datum.NumValue); err == nil {
-								newFields[string(recommendation_entity.ContainerInitialResourceRequestMemory)] = numVal
-							}
-						}
-						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
-							points = append(points, pt)
-						} else {
-							scope.Error(err.Error())
-						}
-					}
-				}
-			}*/
 		}
 	}
-	containerRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
+	c.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
 		Database: string(influxdb.Recommendation),
 	})
 	return nil
 }
 
 // ListContainerRecommendations list container recommendations
-func (containerRepository *ContainerRepository) ListContainerRecommendations(podNamespacedName *datahub_v1alpha1.NamespacedName,
-	queryCondition *datahub_v1alpha1.QueryCondition,
-	kind datahub_v1alpha1.Kind) ([]*datahub_v1alpha1.PodRecommendation, error) {
+func (c *ContainerRepository) ListContainerRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {
+	podNamespacedName := in.GetNamespacedName()
+	queryCondition := in.GetQueryCondition()
+	kind := in.GetKind()
+	granularity := in.GetGranularity()
 
 	podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
 	reqNS := podNamespacedName.GetNamespace()
@@ -263,55 +216,56 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 	fieldToCompareRequestName := ""
 	switch kind {
 	case datahub_v1alpha1.Kind_POD:
-		fieldToCompareRequestName = string(recommendation_entity.ContainerPodName)
+		fieldToCompareRequestName = recommendation_entity.ContainerPodName
 	case datahub_v1alpha1.Kind_DEPLOYMENT:
-		fieldToCompareRequestName = string(recommendation_entity.ContainerTopControllerName)
+		fieldToCompareRequestName = recommendation_entity.ContainerTopControllerName
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
-		fieldToCompareRequestName = string(recommendation_entity.ContainerTopControllerName)
+		fieldToCompareRequestName = recommendation_entity.ContainerTopControllerName
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", datahub_v1alpha1.Kind_name[int32(kind)])
 	}
+
 	if reqNS != "" && reqName == "" {
-		whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS)
+		//whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS)
+		c.influxDB.AddWhereCondition(&whereStr, recommendation_entity.ContainerNamespace, "=", reqNS)
 	} else if reqNS == "" && reqName != "" {
-		whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", fieldToCompareRequestName, reqName)
+		//whereStr = fmt.Sprintf("WHERE \"%s\"='%s'", fieldToCompareRequestName, reqName)
+		c.influxDB.AddWhereCondition(&whereStr, fieldToCompareRequestName, "=", reqName)
 	} else if reqNS != "" && reqName != "" {
-		whereStr = fmt.Sprintf("WHERE \"%s\"='%s' AND \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS, fieldToCompareRequestName, reqName)
+		//whereStr = fmt.Sprintf("WHERE \"%s\"='%s' AND \"%s\"='%s'", string(recommendation_entity.ContainerNamespace), reqNS, fieldToCompareRequestName, reqName)
+		c.influxDB.AddWhereCondition(&whereStr, recommendation_entity.ContainerNamespace, "=", reqNS)
+		c.influxDB.AddWhereCondition(&whereStr, fieldToCompareRequestName, "=", reqName)
 	}
 
-	timeConditionStr := ""
-	if reqStartTime != nil && reqEndTime != nil {
-		timeConditionStr = fmt.Sprintf("time >= %v AND time <= %v", utils.TimeStampToNanoSecond(reqStartTime), utils.TimeStampToNanoSecond(reqEndTime))
-	} else if reqStartTime != nil && reqEndTime == nil {
-		timeConditionStr = fmt.Sprintf("time >= %v", utils.TimeStampToNanoSecond(reqStartTime))
-	} else if reqStartTime == nil && reqEndTime != nil {
-		timeConditionStr = fmt.Sprintf("time <= %v", utils.TimeStampToNanoSecond(reqEndTime))
+	if reqStartTime != nil {
+		c.influxDB.AddTimeCondition(&whereStr, ">=", reqStartTime.Seconds)
 	}
-
-	if whereStr == "" && timeConditionStr != "" {
-		whereStr = fmt.Sprintf("WHERE %s", timeConditionStr)
-	} else if whereStr != "" && timeConditionStr != "" {
-		whereStr = fmt.Sprintf("%s AND %s", whereStr, timeConditionStr)
+	if reqEndTime != nil {
+		c.influxDB.AddTimeCondition(&whereStr, "<=", reqEndTime.Seconds)
 	}
 
 	if kind != datahub_v1alpha1.Kind_POD {
-		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", string(recommendation_entity.ContainerTopControllerKind), enumconv.KindDisp[kind])
-		if whereStr == "" {
-			whereStr = fmt.Sprintf("WHERE %s", kindConditionStr)
-		} else if whereStr != "" {
-			whereStr = fmt.Sprintf("%s AND %s", whereStr, kindConditionStr)
-		}
+		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", recommendation_entity.ContainerTopControllerKind, enumconv.KindDisp[kind])
+		c.influxDB.AddWhereCondition(&whereStr, recommendation_entity.ContainerTopControllerKind, "=", kindConditionStr)
 	}
 
-	orderStr := containerRepository.buildOrderClause(queryCondition)
-	limitStr := containerRepository.buildLimitClause(queryCondition)
+	if granularity == 0 || granularity == 30 {
+		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", recommendation_entity.ContainerGranularity, recommendation_entity.ContainerGranularity)
+		c.influxDB.AddWhereConditionDirect(&whereStr, tempCondition)
+	} else {
+		c.influxDB.AddWhereCondition(&whereStr, recommendation_entity.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
+	}
+
+	orderStr := c.buildOrderClause(queryCondition)
+	limitStr := c.buildLimitClause(queryCondition)
 
 	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\" %s %s",
 		string(Container), whereStr, recommendation_entity.ContainerName,
 		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName, orderStr, limitStr)
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 
-	podRecommendations, err := containerRepository.queryRecommendation(cmd)
+	podRecommendations, err := c.queryRecommendationNew(cmd, granularity)
+	//podRecommendations, err := c.queryRecommendation(cmd)
 	if err != nil {
 		return podRecommendations, err
 	}
@@ -320,7 +274,7 @@ func (containerRepository *ContainerRepository) ListContainerRecommendations(pod
 
 }
 
-func (containerRepository *ContainerRepository) buildOrderClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
+func (c *ContainerRepository) buildOrderClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
 	if queryCondition == nil {
 		return "ORDER BY time ASC"
 	}
@@ -332,7 +286,7 @@ func (containerRepository *ContainerRepository) buildOrderClause(queryCondition 
 	return "ORDER BY time ASC"
 }
 
-func (containerRepository *ContainerRepository) buildLimitClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
+func (c *ContainerRepository) buildLimitClause(queryCondition *datahub_v1alpha1.QueryCondition) string {
 	if queryCondition == nil {
 		return ""
 	}
@@ -345,12 +299,20 @@ func (containerRepository *ContainerRepository) buildLimitClause(queryCondition 
 
 func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {
 	//podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
+	granularity := in.GetGranularity()
 
 	whereStrName := c.buildNameClause(in)
 	whereStrKind := c.buildKindClause(in)
 	whereStrTime := c.buildApplyTimeClause(in)
 
 	whereStr := c.combineClause([]string{whereStrName, whereStrKind, whereStrTime})
+
+	if granularity == 0 || granularity == 30 {
+		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", recommendation_entity.ContainerGranularity, recommendation_entity.ContainerGranularity)
+		c.influxDB.AddWhereConditionDirect(&whereStr, tempCondition)
+	} else {
+		c.influxDB.AddWhereCondition(&whereStr, recommendation_entity.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
+	}
 
 	orderStr := c.buildOrderClause(in.QueryCondition)
 	limitStr := c.buildLimitClause(in.QueryCondition)
@@ -359,9 +321,107 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alph
 		string(Container), whereStr, recommendation_entity.ContainerName,
 		recommendation_entity.ContainerNamespace, recommendation_entity.ContainerPodName, orderStr, limitStr)
 
-	podRecommendations, err := c.queryRecommendation(cmd)
+	podRecommendations, err := c.queryRecommendationNew(cmd, granularity)
 	if err != nil {
 		return podRecommendations, err
+	}
+
+	return podRecommendations, nil
+}
+
+func (c *ContainerRepository) queryRecommendationNew(cmd string, granularity int64) ([]*datahub_v1alpha1.PodRecommendation, error) {
+	podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
+
+	results, err := c.influxDB.QueryDB(cmd, string(influxdb.Recommendation))
+	if err != nil {
+		return podRecommendations, err
+	}
+
+	rows := influxdb.PackMap(results)
+
+	for _, row := range rows {
+		for _, data := range row.Data {
+			podRecommendation := &datahub_v1alpha1.PodRecommendation{}
+			podRecommendation.NamespacedName = &datahub_v1alpha1.NamespacedName{
+				Namespace: data[recommendation_entity.ContainerNamespace],
+				Name:      data[recommendation_entity.ContainerPodName],
+			}
+
+			tempTopControllerKind := data[recommendation_entity.ContainerTopControllerKind]
+			var topControllerKind datahub_v1alpha1.Kind
+			if val, ok := enumconv.KindEnum[tempTopControllerKind]; ok {
+				topControllerKind = val
+			}
+
+			podRecommendation.TopController = &datahub_v1alpha1.TopController{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: data[recommendation_entity.ContainerNamespace],
+					Name:      data[recommendation_entity.ContainerTopControllerName],
+				},
+				Kind: topControllerKind,
+			}
+
+			startTime, _ := strconv.ParseInt(data[recommendation_entity.ContainerStartTime], 10, 64)
+			endTime, _ := strconv.ParseInt(data[recommendation_entity.ContainerEndTime], 10, 64)
+
+			podRecommendation.StartTime = &timestamp.Timestamp{
+				Seconds: startTime,
+			}
+
+			podRecommendation.EndTime = &timestamp.Timestamp{
+				Seconds: endTime,
+			}
+
+			containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{}
+			containerRecommendation.Name = data[recommendation_entity.ContainerName]
+
+			metricTypeList := []datahub_v1alpha1.MetricType{datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES}
+			sampleTime := &timestamp.Timestamp{
+				Seconds: startTime,
+			}
+			sampleEndTime := &timestamp.Timestamp{
+				Seconds: endTime,
+			}
+
+			//
+			for _, metricType := range metricTypeList {
+				metricDataList := make([]*datahub_v1alpha1.MetricData, 0)
+				for a := 0; a < 4; a++ {
+					sample := &datahub_v1alpha1.Sample{
+						Time:    sampleTime,
+						EndTime: sampleEndTime,
+					}
+
+					metricData := &datahub_v1alpha1.MetricData{
+						MetricType:  metricType,
+						Granularity: granularity,
+					}
+					metricData.Data = append(metricData.Data, sample)
+					metricDataList = append(metricDataList, metricData)
+				}
+
+				containerRecommendation.LimitRecommendations = append(containerRecommendation.LimitRecommendations, metricDataList[0])
+				containerRecommendation.RequestRecommendations = append(containerRecommendation.RequestRecommendations, metricDataList[1])
+				containerRecommendation.InitialLimitRecommendations = append(containerRecommendation.InitialLimitRecommendations, metricDataList[2])
+				containerRecommendation.InitialRequestRecommendations = append(containerRecommendation.InitialRequestRecommendations, metricDataList[3])
+			}
+
+			containerRecommendation.LimitRecommendations[0].Data[0].NumValue = data[recommendation_entity.ContainerResourceLimitCPU]
+			containerRecommendation.LimitRecommendations[1].Data[0].NumValue = data[recommendation_entity.ContainerResourceLimitMemory]
+
+			containerRecommendation.RequestRecommendations[0].Data[0].NumValue = data[recommendation_entity.ContainerResourceRequestCPU]
+			containerRecommendation.RequestRecommendations[1].Data[0].NumValue = data[recommendation_entity.ContainerResourceRequestMemory]
+
+			containerRecommendation.InitialLimitRecommendations[0].Data[0].NumValue = data[recommendation_entity.ContainerInitialResourceLimitCPU]
+			containerRecommendation.InitialLimitRecommendations[1].Data[0].NumValue = data[recommendation_entity.ContainerInitialResourceLimitMemory]
+
+			containerRecommendation.InitialRequestRecommendations[0].Data[0].NumValue = data[recommendation_entity.ContainerInitialResourceRequestCPU]
+			containerRecommendation.InitialRequestRecommendations[1].Data[0].NumValue = data[recommendation_entity.ContainerInitialResourceRequestMemory]
+
+			podRecommendation.ContainerRecommendations = append(podRecommendation.ContainerRecommendations, containerRecommendation)
+
+			podRecommendations = append(podRecommendations, podRecommendation)
+		}
 	}
 
 	return podRecommendations, nil
@@ -573,10 +633,10 @@ func (c *ContainerRepository) combineClause(strList []string) string {
 
 	for _, value := range strList {
 		if value != "" && whereFlag == false {
-			ret = fmt.Sprintf("WHERE %s", value)
+			ret = fmt.Sprintf("WHERE %s ", value)
 			whereFlag = true
 		} else if value != "" {
-			ret += fmt.Sprintf(" AND %s", value)
+			ret += fmt.Sprintf("AND %s ", value)
 		}
 	}
 
