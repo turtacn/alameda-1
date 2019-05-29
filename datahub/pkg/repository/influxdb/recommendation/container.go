@@ -126,7 +126,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 									newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = numVal
 								}
 							} else {
-								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = "0"
+								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = 0
 							}
 						}
 
