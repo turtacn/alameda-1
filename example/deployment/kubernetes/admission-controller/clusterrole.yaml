@@ -50,4 +50,9 @@ rules:
   verbs:
     - get
     - list
-
+- apiGroups:
+    - autoscaling.containers.ai
+  resources:
+    - alamedascalers
+  verbs:
+    - get

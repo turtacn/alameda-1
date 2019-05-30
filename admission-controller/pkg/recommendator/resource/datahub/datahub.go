@@ -12,13 +12,12 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 	core_v1 "k8s.io/api/core/v1"
 	k8s_resource "k8s.io/apimachinery/pkg/api/resource"
 )
 
 var (
-	scope               = log.RegisterScope("Datahub resource recommendator", "Datahub resource recommendator", 0)
+	scope               = log.RegisterScope("resource-recommendator", "Datahub resource recommendator", 0)
 	k8sKind_DatahubKind = map[string]datahub_v1alpha1.Kind{
 		"Pod":              datahub_v1alpha1.Kind_POD,
 		"Deployment":       datahub_v1alpha1.Kind_DEPLOYMENT,
@@ -38,17 +37,13 @@ var (
 var _ resource.ResourceRecommendator = &datahubResourceRecommendator{}
 
 type datahubResourceRecommendator struct {
-	config *datahub.Config
+	datahubServiceClient datahub_v1alpha1.DatahubServiceClient
 }
 
-func NewDatahubResourceRecommendatorWithConfig(cfg *datahub.Config) (resource.ResourceRecommendator, error) {
-
-	if cfg == nil {
-		return nil, errors.Errorf("must provide Datahub configuration")
-	}
+func NewDatahubResourceRecommendator(client datahub_v1alpha1.DatahubServiceClient) (resource.ResourceRecommendator, error) {
 
 	return &datahubResourceRecommendator{
-		config: cfg,
+		datahubServiceClient: client,
 	}, nil
 }
 
@@ -56,20 +51,13 @@ func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations
 
 	recommendations := make([]*resource.PodResourceRecommendation, 0)
 
-	conn, err := grpc.Dial(dr.config.Address, grpc.WithInsecure())
-	if err != nil {
-		return recommendations, errors.Wrap(err, "dial failed")
-	}
-	defer conn.Close()
-	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
-
-	datahubRequest, err := buildDatahhubListPodRecommendationRequestFrom(req)
+	datahubRequest, err := buildListAvailablePodRecommendationsRequest(req)
 	if err != nil {
 		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
 	}
-	scope.Debugf("query ListPodRecommendations to datahub, send request: %+v", datahubRequest)
-	resp, err := datahubClient.ListPodRecommendations(context.Background(), datahubRequest)
-	scope.Debugf("query ListPodRecommendations to datahub, received response: %+v", resp)
+	scope.Debugf("query ListAvailablePodRecommendations to datahub, send request: %+v", datahubRequest)
+	resp, err := dr.datahubServiceClient.ListAvailablePodRecommendations(context.Background(), datahubRequest)
+	scope.Debugf("query ListAvailablePodRecommendations to datahub, received response: %+v", resp)
 	if err != nil {
 		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
 	} else if _, err := datahub.IsResponseStatusOK(resp.Status); err != nil {
@@ -84,7 +72,7 @@ func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations
 	return recommendations, nil
 }
 
-func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsRequest, error) {
+func buildListAvailablePodRecommendationsRequest(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsRequest, error) {
 
 	var datahubRequest *datahub_v1alpha1.ListPodRecommendationsRequest
 
@@ -93,10 +81,10 @@ func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControll
 		return datahubRequest, errors.Errorf("build Datahub ListPodRecommendationsRequest failed: no mapping Datahub kind for k8s kind: %s", request.Kind)
 	}
 
-	var quertTime *timestamp.Timestamp
+	var queryTime *timestamp.Timestamp
 	var err error
 	if request.Time != nil {
-		quertTime, err = ptypes.TimestampProto(*request.Time)
+		queryTime, err = ptypes.TimestampProto(*request.Time)
 		if err != nil {
 			return datahubRequest, errors.Errorf("build Datahub ListPodRecommendationsRequest failed: convert time.Time to google.Timestamp failed: %s", err.Error())
 		}
@@ -110,13 +98,12 @@ func buildDatahhubListPodRecommendationRequestFrom(request resource.ListControll
 		Kind: datahubKind,
 		QueryCondition: &datahub_v1alpha1.QueryCondition{
 			TimeRange: &datahub_v1alpha1.TimeRange{
-				EndTime: quertTime,
+				ApplyTime: queryTime,
 			},
 			Order: datahub_v1alpha1.QueryCondition_DESC,
 			Limit: 1,
 		},
 	}
-
 	return datahubRequest, nil
 }
 
