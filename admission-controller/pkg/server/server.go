@@ -9,17 +9,20 @@ import (
 	"sync"
 	"time"
 
+	admission_controller_kubernetes "github.com/containers-ai/alameda/admission-controller/pkg/kubernetes"
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
 	admission_controller_utils "github.com/containers-ai/alameda/admission-controller/pkg/utils"
+	controller_validator "github.com/containers-ai/alameda/admission-controller/pkg/validator/controller"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+
 	"github.com/pkg/errors"
 	admission_v1beta1 "k8s.io/api/admission/v1beta1"
 	core_v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/rest"
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -36,23 +39,21 @@ type admissionController struct {
 	lock                                       *sync.Mutex
 	controllerPodResourceRecommendationMap     map[namespaceKindName]*controllerPodResourceRecommendation
 	controllerPodResourceRecommendationLockMap map[namespaceKindName]*sync.Mutex
-	resourceRecommendator                      resource.ResourceRecommendator
 	resourceRecommendatorSyncTimeout           time.Duration
 	resourceRecommendatorSyncRetryTime         int
 	resourceRecommendatorSyncWaitInterval      time.Duration
 
-	k8sConfig            *rest.Config
-	ownerReferenceTracer *metadata_utils.OwnerReferenceTracer
+	sigsK8SClient         client.Client
+	k8sDeserializer       runtime.Decoder
+	ownerReferenceTracer  *metadata_utils.OwnerReferenceTracer
+	resourceRecommendator resource.ResourceRecommendator
+	controllerValidator   controller_validator.Validator
 }
 
-func NewAdmissionControllerWithConfig(cfg Config, resourceRecommendator resource.ResourceRecommendator) (AdmissionController, error) {
+// NewAdmissionControllerWithConfig creates AdmissionController with configuration and dependencies
+func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, resourceRecommendator resource.ResourceRecommendator, controllerValidator controller_validator.Validator) (AdmissionController, error) {
 
 	defaultOwnerReferenceTracer, err := metadata_utils.NewDefaultOwnerReferenceTracer()
-	if err != nil {
-		return nil, errors.Wrap(err, "new AdmissionController failed")
-	}
-
-	k8sConfig, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "new AdmissionController failed")
 	}
@@ -63,13 +64,15 @@ func NewAdmissionControllerWithConfig(cfg Config, resourceRecommendator resource
 		lock:                                   &sync.Mutex{},
 		controllerPodResourceRecommendationMap: make(map[namespaceKindName]*controllerPodResourceRecommendation),
 		controllerPodResourceRecommendationLockMap: make(map[namespaceKindName]*sync.Mutex),
-		resourceRecommendator:                      resourceRecommendator,
 		resourceRecommendatorSyncTimeout:           10 * time.Second,
 		resourceRecommendatorSyncRetryTime:         3,
 		resourceRecommendatorSyncWaitInterval:      5 * time.Second,
 
-		k8sConfig:            k8sConfig,
-		ownerReferenceTracer: defaultOwnerReferenceTracer,
+		sigsK8SClient:         sigsK8SClient,
+		k8sDeserializer:       admission_controller_kubernetes.Codecs.UniversalDecoder(),
+		ownerReferenceTracer:  defaultOwnerReferenceTracer,
+		resourceRecommendator: resourceRecommendator,
+		controllerValidator:   controllerValidator,
 	}
 
 	return ac, nil
@@ -139,8 +142,7 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 
 	raw := ar.Request.Object.Raw
 	pod := core_v1.Pod{}
-	deserializer := codecs.UniversalDeserializer()
-	if _, _, err := deserializer.Decode(raw, nil, &pod); err != nil {
+	if _, _, err := ac.k8sDeserializer.Decode(raw, nil, &pod); err != nil {
 		scope.Warnf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
 		return nil
 	}
@@ -156,18 +158,26 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	}
 
 	controllerID := newNamespaceKindName(namespace, controllerKind, controllerName)
+	executionEnabeld, err := ac.isControllerExecutionEnabled(controllerID)
+	if err != nil {
+		scope.Warnf("check if pod needs mutating faield, skip mutating pod: Pod: %+v : errMsg: %s", pod.ObjectMeta, err.Error())
+		return nil
+	} else if !executionEnabeld {
+		scope.Warnf("execution of AlamedaScaler monitoring this pod is not enabled, skip mutating pod: Pod: %+v", pod.ObjectMeta)
+		return nil
+	}
 	recommendation, err := ac.getPodResourceRecommendationByControllerID(controllerID)
 	if err != nil {
-		scope.Warnf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod, err.Error())
+		scope.Warnf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod.ObjectMeta, err.Error())
 		return nil
 	} else if recommendation == nil {
-		scope.Warnf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod)
+		scope.Warnf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod.ObjectMeta)
 		return &reviewResponse
 	}
 
 	patches, err := admission_controller_utils.GetPatchesFromPodResourceRecommendation(&pod, recommendation)
 	if err != nil {
-		scope.Warnf("get patches to mutate pod resource failed, skip mutating pod: Pod: %+v, errMsg: %s", pod, err.Error())
+		scope.Warnf("get patches to mutate pod resource failed, skip mutating pod: Pod: %+v, errMsg: %s", pod.ObjectMeta, err.Error())
 		return nil
 	}
 	scope.Infof("patch %s to pod %+v ", patches, pod.ObjectMeta)
@@ -264,13 +274,9 @@ func (ac *admissionController) listValidRecommendations(controllerID namespaceKi
 func (ac *admissionController) listPodControlledByControllerID(controllerID namespaceKindName) ([]*core_v1.Pod, error) {
 	pods := make([]*core_v1.Pod, 0)
 
-	sigsK8SClient, err := ac.newSigsK8SIOClient()
-	if err != nil {
-		return pods, errors.Wrapf(err, "list pods controlled by controllerID: %s failed", controllerID.String())
-	}
-
+	var err error
 	podsInCluster := make([]core_v1.Pod, 0)
-	listResource := resources.NewListResources(sigsK8SClient)
+	listResource := resources.NewListResources(ac.sigsK8SClient)
 	switch controllerID.getKind() {
 	case "Deployment":
 		podsInCluster, err = listResource.ListPodsByDeployment(controllerID.getNamespace(), controllerID.getName())
@@ -292,11 +298,6 @@ func (ac *admissionController) listPodControlledByControllerID(controllerID name
 	}
 
 	return pods, nil
-}
-
-func (ac *admissionController) newSigsK8SIOClient() (client.Client, error) {
-
-	return client.New(ac.k8sConfig, client.Options{Scheme: scheme})
 }
 
 func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKindName) ([]*resource.PodResourceRecommendation, error) {
@@ -325,6 +326,11 @@ func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKin
 	}
 
 	return recommendations, err
+}
+
+func (ac *admissionController) isControllerExecutionEnabled(controllerID namespaceKindName) (bool, error) {
+
+	return ac.controllerValidator.IsControllerEnabledExecution(controllerID.namespace, controllerID.name, controllerID.kind)
 }
 
 func buildRecommendationNumberMap(recommendations []*resource.PodResourceRecommendation) map[string]int {
