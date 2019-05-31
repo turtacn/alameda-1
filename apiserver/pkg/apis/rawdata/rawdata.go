@@ -2,7 +2,7 @@ package rawdata
 
 import (
 	APIServerConfig "github.com/containers-ai/alameda/apiserver/pkg/config"
-	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
+	//AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	Datahub "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	Rawdata "github.com/containers-ai/federatorai-api/apiserver/rawdata"
@@ -26,14 +26,14 @@ func NewServiceRawdata(cfg *APIServerConfig.Config) *ServiceRawdata {
 }
 
 func (c *ServiceRawdata) ReadRawdata(ctx context.Context, in *Rawdata.ReadRawdataRequest) (*Rawdata.ReadRawdataResponse, error) {
-	scope.Debug("Request received from ReadRawdata grpc function: " + AlamedaUtils.InterfaceToString(in))
+	scope.Debug("Request received from ReadRawdata grpc function")
 
 	out := new(Rawdata.ReadRawdataResponse)
 	return out, nil
 }
 
 func (c *ServiceRawdata) WriteRawdata(ctx context.Context, in *Rawdata.WriteRawdataRequest) (*status.Status, error) {
-	scope.Debug("Request received from WriteRawdata grpc function: " + AlamedaUtils.InterfaceToString(in))
+	scope.Debug("Request received from WriteRawdata grpc function")
 
 	// Create connection to datahub
 	address := c.Config.Datahub.Address
@@ -48,7 +48,7 @@ func (c *ServiceRawdata) WriteRawdata(ctx context.Context, in *Rawdata.WriteRawd
 
 	// Rebuild write rawdata request for datahub
 	request := &Datahub.WriteRawdataRequest{}
-	for _, rdata := range in.Rawdata {
+	for _, rdata := range in.GetRawdata() {
 		request.Rawdata = append(request.Rawdata, rdata)
 	}
 

@@ -19,7 +19,7 @@ datapipe: generate fmt vet
 .PHONY: run
 
 ## run: Run against the configured Kubernetes cluster in ~/.kube/config
-run: generate fmt vet
+run:
 	go run ./cmd/main.go run
 
 .PHONY: fmt vet generate docker-build docker-push

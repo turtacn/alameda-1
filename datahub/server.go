@@ -12,17 +12,17 @@ import (
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	recommendation_dao "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
-	Common "github.com/containers-ai/api/common"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
-	datahubUtil "github.com/containers-ai/alameda/datahub/pkg/utils"
 	influx "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	datahubUtil "github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
@@ -155,6 +155,7 @@ func (s *Server) InitInfluxdbDatabase() {
 		"alameda_prediction",
 		"alameda_recommendation",
 		"alameda_score",
+		"alameda_metric",
 	}
 
 	for _, db := range databaseList {
@@ -1119,7 +1120,7 @@ func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.De
 
 // Read rawdata from database
 func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawdataRequest) (*datahub_v1alpha1.ReadRawdataResponse, error) {
-	scope.Debug("Request received from ReadRawdata grpc function: " + utils.InterfaceToString(in))
+	scope.Debug("Request received from ReadRawdata grpc function")
 
 	out := new(datahub_v1alpha1.ReadRawdataResponse)
 	return out, nil
@@ -1127,24 +1128,24 @@ func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawda
 
 // Write rawdata to database
 func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRawdataRequest) (*status.Status, error) {
-	scope.Debug("Request received from WriteRawdata grpc function: " + utils.InterfaceToString(in))
+	scope.Debug("Request received from WriteRawdata grpc function")
 
 	influxClient := influx.New(s.Config.InfluxDB)
 
-	for _, rawdata := range in.Rawdata {
+	for _, rawdata := range in.GetRawdata() {
 		points := make([]*influxdb_client.Point, 0)
 
-		for _, row := range rawdata.Rows {
-			index  := 0
-			tags   := make(map[string]string)
+		for _, row := range rawdata.GetRows() {
+			index := 0
+			tags := make(map[string]string)
 			fields := make(map[string]interface{})
 
-			for _, value := range row.Values {
-				switch rawdata.ColumnTypes[index] {
+			for _, value := range row.GetValues() {
+				switch rawdata.GetColumnTypes()[index] {
 				case Common.ColumnType_COLUMNTYPE_TAG:
-					tags[rawdata.Columns[index]] = value
+					tags[rawdata.GetColumns()[index]] = value
 				case Common.ColumnType_COLUMNTYPE_FIELD:
-					fields[rawdata.Columns[index]] = changeFormat(value, rawdata.DataTypes[index])
+					fields[rawdata.GetColumns()[index]] = changeFormat(value, rawdata.GetDataTypes()[index])
 				default:
 					fmt.Println("not support")
 				}
@@ -1152,15 +1153,15 @@ func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRaw
 			}
 
 			// Add time field depends on request
-			if row.Time == nil {
-				pt, err := influxdb_client.NewPoint(rawdata.Table, tags, fields, time.Unix(0, 0))
+			if row.GetTime() == nil {
+				pt, err := influxdb_client.NewPoint(rawdata.GetTable(), tags, fields, time.Unix(0, 0))
 				if err == nil {
 					points = append(points, pt)
 				} else {
 					fmt.Println(err.Error())
 				}
 			} else {
-				pt, err := influxdb_client.NewPoint(rawdata.Table, tags, fields, time.Unix(row.GetTime().Seconds, 0))
+				pt, err := influxdb_client.NewPoint(rawdata.GetTable(), tags, fields, time.Unix(row.GetTime().GetSeconds(), 0))
 				if err == nil {
 					points = append(points, pt)
 				} else {
@@ -1169,13 +1170,13 @@ func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRaw
 			}
 		}
 
-		err := influxClient.WritePoints(points, influxdb_client.BatchPointsConfig{ Database: rawdata.Database, })
+		err := influxClient.WritePoints(points, influxdb_client.BatchPointsConfig{Database: rawdata.GetDatabase()})
 		if err != nil {
 			scope.Error(err.Error())
 		}
 	}
 
-	return &status.Status{ Code: int32(code.Code_OK) }, nil
+	return &status.Status{Code: int32(code.Code_OK)}, nil
 }
 
 func changeFormat(value string, dataType Common.DataType) interface{} {

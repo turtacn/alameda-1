@@ -9,3 +9,10 @@ apiserver:
 log:
   set-logcallers: true
   output-level: "info" # debug, info, warn, error, fatal, none
+
+prometheus:
+  url: "http://127.0.0.1:9090"
+
+  tls-config:
+    insecure-skip-verify: true
+  bearer-token-file: "/var/run/secrets/kubernetes.io/serviceaccount/token"
