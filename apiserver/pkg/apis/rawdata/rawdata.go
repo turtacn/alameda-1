@@ -4,7 +4,7 @@ import (
 	APIServerConfig "github.com/containers-ai/alameda/apiserver/pkg/config"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
-	Datahub "github.com/containers-ai/api/datahub/rawdata"
+	Datahub "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	Rawdata "github.com/containers-ai/federatorai-api/apiserver/rawdata"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/status"
@@ -44,7 +44,7 @@ func (c *ServiceRawdata) WriteRawdata(ctx context.Context, in *Rawdata.WriteRawd
 	}
 
 	// Instance rawdata service of datahub
-	client := Datahub.NewRawdataServiceClient(conn)
+	client := Datahub.NewDatahubServiceClient(conn)
 
 	// Rebuild write rawdata request for datahub
 	request := &Datahub.WriteRawdataRequest{}
