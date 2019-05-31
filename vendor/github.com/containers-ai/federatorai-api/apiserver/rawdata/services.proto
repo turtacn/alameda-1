@@ -7,22 +7,28 @@ import "google/rpc/status.proto";
 
 option go_package = "github.com/containers-ai/federatorai-api/apiserver/rawdata";
 
-message WriteRawdataRequest {
-    repeated common.Rawdata rawdata = 1;
-}
-
+// Represents a request for reading rawdata from database
 message ReadRawdataRequest {
     repeated common.Query queries = 1;
 }
 
+// Represents a response for listing rawdata from database
 message ReadRawdataResponse {
-    repeated common.Rawdata rawdata = 1;
+    google.rpc.Status status = 1;
+    repeated common.ReadRawdata rawdata = 2;
+}
+
+// Represents a request for writing rawdata to database
+message WriteRawdataRequest {
+    repeated common.WriteRawdata rawdata = 2;
 }
 
 service RawdataService {
-    rpc WriteRawdata(WriteRawdataRequest)
-        returns (google.rpc.Status) {}
-
+    // Used to read rawdata from database
     rpc ReadRawdata(ReadRawdataRequest)
         returns (ReadRawdataResponse) {}
+
+    // Used to write rawdata to database
+    rpc WriteRawdata(WriteRawdataRequest)
+        returns (google.rpc.Status) {}
 }

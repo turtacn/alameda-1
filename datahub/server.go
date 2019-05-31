@@ -12,9 +12,11 @@ import (
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	recommendation_dao "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
+	Common "github.com/containers-ai/api/common"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	datahubUtil "github.com/containers-ai/alameda/datahub/pkg/utils"
+	influx "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
@@ -38,6 +40,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	influxdbBase "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	"strconv"
+	"time"
 )
 
 type Server struct {
@@ -1124,5 +1129,74 @@ func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawda
 func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRawdataRequest) (*status.Status, error) {
 	scope.Debug("Request received from WriteRawdata grpc function: " + utils.InterfaceToString(in))
 
+	influxClient := influx.New(s.Config.InfluxDB)
+
+	for _, rawdata := range in.Rawdata {
+		points := make([]*influxdb_client.Point, 0)
+
+		for _, row := range rawdata.Rows {
+			index  := 0
+			tags   := make(map[string]string)
+			fields := make(map[string]interface{})
+
+			for _, value := range row.Values {
+				switch rawdata.ColumnTypes[index] {
+				case Common.ColumnType_COLUMNTYPE_TAG:
+					tags[rawdata.Columns[index]] = value
+				case Common.ColumnType_COLUMNTYPE_FIELD:
+					fields[rawdata.Columns[index]] = changeFormat(value, rawdata.DataTypes[index])
+				default:
+					fmt.Println("not support")
+				}
+				index = index + 1
+			}
+
+			// Add time field depends on request
+			if row.Time == nil {
+				pt, err := influxdb_client.NewPoint(rawdata.Table, tags, fields, time.Unix(0, 0))
+				if err == nil {
+					points = append(points, pt)
+				} else {
+					fmt.Println(err.Error())
+				}
+			} else {
+				pt, err := influxdb_client.NewPoint(rawdata.Table, tags, fields, time.Unix(row.GetTime().Seconds, 0))
+				if err == nil {
+					points = append(points, pt)
+				} else {
+					fmt.Println(err.Error())
+				}
+			}
+		}
+
+		err := influxClient.WritePoints(points, influxdb_client.BatchPointsConfig{ Database: rawdata.Database, })
+		if err != nil {
+			scope.Error(err.Error())
+		}
+	}
+
 	return &status.Status{ Code: int32(code.Code_OK) }, nil
+}
+
+func changeFormat(value string, dataType Common.DataType) interface{} {
+	switch dataType {
+	case Common.DataType_DATATYPE_BOOL:
+		valueBool, _ := strconv.ParseBool(value)
+		return valueBool
+	case Common.DataType_DATATYPE_INT32:
+		valueInt, _ := strconv.ParseInt(value, 10, 32)
+		return valueInt
+	case Common.DataType_DATATYPE_INT64:
+		valueInt, _ := strconv.ParseInt(value, 10, 64)
+		return valueInt
+	case Common.DataType_DATATYPE_FLOAT32:
+		valueFloat, _ := strconv.ParseFloat(value, 64)
+		return valueFloat
+	case Common.DataType_DATATYPE_STRING:
+		return value
+	default:
+		fmt.Println("not support")
+		return value
+	}
+	return ""
 }

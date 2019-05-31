@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:38cab211bdf45c48c28163f824cd56fe9073c02574bea645517713783343ffff"
+  digest = "1:3e9b3bdb2fb99285e143695b1e06676818798c9b119b6c34b12bda12b1544a8e"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -47,11 +47,11 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "2be648220968479cc275c3b0879109bf77f18fa5"
+  revision = "3a6eacac1c5cc3758283ab7c6981147481512b82"
 
 [[projects]]
   branch = "development"
-  digest = "1:f81cbe36254fdb4ce0b408c1d9a792c180dd88f74682209a3ca58089e8a216bc"
+  digest = "1:92258fe9b52cdf10ae168f0845ff7c6bb50c9ca5650a498a95c8478a45e9e5e8"
   name = "github.com/containers-ai/federatorai-api"
   packages = [
     "apiserver/accounts",
@@ -60,7 +60,7 @@
     "apiserver/rawdata",
   ]
   pruneopts = "T"
-  revision = "7b9ec2d43e9692af1f83915096aaeaea8c3eb32e"
+  revision = "b7719cc9eed722dd6e2be7785e8c5be2e4f64019"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1140,6 +1140,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
+    "github.com/containers-ai/api/common",
     "github.com/containers-ai/api/datahub/rawdata",
     "github.com/containers-ai/api/datapipe/metrics",
     "github.com/containers-ai/api/datapipe/ping",

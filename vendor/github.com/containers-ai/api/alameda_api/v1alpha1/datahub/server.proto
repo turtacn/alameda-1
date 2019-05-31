@@ -308,7 +308,7 @@ message ReadRawdataRequest {
  */
 message ReadRawdataResponse {
     google.rpc.Status status = 1;
-    repeated containersai.common.Rawdata rawdata = 2;
+    repeated containersai.common.ReadRawdata rawdata = 2;
 }
 
 /**
@@ -316,7 +316,7 @@ message ReadRawdataResponse {
  *
  */
 message WriteRawdataRequest {
-    repeated containersai.common.Rawdata rawdata = 1;
+    repeated containersai.common.WriteRawdata rawdata = 1;
 }
 
 /**

@@ -13,6 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 from common import common_pb2 as common_dot_common__pb2
+from common import types_pb2 as common_dot_types__pb2
 from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
@@ -21,9 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.datahub.rawdata',
   syntax='proto3',
   serialized_options=_b('Z,github.com/containers-ai/api/datahub/rawdata'),
-  serialized_pb=_b('\n\x1e\x64\x61tahub/rawdata/services.proto\x12\x1c\x63ontainersai.datahub.rawdata\x1a\x13\x63ommon/common.proto\x1a\x17google/rpc/status.proto\"A\n\x12ReadRawdataRequest\x12+\n\x07queries\x18\x01 \x03(\x0b\x32\x1a.containersai.common.Query\"h\n\x13ReadRawdataResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12-\n\x07rawdata\x18\x02 \x03(\x0b\x32\x1c.containersai.common.Rawdata\"D\n\x13WriteRawdataRequest\x12-\n\x07rawdata\x18\x01 \x03(\x0b\x32\x1c.containersai.common.Rawdata2\xdf\x01\n\x0eRawdataService\x12t\n\x0bReadRawdata\x12\x30.containersai.datahub.rawdata.ReadRawdataRequest\x1a\x31.containersai.datahub.rawdata.ReadRawdataResponse\"\x00\x12W\n\x0cWriteRawdata\x12\x31.containersai.datahub.rawdata.WriteRawdataRequest\x1a\x12.google.rpc.Status\"\x00\x42.Z,github.com/containers-ai/api/datahub/rawdatab\x06proto3')
+  serialized_pb=_b('\n\x1e\x64\x61tahub/rawdata/services.proto\x12\x1c\x63ontainersai.datahub.rawdata\x1a\x13\x63ommon/common.proto\x1a\x12\x63ommon/types.proto\x1a\x17google/rpc/status.proto\"A\n\x12ReadRawdataRequest\x12+\n\x07queries\x18\x01 \x03(\x0b\x32\x1a.containersai.common.Query\"l\n\x13ReadRawdataResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x31\n\x07rawdata\x18\x02 \x03(\x0b\x32 .containersai.common.ReadRawdata\"I\n\x13WriteRawdataRequest\x12\x32\n\x07rawdata\x18\x01 \x03(\x0b\x32!.containersai.common.WriteRawdata2\xdf\x01\n\x0eRawdataService\x12t\n\x0bReadRawdata\x12\x30.containersai.datahub.rawdata.ReadRawdataRequest\x1a\x31.containersai.datahub.rawdata.ReadRawdataResponse\"\x00\x12W\n\x0cWriteRawdata\x12\x31.containersai.datahub.rawdata.WriteRawdataRequest\x1a\x12.google.rpc.Status\"\x00\x42.Z,github.com/containers-ai/api/datahub/rawdatab\x06proto3')
   ,
-  dependencies=[common_dot_common__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
+  dependencies=[common_dot_common__pb2.DESCRIPTOR,common_dot_types__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
 
 
@@ -54,8 +55,8 @@ _READRAWDATAREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=110,
-  serialized_end=175,
+  serialized_start=130,
+  serialized_end=195,
 )
 
 
@@ -92,8 +93,8 @@ _READRAWDATARESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=177,
-  serialized_end=281,
+  serialized_start=197,
+  serialized_end=305,
 )
 
 
@@ -123,14 +124,14 @@ _WRITERAWDATAREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=283,
-  serialized_end=351,
+  serialized_start=307,
+  serialized_end=380,
 )
 
 _READRAWDATAREQUEST.fields_by_name['queries'].message_type = common_dot_common__pb2._QUERY
 _READRAWDATARESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
-_READRAWDATARESPONSE.fields_by_name['rawdata'].message_type = common_dot_common__pb2._RAWDATA
-_WRITERAWDATAREQUEST.fields_by_name['rawdata'].message_type = common_dot_common__pb2._RAWDATA
+_READRAWDATARESPONSE.fields_by_name['rawdata'].message_type = common_dot_common__pb2._READRAWDATA
+_WRITERAWDATAREQUEST.fields_by_name['rawdata'].message_type = common_dot_common__pb2._WRITERAWDATA
 DESCRIPTOR.message_types_by_name['ReadRawdataRequest'] = _READRAWDATAREQUEST
 DESCRIPTOR.message_types_by_name['ReadRawdataResponse'] = _READRAWDATARESPONSE
 DESCRIPTOR.message_types_by_name['WriteRawdataRequest'] = _WRITERAWDATAREQUEST
@@ -166,8 +167,8 @@ _RAWDATASERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=354,
-  serialized_end=577,
+  serialized_start=383,
+  serialized_end=606,
   methods=[
   _descriptor.MethodDescriptor(
     name='ReadRawdata',
