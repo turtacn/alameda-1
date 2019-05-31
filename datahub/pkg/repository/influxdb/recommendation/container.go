@@ -66,6 +66,25 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 		containerRecommendations := podRecommendation.GetContainerRecommendations()
 		topController := podRecommendation.GetTopController()
 
+		podPolicy := podRecommendation.GetAssignPodPolicy().GetPolicy()
+		podPolicyValue := ""
+		switch podPolicy.(type) {
+		case *datahub_v1alpha1.AssignPodPolicy_NodeName:
+			podPolicyValue = podPolicy.(*datahub_v1alpha1.AssignPodPolicy_NodeName).NodeName
+		case *datahub_v1alpha1.AssignPodPolicy_NodePriority:
+			nodeList := podPolicy.(*datahub_v1alpha1.AssignPodPolicy_NodePriority).NodePriority.GetNodes()
+			if len(nodeList) > 0 {
+				podPolicyValue = nodeList[0]
+			}
+			podPolicyValue = podPolicy.(*datahub_v1alpha1.AssignPodPolicy_NodePriority).NodePriority.GetNodes()[0]
+		case *datahub_v1alpha1.AssignPodPolicy_NodeSelector:
+			nodeMap := podPolicy.(*datahub_v1alpha1.AssignPodPolicy_NodeSelector).NodeSelector.Selector
+			for _, value := range nodeMap {
+				podPolicyValue = value
+				break
+			}
+		}
+
 		for _, containerRecommendation := range containerRecommendations {
 			tags := map[string]string{
 				recommendation_entity.ContainerNamespace:   podNS,
@@ -78,6 +97,8 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 				//string(recommendation_entity.ContainerPolicy):            "",
 				recommendation_entity.ContainerTopControllerName: topController.GetNamespacedName().GetName(),
 				recommendation_entity.ContainerTopControllerKind: enumconv.KindDisp[(topController.GetKind())],
+				recommendation_entity.ContainerPolicy:            podPolicyValue,
+				recommendation_entity.ContainerPolicyTime:        podRecommendation.GetAssignPodPolicy().GetTime().GetSeconds(),
 			}
 
 			initialLimitRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
@@ -370,6 +391,16 @@ func (c *ContainerRepository) queryRecommendationNew(cmd string, granularity int
 
 			podRecommendation.EndTime = &timestamp.Timestamp{
 				Seconds: endTime,
+			}
+
+			policyTime, _ := strconv.ParseInt(data[recommendation_entity.ContainerPolicyTime], 10, 64)
+			podRecommendation.AssignPodPolicy = &datahub_v1alpha1.AssignPodPolicy{
+				Time: &timestamp.Timestamp{
+					Seconds: policyTime,
+				},
+				Policy: &datahub_v1alpha1.AssignPodPolicy_NodeName{
+					NodeName: data[recommendation_entity.ContainerPolicy],
+				},
 			}
 
 			containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{}
