@@ -29,19 +29,23 @@ import (
 var (
 	patchType = admission_v1beta1.PatchTypeJSONPatch
 	scope     = log.RegisterScope("admission-controller", "admission-controller", 0)
+
+	defaultAdmissionResponse = admission_v1beta1.AdmissionResponse{
+		Allowed: true,
+	}
 )
 
-type admitFunc func(*admission_v1beta1.AdmissionReview) *admission_v1beta1.AdmissionResponse
+type admitFunc func(*admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, error)
 
 type admissionController struct {
 	config *Config
 
-	lock                                       *sync.Mutex
-	controllerPodResourceRecommendationMap     map[namespaceKindName]*controllerPodResourceRecommendation
-	controllerPodResourceRecommendationLockMap map[namespaceKindName]*sync.Mutex
-	resourceRecommendatorSyncTimeout           time.Duration
-	resourceRecommendatorSyncRetryTime         int
-	resourceRecommendatorSyncWaitInterval      time.Duration
+	lock                                  *sync.Mutex
+	controllerRecommendationMap           map[namespaceKindName]*controllerRecommendation
+	controllerLockMap                     map[namespaceKindName]*sync.Mutex
+	resourceRecommendatorSyncTimeout      time.Duration
+	resourceRecommendatorSyncRetryTime    int
+	resourceRecommendatorSyncWaitInterval time.Duration
 
 	sigsK8SClient         client.Client
 	k8sDeserializer       runtime.Decoder
@@ -61,12 +65,12 @@ func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, r
 	ac := &admissionController{
 		config: &cfg,
 
-		lock:                                   &sync.Mutex{},
-		controllerPodResourceRecommendationMap: make(map[namespaceKindName]*controllerPodResourceRecommendation),
-		controllerPodResourceRecommendationLockMap: make(map[namespaceKindName]*sync.Mutex),
-		resourceRecommendatorSyncTimeout:           10 * time.Second,
-		resourceRecommendatorSyncRetryTime:         3,
-		resourceRecommendatorSyncWaitInterval:      5 * time.Second,
+		lock:                                  &sync.Mutex{},
+		controllerRecommendationMap:           make(map[namespaceKindName]*controllerRecommendation),
+		controllerLockMap:                     make(map[namespaceKindName]*sync.Mutex),
+		resourceRecommendatorSyncTimeout:      10 * time.Second,
+		resourceRecommendatorSyncRetryTime:    3,
+		resourceRecommendatorSyncWaitInterval: 5 * time.Second,
 
 		sigsK8SClient:         sigsK8SClient,
 		k8sDeserializer:       admission_controller_kubernetes.Codecs.UniversalDecoder(),
@@ -84,194 +88,192 @@ func (ac *admissionController) MutatePod(w http.ResponseWriter, r *http.Request)
 
 func (ac *admissionController) serve(w http.ResponseWriter, r *http.Request, admit admitFunc) {
 
-	var admissionResponse *admission_v1beta1.AdmissionResponse
-
-	if ac.config.Enable {
-		contentType := r.Header.Get("Content-Type")
-		if contentType != "application/json" {
-			scope.Warnf("serve failed, skip serving: receive contentType=%s, expect application/json", contentType)
-		}
-
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			scope.Warnf("serve failed, skip serving: read http request failed: %s", err.Error())
-		}
-
-		admissionReview := &admission_v1beta1.AdmissionReview{}
-		if err := json.Unmarshal(body, admissionReview); err != nil {
-			scope.Warnf("serve failed, skip serving:: unmarshal AdmissionReview failed: %s", err.Error())
-		} else {
-			admissionResponse = admit(admissionReview)
-			if admissionResponse == nil {
-				scope.Warnf("received nill AdmissionResponse, skip mutating pod, AdmissionReview: %+v", admissionReview)
-			} else {
-				admissionResponse.UID = admissionReview.Request.UID
-			}
-		}
-	} else {
-		scope.Warn("admission-controller is not enabled")
+	contentType := r.Header.Get("Content-Type")
+	if contentType != "application/json" {
+		scope.Warnf("serve failed, skip serving: receive contentType=%s, expect application/json", contentType)
+		ac.writeDefaultAdmissionReview(w)
+		return
 	}
 
-	newAdmissionReview := admission_v1beta1.AdmissionReview{
-		Response: admissionResponse,
-	}
-	admissionReviewBytes, err := json.Marshal(newAdmissionReview)
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		scope.Errorf("marshal AdmissionReview  failed: %s", err.Error())
+		scope.Warnf("serve failed, skip serving: read http request failed: %s", err.Error())
+		ac.writeDefaultAdmissionReview(w)
+		return
+	}
+
+	admissionReview := &admission_v1beta1.AdmissionReview{}
+	if err := json.Unmarshal(body, admissionReview); err != nil {
+		scope.Warnf("serve failed, skip serving: unmarshal AdmissionReview failed: %s", err.Error())
+		ac.writeDefaultAdmissionReview(w)
+		return
+	}
+	admissionResponse, err := admit(admissionReview)
+	if err != nil {
+		scope.Warnf("admit with error: %s, skip serving AdmissionReview: %+v", err.Error(), admissionReview)
+		ac.writeDefaultAdmissionReview(w)
+		return
+	}
+	admissionResponse.UID = admissionReview.Request.UID
+
+	err = ac.writeAdmissionReview(w, admissionResponse)
+	if err != nil {
+		scope.Warnf("")
+	}
+}
+
+func (ac *admissionController) writeAdmissionReview(w http.ResponseWriter, admissionResponse admission_v1beta1.AdmissionResponse) error {
+
+	admissionReview := admission_v1beta1.AdmissionReview{
+		Response: admissionResponse.DeepCopy(),
+	}
+	admissionReviewBytes, err := json.Marshal(admissionReview)
+	if err != nil {
+		return errors.Errorf("marshal AdmissionReview failed: %s", err.Error())
 	}
 
 	_, err = w.Write(admissionReviewBytes)
 	if err != nil {
-		scope.Errorf("write AdmissionReview failed: %s", err.Error())
+		return errors.Errorf("write AdmissionReview failed: %s", err.Error())
 	}
 
+	return nil
 }
 
-func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) *admission_v1beta1.AdmissionResponse {
+func (ac *admissionController) writeDefaultAdmissionReview(w http.ResponseWriter) {
 
-	scope.Info("mutating pod")
+	err := ac.writeAdmissionReview(w, defaultAdmissionResponse)
+	if err != nil {
+		scope.Warnf("write default AdmissionReview failed: %s", err.Error())
+	}
+}
 
+func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, error) {
+
+	admissionResponse := admission_v1beta1.AdmissionResponse{Allowed: true}
 	namespace := ar.Request.Namespace
 
 	podResource := meta_v1.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	if ar.Request.Resource != podResource {
 		err := errors.Errorf("mutating pod failed: expect resource to be %s, get %s, skip mutating pod", podResource.String(), ar.Request.Resource.String())
-		scope.Warnf(err.Error())
-		return nil
+		return admissionResponse, err
 	}
 
 	raw := ar.Request.Object.Raw
 	pod := core_v1.Pod{}
 	if _, _, err := ac.k8sDeserializer.Decode(raw, nil, &pod); err != nil {
-		scope.Warnf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
-		return nil
+		return admissionResponse, errors.Errorf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
 	}
 
-	reviewResponse := admission_v1beta1.AdmissionResponse{
-		Allowed: true,
-	}
+	scope.Infof("mutating pod: %+v", pod.ObjectMeta)
 
 	controllerKind, controllerName, err := ac.ownerReferenceTracer.GetRootControllerKindAndNameOfOwnerReferences(namespace, pod.OwnerReferences)
 	if err != nil {
-		scope.Warnf("mutating pod failed: get root controller information of Pod failed, skip mutating pod: Pod: %+v : errMsg: %s", pod, err.Error())
-		return &reviewResponse
+		return admissionResponse, errors.Wrapf(err, "mutating pod failed: get root controller information of Pod failed, skip mutating pod: Pod: %+v")
 	}
 
 	controllerID := newNamespaceKindName(namespace, controllerKind, controllerName)
 	executionEnabeld, err := ac.isControllerExecutionEnabled(controllerID)
 	if err != nil {
-		scope.Warnf("check if pod needs mutating faield, skip mutating pod: Pod: %+v : errMsg: %s", pod.ObjectMeta, err.Error())
-		return nil
+		return admissionResponse, errors.Wrapf(err, "check if pod needs mutating faield, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	} else if !executionEnabeld {
-		scope.Warnf("execution of AlamedaScaler monitoring this pod is not enabled, skip mutating pod: Pod: %+v", pod.ObjectMeta)
-		return nil
+		return admissionResponse, errors.Errorf("execution of AlamedaScaler monitoring this pod is not enabled, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
 	recommendation, err := ac.getPodResourceRecommendationByControllerID(controllerID)
 	if err != nil {
-		scope.Warnf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod.ObjectMeta, err.Error())
-		return nil
+		return admissionResponse, errors.Errorf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod.ObjectMeta, err.Error())
 	} else if recommendation == nil {
-		scope.Warnf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod.ObjectMeta)
-		return &reviewResponse
+		return admissionResponse, errors.Errorf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod.ObjectMeta)
 	}
 
 	patches, err := admission_controller_utils.GetPatchesFromPodResourceRecommendation(&pod, recommendation)
 	if err != nil {
-		scope.Warnf("get patches to mutate pod resource failed, skip mutating pod: Pod: %+v, errMsg: %s", pod.ObjectMeta, err.Error())
-		return nil
+		return admissionResponse, errors.Wrapf(err, "get patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
 	scope.Infof("patch %s to pod %+v ", patches, pod.ObjectMeta)
 
-	reviewResponse.Patch = []byte(patches)
-	reviewResponse.PatchType = &patchType
+	admissionResponse.Patch = []byte(patches)
+	admissionResponse.PatchType = &patchType
 
-	return &reviewResponse
+	return admissionResponse, nil
 }
 
 func (ac *admissionController) getPodResourceRecommendationByControllerID(controllerID namespaceKindName) (*resource.PodResourceRecommendation, error) {
 
 	var recommendation *resource.PodResourceRecommendation
 
-	controllerRecommendation := ac.getControllerPodResourceRecommendation(controllerID)
-	controllerRecommendationLock := ac.getControllerPodResourceRecommendationLock(controllerID)
+	controllerRecommendation := ac.getControllerRecommendation(controllerID)
+	controllerLock := ac.getControllerLock(controllerID)
 
 	retryTime := ac.resourceRecommendatorSyncRetryTime
-	controllerRecommendationLock.Lock()
-	defer controllerRecommendationLock.Unlock()
+	controllerLock.Lock()
+	defer controllerLock.Unlock()
 	for recommendation == nil && retryTime > 0 {
-		if newRecommendations, err := ac.fetchNewRecommendations(controllerID); err != nil {
+		if newRecommendations, err := ac.fetchNewPodRecommendations(controllerID); err != nil {
 			scope.Warnf("fetch new recommendation failed, retry fetching, errMsg: %s", err.Error())
 		} else {
-			controllerRecommendation.setRecommendations(newRecommendations)
+			controllerRecommendation.setPodRecommendations(newRecommendations)
 			break
 		}
 		retryTime--
 	}
-	validRecommedations, err := ac.listValidRecommendations(controllerID, controllerRecommendation.getRecommendations())
+	validRecommedations, err := ac.listValidPodRecommendations(controllerID, controllerRecommendation.getPodRecommendations())
 	if err != nil {
 		return nil, err
 	}
-	controllerRecommendation.setRecommendations(validRecommedations)
-	recommendation = controllerRecommendation.dispatchOneValidRecommendation(time.Now())
+	controllerRecommendation.setPodRecommendations(validRecommedations)
+	recommendation = controllerRecommendation.dispatchOneValidPodRecommendation(time.Now())
 
 	return recommendation, nil
 }
 
-func (ac *admissionController) getControllerPodResourceRecommendation(controllerID namespaceKindName) *controllerPodResourceRecommendation {
+func (ac *admissionController) getControllerRecommendation(controllerID namespaceKindName) *controllerRecommendation {
 
 	ac.lock.Lock()
-	controllerRecommendation, exist := ac.controllerPodResourceRecommendationMap[controllerID]
+	controllerRecommendation, exist := ac.controllerRecommendationMap[controllerID]
 	if !exist {
 		scope.Debugf("controllerID: %s, controller recommendation not exist, create new recommendation.", controllerID)
-		ac.controllerPodResourceRecommendationMap[controllerID] = NewControllerPodResourceRecommendation()
-		controllerRecommendation = ac.controllerPodResourceRecommendationMap[controllerID]
+		ac.controllerRecommendationMap[controllerID] = NewControllerPodResourceRecommendation()
+		controllerRecommendation = ac.controllerRecommendationMap[controllerID]
 	}
 	ac.lock.Unlock()
 
 	return controllerRecommendation
 }
 
-func (ac *admissionController) getControllerPodResourceRecommendationLock(controllerID namespaceKindName) *sync.Mutex {
+func (ac *admissionController) getControllerLock(controllerID namespaceKindName) *sync.Mutex {
 
 	ac.lock.Lock()
-	controllerRecommendationLock, exist := ac.controllerPodResourceRecommendationLockMap[controllerID]
+	lock, exist := ac.controllerLockMap[controllerID]
 	if !exist {
-		scope.Debugf("controllerID: %s, controller recommendation not exist, create new recommendation.", controllerID)
-		ac.controllerPodResourceRecommendationLockMap[controllerID] = &sync.Mutex{}
-		controllerRecommendationLock = ac.controllerPodResourceRecommendationLockMap[controllerID]
+		ac.controllerLockMap[controllerID] = &sync.Mutex{}
+		lock = ac.controllerLockMap[controllerID]
 	}
 	ac.lock.Unlock()
 
-	return controllerRecommendationLock
+	return lock
 }
 
-func (ac *admissionController) listValidRecommendations(controllerID namespaceKindName, recommendations []*resource.PodResourceRecommendation) ([]*resource.PodResourceRecommendation, error) {
+func (ac *admissionController) listValidPodRecommendations(controllerID namespaceKindName, recommendations []*resource.PodResourceRecommendation) ([]*resource.PodResourceRecommendation, error) {
 
 	validRecommendations := make([]*resource.PodResourceRecommendation, 0)
 
-	initRecommendationNumberMap := buildRecommendationNumberMap(recommendations)
-	scope.Debugf("list valid recommdendations: controllerID: %s, initRecommendationNumberMap %+v", controllerID.String(), initRecommendationNumberMap)
+	podRecommendationNumberMap := buildPodRecommendationNumberMap(recommendations)
+	scope.Debugf("list valid pod recommdendations: controllerID: %s, podRecommendationNumberMap %+v", controllerID.String(), podRecommendationNumberMap)
 
-	pods, err := ac.listPodControlledByControllerID(controllerID)
+	pods, err := ac.listPodByController(controllerID)
 	if err != nil {
 		return validRecommendations, errors.Wrapf(err, "list valid recommendations failed, controllerID: %s", controllerID.String())
 	}
-	currentRunningPods := make([]*core_v1.Pod, 0)
-	for _, pod := range pods {
-		if pod.ObjectMeta.DeletionTimestamp != nil {
-			continue
-		}
-		currentRunningPods = append(currentRunningPods, pod)
-	}
-	decreaseRecommendationNuberMapByPods(initRecommendationNumberMap, pods)
+	removeApplyingPodRecommendations(podRecommendationNumberMap, pods)
 
-	validRecommendations = getValidRecommedationFromRecommendationNumberMap(initRecommendationNumberMap, recommendations)
-	scope.Debugf("list valid recommdendations: controllerID: %s, validRecommendations %+v", controllerID.String(), validRecommendations)
+	scope.Debugf("valid podRecommendationNumberMap for controllerID: %s, podRecommendationNumberMap %+v", controllerID.String(), podRecommendationNumberMap)
+	validRecommendations = listValidPodRecommedationsFromRecommendationNumberMap(podRecommendationNumberMap, recommendations)
 
 	return validRecommendations, nil
 }
 
-func (ac *admissionController) listPodControlledByControllerID(controllerID namespaceKindName) ([]*core_v1.Pod, error) {
+func (ac *admissionController) listPodByController(controllerID namespaceKindName) ([]*core_v1.Pod, error) {
 	pods := make([]*core_v1.Pod, 0)
 
 	var err error
@@ -300,7 +302,7 @@ func (ac *admissionController) listPodControlledByControllerID(controllerID name
 	return pods, nil
 }
 
-func (ac *admissionController) fetchNewRecommendations(controllerID namespaceKindName) ([]*resource.PodResourceRecommendation, error) {
+func (ac *admissionController) fetchNewPodRecommendations(controllerID namespaceKindName) ([]*resource.PodResourceRecommendation, error) {
 
 	scope.Debugf("fetching new recommendations from recommendator, controllerID: %s", controllerID.String())
 
@@ -333,7 +335,7 @@ func (ac *admissionController) isControllerExecutionEnabled(controllerID namespa
 	return ac.controllerValidator.IsControllerEnabledExecution(controllerID.namespace, controllerID.name, controllerID.kind)
 }
 
-func buildRecommendationNumberMap(recommendations []*resource.PodResourceRecommendation) map[string]int {
+func buildPodRecommendationNumberMap(recommendations []*resource.PodResourceRecommendation) map[string]int {
 	currentTime := time.Now()
 	recommendationNumberMap := make(map[string]int)
 	for _, recommendation := range recommendations {
@@ -346,28 +348,22 @@ func buildRecommendationNumberMap(recommendations []*resource.PodResourceRecomme
 	return recommendationNumberMap
 }
 
-func decreaseRecommendationNuberMapByPods(recommendationNumberMap map[string]int, pods []*core_v1.Pod) {
+func removeApplyingPodRecommendations(recommendationNumberMap map[string]int, pods []*core_v1.Pod) {
 	for _, pod := range pods {
-		scope.Debugf("try to decrease recommendation from pod: %+v", pod)
-		if pod.ObjectMeta.DeletionTimestamp != nil {
-			scope.Debugf("skip decreate recommendation cause pod %s/%s has deletion timestamp", pod.Namespace, pod.Name)
-			continue
-		}
+		scope.Debugf("try to decrease recommendation from pod: %s/%s", pod.Namespace, pod.Name)
 		if !alamedascaler_reconciler.PodIsMonitoredByAlameda(pod) {
-			scope.Debugf("skip decreate recommendation cause pod's %s/%s phase: %s is not monitored by Alameda", pod.Namespace, pod.Name, pod.Status.Phase)
+			scope.Debugf("skip decreasing recommendation cause pod's %s/%s phase: %s is not monitored by Alameda", pod.Namespace, pod.Name, pod.Status.Phase)
 			continue
 		}
 		recommendationID := buildPodResourceIDFromPod(pod)
 		if _, exist := recommendationNumberMap[recommendationID]; exist {
-			scope.Debugf("decreate recommendation for pod %s/%s", pod.Namespace, pod.Name)
+			scope.Debugf("decrease recommendation for pod %s/%s", pod.Namespace, pod.Name)
 			recommendationNumberMap[recommendationID]--
-		} else {
-			scope.Debugf("no matched key found in recommendationMap: key: %s", recommendationID)
 		}
 	}
 }
 
-func getValidRecommedationFromRecommendationNumberMap(recommendationNumberMap map[string]int, recommendations []*resource.PodResourceRecommendation) []*resource.PodResourceRecommendation {
+func listValidPodRecommedationsFromRecommendationNumberMap(recommendationNumberMap map[string]int, recommendations []*resource.PodResourceRecommendation) []*resource.PodResourceRecommendation {
 
 	validRecommendations := make([]*resource.PodResourceRecommendation, 0)
 	for _, recommendation := range recommendations {

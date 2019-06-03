@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	admission_controller "github.com/containers-ai/alameda/admission-controller"
@@ -66,6 +67,11 @@ var (
 			initConfig()
 			initLog()
 			initThirdPartyClient()
+
+			if !config.Enable {
+				scope.Warn("admission-controller is not enabled, os exit with 0")
+				os.Exit(0)
+			}
 
 			if err := initOwnerReferenceOfControllerOwningAdmissionController(); err != nil {
 				panic(err)
