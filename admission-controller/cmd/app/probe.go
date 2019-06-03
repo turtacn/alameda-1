@@ -26,6 +26,10 @@ var (
 
 			initConfig()
 			initLog()
+
+			if !config.Enable {
+				os.Exit(0)
+			}
 			startProbing()
 			return nil
 		},

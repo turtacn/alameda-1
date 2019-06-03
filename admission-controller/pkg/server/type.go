@@ -17,23 +17,23 @@ const (
 	recommendationWaitsSynchronizing recommendationState = 2
 )
 
-type controllerPodResourceRecommendation struct {
-	lock            *sync.Mutex
-	syncChan        chan bool
-	state           recommendationState
-	recommendations []*resource.PodResourceRecommendation
+type controllerRecommendation struct {
+	lock               *sync.Mutex
+	syncChan           chan bool
+	state              recommendationState
+	podRecommendations []*resource.PodResourceRecommendation
 }
 
-func NewControllerPodResourceRecommendation() *controllerPodResourceRecommendation {
-	return &controllerPodResourceRecommendation{
-		lock:            &sync.Mutex{},
-		syncChan:        make(chan bool),
-		state:           recommendationIsSynchronized,
-		recommendations: make([]*resource.PodResourceRecommendation, 0),
+func NewControllerPodResourceRecommendation() *controllerRecommendation {
+	return &controllerRecommendation{
+		lock:               &sync.Mutex{},
+		syncChan:           make(chan bool),
+		state:              recommendationIsSynchronized,
+		podRecommendations: make([]*resource.PodResourceRecommendation, 0),
 	}
 }
 
-func (c *controllerPodResourceRecommendation) waitOrSync() recommendationState {
+func (c *controllerRecommendation) waitOrSync() recommendationState {
 	c.lock.Lock()
 	s := c.state
 	if c.state != recommendationWaitsSynchronizing {
@@ -44,66 +44,66 @@ func (c *controllerPodResourceRecommendation) waitOrSync() recommendationState {
 	return s
 }
 
-func (c *controllerPodResourceRecommendation) renewSyncChan() {
+func (c *controllerRecommendation) renewSyncChan() {
 	c.lock.Lock()
 	close(c.syncChan)
 	c.syncChan = make(chan bool)
 	c.lock.Unlock()
 }
 
-func (c *controllerPodResourceRecommendation) finishSync() {
+func (c *controllerRecommendation) finishSync() {
 	c.lock.Lock()
 	c.state = recommendationIsSynchronized
 	close(c.syncChan)
 	c.lock.Unlock()
 }
 
-func (c *controllerPodResourceRecommendation) setState(state recommendationState) {
+func (c *controllerRecommendation) setState(state recommendationState) {
 	c.lock.Lock()
 	c.state = state
 	c.lock.Unlock()
 }
 
-func (c *controllerPodResourceRecommendation) appendRecommendations(recommendations []*resource.PodResourceRecommendation) {
+func (c *controllerRecommendation) appendPodRecommendations(recommendations []*resource.PodResourceRecommendation) {
 	c.lock.Lock()
-	c.recommendations = append(c.recommendations, recommendations...)
+	c.podRecommendations = append(c.podRecommendations, recommendations...)
 	c.lock.Unlock()
 }
 
-func (c *controllerPodResourceRecommendation) setRecommendations(recommendations []*resource.PodResourceRecommendation) {
+func (c *controllerRecommendation) setPodRecommendations(recommendations []*resource.PodResourceRecommendation) {
 	c.lock.Lock()
-	c.recommendations = recommendations
+	c.podRecommendations = recommendations
 	c.lock.Unlock()
 }
 
-func (c *controllerPodResourceRecommendation) getRecommendations() []*resource.PodResourceRecommendation {
+func (c *controllerRecommendation) getPodRecommendations() []*resource.PodResourceRecommendation {
 	c.lock.Lock()
-	recommendations := c.recommendations
+	recommendations := c.podRecommendations
 	c.lock.Unlock()
 	return recommendations
 }
 
 // DispatchOneValidRecommendation dispatch one recommendation that timestamp is in time interval between recommendation.ValidStartTime and recommendation.ValidEndTime,
 // return nil if no valid recommendation can provide
-func (c *controllerPodResourceRecommendation) dispatchOneValidRecommendation(timestamp time.Time) *resource.PodResourceRecommendation {
+func (c *controllerRecommendation) dispatchOneValidPodRecommendation(timestamp time.Time) *resource.PodResourceRecommendation {
 
 	var recommendation *resource.PodResourceRecommendation
 
-	if len(c.recommendations) == 0 {
+	if len(c.podRecommendations) == 0 {
 		return nil
 	}
 
 	c.lock.Lock()
 	var indexOfValidRecommendation *int
-	for i, recommendation := range c.recommendations {
+	for i, recommendation := range c.podRecommendations {
 		if recommendation.ValidStartTime.UnixNano() <= timestamp.UnixNano() && timestamp.UnixNano() <= recommendation.ValidEndTime.UnixNano() {
 			indexOfValidRecommendation = &i
 			break
 		}
 	}
 	if indexOfValidRecommendation != nil {
-		recommendation = c.recommendations[*indexOfValidRecommendation]
-		c.recommendations = c.recommendations[*indexOfValidRecommendation+1:]
+		recommendation = c.podRecommendations[*indexOfValidRecommendation]
+		c.podRecommendations = c.podRecommendations[*indexOfValidRecommendation+1:]
 	}
 	c.lock.Unlock()
 
