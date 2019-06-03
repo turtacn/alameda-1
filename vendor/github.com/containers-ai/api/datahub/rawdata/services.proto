@@ -5,6 +5,7 @@ syntax = "proto3";
 package containersai.datahub.rawdata;
 
 import "common/common.proto";
+import "common/types.proto";
 import "google/rpc/status.proto";
 
 option go_package = "github.com/containers-ai/api/datahub/rawdata";
@@ -17,12 +18,12 @@ message ReadRawdataRequest {
 // Represents a response for listing rawdata from database
 message ReadRawdataResponse {
     google.rpc.Status status = 1;
-    repeated common.Rawdata rawdata = 2;
+    repeated common.ReadRawdata rawdata = 2;
 }
 
 // Represents a request for writing rawdata to database
 message WriteRawdataRequest {
-    repeated common.Rawdata rawdata = 1;
+    repeated common.WriteRawdata rawdata = 1;
 }
 
 service RawdataService {

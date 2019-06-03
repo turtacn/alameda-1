@@ -17,12 +17,12 @@ message ReadRawdataRequest {
 // Represents a response for listing rawdata from database
 message ReadRawdataResponse {
     google.rpc.Status status = 1;
-    repeated common.Rawdata rawdata = 2;
+    repeated common.ReadRawdata rawdata = 2;
 }
 
 // Represents a request for writing rawdata to database
 message WriteRawdataRequest {
-    repeated common.Rawdata rawdata = 2;
+    repeated common.WriteRawdata rawdata = 2;
 }
 
 service RawdataService {

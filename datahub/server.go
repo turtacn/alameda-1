@@ -14,6 +14,7 @@ import (
 	recommendation_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
+	influx "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	datahubUtil "github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
@@ -21,6 +22,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
@@ -38,6 +40,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	influxdbBase "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	"strconv"
+	"time"
 )
 
 type Server struct {
@@ -150,6 +155,7 @@ func (s *Server) InitInfluxdbDatabase() {
 		"alameda_prediction",
 		"alameda_recommendation",
 		"alameda_score",
+		"alameda_metric",
 	}
 
 	for _, db := range databaseList {
@@ -1114,7 +1120,7 @@ func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1alpha1.De
 
 // Read rawdata from database
 func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawdataRequest) (*datahub_v1alpha1.ReadRawdataResponse, error) {
-	scope.Debug("Request received from ReadRawdata grpc function: " + utils.InterfaceToString(in))
+	scope.Debug("Request received from ReadRawdata grpc function")
 
 	out := new(datahub_v1alpha1.ReadRawdataResponse)
 	return out, nil
@@ -1122,7 +1128,76 @@ func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawda
 
 // Write rawdata to database
 func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRawdataRequest) (*status.Status, error) {
-	scope.Debug("Request received from WriteRawdata grpc function: " + utils.InterfaceToString(in))
+	scope.Debug("Request received from WriteRawdata grpc function")
 
-	return &status.Status{ Code: int32(code.Code_OK) }, nil
+	influxClient := influx.New(s.Config.InfluxDB)
+
+	for _, rawdata := range in.GetRawdata() {
+		points := make([]*influxdb_client.Point, 0)
+
+		for _, row := range rawdata.GetRows() {
+			index := 0
+			tags := make(map[string]string)
+			fields := make(map[string]interface{})
+
+			for _, value := range row.GetValues() {
+				switch rawdata.GetColumnTypes()[index] {
+				case Common.ColumnType_COLUMNTYPE_TAG:
+					tags[rawdata.GetColumns()[index]] = value
+				case Common.ColumnType_COLUMNTYPE_FIELD:
+					fields[rawdata.GetColumns()[index]] = changeFormat(value, rawdata.GetDataTypes()[index])
+				default:
+					fmt.Println("not support")
+				}
+				index = index + 1
+			}
+
+			// Add time field depends on request
+			if row.GetTime() == nil {
+				pt, err := influxdb_client.NewPoint(rawdata.GetTable(), tags, fields, time.Unix(0, 0))
+				if err == nil {
+					points = append(points, pt)
+				} else {
+					fmt.Println(err.Error())
+				}
+			} else {
+				pt, err := influxdb_client.NewPoint(rawdata.GetTable(), tags, fields, time.Unix(row.GetTime().GetSeconds(), 0))
+				if err == nil {
+					points = append(points, pt)
+				} else {
+					fmt.Println(err.Error())
+				}
+			}
+		}
+
+		err := influxClient.WritePoints(points, influxdb_client.BatchPointsConfig{Database: rawdata.GetDatabase()})
+		if err != nil {
+			scope.Error(err.Error())
+		}
+	}
+
+	return &status.Status{Code: int32(code.Code_OK)}, nil
+}
+
+func changeFormat(value string, dataType Common.DataType) interface{} {
+	switch dataType {
+	case Common.DataType_DATATYPE_BOOL:
+		valueBool, _ := strconv.ParseBool(value)
+		return valueBool
+	case Common.DataType_DATATYPE_INT32:
+		valueInt, _ := strconv.ParseInt(value, 10, 32)
+		return valueInt
+	case Common.DataType_DATATYPE_INT64:
+		valueInt, _ := strconv.ParseInt(value, 10, 64)
+		return valueInt
+	case Common.DataType_DATATYPE_FLOAT32:
+		valueFloat, _ := strconv.ParseFloat(value, 64)
+		return valueFloat
+	case Common.DataType_DATATYPE_STRING:
+		return value
+	default:
+		fmt.Println("not support")
+		return value
+	}
+	return ""
 }

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package containersai.common;
 
+import "containers-ai/api/common/types.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -27,7 +28,9 @@ message QueryCondition {
         DESC = 1;
     }
     Order order = 2;
-    uint64 limit = 3;
+    repeated string selects = 3;
+    repeated string groups = 4;
+    uint64 limit = 5;
 }
 
 message Query {
@@ -36,16 +39,26 @@ message Query {
     QueryCondition condition = 3;
 }
 
-message Column {
-     repeated string values = 1;
-}
-
 message Row {
-    repeated string values = 1;
+    google.protobuf.Timestamp time = 1;
+    repeated string values = 2;
 }
 
-message Rawdata {
-    Query query = 1;
-    Column column = 2;
-    repeated Row rows = 3;
+message Group {
+    repeated Row rows = 1;
+}
+
+message ReadRawdata {
+    common.Query query = 1;
+    repeated string columns = 2;
+    repeated common.Group groups = 3;
+}
+
+message WriteRawdata {
+    string database = 1;
+    string table = 2;
+    repeated string columns = 3;
+    repeated common.Row rows = 4;
+    repeated common.ColumnType column_types = 5;
+    repeated common.DataType data_types = 6;
 }

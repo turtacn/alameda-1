@@ -15,15 +15,15 @@ class RawdataServiceStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.WriteRawdata = channel.unary_unary(
-        '/containersai.apiserver.rawdata.RawdataService/WriteRawdata',
-        request_serializer=apiserver_dot_rawdata_dot_services__pb2.WriteRawdataRequest.SerializeToString,
-        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
-        )
     self.ReadRawdata = channel.unary_unary(
         '/containersai.apiserver.rawdata.RawdataService/ReadRawdata',
         request_serializer=apiserver_dot_rawdata_dot_services__pb2.ReadRawdataRequest.SerializeToString,
         response_deserializer=apiserver_dot_rawdata_dot_services__pb2.ReadRawdataResponse.FromString,
+        )
+    self.WriteRawdata = channel.unary_unary(
+        '/containersai.apiserver.rawdata.RawdataService/WriteRawdata',
+        request_serializer=apiserver_dot_rawdata_dot_services__pb2.WriteRawdataRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
 
 
@@ -31,16 +31,16 @@ class RawdataServiceServicer(object):
   # missing associated documentation comment in .proto file
   pass
 
-  def WriteRawdata(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+  def ReadRawdata(self, request, context):
+    """Used to read rawdata from database
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def ReadRawdata(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+  def WriteRawdata(self, request, context):
+    """Used to write rawdata to database
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -48,15 +48,15 @@ class RawdataServiceServicer(object):
 
 def add_RawdataServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'WriteRawdata': grpc.unary_unary_rpc_method_handler(
-          servicer.WriteRawdata,
-          request_deserializer=apiserver_dot_rawdata_dot_services__pb2.WriteRawdataRequest.FromString,
-          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
-      ),
       'ReadRawdata': grpc.unary_unary_rpc_method_handler(
           servicer.ReadRawdata,
           request_deserializer=apiserver_dot_rawdata_dot_services__pb2.ReadRawdataRequest.FromString,
           response_serializer=apiserver_dot_rawdata_dot_services__pb2.ReadRawdataResponse.SerializeToString,
+      ),
+      'WriteRawdata': grpc.unary_unary_rpc_method_handler(
+          servicer.WriteRawdata,
+          request_deserializer=apiserver_dot_rawdata_dot_services__pb2.WriteRawdataRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
