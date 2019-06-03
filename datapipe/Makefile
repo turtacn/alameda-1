@@ -2,7 +2,7 @@ API_SERVER_VERSION=$(shell cat build/build-image/VERSION)
 API_SERVER_COMMITID=$(shell git rev-parse HEAD)
 
 # Image URL to use all building/pushing image targets
-IMG ?= alameda-datapipe:v0.0.1
+IMG ?= datapipe:v0.0.1
 
 .PHONY: all test datapipe
 all: test datapipe

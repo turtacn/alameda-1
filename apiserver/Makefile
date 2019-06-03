@@ -2,9 +2,9 @@ API_SERVER_VERSION=$(shell cat build/build-image/VERSION)
 API_SERVER_COMMITID=$(shell git rev-parse HEAD)
 
 # Image URL to use all building/pushing image targets
-IMG ?= datapipe:latest
+IMG ?= apiserver:v0.0.1
 
-.PHONY: all test datapipe
+.PHONY: all test apiserver
 all: test apiserver
 
 ## test: Run tests.
@@ -38,4 +38,4 @@ generate:
 
 ## docker-build: Build the docker image.
 docker-build: test
-	docker build ./.. -t ${IMG} -f Dockerfile
+	docker build ./.. -t ${IMG} -f build/build-image/Dockerfile

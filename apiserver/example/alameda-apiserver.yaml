@@ -1,19 +1,19 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: alameda-datapipe
+  name: alameda-apiserver
   namespace: federatorai
 spec:
   selector:
     matchLabels:
-      app: alameda-datapipe
+      app: alameda-apiserver
   replicas: 1
   template:
     metadata:
       labels:
-        app: alameda-datapipe
+        app: alameda-apiserver
     spec:
       containers:
-      - name: alameda-datapipe
-        image: datapipe:v0.0.1
+      - name: alameda-apiserver
+        image: apiserver:v0.0.1
         imagePullPolicy: Never
