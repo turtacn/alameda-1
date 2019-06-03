@@ -3,7 +3,6 @@ package datapipe
 import (
 	"errors"
 	"fmt"
-	"net"
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/metrics"
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/ping"
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/predictions"
@@ -11,18 +10,21 @@ import (
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/recommendations"
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/resources"
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/scores"
+	"github.com/containers-ai/alameda/datapipe/pkg/apis/v1alpha1"
 	"github.com/containers-ai/alameda/datapipe/pkg/config"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	V1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	Metrics "github.com/containers-ai/api/datapipe/metrics"
+	Ping "github.com/containers-ai/api/datapipe/ping"
+	Predictions "github.com/containers-ai/api/datapipe/predictions"
+	Rawdata "github.com/containers-ai/api/datapipe/rawdata"
+	Recommendations "github.com/containers-ai/api/datapipe/recommendations"
+	Resources "github.com/containers-ai/api/datapipe/resources"
+	Scores "github.com/containers-ai/api/datapipe/scores"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	_       "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	Metrics         "github.com/containers-ai/api/datapipe/metrics"
-	Ping            "github.com/containers-ai/api/datapipe/ping"
-	Predictions     "github.com/containers-ai/api/datapipe/predictions"
-	Rawdata         "github.com/containers-ai/api/datapipe/rawdata"
-	Recommendations "github.com/containers-ai/api/datapipe/recommendations"
-	Resources       "github.com/containers-ai/api/datapipe/resources"
-	Scores          "github.com/containers-ai/api/datapipe/scores"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"net"
 )
 
 type Server struct {
@@ -112,4 +114,7 @@ func (s *Server) registerGRPCServer(server *grpc.Server) {
 
 	score := scores.NewServiceScore(&s.Config)
 	Scores.RegisterScoresServiceServer(server, score)
+
+	v1alpha1Srv := v1alpha1.NewServiceV1alpha1(&s.Config)
+	V1alpha1.RegisterDatahubServiceServer(server, v1alpha1Srv)
 }

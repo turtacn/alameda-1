@@ -14,38 +14,18 @@ import (
 	datahubMetricsAPI "github.com/containers-ai/api/datahub/metrics"
 	dataPipeMetricsAPI "github.com/containers-ai/api/datapipe/metrics"
 
-	commonAPI "github.com/containers-ai/api/common"
-	fedRawdataAPI "github.com/containers-ai/federatorai-api/apiserver/rawdata"
-
 	"github.com/containers-ai/alameda/datapipe/pkg/requests"
-	fedRawAPI "github.com/containers-ai/federatorai-api/apiserver/rawdata"
-
-	"fmt"
-	"google.golang.org/grpc"
-	"time"
+	commonAPI "github.com/containers-ai/api/common"
 
 	containerEntity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/metrics/container"
 	nodeEntity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/metrics/node"
+
+	apiServer "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 )
 
 var (
 	scope = Log.RegisterScope("datapipe", "datapipe log", 0)
 )
-
-type loginCreds struct {
-	Username string
-	Password string
-}
-
-func (c *loginCreds) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
-	return map[string]string{
-		"username": c.Username,
-		"password": c.Password,
-	}, nil
-}
-func (c *loginCreds) RequireTransportSecurity() bool {
-	return false
-}
 
 type ServiceMetric struct {
 	Config *DatapipeConfig.Config
@@ -101,32 +81,8 @@ func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetric
 
 	rowDataList = append(rowDataList, rowData)
 
-	request := &fedRawdataAPI.WriteRawdataRequest{
-		Rawdata: rowDataList,
-	}
-
-	conn, err := grpc.Dial(c.Config.APIServer.Address, grpc.WithInsecure(), grpc.WithPerRPCCredentials(&loginCreds{Username: "shofan", Password: "password"}))
-	if err != nil {
-		fmt.Print(err)
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, nil
-	}
-	defer conn.Close()
-	ctx, _ = context.WithTimeout(context.Background(), time.Second*10)
-
-	client := fedRawAPI.NewRawdataServiceClient(conn)
-	_, err = client.WriteRawdata(ctx, request)
-	if err != nil {
-		fmt.Print(err)
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, nil
-	}
-
-	return &status.Status{Code: int32(code.Code_OK)}, nil
+	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, rowDataList)
+	return retStatus, err
 }
 
 func (c *ServiceMetric) CreateNodeMetrics(ctx context.Context, in *dataPipeMetricsAPI.CreateNodeMetricsRequest) (*status.Status, error) {
@@ -167,28 +123,8 @@ func (c *ServiceMetric) CreateNodeMetrics(ctx context.Context, in *dataPipeMetri
 
 	rowDataList = append(rowDataList, rowData)
 
-	request := &fedRawdataAPI.WriteRawdataRequest{
-		Rawdata: rowDataList,
-	}
-
-	conn, err := grpc.Dial(c.Config.APIServer.Address, grpc.WithInsecure(), grpc.WithPerRPCCredentials(&loginCreds{Username: "shofan", Password: "password"}))
-	if err != nil {
-		fmt.Print(err)
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, nil
-	}
-	defer conn.Close()
-	ctx, _ = context.WithTimeout(context.Background(), time.Second*10)
-
-	client := fedRawAPI.NewRawdataServiceClient(conn)
-	_, err = client.WriteRawdata(ctx, request)
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	return &status.Status{Code: int32(code.Code_OK)}, nil
+	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, rowDataList)
+	return retStatus, err
 }
 
 func (c *ServiceMetric) ListPodMetrics(ctx context.Context, in *dataPipeMetricsAPI.ListPodMetricsRequest) (*dataPipeMetricsAPI.ListPodMetricsResponse, error) {
