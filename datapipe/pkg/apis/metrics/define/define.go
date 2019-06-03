@@ -5,7 +5,6 @@ import (
 
 	//datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	//dataPipeMetricsAPI "github.com/containers-ai/api/datapipe/metrics"
-	commonAPI "github.com/containers-ai/api/common"
 	datahubMetricsAPI "github.com/containers-ai/api/datahub/metrics"
 )
 
@@ -54,31 +53,6 @@ var (
 		TypeNodeCPUUsageSecondsPercentage:      datahubMetricsAPI.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 		TypeNodeMemoryUsageBytes:               datahubMetricsAPI.MetricType_MEMORY_USAGE_BYTES,
 	}
-)
-
-var (
-	MetricDatabaseName    = ""
-	MetricMeasurementName = ""
-	MetricColumns         = []string{
-		"pod_namespace",
-		"pod_name",
-		"name",
-		"metric_type",
-		"value"}
-
-	MetricColumnsTypes = []commonAPI.ColumnType{
-		commonAPI.ColumnType_COLUMNTYPE_TAG,
-		commonAPI.ColumnType_COLUMNTYPE_TAG,
-		commonAPI.ColumnType_COLUMNTYPE_TAG,
-		commonAPI.ColumnType_COLUMNTYPE_TAG,
-		commonAPI.ColumnType_COLUMNTYPE_FIELD}
-
-	MetricDataTypes = []commonAPI.DataType{
-		commonAPI.DataType_DATATYPE_STRING,
-		commonAPI.DataType_DATATYPE_STRING,
-		commonAPI.DataType_DATATYPE_STRING,
-		commonAPI.DataType_DATATYPE_STRING,
-		commonAPI.DataType_DATATYPE_FLOAT64}
 )
 
 // Sample Data struct representing timestamp and metric value of metric data point

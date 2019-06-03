@@ -23,6 +23,9 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"time"
+
+	containerEntity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/metrics/container"
+	nodeEntity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/metrics/node"
 )
 
 var (
@@ -60,34 +63,22 @@ func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetric
 	rowDataList := make([]*commonAPI.WriteRawdata, 0)
 
 	rowData := &commonAPI.WriteRawdata{
-		Database: "alameda_metric",
-		Table:    "container",
-		Columns:  []string{"pod_namespace", "pod_name", "name", "metric_type", "value"},
-		Rows:     make([]*commonAPI.Row, 0),
-		ColumnTypes: []commonAPI.ColumnType{
-			commonAPI.ColumnType_COLUMNTYPE_TAG,
-			commonAPI.ColumnType_COLUMNTYPE_TAG,
-			commonAPI.ColumnType_COLUMNTYPE_TAG,
-			commonAPI.ColumnType_COLUMNTYPE_TAG,
-			commonAPI.ColumnType_COLUMNTYPE_FIELD},
-		DataTypes: []commonAPI.DataType{
-			commonAPI.DataType_DATATYPE_STRING,
-			commonAPI.DataType_DATATYPE_STRING,
-			commonAPI.DataType_DATATYPE_STRING,
-			commonAPI.DataType_DATATYPE_STRING,
-			commonAPI.DataType_DATATYPE_FLOAT32,
-		},
+		Database:    containerEntity.MetricDatabaseName,
+		Table:       containerEntity.MetricMeasurementName,
+		Columns:     containerEntity.MetricColumns,
+		Rows:        make([]*commonAPI.Row, 0),
+		ColumnTypes: containerEntity.MetricColumnsTypes,
+		DataTypes:   containerEntity.MetricDataTypes,
 	}
 
 	//pod_namespace, pod_name, name, metric_type, value
-
 	for _, pod := range in.GetPodMetrics() {
 		podNamespace := pod.GetNamespacedName().GetNamespace()
 		podName := pod.GetNamespacedName().GetName()
 
 		for _, container := range pod.GetContainerMetrics() {
 			containerName := container.GetName()
-			for key, value := range container.MetricData {
+			for key, value := range container.GetMetricData() {
 				metricType := datahubMetricsAPI.MetricType(key).String()
 				for _, sample := range value.GetData() {
 					value := sample.GetNumValue()
@@ -117,14 +108,22 @@ func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetric
 	conn, err := grpc.Dial(c.Config.APIServer.Address, grpc.WithInsecure(), grpc.WithPerRPCCredentials(&loginCreds{Username: "shofan", Password: "password"}))
 	if err != nil {
 		fmt.Print(err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
 	}
 	defer conn.Close()
-	ctx, _ = context.WithTimeout(context.Background(), time.Second)
+	ctx, _ = context.WithTimeout(context.Background(), time.Second*10)
 
 	client := fedRawAPI.NewRawdataServiceClient(conn)
 	_, err = client.WriteRawdata(ctx, request)
 	if err != nil {
 		fmt.Print(err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
 	}
 
 	return &status.Status{Code: int32(code.Code_OK)}, nil
@@ -132,6 +131,62 @@ func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetric
 
 func (c *ServiceMetric) CreateNodeMetrics(ctx context.Context, in *dataPipeMetricsAPI.CreateNodeMetricsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNodeMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	rowDataList := make([]*commonAPI.WriteRawdata, 0)
+
+	rowData := &commonAPI.WriteRawdata{
+		Database:    nodeEntity.MetricDatabaseName,
+		Table:       nodeEntity.MetricMeasurementName,
+		Columns:     nodeEntity.MetricColumns,
+		Rows:        make([]*commonAPI.Row, 0),
+		ColumnTypes: nodeEntity.MetricColumnsTypes,
+		DataTypes:   nodeEntity.MetricDataTypes,
+	}
+
+	//pod_namespace, pod_name, name, metric_type, value
+	for _, node := range in.GetNodeMetrics() {
+		name := node.GetName()
+
+		for key, value := range node.GetMetricData() {
+			metricType := datahubMetricsAPI.MetricType(key).String()
+			for _, sample := range value.GetData() {
+				value := sample.GetNumValue()
+				row := &commonAPI.Row{
+					Time: sample.GetStartTime(),
+					Values: []string{
+						name,
+						metricType,
+						value,
+					},
+				}
+
+				rowData.Rows = append(rowData.Rows, row)
+			}
+		}
+	}
+
+	rowDataList = append(rowDataList, rowData)
+
+	request := &fedRawdataAPI.WriteRawdataRequest{
+		Rawdata: rowDataList,
+	}
+
+	conn, err := grpc.Dial(c.Config.APIServer.Address, grpc.WithInsecure(), grpc.WithPerRPCCredentials(&loginCreds{Username: "shofan", Password: "password"}))
+	if err != nil {
+		fmt.Print(err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+	defer conn.Close()
+	ctx, _ = context.WithTimeout(context.Background(), time.Second*10)
+
+	client := fedRawAPI.NewRawdataServiceClient(conn)
+	_, err = client.WriteRawdata(ctx, request)
+	if err != nil {
+		fmt.Print(err)
+	}
 
 	return &status.Status{Code: int32(code.Code_OK)}, nil
 }
