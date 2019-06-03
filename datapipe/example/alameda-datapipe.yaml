@@ -17,3 +17,5 @@ spec:
       - name: alameda-datapipe
         image: datapipe:v0.0.1
         imagePullPolicy: Never
+        ports:
+        - containerPort: 50060

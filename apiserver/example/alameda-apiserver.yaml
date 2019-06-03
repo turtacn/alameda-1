@@ -17,3 +17,5 @@ spec:
       - name: alameda-apiserver
         image: apiserver:v0.0.1
         imagePullPolicy: Never
+        ports:
+        - containerPort: 50055

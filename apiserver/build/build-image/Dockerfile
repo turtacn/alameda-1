@@ -13,6 +13,6 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/build/build-image/etc/apiserver.yml /etc/alameda/apiserver/apiserver.yml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/build/build-image/bin/apiserver .
-EXPOSE 50060/tcp
+EXPOSE 50055/tcp
 ENTRYPOINT ["./apiserver"]
 CMD [ "run" ]
