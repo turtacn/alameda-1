@@ -8,7 +8,7 @@ IMG ?= alameda-datapipe:v0.0.1
 all: test datapipe
 
 ## test: Run tests.
-test: generate fmt vet
+test: generate fmt
 	go test ./pkg/... ./cmd/... -coverprofile cover.out
 
 ## datapipe: Build datapipe executable binary.
