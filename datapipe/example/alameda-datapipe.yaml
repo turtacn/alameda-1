@@ -17,5 +17,14 @@ spec:
       - name: alameda-datapipe
         image: datapipe:v0.0.1
         imagePullPolicy: Never
-        ports:
-        - containerPort: 50060
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alameda-datapipe
+  namespace: federatorai
+spec:
+  ports:
+  - port: 50060
+    protocol: TCP
