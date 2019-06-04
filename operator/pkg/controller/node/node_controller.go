@@ -90,10 +90,12 @@ func (r *ReconcileNode) Reconcile(request reconcile.Request) (reconcile.Result, 
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
 
 	nodeIsDeleted := false
-	if err != nil {
-		scope.Error(err.Error())
-	} else if k8sErrors.IsNotFound(err) {
+	if err != nil && k8sErrors.IsNotFound(err) {
 		nodeIsDeleted = true
+		instance.Namespace = request.Namespace
+		instance.Name = request.Name
+	} else if err != nil {
+		scope.Error(err.Error())
 	}
 
 	if err := syncNodeDependentResource(nodeIsDeleted, instance); err != nil {
