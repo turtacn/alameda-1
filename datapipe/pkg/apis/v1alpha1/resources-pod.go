@@ -1,7 +1,7 @@
 package v1alpha1
 
 import (
-	entity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/cluster_status"
+	entity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/cluster_status/container"
 	apiServer "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -138,6 +138,6 @@ func (s *ServiceV1alpha1) CreatePodsImpl(in *datahub_v1alpha1.CreatePodsRequest)
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(s.Config.APIServer.Address, rowDataList)
+	retStatus, err := apiServer.WriteRawdata(s.Target, rowDataList)
 	return retStatus, err
 }

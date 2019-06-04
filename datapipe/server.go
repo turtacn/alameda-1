@@ -115,6 +115,7 @@ func (s *Server) registerGRPCServer(server *grpc.Server) {
 	score := scores.NewServiceScore(&s.Config)
 	Scores.RegisterScoresServiceServer(server, score)
 
-	v1alpha1Srv := v1alpha1.NewServiceV1alpha1(&s.Config)
+	v1alpha1Srv := v1alpha1.NewServiceV1alpha1()
 	V1alpha1.RegisterDatahubServiceServer(server, v1alpha1Srv)
+	v1alpha1Srv.Target = s.Config.APIServer.Address
 }

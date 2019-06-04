@@ -12,7 +12,7 @@ test: generate fmt
 	go test ./pkg/... ./cmd/... -coverprofile cover.out
 
 ## datapipe: Build datapipe executable binary.
-datapipe: generate fmt vet
+datapipe:
 	@echo Start building datapipe binary...
 	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o build/build-image/bin/datapipe github.com/containers-ai/alameda/datapipe/cmd
 

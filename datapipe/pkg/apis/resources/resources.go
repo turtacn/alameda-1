@@ -11,7 +11,7 @@ import (
 
 	commonAPI "github.com/containers-ai/api/common"
 
-	entity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/cluster_status"
+	entity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/cluster_status/container"
 	apiServer "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 
 	datahubMetricsAPI "github.com/containers-ai/api/datahub/metrics"

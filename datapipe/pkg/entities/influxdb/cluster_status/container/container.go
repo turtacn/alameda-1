@@ -1,4 +1,4 @@
-package clusterstatus
+package container
 
 import (
 	"strconv"
