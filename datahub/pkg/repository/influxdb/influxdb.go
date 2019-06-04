@@ -2,13 +2,14 @@ package influxdb
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+	Common "github.com/containers-ai/api/common"
+	InfluxDBClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/containers-ai/alameda/pkg/utils/log"
-	client "github.com/influxdata/influxdb/client/v2"
 )
 
 type Database string
@@ -71,8 +72,8 @@ func (influxDBRepository *InfluxDBRepository) ModifyDefaultRetentionPolicy(db st
 	return err
 }
 
-func (influxDBRepository *InfluxDBRepository) newHttpClient() client.Client {
-	clnt, err := client.NewHTTPClient(client.HTTPConfig{
+func (influxDBRepository *InfluxDBRepository) newHttpClient() InfluxDBClient.Client {
+	clnt, err := InfluxDBClient.NewHTTPClient(InfluxDBClient.HTTPConfig{
 		Addr:               influxDBRepository.Address,
 		Username:           influxDBRepository.Username,
 		Password:           influxDBRepository.Password,
@@ -85,11 +86,11 @@ func (influxDBRepository *InfluxDBRepository) newHttpClient() client.Client {
 }
 
 // WritePoints writes points to database
-func (influxDBRepository *InfluxDBRepository) WritePoints(points []*client.Point, bpCfg client.BatchPointsConfig) error {
+func (influxDBRepository *InfluxDBRepository) WritePoints(points []*InfluxDBClient.Point, bpCfg InfluxDBClient.BatchPointsConfig) error {
 	clnt := influxDBRepository.newHttpClient()
 	defer clnt.Close()
 
-	bp, err := client.NewBatchPoints(bpCfg)
+	bp, err := InfluxDBClient.NewBatchPoints(bpCfg)
 	if err != nil {
 		scope.Error(err.Error())
 	}
@@ -118,10 +119,10 @@ func (influxDBRepository *InfluxDBRepository) WritePoints(points []*client.Point
 }
 
 // QueryDB queries database
-func (influxDBRepository *InfluxDBRepository) QueryDB(cmd, database string) (res []client.Result, err error) {
+func (influxDBRepository *InfluxDBRepository) QueryDB(cmd, database string) (res []InfluxDBClient.Result, err error) {
 	clnt := influxDBRepository.newHttpClient()
 	defer clnt.Close()
-	q := client.Query{
+	q := InfluxDBClient.Query{
 		Command:  cmd,
 		Database: database,
 	}
@@ -136,7 +137,7 @@ func (influxDBRepository *InfluxDBRepository) QueryDB(cmd, database string) (res
 	return res, nil
 }
 
-func PackMap(results []client.Result) []*InfluxDBRow {
+func PackMap(results []InfluxDBClient.Result) []*InfluxDBRow {
 	var rows []*InfluxDBRow
 
 	if len(results[0].Series) == 0 {
@@ -267,4 +268,150 @@ func (influxDBRepository *InfluxDBRepository) AddTimeCondition(whereStr *string,
 	} else {
 		*whereStr += fmt.Sprintf("AND time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
 	}
+}
+
+func InfluxResultToReadRawdata(results []InfluxDBClient.Result, query *Common.Query) *Common.ReadRawdata {
+	readRawdata := Common.ReadRawdata{Query: query}
+
+	if len(results[0].Series) == 0 {
+		return &readRawdata
+	}
+
+	for _, result := range results {
+		tagsLen := 0
+		valuesLen := 0
+
+		// Build columns
+		for k := range results[0].Series[0].Tags {
+			readRawdata.Columns = append(readRawdata.Columns, string(k))
+			tagsLen = tagsLen + 1
+		}
+		for _, column := range results[0].Series[0].Columns {
+			readRawdata.Columns = append(readRawdata.Columns, column)
+			valuesLen = valuesLen + 1
+		}
+
+		// One series is one group
+		for _, row := range result.Series {
+			group := Common.Group{}
+
+			// Build values
+			for _, value := range row.Values {
+				r := Common.Row{}
+
+				// Tags
+				for k, v := range readRawdata.Columns {
+					r.Values = append(r.Values, row.Tags[v])
+					if k >= (tagsLen - 1) {
+						break
+					}
+				}
+
+				// Fields
+				for _, v := range value {
+					switch v.(type) {
+					case bool:
+						r.Values = append(r.Values, strconv.FormatBool(v.(bool)))
+					case string:
+						r.Values = append(r.Values, v.(string))
+					case json.Number:
+						r.Values = append(r.Values, v.(json.Number).String())
+					case nil:
+						r.Values = append(r.Values, "")
+					default:
+						fmt.Println("Error, not support")
+						r.Values = append(r.Values, v.(string))
+					}
+				}
+				group.Rows = append(group.Rows, &r)
+			}
+			readRawdata.Groups = append(readRawdata.Groups, &group)
+		}
+	}
+
+	return &readRawdata
+}
+
+func ReadRawdataToInfluxDBRow(readRawdata *Common.ReadRawdata) []*InfluxDBRow {
+	influxDBRows := make([]*InfluxDBRow, 0)
+
+	tagIndex := make([]int, 0)
+
+	// locate tags index
+	for _, tag := range readRawdata.GetQuery().GetCondition().GetGroups() {
+		for index, column := range readRawdata.GetColumns() {
+			if tag == column {
+				tagIndex = append(tagIndex, index)
+			}
+		}
+	}
+
+	for _, group := range readRawdata.GetGroups() {
+		influxDBRow := InfluxDBRow{
+			Name: readRawdata.GetQuery().GetTable(),
+			Tags: make(map[string]string),
+		}
+
+		for _, row := range group.GetRows() {
+			// Pack tags
+			for _, v := range tagIndex {
+				for _, row := range group.GetRows() {
+					influxDBRow.Tags[readRawdata.GetColumns()[v]] = row.GetValues()[v]
+				}
+			}
+
+			// Pack data
+			data := make(map[string]string)
+			for index, column := range readRawdata.GetColumns() {
+				data[column] = row.GetValues()[index]
+			}
+			influxDBRow.Data = append(influxDBRow.Data, data)
+		}
+
+		influxDBRows = append(influxDBRows, &influxDBRow)
+	}
+
+	return influxDBRows
+}
+
+func CompareRawdataWithInfluxResults(readRawdata *Common.ReadRawdata, results []InfluxDBClient.Result) error {
+	before := PackMap(results)
+	after := ReadRawdataToInfluxDBRow(readRawdata)
+	message := ""
+
+	for index, row := range after {
+		compRow := before[index]
+
+		// Check Name
+		if row.Name != compRow.Name {
+			message = message + fmt.Sprintf("Name: %s, %s\n", row.Name, compRow.Name)
+			fmt.Printf("[ERROR] Name: %s, %s\n", row.Name, compRow.Name)
+		}
+
+		// Check Tags
+		for key, value := range row.Tags {
+			compValue := compRow.Tags[key]
+			if compRow.Tags[key] != value {
+				message = message + fmt.Sprintf("Tag[%s]: %s, %s\n", key, value, compValue)
+				fmt.Printf("[ERROR] Tag[%s]: %s, %s\n", key, value, compValue)
+			}
+		}
+
+		// Check Data
+		for k, v := range row.Data {
+			for key, value := range v {
+				compValue := compRow.Data[k][key]
+				if compValue != value {
+					message = message + fmt.Sprintf("Data[%s]: %s, %s\n", key, value, compValue)
+					fmt.Printf("[ERROR] Data[%s]: %s, %s\n", key, value, compValue)
+				}
+			}
+		}
+	}
+
+	if message != "" {
+		return errors.New(message)
+	}
+
+	return nil
 }

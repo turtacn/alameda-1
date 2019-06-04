@@ -17,7 +17,7 @@ message TimeRange {
         NONE = 0;
         MAX = 1;
     }
-    AggregateFunction aggregateFunction = 4;
+    AggregateFunction aggregate_function = 4;
     google.protobuf.Timestamp apply_time = 5;
 }
 
@@ -28,9 +28,10 @@ message QueryCondition {
         DESC = 1;
     }
     Order order = 2;
-    repeated string selects = 3;
-    repeated string groups = 4;
-    uint64 limit = 5;
+    string whereClause = 3;
+    repeated string selects = 4;
+    repeated string groups = 5;
+    uint64 limit = 6;
 }
 
 message Query {

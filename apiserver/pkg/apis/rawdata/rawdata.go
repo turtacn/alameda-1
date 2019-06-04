@@ -2,13 +2,13 @@ package rawdata
 
 import (
 	APIServerConfig "github.com/containers-ai/alameda/apiserver/pkg/config"
-	//AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
-	Log "github.com/containers-ai/alameda/pkg/utils/log"
-	Datahub "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	Rawdata "github.com/containers-ai/federatorai-api/apiserver/rawdata"
-	"golang.org/x/net/context"
+	Log             "github.com/containers-ai/alameda/pkg/utils/log"
+	Datahub         "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	Rawdata         "github.com/containers-ai/federatorai-api/apiserver/rawdata"
+	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
+	"golang.org/x/net/context"
 )
 
 var (
@@ -28,8 +28,35 @@ func NewServiceRawdata(cfg *APIServerConfig.Config) *ServiceRawdata {
 func (c *ServiceRawdata) ReadRawdata(ctx context.Context, in *Rawdata.ReadRawdataRequest) (*Rawdata.ReadRawdataResponse, error) {
 	scope.Debug("Request received from ReadRawdata grpc function")
 
-	out := new(Rawdata.ReadRawdataResponse)
-	return out, nil
+	response := Rawdata.ReadRawdataResponse{}
+
+	// Create connection to datahub
+	address := c.Config.Datahub.Address
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	defer conn.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	// Instance rawdata service of datahub
+	client := Datahub.NewDatahubServiceClient(conn)
+
+	// Rebuild read rawdata request for datahub
+	request := &Datahub.ReadRawdataRequest{}
+	for _, query := range in.GetQueries() {
+		request.Queries = append(request.Queries, query)
+	}
+
+	// Read rawdata from datahub
+	if result, err := client.ReadRawdata(context.Background(), request); err != nil {
+		scope.Errorf("apiserver ReadRawdata failed: %v", err)
+		response.Status = &status.Status{Code: int32(code.Code_INTERNAL)}
+	} else {
+		response.Status = &status.Status{Code: int32(code.Code_OK)}
+		response.Rawdata = result.Rawdata
+	}
+
+	return &response, nil
 }
 
 func (c *ServiceRawdata) WriteRawdata(ctx context.Context, in *Rawdata.WriteRawdataRequest) (*status.Status, error) {

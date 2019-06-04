@@ -27,14 +27,13 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:3e9b3bdb2fb99285e143695b1e06676818798c9b119b6c34b12bda12b1544a8e"
+  digest = "1:1b01b30819b72712c47ab3e48f46a77a0d4e46736a38f334e1b5e48eeb6aa4bc"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
     "common",
     "datahub/metrics",
     "datahub/predictions",
-    "datahub/rawdata",
     "datahub/recommendations",
     "datahub/resources",
     "datahub/scores",
@@ -47,11 +46,11 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "3a6eacac1c5cc3758283ab7c6981147481512b82"
+  revision = "c42cc057b8272f21f846e65c68cf1e580ab990d4"
 
 [[projects]]
   branch = "development"
-  digest = "1:92258fe9b52cdf10ae168f0845ff7c6bb50c9ca5650a498a95c8478a45e9e5e8"
+  digest = "1:e7434addda3c716c0b54137aef3503174034ab9ed24549fd9474075c50e282e1"
   name = "github.com/containers-ai/federatorai-api"
   packages = [
     "apiserver/accounts",
@@ -60,7 +59,7 @@
     "apiserver/rawdata",
   ]
   pruneopts = "T"
-  revision = "b7719cc9eed722dd6e2be7785e8c5be2e4f64019"
+  revision = "a211b85d52d1ecc3ef0c95d1e65668fb08839561"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1141,7 +1140,8 @@
   input-imports = [
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/containers-ai/api/common",
-    "github.com/containers-ai/api/datahub/rawdata",
+    "github.com/containers-ai/api/datahub/metrics",
+    "github.com/containers-ai/api/datahub/resources",
     "github.com/containers-ai/api/datapipe/metrics",
     "github.com/containers-ai/api/datapipe/ping",
     "github.com/containers-ai/api/datapipe/predictions",
