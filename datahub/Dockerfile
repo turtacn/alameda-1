@@ -11,7 +11,7 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/etc/datahub.yml /etc/alameda/datahub/datahub.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/etc/datahub.toml /etc/alameda/datahub/datahub.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/datahub .
 EXPOSE 50050/tcp
 ENTRYPOINT ["./datahub"]

@@ -30,7 +30,7 @@ func init() {
 	RootCmd.AddCommand(app.VersionCmd)
 	RootCmd.AddCommand(ProbeCmd)
 
-	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/datahub/datahub.yml", "The path to datahub configuration file.")
+	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/datahub/datahub.toml", "The path to datahub configuration file.")
 }
 
 func setLoggerScopesWithConfig(config log.Config) {
@@ -46,7 +46,6 @@ func setLoggerScopesWithConfig(config log.Config) {
 }
 
 func mergeConfigFileValueWithDefaultConfigValue() {
-
 	if configurationFilePath == "" {
 
 	} else {
@@ -64,7 +63,6 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 }
 
 func initConfig() {
-
 	config = datahub.NewDefaultConfig()
 
 	initViperSetting()
@@ -78,7 +76,6 @@ func initViperSetting() {
 }
 
 func initLogger() {
-
 	opt := log.DefaultOptions()
 	opt.RotationMaxSize = defaultRotationMaxSizeMegabytes
 	opt.RotationMaxBackups = defaultRotationMaxBackups

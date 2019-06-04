@@ -11,7 +11,7 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/etc/datapipe.yaml /etc/alameda/datapipe/datapipe.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/etc/datapipe.toml /etc/alameda/datapipe/datapipe.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/bin/datapipe .
 EXPOSE 50060/tcp
 ENTRYPOINT ["./datapipe"]

@@ -30,7 +30,7 @@ func init() {
 	RootCmd.AddCommand(app.VersionCmd)
 	RootCmd.AddCommand(ProbeCmd)
 
-	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/datapipe/datapipe.yml", "The path to datapipe configuration file.")
+	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/datapipe/datapipe.toml", "The path to datapipe configuration file.")
 }
 
 func setLoggerScopesWithConfig(config log.Config) {

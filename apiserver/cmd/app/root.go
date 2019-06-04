@@ -30,7 +30,7 @@ func init() {
 	RootCmd.AddCommand(app.VersionCmd)
 	RootCmd.AddCommand(ProbeCmd)
 
-	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/apiserver/apiserver.yml", "The path to apiserver configuration file.")
+	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/apiserver/apiserver.toml", "The path to apiserver configuration file.")
 }
 
 func setLoggerScopesWithConfig(config log.Config) {
@@ -46,7 +46,6 @@ func setLoggerScopesWithConfig(config log.Config) {
 }
 
 func mergeConfigFileValueWithDefaultConfigValue() {
-
 	if configurationFilePath == "" {
 
 	} else {
@@ -64,7 +63,6 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 }
 
 func initConfig() {
-
 	config = Config.NewDefaultConfig()
 
 	initViperSetting()
