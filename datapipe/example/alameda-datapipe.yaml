@@ -1,12 +1,11 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
+  labels:
+    app: alameda-datapipe
   name: alameda-datapipe
   namespace: federatorai
 spec:
-  selector:
-    matchLabels:
-      app: alameda-datapipe
   replicas: 1
   template:
     metadata:
@@ -15,8 +14,15 @@ spec:
     spec:
       containers:
       - name: alameda-datapipe
-        image: datapipe:v0.0.1
+        image: alameda-datapipe:v0.0.1
         imagePullPolicy: Never
+        ports:
+        - containerPort: 50060
+          name: grpc
+          protocol: TCP
+  selector:
+    matchLabels:
+      app: alameda-datapipe
 
 ---
 apiVersion: v1
@@ -24,9 +30,14 @@ kind: Service
 metadata:
   name: alameda-datapipe
   namespace: federatorai
+  labels:
+    app: alameda-datapipe
 spec:
+  type: ClusterIP
   ports:
-  - port: 50060
+  - name: grpc
+    port: 50060
     protocol: TCP
+    targetPort: 50060
   selector:
     app: alameda-datapipe

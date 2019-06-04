@@ -1,12 +1,11 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
+  labels:
+    app: alameda-apiserver
   name: alameda-apiserver
   namespace: federatorai
 spec:
-  selector:
-    matchLabels:
-      app: alameda-apiserver
   replicas: 1
   template:
     metadata:
@@ -17,6 +16,13 @@ spec:
       - name: alameda-apiserver
         image: apiserver:v0.0.1
         imagePullPolicy: Never
+        ports:
+        - containerPort: 50055
+          name: grpc
+          protocol: TCP
+  selector:
+    matchLabels:
+      app: alameda-apiserver
 
 ---
 apiVersion: v1
@@ -24,9 +30,15 @@ kind: Service
 metadata:
   name: alameda-apiserver
   namespace: federatorai
+  labels:
+    app: alameda-apiserver
 spec:
+  type: NodePort
   ports:
-  - port: 50055
+  - name: grpc
+    port: 50055
     protocol: TCP
+    targetPort: 50055
+    nodePort: 30055
   selector:
     app: alameda-apiserver
