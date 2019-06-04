@@ -2,25 +2,26 @@ package datahub
 
 import (
 	"fmt"
-	Dao                                     "github.com/containers-ai/alameda/datahub/pkg/dao"
-	DaoClusterStatus                        "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
-	DaoClusterStatusImpl                    "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
-	DaoMetric                               "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	DaoMetricPrometheus                     "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
-	DaoPredictionImpl                       "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
-	DaoRecommendation                       "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
-	DaoRecommendationImpl                   "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
-	DaoScore                                "github.com/containers-ai/alameda/datahub/pkg/dao/score"
-	DaoScoreImplInfluxDB                    "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
-	RepoInfluxDB                            "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	DatahubUtils                            "github.com/containers-ai/alameda/datahub/pkg/utils"
-	OperatorAPIs                            "github.com/containers-ai/alameda/operator/pkg/apis"
-	OperatorAPIsAutoScalingV1Alpha1         "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	Dao "github.com/containers-ai/alameda/datahub/pkg/dao"
+	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
+	DaoClusterStatusImpl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
+	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	DaoMetricInfluxdb "github.com/containers-ai/alameda/datahub/pkg/dao/metric/influxdb"
+	DaoMetricPrometheus "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
+	DaoPredictionImpl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
+	DaoRecommendation "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
+	DaoRecommendationImpl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
+	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
+	DaoScoreImplInfluxDB "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
+	RepoInfluxDB "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
+	OperatorAPIs "github.com/containers-ai/alameda/operator/pkg/apis"
+	OperatorAPIsAutoScalingV1Alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	OperatorReconcilerAlamedaRecommendation "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
-	AlamedaUtils                            "github.com/containers-ai/alameda/pkg/utils"
-	AlamedaLog                              "github.com/containers-ai/alameda/pkg/utils/log"
-	DatahubV1Alpha1                         "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	Common                                  "github.com/containers-ai/api/common"
+	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
+	AlamedaLog "github.com/containers-ai/alameda/pkg/utils/log"
+	DatahubV1Alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	InfluxDBClient "github.com/influxdata/influxdb/client/v2"
@@ -184,8 +185,39 @@ func (s *Server) registGRPCServer(server *grpc.Server) {
 	DatahubV1Alpha1.RegisterDatahubServiceServer(server, s)
 }
 
-// ListPodMetrics list pods' metrics
 func (s *Server) ListPodMetrics(ctx context.Context, in *DatahubV1Alpha1.ListPodMetricsRequest) (*DatahubV1Alpha1.ListPodMetricsResponse, error) {
+	scope.Debug("Request received from ListPodMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	//--------------------------------------------------------
+	_, err := os.Stat("metric_cpu.csv")
+	if !os.IsNotExist(err) {
+		return s.ListPodMetricsDemo(ctx, in)
+	}
+
+	//--------------------------------------------------------
+	metricDAO := DaoMetricInfluxdb.NewWithConfig(*s.Config.InfluxDB)
+	podMetricList, err := metricDAO.ListContainerMetrics(in)
+
+	if err != nil {
+		return &DatahubV1Alpha1.ListPodMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return &DatahubV1Alpha1.ListPodMetricsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodMetrics: podMetricList,
+	}, nil
+}
+
+// ListPodMetrics list pods' metrics
+func (s *Server) ListPodMetricsPrometheus(ctx context.Context, in *DatahubV1Alpha1.ListPodMetricsRequest) (*DatahubV1Alpha1.ListPodMetricsResponse, error) {
+	//func (s *Server) ListPodMetrics(ctx context.Context, in *DatahubV1Alpha1.ListPodMetricsRequest) (*DatahubV1Alpha1.ListPodMetricsResponse, error) {
 	scope.Debug("Request received from ListPodMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	//--------------------------------------------------------
@@ -342,8 +374,31 @@ func (s *Server) ListPodMetricsDemo(ctx context.Context, in *DatahubV1Alpha1.Lis
 	}, nil
 }
 
-// ListNodeMetrics list nodes' metrics
 func (s *Server) ListNodeMetrics(ctx context.Context, in *DatahubV1Alpha1.ListNodeMetricsRequest) (*DatahubV1Alpha1.ListNodeMetricsResponse, error) {
+	scope.Debug("Request received from ListNodeMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	metricDAO := DaoMetricInfluxdb.NewWithConfig(*s.Config.InfluxDB)
+	nodeMetricList, err := metricDAO.ListNodeMetrics(in)
+
+	if err != nil {
+		return &DatahubV1Alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return &DatahubV1Alpha1.ListNodeMetricsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		NodeMetrics: nodeMetricList,
+	}, nil
+}
+
+// ListNodeMetrics list nodes' metrics
+func (s *Server) ListNodeMetricsPromethues(ctx context.Context, in *DatahubV1Alpha1.ListNodeMetricsRequest) (*DatahubV1Alpha1.ListNodeMetricsResponse, error) {
 	scope.Debug("Request received from ListNodeMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	var (
