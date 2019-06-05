@@ -511,7 +511,14 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		} else {
 			topCtrl.Replicas = replicas
 		}
-
+		appName := fmt.Sprintf("%s-%s", scaler.Namespace, scaler.Name)
+		if _, exist := scaler.Labels["app.federator.ai/name"]; exist {
+			appName = scaler.Labels["app.federator.ai/name"]
+		}
+		appPartOf := appName
+		if _, exist := scaler.Labels["app.federator.ai/part-of"]; exist {
+			appPartOf = scaler.Labels["app.federator.ai/part-of"]
+		}
 		podsNeedCreating = append(podsNeedCreating, &datahub_v1alpha1.Pod{
 			AlamedaScaler: &datahub_v1alpha1.NamespacedName{
 				Namespace: scaler.Namespace,
@@ -530,6 +537,8 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			Status:        podStatus,
 			Enable_VPA:    autoscalingv1alpha1.ScalingTool.VpaFlag,
 			Enable_HPA:    autoscalingv1alpha1.ScalingTool.HpaFlag,
+			AppName:       appName,
+			AppPartOf:     appPartOf,
 		})
 	}
 
