@@ -28,8 +28,6 @@ spec:
         app: nginx
     spec:
       serviceAccount: nginx
-      securityContext:
-        runAsUser: 0
       containers:
       - name: nginx
         image: nginx:latest        
