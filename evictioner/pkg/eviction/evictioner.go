@@ -214,11 +214,10 @@ func (evictioner *Evictioner) isContainerEvictable(pod *corev1.Pod, container *c
 			if resourceType == corev1.ResourceMemory && limitRec.GetMetricType() == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES && len(limitRec.GetData()) > 0 {
 				if limitRecVal, err := datahubutils.StringToInt64(limitRec.GetData()[0].GetNumValue()); err == nil {
 					limitQuan := container.Resources.Limits[resourceType]
-					delta := (math.Abs(float64(100*(limitRecVal-(&limitQuan).Value()))) / float64((&limitQuan).Value()))
-
+					delta := (math.Abs(float64(100*(limitRecVal-limitQuan.Value()))) / float64(limitQuan.Value()))
+					scope.Infof("Resource limit of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
+						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), memoryTriggerThreshold, limitQuan.Value(), limitRecVal)
 					if delta >= memoryTriggerThreshold {
-						scope.Infof("Resource limit of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
-							resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), memoryTriggerThreshold, limitQuan.Value(), limitRecVal)
 						scope.Infof("Decide to evict pod %s/%s due to delta is %v >= %v (threshold)", pod.GetNamespace(), pod.GetName(), delta, memoryTriggerThreshold)
 						return true
 					}
@@ -227,10 +226,10 @@ func (evictioner *Evictioner) isContainerEvictable(pod *corev1.Pod, container *c
 			if resourceType == corev1.ResourceCPU && limitRec.GetMetricType() == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE && len(limitRec.GetData()) > 0 {
 				if limitRecVal, err := datahubutils.StringToInt64(limitRec.GetData()[0].GetNumValue()); err == nil {
 					limitQuan := container.Resources.Limits[resourceType]
-					delta := (math.Abs(float64(100*(limitRecVal-(&limitQuan).Value()))) / float64((&limitQuan).Value()))
+					delta := (math.Abs(float64(100*(limitRecVal-limitQuan.MilliValue()))) / float64(limitQuan.MilliValue()))
+					scope.Infof("Resource limit of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
+						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), cpuTriggerThreshold, limitQuan.MilliValue(), limitRecVal)
 					if delta >= cpuTriggerThreshold {
-						scope.Infof("Resource limit of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
-							resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), cpuTriggerThreshold, limitQuan.Value(), limitRecVal)
 						scope.Infof("Decide to evict pod %s/%s due to delta is %v >= %v (threshold)", pod.GetNamespace(), pod.GetName(), delta, cpuTriggerThreshold)
 						return true
 					}
@@ -248,7 +247,7 @@ func (evictioner *Evictioner) isContainerEvictable(pod *corev1.Pod, container *c
 			if resourceType == corev1.ResourceMemory && reqRec.GetMetricType() == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES && len(reqRec.GetData()) > 0 {
 				if requestRecVal, err := datahubutils.StringToInt64(reqRec.GetData()[0].GetNumValue()); err == nil {
 					requestQuan := container.Resources.Requests[resourceType]
-					delta := (math.Abs(float64(100*(requestRecVal-(&requestQuan).Value()))) / float64((&requestQuan).Value()))
+					delta := (math.Abs(float64(100*(requestRecVal-requestQuan.Value()))) / float64(requestQuan.Value()))
 					scope.Debugf("Resource request of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
 						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), memoryTriggerThreshold, requestQuan.Value(), requestRecVal)
 					if delta >= memoryTriggerThreshold {
@@ -260,9 +259,9 @@ func (evictioner *Evictioner) isContainerEvictable(pod *corev1.Pod, container *c
 			if resourceType == corev1.ResourceCPU && reqRec.GetMetricType() == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE && len(reqRec.GetData()) > 0 {
 				if requestRecVal, err := datahubutils.StringToInt64(reqRec.GetData()[0].GetNumValue()); err == nil {
 					requestQuan := container.Resources.Requests[resourceType]
-					delta := (math.Abs(float64(100*(requestRecVal-(&requestQuan).Value()))) / float64((&requestQuan).Value()))
+					delta := (math.Abs(float64(100*(requestRecVal-requestQuan.MilliValue()))) / float64(requestQuan.MilliValue()))
 					scope.Debugf("Resource request of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
-						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), cpuTriggerThreshold, requestQuan.Value(), requestRecVal)
+						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), cpuTriggerThreshold, requestQuan.MilliValue(), requestRecVal)
 					if delta >= cpuTriggerThreshold {
 						scope.Infof("Decide to evict pod %s/%s due to delta is %v >= %v (threshold)", pod.GetNamespace(), pod.GetName(), delta, cpuTriggerThreshold)
 						return true
