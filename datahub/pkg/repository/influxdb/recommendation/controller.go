@@ -45,6 +45,13 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 				recommendation_entity.ControllerDesiredReplicas: recommendedSpec.GetDesiredReplicas(),
 				recommendation_entity.ControllerCreateTime:      recommendedSpec.GetCreateTime().GetSeconds(),
 				recommendation_entity.ControllerKind:            recommendedSpec.GetKind().String(),
+
+				recommendation_entity.ControllerCPURequest:    recommendedSpec.GetCpuRequests(),
+				recommendation_entity.ControllerMEMRequest:    recommendedSpec.GetMemRequests(),
+				recommendation_entity.ControllerCPULimit:      recommendedSpec.GetCpuLimits(),
+				recommendation_entity.ControllerMEMLimit:      recommendedSpec.GetMemLimits(),
+				recommendation_entity.ControllerTotalCPULimit: recommendedSpec.GetTotalCpuLimits(),
+				recommendation_entity.ControllerTotalMEMLimit: recommendedSpec.GetTotalMemLimits(),
 			}
 
 			pt, err := influxdb_client.NewPoint(string(Controller), tags, fields, time.Now())
@@ -148,6 +155,13 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 			desiredReplicas, _ := strconv.ParseInt(data[recommendation_entity.ControllerDesiredReplicas], 10, 64)
 			createTime, _ := strconv.ParseInt(data[recommendation_entity.ControllerCreateTime], 10, 64)
 
+			cpuRequests, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCPURequest], 32)
+			memRequests, _ := strconv.ParseFloat(data[recommendation_entity.ControllerMEMRequest], 32)
+			cpuLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCPULimit], 32)
+			memLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerMEMLimit], 32)
+			totalCpuLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerTotalCPULimit], 32)
+			totalMemLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerTotalMEMLimit], 32)
+
 			var commendationType datahub_v1alpha1.ControllerRecommendedType
 			if tempType, exist := data[recommendation_entity.ControllerType]; exist {
 				if value, ok := datahub_v1alpha1.ControllerRecommendedType_value[tempType]; ok {
@@ -174,7 +188,13 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 					CreateTime: &timestamp.Timestamp{
 						Seconds: createTime,
 					},
-					Kind: commendationKind,
+					Kind:           commendationKind,
+					CpuRequests:    float32(cpuRequests),
+					MemRequests:    float32(memRequests),
+					CpuLimits:      float32(cpuLimits),
+					MemLimits:      float32(memLimits),
+					TotalCpuLimits: float32(totalCpuLimits),
+					TotalMemLimits: float32(totalMemLimits),
 				},
 			}
 

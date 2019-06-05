@@ -68,4 +68,10 @@ message ControllerRecommendedSpec {
     int32                     current_replicas = 3;
     int32                     desired_replicas = 4;
     google.protobuf.Timestamp create_time      = 5;
+    float                     cpu_requests     = 6;
+    float                     mem_requests     = 7;
+    float                     cpu_limits       = 8;
+    float                     mem_limits       = 9;
+    float                     total_cpu_limits = 10;
+    float                     total_mem_limits = 11;
 }
