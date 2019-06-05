@@ -6,7 +6,7 @@ bind-address = ":50060"
     password = "password"
 
 [prometheus]
-    url = "http://127.0.0.1:9090"
+    url = "https://prometheus-k8s.openshift-monitoring:9091"
     bearer-token-file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
     [tls-config]
         insecure-skip-verify = true
