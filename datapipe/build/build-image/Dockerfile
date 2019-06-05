@@ -13,6 +13,8 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/etc/datapipe.toml /etc/alameda/datapipe/datapipe.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/bin/datapipe .
+RUN mkdir /var/log/alameda && chmod 777 /var/log/alameda
+
 EXPOSE 50060/tcp
 ENTRYPOINT ["./datapipe"]
 CMD [ "run" ]
