@@ -293,7 +293,22 @@ message DeleteAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
 
+message ListWeaveScopeHostsRequest {
+    string host_id = 1;
+}
 
+message ListWeaveScopePodsRequest {
+    string pod_id = 1;
+}
+
+message ListWeaveScopeContainersRequest {
+    string container_id = 1;
+}
+
+message WeaveScopeResponse {
+    google.rpc.Status status = 1;
+    string rawdata = 2;
+}
 
 /**
  * Service for providing data stored in the backend
@@ -392,4 +407,29 @@ service DatahubService {
     // Used to stop generating predictions for the nodes
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}
+
+    //weave scope--------------------------------------------------
+    rpc ListWeaveScopeHosts(ListWeaveScopeHostsRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc GetWeaveScopeHostDetails(ListWeaveScopeHostsRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc ListWeaveScopePods(ListWeaveScopePodsRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc GetWeaveScopePodDetails(ListWeaveScopePodsRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc ListWeaveScopeContainers(ListWeaveScopeContainersRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc ListWeaveScopeContainersByHostname(ListWeaveScopeContainersRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc ListWeaveScopeContainersByImage(ListWeaveScopeContainersRequest)
+        returns (WeaveScopeResponse){}
+
+    rpc GetWeaveScopeContainerDetails(ListWeaveScopeContainersRequest)
+        returns (WeaveScopeResponse){}
 }

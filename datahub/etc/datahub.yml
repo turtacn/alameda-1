@@ -17,3 +17,6 @@ influxdb:
 log:
   set-logcallers: true
   output-level: "info" # debug, info, warn, error, fatal, none
+
+weavescope:
+  url: "http://127.0.0.1:4040"
