@@ -20,6 +20,8 @@ spec:
         - containerPort: 50060
           name: grpc
           protocol: TCP
+      serviceAccount: alameda-datahub
+      serviceAccountName: alameda-datahub
   selector:
     matchLabels:
       app: alameda-datapipe
