@@ -1,0 +1,32 @@
+dn: ou=localdomain,dc=prophetstor,dc=com
+changeType: add
+objectClass: top
+objectclass: organizationalUnit
+ou: localdomain
+description: namespace=federatorai
+
+dn: uid=useradmin,ou=localdomain,dc=prophetstor,dc=com
+changeType: add
+objectClass: inetOrgPerson
+objectClass: top
+userPassword: password
+uid: useradmin
+employeeType: domain-admin
+cn: useradmin
+sn: useradmin
+mail: useradmin@localdomain.com
+ou: localdomain
+description: namespace=federatorai
+description: timezone=+0000
+
+dn: uid=super,ou=sys,dc=prophetstor,dc=com
+changeType: add
+objectClass: inetOrgPerson
+objectClass: top
+userPassword: password
+uid: super
+employeeType: super
+cn: super
+sn: super
+mail: super@sys.com
+ou: sys
