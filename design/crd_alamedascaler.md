@@ -12,7 +12,7 @@ Here is an example _alamedascaler_ CR:
     name: alameda
     namespace: webapp
     labels:
-      app.federator.ai/name: nginx
+      app.federator.ai/name: frontend
       app.federator.ai/part-of: wordpress
   spec:
     policy: stable
