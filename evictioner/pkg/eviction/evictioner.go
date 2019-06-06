@@ -248,7 +248,7 @@ func (evictioner *Evictioner) isContainerEvictable(pod *corev1.Pod, container *c
 				if requestRecVal, err := datahubutils.StringToInt64(reqRec.GetData()[0].GetNumValue()); err == nil {
 					requestQuan := container.Resources.Requests[resourceType]
 					delta := (math.Abs(float64(100*(requestRecVal-requestQuan.Value()))) / float64(requestQuan.Value()))
-					scope.Debugf("Resource request of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
+					scope.Infof("Resource request of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
 						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), memoryTriggerThreshold, requestQuan.Value(), requestRecVal)
 					if delta >= memoryTriggerThreshold {
 						scope.Infof("Decide to evict pod %s/%s due to delta is %v >= %v (threshold)", pod.GetNamespace(), pod.GetName(), delta, memoryTriggerThreshold)
@@ -260,7 +260,7 @@ func (evictioner *Evictioner) isContainerEvictable(pod *corev1.Pod, container *c
 				if requestRecVal, err := datahubutils.StringToInt64(reqRec.GetData()[0].GetNumValue()); err == nil {
 					requestQuan := container.Resources.Requests[resourceType]
 					delta := (math.Abs(float64(100*(requestRecVal-requestQuan.MilliValue()))) / float64(requestQuan.MilliValue()))
-					scope.Debugf("Resource request of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
+					scope.Infof("Resource request of %s pod %s/%s container %s checking eviction threshold (%v perentage). Current setting: %v, Recommended setting: %v",
 						resourceType, pod.GetNamespace(), pod.GetName(), recContainer.GetName(), cpuTriggerThreshold, requestQuan.MilliValue(), requestRecVal)
 					if delta >= cpuTriggerThreshold {
 						scope.Infof("Decide to evict pod %s/%s due to delta is %v >= %v (threshold)", pod.GetNamespace(), pod.GetName(), delta, cpuTriggerThreshold)
