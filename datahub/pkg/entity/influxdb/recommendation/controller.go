@@ -8,17 +8,17 @@ const (
 	ControllerNamespace controllerTag = "namespace"
 	ControllerName      controllerTag = "name"
 
-	ControllerKind            controllerField = "kind"
-	ControllerType            controllerField = "type"
-	ControllerCurrentReplicas controllerField = "current_replicas"
-	ControllerDesiredReplicas controllerField = "desired_replicas"
-	ControllerCreateTime      controllerField = "create_time"
-	ControllerCPURequest      controllerField = "cpu_requests"
-	ControllerMEMRequest      controllerField = "mem_requests"
-	ControllerCPULimit        controllerField = "cpu_limits"
-	ControllerMEMLimit        controllerField = "mem_limits"
-	ControllerTotalCPULimit   controllerField = "total_cpu_limits"
-	ControllerTotalMEMLimit   controllerField = "total_mem_limits"
+	ControllerKind              controllerField = "kind"
+	ControllerType              controllerField = "type"
+	ControllerCurrentReplicas   controllerField = "current_replicas"
+	ControllerDesiredReplicas   controllerField = "desired_replicas"
+	ControllerCreateTime        controllerField = "create_time"
+	ControllerCurrentCPURequest controllerField = "current_cpu_requests"
+	ControllerCurrentMEMRequest controllerField = "current_mem_requests"
+	ControllerCurrentCPULimit   controllerField = "current_cpu_limits"
+	ControllerCurrentMEMLimit   controllerField = "current_mem_limits"
+	ControllerDesiredCPULimit   controllerField = "desired_cpu_limits"
+	ControllerDesiredMEMLimit   controllerField = "desired_mem_limits"
 )
 
 var (
@@ -36,11 +36,11 @@ var (
 		ControllerType,
 		ControllerKind,
 
-		ControllerCPURequest,
-		ControllerMEMRequest,
-		ControllerCPULimit,
-		ControllerMEMLimit,
-		ControllerTotalCPULimit,
-		ControllerTotalMEMLimit,
+		ControllerCurrentCPURequest,
+		ControllerCurrentMEMRequest,
+		ControllerCurrentCPULimit,
+		ControllerCurrentMEMLimit,
+		ControllerDesiredCPULimit,
+		ControllerDesiredMEMLimit,
 	}
 )

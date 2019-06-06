@@ -46,12 +46,12 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 				recommendation_entity.ControllerCreateTime:      recommendedSpec.GetCreateTime().GetSeconds(),
 				recommendation_entity.ControllerKind:            recommendedSpec.GetKind().String(),
 
-				recommendation_entity.ControllerCPURequest:    recommendedSpec.GetCpuRequests(),
-				recommendation_entity.ControllerMEMRequest:    recommendedSpec.GetMemRequests(),
-				recommendation_entity.ControllerCPULimit:      recommendedSpec.GetCpuLimits(),
-				recommendation_entity.ControllerMEMLimit:      recommendedSpec.GetMemLimits(),
-				recommendation_entity.ControllerTotalCPULimit: recommendedSpec.GetTotalCpuLimits(),
-				recommendation_entity.ControllerTotalMEMLimit: recommendedSpec.GetTotalMemLimits(),
+				recommendation_entity.ControllerCurrentCPURequest: recommendedSpec.GetCurrentCpuRequests(),
+				recommendation_entity.ControllerCurrentMEMRequest: recommendedSpec.GetCurrentMemRequests(),
+				recommendation_entity.ControllerCurrentCPULimit:   recommendedSpec.GetCurrentCpuLimits(),
+				recommendation_entity.ControllerCurrentMEMLimit:   recommendedSpec.GetCurrentMemLimits(),
+				recommendation_entity.ControllerDesiredCPULimit:   recommendedSpec.GetDesiredCpuLimits(),
+				recommendation_entity.ControllerDesiredMEMLimit:   recommendedSpec.GetDesiredMemLimits(),
 			}
 
 			pt, err := influxdb_client.NewPoint(string(Controller), tags, fields, time.Now())
@@ -155,12 +155,12 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 			desiredReplicas, _ := strconv.ParseInt(data[recommendation_entity.ControllerDesiredReplicas], 10, 64)
 			createTime, _ := strconv.ParseInt(data[recommendation_entity.ControllerCreateTime], 10, 64)
 
-			cpuRequests, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCPURequest], 32)
-			memRequests, _ := strconv.ParseFloat(data[recommendation_entity.ControllerMEMRequest], 32)
-			cpuLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCPULimit], 32)
-			memLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerMEMLimit], 32)
-			totalCpuLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerTotalCPULimit], 32)
-			totalMemLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerTotalMEMLimit], 32)
+			currentCpuRequests, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCurrentCPURequest], 32)
+			currentMemRequests, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCurrentMEMRequest], 32)
+			currentCpuLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCurrentCPULimit], 32)
+			currentMemLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerCurrentMEMLimit], 32)
+			desiredCpuLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerDesiredCPULimit], 32)
+			desiredMemLimits, _ := strconv.ParseFloat(data[recommendation_entity.ControllerDesiredMEMLimit], 32)
 
 			var commendationType datahub_v1alpha1.ControllerRecommendedType
 			if tempType, exist := data[recommendation_entity.ControllerType]; exist {
@@ -188,13 +188,13 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 					CreateTime: &timestamp.Timestamp{
 						Seconds: createTime,
 					},
-					Kind:           commendationKind,
-					CpuRequests:    float32(cpuRequests),
-					MemRequests:    float32(memRequests),
-					CpuLimits:      float32(cpuLimits),
-					MemLimits:      float32(memLimits),
-					TotalCpuLimits: float32(totalCpuLimits),
-					TotalMemLimits: float32(totalMemLimits),
+					Kind:               commendationKind,
+					CurrentCpuRequests: float32(currentCpuRequests),
+					CurrentMemRequests: float32(currentMemRequests),
+					CurrentCpuLimits:   float32(currentCpuLimits),
+					CurrentMemLimits:   float32(currentMemLimits),
+					DesiredCpuLimits:   float32(desiredCpuLimits),
+					DesiredMemLimits:   float32(desiredMemLimits),
 				},
 			}
 
