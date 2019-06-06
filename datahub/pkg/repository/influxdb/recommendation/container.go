@@ -3,6 +3,7 @@ package recommendation
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	recommendation_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/recommendation"
@@ -101,106 +102,115 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 				recommendation_entity.ContainerPolicyTime:        podRecommendation.GetAssignPodPolicy().GetTime().GetSeconds(),
 			}
 
-			initialLimitRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
-			if containerRecommendation.GetInitialLimitRecommendations() != nil {
-				for _, rec := range containerRecommendation.GetInitialLimitRecommendations() {
-					// One and only one record in initial limit recommendation
-					initialLimitRecommendation[rec.GetMetricType()] = rec.Data[0].NumValue
+			for _, metricData := range containerRecommendation.GetInitialLimitRecommendations() {
+				for _, datum := range metricData.GetData() {
+					newFields := map[string]interface{}{}
+					for key, value := range fields {
+						newFields[key] = value
+					}
+					newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
+					newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
+
+					switch metricData.GetMetricType() {
+					case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = numVal
+						}
+					case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = numVal
+						}
+					}
+
+					if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
+						points = append(points, pt)
+					} else {
+						scope.Error(err.Error())
+					}
 				}
 			}
-			initialRequestRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
-			if containerRecommendation.GetInitialRequestRecommendations() != nil {
-				for _, rec := range containerRecommendation.GetInitialRequestRecommendations() {
-					// One and only one record in initial request recommendation
-					initialRequestRecommendation[rec.GetMetricType()] = rec.Data[0].NumValue
+
+			for _, metricData := range containerRecommendation.GetInitialRequestRecommendations() {
+				for _, datum := range metricData.GetData() {
+					newFields := map[string]interface{}{}
+					for key, value := range fields {
+						newFields[key] = value
+					}
+					newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
+					newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
+
+					switch metricData.GetMetricType() {
+					case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = numVal
+						}
+					case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = numVal
+						}
+					}
+
+					if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
+						points = append(points, pt)
+					} else {
+						scope.Error(err.Error())
+					}
 				}
 			}
 
 			for _, metricData := range containerRecommendation.GetLimitRecommendations() {
-				if data := metricData.GetData(); len(data) > 0 {
-					for _, datum := range data {
-						newFields := map[string]interface{}{}
-						for key, value := range fields {
-							newFields[key] = value
-						}
-						newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
-						newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
+				for _, datum := range metricData.GetData() {
+					newFields := map[string]interface{}{}
+					for key, value := range fields {
+						newFields[key] = value
+					}
+					newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
+					newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
 
-						switch metricData.GetMetricType() {
-						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[recommendation_entity.ContainerResourceLimitCPU] = numVal
-							}
-							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
-								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = numVal
-								}
-							} else {
-								newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = float64(0)
-							}
-						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[recommendation_entity.ContainerResourceLimitMemory] = numVal
-							}
-							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
-								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = numVal
-								}
-							} else {
-								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = float64(0)
-							}
+					switch metricData.GetMetricType() {
+					case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerResourceLimitCPU] = numVal
 						}
+					case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerResourceLimitMemory] = numVal
+						}
+					}
 
-						if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
-							points = append(points, pt)
-						} else {
-							scope.Error(err.Error())
-						}
+					if pt, err := influxdb_client.NewPoint(string(Container), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
+						points = append(points, pt)
+					} else {
+						scope.Error(err.Error())
 					}
 				}
 			}
 
 			for _, metricData := range containerRecommendation.GetRequestRecommendations() {
-				if data := metricData.GetData(); len(data) > 0 {
-					for _, datum := range data {
-						newFields := map[string]interface{}{}
-						for key, value := range fields {
-							newFields[key] = value
-						}
-						newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
-						newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
+				for _, datum := range metricData.GetData() {
+					newFields := map[string]interface{}{}
+					for key, value := range fields {
+						newFields[key] = value
+					}
+					newFields[recommendation_entity.ContainerStartTime] = datum.GetTime().GetSeconds()
+					newFields[recommendation_entity.ContainerEndTime] = datum.GetEndTime().GetSeconds()
 
-						switch metricData.GetMetricType() {
-						case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[recommendation_entity.ContainerResourceRequestCPU] = numVal
-							}
-							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
-								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = numVal
-								}
-							} else {
-								newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = float64(0)
-							}
-						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[recommendation_entity.ContainerResourceRequestMemory] = numVal
-							}
-							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
-								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = numVal
-								}
-							} else {
-								newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = float64(0)
-							}
+					switch metricData.GetMetricType() {
+					case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerResourceRequestCPU] = numVal
 						}
-						if pt, err := influxdb_client.NewPoint(string(Container),
-							tags, newFields,
-							time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
-							points = append(points, pt)
-						} else {
-							scope.Error(err.Error())
+					case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+						if numVal, err := utils.StringToFloat64(strings.Split(datum.GetNumValue(), ".")[0]); err == nil {
+							newFields[recommendation_entity.ContainerResourceRequestMemory] = numVal
 						}
+					}
+					if pt, err := influxdb_client.NewPoint(string(Container),
+						tags, newFields,
+						time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
+						points = append(points, pt)
+					} else {
+						scope.Error(err.Error())
 					}
 				}
 			}
@@ -486,7 +496,7 @@ func (c *ContainerRepository) queryRecommendation(cmd string) ([]*datahub_v1alph
 					endTimeObj := time.Unix(ts, 0)
 
 					containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{
-						Name: ser.Tags[string(recommendation_entity.ContainerName)],
+						Name:                          ser.Tags[string(recommendation_entity.ContainerName)],
 						InitialLimitRecommendations:   []*datahub_v1alpha1.MetricData{},
 						InitialRequestRecommendations: []*datahub_v1alpha1.MetricData{},
 						LimitRecommendations:          []*datahub_v1alpha1.MetricData{},

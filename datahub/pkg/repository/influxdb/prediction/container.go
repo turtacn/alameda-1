@@ -7,6 +7,7 @@ import (
 	container_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/container"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	datahub_utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
@@ -80,6 +81,11 @@ func (r *ContainerRepository) appendMetricDataToPoints(kind metric.ContainerMetr
 		for _, data := range metricData.GetData() {
 			tempTimeSeconds := data.GetTime().Seconds
 			value := data.GetNumValue()
+			valueWithoutFraction := strings.Split(value, ".")[0]
+			valueInFloat64, err := datahub_utils.StringToFloat64(valueWithoutFraction)
+			if err != nil {
+				return errors.Wrap(err, "new influxdb data point failed")
+			}
 
 			tags := map[string]string{
 				container_entity.Namespace:   podNamespace,
@@ -90,7 +96,7 @@ func (r *ContainerRepository) appendMetricDataToPoints(kind metric.ContainerMetr
 				container_entity.Granularity: strconv.FormatInt(granularity, 10),
 			}
 			fields := map[string]interface{}{
-				container_entity.Value: value,
+				container_entity.Value: valueInFloat64,
 			}
 			point, err := influxdb_client.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
 			if err != nil {
