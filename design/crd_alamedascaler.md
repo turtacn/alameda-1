@@ -16,7 +16,7 @@ Here is an example _alamedascaler_ CR:
       app.federator.ai/part-of: wordpress
   spec:
     policy: stable
-    scalingTools: ["vpa", "hpa"]
+    scalingTools: ["vpa"]
     enableexecution: false
     selector:
       matchLabels:
