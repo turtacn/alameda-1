@@ -12,7 +12,7 @@ Here is an example _alamedascaler_ CR:
     name: alameda
     namespace: webapp
     labels:
-      app.federator.ai/name: frontend
+      app.federator.ai/name: db
       app.federator.ai/part-of: wordpress
   spec:
     policy: stable
@@ -20,7 +20,7 @@ Here is an example _alamedascaler_ CR:
     enableexecution: false
     selector:
       matchLabels:
-        app: nginx
+        app: mysql
 ```
 
 In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s deployment and deploymentconfig objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda.
