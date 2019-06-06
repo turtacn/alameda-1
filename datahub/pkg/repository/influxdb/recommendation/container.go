@@ -136,7 +136,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 									newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = numVal
 								}
 							} else {
-								newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = 0
+								newFields[recommendation_entity.ContainerInitialResourceLimitCPU] = float64(0)
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
@@ -147,7 +147,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 									newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = numVal
 								}
 							} else {
-								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = 0
+								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = float64(0)
 							}
 						}
 
@@ -180,7 +180,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 									newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = numVal
 								}
 							} else {
-								newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = 0
+								newFields[recommendation_entity.ContainerInitialResourceRequestCPU] = float64(0)
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
@@ -191,7 +191,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 									newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = numVal
 								}
 							} else {
-								newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = 0
+								newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = float64(0)
 							}
 						}
 						if pt, err := influxdb_client.NewPoint(string(Container),
@@ -206,9 +206,13 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 			}
 		}
 	}
-	c.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
+	err := c.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
 		Database: string(influxdb.Recommendation),
 	})
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
