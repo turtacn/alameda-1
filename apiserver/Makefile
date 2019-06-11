@@ -37,5 +37,5 @@ generate:
 	go generate ./pkg/... ./cmd/...
 
 ## docker-build: Build the docker image.
-docker-build: test
+docker-build:
 	docker build ./.. -t ${IMG} -f build/build-image/Dockerfile
