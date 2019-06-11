@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 14,
-  "iteration": 1559191382251,
+  "id": 15,
+  "iteration": 1560176049788,
   "links": [],
   "panels": [
     {
@@ -589,7 +589,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_limit_cpu from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select resource_limit_cpu from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -629,7 +629,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_request_cpu from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select resource_request_cpu from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1035,7 +1035,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_limit_memory from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select resource_limit_memory from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1075,7 +1075,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select resource_request_memory from \"alameda_recommendation\"..\"container\" where \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select resource_request_memory from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1364,8 +1364,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "federatorai",
-          "value": "federatorai"
+          "text": "nginx",
+          "value": "nginx"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
@@ -1389,8 +1389,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-app",
-          "value": "alameda-app"
+          "text": "alameda",
+          "value": "alameda"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
@@ -1414,8 +1414,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-ai-8d8458b74-n2mx8",
-          "value": "alameda-ai-8d8458b74-n2mx8"
+          "text": "nginx-example-2-7xbfk",
+          "value": "nginx-example-2-7xbfk"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
@@ -1439,8 +1439,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-ai-engine",
-          "value": "alameda-ai-engine"
+          "text": "nginx-example",
+          "value": "nginx-example"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
@@ -1493,7 +1493,7 @@
     ]
   },
   "timezone": "",
-  "title": "Prediction and Recommendation",
-  "uid": "7dayyuda",
+  "title": "VPA Recommendation",
+  "uid": "7dqda",
   "version": 2
 }

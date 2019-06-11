@@ -217,14 +217,16 @@ dashboardProviders:
 ##
 dashboards:
   alameda:
-    prediction-recommendation:
-      json: dashboards/prediction-recommendation.json
-    recommendation-cluster:
-      json: dashboards/recommendation-cluster.json
-    recommendation-namespace:
-      json: dashboards/recommendation-namespace.json
-    recommendation-alamedascaler:
-      json: dashboards/recommendation-alamedascaler.json
+    hpa-recommendation:
+      json: dashboards/hpa-recommendation.json
+    vpa-recommendation:
+      json: dashboards/vpa-recommendation.json
+    vpa-recommendation-cluster:
+      json: dashboards/vpa-recommendation-cluster.json
+    vpa-recommendation-namespace:
+      json: dashboards/vpa-recommendation-namespace.json
+    vpa-recommendation-alamedascaler:
+      json: dashboards/vpa-recommendation-alamedascaler.json
     clusterhealth:
       json: dashboards/clusterhealth.json
     nodehealth:

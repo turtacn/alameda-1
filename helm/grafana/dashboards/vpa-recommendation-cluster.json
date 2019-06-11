@@ -17,8 +17,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 31,
-  "iteration": 1557986629778,
+  "id": 6,
+  "iteration": 1560178033424,
   "links": [],
   "panels": [
     {
@@ -31,7 +31,7 @@
       },
       "id": 12,
       "panels": [],
-      "title": "Managed Objects",
+      "title": "Cluster-Wide Managed Objects",
       "type": "row"
     },
     {
@@ -51,7 +51,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 7,
+        "col": 8,
         "desc": true
       },
       "styles": [
@@ -461,7 +461,7 @@
       },
       "id": 7,
       "panels": [],
-      "title": "Resource Usage and Recommendation of Namespace",
+      "title": "Resource Usage and Recommendation of Cluster",
       "type": "row"
     },
     {
@@ -592,7 +592,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
+          "query": "select sum(mean) from (select mean(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -632,7 +632,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(resource_request_cpu ) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
+          "query": "select sum(mean) from (select mean(resource_request_cpu ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -935,18 +935,20 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda",
-          "value": "alameda"
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
-        "hide": 0,
-        "includeAll": false,
+        "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "hide": 2,
+        "includeAll": true,
         "label": "Namespace",
-        "multi": false,
+        "multi": true,
         "name": "ns",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
+        "query": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -966,14 +968,14 @@
           ]
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ ",
+        "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
         "hide": 2,
         "includeAll": true,
         "label": "AlamedaScaler",
         "multi": true,
         "name": "scaler",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ ",
+        "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -988,17 +990,19 @@
         "allValue": null,
         "current": {
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/  and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
+        "definition": "select pod_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ group by \"pod_name\" order by time desc limit 1",
         "hide": 2,
         "includeAll": true,
         "label": "pod",
         "multi": true,
         "name": "pod",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/  and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
+        "query": "select pod_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ group by \"pod_name\" order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1011,8 +1015,8 @@
       },
       {
         "current": {
-          "text": "5m",
-          "value": "5m"
+          "text": "15m",
+          "value": "15m"
         },
         "hide": 2,
         "label": null,
@@ -1020,11 +1024,11 @@
         "options": [
           {
             "selected": true,
-            "text": "5m",
-            "value": "5m"
+            "text": "15m",
+            "value": "15m"
           }
         ],
-        "query": "5m",
+        "query": "15m",
         "skipUrlSync": false,
         "type": "constant"
       }
@@ -1060,7 +1064,7 @@
     ]
   },
   "timezone": "",
-  "title": "Per Namespace Resource Recommendations",
-  "uid": "awdasdqwe",
-  "version": 21
+  "title": "Cluster-Wide VPA Resource Recommendations",
+  "uid": "addqwe",
+  "version": 1
 }
