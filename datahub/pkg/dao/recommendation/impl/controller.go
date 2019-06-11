@@ -16,7 +16,7 @@ func (c *Controller) AddControllerRecommendations(controllerRecommendations []*d
 	return controllerRepository.CreateControllerRecommendations(controllerRecommendations)
 }
 
-func (c *Controller) ListControllerRecommendations(controllerNamespacedName *datahub_v1alpha1.NamespacedName, queryCondition *datahub_v1alpha1.QueryCondition) ([]*datahub_v1alpha1.ControllerRecommendation, error) {
+func (c *Controller) ListControllerRecommendations(in *datahub_v1alpha1.ListControllerRecommendationsRequest) ([]*datahub_v1alpha1.ControllerRecommendation, error) {
 	controllerRepository := influxdb_repository_recommendation.NewControllerRepository(&c.InfluxDBConfig)
-	return controllerRepository.ListControllerRecommendations(controllerNamespacedName, queryCondition)
+	return controllerRepository.ListControllerRecommendations(in)
 }

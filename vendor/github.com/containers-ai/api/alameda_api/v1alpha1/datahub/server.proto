@@ -177,6 +177,7 @@ message ListPodRecommendationsResponse {
 message ListControllerRecommendationsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
+    ControllerRecommendedType recommended_type = 3;
 }
 
 /**

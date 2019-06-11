@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:948c1021b3d0596fc32b9d8f7a0f0ba621449271d2ad20f6ce7fd49aa923dce5"
+  digest = "1:b26bcb85617eef16aeea33a48d46b0ff82f9f01942e274728078bab48e1d11de"
   name = "github.com/containers-ai/api"
   packages = ["alameda_api/v1alpha1/datahub"]
   pruneopts = "T"
-  revision = "bb924f2a6cbdbda9b51c66a34374c7758bb736d6"
+  revision = "f31690c037e792676d98abf43da9a66e92e4cd5d"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"

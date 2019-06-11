@@ -740,7 +740,6 @@ func (s *Server) ListAvailablePodRecommendations(ctx context.Context, in *datahu
 	}
 	scope.Debug("Response sent from ListPodRecommendations grpc function: " + utils.InterfaceToString(res))
 	return res, nil
-
 }
 
 // ListControllerRecommendations list controller recommendations
@@ -751,10 +750,7 @@ func (s *Server) ListControllerRecommendations(ctx context.Context, in *datahub_
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	namespace := in.GetNamespacedName()
-	queryCondition := in.GetQueryCondition()
-
-	controllerRecommendations, err := controllerDAO.ListControllerRecommendations(namespace, queryCondition)
+	controllerRecommendations, err := controllerDAO.ListControllerRecommendations(in)
 	if err != nil {
 		scope.Errorf("api ListControllerRecommendations failed: %v", err)
 		response := &datahub_v1alpha1.ListControllerRecommendationsResponse{
@@ -776,7 +772,6 @@ func (s *Server) ListControllerRecommendations(ctx context.Context, in *datahub_
 
 	scope.Debug("Response sent from ListControllerRecommendations grpc function: " + utils.InterfaceToString(response))
 	return response, nil
-
 }
 
 // ListPodsByNodeName list pods running on specific nodes
