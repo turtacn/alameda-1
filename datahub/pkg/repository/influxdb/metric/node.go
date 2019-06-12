@@ -131,8 +131,8 @@ func (r *NodeRepository) buildInfluxQLWhereClauseFromRequest(in *datahub_v1alpha
 	whereNames = strings.TrimSuffix(whereNames, "OR ")
 	whereNames = "(" + whereNames + ")"
 
-	startTime := in.GetQueryCondition().GetTimeRange().GetStartTime().Seconds
-	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().Seconds
+	startTime := in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds()
+	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
 
 	r.influxDB.AddWhereConditionDirect(&whereClause, whereNames)
 	r.influxDB.AddTimeCondition(&whereClause, ">=", startTime)

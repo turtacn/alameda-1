@@ -261,6 +261,10 @@ func (influxDBRepository *InfluxDBRepository) AddWhereConditionDirect(whereStr *
 }
 
 func (influxDBRepository *InfluxDBRepository) AddTimeCondition(whereStr *string, operator string, value int64) {
+	if value == 0 {
+		return
+	}
+
 	tm := time.Unix(int64(value), 0)
 
 	if *whereStr == "" {

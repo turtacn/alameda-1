@@ -62,7 +62,6 @@ func (r *ContainerRepository) ListContainerMetrics(in *datahub_v1alpha1.ListPodM
 	}
 
 	rows := influxdb.PackMap(results)
-	fmt.Print(rows)
 
 	podMetricList = r.getPodMetricsFromInfluxRows(rows)
 	return podMetricList, nil
@@ -153,8 +152,8 @@ func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(in *datahub_v1
 
 	podNamespace := in.GetNamespacedName().GetNamespace()
 	podName := in.GetNamespacedName().GetName()
-	startTime := in.GetQueryCondition().GetTimeRange().GetStartTime().Seconds
-	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().Seconds
+	startTime := in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds()
+	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
 
 	r.influxDB.AddWhereCondition(&whereClause, container_entity.PodNamespace, "=", podNamespace)
 	r.influxDB.AddWhereCondition(&whereClause, container_entity.PodName, "=", podName)

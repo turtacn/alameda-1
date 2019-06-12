@@ -74,7 +74,7 @@ func (r *NodeRepository) appendMetricDataToPoints(kind metric.ContainerMetricKin
 		}
 
 		for _, data := range metricData.GetData() {
-			tempTimeSeconds := data.GetTime().Seconds
+			tempTimeSeconds := data.GetTime().GetSeconds()
 			value := data.GetNumValue()
 
 			tags := map[string]string{

@@ -238,10 +238,10 @@ func (c *ContainerRepository) ListContainerRecommendations(in *datahub_v1alpha1.
 	}
 
 	if reqStartTime != nil {
-		c.influxDB.AddTimeCondition(&whereStr, ">=", reqStartTime.Seconds)
+		c.influxDB.AddTimeCondition(&whereStr, ">=", reqStartTime.GetSeconds())
 	}
 	if reqEndTime != nil {
-		c.influxDB.AddTimeCondition(&whereStr, "<=", reqEndTime.Seconds)
+		c.influxDB.AddTimeCondition(&whereStr, "<=", reqEndTime.GetSeconds())
 	}
 
 	if kind != datahub_v1alpha1.Kind_POD {
