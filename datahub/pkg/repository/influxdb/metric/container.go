@@ -1,7 +1,6 @@
 package metric
 
 import (
-	"fmt"
 	container_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/metric/container"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
