@@ -6,13 +6,16 @@ WORKDIR /go/src/github.com/containers-ai/alameda
 ADD . .
 
 # Build
-RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o apiserver/build/build-image/bin/apiserver github.com/containers-ai/alameda/apiserver/cmd"]
+RUN cd apiserver && make build
 
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/build/build-image/etc/apiserver.toml /etc/alameda/apiserver/apiserver.toml
-COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/build/build-image/bin/apiserver .
+COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/install_root.tgz /tmp/
+RUN cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \
+    && mkdir -p /var/log/alameda && chmod 777 /var/log/alameda
+
 EXPOSE 50055/tcp
-ENTRYPOINT ["./apiserver"]
+
+ENTRYPOINT ["/opt/alameda/apiserver/bin/apiserver"]
 CMD [ "run" ]
