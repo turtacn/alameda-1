@@ -65,5 +65,10 @@ generate:
 	go generate ./pkg/... ./cmd/...
 
 ## docker-build: Build the docker image.
-docker-build:
+docker-build-alpine:
 	docker build ./.. -t ${IMG} -f build/build-image/Dockerfile
+
+docker-build-ubi:
+	docker build ./.. -t ${IMG} -f build/build-image/Dockerfile.ubi
+
+docker-build: docker-build-ubi
