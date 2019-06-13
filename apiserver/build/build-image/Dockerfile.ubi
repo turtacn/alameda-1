@@ -15,7 +15,7 @@ RUN cd apiserver && make build
 # Copy the alameda-apiserver into a thin image
 FROM registry.access.redhat.com/ubi7/ubi-minimal
 ENV SUMMARY="Alameda ApiServer is an API gateway for handling gRPC requests."	\
-    DESCRIPTION="Alameda Datahub is an API gateway for handling gRPC requests." \
+    DESCRIPTION="Alameda ApiServer is an API gateway for handling gRPC requests." \
     NAME="Alameda ApiServer" \
     VERSION="latest" \
     USER_UID=1001 \
