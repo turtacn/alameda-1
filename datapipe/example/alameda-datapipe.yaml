@@ -1,3 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alameda-datapipe
+  namespace: federatorai
+data:
+  datapipe.toml: |-
+    bind-address = ":50060"
+
+    [apiserver]
+        address = "alameda-apiserver.federatorai:50055"
+        username = "admin"
+        password = "password"
+
+    [prometheus]
+        url = "https://prometheus-k8s.openshift-monitoring:9091"
+        bearer-token-file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+        [tls-config]
+            insecure-skip-verify = true
+
+    [log]
+        set-logcallers = true
+        output-level = "info" # debug, info, warn, error, fatal, none
+
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -20,8 +45,19 @@ spec:
         - containerPort: 50060
           name: grpc
           protocol: TCP
+        volumeMounts:
+          - name: alameda-datapipe
+            mountPath: /opt/alameda/datapipe/etc/datapipe.toml
+            subPath: datapipe.toml
       serviceAccount: alameda-datahub
       serviceAccountName: alameda-datahub
+      volumes:
+        - name: alameda-datapipe
+          configMap:
+            name: alameda-datapipe
+          items:
+            - key: datapipe.toml
+              path: datapipe.toml
   selector:
     matchLabels:
       app: alameda-datapipe

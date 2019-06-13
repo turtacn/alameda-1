@@ -1,3 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alameda-apiserver
+  namespace: federatorai
+data:
+  apiserver.toml: |-
+    bind-address = ":50055"
+
+    [datahub]
+        address = "alameda-datahub.federatorai:50050"
+
+    [log]
+        set-logcallers = true
+        output-level = "info" # debug, info, warn, error, fatal, none
+---
+
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -14,12 +31,23 @@ spec:
     spec:
       containers:
       - name: alameda-apiserver
-        image: apiserver:v0.0.1
+        image: alameda-apiserver:v0.0.1
         imagePullPolicy: Never
         ports:
         - containerPort: 50055
           name: grpc
           protocol: TCP
+        volumeMounts:
+          - name: alameda-apiserver
+            mountPath: /opt/alameda/apiserver/etc/apiserver.toml
+            subPath: apiserver.toml
+      volumes:
+        - name: alameda-apiserver
+          configMap:
+            name: alameda-apiserver
+          items:
+            - key: apiserver.toml
+              path: apiserver.toml
   selector:
     matchLabels:
       app: alameda-apiserver
