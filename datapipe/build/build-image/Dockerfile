@@ -6,15 +6,14 @@ WORKDIR /go/src/github.com/containers-ai/alameda
 ADD . .
 
 # Build
-RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o datapipe/build/build-image/bin/datapipe github.com/containers-ai/alameda/datapipe/cmd"]
+RUN cd datapipe && make build
 
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/etc/datapipe.toml /etc/alameda/datapipe/datapipe.toml
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/build/build-image/bin/datapipe .
-RUN mkdir /var/log/alameda && chmod 777 /var/log/alameda
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/install_root.tgz /tmp/
+RUN cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \
+    && mkdir -p /var/log/alameda && chmod 777 /var/log/alameda
 
 EXPOSE 50060/tcp
-ENTRYPOINT ["./datapipe"]
-CMD [ "run" ]
+ENTRYPOINT ["/opt/alameda/datapipe/bin/datapipe", "run"]

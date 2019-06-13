@@ -1,0 +1,46 @@
+# This Dockerfile is used for building alameda-datapipe on https://connect.redhat.com
+FROM openshift/origin-release:golang-1.11 as builder
+#RUN yum update -y
+
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+
+WORKDIR /go/src/github.com/containers-ai/alameda
+
+ADD . .
+
+# Build
+RUN cd datapipe && make build
+
+# Copy the alameda-datapipe into a thin image
+FROM registry.access.redhat.com/ubi7/ubi-minimal
+ENV SUMMARY="Alameda DataPipe is an API gateway for handling gRPC requests."	\
+    DESCRIPTION="Alameda DataPipe is an API gateway for handling gRPC requests." \
+    NAME="Alameda DataPipe" \
+    VERSION="latest" \
+    USER_UID=1001 \
+    USER_NAME=alameda
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$NAME" \
+      com.redhat.component="customer-container" \
+      name="$NAME" \
+      version="$VERSION" \
+      vendor="ProphetStor Data Services, Inc."
+
+WORKDIR /root/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/install_root.tgz /tmp/
+
+RUN set -x \
+    && microdnf update -y \
+    && microdnf install -y \
+        tar procps-ng psmisc findutils vim-minimal \
+    && cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \
+    && chown -R 1001:0 /opt/alameda \
+    && mkdir -p /var/log/alameda && chown -R 1001:0 /var/log/alameda && chmod ug+w /var/log/alameda
+
+EXPOSE 50055/tcp
+USER 1001
+ENTRYPOINT ["/opt/alameda/datapipe/bin/datapipe", "run"]
