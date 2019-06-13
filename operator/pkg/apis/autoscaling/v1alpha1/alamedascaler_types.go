@@ -60,8 +60,8 @@ type AlamedaResource struct {
 }
 
 type AlamedaController struct {
-	Deployments       map[NamespacedName]AlamedaResource `json:"deployments" protobuf:"bytes,1,opt,name=deployments"`
-	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentconfigs" protobuf:"bytes,2,opt,name=deployment_configs"`
+	Deployments       map[NamespacedName]AlamedaResource `json:"deployments,omitempty" protobuf:"bytes,1,opt,name=deployments"`
+	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentconfigs,omitempty" protobuf:"bytes,2,opt,name=deployment_configs"`
 }
 
 type AlamedaControllerType int
