@@ -297,6 +297,14 @@ objects:
       verbs:
         - get
         - list
+    - apiGroups:
+        - federatorai.containers.ai
+      resources:
+        - alamedaservices
+      verbs:
+        - get
+        - list
+        - watch
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: ClusterRoleBinding
   metadata:

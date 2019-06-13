@@ -76,6 +76,11 @@ var (
 		DeploymentController:       "deployment",
 		DeploymentConfigController: "deploymentconfig",
 	}
+
+	K8SKindToAlamedaControllerType = map[string]AlamedaControllerType{
+		"Deployment":       DeploymentController,
+		"DeploymentConfig": DeploymentConfigController,
+	}
 )
 
 type scalingToolType string

@@ -13,6 +13,7 @@ import (
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
 	admission_controller_utils "github.com/containers-ai/alameda/admission-controller/pkg/utils"
 	controller_validator "github.com/containers-ai/alameda/admission-controller/pkg/validator/controller"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
@@ -151,7 +152,6 @@ func (ac *admissionController) writeDefaultAdmissionReview(w http.ResponseWriter
 func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, error) {
 
 	admissionResponse := admission_v1beta1.AdmissionResponse{Allowed: true}
-	namespace := ar.Request.Namespace
 
 	podResource := meta_v1.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	if ar.Request.Resource != podResource {
@@ -164,15 +164,15 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	if _, _, err := ac.k8sDeserializer.Decode(raw, nil, &pod); err != nil {
 		return admissionResponse, errors.Errorf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
 	}
+	pod.SetNamespace(ar.Request.Namespace)
 
 	scope.Infof("mutating pod: %+v", pod.ObjectMeta)
 
-	controllerKind, controllerName, err := ac.ownerReferenceTracer.GetRootControllerKindAndNameOfOwnerReferences(namespace, pod.OwnerReferences)
+	controllerID, err := ac.getControllerIDToQueryPodRecommendations(&pod)
 	if err != nil {
-		return admissionResponse, errors.Wrapf(err, "mutating pod failed: get root controller information of Pod failed, skip mutating pod: Pod: %+v")
+		return admissionResponse, errors.Wrapf(err, "mutating pod failed: get controller information of Pod failed, skip mutating pod: Pod: %+v")
 	}
 
-	controllerID := newNamespaceKindName(namespace, controllerKind, controllerName)
 	executionEnabeld, err := ac.isControllerExecutionEnabled(controllerID)
 	if err != nil {
 		return admissionResponse, errors.Wrapf(err, "check if pod needs mutating faield, skip mutating pod: Pod: %+v", pod.ObjectMeta)
@@ -333,6 +333,28 @@ func (ac *admissionController) fetchNewPodRecommendations(controllerID namespace
 func (ac *admissionController) isControllerExecutionEnabled(controllerID namespaceKindName) (bool, error) {
 
 	return ac.controllerValidator.IsControllerEnabledExecution(controllerID.namespace, controllerID.name, controllerID.kind)
+}
+
+func (ac *admissionController) getControllerIDToQueryPodRecommendations(pod *core_v1.Pod) (namespaceKindName, error) {
+
+	var controllerID = namespaceKindName{}
+
+	link, err := ac.ownerReferenceTracer.GetControllerOwnerReferenceLink(pod)
+	if err != nil {
+		return controllerID, err
+	}
+
+	for i := len(link) - 1; i >= 0; i-- {
+		ownerRef := link[i]
+		if _, exist := autoscalingv1alpha1.K8SKindToAlamedaControllerType[ownerRef.Kind]; exist {
+			controllerID.namespace = pod.Namespace
+			controllerID.name = ownerRef.Name
+			controllerID.kind = ownerRef.Kind
+			break
+		}
+	}
+
+	return controllerID, nil
 }
 
 func buildPodRecommendationNumberMap(recommendations []*resource.PodResourceRecommendation) map[string]int {
