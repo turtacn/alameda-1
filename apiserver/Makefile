@@ -66,9 +66,9 @@ generate:
 
 ## docker-build: Build the docker image.
 docker-build-alpine:
-	docker build ./.. -t ${IMG} -f build/build-image/Dockerfile
+	docker build .. -t ${IMG} -f Dockerfile
 
 docker-build-ubi:
-	docker build ./.. -t ${IMG} -f build/build-image/Dockerfile.ubi
+	docker build .. -t ${IMG} -f Dockerfile.ubi
 
 docker-build: docker-build-ubi
