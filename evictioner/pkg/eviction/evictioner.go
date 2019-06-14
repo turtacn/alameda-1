@@ -257,46 +257,26 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 	podRecommsPossibleToApply := resp.GetPodRecommendations()
 	scope.Debugf("Possible applicable pod recommendation lists: %s", utils.InterfaceToString(podRecommsPossibleToApply))
 
-	topControllerIDToPodRecommendationInfosMap := NewTopControllerIDToPodRecommendationInfosMap(evictioner.k8sClienit, podRecommsPossibleToApply)
-	for _, podRecommendationInfos := range topControllerIDToPodRecommendationInfosMap {
+	controllerRecommendationInfoMap := NewControllerRecommendationInfoMap(evictioner.k8sClienit, podRecommsPossibleToApply)
+	for _, controllerRecommendationInfo := range controllerRecommendationInfoMap {
+		podRecommendationInfos := controllerRecommendationInfo.podRecommendationInfos
 		sort.Slice(podRecommendationInfos, func(i, j int) bool {
 			return podRecommendationInfos[i].pod.ObjectMeta.CreationTimestamp.UnixNano() < podRecommendationInfos[j].pod.ObjectMeta.CreationTimestamp.UnixNano()
 		})
 	}
-	for _, podRecommendationInfos := range topControllerIDToPodRecommendationInfosMap {
+	for _, controllerRecommendationInfo := range controllerRecommendationInfoMap {
 
-		evictionRestriction := NewEvictionRestriction(evictioner.k8sClienit, evictioner.getPreservationPercentage(), evictioner.evictCfg.TriggerThreshold, podRecommsPossibleToApply)
-		enableScalerMap := map[string]bool{}
-		for _, podRecommendationInfo := range podRecommendationInfos {
+		// Create eviction restriction
+		preservationPercentage := 100 - controllerRecommendationInfo.alamedaScaler.GetMaxUnavailablePercentage()
+		podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, len(controllerRecommendationInfo.podRecommendationInfos))
+		for i := range controllerRecommendationInfo.podRecommendationInfos {
+			podRecommendations[i] = controllerRecommendationInfo.podRecommendationInfos[i].recommendation
+		}
+		evictionRestriction := NewEvictionRestriction(evictioner.k8sClienit, preservationPercentage, evictioner.evictCfg.TriggerThreshold, podRecommendations)
 
-			rec := podRecommendationInfo.recommendation
-
-			startTime := rec.GetStartTime().GetSeconds()
-			endTime := rec.GetEndTime().GetSeconds()
-			if startTime >= nowTimestamp || nowTimestamp >= endTime {
-				continue
-			}
-
-			if rec.GetNamespacedName() == nil {
-				scope.Warn("receive pod recommendation with nil NamespacedName, skip this recommendation")
-				continue
-			}
-
-			recNS := rec.GetNamespacedName().GetNamespace()
-			recName := rec.GetNamespacedName().GetName()
+		for _, podRecommendationInfo := range controllerRecommendationInfo.podRecommendationInfos {
 			pod := podRecommendationInfo.pod
-
-			alamRecomm, err := evictioner.getAlamRecommInfo(recNS, recName)
-			if err != nil {
-				scope.Errorf("Get AlamedaRecommendation (%s/%s) failed due to %s.", recNS, recName, err.Error())
-				continue
-			}
-
-			if !evictioner.isPodEnableExecution(alamRecomm, enableScalerMap) {
-				scope.Debugf("Pod (%s/%s) cannot be evicted because its execution is not enabled.", pod.GetNamespace(), pod.GetName())
-				continue
-			}
-
+			podRecommendation := podRecommendationInfo.recommendation
 			if isEvictabel, err := evictionRestriction.IsEvictabel(pod); err != nil {
 				scope.Infof("Pod (%s/%s) cannot be evicted due to eviction restriction checking error: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 				continue
@@ -305,16 +285,12 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 				continue
 			} else {
 				scope.Infof("Pod (%s/%s) can be evicted.", pod.GetNamespace(), pod.GetName())
-				appliablePodRecList = append(appliablePodRecList, rec)
+				appliablePodRecList = append(appliablePodRecList, podRecommendation)
 			}
 		}
 	}
 
 	return appliablePodRecList, nil
-}
-
-func (evictioner *Evictioner) getPreservationPercentage() float64 {
-	return evictioner.evictCfg.PreservationPercentage / 100
 }
 
 func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
@@ -403,30 +379,65 @@ type podRecommendationInfo struct {
 	recommendation *datahub_v1alpha1.PodRecommendation
 }
 
-func NewTopControllerIDToPodRecommendationInfosMap(client client.Client, podRecommendations []*datahub_v1alpha1.PodRecommendation) map[string][]*podRecommendationInfo {
+type controllerRecommendationInfo struct {
+	alamedaScaler          *autoscalingv1alpha1.AlamedaScaler
+	podRecommendationInfos []*podRecommendationInfo
+}
+
+func NewControllerRecommendationInfoMap(client client.Client, podRecommendations []*datahub_v1alpha1.PodRecommendation) map[string]*controllerRecommendationInfo {
+
+	nowTimestamp := time.Now().Unix()
 
 	getResource := utilsresource.NewGetResource(client)
-	topControllerIDToPodRecommendationsMap := make(map[string][]*podRecommendationInfo)
+	alamedaScalerMap := make(map[string]*autoscalingv1alpha1.AlamedaScaler)
+	controllerRecommendationInfoMap := make(map[string]*controllerRecommendationInfo)
 	for _, podRecommendation := range podRecommendations {
 
+		// Filter out invalid PodRecommendation
 		copyPodRecommendation := proto.Clone(podRecommendation)
 		podRecommendation = copyPodRecommendation.(*datahub_v1alpha1.PodRecommendation)
-
 		recommendationNamespacedName := podRecommendation.NamespacedName
 		if recommendationNamespacedName == nil {
 			scope.Errorf("skip PodRecommendation due to PodRecommendation has empty NamespacedName")
 			continue
 		}
-
-		topController := podRecommendation.TopController
-		if topController == nil {
-			scope.Errorf("skip PodRecommendation (%s/%s) due to PodRecommendation has empty topController", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
-			continue
-		} else if topController.NamespacedName == nil {
-			scope.Errorf("skip PodRecommendation (%s/%s) due to topController has empty NamespacedName", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+		startTime := podRecommendation.GetStartTime().GetSeconds()
+		endTime := podRecommendation.GetEndTime().GetSeconds()
+		if startTime >= nowTimestamp || nowTimestamp >= endTime {
+			scope.Errorf("skip PodRecommendation (%s/%s) due to recommendation out of date", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name)
 			continue
 		}
 
+		// Get AlamedaScaler owns this PodRecommendation and validate the AlamedaScaler is enabled execution.
+		alamedaRecommendation, err := getResource.GetAlamedaRecommendation(podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name)
+		if err != nil {
+			scope.Errorf("skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
+			continue
+		}
+		alamedaScalerNamespace := ""
+		alamedaScalerName := ""
+		for _, or := range alamedaRecommendation.OwnerReferences {
+			if or.Kind == "AlamedaScaler" {
+				alamedaScalerNamespace = alamedaRecommendation.Namespace
+				alamedaScalerName = or.Name
+				break
+			}
+		}
+		alamedaScaler, exist := alamedaScalerMap[fmt.Sprintf("%s/%s", alamedaScalerNamespace, alamedaScalerName)]
+		if !exist {
+			alamedaScaler, err = getResource.GetAlamedaScaler(alamedaScalerNamespace, alamedaScalerName)
+			if err != nil {
+				scope.Errorf("skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
+				continue
+			}
+			alamedaScalerMap[fmt.Sprintf("%s/%s", alamedaScalerNamespace, alamedaScalerName)] = alamedaScaler
+		}
+		if !alamedaScaler.Spec.EnableExecution {
+			scope.Debugf("skip PodRecommendation (%s/%s) because it's execution is not enabled.", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			continue
+		}
+
+		// Get Pod instance of this PodRecommendation
 		podNamespace := recommendationNamespacedName.Namespace
 		podName := recommendationNamespacedName.Name
 		pod, err := getResource.GetPod(podNamespace, podName)
@@ -435,16 +446,34 @@ func NewTopControllerIDToPodRecommendationInfosMap(client client.Client, podReco
 			continue
 		}
 
-		topControllerID := fmt.Sprintf("%s.%s.%s", topController.Kind, topController.NamespacedName.Namespace, topController.NamespacedName.Name)
-		if _, exist := topControllerIDToPodRecommendationsMap[topControllerID]; !exist {
-			topControllerIDToPodRecommendationsMap[topControllerID] = make([]*podRecommendationInfo, 0)
+		// Get topmost controller namespace, name and kind controlling this pod
+		controller := podRecommendation.TopController
+		if controller == nil {
+			scope.Errorf("skip PodRecommendation (%s/%s) due to PodRecommendation has empty topmost controller", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			continue
+		} else if controller.NamespacedName == nil {
+			scope.Errorf("skip PodRecommendation (%s/%s) due to topmost controller has empty NamespacedName", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			continue
+		}
+
+		// Append podRecommendationInfos into controllerRecommendationInfo
+		controllerID := fmt.Sprintf("%s.%s.%s", controller.Kind, controller.NamespacedName.Namespace, controller.NamespacedName.Name)
+		_, exist = controllerRecommendationInfoMap[controllerID]
+		if !exist {
+			controllerRecommendationInfoMap[controllerID] = &controllerRecommendationInfo{
+				alamedaScaler:          alamedaScaler,
+				podRecommendationInfos: make([]*podRecommendationInfo, 0),
+			}
 		}
 		podRecommendationInfo := &podRecommendationInfo{
 			pod:            pod,
 			recommendation: podRecommendation,
 		}
-		topControllerIDToPodRecommendationsMap[topControllerID] = append(topControllerIDToPodRecommendationsMap[topControllerID], podRecommendationInfo)
+		controllerRecommendationInfoMap[controllerID].podRecommendationInfos = append(
+			controllerRecommendationInfoMap[controllerID].podRecommendationInfos,
+			podRecommendationInfo,
+		)
 	}
 
-	return topControllerIDToPodRecommendationsMap
+	return controllerRecommendationInfoMap
 }

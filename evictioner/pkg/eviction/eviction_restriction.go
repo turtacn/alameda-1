@@ -272,7 +272,7 @@ func buildPodReplicaStatus(k8sClient client.Client, namespace string, name strin
 			podReplicaStatus.runningPodCount++
 		}
 	}
-	podReplicaStatus.preservedPodCount = math.Floor(float64(len(pods)) * preservationPercentage)
+	podReplicaStatus.preservedPodCount = math.Ceil(float64(len(pods)) * (preservationPercentage / 100))
 
 	return podReplicaStatus, nil
 }

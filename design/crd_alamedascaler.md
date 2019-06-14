@@ -21,6 +21,8 @@ Here is an example _alamedascaler_ CR:
     selector:
       matchLabels:
         app: mysql
+    rollingUpdate:
+      maxUnavailablePercentage: 30
 ```
 
 In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s deployment and deploymentconfig objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda.
@@ -124,4 +126,14 @@ app.federator.ai/part-of  | The name of a higher level application this one is p
 - Field: selector
   - type: LabelSelector
   - description: This follows the _LabelSelector_ definition in [Kubernetes API Reference](https://kubernetes.io/docs/reference/#api-reference) except that Alameda only processes the `matchLabels` field of `LabelSelector`.
+- Field: rollingUpdate
+  - type: RollingUpdateStrategy
+  - description: Spec of strategy while doing rolling update.
 
+### RollingUpdateStrategy
+
+- Field: maxUnavailablePercentage
+  - type: number
+  - format: double
+  - description: Set the maximum percentage of unavailable pods that can be tolerable during rolling update. Alameda-Evictioner will keep at least ((spec.replicas) * (100 - maxUnavailablePercentage)/100) of pods in running in Deployments and DeploymentConfig to prevent service offline.
+ 
