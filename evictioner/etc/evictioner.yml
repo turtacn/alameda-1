@@ -11,6 +11,8 @@ eviction:
   trigger-threshold: #percentage
     cpu: 10
     memory: 10
+  purge-container-cpu-memory: false
+  preservation-percentage: 50 # percentage of replicas amount that need to keep running
 
 admission-controller:
   service-name: admission-controller
