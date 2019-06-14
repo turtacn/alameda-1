@@ -1,5 +1,7 @@
-API_SERVER_VERSION=$(shell cat build/build-image/VERSION)
-API_SERVER_COMMITID=$(shell git rev-parse HEAD)
+GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+GIT_COMMIT=$(shell git rev-parse --short HEAD)
+GIT_DIRTY=$(shell git diff --quiet || echo '-dirty')
+CODE_VERSION=$(GIT_BRANCH)-$(GIT_COMMIT)$(GIT_DIRTY)
 
 # Image URL to use all building/pushing image targets
 IMG ?= apiserver:v0.0.1
@@ -22,10 +24,10 @@ apiserver: generate fmt vet binaries
 	@echo Start building API server binary...
 
 binaries:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \
-	  "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo 'c-dirty'` \
-	   -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" \
-	   -a -o build/build-image/bin/apiserver github.com/containers-ai/alameda/apiserver/cmd
+	@(echo ===binaries: build env start===; env | sort; echo ===binaries: build env end===)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+	  -ldflags "-X main.VERSION=$(CODE_VERSION) -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" \
+	  -a -o build/build-image/bin/apiserver github.com/containers-ai/alameda/apiserver/cmd
 
 install_dir:
 	mkdir -p $(INSTALL_ROOT)/etc/alameda $(DEST_PREFIX)/bin $(DEST_PREFIX)/etc
@@ -66,9 +68,11 @@ generate:
 
 ## docker-build: Build the docker image.
 docker-build-alpine:
-	docker build .. -t ${IMG} -f Dockerfile
+	@(echo ===docker-build-alpine: build env start===; env | sort; echo ===docker-build-alpine: build env end===)
+	docker build --build-arg CODE_VERSION=$(CODE_VERSION) -t ${IMG} -f Dockerfile ..
 
 docker-build-ubi:
-	docker build .. -t ${IMG} -f Dockerfile.ubi
+	@(echo ===docker-build-ubi: build env start===; env | sort; echo ===docker-build-ubi: build env end===)
+	docker build --build-arg CODE_VERSION=$(CODE_VERSION) -t ${IMG} -f Dockerfile.ubi ..
 
 docker-build: docker-build-ubi
