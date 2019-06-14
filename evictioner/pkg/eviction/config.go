@@ -13,7 +13,6 @@ type Config struct {
 	Enable                  bool             `mapstructure:"enable"`
 	TriggerThreshold        triggerThreshold `mapstructure:"trigger-threshold"`
 	PurgeContainerCPUMemory bool             `mapstructure:"purge-container-cpu-memory"`
-	PreservationPercentage  float64          `mapstructure:"preservation-percentage"`
 }
 
 // NewDefaultConfig returns Config instance
@@ -26,7 +25,6 @@ func NewDefaultConfig() Config {
 			Memory: 1,
 		},
 		PurgeContainerCPUMemory: false,
-		PreservationPercentage:  50,
 	}
 }
 
