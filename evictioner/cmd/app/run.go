@@ -75,6 +75,7 @@ func startEvictioner() {
 		datahubServiceClnt,
 		k8sCli,
 		*config.Eviction,
+		config.Eviction.PurgeContainerCPUMemory,
 	)
 	evictioner.Start()
 	var wg sync.WaitGroup
