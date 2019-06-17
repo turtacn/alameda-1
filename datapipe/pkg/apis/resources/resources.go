@@ -136,7 +136,7 @@ func (c *ServiceResource) CreatePods(ctx context.Context, in *Resources.CreatePo
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, rowDataList)
+	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
 	return retStatus, err
 }
 

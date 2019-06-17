@@ -138,6 +138,6 @@ func (s *ServiceV1alpha1) CreatePodsImpl(in *datahub_v1alpha1.CreatePodsRequest)
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(s.Target, rowDataList)
+	retStatus, err := apiServer.WriteRawdata(s.Target, commonAPI.DatabaseType_INFLUXDB, rowDataList)
 	return retStatus, err
 }

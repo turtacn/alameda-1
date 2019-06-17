@@ -9,7 +9,8 @@ option go_package = "github.com/containers-ai/federatorai-api/apiserver/rawdata"
 
 // Represents a request for reading rawdata from database
 message ReadRawdataRequest {
-    repeated common.Query queries = 1;
+    containersai.common.DatabaseType database_type = 1;
+    repeated common.Query queries = 2;
 }
 
 // Represents a response for listing rawdata from database
@@ -20,6 +21,7 @@ message ReadRawdataResponse {
 
 // Represents a request for writing rawdata to database
 message WriteRawdataRequest {
+    containersai.common.DatabaseType database_type = 1;
     repeated common.WriteRawdata rawdata = 2;
 }
 

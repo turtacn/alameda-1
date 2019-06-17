@@ -14,6 +14,7 @@ import (
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	DaoScoreImplInfluxDB "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	RepoInfluxDB "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	RepoPrometheus "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	OperatorAPIs "github.com/containers-ai/alameda/operator/pkg/apis"
 	OperatorAPIsAutoScalingV1Alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
@@ -24,7 +25,6 @@ import (
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	InfluxDBClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
@@ -39,8 +39,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"strconv"
-	"time"
 )
 
 type Server struct {
@@ -1174,33 +1172,30 @@ func (s *Server) DeleteAlamedaNodes(ctx context.Context, in *DatahubV1Alpha1.Del
 func (s *Server) ReadRawdata(ctx context.Context, in *DatahubV1Alpha1.ReadRawdataRequest) (*DatahubV1Alpha1.ReadRawdataResponse, error) {
 	scope.Debug("Request received from ReadRawdata grpc function")
 
-	influxClient := RepoInfluxDB.New(s.Config.InfluxDB)
+	var (
+		err error
+		rawdata = make([]*Common.ReadRawdata, 0)
+	)
 
-	rawdata := make([]*Common.ReadRawdata, 0)
+	switch in.GetDatabaseType() {
+	case Common.DatabaseType_INFLUXDB:
+		rawdata, err = RepoInfluxDB.ReadRawdata(s.Config.InfluxDB, in.GetQueries())
+	case Common.DatabaseType_PROMETHEUS:
+		rawdata, err = RepoPrometheus.ReadRawdata(s.Config.Prometheus, in.GetQueries())
+	default:
+		err = errors.New(fmt.Sprintf("database type(%s) is not supported", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
+	}
 
-	for _, query := range in.GetQueries() {
-		statement := RepoInfluxDB.NewInfluxStatement(query)
-		statement.AppendTimeConditionIntoWhereClause()
-		statement.SetLimitClauseFromQueryCondition()
-		statement.SetOrderClauseFromQueryCondition()
-		cmd := statement.BuildQueryCmd()
-
-		results, err := influxClient.QueryDB(cmd, query.Database)
-		if err != nil {
-			scope.Errorf("api ReadRawdata failed: %v", err)
-			response := &DatahubV1Alpha1.ReadRawdataResponse{
-				Status: &status.Status{
-					Code:    int32(code.Code_INTERNAL),
-					Message: err.Error(),
-				},
-				Rawdata: rawdata,
-			}
-			return response, nil
-		} else {
-			readRawdata := RepoInfluxDB.InfluxResultToReadRawdata(results, query)
-			rawdata = append(rawdata, readRawdata)
-			// RepoInfluxDB.CompareRawdataWithInfluxResults(readRawdata, results) // For debug purpose
+	if err != nil {
+		scope.Errorf("api ReadRawdata failed: %v", err)
+		response := &DatahubV1Alpha1.ReadRawdataResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+			Rawdata: rawdata,
 		}
+		return response, err
 	}
 
 	response := &DatahubV1Alpha1.ReadRawdataResponse{
@@ -1217,74 +1212,26 @@ func (s *Server) ReadRawdata(ctx context.Context, in *DatahubV1Alpha1.ReadRawdat
 func (s *Server) WriteRawdata(ctx context.Context, in *DatahubV1Alpha1.WriteRawdataRequest) (*status.Status, error) {
 	scope.Debug("Request received from WriteRawdata grpc function")
 
-	influxClient := RepoInfluxDB.New(s.Config.InfluxDB)
+	var (
+		err error
+	)
 
-	for _, rawdata := range in.GetRawdata() {
-		points := make([]*InfluxDBClient.Point, 0)
+	switch in.GetDatabaseType() {
+	case Common.DatabaseType_INFLUXDB:
+		err = RepoInfluxDB.WriteRawdata(s.Config.InfluxDB, in.GetRawdata())
+	case Common.DatabaseType_PROMETHEUS:
+		err = errors.New(fmt.Sprintf("database type(%s) is not supported yet", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
+	default:
+		err = errors.New(fmt.Sprintf("database type(%s) is not supported", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
+	}
 
-		for _, row := range rawdata.GetRows() {
-			index := 0
-			tags := make(map[string]string)
-			fields := make(map[string]interface{})
-
-			for _, value := range row.GetValues() {
-				switch rawdata.GetColumnTypes()[index] {
-				case Common.ColumnType_COLUMNTYPE_TAG:
-					tags[rawdata.GetColumns()[index]] = value
-				case Common.ColumnType_COLUMNTYPE_FIELD:
-					fields[rawdata.GetColumns()[index]] = changeFormat(value, rawdata.GetDataTypes()[index])
-				default:
-					fmt.Println("not support")
-				}
-				index = index + 1
-			}
-
-			// Add time field depends on request
-			if row.GetTime() == nil {
-				pt, err := InfluxDBClient.NewPoint(rawdata.GetTable(), tags, fields, time.Unix(0, 0))
-				if err == nil {
-					points = append(points, pt)
-				} else {
-					fmt.Println(err.Error())
-				}
-			} else {
-				pt, err := InfluxDBClient.NewPoint(rawdata.GetTable(), tags, fields, time.Unix(row.GetTime().GetSeconds(), 0))
-				if err == nil {
-					points = append(points, pt)
-				} else {
-					fmt.Println(err.Error())
-				}
-			}
-		}
-
-		err := influxClient.WritePoints(points, InfluxDBClient.BatchPointsConfig{Database: rawdata.GetDatabase()})
-		if err != nil {
-			scope.Error(err.Error())
-		}
+	if err != nil {
+		scope.Errorf("api WriteRawdata failed: %v", err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, err
 	}
 
 	return &status.Status{Code: int32(code.Code_OK)}, nil
-}
-
-func changeFormat(value string, dataType Common.DataType) interface{} {
-	switch dataType {
-	case Common.DataType_DATATYPE_BOOL:
-		valueBool, _ := strconv.ParseBool(value)
-		return valueBool
-	case Common.DataType_DATATYPE_INT32:
-		valueInt, _ := strconv.ParseInt(value, 10, 32)
-		return valueInt
-	case Common.DataType_DATATYPE_INT64:
-		valueInt, _ := strconv.ParseInt(value, 10, 64)
-		return valueInt
-	case Common.DataType_DATATYPE_FLOAT32:
-		valueFloat, _ := strconv.ParseFloat(value, 64)
-		return valueFloat
-	case Common.DataType_DATATYPE_STRING:
-		return value
-	default:
-		fmt.Println("not support")
-		return value
-	}
-	return ""
 }

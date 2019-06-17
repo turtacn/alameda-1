@@ -81,7 +81,7 @@ func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetric
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, rowDataList)
+	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
 	return retStatus, err
 }
 
@@ -123,7 +123,7 @@ func (c *ServiceMetric) CreateNodeMetrics(ctx context.Context, in *dataPipeMetri
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, rowDataList)
+	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
 	return retStatus, err
 }
 

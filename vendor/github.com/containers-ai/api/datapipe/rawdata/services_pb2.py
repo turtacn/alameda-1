@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.datapipe.rawdata',
   syntax='proto3',
   serialized_options=_b('Z-github.com/containers-ai/api/datapipe/rawdata'),
-  serialized_pb=_b('\n\x1f\x64\x61tapipe/rawdata/services.proto\x12\x1d\x63ontainersai.datapipe.rawdata\x1a\x13\x63ommon/common.proto\x1a\x17google/rpc/status.proto\"A\n\x12ReadRawdataRequest\x12+\n\x07queries\x18\x01 \x03(\x0b\x32\x1a.containersai.common.Query\"l\n\x13ReadRawdataResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x31\n\x07rawdata\x18\x02 \x03(\x0b\x32 .containersai.common.ReadRawdata\"I\n\x13WriteRawdataRequest\x12\x32\n\x07rawdata\x18\x02 \x03(\x0b\x32!.containersai.common.WriteRawdata2\xe2\x01\n\x0eRawdataService\x12v\n\x0bReadRawdata\x12\x31.containersai.datapipe.rawdata.ReadRawdataRequest\x1a\x32.containersai.datapipe.rawdata.ReadRawdataResponse\"\x00\x12X\n\x0cWriteRawdata\x12\x32.containersai.datapipe.rawdata.WriteRawdataRequest\x1a\x12.google.rpc.Status\"\x00\x42/Z-github.com/containers-ai/api/datapipe/rawdatab\x06proto3')
+  serialized_pb=_b('\n\x1f\x64\x61tapipe/rawdata/services.proto\x12\x1d\x63ontainersai.datapipe.rawdata\x1a\x13\x63ommon/common.proto\x1a\x17google/rpc/status.proto\"{\n\x12ReadRawdataRequest\x12\x38\n\rdatabase_type\x18\x01 \x01(\x0e\x32!.containersai.common.DatabaseType\x12+\n\x07queries\x18\x02 \x03(\x0b\x32\x1a.containersai.common.Query\"l\n\x13ReadRawdataResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x31\n\x07rawdata\x18\x02 \x03(\x0b\x32 .containersai.common.ReadRawdata\"\x83\x01\n\x13WriteRawdataRequest\x12\x38\n\rdatabase_type\x18\x01 \x01(\x0e\x32!.containersai.common.DatabaseType\x12\x32\n\x07rawdata\x18\x02 \x03(\x0b\x32!.containersai.common.WriteRawdata2\xe2\x01\n\x0eRawdataService\x12v\n\x0bReadRawdata\x12\x31.containersai.datapipe.rawdata.ReadRawdataRequest\x1a\x32.containersai.datapipe.rawdata.ReadRawdataResponse\"\x00\x12X\n\x0cWriteRawdata\x12\x32.containersai.datapipe.rawdata.WriteRawdataRequest\x1a\x12.google.rpc.Status\"\x00\x42/Z-github.com/containers-ai/api/datapipe/rawdatab\x06proto3')
   ,
   dependencies=[common_dot_common__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
@@ -36,8 +36,15 @@ _READRAWDATAREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='queries', full_name='containersai.datapipe.rawdata.ReadRawdataRequest.queries', index=0,
-      number=1, type=11, cpp_type=10, label=3,
+      name='database_type', full_name='containersai.datapipe.rawdata.ReadRawdataRequest.database_type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='queries', full_name='containersai.datapipe.rawdata.ReadRawdataRequest.queries', index=1,
+      number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -55,7 +62,7 @@ _READRAWDATAREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=112,
-  serialized_end=177,
+  serialized_end=235,
 )
 
 
@@ -92,8 +99,8 @@ _READRAWDATARESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=179,
-  serialized_end=287,
+  serialized_start=237,
+  serialized_end=345,
 )
 
 
@@ -105,7 +112,14 @@ _WRITERAWDATAREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='rawdata', full_name='containersai.datapipe.rawdata.WriteRawdataRequest.rawdata', index=0,
+      name='database_type', full_name='containersai.datapipe.rawdata.WriteRawdataRequest.database_type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='rawdata', full_name='containersai.datapipe.rawdata.WriteRawdataRequest.rawdata', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -123,13 +137,15 @@ _WRITERAWDATAREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=289,
-  serialized_end=362,
+  serialized_start=348,
+  serialized_end=479,
 )
 
+_READRAWDATAREQUEST.fields_by_name['database_type'].enum_type = common_dot_common__pb2._DATABASETYPE
 _READRAWDATAREQUEST.fields_by_name['queries'].message_type = common_dot_common__pb2._QUERY
 _READRAWDATARESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _READRAWDATARESPONSE.fields_by_name['rawdata'].message_type = common_dot_common__pb2._READRAWDATA
+_WRITERAWDATAREQUEST.fields_by_name['database_type'].enum_type = common_dot_common__pb2._DATABASETYPE
 _WRITERAWDATAREQUEST.fields_by_name['rawdata'].message_type = common_dot_common__pb2._WRITERAWDATA
 DESCRIPTOR.message_types_by_name['ReadRawdataRequest'] = _READRAWDATAREQUEST
 DESCRIPTOR.message_types_by_name['ReadRawdataResponse'] = _READRAWDATARESPONSE
@@ -166,8 +182,8 @@ _RAWDATASERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=365,
-  serialized_end=591,
+  serialized_start=482,
+  serialized_end=708,
   methods=[
   _descriptor.MethodDescriptor(
     name='ReadRawdata',

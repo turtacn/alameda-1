@@ -299,7 +299,8 @@ message DeleteAlamedaNodesRequest {
  *
  */
 message ReadRawdataRequest {
-    repeated containersai.common.Query queries = 1;
+    containersai.common.DatabaseType database_type = 1;
+    repeated containersai.common.Query queries = 2;
 }
 
 /**
@@ -316,7 +317,8 @@ message ReadRawdataResponse {
  *
  */
 message WriteRawdataRequest {
-    repeated containersai.common.WriteRawdata rawdata = 1;
+    containersai.common.DatabaseType database_type = 1;
+    repeated containersai.common.WriteRawdata rawdata = 2;
 }
 
 /**

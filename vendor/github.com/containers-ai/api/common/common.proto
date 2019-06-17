@@ -8,17 +8,24 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/containers-ai/api/common";
 
+enum DatabaseType {
+    UNDEFINED = 0;
+    INFLUXDB = 1;
+    PROMETHEUS = 2;
+}
+
 // Represents a time range definition
 message TimeRange {
     google.protobuf.Timestamp start_time = 1;
     google.protobuf.Timestamp end_time = 2;
-    google.protobuf.Duration step = 3;
+    google.protobuf.Timestamp timeout = 3;
+    google.protobuf.Duration step = 4;
     enum AggregateFunction {
         NONE = 0;
         MAX = 1;
     }
-    AggregateFunction aggregate_function = 4;
-    google.protobuf.Timestamp apply_time = 5;
+    AggregateFunction aggregate_function = 5;
+    google.protobuf.Timestamp apply_time = 6;
 }
 
 message QueryCondition {
@@ -28,7 +35,7 @@ message QueryCondition {
         DESC = 1;
     }
     Order order = 2;
-    string whereClause = 3;
+    string where_clause = 3;
     repeated string selects = 4;
     repeated string groups = 5;
     uint64 limit = 6;
@@ -37,7 +44,8 @@ message QueryCondition {
 message Query {
     string database = 1;
     string table = 2;
-    QueryCondition condition = 3;
+    string expression = 3;
+    QueryCondition condition = 4;
 }
 
 message Row {
@@ -53,6 +61,7 @@ message ReadRawdata {
     common.Query query = 1;
     repeated string columns = 2;
     repeated common.Group groups = 3;
+    string rawdata = 4;
 }
 
 message WriteRawdata {

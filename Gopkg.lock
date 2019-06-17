@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:1b01b30819b72712c47ab3e48f46a77a0d4e46736a38f334e1b5e48eeb6aa4bc"
+  digest = "1:41130a642248e6911d053b60b857b918d66d1593cce7ca4cb6db4cc26ad20810"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -46,11 +46,11 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "c42cc057b8272f21f846e65c68cf1e580ab990d4"
+  revision = "bb3d6dddd314c6316debe54854978f56d9060f9d"
 
 [[projects]]
   branch = "development"
-  digest = "1:e7434addda3c716c0b54137aef3503174034ab9ed24549fd9474075c50e282e1"
+  digest = "1:fcae41f39f60113e13925dace7934a732c50993fd878a2c19b964e188de6e5f0"
   name = "github.com/containers-ai/federatorai-api"
   packages = [
     "apiserver/accounts",
@@ -59,7 +59,7 @@
     "apiserver/rawdata",
   ]
   pruneopts = "T"
-  revision = "a211b85d52d1ecc3ef0c95d1e65668fb08839561"
+  revision = "289cbe872f977dd773db4e96efcfc343177a7af1"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"

@@ -30,8 +30,9 @@ func (c *loginCreds) RequireTransportSecurity() bool {
 	return false
 }
 
-func WriteRawdata(apiServerAddress string, rowDataList []*commonAPI.WriteRawdata) (*status.Status, error) {
+func WriteRawdata(apiServerAddress string, databaseType commonAPI.DatabaseType, rowDataList []*commonAPI.WriteRawdata) (*status.Status, error) {
 	request := &fedRawdataAPI.WriteRawdataRequest{
+		DatabaseType: databaseType,
 		Rawdata: rowDataList,
 	}
 

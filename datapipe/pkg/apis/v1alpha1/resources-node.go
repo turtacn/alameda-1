@@ -50,6 +50,6 @@ func (s *ServiceV1alpha1) CreateNodesImpl(in *datahub_v1alpha1.CreateAlamedaNode
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(s.Target, rowDataList)
+	retStatus, err := apiServer.WriteRawdata(s.Target, commonAPI.DatabaseType_INFLUXDB, rowDataList)
 	return retStatus, err
 }
