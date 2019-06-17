@@ -376,21 +376,21 @@ rm -f ${outfile}.temp
 # alameda
 (
     get_command 180 alameda/list "kubectl get pods --all-namespaces"
-    get_command 180 alameda/log "kubectl get deployments --all-namespaces | egrep ' alameda-| admission-controller|federatorai-operator|prometheus' \
+    get_command 180 alameda/log "kubectl get deployments --all-namespaces | egrep ' alameda-| admission-controller|federatorai-|prometheus' \
                                  | while read ns pod junk; do \
                                      echo \"kubectl -n \${ns} get deployment \${pod} -o yaml > ${workdir}/alameda/deployment.\${ns}.\${pod}.yaml\";\
                                    done | sh -x"
-    get_command 300 alameda/log "kubectl get pods --all-namespaces | egrep ' alameda-| admission-controller|federatorai-operator|prometheus' \
+    get_command 300 alameda/log "kubectl get pods --all-namespaces | egrep ' alameda-| admission-controller|federatorai-|prometheus' \
                                  | while read ns pod junk; do \
                                      echo \"kubectl -n \${ns} get pod \${pod} -o yaml > ${workdir}/alameda/pod.\${ns}.\${pod}.yaml\";\
                                      echo \"kubectl -n \${ns} logs \${pod} > ${workdir}/alameda/\${ns}.\${pod}.log\";\
                                      echo \"kubectl -n \${ns} logs --previous \${pod} > ${workdir}/alameda/\${ns}.\${pod}.log.1\";\
                                    done | sh -x"
-    get_command 300 alameda/log "kubectl get svc --all-namespaces | egrep ' alameda-|operator-admission-service|federatorai-operator|prometheus' \
+    get_command 300 alameda/log "kubectl get svc --all-namespaces | egrep ' alameda-|operator-admission-service|federatorai-|prometheus' \
                                  | while read ns pod junk; do \
                                      echo \"kubectl -n \${ns} get svc \${pod} -o yaml > ${workdir}/alameda/svc.\${ns}.\${pod}.yaml\";\
                                    done | sh -x"
-     get_command 180 alameda/log "kubectl get configmaps --all-namespaces | grep federatorai-operator \
+     get_command 180 alameda/log "kubectl get configmaps --all-namespaces | grep federatorai- \
                                   | while read ns cm junk; do \
                                       echo \"kubectl -n \${ns} get configmap \${cm} -o yaml > ${workdir}/alameda/configmap.\${ns}.\${cm}.yaml\"; \
                                     done | sh -x"
@@ -411,12 +411,14 @@ rm -f ${outfile}.temp
     get_command 180 alameda/alamedaservices.yaml "kubectl get alamedaservices --all-namespaces -o yaml"
     # copy /xray.sh from pod and run as "xray.sh [ns] [pod] [dest_dir]"
     # i.e each pod's xray.sh collect its files into <dest_dir>
-    kubectl get pods --all-namespaces | egrep ' alameda-| admission-controller|federatorai-operator' \
-        | while read ns pod junk; do \
-            get_command 180 ${ns}.${pod}/log "dest_dir=${workdir}/${ns}.${pod}; \
-            mkdir -p \${dest_dir}; \
-            kubectl -n ${ns} cp ${pod}:/xray.sh \${dest_dir}/xray.sh; \
-            sh -x \${dest_dir}/xray.sh ${ns} ${pod} \${dest_dir};"
+    kubectl get pods --all-namespaces | egrep ' alameda-| admission-controller|federatorai-' \
+        | while read ns pod junk; do
+            dest_dir=${workdir}/${ns}.${pod}
+            mkdir -pv ${dest_dir}
+            # copy xray.sh from containter and execute it
+            AIHOME="`kubectl -n ${ns} exec ${pod} -- sh -c 'echo $AIHOME'`"
+            [ "${AIHOME}" != "" ] && get_command 180 ${dest_dir}/log "kubectl -n ${ns} cp ${pod}:${AIHOME}/bin/xray.sh ${dest_dir}/xray.sh"
+            [ -f ${dest_dir}/xray.sh ] && get_command 180 ${dest_dir}/log "sh -x ${dest_dir}/xray.sh ${ns} ${pod} ${dest_dir}"
           done
 ) | tee -a ${workdir}/xray.log
 
