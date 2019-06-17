@@ -253,6 +253,7 @@ objects:
     - pods
     verbs:
     - get
+    - list
     - delete
   - apiGroups:
     - ""

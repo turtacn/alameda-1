@@ -9,6 +9,7 @@ import (
 	"github.com/containers-ai/alameda/evictioner/pkg/eviction"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	openshift_apps "github.com/openshift/api/apps"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -68,6 +69,9 @@ func startEvictioner() {
 		scope.Error(err.Error())
 	}
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+		scope.Error(err.Error())
+	}
+	if err := openshift_apps.Install(mgr.GetScheme()); err != nil {
 		scope.Error(err.Error())
 	}
 
