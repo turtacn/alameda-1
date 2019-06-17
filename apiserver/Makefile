@@ -1,6 +1,6 @@
 # compute source code references
 GIT_COMMIT = $(shell git rev-parse --short HEAD || echo 'none')
-_TMP_STR = $(shell git show-ref --abbrev --head | grep "^$(GIT_COMMIT) " | grep -v HEAD | head -1 | awk '{print $NF}')
+_TMP_STR = $(shell git show-ref --abbrev --head | grep "^$(GIT_COMMIT) " | grep -v HEAD | head -1 | awk '{print $$NF}')
 GIT_REF ?= $(shell [ "$(_TMP_STR)" = "" ] && echo "HEAD" || echo $(_TMP_STR))
 GIT_DIRTY = $(shell git diff --quiet || echo '-dirty')
 CODE_VERSION = "$(GIT_REF)@$(GIT_COMMIT)$(GIT_DIRTY)"
