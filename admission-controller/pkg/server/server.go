@@ -19,6 +19,7 @@ import (
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 
+	"github.com/mattbaird/jsonpatch"
 	"github.com/pkg/errors"
 	admission_v1beta1 "k8s.io/api/admission/v1beta1"
 	core_v1 "k8s.io/api/core/v1"
@@ -28,9 +29,23 @@ import (
 )
 
 var (
-	patchType = admission_v1beta1.PatchTypeJSONPatch
-	scope     = log.RegisterScope("admission-controller", "admission-controller", 0)
+	DefaultPodMutatePatchValdationFunction = admission_controller_utils.ValidatePatchFunc(func(patch jsonpatch.JsonPatchOperation) error {
+		return nil
+	})
+	OKD3_9tPodMutatePatchValdationFunction = admission_controller_utils.ValidatePatchFunc(func(patch jsonpatch.JsonPatchOperation) error {
 
+		allowedPatchOperations := map[string]bool{
+			"add": true,
+		}
+		if allowed, exist := allowedPatchOperations[patch.Operation]; !exist || !allowed {
+			return errors.Errorf("cannot patch with operation %s", patch.Operation)
+		}
+
+		return nil
+	})
+
+	patchType                = admission_v1beta1.PatchTypeJSONPatch
+	scope                    = log.RegisterScope("admission-controller", "admission-controller", 0)
 	defaultAdmissionResponse = admission_v1beta1.AdmissionResponse{
 		Allowed: true,
 	}
@@ -53,10 +68,12 @@ type admissionController struct {
 	ownerReferenceTracer  *metadata_utils.OwnerReferenceTracer
 	resourceRecommendator resource.ResourceRecommendator
 	controllerValidator   controller_validator.Validator
+
+	podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc
 }
 
 // NewAdmissionControllerWithConfig creates AdmissionController with configuration and dependencies
-func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, resourceRecommendator resource.ResourceRecommendator, controllerValidator controller_validator.Validator) (AdmissionController, error) {
+func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, resourceRecommendator resource.ResourceRecommendator, controllerValidator controller_validator.Validator, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc) (AdmissionController, error) {
 
 	defaultOwnerReferenceTracer, err := metadata_utils.NewDefaultOwnerReferenceTracer()
 	if err != nil {
@@ -78,6 +95,8 @@ func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, r
 		ownerReferenceTracer:  defaultOwnerReferenceTracer,
 		resourceRecommendator: resourceRecommendator,
 		controllerValidator:   controllerValidator,
+
+		podMutatePatchValdationFunction: podMutatePatchValdationFunction,
 	}
 
 	return ac, nil
@@ -190,9 +209,14 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	if err != nil {
 		return admissionResponse, errors.Wrapf(err, "get patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
-	scope.Infof("patch %s to pod %+v ", patches, pod.ObjectMeta)
+	err = admission_controller_utils.ValidatePatches(patches, ac.podMutatePatchValdationFunction)
+	if err != nil {
+		return admissionResponse, errors.Wrapf(err, "validate patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
+	}
+	patchString := admission_controller_utils.GetK8SPatchesString(patches)
+	scope.Infof("patch %s to pod %+v ", patchString, pod.ObjectMeta)
 
-	admissionResponse.Patch = []byte(patches)
+	admissionResponse.Patch = []byte(patchString)
 	admissionResponse.PatchType = &patchType
 
 	return admissionResponse, nil

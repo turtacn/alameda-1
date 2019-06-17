@@ -13,6 +13,9 @@ enable: false
 # Specified which namespace did the admission-controller deployed on. 
 deployed-namespace: "alameda"
 
+# Option of json patch validation function, empty value may use default function which won't do any validation.
+json-patch-validation-func: "" # openshift3.9
+
 log:
   set-logcallers: true
   output-level: "info" # debug, info, warn, error, fatal, none
