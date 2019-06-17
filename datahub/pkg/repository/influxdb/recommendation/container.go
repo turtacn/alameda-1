@@ -13,6 +13,7 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
+	"math"
 	"strconv"
 )
 
@@ -139,11 +140,13 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[recommendation_entity.ContainerResourceLimitMemory] = numVal
+								memoryBytes := math.Floor(numVal)
+								newFields[recommendation_entity.ContainerResourceLimitMemory] = memoryBytes
 							}
 							if value, ok := initialLimitRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = numVal
+									memoryBytes := math.Floor(numVal)
+									newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = memoryBytes
 								}
 							} else {
 								newFields[recommendation_entity.ContainerInitialResourceLimitMemory] = float64(0)
@@ -183,11 +186,13 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 							}
 						case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
 							if numVal, err := utils.StringToFloat64(datum.NumValue); err == nil {
-								newFields[recommendation_entity.ContainerResourceRequestMemory] = numVal
+								memoryBytes := math.Floor(numVal)
+								newFields[recommendation_entity.ContainerResourceRequestMemory] = memoryBytes
 							}
 							if value, ok := initialRequestRecommendation[datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES]; ok {
 								if numVal, err := utils.StringToFloat64(value.(string)); err == nil {
-									newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = numVal
+									memoryBytes := math.Floor(numVal)
+									newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = memoryBytes
 								}
 							} else {
 								newFields[recommendation_entity.ContainerInitialResourceRequestMemory] = float64(0)
