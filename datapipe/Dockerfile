@@ -10,7 +10,7 @@ RUN cd datapipe && make build
 
 # Copy the controller-manager into a thin image
 FROM alpine:latest
-ENV AIHOME=/opt/alameda/apiserver
+ENV AIHOME=/opt/alameda/datapipe
 WORKDIR ${AIHOME}
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/install_root.tgz /tmp/
 RUN cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \

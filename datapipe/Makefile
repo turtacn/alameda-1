@@ -37,6 +37,7 @@ install: install_dir
 	cp -fv $(SRC_DIR)/build/build-image/etc/datapipe.toml $(DEST_PREFIX)/etc/
 	ln -sfv $(PRODUCT_ROOT)/etc $(INSTALL_ROOT)/etc/alameda/datapipe
 	cp -fv build/build-image/bin/datapipe $(DEST_PREFIX)/bin/
+	cp -fv $(SRC_DIR)/xray.sh $(DEST_PREFIX)/bin/ && chmod 755 $(DEST_PREFIX)/bin/xray.sh
 	# generate version.txt
 	echo "CODE_VERSION=$(CODE_VERSION)" >> $(DEST_PREFIX)/etc/version.txt
 	cd $(INSTALL_ROOT); tar -czvf $(SRC_DIR)/install_root.tgz .; cd -
