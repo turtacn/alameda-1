@@ -62,6 +62,9 @@ spec:
               mountPath: "/var/lib/grafana/dashboards/alameda/nodehealth.json"
               subPath: "nodehealth.json"
             - name: dashboards-alameda
+              mountPath: "/var/lib/grafana/dashboards/alameda/prediction-1day.json"
+              subPath: "prediction-1day.json"
+            - name: dashboards-alameda
               mountPath: "/var/lib/grafana/dashboards/alameda/vpa-recommendation.json"
               subPath: "vpa-recommendation.json"
             - name: dashboards-alameda

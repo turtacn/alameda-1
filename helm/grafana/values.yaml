@@ -231,6 +231,8 @@ dashboards:
       json: dashboards/clusterhealth.json
     nodehealth:
       json: dashboards/nodehealth.json
+    prediction-1day:
+      json: dashboards/prediction-1day.json
 #    prometheus-stats:
 #      gnetId: 2
 #      revision: 2

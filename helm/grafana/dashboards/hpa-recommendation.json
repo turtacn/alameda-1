@@ -15,7 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1560176100221,
+  "id": 10,
+  "iteration": 1560761314622,
   "links": [],
   "panels": [
     {
@@ -227,7 +228,7 @@
           "tags": []
         }
       ],
-      "title": "Managed Controllers",
+      "title": "Managed Controllers with HPA ScalingTool per Selected AlamedaScaler",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -538,7 +539,7 @@
       "tableColumn": "current_cpu_limits",
       "targets": [
         {
-          "expr": "1000 * sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"})",
+          "expr": "1000 * sum(sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -654,7 +655,7 @@
       "tableColumn": "current_cpu_requests",
       "targets": [
         {
-          "expr": "1000 * sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"})",
+          "expr": "1000 * sum(sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -770,7 +771,7 @@
       "tableColumn": "current_mem_limits",
       "targets": [
         {
-          "expr": "sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"})",
+          "expr": "sum(sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -886,7 +887,7 @@
       "tableColumn": "current_mem_requests",
       "targets": [
         {
-          "expr": "sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"})",
+          "expr": "sum(sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -955,7 +956,7 @@
       },
       "height": "",
       "id": 9,
-      "interval": ">60s",
+      "interval": ">30s",
       "legend": {
         "avg": false,
         "current": false,
@@ -1000,7 +1001,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"})",
+          "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1267,7 +1268,7 @@
       },
       "height": "",
       "id": 10,
-      "interval": ">60s",
+      "interval": ">30s",
       "legend": {
         "avg": false,
         "current": false,
@@ -1314,7 +1315,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"})",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1575,9 +1576,8 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
+          "text": "webapp",
+          "value": "webapp"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1601,9 +1601,8 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
+          "text": "nginx-app",
+          "value": "nginx-app"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -1627,9 +1626,8 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
+          "text": "nginx-deployment",
+          "value": "nginx-deployment"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
@@ -1704,7 +1702,7 @@
   },
   "time": {
     "from": "now-1h",
-    "to": "now"
+    "to": "now+20m"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -1734,5 +1732,5 @@
   "timezone": "",
   "title": "HPA Recommendation",
   "uid": "dddy5uda",
-  "version": 1
+  "version": 5
 }
