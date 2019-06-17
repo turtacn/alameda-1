@@ -1,5 +1,9 @@
-API_SERVER_VERSION=$(shell cat build/build-image/VERSION)
-API_SERVER_COMMITID=$(shell git rev-parse HEAD)
+# compute source code references
+GIT_COMMIT = $(shell git rev-parse --short HEAD || echo 'none')
+_TMP_STR = $(shell git show-ref --abbrev --head | grep "^$(GIT_COMMIT) " | grep -v HEAD | head -1 | awk '{print $NF}')
+GIT_REF ?= $(shell [ "$(_TMP_STR)" = "" ] && echo "HEAD" || echo $(_TMP_STR))
+GIT_DIRTY = $(shell git diff --quiet || echo '-dirty')
+CODE_VERSION = "$(GIT_REF)@$(GIT_COMMIT)$(GIT_DIRTY)"
 
 # Image URL to use all building/pushing image targets
 IMG ?= datapipe:v0.0.1
@@ -23,7 +27,7 @@ datapipe: binaries
 
 binaries:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-	  -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" \
+	  -ldflags "-X 'main.VERSION=$(CODE_VERSION)' -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" \
 	  -a -o build/build-image/bin/datapipe github.com/containers-ai/alameda/datapipe/cmd
 
 install_dir:
@@ -33,10 +37,12 @@ install: install_dir
 	cp -fv $(SRC_DIR)/build/build-image/etc/datapipe.toml $(DEST_PREFIX)/etc/
 	ln -sfv $(PRODUCT_ROOT)/etc $(INSTALL_ROOT)/etc/alameda/datapipe
 	cp -fv build/build-image/bin/datapipe $(DEST_PREFIX)/bin/
+	# generate version.txt
+	echo "CODE_VERSION=$(CODE_VERSION)" >> $(DEST_PREFIX)/etc/version.txt
 	cd $(INSTALL_ROOT); tar -czvf $(SRC_DIR)/install_root.tgz .; cd -
 
 clean:
-	rm -fv build/build-image/bin/apiserver install_root.tgz
+	rm -fv build/build-image/bin/datapipe install_root.tgz
 
 clobber: clean
 	rm -rf install_root
@@ -65,9 +71,9 @@ generate:
 
 ## docker-build: Build the docker image.
 docker-build-alpine:
-	docker build .. -t ${IMG} -f Dockerfile
+	docker build -t ${IMG} -f Dockerfile ..
 
 docker-build-ubi:
-	docker build .. -t ${IMG} -f Dockerfile.ubi
+	docker build -t ${IMG} -f Dockerfile.ubi ..
 
 docker-build: docker-build-ubi

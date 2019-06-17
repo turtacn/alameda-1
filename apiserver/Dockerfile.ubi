@@ -1,7 +1,5 @@
 # This Dockerfile is used for building alameda-apiserver on https://connect.redhat.com
 FROM openshift/origin-release:golang-1.11 as builder
-ARG CODE_VERSION=none
-ENV CODE_VERSION=${CODE_VERSION}
 #RUN yum update -y
 
 ENV GOPATH /go
@@ -16,14 +14,13 @@ RUN cd apiserver && make build
 
 # Copy the alameda-apiserver into a thin image
 FROM registry.access.redhat.com/ubi7/ubi-minimal
-ARG CODE_VERSION=none
-ENV CODE_VERSION=${CODE_VERSION} \
-    SUMMARY="Alameda ApiServer is an API gateway for handling gRPC requests." \
+ENV SUMMARY="Alameda ApiServer is an API gateway for handling gRPC requests." \
     DESCRIPTION="Alameda ApiServer is an API gateway for handling gRPC requests." \
     NAME="Alameda ApiServer" \
     VERSION="latest" \
     USER_UID=1001 \
-    USER_NAME=alameda
+    USER_NAME=alameda \
+    AIHOME=/opt/alameda/apiserver
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
@@ -34,7 +31,7 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       vendor="ProphetStor Data Services, Inc."
 
-WORKDIR /root/
+WORKDIR ${AIHOME}
 COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/install_root.tgz /tmp/
 
 RUN set -x \

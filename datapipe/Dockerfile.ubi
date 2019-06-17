@@ -19,7 +19,8 @@ ENV SUMMARY="Alameda DataPipe is an API gateway for handling gRPC requests."	\
     NAME="Alameda DataPipe" \
     VERSION="latest" \
     USER_UID=1001 \
-    USER_NAME=alameda
+    USER_NAME=alameda \
+    AIHOME=/opt/alameda/datapipe
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
@@ -30,7 +31,7 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       vendor="ProphetStor Data Services, Inc."
 
-WORKDIR /root/
+WORKDIR ${AIHOME}
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datapipe/install_root.tgz /tmp/
 
 RUN set -x \
