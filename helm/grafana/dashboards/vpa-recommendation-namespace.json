@@ -17,8 +17,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 7,
-  "iteration": 1560178126502,
+  "id": 12,
+  "iteration": 1560761281179,
   "links": [],
   "panels": [
     {
@@ -479,7 +479,7 @@
       },
       "height": "",
       "id": 9,
-      "interval": ">60s",
+      "interval": ">30s",
       "legend": {
         "avg": false,
         "current": false,
@@ -564,7 +564,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+          "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -710,7 +710,7 @@
       },
       "height": "",
       "id": 10,
-      "interval": ">60s",
+      "interval": ">30s",
       "legend": {
         "avg": false,
         "current": false,
@@ -795,7 +795,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -935,8 +935,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-testns",
-          "value": "alameda-testns"
+          "text": "webapp",
+          "value": "webapp"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1031,7 +1031,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-2h",
     "to": "now"
   },
   "timepicker": {
@@ -1062,5 +1062,5 @@
   "timezone": "",
   "title": "Per Namespace VPA Resource Recommendations",
   "uid": "addaewe",
-  "version": 1
+  "version": 3
 }

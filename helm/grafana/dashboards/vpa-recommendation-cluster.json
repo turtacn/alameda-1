@@ -17,8 +17,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
-  "iteration": 1560178033424,
+  "id": 9,
+  "iteration": 1560761259450,
   "links": [],
   "panels": [
     {
@@ -479,7 +479,7 @@
       },
       "height": "",
       "id": 9,
-      "interval": ">60s",
+      "interval": ">30s",
       "legend": {
         "avg": false,
         "current": false,
@@ -564,10 +564,11 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+          "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "Observation : CPU Usage",
           "refId": "C"
@@ -710,7 +711,7 @@
       },
       "height": "",
       "id": 10,
-      "interval": ">60s",
+      "interval": ">30s",
       "legend": {
         "avg": false,
         "current": false,
@@ -795,9 +796,10 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
           "format": "time_series",
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "Observation: memory usage",
           "refId": "C"
@@ -941,14 +943,14 @@
           ]
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "definition": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
         "hide": 2,
         "includeAll": true,
         "label": "Namespace",
         "multi": true,
         "name": "ns",
         "options": [],
-        "query": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "query": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1035,7 +1037,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-2h",
     "to": "now"
   },
   "timepicker": {
@@ -1066,5 +1068,5 @@
   "timezone": "",
   "title": "Cluster-Wide VPA Resource Recommendations",
   "uid": "addqwe",
-  "version": 1
+  "version": 4
 }

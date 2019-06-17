@@ -1443,7 +1443,8 @@ data:
         "editable": true,
         "gnetId": null,
         "graphTooltip": 0,
-        "iteration": 1560176100221,
+        "id": 10,
+        "iteration": 1560761314622,
         "links": [],
         "panels": [
           {
@@ -1655,7 +1656,7 @@ data:
                 "tags": []
               }
             ],
-            "title": "Managed Controllers",
+            "title": "Managed Controllers with HPA ScalingTool per Selected AlamedaScaler",
             "transform": "table",
             "transparent": false,
             "type": "table"
@@ -1966,7 +1967,7 @@ data:
             "tableColumn": "current_cpu_limits",
             "targets": [
               {
-                "expr": "1000 * sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"})",
+                "expr": "1000 * sum(sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
                 "format": "time_series",
                 "groupBy": [
                   {
@@ -2082,7 +2083,7 @@ data:
             "tableColumn": "current_cpu_requests",
             "targets": [
               {
-                "expr": "1000 * sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"})",
+                "expr": "1000 * sum(sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
                 "format": "time_series",
                 "groupBy": [
                   {
@@ -2198,7 +2199,7 @@ data:
             "tableColumn": "current_mem_limits",
             "targets": [
               {
-                "expr": "sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"})",
+                "expr": "sum(sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
                 "format": "time_series",
                 "groupBy": [
                   {
@@ -2314,7 +2315,7 @@ data:
             "tableColumn": "current_mem_requests",
             "targets": [
               {
-                "expr": "sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"})",
+                "expr": "sum(sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
                 "format": "time_series",
                 "groupBy": [
                   {
@@ -2383,7 +2384,7 @@ data:
             },
             "height": "",
             "id": 9,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -2428,7 +2429,7 @@ data:
             "targets": [
               {
                 "datasource": "Prometheus",
-                "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"})",
+                "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
@@ -2695,7 +2696,7 @@ data:
             },
             "height": "",
             "id": 10,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -2742,7 +2743,7 @@ data:
             "targets": [
               {
                 "datasource": "Prometheus",
-                "expr": "sum(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"})",
+                "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
@@ -3003,9 +3004,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "isNone": true,
-                "text": "None",
-                "value": ""
+                "text": "webapp",
+                "value": "webapp"
               },
               "datasource": "InfluxDB",
               "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -3029,9 +3029,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "isNone": true,
-                "text": "None",
-                "value": ""
+                "text": "nginx-app",
+                "value": "nginx-app"
               },
               "datasource": "InfluxDB",
               "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -3055,9 +3054,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "isNone": true,
-                "text": "None",
-                "value": ""
+                "text": "nginx-deployment",
+                "value": "nginx-deployment"
               },
               "datasource": "InfluxDB",
               "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
@@ -3132,7 +3130,7 @@ data:
         },
         "time": {
           "from": "now-1h",
-          "to": "now"
+          "to": "now+20m"
         },
         "timepicker": {
           "refresh_intervals": [
@@ -3162,7 +3160,7 @@ data:
         "timezone": "",
         "title": "HPA Recommendation",
         "uid": "dddy5uda",
-        "version": 1
+        "version": 5
       }
     
   nodehealth.json:
@@ -4132,7 +4130,7 @@ data:
         "version": 1
       }
     
-  vpa-recommendation.json:
+  prediction-1day.json:
     |-
       {
         "annotations": {
@@ -4151,8 +4149,8 @@ data:
         "editable": true,
         "gnetId": null,
         "graphTooltip": 0,
-        "id": 15,
-        "iteration": 1560176049788,
+        "id": 21,
+        "iteration": 1560761224017,
         "links": [],
         "panels": [
           {
@@ -4613,7 +4611,1474 @@ data:
             },
             "height": "",
             "id": 9,
-            "interval": ">60s",
+            "interval": ">60m",
+            "legend": {
+              "avg": false,
+              "current": false,
+              "hideEmpty": false,
+              "hideZero": false,
+              "max": false,
+              "min": false,
+              "show": true,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+              {
+                "alias": "Observation : CPU Usage",
+                "color": "#5195ce"
+              },
+              {
+                "alias": "Recommendation: CPU limit",
+                "color": "#f2c96d",
+                "steppedLine": true
+              },
+              {
+                "alias": "Recommendation: CPU request",
+                "color": "#7eb26d",
+                "steppedLine": true
+              },
+              {
+                "alias": "Prediction: CPU usage (in 1d)",
+                "color": "#f9e2d2",
+                "dashLength": 5,
+                "dashes": true,
+                "spaceLength": 4
+              },
+              {
+                "alias": "Prediction: CPU usage upperbound (in 1d)",
+                "color": "#fce2de",
+                "fillBelowTo": "Prediction: CPU usage lowerbound (in 1d)",
+                "hideTooltip": false,
+                "legend": false,
+                "lines": false
+              },
+              {
+                "alias": "Prediction: CPU usage lowerbound (in 1d)",
+                "color": "#f9e2d2",
+                "hideTooltip": false,
+                "legend": false,
+                "lines": false
+              },
+              {
+                "alias": "Prediction: CPU usage lowerbound (in 1d)",
+                "lines": false
+              }
+            ],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "datasource": "Prometheus",
+                "expr": "1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}[3600s])",
+                "format": "time_series",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "intervalFactor": 1,
+                "legendFormat": "Observation : CPU Usage",
+                "refId": "C"
+              },
+              {
+                "alias": "Recommendation: CPU limit",
+                "datasource": "InfluxDB",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "hide": true,
+                "orderByTime": "ASC",
+                "policy": "default",
+                "query": "select resource_limit_cpu from \"alameda_recommendation\"..\"container\" where granularity = '3600' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": []
+              },
+              {
+                "alias": "Recommendation: CPU request",
+                "datasource": "InfluxDB",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "hide": true,
+                "orderByTime": "ASC",
+                "policy": "default",
+                "query": "select resource_request_cpu from \"alameda_recommendation\"..\"container\" where granularity = '3600' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "D",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": []
+              },
+              {
+                "alias": "Prediction: CPU usage (in 15m)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": true,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "B",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: CPU usage upperbound (in 15m)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": true,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "F",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: CPU usage lowerbound (in 15m)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": true,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "G",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: CPU usage (in 1d)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": false,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "E",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: CPU usage upperbound (in 1d)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": false,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "H",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: CPU usage lowerbound (in 1d)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": false,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "I",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Container CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
+            "tooltip": {
+              "shared": false,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "decimals": 3,
+                "format": "none",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "decbytes",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": false
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "-- Mixed --",
+            "fill": 0,
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 15
+            },
+            "height": "",
+            "id": 10,
+            "interval": ">60m",
+            "legend": {
+              "avg": false,
+              "current": false,
+              "hideEmpty": false,
+              "hideZero": false,
+              "max": false,
+              "min": false,
+              "show": true,
+              "total": false,
+              "values": false
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "null",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [
+              {
+                "alias": "Observation: memory usage",
+                "color": "#5195ce"
+              },
+              {
+                "alias": "Recommendation: memory limit",
+                "color": "#f2c96d",
+                "steppedLine": true
+              },
+              {
+                "alias": "Recommendation: memory request",
+                "color": "#7eb26d",
+                "steppedLine": true
+              },
+              {
+                "alias": "Prediction: memory usage (1d)",
+                "color": "#f9e2d2",
+                "dashLength": 5,
+                "dashes": true,
+                "spaceLength": 4
+              },
+              {
+                "alias": "Prediction: memory usage upperbound (1d)",
+                "color": "#f9e2d2",
+                "fillBelowTo": "Prediction: memory usage lowerbound (1d)",
+                "lines": false
+              },
+              {
+                "alias": "Prediction: memory usage lowerbound (1d)",
+                "lines": false
+              },
+              {
+                "alias": "Prediction: memory usage lowerbound (1d)",
+                "lines": false
+              }
+            ],
+            "spaceLength": 10,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "datasource": "Prometheus",
+                "expr": "max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}[3600s])",
+                "format": "time_series",
+                "hide": false,
+                "instant": false,
+                "interval": "",
+                "intervalFactor": 1,
+                "legendFormat": "Observation: memory usage",
+                "refId": "C"
+              },
+              {
+                "alias": "Recommendation: memory limit",
+                "datasource": "InfluxDB",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "hide": true,
+                "orderByTime": "ASC",
+                "policy": "default",
+                "query": "select resource_limit_memory from \"alameda_recommendation\"..\"container\" where granularity = '3600' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "B",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": []
+              },
+              {
+                "alias": "Recommendation: memory request",
+                "datasource": "InfluxDB",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "hide": true,
+                "orderByTime": "ASC",
+                "policy": "default",
+                "query": "select resource_request_memory from \"alameda_recommendation\"..\"container\" where granularity = '3600' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "D",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": []
+              },
+              {
+                "alias": "Prediction: memory usage (in 15m)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": true,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: memory usage upperbound (in 15m)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": true,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "E",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: memory usage lowerbound (in 15m)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": true,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "F",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: memory usage (1d)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": false,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'  AND $timeFilter",
+                "rawQuery": true,
+                "refId": "G",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: memory usage upperbound (1d)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": false,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "H",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              },
+              {
+                "alias": "Prediction: memory usage lowerbound (1d)",
+                "datasource": "InfluxDB",
+                "groupBy": [],
+                "hide": false,
+                "measurement": "node_prediction",
+                "orderByTime": "ASC",
+                "policy": "node_prediction",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "rawQuery": true,
+                "refId": "I",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "node",
+                    "operator": "=",
+                    "value": "ip-172-23-1-91.us-east-2.compute.internal"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "type",
+                    "operator": "=",
+                    "value": "cpu"
+                  }
+                ]
+              }
+            ],
+            "thresholds": [],
+            "timeFrom": null,
+            "timeRegions": [],
+            "timeShift": null,
+            "title": "Container Memory: Observation, Prediction, and Recommendation",
+            "tooltip": {
+              "shared": false,
+              "sort": 0,
+              "value_type": "individual"
+            },
+            "type": "graph",
+            "xaxis": {
+              "buckets": null,
+              "mode": "time",
+              "name": null,
+              "show": true,
+              "values": []
+            },
+            "yaxes": [
+              {
+                "decimals": null,
+                "format": "bytes",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "decbytes",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": false
+              }
+            ],
+            "yaxis": {
+              "align": false,
+              "alignLevel": null
+            }
+          }
+        ],
+        "refresh": "5m",
+        "schemaVersion": 16,
+        "style": "dark",
+        "tags": [],
+        "templating": {
+          "list": [
+            {
+              "allValue": null,
+              "current": {
+                "text": "webapp",
+                "value": "webapp"
+              },
+              "datasource": "InfluxDB",
+              "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
+              "hide": 0,
+              "includeAll": false,
+              "label": "Namespace",
+              "multi": false,
+              "name": "ns",
+              "options": [],
+              "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
+              "refresh": 2,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tags": [],
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            },
+            {
+              "allValue": null,
+              "current": {
+                "text": "nginx-app",
+                "value": "nginx-app"
+              },
+              "datasource": "InfluxDB",
+              "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
+              "hide": 0,
+              "includeAll": false,
+              "label": "AlamedaScaler",
+              "multi": false,
+              "name": "scaler",
+              "options": [],
+              "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
+              "refresh": 2,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tags": [],
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            },
+            {
+              "allValue": null,
+              "current": {
+                "text": "nginx-deployment-7bdddc58f9-fkz52",
+                "value": "nginx-deployment-7bdddc58f9-fkz52"
+              },
+              "datasource": "InfluxDB",
+              "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
+              "hide": 0,
+              "includeAll": false,
+              "label": "pod",
+              "multi": false,
+              "name": "pod",
+              "options": [],
+              "query": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
+              "refresh": 2,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tags": [],
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            },
+            {
+              "allValue": null,
+              "current": {
+                "text": "nginx",
+                "value": "nginx"
+              },
+              "datasource": "InfluxDB",
+              "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
+              "hide": 0,
+              "includeAll": false,
+              "label": "container",
+              "multi": false,
+              "name": "container",
+              "options": [],
+              "query": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
+              "refresh": 2,
+              "regex": "",
+              "skipUrlSync": false,
+              "sort": 0,
+              "tagValuesQuery": "",
+              "tags": [],
+              "tagsQuery": "",
+              "type": "query",
+              "useTags": false
+            }
+          ]
+        },
+        "time": {
+          "from": "now-5d",
+          "to": "now+1d"
+        },
+        "timepicker": {
+          "refresh_intervals": [
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+          ],
+          "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+          ]
+        },
+        "timezone": "",
+        "title": "Prediction  (1-day prediction window)",
+        "uid": "56affda",
+        "version": 1
+      }
+    
+  vpa-recommendation.json:
+    |-
+      {
+        "annotations": {
+          "list": [
+            {
+              "builtIn": 1,
+              "datasource": "-- Grafana --",
+              "enable": true,
+              "hide": true,
+              "iconColor": "rgba(0, 211, 255, 1)",
+              "name": "Annotations & Alerts",
+              "type": "dashboard"
+            }
+          ]
+        },
+        "editable": true,
+        "gnetId": null,
+        "graphTooltip": 0,
+        "id": 13,
+        "iteration": 1560761297688,
+        "links": [],
+        "panels": [
+          {
+            "collapsed": false,
+            "gridPos": {
+              "h": 1,
+              "w": 24,
+              "x": 0,
+              "y": 0
+            },
+            "id": 12,
+            "panels": [],
+            "title": "Managed Objects",
+            "type": "row"
+          },
+          {
+            "columns": [],
+            "datasource": "InfluxDB",
+            "description": "",
+            "fontSize": "100%",
+            "gridPos": {
+              "h": 6,
+              "w": 18,
+              "x": 0,
+              "y": 1
+            },
+            "id": 5,
+            "links": [],
+            "pageSize": null,
+            "scroll": true,
+            "showHeader": true,
+            "sort": {
+              "col": 0,
+              "desc": true
+            },
+            "styles": [
+              {
+                "alias": "Time",
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "pattern": "Time",
+                "type": "hidden"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "is_alameda",
+                "thresholds": [],
+                "type": "hidden",
+                "unit": "decgbytes"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "name",
+                "thresholds": [],
+                "type": "hidden",
+                "unit": "short"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "alameda_scaler_namespace",
+                "thresholds": [],
+                "type": "hidden",
+                "unit": "short"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "alameda_scaler_name",
+                "thresholds": [],
+                "type": "hidden",
+                "unit": "short"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "pod_name",
+                "thresholds": [],
+                "type": "hidden",
+                "unit": "short"
+              },
+              {
+                "alias": "AlamedaScaler Name",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "alameda scaler",
+                "thresholds": [],
+                "type": "string",
+                "unit": "short"
+              },
+              {
+                "alias": "Project (Namespace)",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "namespace",
+                "thresholds": [],
+                "type": "string",
+                "unit": "short"
+              },
+              {
+                "alias": "Pod Name",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "pod",
+                "thresholds": [],
+                "type": "string",
+                "unit": "short"
+              },
+              {
+                "alias": "Container Name",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "container",
+                "thresholds": [],
+                "type": "string",
+                "unit": "short"
+              },
+              {
+                "alias": "Node Name",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "node",
+                "thresholds": [],
+                "type": "number",
+                "unit": "short"
+              },
+              {
+                "alias": "Policy",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "policy",
+                "thresholds": [],
+                "type": "string",
+                "unit": "short"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "decimals": 2,
+                "pattern": "/.*/",
+                "thresholds": [],
+                "type": "number",
+                "unit": "short"
+              }
+            ],
+            "targets": [
+              {
+                "expr": "count(up{job=\"kubernetes-nodes\"})",
+                "format": "table",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "intervalFactor": 1,
+                "orderByTime": "ASC",
+                "policy": "default",
+                "query": "select \"name\" as \"container\", alameda_scaler_namespace as namespace, alameda_scaler_name as \"alameda scaler\", pod_name as pod, node_name as node, \"policy\", is_alameda from alameda_cluster_status..container where enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\", \"pod_name\", \"name\" order by time desc limit 1",
+                "rawQuery": true,
+                "refId": "A",
+                "resultFormat": "table",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": []
+              }
+            ],
+            "title": "Managed Containers by VPA scaling Tool",
+            "transform": "table",
+            "transparent": false,
+            "type": "table"
+          },
+          {
+            "columns": [],
+            "datasource": "InfluxDB",
+            "fontSize": "100%",
+            "gridPos": {
+              "h": 6,
+              "w": 6,
+              "x": 18,
+              "y": 1
+            },
+            "id": 4,
+            "links": [],
+            "pageSize": null,
+            "scroll": true,
+            "showHeader": true,
+            "sort": {
+              "col": 4,
+              "desc": true
+            },
+            "styles": [
+              {
+                "alias": "Time",
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "pattern": "Time",
+                "type": "hidden"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "in_cluster",
+                "thresholds": [],
+                "type": "hidden",
+                "unit": "short"
+              },
+              {
+                "alias": "Memory Size",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "node_memory_bytes",
+                "thresholds": [],
+                "type": "number",
+                "unit": "decbytes"
+              },
+              {
+                "alias": "CPU Cores",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 0,
+                "mappingType": 1,
+                "pattern": "node_cpu_cores",
+                "thresholds": [],
+                "type": "number",
+                "unit": "short"
+              },
+              {
+                "alias": "Node Name",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                "decimals": 2,
+                "mappingType": 1,
+                "pattern": "name",
+                "thresholds": [],
+                "type": "string",
+                "unit": "short"
+              },
+              {
+                "alias": "",
+                "colorMode": null,
+                "colors": [
+                  "rgba(245, 54, 54, 0.9)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(50, 172, 45, 0.97)"
+                ],
+                "decimals": 2,
+                "pattern": "/.*/",
+                "thresholds": [],
+                "type": "number",
+                "unit": "short"
+              }
+            ],
+            "targets": [
+              {
+                "expr": "count(up{job=\"kubernetes-nodes\"})",
+                "format": "table",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$__interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "intervalFactor": 1,
+                "orderByTime": "ASC",
+                "policy": "default",
+                "query": "select * from alameda_cluster_status..node",
+                "rawQuery": true,
+                "refId": "A",
+                "resultFormat": "table",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    }
+                  ]
+                ],
+                "tags": []
+              }
+            ],
+            "title": "Managed Nodes",
+            "transform": "table",
+            "transparent": false,
+            "type": "table"
+          },
+          {
+            "collapsed": false,
+            "gridPos": {
+              "h": 1,
+              "w": 24,
+              "x": 0,
+              "y": 7
+            },
+            "id": 7,
+            "panels": [],
+            "title": "Container Resource Usage and Recommendation",
+            "type": "row"
+          },
+          {
+            "aliasColors": {},
+            "bars": false,
+            "dashLength": 10,
+            "dashes": false,
+            "datasource": "-- Mixed --",
+            "fill": 0,
+            "gridPos": {
+              "h": 7,
+              "w": 24,
+              "x": 0,
+              "y": 8
+            },
+            "height": "",
+            "id": 9,
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -4658,16 +6123,17 @@ data:
               {
                 "alias": "Prediction: CPU usage upperbound (in 15m)",
                 "color": "#f9e2d2",
-                "dashLength": 5,
-                "dashes": true,
-                "spaceLength": 4
+                "fillBelowTo": "Prediction: CPU usage lowerbound (in 15m)",
+                "hideTooltip": true,
+                "legend": false,
+                "lines": false
               },
               {
                 "alias": "Prediction: CPU usage lowerbound (in 15m)",
                 "color": "#f9e2d2",
-                "dashLength": 5,
-                "dashes": true,
-                "spaceLength": 4
+                "hideTooltip": false,
+                "legend": false,
+                "lines": false
               },
               {
                 "alias": "Prediction: CPU usage (in 1d)",
@@ -4697,10 +6163,11 @@ data:
             "targets": [
               {
                 "datasource": "Prometheus",
-                "expr": "1000 * namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
+                "expr": "1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}[30s])",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
+                "interval": "30s",
                 "intervalFactor": 1,
                 "legendFormat": "Observation : CPU Usage",
                 "refId": "C"
@@ -4825,7 +6292,7 @@ data:
                 "alias": "Prediction: CPU usage upperbound (in 15m)",
                 "datasource": "InfluxDB",
                 "groupBy": [],
-                "hide": true,
+                "hide": false,
                 "measurement": "node_prediction",
                 "orderByTime": "ASC",
                 "policy": "node_prediction",
@@ -4861,7 +6328,7 @@ data:
                 "alias": "Prediction: CPU usage lowerbound (in 15m)",
                 "datasource": "InfluxDB",
                 "groupBy": [],
-                "hide": true,
+                "hide": false,
                 "measurement": "node_prediction",
                 "orderByTime": "ASC",
                 "policy": "node_prediction",
@@ -5059,7 +6526,7 @@ data:
             },
             "height": "",
             "id": 10,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -5104,16 +6571,17 @@ data:
               {
                 "alias": "Prediction: memory usage upperbound (in 15m)",
                 "color": "#f9e2d2",
-                "dashLength": 5,
-                "dashes": true,
-                "spaceLength": 4
+                "fillBelowTo": "Prediction: memory usage lowerbound (in 15m)",
+                "hideTooltip": false,
+                "legend": false,
+                "lines": false
               },
               {
                 "alias": "Prediction: memory usage lowerbound (in 15m)",
                 "color": "#f9e2d2",
-                "dashLength": 5,
-                "dashes": true,
-                "spaceLength": 4
+                "hideTooltip": false,
+                "legend": false,
+                "lines": false
               },
               {
                 "alias": "Prediction: memory usage (in 1d)",
@@ -5143,10 +6611,11 @@ data:
             "targets": [
               {
                 "datasource": "Prometheus",
-                "expr": "container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}",
+                "expr": "max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=\"$pod\", container_name=\"$container\", container_name!=\"\"}[30s])",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
+                "interval": "30s",
                 "intervalFactor": 1,
                 "legendFormat": "Observation: memory usage",
                 "refId": "C"
@@ -5271,7 +6740,7 @@ data:
                 "alias": "Prediction: memory usage upperbound (in 15m)",
                 "datasource": "InfluxDB",
                 "groupBy": [],
-                "hide": true,
+                "hide": false,
                 "measurement": "node_prediction",
                 "orderByTime": "ASC",
                 "policy": "node_prediction",
@@ -5307,11 +6776,11 @@ data:
                 "alias": "Prediction: memory usage lowerbound (in 15m)",
                 "datasource": "InfluxDB",
                 "groupBy": [],
-                "hide": true,
+                "hide": false,
                 "measurement": "node_prediction",
                 "orderByTime": "ASC",
                 "policy": "node_prediction",
-                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
+                "query": "select value from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" = '$container' and \"pod_name\" = '$pod' and \"namespace\" = '$ns'   AND time >= now()",
                 "rawQuery": true,
                 "refId": "F",
                 "resultFormat": "time_series",
@@ -5500,18 +6969,18 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "nginx",
-                "value": "nginx"
+                "text": "webapp",
+                "value": "webapp"
               },
               "datasource": "InfluxDB",
-              "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
+              "definition": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
               "hide": 0,
               "includeAll": false,
               "label": "Namespace",
               "multi": false,
               "name": "ns",
               "options": [],
-              "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
+              "query": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
               "refresh": 2,
               "regex": "",
               "skipUrlSync": false,
@@ -5525,18 +6994,18 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "alameda",
-                "value": "alameda"
+                "text": "influxdb-app",
+                "value": "influxdb-app"
               },
               "datasource": "InfluxDB",
-              "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
+              "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
               "hide": 0,
               "includeAll": false,
               "label": "AlamedaScaler",
               "multi": false,
               "name": "scaler",
               "options": [],
-              "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\" where \"alameda_scaler_namespace\" = '$ns'",
+              "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
               "refresh": 2,
               "regex": "",
               "skipUrlSync": false,
@@ -5550,18 +7019,18 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "nginx-example-2-7xbfk",
-                "value": "nginx-example-2-7xbfk"
+                "text": "influxdb-0-7bcfd4f68-fdd57",
+                "value": "influxdb-0-7bcfd4f68-fdd57"
               },
               "datasource": "InfluxDB",
-              "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
+              "definition": "select pod_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ group by \"pod_name\" order by time desc limit 1",
               "hide": 0,
               "includeAll": false,
               "label": "pod",
               "multi": false,
               "name": "pod",
               "options": [],
-              "query": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler'",
+              "query": "select pod_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ group by \"pod_name\" order by time desc limit 1",
               "refresh": 2,
               "regex": "",
               "skipUrlSync": false,
@@ -5575,8 +7044,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "nginx-example",
-                "value": "nginx-example"
+                "text": "influxdb-0",
+                "value": "influxdb-0"
               },
               "datasource": "InfluxDB",
               "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
@@ -5631,7 +7100,7 @@ data:
         "timezone": "",
         "title": "VPA Recommendation",
         "uid": "7dqda",
-        "version": 2
+        "version": 9
       }
     
   vpa-recommendation-alamedascaler.json:
@@ -5655,8 +7124,8 @@ data:
         "editable": true,
         "gnetId": null,
         "graphTooltip": 0,
-        "id": 5,
-        "iteration": 1560178093897,
+        "id": 11,
+        "iteration": 1560761288060,
         "links": [],
         "panels": [
           {
@@ -6117,7 +7586,7 @@ data:
             },
             "height": "",
             "id": 9,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -6202,7 +7671,7 @@ data:
               },
               {
                 "datasource": "Prometheus",
-                "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+                "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
@@ -6348,7 +7817,7 @@ data:
             },
             "height": "",
             "id": 10,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -6433,7 +7902,7 @@ data:
               },
               {
                 "datasource": "Prometheus",
-                "expr": "sum(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+                "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
                 "format": "time_series",
                 "instant": false,
                 "intervalFactor": 1,
@@ -6573,8 +8042,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "alameda-testns",
-                "value": "alameda-testns"
+                "text": "webapp",
+                "value": "webapp"
               },
               "datasource": "InfluxDB",
               "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -6598,8 +8067,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "ai",
-                "value": "ai"
+                "text": "influxdb-app",
+                "value": "influxdb-app"
               },
               "datasource": "InfluxDB",
               "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -6669,7 +8138,7 @@ data:
           ]
         },
         "time": {
-          "from": "now-1h",
+          "from": "now-2h",
           "to": "now"
         },
         "timepicker": {
@@ -6700,7 +8169,7 @@ data:
         "timezone": "",
         "title": "Per AlamedaScaler VPA Resource Recommendations",
         "uid": "awdhhqw",
-        "version": 1
+        "version": 3
       }
     
   vpa-recommendation-cluster.json:
@@ -6724,8 +8193,8 @@ data:
         "editable": true,
         "gnetId": null,
         "graphTooltip": 0,
-        "id": 6,
-        "iteration": 1560178033424,
+        "id": 9,
+        "iteration": 1560761259450,
         "links": [],
         "panels": [
           {
@@ -7186,7 +8655,7 @@ data:
             },
             "height": "",
             "id": 9,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -7271,10 +8740,11 @@ data:
               },
               {
                 "datasource": "Prometheus",
-                "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+                "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
+                "interval": "",
                 "intervalFactor": 1,
                 "legendFormat": "Observation : CPU Usage",
                 "refId": "C"
@@ -7417,7 +8887,7 @@ data:
             },
             "height": "",
             "id": 10,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -7502,9 +8972,10 @@ data:
               },
               {
                 "datasource": "Prometheus",
-                "expr": "sum(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+                "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
                 "format": "time_series",
                 "instant": false,
+                "interval": "",
                 "intervalFactor": 1,
                 "legendFormat": "Observation: memory usage",
                 "refId": "C"
@@ -7648,14 +9119,14 @@ data:
                 ]
               },
               "datasource": "InfluxDB",
-              "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+              "definition": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
               "hide": 2,
               "includeAll": true,
               "label": "Namespace",
               "multi": true,
               "name": "ns",
               "options": [],
-              "query": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+              "query": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
               "refresh": 2,
               "regex": "",
               "skipUrlSync": false,
@@ -7742,7 +9213,7 @@ data:
           ]
         },
         "time": {
-          "from": "now-1h",
+          "from": "now-2h",
           "to": "now"
         },
         "timepicker": {
@@ -7773,7 +9244,7 @@ data:
         "timezone": "",
         "title": "Cluster-Wide VPA Resource Recommendations",
         "uid": "addqwe",
-        "version": 1
+        "version": 4
       }
     
   vpa-recommendation-namespace.json:
@@ -7797,8 +9268,8 @@ data:
         "editable": true,
         "gnetId": null,
         "graphTooltip": 0,
-        "id": 7,
-        "iteration": 1560178126502,
+        "id": 12,
+        "iteration": 1560761281179,
         "links": [],
         "panels": [
           {
@@ -8259,7 +9730,7 @@ data:
             },
             "height": "",
             "id": 9,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -8344,7 +9815,7 @@ data:
               },
               {
                 "datasource": "Prometheus",
-                "expr": "1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+                "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
                 "format": "time_series",
                 "hide": false,
                 "instant": false,
@@ -8490,7 +9961,7 @@ data:
             },
             "height": "",
             "id": 10,
-            "interval": ">60s",
+            "interval": ">30s",
             "legend": {
               "avg": false,
               "current": false,
@@ -8575,7 +10046,7 @@ data:
               },
               {
                 "datasource": "Prometheus",
-                "expr": "sum(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"})",
+                "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
                 "format": "time_series",
                 "instant": false,
                 "intervalFactor": 1,
@@ -8715,8 +10186,8 @@ data:
             {
               "allValue": null,
               "current": {
-                "text": "alameda-testns",
-                "value": "alameda-testns"
+                "text": "webapp",
+                "value": "webapp"
               },
               "datasource": "InfluxDB",
               "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -8811,7 +10282,7 @@ data:
           ]
         },
         "time": {
-          "from": "now-1h",
+          "from": "now-2h",
           "to": "now"
         },
         "timepicker": {
@@ -8842,6 +10313,6 @@ data:
         "timezone": "",
         "title": "Per Namespace VPA Resource Recommendations",
         "uid": "addaewe",
-        "version": 1
+        "version": 3
       }
     
