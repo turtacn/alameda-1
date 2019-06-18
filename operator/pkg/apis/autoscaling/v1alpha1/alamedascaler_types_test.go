@@ -36,13 +36,11 @@ func TestStorageAlamedaScaler(t *testing.T) {
 			Namespace: "default",
 		},
 		Spec: AlamedaScalerSpec{
-			Selector:       &metav1.LabelSelector{},
+			Selector:        &metav1.LabelSelector{},
 			EnableExecution: true,
 		},
 		Status: AlamedaScalerStatus{
 			AlamedaController: AlamedaController{
-				Deployments:       map[NamespacedName]AlamedaResource{},
-				DeploymentConfigs: map[NamespacedName]AlamedaResource{},
 			},
 		},
 	}
