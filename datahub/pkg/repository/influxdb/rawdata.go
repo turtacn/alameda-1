@@ -88,7 +88,7 @@ func WriteRawdata(config *Config, writeRawdata []*Common.WriteRawdata) error {
 }
 
 func InfluxResultToReadRawdata(results []InfluxDBClient.Result, query *Common.Query) *Common.ReadRawdata {
-	readRawdata := Common.ReadRawdata{ Query: query }
+	readRawdata := Common.ReadRawdata{Query: query}
 
 	if len(results[0].Series) == 0 {
 		return &readRawdata
@@ -253,5 +253,4 @@ func changeFormat(value string, dataType Common.DataType) interface{} {
 		fmt.Println("not support")
 		return value
 	}
-	return ""
 }

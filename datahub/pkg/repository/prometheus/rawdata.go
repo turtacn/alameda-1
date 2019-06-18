@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	DAO    "github.com/containers-ai/alameda/datapipe/pkg/dao"
+	DAO "github.com/containers-ai/alameda/datapipe/pkg/dao"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"time"
@@ -39,7 +39,7 @@ func ReadRawdata(config *Config, queries []*Common.Query) ([]*Common.ReadRawdata
 		queryExpression := ""
 		queryCondition := BuildQueryCondition(query)
 
-		options := []Option {
+		options := []Option{
 			StartTime(queryCondition.StartTime),
 			EndTime(queryCondition.EndTime),
 			Timeout(queryCondition.Timeout),
@@ -160,7 +160,7 @@ func BuildQueryCondition(query *Common.Query) DAO.QueryCondition {
 }
 
 func PrometheusResponseToReadRawdata(response *Response, query *Common.Query) *Common.ReadRawdata {
-	readRawdata := Common.ReadRawdata{ Query: query }
+	readRawdata := Common.ReadRawdata{Query: query}
 
 	if len(response.Data.Result) == 0 {
 		return &readRawdata
