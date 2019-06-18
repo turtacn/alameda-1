@@ -136,6 +136,16 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.DeleteAlamedaNodesRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
+    self.ReadRawdata = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ReadRawdata',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ReadRawdataRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ReadRawdataResponse.FromString,
+        )
+    self.WriteRawdata = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/WriteRawdata',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.WriteRawdataRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
     self.ListWeaveScopeHosts = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListWeaveScopeHosts',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListWeaveScopeHostsRequest.SerializeToString,
@@ -351,6 +361,20 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ReadRawdata(self, request, context):
+    """Used to read rawdata from database
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def WriteRawdata(self, request, context):
+    """Used to write rawdata to database
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def ListWeaveScopeHosts(self, request, context):
     """weave scope--------------------------------------------------
     """
@@ -528,6 +552,16 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'DeleteAlamedaNodes': grpc.unary_unary_rpc_method_handler(
           servicer.DeleteAlamedaNodes,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.DeleteAlamedaNodesRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'ReadRawdata': grpc.unary_unary_rpc_method_handler(
+          servicer.ReadRawdata,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ReadRawdataRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ReadRawdataResponse.SerializeToString,
+      ),
+      'WriteRawdata': grpc.unary_unary_rpc_method_handler(
+          servicer.WriteRawdata,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.WriteRawdataRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'ListWeaveScopeHosts': grpc.unary_unary_rpc_method_handler(

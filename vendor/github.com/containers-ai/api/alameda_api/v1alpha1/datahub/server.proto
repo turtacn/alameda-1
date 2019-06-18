@@ -10,6 +10,7 @@ import "alameda_api/v1alpha1/datahub/metric.proto";
 import "alameda_api/v1alpha1/datahub/resource.proto";
 import "alameda_api/v1alpha1/datahub/recommendation.proto";
 import "alameda_api/v1alpha1/datahub/score.proto";
+import "common/common.proto";
 
 message QueryCondition {
     TimeRange time_range = 1;
@@ -312,6 +313,34 @@ message WeaveScopeResponse {
 }
 
 /**
+ * Represents a request for reading rawdata from database
+ *
+ */
+message ReadRawdataRequest {
+    containersai.common.DatabaseType database_type = 1;
+    repeated containersai.common.Query queries = 2;
+}
+
+/**
+ * Represents a response for listing rawdata from database
+ *
+ */
+message ReadRawdataResponse {
+    google.rpc.Status status = 1;
+    repeated containersai.common.ReadRawdata rawdata = 2;
+}
+
+/**
+ * Represents a request for writing rawdata to database
+ *
+ */
+message WriteRawdataRequest {
+    containersai.common.DatabaseType database_type = 1;
+    repeated containersai.common.WriteRawdata rawdata = 2;
+}
+
+
+/**
  * Service for providing data stored in the backend
  */
 service DatahubService {
@@ -408,6 +437,14 @@ service DatahubService {
     // Used to stop generating predictions for the nodes
     rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
         returns (google.rpc.Status){}
+
+    // Used to read rawdata from database
+    rpc ReadRawdata(ReadRawdataRequest)
+        returns (ReadRawdataResponse) {}
+
+    // Used to write rawdata to database
+    rpc WriteRawdata(WriteRawdataRequest)
+        returns (google.rpc.Status) {}
 
     //weave scope--------------------------------------------------
     rpc ListWeaveScopeHosts(ListWeaveScopeHostsRequest)
