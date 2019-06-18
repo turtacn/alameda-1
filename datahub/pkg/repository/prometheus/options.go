@@ -1,8 +1,8 @@
 package prometheus
 
 import (
-	"time"
 	"github.com/containers-ai/alameda/datahub/pkg/dao"
+	"time"
 )
 
 type Options struct {
