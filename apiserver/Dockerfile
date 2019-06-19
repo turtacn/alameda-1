@@ -8,15 +8,26 @@ ADD . .
 # Build
 RUN cd apiserver && make build
 
-# Copy the controller-manager into a thin image
+# Prepare the package into a thin image
 FROM alpine:latest
-ENV AIHOME=/opt/alameda/apiserver
+ENV AIHOME=/opt/alameda/apiserver \
+    USER_UID=1001 \
+    USER_NAME=alameda
+
 WORKDIR ${AIHOME}
 COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/install_root.tgz /tmp/
-RUN cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \
-    && chown -R 1001:0 ${AIHOME} \
-    && mkdir -p /var/log/alameda && chmod 777 /var/log/alameda
+
+RUN set -x \
+    && apk add --no-cache tini && rm -rfv /var/cache/apk/* \
+    && adduser -h ${AIHOME} -g "Federator.ai" -s /bin/sh -G root -D -u ${USER_UID} ${USER_NAME} \
+    && chmod ug+w /var/log \
+    # install packages
+    && cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \
+    && chown -R ${USER_UID}:root ${AIHOME} && chmod -R ug+w ${AIHOME} \
+    && mkdir -pv -m 775 /var/log/alameda && chown -R ${USER_UID}:root /var/log/alameda
 
 EXPOSE 50055/tcp
 
-ENTRYPOINT ["/opt/alameda/apiserver/bin/apiserver", "run" ]
+USER ${USER_UID}
+ENTRYPOINT ["/sbin/tini","-v", "--"]
+CMD ["/init.sh"]

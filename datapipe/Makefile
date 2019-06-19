@@ -40,6 +40,8 @@ install: install_dir
 	cp -fv $(SRC_DIR)/xray.sh $(DEST_PREFIX)/bin/ && chmod 755 $(DEST_PREFIX)/bin/xray.sh
 	# generate version.txt
 	echo "CODE_VERSION=$(CODE_VERSION)" >> $(DEST_PREFIX)/etc/version.txt
+	# init.sh
+	cp -fv $(SRC_DIR)/init.sh $(INSTALL_ROOT)/init.sh && chmod 755 $(INSTALL_ROOT)/init.sh
 	cd $(INSTALL_ROOT); tar -czvf $(SRC_DIR)/install_root.tgz .; cd -
 
 clean:
