@@ -16,19 +16,18 @@ Here is an example _alamedascaler_ CR:
       app.federator.ai/part-of: wordpress
   spec:
     policy: stable
-    scalingTools: ["hpa"]
+    scalingTool:
+      type: vpa
     enableexecution: false
     selector:
       matchLabels:
         app: mysql
-    rollingUpdate:
-      maxUnavailablePercentage: 30
 ```
 
 In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s deployment and deploymentconfig objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda.
-The `policy` field tells Alameda to make recommendations with _stable_ policy and the tools in `scalingTools` field will be used in the recommendations. The scalingTools precedence is VPA and then HPA. The `enableexecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR.  
+The `policy` field tells Alameda to make recommendations with _stable_ policy and the _vpa_ type `scalingTool` will be used in the recommendations. The `enableexecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR.
 Please also note that the label `app.federator.ai/name` of this CR tells Alameda that the selected objects by this CR belongs to application _nginx_ and the label `app.federator.ai/part-of` says they are also part of the higher application called _wordpress_. In another word, the _wordpress_ application is built by _nginx_ and maybe also other components, and this AlamedaScaler CR is created to autoscale the _nginx_ deployment.  
-For detailed _AlamedaScaler_ schema, please check out the last section of this document.
+For detailed _AlamedaScaler_ schema, check out the remaining sections of this document.
 
 > **Note:** The supported K8s api objects are created by resource _kind_:
 - ```Deployment``` of _groupversion_ ```apps/v1```, ```apps/v1beta1```, ```apps/v1beta2```, ```extentions/v1beta1``` and
@@ -55,7 +54,10 @@ items:
   spec:
     enableexecution: false
     policy: stable
-    scalingTools: ["vpa"]
+    scalingTool:
+      type: vpa
+      executionStrategy:
+        maxUnavailable: 25%
     selector:
       matchLabels:
         app.kubernetes.io/name: alameda-ai
@@ -116,24 +118,29 @@ app.federator.ai/part-of  | The name of a higher level application this one is p
 - Field: policy
   - type: string
   - description: Policy used by Alameda for resource recommendations. _stable_ and _compact_ are supported. Default is _stable_.
-- Field: scalingTools
-  - type: string array
-  - description: Scaling tools that can be used to make recommendations. _vpa_ and _hpa_ are supported. Default is _vpa_.
-> **Note** : If _vpa_ and _hpa_ are both specified, only _vpa_ will be used to make recommendations.
+- Field: scalingTool
+  - type: [ScalingToolSpec](#scalingtoolspec)
+  - description: Scaling tool configuration.
 - Field: enableexecution
   - type: boolean
   - description: Set to _true_ to enable recommendation execution for api objects selected by this AlamedaScaler. Default is _false_.
 - Field: selector
   - type: LabelSelector
   - description: This follows the _LabelSelector_ definition in [Kubernetes API Reference](https://kubernetes.io/docs/reference/#api-reference) except that Alameda only processes the `matchLabels` field of `LabelSelector`.
-- Field: rollingUpdate
-  - type: RollingUpdateStrategy
-  - description: Spec of strategy while doing rolling update.
 
-### RollingUpdateStrategy
+### ScalingToolSpec
 
-- Field: maxUnavailablePercentage
-  - type: number
-  - format: double
-  - description: Set the maximum percentage of unavailable pods that can be tolerable during rolling update. Alameda-Evictioner will keep at least ((spec.replicas) * (100 - maxUnavailablePercentage)/100) of pods in running in Deployments and DeploymentConfig to prevent service offline.
- 
+- Field: type
+  - type: string
+  - description: Type of scaling tool that will be used in recommendations. Currently supported tools are _vpa_ and _hpa_.
+_vpa_ means Alameda will make recommendations to change the cpu and memory resource _limit_ and _request_ of a managed container. _hpa_ means Alameda will make recommendations to change the _replicas_ of a managed _Deployment_/_DeploymentConfig_ object. Default is _hpa_.
+- Field: executionStrategy
+  - type: [ExecutionStrategy](#executionstrategy)
+  - description: Configuration of execution strategy.
+
+### ExecutionStrategy
+
+- Field: maxUnavailable
+  - type: string
+  - description: The maximum number of unavailable pods that can be tolerable during rolling update. The value can be an absoult number or a percentage of desired pods. Absolute number is calculated from percentage by rounding up. Alameda-Evictioner will keep at least (spec.replicas - absoult number) of pods in running in Deployments/DeploymentConfig to prevent service offline. For example: when this field is set to 30%, and their are 4 replicas running in the Deployments, Alameda-Evictioner will keep 2 (calculated from 4 - round_up(4 * 0.3)) pods in running phase while doing rolling update. This field can not be 0 and the default value is 25%.
+> **Note** : This option will only work for _vpa_ scalingTool. For _hpa_ scalingTool, the rolling update policy is specified in the _Deployment_/_DeploymentConfig_ object itself.
