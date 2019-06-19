@@ -79,7 +79,6 @@ func (s *Statement) SetLimitClauseFromQueryCondition(queryCondition QueryConditi
 }
 
 func (s Statement) BuildQueryCmd() string {
-
 	var (
 		cmd        = ""
 		fieldsStr  = "*"
@@ -89,7 +88,12 @@ func (s Statement) BuildQueryCmd() string {
 	if len(s.SelectedFields) > 0 {
 		fieldsStr = ""
 		for _, field := range s.SelectedFields {
-			fieldsStr += fmt.Sprintf(`"%s",`, field)
+			if strings.Index(field, "(") > 0 {
+				fieldsStr += fmt.Sprintf(`%s,`, field)
+			} else {
+				fieldsStr += fmt.Sprintf(`"%s",`, field)
+			}
+
 		}
 		fieldsStr = strings.TrimSuffix(fieldsStr, ",")
 	}
@@ -97,7 +101,12 @@ func (s Statement) BuildQueryCmd() string {
 	if len(s.GroupByTags) > 0 {
 		groupByStr = "GROUP BY "
 		for _, field := range s.GroupByTags {
-			groupByStr += fmt.Sprintf(`"%s",`, field)
+			tempField := strings.Split(field, "(")
+			if tempField[0] == "time" {
+				groupByStr += fmt.Sprintf(`%s,`, field)
+			} else {
+				groupByStr += fmt.Sprintf(`"%s",`, field)
+			}
 		}
 		groupByStr = strings.TrimSuffix(groupByStr, ",")
 	}

@@ -32,11 +32,15 @@ func NewNodeRepositoryWithConfig(influxDBCfg influxdb.Config) *NodeRepository {
 func (r *NodeRepository) ListNodeMetrics(in *datahub_v1alpha1.ListNodeMetricsRequest) ([]*datahub_v1alpha1.NodeMetric, error) {
 	nodeMetricList := make([]*datahub_v1alpha1.NodeMetric, 0)
 
+	groupByTime := fmt.Sprintf("%s(%ds)", node_entity.NodeTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
+	SelectedFields := fmt.Sprintf("sum(%s) as %s", node_entity.Value, node_entity.Value)
+
 	whereClause := r.buildInfluxQLWhereClauseFromRequest(in)
 	influxdbStatement := influxdb.Statement{
-		Measurement: influxdb.Measurement(node_entity.MetricMeasurementName),
-		WhereClause: whereClause,
-		GroupByTags: []string{node_entity.Name, node_entity.MetricType},
+		Measurement:    influxdb.Measurement(node_entity.MetricMeasurementName),
+		SelectedFields: []string{SelectedFields},
+		WhereClause:    whereClause,
+		GroupByTags:    []string{node_entity.Name, node_entity.MetricType, groupByTime},
 	}
 
 	queryCondition := influxdb.QueryCondition{
@@ -57,7 +61,6 @@ func (r *NodeRepository) ListNodeMetrics(in *datahub_v1alpha1.ListNodeMetricsReq
 	}
 
 	rows := influxdb.PackMap(results)
-	fmt.Print(rows)
 
 	nodeMetricList = r.getNodeMetricsFromInfluxRows(rows)
 	return nodeMetricList, nil
