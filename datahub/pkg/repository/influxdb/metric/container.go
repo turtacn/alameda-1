@@ -1,6 +1,7 @@
 package metric
 
 import (
+	"fmt"
 	container_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/metric/container"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
@@ -36,11 +37,15 @@ func NewContainerRepositoryWithConfig(influxDBCfg influxdb.Config) *ContainerRep
 func (r *ContainerRepository) ListContainerMetrics(in *datahub_v1alpha1.ListPodMetricsRequest) ([]*datahub_v1alpha1.PodMetric, error) {
 	podMetricList := make([]*datahub_v1alpha1.PodMetric, 0)
 
+	groupByTime := fmt.Sprintf("%s(%ds)", container_entity.PodTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
+	selectedField := fmt.Sprintf("sum(%s) as %s", container_entity.Value, container_entity.Value)
+
 	whereClause := r.buildInfluxQLWhereClauseFromRequest(in)
 	influxdbStatement := influxdb.Statement{
-		Measurement: influxdb.Measurement(container_entity.MetricMeasurementName),
-		WhereClause: whereClause,
-		GroupByTags: []string{container_entity.PodNamespace, container_entity.PodName, container_entity.Name, container_entity.MetricType},
+		Measurement:    influxdb.Measurement(container_entity.MetricMeasurementName),
+		SelectedFields: []string{selectedField},
+		WhereClause:    whereClause,
+		GroupByTags:    []string{container_entity.PodNamespace, container_entity.PodName, container_entity.Name, container_entity.MetricType, groupByTime},
 	}
 
 	queryCondition := influxdb.QueryCondition{
