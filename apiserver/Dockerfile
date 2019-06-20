@@ -18,9 +18,12 @@ WORKDIR ${AIHOME}
 COPY --from=builder /go/src/github.com/containers-ai/alameda/apiserver/install_root.tgz /tmp/
 
 RUN set -x \
-    && apk add --no-cache tini && rm -rfv /var/cache/apk/* \
+    && apk add --no-cache tini logrotate && rm -rfv /var/cache/apk/* \
     && adduser -h ${AIHOME} -g "Federator.ai" -s /bin/sh -G root -D -u ${USER_UID} ${USER_NAME} \
-    && chmod ug+w /var/log \
+    # The following lines for logrotate - startup script will add running user id into /etc/passwd
+    && chmod g+w /etc/passwd \
+    # logrotate need writable permission on "/var/lib/"
+    && chmod ug+w /var/lib /var/log \
     # install packages
     && cd / && tar xzvf /tmp/install_root.tgz && rm -fv /tmp/install_root.tgz \
     && chown -R ${USER_UID}:root ${AIHOME} && chmod -R ug+w ${AIHOME} \

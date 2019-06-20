@@ -31,7 +31,7 @@ binaries:
 	  -a -o build/build-image/bin/datapipe github.com/containers-ai/alameda/datapipe/cmd
 
 install_dir:
-	mkdir -p $(INSTALL_ROOT)/etc/alameda $(DEST_PREFIX)/bin $(DEST_PREFIX)/etc
+	mkdir -pv $(INSTALL_ROOT)/etc/logrotate.d $(INSTALL_ROOT)/etc/alameda $(DEST_PREFIX)/bin $(DEST_PREFIX)/etc
 
 install: install_dir
 	cp -fv $(SRC_DIR)/build/build-image/etc/datapipe.toml $(DEST_PREFIX)/etc/
@@ -40,6 +40,9 @@ install: install_dir
 	cp -fv $(SRC_DIR)/xray.sh $(DEST_PREFIX)/bin/ && chmod 755 $(DEST_PREFIX)/bin/xray.sh
 	# generate version.txt
 	echo "CODE_VERSION=$(CODE_VERSION)" >> $(DEST_PREFIX)/etc/version.txt
+	# logrotate.conf
+	cp -fv $(SRC_DIR)/logrotate.conf $(DEST_PREFIX)/etc/
+	ln -sfv $(PRODUCT_ROOT)/etc/logrotate.conf $(INSTALL_ROOT)/etc/logrotate.d/alameda-datapipe
 	# init.sh
 	cp -fv $(SRC_DIR)/init.sh $(INSTALL_ROOT)/init.sh && chmod 755 $(INSTALL_ROOT)/init.sh
 	cd $(INSTALL_ROOT); tar -czvf $(SRC_DIR)/install_root.tgz .; cd -
