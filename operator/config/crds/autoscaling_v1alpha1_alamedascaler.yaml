@@ -37,19 +37,20 @@ spec:
               - stable
               - compact
               type: string
-            rollingUpdate:
+            scalingTool:
               properties:
-                maxUnavailablePercentage:
-                  format: double
-                  type: number
+                executionStrategy:
+                  properties:
+                    maxUnavailable:
+                      pattern: ^\d*[1-9]+\d*(%?$)$|^\d*[1-9]+\d*\.\d*(%?$)$|^\d*\.\d*[1-9]+\d*(%?$)$
+                      type: string
+                  type: object
+                type:
+                  enum:
+                  - vpa
+                  - hpa
+                  type: string
               type: object
-            scalingTools:
-              items:
-                enum:
-                - vpa
-                - hpa
-                type: string
-              type: array
             selector:
               description: 'Important: Run "make" to regenerate code after modifying
                 this file'

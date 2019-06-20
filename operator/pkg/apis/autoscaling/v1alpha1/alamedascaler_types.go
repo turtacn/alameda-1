@@ -27,10 +27,6 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-const (
-	defaultMaxUnavailablePercentage = float64(50)
-)
-
 type enableExecution = bool
 type alamedaPolicy = string
 type NamespacedName = string
@@ -87,6 +83,35 @@ var (
 	}
 )
 
+type ExecutionStrategy struct {
+	// +kubebuilder:validation:Pattern=^\d*[1-9]+\d*(%?$)$|^\d*[1-9]+\d*\.\d*(%?$)$|^\d*\.\d*[1-9]+\d*(%?$)$
+	MaxUnavailable string `json:"maxUnavailable,omitempty" protobuf:"bytes,1,name=max_unavailable"`
+}
+
+const (
+	DefaultMaxUnavailablePercentage = "25%"
+)
+
+var (
+	defaultExecutionStrategy = ExecutionStrategy{
+		MaxUnavailable: DefaultMaxUnavailablePercentage,
+	}
+)
+
+type ScalingToolType = string
+
+const (
+	ScalingToolTypeVPA     ScalingToolType = "vpa"
+	ScalingToolTypeHPA     ScalingToolType = "hpa"
+	ScalingToolTypeDefault ScalingToolType = ScalingToolTypeHPA
+)
+
+type ScalingToolSpec struct {
+	// +kubebuilder:validation:Enum=vpa,hpa
+	Type              string             `json:"type,omitempty" protobuf:"bytes,1,name=type"`
+	ExecutionStrategy *ExecutionStrategy `json:"executionStrategy,omitempty" protobuf:"bytes,2,name=execution_strategy"`
+}
+
 type scalingToolType string
 
 const (
@@ -95,10 +120,6 @@ const (
 	DefaultScalingTool bool            = true
 )
 
-type RollingUpdateStrategy struct {
-	MaxUnavailablePercentage float64 `json:"maxUnavailablePercentage,omitempty" protobuf:"bytes,1,name=max_unavailabel_percentage"`
-}
-
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
 // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
@@ -106,11 +127,9 @@ type AlamedaScalerSpec struct {
 	Selector        *metav1.LabelSelector `json:"selector" protobuf:"bytes,1,name=selector"`
 	EnableExecution enableExecution       `json:"enableexecution,omitempty" protobuf:"bytes,2,name=enable_execution"`
 	// +kubebuilder:validation:Enum=stable,compact
-	Policy                alamedaPolicy `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
-	CustomResourceVersion string        `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
-	// +kubebuilder:validation:Enum=vpa,hpa
-	ScalingTools  []scalingToolType     `json:"scalingTools,omitempty" protobuf:"bytes,5,opt,name=scaling_tools"`
-	RollingUpdate RollingUpdateStrategy `json:"rollingUpdate,omitempty" protobuf:"bytes,6,name=rolling_update"`
+	Policy                alamedaPolicy   `json:"policy,omitempty" protobuf:"bytes,3,opt,name=policy"`
+	CustomResourceVersion string          `json:"customResourceVersion,omitempty" protobuf:"bytes,4,opt,name=custom_resource_version"`
+	ScalingTool           ScalingToolSpec `json:"scalingTool,omitempty" protobuf:"bytes,5,opt,name=scaling_tool"`
 }
 
 // AlamedaScalerStatus defines the observed state of AlamedaScaler
@@ -142,16 +161,12 @@ var (
 
 func (as *AlamedaScaler) setDefaultValueToScalingTools() {
 	sct := ScalingToolstruct{VpaFlag: false, HpaFlag: false}
-	if len(as.Spec.ScalingTools) > 0 {
-		for _, value := range as.Spec.ScalingTools {
-			if value == EnableVPA {
-				sct.VpaFlag = true
-			}
-			if value == EnableHPA {
-				sct.HpaFlag = true
-			}
-		}
-	} else { //default scalingTool is vpa
+	switch as.Spec.ScalingTool.Type {
+	case string(EnableVPA):
+		sct.VpaFlag = true
+	case string(EnableHPA):
+		sct.HpaFlag = true
+	default:
 		sct.VpaFlag = DefaultScalingTool
 	}
 	ScalingTool = sct
@@ -159,6 +174,7 @@ func (as *AlamedaScaler) setDefaultValueToScalingTools() {
 
 func (as *AlamedaScaler) SetDefaultValue() { //this function is set alamedascaler default value
 	as.setDefaultValueToScalingTools()
+	as.setDefaultScalingTool()
 }
 
 func (as *AlamedaScaler) SetCustomResourceVersion(v string) {
@@ -168,15 +184,6 @@ func (as *AlamedaScaler) SetCustomResourceVersion(v string) {
 func (as *AlamedaScaler) GenCustomResourceVersion() string {
 	v := as.ResourceVersion
 	return v
-}
-
-func (as *AlamedaScaler) GetMaxUnavailablePercentage() float64 {
-
-	maxUnavailablePercentage := as.Spec.RollingUpdate.MaxUnavailablePercentage
-	if maxUnavailablePercentage == 0 {
-		maxUnavailablePercentage = defaultMaxUnavailablePercentage
-	}
-	return maxUnavailablePercentage
 }
 
 func (as *AlamedaScaler) ResetStatusAlamedaController() {
@@ -210,6 +217,35 @@ func (as *AlamedaScaler) GetLabelMapToSetToAlamedaRecommendationLabel() map[stri
 	m := make(map[string]string)
 	m["alamedascaler"] = fmt.Sprintf("%s.%s", as.GetName(), as.GetNamespace())
 	return m
+}
+
+func (as *AlamedaScaler) IsScalingToolTypeHPA() bool {
+	return as.Spec.ScalingTool.Type == ScalingToolTypeHPA
+}
+
+func (as *AlamedaScaler) IsScalingToolTypeVPA() bool {
+	return as.Spec.ScalingTool.Type == ScalingToolTypeVPA
+}
+
+func (as *AlamedaScaler) setDefaultScalingTool() {
+
+	if as.Spec.ScalingTool.Type == "" {
+		as.Spec.ScalingTool.Type = ScalingToolTypeDefault
+	}
+
+	if as.Spec.ScalingTool.Type == ScalingToolTypeVPA {
+		if as.Spec.ScalingTool.ExecutionStrategy == nil {
+			as.setDefaultExecutionStrategyDefault()
+		}
+		if as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable == "" || as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable == "0" || as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable == "0%" {
+			as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable = DefaultMaxUnavailablePercentage
+		}
+	}
+}
+
+func (as *AlamedaScaler) setDefaultExecutionStrategyDefault() {
+	copyDefaultExecutionStrategy := defaultExecutionStrategy
+	as.Spec.ScalingTool.ExecutionStrategy = &copyDefaultExecutionStrategy
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
