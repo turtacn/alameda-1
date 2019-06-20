@@ -23,8 +23,20 @@ cron_run_hourly()
     exit 0
 }
 
+#
+# Main
+#
+
+# start crond only
+case "$1" in
+    "crond")
+        cron_run_hourly
+        exit $?
+        ;;
+esac
+
 # start crond
-cron_run_hourly &
+$0 crond &
 
 # start main service
 while :; do
