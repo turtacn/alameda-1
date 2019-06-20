@@ -535,8 +535,8 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			StartTime:     startTime,
 			TopController: topCtrl,
 			Status:        podStatus,
-			Enable_VPA:    autoscalingv1alpha1.ScalingTool.VpaFlag,
-			Enable_HPA:    autoscalingv1alpha1.ScalingTool.HpaFlag,
+			Enable_VPA:    scaler.IsScalingToolTypeVPA(),
+			Enable_HPA:    scaler.IsScalingToolTypeHPA(),
 			AppName:       appName,
 			AppPartOf:     appPartOf,
 		})
