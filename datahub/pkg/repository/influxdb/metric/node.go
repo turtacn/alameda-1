@@ -35,24 +35,26 @@ func (r *NodeRepository) ListNodeMetrics(in *datahub_v1alpha1.ListNodeMetricsReq
 	groupByTime := fmt.Sprintf("%s(%ds)", node_entity.NodeTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
 	SelectedFields := fmt.Sprintf("sum(%s) as %s", node_entity.Value, node_entity.Value)
 
-	whereClause := r.buildInfluxQLWhereClauseFromRequest(in)
-	influxdbStatement := influxdb.Statement{
+	influxdbStatement := influxdb.StatementNew{
 		Measurement:    influxdb.Measurement(node_entity.MetricMeasurementName),
 		SelectedFields: []string{SelectedFields},
-		WhereClause:    whereClause,
 		GroupByTags:    []string{node_entity.Name, node_entity.MetricType, groupByTime},
 	}
 
-	queryCondition := influxdb.QueryCondition{
-		//StartTime:      in.GetQueryCondition().GetTimeRange().GetStartTime(),
-		//EndTime:        request.QueryCondition.EndTime,
-		//StepTime:       request.QueryCondition.StepTime,
-		TimestampOrder: influxdb.Order(in.GetQueryCondition().GetOrder()),
-		Limit:          int(in.GetQueryCondition().GetLimit()),
+	nodeList := in.GetNodeNames()
+	whereNames := ""
+	for _, value := range nodeList {
+		whereNames += fmt.Sprintf("\"%s\"='%s' OR ", node_entity.Name, value)
 	}
-	//influxdbStatement.AppendTimeConditionIntoWhereClause(queryCondition)
-	influxdbStatement.SetLimitClauseFromQueryCondition(queryCondition)
-	influxdbStatement.SetOrderClauseFromQueryCondition(queryCondition)
+	whereNames = strings.TrimSuffix(whereNames, "OR ")
+	whereNames = "(" + whereNames + ")"
+
+	influxdbStatement.AppendWhereConditionDirect(whereNames)
+	influxdbStatement.AppendTimeCondition(">=", in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds())
+	influxdbStatement.AppendTimeCondition("<=", in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds())
+	influxdbStatement.AppendLimitClauseFromQueryCondition()
+	influxdbStatement.AppendOrderClauseFromQueryCondition()
+
 	cmd := influxdbStatement.BuildQueryCmd()
 
 	results, err := r.influxDB.QueryDB(cmd, node_entity.MetricDatabaseName)
@@ -120,26 +122,4 @@ func (r *NodeRepository) getNodeMetricsFromInfluxRows(rows []*influxdb.InfluxDBR
 	}
 
 	return nodeList
-}
-
-func (r *NodeRepository) buildInfluxQLWhereClauseFromRequest(in *datahub_v1alpha1.ListNodeMetricsRequest) string {
-	whereClause := ""
-
-	whereNames := ""
-	nodeList := in.GetNodeNames()
-	for _, value := range nodeList {
-		whereNames += fmt.Sprintf("\"%s\"='%s' OR ", node_entity.Name, value)
-	}
-
-	whereNames = strings.TrimSuffix(whereNames, "OR ")
-	whereNames = "(" + whereNames + ")"
-
-	startTime := in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds()
-	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
-
-	r.influxDB.AddWhereConditionDirect(&whereClause, whereNames)
-	r.influxDB.AddTimeCondition(&whereClause, ">=", startTime)
-	r.influxDB.AddTimeCondition(&whereClause, "<=", endTime)
-
-	return whereClause
 }

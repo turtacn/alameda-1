@@ -9,6 +9,7 @@ import (
 	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	node_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/node"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	datahub_utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 
@@ -74,8 +75,13 @@ func (r *NodeRepository) appendMetricDataToPoints(kind metric.ContainerMetricKin
 		}
 
 		for _, data := range metricData.GetData() {
-			tempTimeSeconds := data.GetTime().GetSeconds()
+			tempTimeSeconds := data.GetTime().Seconds
 			value := data.GetNumValue()
+			valueWithoutFraction := strings.Split(value, ".")[0]
+			valueInFloat64, err := datahub_utils.StringToFloat64(valueWithoutFraction)
+			if err != nil {
+				return errors.Wrap(err, "new influxdb data point failed")
+			}
 
 			tags := map[string]string{
 				node_entity.Name:        nodeName,
@@ -85,7 +91,7 @@ func (r *NodeRepository) appendMetricDataToPoints(kind metric.ContainerMetricKin
 				node_entity.Granularity: granularity,
 			}
 			fields := map[string]interface{}{
-				node_entity.Value: value,
+				node_entity.Value: valueInFloat64,
 			}
 			point, err := influxdb_client.NewPoint(string(Node), tags, fields, time.Unix(tempTimeSeconds, 0))
 			if err != nil {

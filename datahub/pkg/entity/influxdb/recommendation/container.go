@@ -15,7 +15,8 @@ const (
 	ContainerGranularity containerTag = "granularity"
 
 	// ContainerPolicy is recommended policy
-	ContainerPolicy containerField = "policy"
+	ContainerPolicy     containerField = "policy"
+	ContainerPolicyTime containerField = "policy_time"
 	// ContainerResourceRequestCPU is recommended CPU request
 	ContainerResourceRequestCPU containerField = "resource_request_cpu"
 	// ContainerResourceRequestMemory is recommended memory request

@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:41130a642248e6911d053b60b857b918d66d1593cce7ca4cb6db4cc26ad20810"
+  digest = "1:5963a14d3f6e27d2945ecf4193b7ebe8cfe21abeb90ea306cc5073098fac46b4"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -46,7 +46,7 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "bb3d6dddd314c6316debe54854978f56d9060f9d"
+  revision = "98f7451e74d52cc20826b23b99f9fa3569c4afb1"
 
 [[projects]]
   branch = "development"

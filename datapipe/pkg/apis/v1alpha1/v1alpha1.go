@@ -419,3 +419,115 @@ func (s *ServiceV1alpha1) WriteRawdata(ctx context.Context, in *datahub_v1alpha1
 
 	return client.WriteRawdata(ctx, in)
 }
+
+func (s *ServiceV1alpha1) ListWeaveScopeHosts(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeHostsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from ListWeaveScopeHosts grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.ListWeaveScopeHosts(ctx, in)
+}
+
+func (s *ServiceV1alpha1) GetWeaveScopeHostDetails(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeHostsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from GetWeaveScopeHostDetails grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.GetWeaveScopeHostDetails(ctx, in)
+}
+
+func (s *ServiceV1alpha1) ListWeaveScopePods(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopePodsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from ListWeaveScopePods grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.ListWeaveScopePods(ctx, in)
+}
+
+func (s *ServiceV1alpha1) GetWeaveScopePodDetails(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopePodsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from GetWeaveScopePodDetails grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.GetWeaveScopePodDetails(ctx, in)
+}
+
+func (s *ServiceV1alpha1) ListWeaveScopeContainers(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from ListWeaveScopeContainers grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.ListWeaveScopeContainers(ctx, in)
+}
+
+func (s *ServiceV1alpha1) ListWeaveScopeContainersByHostname(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from ListWeaveScopeContainersByHostname grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.ListWeaveScopeContainersByHostname(ctx, in)
+}
+
+func (s *ServiceV1alpha1) ListWeaveScopeContainersByImage(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from ListWeaveScopeContainersByImage grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.ListWeaveScopeContainersByImage(ctx, in)
+}
+
+func (s *ServiceV1alpha1) GetWeaveScopeContainerDetails(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
+	scope.Debug("Request received from GetWeaveScopeContainerDetails grpc function")
+
+	out := new(datahub_v1alpha1.WeaveScopeResponse)
+
+	conn, client, err := apiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.GetWeaveScopeContainerDetails(ctx, in)
+}

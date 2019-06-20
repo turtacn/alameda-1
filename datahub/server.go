@@ -13,6 +13,7 @@ import (
 	DaoRecommendationImpl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	DaoScoreImplInfluxDB "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
+	DaoWeavescope "github.com/containers-ai/alameda/datahub/pkg/dao/weavescope"
 	RepoInfluxDB "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	RepoPrometheus "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -805,10 +806,7 @@ func (s *Server) ListControllerRecommendations(ctx context.Context, in *DatahubV
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
-	namespace := in.GetNamespacedName()
-	queryCondition := in.GetQueryCondition()
-
-	controllerRecommendations, err := controllerDAO.ListControllerRecommendations(namespace, queryCondition)
+	controllerRecommendations, err := controllerDAO.ListControllerRecommendations(in)
 	if err != nil {
 		scope.Errorf("api ListControllerRecommendations failed: %v", err)
 		response := &DatahubV1Alpha1.ListControllerRecommendationsResponse{
@@ -1173,7 +1171,7 @@ func (s *Server) ReadRawdata(ctx context.Context, in *DatahubV1Alpha1.ReadRawdat
 	scope.Debug("Request received from ReadRawdata grpc function")
 
 	var (
-		err error
+		err     error
 		rawdata = make([]*Common.ReadRawdata, 0)
 	)
 
@@ -1234,4 +1232,181 @@ func (s *Server) WriteRawdata(ctx context.Context, in *DatahubV1Alpha1.WriteRawd
 	}
 
 	return &status.Status{Code: int32(code.Code_OK)}, nil
+}
+
+func (s *Server) ListWeaveScopeHosts(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeHostsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+
+	rawdata, err := weaveScopeDAO.ListWeaveScopeHosts(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) GetWeaveScopeHostDetails(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeHostsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.GetWeaveScopeHostDetails(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) ListWeaveScopePods(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopePodsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.ListWeaveScopePods(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) GetWeaveScopePodDetails(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopePodsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.GetWeaveScopePodDetails(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) ListWeaveScopeContainers(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.ListWeaveScopeContainers(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) ListWeaveScopeContainersByHostname(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.ListWeaveScopeContainersByHostname(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) ListWeaveScopeContainersByImage(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.ListWeaveScopeContainersByImage(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) GetWeaveScopeContainerDetails(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
+	response := &DatahubV1Alpha1.WeaveScopeResponse{}
+
+	weaveScopeDAO := DaoWeavescope.WeaveScope{
+		WeaveScopeConfig: s.Config.WeaveScope,
+	}
+	rawdata, err := weaveScopeDAO.GetWeaveScopeContainerDetails(in)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_OK),
+			},
+			Rawdata: rawdata,
+		}, nil
+	}
+
+	response.Rawdata = rawdata
+	return response, nil
 }

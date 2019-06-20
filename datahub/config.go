@@ -5,6 +5,7 @@ import (
 
 	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	"github.com/containers-ai/alameda/datahub/pkg/repository/weavescope"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
@@ -16,6 +17,7 @@ type Config struct {
 	BindAddress string                      `mapstructure:"bind-address"`
 	Prometheus  *prometheus.Config          `mapstructure:"prometheus"`
 	InfluxDB    *influxdb_repository.Config `mapstructure:"influxdb"`
+	WeaveScope  *weavescope.Config          `mapstructure:"weavescope"`
 	Log         *log.Config                 `mapstructure:"log"`
 }
 
@@ -25,10 +27,12 @@ func NewDefaultConfig() Config {
 		defaultlogConfig        = log.NewDefaultConfig()
 		defaultPrometheusConfig = prometheus.NewDefaultConfig()
 		defaultInfluxDBConfig   = influxdb_repository.NewDefaultConfig()
+		defaultWeaveScopeConfig = weavescope.NewDefaultConfig()
 		config                  = Config{
 			BindAddress: defaultBindAddress,
 			Prometheus:  &defaultPrometheusConfig,
 			InfluxDB:    &defaultInfluxDBConfig,
+			WeaveScope:  &defaultWeaveScopeConfig,
 			Log:         &defaultlogConfig,
 		}
 	)

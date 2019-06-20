@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	DAO "github.com/containers-ai/alameda/datapipe/pkg/dao"
+	DAO "github.com/containers-ai/alameda/datahub/pkg/dao"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"time"

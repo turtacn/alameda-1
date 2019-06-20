@@ -40,24 +40,19 @@ func (r *ContainerRepository) ListContainerMetrics(in *datahub_v1alpha1.ListPodM
 	groupByTime := fmt.Sprintf("%s(%ds)", container_entity.PodTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
 	selectedField := fmt.Sprintf("sum(%s) as %s", container_entity.Value, container_entity.Value)
 
-	whereClause := r.buildInfluxQLWhereClauseFromRequest(in)
-	influxdbStatement := influxdb.Statement{
+	influxdbStatement := influxdb.StatementNew{
 		Measurement:    influxdb.Measurement(container_entity.MetricMeasurementName),
 		SelectedFields: []string{selectedField},
-		WhereClause:    whereClause,
 		GroupByTags:    []string{container_entity.PodNamespace, container_entity.PodName, container_entity.Name, container_entity.MetricType, groupByTime},
 	}
 
-	queryCondition := influxdb.QueryCondition{
-		//StartTime:      in.GetQueryCondition().GetTimeRange().GetStartTime(),
-		//EndTime:        request.QueryCondition.EndTime,
-		//StepTime:       request.QueryCondition.StepTime,
-		TimestampOrder: influxdb.Order(in.GetQueryCondition().GetOrder()),
-		Limit:          int(in.GetQueryCondition().GetLimit()),
-	}
-	//influxdbStatement.AppendTimeConditionIntoWhereClause(queryCondition)
-	influxdbStatement.SetLimitClauseFromQueryCondition(queryCondition)
-	influxdbStatement.SetOrderClauseFromQueryCondition(queryCondition)
+	influxdbStatement.AppendWhereCondition(container_entity.PodNamespace, "=", in.GetNamespacedName().GetNamespace())
+	influxdbStatement.AppendWhereCondition(container_entity.PodName, "=", in.GetNamespacedName().GetName())
+	influxdbStatement.AppendTimeCondition(">=", in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds())
+	influxdbStatement.AppendTimeCondition("<=", in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds())
+	influxdbStatement.AppendLimitClauseFromQueryCondition()
+	influxdbStatement.AppendOrderClauseFromQueryCondition()
+
 	cmd := influxdbStatement.BuildQueryCmd()
 
 	results, err := r.influxDB.QueryDB(cmd, container_entity.MetricDatabaseName)
@@ -149,21 +144,4 @@ func (r *ContainerRepository) getPodMetricsFromInfluxRows(rows []*influxdb.Influ
 	}
 
 	return podList
-}
-
-func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(in *datahub_v1alpha1.ListPodMetricsRequest) string {
-	whereClause := ""
-
-	podNamespace := in.GetNamespacedName().GetNamespace()
-	podName := in.GetNamespacedName().GetName()
-	startTime := in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds()
-	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
-
-	r.influxDB.AddWhereCondition(&whereClause, container_entity.PodNamespace, "=", podNamespace)
-	r.influxDB.AddWhereCondition(&whereClause, container_entity.PodName, "=", podName)
-
-	r.influxDB.AddTimeCondition(&whereClause, ">=", startTime)
-	r.influxDB.AddTimeCondition(&whereClause, "<=", endTime)
-
-	return whereClause
 }
