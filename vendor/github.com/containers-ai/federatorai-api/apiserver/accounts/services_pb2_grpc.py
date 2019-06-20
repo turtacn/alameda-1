@@ -2,6 +2,7 @@
 import grpc
 
 from apiserver.accounts import services_pb2 as apiserver_dot_accounts_dot_services__pb2
+from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
 class AccountsServiceStub(object):
@@ -33,6 +34,16 @@ class AccountsServiceStub(object):
         '/containersai.apiserver.accounts.AccountsService/DeleteUser',
         request_serializer=apiserver_dot_accounts_dot_services__pb2.DeleteUserRequest.SerializeToString,
         response_deserializer=apiserver_dot_accounts_dot_services__pb2.DeleteUserResponse.FromString,
+        )
+    self.Login = channel.unary_unary(
+        '/containersai.apiserver.accounts.AccountsService/Login',
+        request_serializer=apiserver_dot_accounts_dot_services__pb2.LoginRequest.SerializeToString,
+        response_deserializer=apiserver_dot_accounts_dot_services__pb2.LoginResponse.FromString,
+        )
+    self.Logout = channel.unary_unary(
+        '/containersai.apiserver.accounts.AccountsService/Logout',
+        request_serializer=apiserver_dot_accounts_dot_services__pb2.LogoutRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
 
 
@@ -68,6 +79,20 @@ class AccountsServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Login(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def Logout(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_AccountsServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -90,6 +115,16 @@ def add_AccountsServiceServicer_to_server(servicer, server):
           servicer.DeleteUser,
           request_deserializer=apiserver_dot_accounts_dot_services__pb2.DeleteUserRequest.FromString,
           response_serializer=apiserver_dot_accounts_dot_services__pb2.DeleteUserResponse.SerializeToString,
+      ),
+      'Login': grpc.unary_unary_rpc_method_handler(
+          servicer.Login,
+          request_deserializer=apiserver_dot_accounts_dot_services__pb2.LoginRequest.FromString,
+          response_serializer=apiserver_dot_accounts_dot_services__pb2.LoginResponse.SerializeToString,
+      ),
+      'Logout': grpc.unary_unary_rpc_method_handler(
+          servicer.Logout,
+          request_deserializer=apiserver_dot_accounts_dot_services__pb2.LogoutRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

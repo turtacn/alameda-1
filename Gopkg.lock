@@ -50,7 +50,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:fcae41f39f60113e13925dace7934a732c50993fd878a2c19b964e188de6e5f0"
+  digest = "1:c6fcb03e2b7d54ff401859a52c5e5af37c90e3a65ffb1b6377446e001a982410"
   name = "github.com/containers-ai/federatorai-api"
   packages = [
     "apiserver/accounts",
@@ -59,7 +59,7 @@
     "apiserver/rawdata",
   ]
   pruneopts = "T"
-  revision = "289cbe872f977dd773db4e96efcfc343177a7af1"
+  revision = "a2e5204b8c743f37681206cf9fd5fd6b55150f47"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -525,7 +525,7 @@
   digest = "1:2e76a73cb51f42d63a2a1a85b3dc5731fd4faf6821b434bd0ef2c099186031d6"
   name = "github.com/rs/xid"
   packages = ["."]
-  pruneopts = "UT"
+  pruneopts = "T"
   revision = "15d26544def341f036c5f8dca987a4cbe575032c"
   version = "v1.2.1"
 
@@ -788,10 +788,10 @@
   version = "v1.16.0"
 
 [[projects]]
-  digest = "1:81e1c5cee195fca5de06e2540cb63eea727a850b7e5c213548e7f81521c97a57"
+  digest = "1:9c02ca18689792fd32f0151d97be021ba5d46970b8ef1847e669366943559808"
   name = "gopkg.in/asn1-ber.v1"
   packages = ["."]
-  pruneopts = "UT"
+  pruneopts = "T"
   revision = "379148ca0225df7a432012b8df0355c2a2063ac0"
   version = "v1.2"
 
@@ -813,10 +813,10 @@
   version = "v0.9.1"
 
 [[projects]]
-  digest = "1:93aaeb913621a3a53aaa78592c00f46d63e3bb0ea76e2d9b07327b50959a5778"
+  digest = "1:54d06375e8b6639f1cddec7bf083cc91edbfb919db284a6c3f031c43d57a7637"
   name = "gopkg.in/ldap.v2"
   packages = ["."]
-  pruneopts = "UT"
+  pruneopts = "T"
   revision = "bb7a9ca6e4fbc2129e3db588a34bc970ffe811a9"
   version = "v2.5.1"
 

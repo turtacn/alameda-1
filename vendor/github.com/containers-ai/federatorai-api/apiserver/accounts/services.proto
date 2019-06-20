@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package containersai.apiserver.accounts;
 
+import "google/rpc/status.proto";
+
 option go_package = "github.com/containers-ai/federatorai-api/apiserver/accounts";
 
 message CreateUserRequest {
@@ -36,6 +38,18 @@ message DeleteUserResponse {
 
 }
 
+message LoginRequest {
+
+}
+
+message LoginResponse {
+
+}
+
+message LogoutRequest {
+
+}
+
 service AccountsService {
     rpc CreateUser(CreateUserRequest)
         returns (CreateUserResponse) {}
@@ -48,4 +62,10 @@ service AccountsService {
 
     rpc DeleteUser(DeleteUserRequest)
         returns (DeleteUserResponse) {}
+
+    rpc Login(LoginRequest)
+        returns (LoginResponse) {}
+
+    rpc Logout(LogoutRequest)
+        returns (google.rpc.Status) {}
 }

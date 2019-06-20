@@ -12,6 +12,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -19,8 +20,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.apiserver.accounts',
   syntax='proto3',
   serialized_options=_b('Z;github.com/containers-ai/federatorai-api/apiserver/accounts'),
-  serialized_pb=_b('\n!apiserver/accounts/services.proto\x12\x1f\x63ontainersai.apiserver.accounts\"\x13\n\x11\x43reateUserRequest\"\x14\n\x12\x43reateUserResponse\"\x11\n\x0fReadUserRequest\"\x12\n\x10ReadUserResponse\"\x13\n\x11UpdateUserRequest\"\x14\n\x12UpdateUserResponse\"\x13\n\x11\x44\x65leteUserRequest\"\x14\n\x12\x44\x65leteUserResponse2\xef\x03\n\x0f\x41\x63\x63ountsService\x12w\n\nCreateUser\x12\x32.containersai.apiserver.accounts.CreateUserRequest\x1a\x33.containersai.apiserver.accounts.CreateUserResponse\"\x00\x12q\n\x08ReadUser\x12\x30.containersai.apiserver.accounts.ReadUserRequest\x1a\x31.containersai.apiserver.accounts.ReadUserResponse\"\x00\x12w\n\nUpdateUser\x12\x32.containersai.apiserver.accounts.UpdateUserRequest\x1a\x33.containersai.apiserver.accounts.UpdateUserResponse\"\x00\x12w\n\nDeleteUser\x12\x32.containersai.apiserver.accounts.DeleteUserRequest\x1a\x33.containersai.apiserver.accounts.DeleteUserResponse\"\x00\x42=Z;github.com/containers-ai/federatorai-api/apiserver/accountsb\x06proto3')
-)
+  serialized_pb=_b('\n!apiserver/accounts/services.proto\x12\x1f\x63ontainersai.apiserver.accounts\x1a\x17google/rpc/status.proto\"\x13\n\x11\x43reateUserRequest\"\x14\n\x12\x43reateUserResponse\"\x11\n\x0fReadUserRequest\"\x12\n\x10ReadUserResponse\"\x13\n\x11UpdateUserRequest\"\x14\n\x12UpdateUserResponse\"\x13\n\x11\x44\x65leteUserRequest\"\x14\n\x12\x44\x65leteUserResponse\"\x0e\n\x0cLoginRequest\"\x0f\n\rLoginResponse\"\x0f\n\rLogoutRequest2\xa9\x05\n\x0f\x41\x63\x63ountsService\x12w\n\nCreateUser\x12\x32.containersai.apiserver.accounts.CreateUserRequest\x1a\x33.containersai.apiserver.accounts.CreateUserResponse\"\x00\x12q\n\x08ReadUser\x12\x30.containersai.apiserver.accounts.ReadUserRequest\x1a\x31.containersai.apiserver.accounts.ReadUserResponse\"\x00\x12w\n\nUpdateUser\x12\x32.containersai.apiserver.accounts.UpdateUserRequest\x1a\x33.containersai.apiserver.accounts.UpdateUserResponse\"\x00\x12w\n\nDeleteUser\x12\x32.containersai.apiserver.accounts.DeleteUserRequest\x1a\x33.containersai.apiserver.accounts.DeleteUserResponse\"\x00\x12h\n\x05Login\x12-.containersai.apiserver.accounts.LoginRequest\x1a..containersai.apiserver.accounts.LoginResponse\"\x00\x12N\n\x06Logout\x12..containersai.apiserver.accounts.LogoutRequest\x1a\x12.google.rpc.Status\"\x00\x42=Z;github.com/containers-ai/federatorai-api/apiserver/accountsb\x06proto3')
+  ,
+  dependencies=[google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
 
 
@@ -44,8 +46,8 @@ _CREATEUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=70,
-  serialized_end=89,
+  serialized_start=95,
+  serialized_end=114,
 )
 
 
@@ -68,8 +70,8 @@ _CREATEUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=91,
-  serialized_end=111,
+  serialized_start=116,
+  serialized_end=136,
 )
 
 
@@ -92,8 +94,8 @@ _READUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=113,
-  serialized_end=130,
+  serialized_start=138,
+  serialized_end=155,
 )
 
 
@@ -116,8 +118,8 @@ _READUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=132,
-  serialized_end=150,
+  serialized_start=157,
+  serialized_end=175,
 )
 
 
@@ -140,8 +142,8 @@ _UPDATEUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=152,
-  serialized_end=171,
+  serialized_start=177,
+  serialized_end=196,
 )
 
 
@@ -164,8 +166,8 @@ _UPDATEUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=173,
-  serialized_end=193,
+  serialized_start=198,
+  serialized_end=218,
 )
 
 
@@ -188,8 +190,8 @@ _DELETEUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=195,
-  serialized_end=214,
+  serialized_start=220,
+  serialized_end=239,
 )
 
 
@@ -212,8 +214,80 @@ _DELETEUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=216,
-  serialized_end=236,
+  serialized_start=241,
+  serialized_end=261,
+)
+
+
+_LOGINREQUEST = _descriptor.Descriptor(
+  name='LoginRequest',
+  full_name='containersai.apiserver.accounts.LoginRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=263,
+  serialized_end=277,
+)
+
+
+_LOGINRESPONSE = _descriptor.Descriptor(
+  name='LoginResponse',
+  full_name='containersai.apiserver.accounts.LoginResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=279,
+  serialized_end=294,
+)
+
+
+_LOGOUTREQUEST = _descriptor.Descriptor(
+  name='LogoutRequest',
+  full_name='containersai.apiserver.accounts.LogoutRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=296,
+  serialized_end=311,
 )
 
 DESCRIPTOR.message_types_by_name['CreateUserRequest'] = _CREATEUSERREQUEST
@@ -224,6 +298,9 @@ DESCRIPTOR.message_types_by_name['UpdateUserRequest'] = _UPDATEUSERREQUEST
 DESCRIPTOR.message_types_by_name['UpdateUserResponse'] = _UPDATEUSERRESPONSE
 DESCRIPTOR.message_types_by_name['DeleteUserRequest'] = _DELETEUSERREQUEST
 DESCRIPTOR.message_types_by_name['DeleteUserResponse'] = _DELETEUSERRESPONSE
+DESCRIPTOR.message_types_by_name['LoginRequest'] = _LOGINREQUEST
+DESCRIPTOR.message_types_by_name['LoginResponse'] = _LOGINRESPONSE
+DESCRIPTOR.message_types_by_name['LogoutRequest'] = _LOGOUTREQUEST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 CreateUserRequest = _reflection.GeneratedProtocolMessageType('CreateUserRequest', (_message.Message,), dict(
@@ -282,6 +359,27 @@ DeleteUserResponse = _reflection.GeneratedProtocolMessageType('DeleteUserRespons
   ))
 _sym_db.RegisterMessage(DeleteUserResponse)
 
+LoginRequest = _reflection.GeneratedProtocolMessageType('LoginRequest', (_message.Message,), dict(
+  DESCRIPTOR = _LOGINREQUEST,
+  __module__ = 'apiserver.accounts.services_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.apiserver.accounts.LoginRequest)
+  ))
+_sym_db.RegisterMessage(LoginRequest)
+
+LoginResponse = _reflection.GeneratedProtocolMessageType('LoginResponse', (_message.Message,), dict(
+  DESCRIPTOR = _LOGINRESPONSE,
+  __module__ = 'apiserver.accounts.services_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.apiserver.accounts.LoginResponse)
+  ))
+_sym_db.RegisterMessage(LoginResponse)
+
+LogoutRequest = _reflection.GeneratedProtocolMessageType('LogoutRequest', (_message.Message,), dict(
+  DESCRIPTOR = _LOGOUTREQUEST,
+  __module__ = 'apiserver.accounts.services_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.apiserver.accounts.LogoutRequest)
+  ))
+_sym_db.RegisterMessage(LogoutRequest)
+
 
 DESCRIPTOR._options = None
 
@@ -291,8 +389,8 @@ _ACCOUNTSSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=239,
-  serialized_end=734,
+  serialized_start=314,
+  serialized_end=995,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateUser',
@@ -328,6 +426,24 @@ _ACCOUNTSSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_DELETEUSERREQUEST,
     output_type=_DELETEUSERRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Login',
+    full_name='containersai.apiserver.accounts.AccountsService.Login',
+    index=4,
+    containing_service=None,
+    input_type=_LOGINREQUEST,
+    output_type=_LOGINRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Logout',
+    full_name='containersai.apiserver.accounts.AccountsService.Logout',
+    index=5,
+    containing_service=None,
+    input_type=_LOGOUTREQUEST,
+    output_type=google_dot_rpc_dot_status__pb2._STATUS,
     serialized_options=None,
   ),
 ])

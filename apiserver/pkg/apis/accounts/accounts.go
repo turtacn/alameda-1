@@ -6,6 +6,8 @@ import (
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
 	"golang.org/x/net/context"
+	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
 var (
@@ -48,4 +50,19 @@ func (c *ServiceAccount) DeleteUser(ctx context.Context, in *Accounts.DeleteUser
 
 	out := new(Accounts.DeleteUserResponse)
 	return out, nil
+}
+
+func (c *ServiceAccount) Login(ctx context.Context, in *Accounts.LoginRequest) (*Accounts.LoginResponse, error) {
+	scope.Debug("Request received from Login grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	out := new(Accounts.LoginResponse)
+	return out, nil
+}
+
+func (c *ServiceAccount) Logout(ctx context.Context, in *Accounts.LogoutRequest) (*status.Status, error) {
+	scope.Debug("Request received from Logout grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
 }
