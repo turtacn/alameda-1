@@ -10,7 +10,7 @@ bind-address = ":50050"
     address = "https://influxdb.alameda.svc.cluster.local:8086"
     username = "alameda"
     password = "alameda"
-    retention-duration = "14d"
+    retention-duration = "30d"
     retention-shard-duration = "1d"
 
 [log]
