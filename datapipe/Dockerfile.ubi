@@ -40,7 +40,7 @@ RUN set -x \
     && microdnf install -y \
         tar procps-ng psmisc findutils vim-minimal logrotate \
     && microdnf clean all \
-    && echo "${USER_NAME}:x:%{USER_UID}:0:Federator.ai:${AIHOME}:/bin/sh" >> /etc/passwd \
+    && echo "${USER_NAME}:x:${USER_UID}:0:Federator.ai:${AIHOME}:/bin/sh" >> /etc/passwd \
     # The following lines for logrotate - startup script will add running user id into /etc/passwd
     && chmod g+w /etc/passwd \
     # logrotate need writable permission on "/var/lib/logrotate/"
