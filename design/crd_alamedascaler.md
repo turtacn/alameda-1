@@ -18,14 +18,14 @@ Here is an example _alamedascaler_ CR:
     policy: stable
     scalingTool:
       type: vpa
-    enableexecution: false
+    enableExecution: false
     selector:
       matchLabels:
         app: mysql
 ```
 
-In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s deployment and deploymentconfig objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda.
-The `policy` field tells Alameda to make recommendations with _stable_ policy and the _vpa_ type `scalingTool` will be used in the recommendations. The `enableexecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR.
+In this example, it creates an _AlamedaScaler_ CR with name _alameda_ in namespace _webapp_. With this CR, Alameda will look for K8s deployment and deploymentconfig resource objects with label _app_ equals to _nginx_ in the same _webapp_ namespace. Any containers derivated from the found objects will be managed for their resource usages by Alameda.
+The `policy` field tells Alameda to make recommendations with _stable_ policy and the _vpa_ type `scalingTool` will be used in the recommendations. The `enableExecution` field is set to _false_ to instruct Alameda not to execute recommendations for containers selected by this CR.
 Please also note that the label `app.federator.ai/name` of this CR tells Alameda that the selected objects by this CR belongs to application _nginx_ and the label `app.federator.ai/part-of` says they are also part of the higher application called _wordpress_. In another word, the _wordpress_ application is built by _nginx_ and maybe also other components, and this AlamedaScaler CR is created to autoscale the _nginx_ deployment.  
 For detailed _AlamedaScaler_ schema, check out the remaining sections of this document.
 
@@ -52,7 +52,7 @@ items:
     selfLink: /apis/autoscaling.containers.ai/v1alpha1/namespaces/alameda/alamedascalers/as
     uid: bb9e1b3f-3f0a-11e9-b062-08606e0a1cbb
   spec:
-    enableexecution: false
+    enableExecution: false
     policy: stable
     scalingTool:
       type: vpa
@@ -63,7 +63,7 @@ items:
         app.kubernetes.io/name: alameda-ai
   status:
     alamedaController:
-      deploymentconfigs: {}
+      deploymentConfigs: {}
       deployments:
         alameda/alameda-ai:
           name: alameda-ai
@@ -84,7 +84,7 @@ metadata:
 
 ```
 
-The `status` field shows no _deploymentconfigs_ is selected and one _deployment_ called _alameda-ai_ is seleted.
+The `status` field shows no _deploymentconfigs_ resource is selected and one _deployment_ called _alameda-ai_ is seleted.
 
 Besides the selected api objects information is kept in an _AlamedaScaler_ CR, Alameda will also create _AlamedaRecommendation_ CR(s) for each selected pod to expose resource recommendations. This is an integration point for any programs (including Alameda itself) to leverage the resource usage recommendations. For example, in the above example, users can see an _AlamedaRecommendation_ CR called `alameda-ai-7f5b6b6d8-8fqrv` is created. Here you can find more information about [`AlamedaRecommendation` CRD](./crd_alamedarecommendation.md).
 ```
@@ -121,7 +121,7 @@ app.federator.ai/part-of  | The name of a higher level application this one is p
 - Field: scalingTool
   - type: [ScalingToolSpec](#scalingtoolspec)
   - description: Scaling tool configuration.
-- Field: enableexecution
+- Field: enableExecution
   - type: boolean
   - description: Set to _true_ to enable recommendation execution for api objects selected by this AlamedaScaler. Default is _false_.
 - Field: selector
