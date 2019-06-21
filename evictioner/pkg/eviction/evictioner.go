@@ -236,8 +236,6 @@ func (evictioner *Evictioner) purgeTopControllerContainerResources(controller in
 	default:
 		return errors.Errorf("not supported controller type %s", datahub_v1alpha1.Kind_name[int32(kind)])
 	}
-
-	return nil
 }
 
 func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alpha1.PodRecommendation, error) {

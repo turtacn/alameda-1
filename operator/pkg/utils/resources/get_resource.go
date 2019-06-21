@@ -141,8 +141,6 @@ func (getResource *GetResource) GetReplicasCountByController(namespace, name, ki
 	default:
 		return 0, errors.Errorf("not supported kind \"%s\"", kind)
 	}
-
-	return 0, nil
 }
 
 func (getResource *GetResource) getResource(resource runtime.Object, namespace, name string) error {
