@@ -58,6 +58,9 @@ items:
       type: vpa
       executionStrategy:
         maxUnavailable: 25%
+        triggerThreshold:
+          cpu: 10%
+          memory: 10%
     selector:
       matchLabels:
         app.kubernetes.io/name: alameda-ai
@@ -144,3 +147,15 @@ _vpa_ means Alameda will make recommendations to change the cpu and memory resou
   - type: string
   - description: The maximum number of unavailable pods that can be tolerable during rolling update. The value can be an absoult number or a percentage of desired pods. Absolute number is calculated from percentage by rounding up. Alameda-Evictioner will keep at least (spec.replicas - absoult number) of pods in running in Deployments/DeploymentConfig to prevent service offline. For example: when this field is set to 30%, and their are 4 replicas running in the Deployments, Alameda-Evictioner will keep 2 (calculated from 4 - round_up(4 * 0.3)) pods in running phase while doing rolling update. This field can not be 0 and the default value is 25%.
 > **Note** : This option will only work for _vpa_ scalingTool. For _hpa_ scalingTool, the rolling update policy is specified in the _Deployment_/_DeploymentConfig_ object itself.
+- Field: triggerThreshold
+  - type: [TriggerThreshold](#triggerthreshold)
+  - description: Configuration of trigger threshold.
+
+### TriggerThreshold
+
+- Field: cpu
+  - type: string
+  - description: The thresold of percent variance between limit/request cpu recommendation and container's current spec that will trigger alameda execution. Defaullt is _10%_.
+- Field: memory
+  - type: string
+  - description:  The thresold of percent variance between limit/request memory recommendation and container's current spec that will trigger alameda execution. Defaullt is _10%_.
