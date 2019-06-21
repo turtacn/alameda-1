@@ -17,8 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1560761281179,
+  "iteration": 1561111386512,
   "links": [],
   "panels": [
     {
@@ -563,14 +562,43 @@
           ]
         },
         {
-          "datasource": "Prometheus",
-          "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation : CPU Usage",
-          "refId": "C"
+          "alias": "Observation : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"max\")*1000 from (select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'CPU_USAGE_SECONDS_PERCENTAGE' and \"pod_namespace\" =~ /^[[ns]]$/  and \"pod_name\" =~ /^[[pod]]$/ and \"name\" != 'POD' and \"name\" != '' and $timeFilter group by pod_name, time(30s)) group by time($__interval)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         },
         {
           "alias": "Recommendation: CPU limit",
@@ -794,13 +822,43 @@
           ]
         },
         {
-          "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name!=\"\", container_name!=\"POD\"}[30s]))",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation: memory usage",
-          "refId": "C"
+          "alias": "Observation: memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"max\") from (select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'MEMORY_USAGE_BYTES' and \"pod_namespace\" =~ /^[[ns]]$/  and \"pod_name\" =~ /^[[pod]]$/ and \"name\" != 'POD' and \"name\" != '' and $timeFilter group by pod_name, time(30s)) group by time($__interval)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         },
         {
           "alias": "Recommendation: memory limit",
@@ -935,8 +993,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "webapp",
-          "value": "webapp"
+          "text": "nginx-multi",
+          "value": "nginx-multi"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1062,5 +1120,5 @@
   "timezone": "",
   "title": "Per Namespace VPA Resource Recommendations",
   "uid": "addaewe",
-  "version": 3
+  "version": 1
 }
