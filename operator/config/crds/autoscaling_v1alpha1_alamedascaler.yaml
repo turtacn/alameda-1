@@ -44,6 +44,15 @@ spec:
                     maxUnavailable:
                       pattern: ^\d*[1-9]+\d*(%?$)$|^\d*[1-9]+\d*\.\d*(%?$)$|^\d*\.\d*[1-9]+\d*(%?$)$
                       type: string
+                    triggerThreshold:
+                      properties:
+                        cpu:
+                          pattern: ^\d*[1-9]+\d*%$|^\d*[1-9]+\d*\.\d*%$|^\d*\.\d*[1-9]+\d*%$
+                          type: string
+                        memory:
+                          pattern: ^\d*[1-9]+\d*%$|^\d*[1-9]+\d*\.\d*%$|^\d*\.\d*[1-9]+\d*%$
+                          type: string
+                      type: object
                   type: object
                 type:
                   enum:
