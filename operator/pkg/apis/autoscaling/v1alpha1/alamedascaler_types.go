@@ -83,20 +83,45 @@ var (
 	}
 )
 
+type TriggerThreshold struct {
+	// +kubebuilder:validation:Pattern=^\d*[1-9]+\d*%$|^\d*[1-9]+\d*\.\d*%$|^\d*\.\d*[1-9]+\d*%$
+	CPU string `json:"cpu,omitempty" protobuf:"bytes,1,name=cpu"`
+	// +kubebuilder:validation:Pattern=^\d*[1-9]+\d*%$|^\d*[1-9]+\d*\.\d*%$|^\d*\.\d*[1-9]+\d*%$
+	Memory string `json:"memory,omitempty" protobuf:"bytes,2,name=memory"`
+}
+
+const (
+	DefaultTriggerThresholdCPUPercentage    = "10%"
+	DefaultTriggerThresholdMemoryPercentage = "10%"
+)
+
+func NewDefaultTriggerThreshold() TriggerThreshold {
+
+	return TriggerThreshold{
+		CPU:    DefaultTriggerThresholdCPUPercentage,
+		Memory: DefaultTriggerThresholdMemoryPercentage,
+	}
+}
+
 type ExecutionStrategy struct {
 	// +kubebuilder:validation:Pattern=^\d*[1-9]+\d*(%?$)$|^\d*[1-9]+\d*\.\d*(%?$)$|^\d*\.\d*[1-9]+\d*(%?$)$
-	MaxUnavailable string `json:"maxUnavailable,omitempty" protobuf:"bytes,1,name=max_unavailable"`
+	MaxUnavailable   string            `json:"maxUnavailable,omitempty" protobuf:"bytes,1,name=max_unavailable"`
+	TriggerThreshold *TriggerThreshold `json:"triggerThreshold,omitempty" protobuf:"bytes,2,name=trigger_threshold"`
 }
 
 const (
 	DefaultMaxUnavailablePercentage = "25%"
 )
 
-var (
-	defaultExecutionStrategy = ExecutionStrategy{
-		MaxUnavailable: DefaultMaxUnavailablePercentage,
+func NewDefaultExecutionStrategy() ExecutionStrategy {
+
+	triggerThreshold := NewDefaultTriggerThreshold()
+
+	return ExecutionStrategy{
+		MaxUnavailable:   DefaultMaxUnavailablePercentage,
+		TriggerThreshold: &triggerThreshold,
 	}
-)
+}
 
 type ScalingToolType = string
 
@@ -235,17 +260,32 @@ func (as *AlamedaScaler) setDefaultScalingTool() {
 
 	if as.Spec.ScalingTool.Type == ScalingToolTypeVPA {
 		if as.Spec.ScalingTool.ExecutionStrategy == nil {
-			as.setDefaultExecutionStrategyDefault()
+			as.setDefaultExecutionStrategy()
 		}
 		if as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable == "" || as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable == "0" || as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable == "0%" {
 			as.Spec.ScalingTool.ExecutionStrategy.MaxUnavailable = DefaultMaxUnavailablePercentage
 		}
+
+		if as.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold == nil {
+			as.setDefaultTriggerThreshold()
+		}
+		if as.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold.CPU == "" {
+			as.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold.CPU = DefaultTriggerThresholdCPUPercentage
+		}
+		if as.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold.Memory == "" {
+			as.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold.Memory = DefaultTriggerThresholdMemoryPercentage
+		}
 	}
 }
 
-func (as *AlamedaScaler) setDefaultExecutionStrategyDefault() {
-	copyDefaultExecutionStrategy := defaultExecutionStrategy
-	as.Spec.ScalingTool.ExecutionStrategy = &copyDefaultExecutionStrategy
+func (as *AlamedaScaler) setDefaultExecutionStrategy() {
+	defaultExecutionStrategy := NewDefaultExecutionStrategy()
+	as.Spec.ScalingTool.ExecutionStrategy = &defaultExecutionStrategy
+}
+
+func (as *AlamedaScaler) setDefaultTriggerThreshold() {
+	defaultTriggerThreshold := NewDefaultTriggerThreshold()
+	as.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold = &defaultTriggerThreshold
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

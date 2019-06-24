@@ -8,9 +8,6 @@ datahub:
 eviction:
   check-cycle: 3 # second
   enable: false
-  trigger-threshold: #percentage
-    cpu: 10
-    memory: 10
   purge-container-cpu-memory: false
 
 admission-controller:

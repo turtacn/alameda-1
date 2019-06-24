@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
@@ -267,11 +269,17 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 
 		// Create eviction restriction
 		maxUnavailable := controllerRecommendationInfo.getMaxUnavailable()
+		triggerThreshold, err := controllerRecommendationInfo.buildTriggerThreshold()
+		if err != nil {
+			scope.Errorf("Build triggerThreshold of controller (%s/%s, kind: %s) faild, skip evicting controller's pod: %s",
+				controllerRecommendationInfo.namespace, controllerRecommendationInfo.name, controllerRecommendationInfo.kind, err.Error())
+			continue
+		}
 		podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, len(controllerRecommendationInfo.podRecommendationInfos))
 		for i := range controllerRecommendationInfo.podRecommendationInfos {
 			podRecommendations[i] = controllerRecommendationInfo.podRecommendationInfos[i].recommendation
 		}
-		evictionRestriction := NewEvictionRestriction(evictioner.k8sClienit, maxUnavailable, evictioner.evictCfg.TriggerThreshold, podRecommendations)
+		evictionRestriction := NewEvictionRestriction(evictioner.k8sClienit, maxUnavailable, triggerThreshold, podRecommendations)
 
 		for _, podRecommendationInfo := range controllerRecommendationInfo.podRecommendationInfos {
 			pod := podRecommendationInfo.pod
@@ -409,6 +417,9 @@ func (p *podRecommendationInfo) isApplicableAtTime(t time.Time) (bool, error) {
 }
 
 type controllerRecommendationInfo struct {
+	namespace              string
+	name                   string
+	kind                   string
 	alamedaScaler          *autoscalingv1alpha1.AlamedaScaler
 	podRecommendationInfos []*podRecommendationInfo
 }
@@ -429,6 +440,29 @@ func (c controllerRecommendationInfo) getMaxUnavailable() string {
 
 func (c controllerRecommendationInfo) isScalingToolTypeVPA() bool {
 	return c.alamedaScaler.IsScalingToolTypeVPA()
+}
+
+func (c controllerRecommendationInfo) buildTriggerThreshold() (triggerThreshold, error) {
+
+	var triggerThreshold triggerThreshold
+
+	cpu := c.alamedaScaler.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold.CPU
+	cpu = strings.TrimSuffix(cpu, "%")
+	cpuValue, err := strconv.ParseFloat(cpu, 64)
+	if err != nil {
+		return triggerThreshold, errors.Errorf("parse cpu trigger threshold failed: %s", err.Error())
+	}
+	triggerThreshold.CPU = cpuValue
+
+	memory := c.alamedaScaler.Spec.ScalingTool.ExecutionStrategy.TriggerThreshold.Memory
+	memory = strings.TrimSuffix(memory, "%")
+	memoryValue, err := strconv.ParseFloat(memory, 64)
+	if err != nil {
+		return triggerThreshold, errors.Errorf("parse memory trigger threshold failed: %s", err.Error())
+	}
+	triggerThreshold.Memory = memoryValue
+
+	return triggerThreshold, nil
 }
 
 func NewControllerRecommendationInfoMap(client client.Client, podRecommendations []*datahub_v1alpha1.PodRecommendation) map[string]*controllerRecommendationInfo {
@@ -500,6 +534,9 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		_, exist = controllerRecommendationInfoMap[controllerID]
 		if !exist {
 			controllerRecommendationInfoMap[controllerID] = &controllerRecommendationInfo{
+				namespace:              controller.NamespacedName.Namespace,
+				name:                   controller.NamespacedName.Name,
+				kind:                   datahub_v1alpha1.Kind_name[int32(controller.Kind)],
 				alamedaScaler:          alamedaScaler,
 				podRecommendationInfos: make([]*podRecommendationInfo, 0),
 			}
