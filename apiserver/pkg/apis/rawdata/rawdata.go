@@ -43,6 +43,7 @@ func (c *ServiceRawdata) ReadRawdata(ctx context.Context, in *Rawdata.ReadRawdat
 
 	// Rebuild read rawdata request for datahub
 	request := &Datahub.ReadRawdataRequest{}
+	request.DatabaseType = in.GetDatabaseType()
 	for _, query := range in.GetQueries() {
 		request.Queries = append(request.Queries, query)
 	}
@@ -75,6 +76,7 @@ func (c *ServiceRawdata) WriteRawdata(ctx context.Context, in *Rawdata.WriteRawd
 
 	// Rebuild write rawdata request for datahub
 	request := &Datahub.WriteRawdataRequest{}
+	request.DatabaseType = in.GetDatabaseType()
 	for _, rdata := range in.GetRawdata() {
 		request.Rawdata = append(request.Rawdata, rdata)
 	}
