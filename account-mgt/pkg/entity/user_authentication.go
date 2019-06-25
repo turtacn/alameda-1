@@ -9,7 +9,6 @@ import (
 var scope = log.RegisterScope("accmgt-entity", "account-mgt entity", 0)
 
 func (c *User) Authenticate(password string) error {
-	namespace := c.Info.Namespace
 	domainName := c.Info.DomainName
 	name := c.Info.Name
 
@@ -19,7 +18,7 @@ func (c *User) Authenticate(password string) error {
 
 	c.Info.Password = password
 
-	client := authentication.NewAuthenticationClient(namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	token, err := client.Authenticate(authUserInfo)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.Authenticate: %v", err.Error()))
@@ -40,14 +39,13 @@ func (c *User) Authenticate(password string) error {
 }
 
 func (c *User) Validate() error {
-	namespace := c.Info.Namespace
 	domainName := c.Info.DomainName
 	name := c.Info.Name
 
 	authUserInfo := authentication.NewAuthUserInfo(domainName, name)
 	authUserInfo.Cookie = c.Info.Cookie
 
-	client := authentication.NewAuthenticationClient(namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	newToken, err := client.Validate(authUserInfo, c.Info.Token)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.Validate: %v", err.Error()))
@@ -67,7 +65,7 @@ func (c *User) Validate() error {
 }
 
 func (c *User) ChangePassword(authUserInfo *authentication.AuthUserInfo, newPassword string) error {
-	client := authentication.NewAuthenticationClient(authUserInfo.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.ChangePassword(authUserInfo, newPassword)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.UpdateUser: %v", err.Error()))
@@ -83,7 +81,7 @@ func (c *User) CreateUser(ownerInfo *authentication.AuthUserInfo) error {
 	callInfo.Cookie = c.Info.Cookie
 	callInfo.Role = c.Info.Role
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.CreateUserWithCaller(callInfo, ownerInfo, true)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.CreateUser: %v", err.Error()))
@@ -99,7 +97,7 @@ func (c *User) ReadUser(ownerInfo *authentication.AuthUserInfo) error {
 	callInfo.Cookie = c.Info.Cookie
 	callInfo.Role = c.Info.Role
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.ReadUserWithCaller(callInfo, ownerInfo)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.ReadUser: %v", err.Error()))
@@ -120,7 +118,7 @@ func (c *User) ReadUserList(authUserInfoList *[]authentication.AuthUserInfo, lim
 		domain = callInfo.DomainName
 	}
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.GetUserListByDomainWithCaller(callInfo, authUserInfoList, domain, limit, page)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.ReadUserListByDomain: %v", err.Error()))
@@ -136,7 +134,7 @@ func (c *User) ReadUserListByDomain(authUserInfoList *[]authentication.AuthUserI
 	callInfo.Cookie = c.Info.Cookie
 	callInfo.Role = c.Info.Role
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.GetUserListByDomainWithCaller(callInfo, authUserInfoList, domain, limit, page)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.ReadUserListByDomain: %v", err.Error()))
@@ -152,7 +150,7 @@ func (c *User) UpdateUser(ownerInfo *authentication.AuthUserInfo) error {
 	callInfo.Cookie = c.Info.Cookie
 	callInfo.Role = c.Info.Role
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.UpdateUserWithCaller(callInfo, ownerInfo)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.UpdateUser: %v", err.Error()))
@@ -168,7 +166,7 @@ func (c *User) DeleteUser(ownerInfo *authentication.AuthUserInfo) error {
 	callInfo.Cookie = c.Info.Cookie
 	callInfo.Role = c.Info.Role
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	err := client.DeleteUserWithCaller(callInfo, ownerInfo)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.DeleteUser: %v", err.Error()))
@@ -179,7 +177,7 @@ func (c *User) DeleteUser(ownerInfo *authentication.AuthUserInfo) error {
 }
 
 func (c *User) IsUserExist(userName string) (bool, error) {
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	exist, err := client.IsUserExist(userName)
 	if err != nil {
 		scope.Error(fmt.Sprintf("User.IsUserExist: %v", err.Error()))
@@ -195,7 +193,7 @@ func (c *User) GetUserCount() int {
 	callInfo.Cookie = c.Info.Cookie
 	callInfo.Role = c.Info.Role
 
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 
 	//tempDomain := ""
 	//if c.Info.Role != "super" {
@@ -206,6 +204,6 @@ func (c *User) GetUserCount() int {
 }
 
 func (c *User) GetAllUserCount() int {
-	client := authentication.NewAuthenticationClient(c.Info.Namespace)
+	client := authentication.NewAuthenticationClient(c.Config)
 	return client.GetAllUserCount()
 }

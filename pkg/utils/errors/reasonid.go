@@ -20,6 +20,7 @@ const (
 	ReasonReservedChar          = 10015
 	ReasonInvalidTimeSequence   = 10016
 	ReasonInvalidTimeRange      = 10017
+	ReasonInvalidRequest        = 10018
 )
 
 // Authentication

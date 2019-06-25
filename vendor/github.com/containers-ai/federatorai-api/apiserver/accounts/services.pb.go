@@ -25,6 +25,17 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type CreateUserRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	DomainName           string   `protobuf:"bytes,3,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string   `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string   `protobuf:"bytes,5,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string   `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string   `protobuf:"bytes,7,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string   `protobuf:"bytes,8,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string   `protobuf:"bytes,9,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string   `protobuf:"bytes,10,opt,name=URL,proto3" json:"URL,omitempty"`
+	Token                string   `protobuf:"bytes,11,opt,name=token,proto3" json:"token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -34,7 +45,7 @@ func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
 func (m *CreateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateUserRequest) ProtoMessage()    {}
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{0}
+	return fileDescriptor_services_5c92eac26298a74e, []int{0}
 }
 func (m *CreateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserRequest.Unmarshal(m, b)
@@ -54,7 +65,96 @@ func (m *CreateUserRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateUserRequest proto.InternalMessageInfo
 
+func (m *CreateUserRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetCompany() string {
+	if m != nil {
+		return m.Company
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetLastName() string {
+	if m != nil {
+		return m.LastName
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetURL() string {
+	if m != nil {
+		return m.URL
+	}
+	return ""
+}
+
+func (m *CreateUserRequest) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
 type CreateUserResponse struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string   `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string   `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string   `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string   `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Status               string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	InfluxdbInfo         string   `protobuf:"bytes,11,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
+	GrafanaInfo          string   `protobuf:"bytes,12,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -64,7 +164,7 @@ func (m *CreateUserResponse) Reset()         { *m = CreateUserResponse{} }
 func (m *CreateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateUserResponse) ProtoMessage()    {}
 func (*CreateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{1}
+	return fileDescriptor_services_5c92eac26298a74e, []int{1}
 }
 func (m *CreateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserResponse.Unmarshal(m, b)
@@ -84,7 +184,94 @@ func (m *CreateUserResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CreateUserResponse proto.InternalMessageInfo
 
+func (m *CreateUserResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetCompany() string {
+	if m != nil {
+		return m.Company
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetLastName() string {
+	if m != nil {
+		return m.LastName
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetURL() string {
+	if m != nil {
+		return m.URL
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetStatus() string {
+	if m != nil {
+		return m.Status
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetInfluxdbInfo() string {
+	if m != nil {
+		return m.InfluxdbInfo
+	}
+	return ""
+}
+
+func (m *CreateUserResponse) GetGrafanaInfo() string {
+	if m != nil {
+		return m.GrafanaInfo
+	}
+	return ""
+}
+
 type ReadUserRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Token                string   `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -94,7 +281,7 @@ func (m *ReadUserRequest) Reset()         { *m = ReadUserRequest{} }
 func (m *ReadUserRequest) String() string { return proto.CompactTextString(m) }
 func (*ReadUserRequest) ProtoMessage()    {}
 func (*ReadUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{2}
+	return fileDescriptor_services_5c92eac26298a74e, []int{2}
 }
 func (m *ReadUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReadUserRequest.Unmarshal(m, b)
@@ -114,7 +301,40 @@ func (m *ReadUserRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ReadUserRequest proto.InternalMessageInfo
 
+func (m *ReadUserRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *ReadUserRequest) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *ReadUserRequest) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
 type ReadUserResponse struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string   `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string   `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string   `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string   `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Status               string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	InfluxdbInfo         string   `protobuf:"bytes,11,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
+	GrafanaInfo          string   `protobuf:"bytes,12,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -124,7 +344,7 @@ func (m *ReadUserResponse) Reset()         { *m = ReadUserResponse{} }
 func (m *ReadUserResponse) String() string { return proto.CompactTextString(m) }
 func (*ReadUserResponse) ProtoMessage()    {}
 func (*ReadUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{3}
+	return fileDescriptor_services_5c92eac26298a74e, []int{3}
 }
 func (m *ReadUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReadUserResponse.Unmarshal(m, b)
@@ -144,7 +364,101 @@ func (m *ReadUserResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ReadUserResponse proto.InternalMessageInfo
 
+func (m *ReadUserResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetCompany() string {
+	if m != nil {
+		return m.Company
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetLastName() string {
+	if m != nil {
+		return m.LastName
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetURL() string {
+	if m != nil {
+		return m.URL
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetStatus() string {
+	if m != nil {
+		return m.Status
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetInfluxdbInfo() string {
+	if m != nil {
+		return m.InfluxdbInfo
+	}
+	return ""
+}
+
+func (m *ReadUserResponse) GetGrafanaInfo() string {
+	if m != nil {
+		return m.GrafanaInfo
+	}
+	return ""
+}
+
 type UpdateUserRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Role                 string   `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	FirstName            string   `protobuf:"bytes,5,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string   `protobuf:"bytes,6,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Company              string   `protobuf:"bytes,7,opt,name=company,proto3" json:"company,omitempty"`
+	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Token                string   `protobuf:"bytes,10,opt,name=token,proto3" json:"token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -154,7 +468,7 @@ func (m *UpdateUserRequest) Reset()         { *m = UpdateUserRequest{} }
 func (m *UpdateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserRequest) ProtoMessage()    {}
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{4}
+	return fileDescriptor_services_5c92eac26298a74e, []int{4}
 }
 func (m *UpdateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserRequest.Unmarshal(m, b)
@@ -174,7 +488,89 @@ func (m *UpdateUserRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_UpdateUserRequest proto.InternalMessageInfo
 
+func (m *UpdateUserRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetLastName() string {
+	if m != nil {
+		return m.LastName
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetCompany() string {
+	if m != nil {
+		return m.Company
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetURL() string {
+	if m != nil {
+		return m.URL
+	}
+	return ""
+}
+
+func (m *UpdateUserRequest) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
 type UpdateUserResponse struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string   `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string   `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string   `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string   `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Status               string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	InfluxdbInfo         string   `protobuf:"bytes,11,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
+	GrafanaInfo          string   `protobuf:"bytes,12,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -184,7 +580,7 @@ func (m *UpdateUserResponse) Reset()         { *m = UpdateUserResponse{} }
 func (m *UpdateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserResponse) ProtoMessage()    {}
 func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{5}
+	return fileDescriptor_services_5c92eac26298a74e, []int{5}
 }
 func (m *UpdateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserResponse.Unmarshal(m, b)
@@ -204,7 +600,94 @@ func (m *UpdateUserResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_UpdateUserResponse proto.InternalMessageInfo
 
+func (m *UpdateUserResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetCompany() string {
+	if m != nil {
+		return m.Company
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetFirstName() string {
+	if m != nil {
+		return m.FirstName
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetLastName() string {
+	if m != nil {
+		return m.LastName
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetURL() string {
+	if m != nil {
+		return m.URL
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetStatus() string {
+	if m != nil {
+		return m.Status
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetInfluxdbInfo() string {
+	if m != nil {
+		return m.InfluxdbInfo
+	}
+	return ""
+}
+
+func (m *UpdateUserResponse) GetGrafanaInfo() string {
+	if m != nil {
+		return m.GrafanaInfo
+	}
+	return ""
+}
+
 type DeleteUserRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Token                string   `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -214,7 +697,7 @@ func (m *DeleteUserRequest) Reset()         { *m = DeleteUserRequest{} }
 func (m *DeleteUserRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteUserRequest) ProtoMessage()    {}
 func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{6}
+	return fileDescriptor_services_5c92eac26298a74e, []int{6}
 }
 func (m *DeleteUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteUserRequest.Unmarshal(m, b)
@@ -234,7 +717,31 @@ func (m *DeleteUserRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DeleteUserRequest proto.InternalMessageInfo
 
+func (m *DeleteUserRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *DeleteUserRequest) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *DeleteUserRequest) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
 type DeleteUserResponse struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -244,7 +751,7 @@ func (m *DeleteUserResponse) Reset()         { *m = DeleteUserResponse{} }
 func (m *DeleteUserResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteUserResponse) ProtoMessage()    {}
 func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{7}
+	return fileDescriptor_services_5c92eac26298a74e, []int{7}
 }
 func (m *DeleteUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteUserResponse.Unmarshal(m, b)
@@ -264,7 +771,31 @@ func (m *DeleteUserResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DeleteUserResponse proto.InternalMessageInfo
 
+func (m *DeleteUserResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *DeleteUserResponse) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *DeleteUserResponse) GetRole() string {
+	if m != nil {
+		return m.Role
+	}
+	return ""
+}
+
 type LoginRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	DomainName           string   `protobuf:"bytes,3,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -274,7 +805,7 @@ func (m *LoginRequest) Reset()         { *m = LoginRequest{} }
 func (m *LoginRequest) String() string { return proto.CompactTextString(m) }
 func (*LoginRequest) ProtoMessage()    {}
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{8}
+	return fileDescriptor_services_5c92eac26298a74e, []int{8}
 }
 func (m *LoginRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginRequest.Unmarshal(m, b)
@@ -294,7 +825,32 @@ func (m *LoginRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_LoginRequest proto.InternalMessageInfo
 
+func (m *LoginRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *LoginRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *LoginRequest) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
 type LoginResponse struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	AccessToken          string   `protobuf:"bytes,2,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	TokenType            string   `protobuf:"bytes,3,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
+	ExpireIn             int32    `protobuf:"varint,4,opt,name=expire_in,json=expireIn,proto3" json:"expire_in,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -304,7 +860,7 @@ func (m *LoginResponse) Reset()         { *m = LoginResponse{} }
 func (m *LoginResponse) String() string { return proto.CompactTextString(m) }
 func (*LoginResponse) ProtoMessage()    {}
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{9}
+	return fileDescriptor_services_5c92eac26298a74e, []int{9}
 }
 func (m *LoginResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginResponse.Unmarshal(m, b)
@@ -324,7 +880,38 @@ func (m *LoginResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_LoginResponse proto.InternalMessageInfo
 
+func (m *LoginResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *LoginResponse) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return ""
+}
+
+func (m *LoginResponse) GetTokenType() string {
+	if m != nil {
+		return m.TokenType
+	}
+	return ""
+}
+
+func (m *LoginResponse) GetExpireIn() int32 {
+	if m != nil {
+		return m.ExpireIn
+	}
+	return 0
+}
+
 type LogoutRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	AccessToken          string   `protobuf:"bytes,3,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -334,7 +921,7 @@ func (m *LogoutRequest) Reset()         { *m = LogoutRequest{} }
 func (m *LogoutRequest) String() string { return proto.CompactTextString(m) }
 func (*LogoutRequest) ProtoMessage()    {}
 func (*LogoutRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f723e96d0298dd62, []int{10}
+	return fileDescriptor_services_5c92eac26298a74e, []int{10}
 }
 func (m *LogoutRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LogoutRequest.Unmarshal(m, b)
@@ -353,6 +940,27 @@ func (m *LogoutRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_LogoutRequest proto.InternalMessageInfo
+
+func (m *LogoutRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *LogoutRequest) GetDomainName() string {
+	if m != nil {
+		return m.DomainName
+	}
+	return ""
+}
+
+func (m *LogoutRequest) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
+	}
+	return ""
+}
 
 func init() {
 	proto.RegisterType((*CreateUserRequest)(nil), "containersai.apiserver.accounts.CreateUserRequest")
@@ -606,31 +1214,54 @@ var _AccountsService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("apiserver/accounts/services.proto", fileDescriptor_services_f723e96d0298dd62)
+	proto.RegisterFile("apiserver/accounts/services.proto", fileDescriptor_services_5c92eac26298a74e)
 }
 
-var fileDescriptor_services_f723e96d0298dd62 = []byte{
-	// 346 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0x4f, 0x4f, 0x32, 0x31,
-	0x10, 0xc6, 0xb9, 0x40, 0xde, 0x4c, 0x5e, 0x45, 0x8a, 0x89, 0xc9, 0x5e, 0x8c, 0x7b, 0xa7, 0x55,
-	0x38, 0x1a, 0x0f, 0xfe, 0x39, 0x1a, 0x0f, 0x10, 0x2e, 0xde, 0x4a, 0x19, 0x97, 0x26, 0xb8, 0x2d,
-	0x6d, 0x57, 0x3e, 0x93, 0xdf, 0xd2, 0xb8, 0x5b, 0xe8, 0xc6, 0x92, 0x50, 0x8e, 0x9d, 0xfc, 0x66,
-	0x66, 0xe7, 0x99, 0x67, 0x16, 0x6e, 0xb8, 0x96, 0x16, 0xcd, 0x17, 0x1a, 0xc6, 0x85, 0x50, 0x55,
-	0xe9, 0x2c, 0xfb, 0x7d, 0x4b, 0x81, 0x96, 0x6a, 0xa3, 0x9c, 0x22, 0xd7, 0x42, 0x95, 0x8e, 0xcb,
-	0x12, 0x8d, 0xe5, 0x92, 0xee, 0x79, 0xba, 0xe3, 0xb3, 0xab, 0x42, 0xa9, 0x62, 0x8d, 0xcc, 0x68,
-	0xc1, 0xac, 0xe3, 0xae, 0xf2, 0x99, 0xf9, 0x10, 0x06, 0xcf, 0x06, 0xb9, 0xc3, 0xb9, 0x45, 0x33,
-	0xc5, 0x4d, 0x85, 0xd6, 0xe5, 0x97, 0x40, 0xda, 0x41, 0xab, 0x55, 0x69, 0x31, 0x1f, 0x40, 0x7f,
-	0x8a, 0x7c, 0xd9, 0x06, 0x09, 0x5c, 0x84, 0x90, 0xc7, 0x86, 0x30, 0x98, 0xeb, 0x65, 0x5c, 0xb1,
-	0x1d, 0x0c, 0xe8, 0x0b, 0xae, 0x31, 0x42, 0xdb, 0x41, 0x8f, 0x9e, 0xc3, 0xff, 0x57, 0x55, 0xc8,
-	0x72, 0x47, 0xf5, 0xe1, 0xcc, 0xbf, 0x3d, 0xd0, 0x04, 0x54, 0xe5, 0x3c, 0x31, 0xfe, 0xee, 0x42,
-	0xff, 0xd1, 0xcf, 0x3f, 0x6b, 0xe4, 0x22, 0x5b, 0x80, 0x30, 0x18, 0x19, 0xd3, 0x23, 0xb2, 0xd1,
-	0x48, 0x9a, 0x6c, 0x72, 0x52, 0x8e, 0xff, 0xb6, 0x0e, 0xd9, 0xc0, 0xbf, 0x9d, 0x50, 0xe4, 0xf6,
-	0x68, 0x89, 0x3f, 0x32, 0x67, 0x77, 0x27, 0x64, 0xec, 0x5b, 0x6e, 0x01, 0x82, 0xe4, 0x09, 0xb3,
-	0x46, 0x4b, 0x4b, 0x98, 0xf5, 0xc0, 0x4e, 0xeb, 0xc6, 0x61, 0x81, 0x09, 0x8d, 0x23, 0x0b, 0x24,
-	0x34, 0x3e, 0xe0, 0x90, 0x0e, 0x59, 0x41, 0xb7, 0xf6, 0x04, 0x19, 0x1d, 0xcd, 0x6f, 0x7b, 0x29,
-	0xa3, 0xa9, 0xf8, 0xbe, 0xd3, 0x1b, 0xf4, 0x1a, 0xb3, 0x91, 0xa4, 0xdc, 0xe0, 0xca, 0x8c, 0xd0,
-	0xe6, 0x12, 0xa9, 0xd1, 0x82, 0xce, 0xea, 0x4b, 0xcc, 0x3b, 0x4f, 0x0f, 0xef, 0xf7, 0x85, 0x74,
-	0xab, 0x6a, 0x41, 0x85, 0xfa, 0x64, 0xa1, 0xe2, 0x88, 0x4b, 0xf6, 0x81, 0x4b, 0x34, 0xdc, 0x29,
-	0xc3, 0xe5, 0x88, 0x6b, 0xc9, 0xe2, 0xbf, 0xc1, 0xa2, 0x57, 0xdf, 0xf2, 0xe4, 0x27, 0x00, 0x00,
-	0xff, 0xff, 0xf6, 0x6e, 0xb6, 0x52, 0x2a, 0x04, 0x00, 0x00,
+var fileDescriptor_services_5c92eac26298a74e = []byte{
+	// 714 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x56, 0xcd, 0x72, 0xd3, 0x30,
+	0x10, 0x6e, 0x93, 0x38, 0x3f, 0x9b, 0x74, 0xda, 0x6a, 0x3a, 0xe0, 0x09, 0xc3, 0x94, 0x9a, 0x0b,
+	0x97, 0xda, 0xd0, 0x1e, 0x19, 0x0e, 0xfc, 0x5c, 0x3a, 0xd3, 0xe9, 0x21, 0x6d, 0x2f, 0x0c, 0x90,
+	0x51, 0x1d, 0x25, 0xd5, 0x90, 0x48, 0xaa, 0xa4, 0xd0, 0xf6, 0x08, 0x8f, 0xc2, 0x8d, 0xa7, 0x61,
+	0x78, 0x23, 0xc6, 0x92, 0x63, 0x9b, 0x38, 0x3f, 0x2e, 0x81, 0x5b, 0x6f, 0xde, 0x4f, 0xbb, 0x5a,
+	0xf9, 0xdb, 0x4f, 0xab, 0x85, 0x3d, 0x2c, 0xa8, 0x22, 0xf2, 0x0b, 0x91, 0x01, 0x0e, 0x43, 0x3e,
+	0x66, 0x5a, 0x05, 0x91, 0x4d, 0x43, 0xa2, 0x7c, 0x21, 0xb9, 0xe6, 0x68, 0x37, 0xe4, 0x4c, 0x63,
+	0xca, 0x88, 0x54, 0x98, 0xfa, 0x89, 0xbf, 0x3f, 0xf1, 0x6f, 0x3f, 0x1c, 0x70, 0x3e, 0x18, 0x92,
+	0x40, 0x8a, 0x30, 0x50, 0x1a, 0xeb, 0x71, 0x1c, 0xe9, 0x7d, 0x2f, 0xc1, 0xf6, 0x5b, 0x49, 0xb0,
+	0x26, 0xe7, 0x8a, 0xc8, 0x0e, 0xb9, 0x1a, 0x13, 0xa5, 0x11, 0x82, 0x0a, 0xc3, 0x23, 0xe2, 0xae,
+	0x3f, 0x59, 0x7f, 0xd6, 0xe8, 0x98, 0x6f, 0xd4, 0x86, 0xba, 0xc0, 0x4a, 0x5d, 0x73, 0xd9, 0x73,
+	0x4b, 0x06, 0x4f, 0x6c, 0xb4, 0x0b, 0xcd, 0x1e, 0x1f, 0x61, 0xca, 0xba, 0x26, 0xac, 0x6c, 0x96,
+	0xc1, 0x42, 0x27, 0x51, 0x30, 0x82, 0x8a, 0xe4, 0x43, 0xe2, 0x56, 0xec, 0x86, 0xd1, 0x37, 0x72,
+	0xa1, 0x16, 0xf2, 0x91, 0xc0, 0xec, 0xd6, 0x75, 0x0c, 0x3c, 0x31, 0xd1, 0x0e, 0x38, 0x64, 0x84,
+	0xe9, 0xd0, 0xad, 0x1a, 0xdc, 0x1a, 0xe8, 0x31, 0x40, 0x9f, 0x4a, 0xa5, 0x6d, 0x8e, 0x9a, 0x59,
+	0x6a, 0x18, 0xc4, 0xa4, 0x78, 0x04, 0x8d, 0x21, 0x9e, 0xac, 0xd6, 0xed, 0x01, 0x23, 0xc0, 0x2c,
+	0xee, 0x80, 0x23, 0x2e, 0x39, 0x23, 0x6e, 0xc3, 0xee, 0x68, 0x0c, 0xb4, 0x05, 0xe5, 0xf3, 0xce,
+	0xb1, 0x0b, 0x06, 0x8b, 0x3e, 0x23, 0x3f, 0xcd, 0x3f, 0x13, 0xe6, 0x36, 0xad, 0x9f, 0x31, 0xbc,
+	0x5f, 0x25, 0x40, 0x59, 0x92, 0x94, 0xe0, 0x4c, 0x91, 0x99, 0x2c, 0x4d, 0x31, 0x51, 0x9a, 0xcb,
+	0x44, 0x79, 0x36, 0x13, 0x95, 0x39, 0x4c, 0x38, 0xf3, 0x99, 0xa8, 0x2e, 0x64, 0xa2, 0x36, 0x8f,
+	0x89, 0xfa, 0x0c, 0x26, 0x1a, 0x29, 0x13, 0x0f, 0xa0, 0x6a, 0x85, 0x12, 0xd3, 0x13, 0x5b, 0xe8,
+	0x29, 0x6c, 0x50, 0xd6, 0x1f, 0x8e, 0x6f, 0x7a, 0x17, 0x5d, 0xca, 0xfa, 0x3c, 0x66, 0xaa, 0x35,
+	0x01, 0x8f, 0x58, 0x9f, 0xa3, 0x3d, 0x68, 0x0d, 0x24, 0xee, 0x63, 0x86, 0xad, 0x4f, 0xcb, 0xf8,
+	0x34, 0x63, 0x2c, 0x72, 0xf1, 0x3e, 0xc0, 0x66, 0x87, 0xe0, 0xde, 0x32, 0xd5, 0x2d, 0xe5, 0x33,
+	0xa9, 0x58, 0x39, 0x5b, 0xb1, 0x9f, 0x25, 0xd8, 0x4a, 0xb7, 0xbf, 0xaf, 0xd7, 0xea, 0xf5, 0xfa,
+	0x5a, 0x82, 0xed, 0x73, 0xd1, 0x5b, 0xb1, 0x51, 0x24, 0xfc, 0x94, 0xb3, 0xfc, 0xcc, 0xea, 0x0e,
+	0x7f, 0x72, 0xe6, 0x2c, 0xe4, 0xac, 0x3a, 0xc5, 0x59, 0xa6, 0x3e, 0xb5, 0x5c, 0x7d, 0x0a, 0xb1,
+	0x99, 0xa8, 0x0a, 0xa6, 0xfb, 0x40, 0x96, 0x83, 0x7b, 0x5d, 0xad, 0xae, 0xab, 0x4f, 0xb0, 0xfd,
+	0x8e, 0x0c, 0xc9, 0x72, 0x59, 0xfd, 0x65, 0x27, 0xf8, 0x08, 0x28, 0xbb, 0xff, 0x3f, 0x2e, 0x99,
+	0xd7, 0x85, 0xd6, 0x31, 0x1f, 0x50, 0xf6, 0xbf, 0x5e, 0x4e, 0xef, 0xdb, 0x3a, 0x6c, 0xc4, 0x19,
+	0x16, 0x9c, 0x7d, 0x0f, 0x5a, 0x38, 0x0c, 0x89, 0x52, 0x5d, 0x4b, 0x81, 0x4d, 0xd3, 0xb4, 0xd8,
+	0x59, 0x04, 0x45, 0x62, 0x31, 0x6b, 0x5d, 0x7d, 0x2b, 0x26, 0x89, 0x1a, 0x06, 0x39, 0xbb, 0x15,
+	0x46, 0x2c, 0xe4, 0x46, 0x50, 0x49, 0xba, 0x94, 0x19, 0xf5, 0x39, 0x9d, 0xba, 0x05, 0x8e, 0x98,
+	0x37, 0x30, 0x67, 0xe0, 0x63, 0xbd, 0x52, 0x81, 0xa6, 0x0f, 0x59, 0xce, 0x1d, 0xf2, 0xe0, 0x87,
+	0x03, 0x9b, 0xaf, 0xe3, 0xa1, 0xe5, 0xd4, 0xce, 0x38, 0xe8, 0x1a, 0x20, 0x7d, 0x7c, 0xd1, 0x81,
+	0xbf, 0x64, 0xd6, 0xf1, 0x73, 0xe3, 0x4c, 0xfb, 0xf0, 0x4e, 0x31, 0x96, 0x66, 0x6f, 0x0d, 0x5d,
+	0x41, 0x7d, 0xf2, 0x86, 0xa0, 0xe7, 0x4b, 0xb7, 0x98, 0x7a, 0xcd, 0xda, 0x2f, 0xee, 0x10, 0x91,
+	0xa4, 0xbc, 0x06, 0x48, 0x1b, 0x4c, 0x81, 0x7f, 0xcd, 0x75, 0xe4, 0x02, 0xff, 0x9a, 0xef, 0x60,
+	0x36, 0x71, 0x7a, 0x4d, 0x0a, 0x24, 0xce, 0xdd, 0xd9, 0x02, 0x89, 0xf3, 0xf7, 0xd0, 0x5b, 0x43,
+	0x97, 0xe0, 0x18, 0x79, 0xa3, 0xfd, 0xa5, 0xf1, 0xd9, 0x8b, 0xd6, 0xf6, 0x8b, 0xba, 0x27, 0x99,
+	0x4e, 0xa0, 0x6a, 0x45, 0x8c, 0x0a, 0xc5, 0xa6, 0x6a, 0x6f, 0x23, 0xdf, 0x8e, 0xcf, 0xbe, 0x14,
+	0xa1, 0x7f, 0x6a, 0xfa, 0x9f, 0xb7, 0xf6, 0xe6, 0xd5, 0xfb, 0x97, 0x03, 0xaa, 0x2f, 0xc7, 0x17,
+	0x7e, 0xc8, 0x47, 0x41, 0xba, 0xe3, 0x3e, 0xa6, 0x41, 0x9f, 0xf4, 0x88, 0xc4, 0x9a, 0x4b, 0x4c,
+	0xf7, 0xb1, 0xa0, 0x41, 0x7e, 0x84, 0xbf, 0xa8, 0x9a, 0x01, 0xfc, 0xf0, 0x77, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0xea, 0x4e, 0xd5, 0xf4, 0xdf, 0x0b, 0x00, 0x00,
 }

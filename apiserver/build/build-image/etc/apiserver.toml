@@ -3,6 +3,9 @@ bind-address = ":50055"
 [datahub]
     address = "alameda-datahub.federatorai:50050"
 
+[ldap]
+    address = "alameda-ldap.federatorai:389"
+
 [log]
     set-logcallers = true
     output-level = "info" # debug, info, warn, error, fatal, none

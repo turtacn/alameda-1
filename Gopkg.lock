@@ -50,7 +50,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:c6fcb03e2b7d54ff401859a52c5e5af37c90e3a65ffb1b6377446e001a982410"
+  digest = "1:27692971970ef3cf1b5501f0f8c5f5a4a625d33ae7cdab51449bdfe6ffcbfb42"
   name = "github.com/containers-ai/federatorai-api"
   packages = [
     "apiserver/accounts",
@@ -59,7 +59,7 @@
     "apiserver/rawdata",
   ]
   pruneopts = "T"
-  revision = "a2e5204b8c743f37681206cf9fd5fd6b55150f47"
+  revision = "7901aa0a8aa10abcbcd6afb29821fb5a4f0d3260"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"

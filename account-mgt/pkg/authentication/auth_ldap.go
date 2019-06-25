@@ -16,7 +16,6 @@ import (
 var LdapIP = "127.0.0.1"
 var LdapPort = uint16(389)
 
-var LdapTLSPort = uint16(636)
 var LdapBaseDN = "dc=prophetstor,dc=com"
 var LdapUserAttributes = []string{
 	"ou",
@@ -34,6 +33,7 @@ const (
 )
 
 type AuthLdap struct {
+	Address string
 }
 
 func (c *AuthLdap) Authenticate(authUserInfo *AuthUserInfo) (string, error) {
@@ -465,7 +465,13 @@ func (c *AuthLdap) deleteUser(authUserInfo *AuthUserInfo, checkLastAdmin bool) e
 }
 
 func (c *AuthLdap) loginLDAP(authUserInfo *AuthUserInfo) (*ldap.Conn, error) {
-	lconn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", LdapIP, LdapPort))
+	address := ""
+	if c.Address != "" {
+		address = c.Address
+	} else {
+		address = fmt.Sprintf("%s:%d", LdapIP, LdapPort)
+	}
+	lconn, err := ldap.Dial("tcp", address)
 	if err != nil {
 		scope.Error(fmt.Sprintf("authentication.userLogin: %v", err.Error()))
 		return lconn, Errors.NewError(Errors.ReasonFailedToConnectDB, "ldap")
@@ -494,7 +500,13 @@ func (c *AuthLdap) loginLDAP(authUserInfo *AuthUserInfo) (*ldap.Conn, error) {
 }
 
 func (c *AuthLdap) adminLoginLDAP() (*ldap.Conn, error) {
-	lconn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", LdapIP, LdapPort))
+	address := ""
+	if c.Address != "" {
+		address = c.Address
+	} else {
+		address = fmt.Sprintf("%s:%d", LdapIP, LdapPort)
+	}
+	lconn, err := ldap.Dial("tcp", address)
 	if err != nil {
 		scope.Error(fmt.Sprintf("authentication.userLogin: %v", err.Error()))
 		return lconn, Errors.NewError(Errors.ReasonFailedToConnectDB, "ldap")
@@ -635,6 +647,12 @@ func (c *AuthLdap) loadUserDescriptionData(authUserInfo *AuthUserInfo, entry *ld
 	if value, ok := attrMap["timezone"]; ok {
 		authUserInfo.Timezone = value
 	}
+	if value, ok := attrMap["influxdbInfo"]; ok {
+		authUserInfo.InfluxdbInfo = value
+	}
+	if value, ok := attrMap["grafanaInfo"]; ok {
+		authUserInfo.GrafanaInfo = value
+	}
 }
 
 func (c *AuthLdap) genDescriptionAttrs(authUserInfo *AuthUserInfo) []string {
@@ -654,6 +672,8 @@ func (c *AuthLdap) genDescriptionAttrs(authUserInfo *AuthUserInfo) []string {
 	attrs = append(attrs, fmt.Sprintf("phone=%s", authUserInfo.Phone))
 	attrs = append(attrs, fmt.Sprintf("sendConfirmCount=%d", authUserInfo.SendConfirmCount))
 	attrs = append(attrs, fmt.Sprintf("timezone=%s", authUserInfo.Timezone))
+	attrs = append(attrs, fmt.Sprintf("influxdbInfo=%s", authUserInfo.InfluxdbInfo))
+	attrs = append(attrs, fmt.Sprintf("grafanaInfo=%s", authUserInfo.GrafanaInfo))
 
 	return attrs
 }
@@ -727,7 +747,13 @@ func (c *AuthLdap) GetAllUserCount() int {
 		scope.Error(fmt.Sprintf("authentication.GetAllUserCount: %v", err.Error()))
 		return -1
 	} else if sr == nil {
-		scope.Error(fmt.Sprintf("authentication.GetAllUserCount: %v", err.Error()))
+		msg := ""
+		if err != nil {
+			msg = string(err.Error())
+		} else {
+			msg = "unable to get ldap search result"
+		}
+		scope.Error(fmt.Sprintf("authentication.GetAllUserCount: %s", msg))
 		return -1
 	}
 

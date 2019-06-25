@@ -22,6 +22,7 @@ func init() {
 	reasonMap[ReasonReservedChar] = "Character(%s) is reserved in (%s)"
 	reasonMap[ReasonInvalidTimeSequence] = "Key(%s) must be before key(%s)."
 	reasonMap[ReasonInvalidTimeRange] = "Key(%s) and key(%s) must be within %s."
+	reasonMap[ReasonInvalidRequest] = "Invalid request: %s"
 
 	// Authentication
 	reasonMap[ReasonInvalidJWT] = "Invalid JWT."

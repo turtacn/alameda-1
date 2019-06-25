@@ -7,7 +7,8 @@ import (
 	"fmt"
 	//Logger "github.com/prophetstor-ai/common-lib/pkg/log"
 	"crypto/tls"
-	Config "github.com/containers-ai/alameda/pkg/utils/conf"
+	"github.com/containers-ai/alameda/apiserver/pkg/config"
+	TestConfig "github.com/containers-ai/alameda/pkg/utils/conf"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"net/http"
 )
@@ -41,6 +42,8 @@ type AuthUserInfo struct {
 	Status        string
 	CreatedAt     string
 	UpdatedAt     string
+	InfluxdbInfo  string
+	GrafanaInfo   string
 
 	SendConfirmCount int
 	Timezone         string
@@ -79,6 +82,8 @@ func NewAuthUserInfo(domainName, name string) *AuthUserInfo {
 		Status:        "",
 		CreatedAt:     "",
 		UpdatedAt:     "",
+		InfluxdbInfo:  "",
+		GrafanaInfo:   "",
 
 		SendConfirmCount: 0,
 		Timezone:         "",
@@ -117,10 +122,10 @@ type AuthInterface interface {
 	IsUserExist(userName string) (bool, error)
 }
 
-func NewAuthenticationClient(aNamespace string) AuthInterface {
+func NewAuthenticationClient(config *config.Config) AuthInterface {
 	switch AuthType {
 	case "ldap":
-		client := AuthLdap{}
+		client := AuthLdap{Address: config.Ldap.Address}
 		return &client
 	default:
 		break
@@ -169,22 +174,22 @@ func AuthenticationInitWithConfig(config AuthenticationConfig) error {
 
 func AuthenticationInitWithConfigFile(path string) {
 	//path = "/etc/account-mgt/account-mgt.toml"
-	Config.ConfigInit(path)
+	TestConfig.ConfigInit(path)
 
-	category := Config.Get("general.arch", "platform").(string)
-	addr := Config.Get("authentication.address", "ldap.fed-account").(string)
+	category := TestConfig.Get("general.arch", "platform").(string)
+	addr := TestConfig.Get("authentication.address", "ldap.fed-account").(string)
 
-	port := uint16(Config.Get("authentication.port", int64(389)).(int64))
-	authType := Config.Get("authentication.auth_type", "ldap").(string)
-	tokenType := Config.Get("authentication.token_type", "JWT").(string)
-	tokenExpiration := int(Config.Get("authentication.token_expiration", int64(3600)).(int64))
-	userMaximum := int(Config.Get("authentication.user_maximum", int64(1000)).(int64))
-	//logPath := Config.Get("logger.file", "/var/log/account-mgt.log").(string)
+	port := uint16(TestConfig.Get("authentication.port", int64(389)).(int64))
+	authType := TestConfig.Get("authentication.auth_type", "ldap").(string)
+	tokenType := TestConfig.Get("authentication.token_type", "JWT").(string)
+	tokenExpiration := int(TestConfig.Get("authentication.token_expiration", int64(3600)).(int64))
+	userMaximum := int(TestConfig.Get("authentication.user_maximum", int64(1000)).(int64))
+	//logPath := TestConfig.Get("logger.file", "/var/log/account-mgt.log").(string)
 	//Logger.LoggerInit(logPath)
 	opt := log.DefaultOptions()
 	opt.RotationMaxSize = 100
 	opt.RotationMaxBackups = 7
-	opt.RotateOutputPath = Config.Get("logger.file", "/var/log/account-mgt.log").(string)
+	opt.RotateOutputPath = TestConfig.Get("logger.file", "/var/log/account-mgt.log").(string)
 	err := log.Configure(opt)
 	if err != nil {
 		fmt.Printf("Failed to initialize logger: %s", err.Error())
