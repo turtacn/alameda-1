@@ -578,7 +578,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value)*1000 from \"alameda_metric\"..\"container\" where \"metric_type\" = 'CPU_USAGE_SECONDS_PERCENTAGE' and \"pod_namespace\" = '$ns' and \"pod_name\" = '$pod' and \"name\" = '$container' and \"name\" != '' AND $timeFilter group by time(30s)",
+          "query": "select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'CPU_USAGE_SECONDS_PERCENTAGE' and \"pod_namespace\" = '$ns' and \"pod_name\" = '$pod' and \"name\" = '$container' and \"name\" != '' AND $timeFilter group by time(30s)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",

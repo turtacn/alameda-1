@@ -580,7 +580,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"max\")*1000 from (select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'CPU_USAGE_SECONDS_PERCENTAGE' and \"pod_namespace\" = '$ns'  and \"pod_name\" =~ /^[[pod]]$/ and \"name\" != 'POD' and \"name\" != '' and $timeFilter group by pod_name, time(30s)) group by time($__interval)",
+          "query": "SELECT sum(\"max\") from (select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'CPU_USAGE_SECONDS_PERCENTAGE' and \"pod_namespace\" = '$ns'  and \"pod_name\" =~ /^[[pod]]$/ and \"name\" != 'POD' and \"name\" != '' and $timeFilter group by pod_name, time(30s)) group by time($__interval)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
