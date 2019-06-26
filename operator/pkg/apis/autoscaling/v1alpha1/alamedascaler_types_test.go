@@ -26,6 +26,7 @@ import (
 )
 
 func TestStorageAlamedaScaler(t *testing.T) {
+	enableExecution := true
 	key := types.NamespacedName{
 		Name:      "foo",
 		Namespace: "default",
@@ -37,11 +38,10 @@ func TestStorageAlamedaScaler(t *testing.T) {
 		},
 		Spec: AlamedaScalerSpec{
 			Selector:        &metav1.LabelSelector{},
-			EnableExecution: true,
+			EnableExecution: &enableExecution,
 		},
 		Status: AlamedaScalerStatus{
-			AlamedaController: AlamedaController{
-			},
+			AlamedaController: AlamedaController{},
 		},
 	}
 	g := gomega.NewGomegaWithT(t)
