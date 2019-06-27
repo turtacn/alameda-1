@@ -147,7 +147,13 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 					scope.Error(err.Error())
 					continue
 				}
-				pods = append(pods, podListIns.Items...)
+				for _, pod := range podListIns.Items {
+					for _, or := range pod.GetOwnerReferences() {
+						if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "replicaset" && or.Name == replicasetIns.Name {
+							pods = append(pods, pod)
+						}
+					}
+				}
 			}
 		}
 	}
@@ -187,7 +193,13 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 					scope.Error(err.Error())
 					continue
 				}
-				pods = append(pods, podListIns.Items...)
+				for _, pod := range podListIns.Items {
+					for _, or := range pod.GetOwnerReferences() {
+						if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "replicationcontroller" && or.Name == replicationControllerIns.Name {
+							pods = append(pods, pod)
+						}
+					}
+				}
 			}
 		}
 	}
