@@ -15,6 +15,7 @@ const (
 	ControllerReplicas        controllerField = "replicas"
 	ControllerEnableExecution controllerField = "enable_execution"
 	ControllerPolicy          controllerField = "policy"
+	ControllerSpecReplicas    controllerField = "spec_replicas"
 )
 
 var (
