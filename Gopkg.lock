@@ -27,14 +27,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5537b777ea16791a4cd837040b2b354f77b995d650fcbc9e83e0979696fb96ca"
+  digest = "1:2e73482c9c9217b1270f74e28dc2fd7b05562323c3a788f91da4374bd24bd894"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
     "common",
   ]
   pruneopts = "T"
-  revision = "071bc1d28cd95949dfe4e20758d663345dccdaef"
+  revision = "3ff5c62703f5c5ecfbad34cd51f2e5d91abe8608"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -245,7 +245,7 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:1dd93d3aa6fe16ced2aa9d306a5ebe3a8e83cea825d263c92940bd2dce744975"
+  digest = "1:5a3cbd9e81c8e3d6d508bc353cb8e8c4bf3367ba50e226768c1ec5ac9eedc56d"
   name = "github.com/influxdata/influxdb"
   packages = [
     "client/v2",
@@ -257,7 +257,7 @@
   version = "v1.7.4"
 
 [[projects]]
-  digest = "1:dce89a23d5e3b147ba2cb39e659e85f53a72cff74f7ec61da30f3154a3848f3d"
+  digest = "1:bc81b03e8dab9ea61ef06860fb147e23ed8bf8930d092e65315da94990c5a99a"
   name = "github.com/influxdata/platform"
   packages = [
     "models",

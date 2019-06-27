@@ -147,11 +147,13 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 		}
 	}
 
+	specReplicas := deployment.Spec.Replicas
 	alamedaDeploymentsMap[autoscaling_v1alpha1.NamespacedName(utils.GetNamespacedNameKey(deployment.GetNamespace(), deployment.GetName()))] = autoscaling_v1alpha1.AlamedaResource{
-		Namespace: alamedaDeploymentNS,
-		Name:      alamedaDeploymentName,
-		UID:       string(alamedaDeploymentUID),
-		Pods:      alamedaPodsMap,
+		Namespace:    alamedaDeploymentNS,
+		Name:         alamedaDeploymentName,
+		UID:          string(alamedaDeploymentUID),
+		Pods:         alamedaPodsMap,
+		SpecReplicas: specReplicas,
 	}
 	reconciler.alamedascaler.Status.AlamedaController.Deployments = alamedaDeploymentsMap
 	return reconciler.alamedascaler
@@ -195,11 +197,13 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 		}
 	}
 
+	specReplicas := deploymentconfig.Spec.Replicas
 	deploymentConfigsMap[autoscaling_v1alpha1.NamespacedName(utils.GetNamespacedNameKey(deploymentconfig.GetNamespace(), deploymentconfig.GetName()))] = autoscaling_v1alpha1.AlamedaResource{
-		Namespace: deploymentConfigNS,
-		Name:      deploymentConfigName,
-		UID:       string(deploymentConfigUID),
-		Pods:      podsMap,
+		Namespace:    deploymentConfigNS,
+		Name:         deploymentConfigName,
+		UID:          string(deploymentConfigUID),
+		Pods:         podsMap,
+		SpecReplicas: &specReplicas,
 	}
 	reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs = deploymentConfigsMap
 	return reconciler.alamedascaler
