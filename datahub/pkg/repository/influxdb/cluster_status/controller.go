@@ -58,6 +58,7 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_api.Cont
 			string(controller_entity.ControllerReplicas):        controller.GetReplicas(),
 			string(controller_entity.ControllerEnableExecution): strconv.FormatBool(controllerExecution),
 			string(controller_entity.ControllerPolicy):          controllerPolicy,
+			string(controller_entity.ControllerSpecReplicas):    controller.GetSpecReplicas(),
 		}
 
 		pt, err := influxdb_client.NewPoint(string(Controller), tags, fields, time.Unix(0, 0))
