@@ -91,7 +91,8 @@ message ResourceInfo {
 message Controller {
     ResourceInfo controller_info         = 1;
     repeated ResourceInfo owner_info     = 2;
-    int32 Replicas                       = 3;
+    int32 replicas                       = 3;
     bool enable_recommendation_execution = 4;
     RecommendationPolicy policy          = 5;
+    int32 spec_replicas                  = 6;
 }

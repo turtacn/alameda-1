@@ -276,9 +276,10 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				},
 				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 			}},
-			Policy:                        policy,
+			Policy: policy,
 			EnableRecommendationExecution: scaler.IsEnableExecution(),
 			Replicas:                      int32(len(dc.Pods)),
+			SpecReplicas:                  *dc.SpecReplicas,
 		})
 	}
 	for _, deploy := range scaler.Status.AlamedaController.Deployments {
@@ -303,9 +304,10 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				},
 				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 			}},
-			Policy:                        policy,
+			Policy: policy,
 			EnableRecommendationExecution: scaler.IsEnableExecution(),
 			Replicas:                      int32(len(deploy.Pods)),
+			SpecReplicas:                  *deploy.SpecReplicas,
 		})
 	}
 	err := k8sRes.CreateAlamedaWatchedResource(watchedReses)

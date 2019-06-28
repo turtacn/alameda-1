@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:5963a14d3f6e27d2945ecf4193b7ebe8cfe21abeb90ea306cc5073098fac46b4"
+  digest = "1:f022265433937718f9c918eb17dbd8b0c27f3acdcc9fa284084a5b7e9477c773"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -46,7 +46,7 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "98f7451e74d52cc20826b23b99f9fa3569c4afb1"
+  revision = "3dcf72f4987031b24d21c9b3764efa21a0b70289"
 
 [[projects]]
   branch = "development"
@@ -1193,6 +1193,7 @@
     "github.com/containers-ai/federatorai-api/apiserver/ping",
     "github.com/containers-ai/federatorai-api/apiserver/rawdata",
     "github.com/emicklei/go-restful",
+    "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/influxdata/influxdb/client/v2",

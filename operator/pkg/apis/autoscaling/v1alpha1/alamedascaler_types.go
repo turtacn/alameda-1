@@ -58,10 +58,11 @@ func (p *AlamedaPod) GetNamespacedName() NamespacedName {
 }
 
 type AlamedaResource struct {
-	Namespace string                        `json:"namespace" protobuf:"bytes,1,opt,name=namespace"`
-	Name      string                        `json:"name" protobuf:"bytes,2,opt,name=name"`
-	UID       string                        `json:"uid" protobuf:"bytes,3,opt,name=uid"`
-	Pods      map[NamespacedName]AlamedaPod `json:"pods" protobuf:"bytes,4,opt,name=pods"`
+	Namespace    string                        `json:"namespace" protobuf:"bytes,1,opt,name=namespace"`
+	Name         string                        `json:"name" protobuf:"bytes,2,opt,name=name"`
+	UID          string                        `json:"uid" protobuf:"bytes,3,opt,name=uid"`
+	Pods         map[NamespacedName]AlamedaPod `json:"pods" protobuf:"bytes,4,opt,name=pods"`
+	SpecReplicas *int32                        `json:"specReplicas" protobuf:"varint,5,opt,name=spec_replicas"`
 }
 
 type AlamedaController struct {
