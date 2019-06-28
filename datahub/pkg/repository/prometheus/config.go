@@ -19,7 +19,7 @@ type Config struct {
 	bearerToken string
 }
 
-// TLSConfig Configuration of tls connnection
+// TLSConfig Configuration of tls connection
 type TLSConfig struct {
 	InsecureSkipVerify bool `mapstructure:"insecure-skip-verify"`
 }

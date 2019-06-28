@@ -80,7 +80,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 		return entities, errors.Errorf("list node cpu usage metrics by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
-	entities, err = response.GetEntitis()
+	entities, err = response.GetEntities()
 	if err != nil {
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}

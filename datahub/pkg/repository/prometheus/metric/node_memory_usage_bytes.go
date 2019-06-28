@@ -90,7 +90,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 		return entities, errors.Errorf("list node memory bytes total by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
-	entities, err = response.GetEntitis()
+	entities, err = response.GetEntities()
 	if err != nil {
 		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	}

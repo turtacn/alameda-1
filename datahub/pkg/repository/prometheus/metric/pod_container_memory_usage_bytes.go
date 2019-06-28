@@ -68,7 +68,7 @@ func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(n
 		return entities, errors.Errorf("list pod container memory usage metrics failed: receive error response from prometheus: %s", response.Error)
 	}
 
-	entities, err = response.GetEntitis()
+	entities, err = response.GetEntities()
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container memory usage metrics failed")
 	}

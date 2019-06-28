@@ -19,7 +19,7 @@ func GetRunningNamespace() string {
 	return os.Getenv("NAMESPACE_NAME")
 }
 
-// GetRunnningPodName retrieves value from env POD_NAME
-func GetRunnningPodName() string {
+// GetRunningPodName retrieves value from env POD_NAME
+func GetRunningPodName() string {
 	return os.Getenv("POD_NAME")
 }
