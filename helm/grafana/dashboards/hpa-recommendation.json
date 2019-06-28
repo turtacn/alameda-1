@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 10,
-  "iteration": 1560932393249,
+  "iteration": 1561688485002,
   "links": [],
   "panels": [
     {
@@ -369,7 +368,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "InfluxDB",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -422,8 +421,7 @@
       "tableColumn": "current replicas",
       "targets": [
         {
-          "expr": "sum(kube_replicationcontroller_spec_replicas{namespace = \"$ns\", replicationcontroller=~\"$controller.*\" }) or 1-absent(sum(kube_replicationcontroller_spec_replicas{namespace = \"$ns\", replicationcontroller=~\"$controller.*\" }))\n\n+ \n\nsum(kube_replicaset_spec_replicas{namespace = \"$ns\", replicaset=~\"$controller.*\" }) or 1-absent(sum(kube_replicaset_spec_replicas{namespace = \"$ns\", replicaset=~\"$controller.*\" }))",
-          "format": "time_series",
+          "alias": "Current replica",
           "groupBy": [
             {
               "params": [
@@ -438,13 +436,13 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 1,
+          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select current_replicas as \"current replicas\" from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
+          "query": "select sum(spec_replicas) from \"alameda_cluster_status\"..\"controller\" where (\"kind\"='DEPLOYMENT' or \"kind\" = 'DEPLOYMENTCONFIG') and \"namespace\"='$ns' and \"name\"=~ /^[[container]].*$/",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -471,7 +469,7 @@
       "valueMaps": [
         {
           "op": "=",
-          "text": "N/A",
+          "text": "0",
           "value": "null"
         }
       ],
@@ -486,7 +484,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "InfluxDB",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -539,8 +537,7 @@
       "tableColumn": "current_cpu_limits",
       "targets": [
         {
-          "expr": "1000 * sum(sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
+          "alias": "Total CPU limit (milicore)",
           "groupBy": [
             {
               "params": [
@@ -555,13 +552,12 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select current_cpu_limits from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1\n\nsum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_limits_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
+          "query": "select sum(resource_limit_cpu) from \"alameda_cluster_status\"..\"container\" where \"pod_phase\" = 'Running'  and \"namespace\" = '$ns' and \"pod_name\"=~ /^[[controller]].*$/ group by namespace, pod",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -602,7 +598,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "InfluxDB",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -655,8 +651,7 @@
       "tableColumn": "current_cpu_requests",
       "targets": [
         {
-          "expr": "1000 * sum(sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
+          "alias": "Total CPU request (milicore)",
           "groupBy": [
             {
               "params": [
@@ -671,13 +666,12 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "1000 * sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"})",
+          "query": "select sum(resource_request_cpu) from \"alameda_cluster_status\"..\"container\" where \"pod_phase\" = 'Running'  and \"namespace\" = '$ns' and \"pod_name\"=~ /^[[controller]].*$/ group by namespace, pod",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -718,7 +712,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "InfluxDB",
       "format": "bytes",
       "gauge": {
         "maxValue": 100,
@@ -771,8 +765,7 @@
       "tableColumn": "current_mem_limits",
       "targets": [
         {
-          "expr": "sum(sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
+          "alias": "Total memory limit",
           "groupBy": [
             {
               "params": [
@@ -787,13 +780,12 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select current_mem_limits from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
+          "query": "select sum(resource_limit_memory) from \"alameda_cluster_status\"..\"container\" where \"pod_phase\" = 'Running'  and \"namespace\" = '$ns' and \"pod_name\"=~ /^[[controller]].*$/ group by namespace, pod ",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -834,7 +826,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "InfluxDB",
       "format": "bytes",
       "gauge": {
         "maxValue": 100,
@@ -887,8 +879,7 @@
       "tableColumn": "current_mem_requests",
       "targets": [
         {
-          "expr": "sum(sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
+          "alias": "Total memory request",
           "groupBy": [
             {
               "params": [
@@ -903,13 +894,12 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select current_mem_requests from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
+          "query": "select sum(resource_request_memroy) from \"alameda_cluster_status\"..\"container\" where \"pod_phase\" = 'Running'  and \"namespace\" = '$ns' and \"pod_name\"=~ /^[[controller]].*$/ group by namespace, pod ",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -1000,14 +990,43 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": "Prometheus",
-          "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation : CPU usage",
-          "refId": "C"
+          "alias": "Observation : CPU usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"max\") from (select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'CPU_USAGE_SECONDS_PERCENTAGE' and \"pod_namespace\" = '$ns' and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~ /^[[container]]$/ and \"name\" != '' and $timeFilter group by pod_name, time(30s)) group by time($__interval)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         },
         {
           "alias": "Observation : current CPU limit",
@@ -1314,14 +1333,43 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation : memory usage",
-          "refId": "C"
+          "alias": "Observation : memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"max\") from(select max(value) from \"alameda_metric\"..\"container\" where \"metric_type\" = 'MEMORY_USAGE_BYTES' and \"pod_namespace\" = '$ns' and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~ /^[[container]]$/ and \"name\" != '' AND $timeFilter group by time(30s)) group by time($__interval)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         },
         {
           "alias": "Observation : current memory limit",
@@ -1576,8 +1624,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "webapp",
-          "value": "webapp"
+          "text": "test",
+          "value": "test"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1601,8 +1649,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "nginx-app",
-          "value": "nginx-app"
+          "text": "alameda-busybox",
+          "value": "alameda-busybox"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -1626,8 +1674,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "nginx-deployment",
-          "value": "nginx-deployment"
+          "text": "busybox",
+          "value": "busybox"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
@@ -1732,5 +1780,5 @@
   "timezone": "",
   "title": "HPA Recommendation",
   "uid": "dddy5uda",
-  "version": 7
+  "version": 1
 }
