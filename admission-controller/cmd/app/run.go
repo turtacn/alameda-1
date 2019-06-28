@@ -193,7 +193,7 @@ func initThirdPartyClient() error {
 
 func initOwnerReferenceOfControllerOwningAdmissionController() error {
 
-	pod, err := k8s_utils.GetPodByNamespaceNameWithConfig(utils.GetRunningNamespace(), utils.GetRunnningPodName(), *k8sRestConfig)
+	pod, err := k8s_utils.GetPodByNamespaceNameWithConfig(utils.GetRunningNamespace(), utils.GetRunningPodName(), *k8sRestConfig)
 	if err != nil {
 		return errors.Wrap(err, "initialization failed: get deployment or deploymentconfig owning admission-controller failed")
 	}

@@ -68,7 +68,7 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 		return entities, errors.Errorf("list pod container cpu usage metric by namespaced name failed: receive error response from prometheus: %s", response.Error)
 	}
 
-	entities, err = response.GetEntitis()
+	entities, err = response.GetEntities()
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}

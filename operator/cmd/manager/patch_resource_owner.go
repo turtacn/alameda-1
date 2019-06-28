@@ -104,7 +104,7 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 func getDeploymentOrDeploymentConfigRunningManager() (*appsv1.Deployment, *openshiftappsv1.DeploymentConfig, error) {
 
 	podNamespace := utils.GetRunningNamespace()
-	podName := utils.GetRunnningPodName()
+	podName := utils.GetRunningPodName()
 	pod, err := k8sUtils.GetPodByNamespaceNameWithConfig(podNamespace, podName, *k8sConfig)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "get deployment or deploymentConfig running alameda-operator failed")

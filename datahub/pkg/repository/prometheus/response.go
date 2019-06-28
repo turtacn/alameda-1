@@ -155,14 +155,14 @@ func (r Response) GetMatrixResponse() (MatrixResponse, error) {
 	return response, nil
 }
 
-func (r Response) GetEntitis() ([]Entity, error) {
+func (r Response) GetEntities() ([]Entity, error) {
 
 	var (
 		entities = make([]Entity, 0)
 	)
 
 	if r.Status != StatusSuccess {
-		return entities, errors.Errorf("GetEntitis failed: response status is not %s", StatusSuccess)
+		return entities, errors.Errorf("GetEntities failed: response status is not %s", StatusSuccess)
 	}
 
 	switch r.Data.ResultType {
@@ -208,7 +208,7 @@ func (r Response) GetEntitis() ([]Entity, error) {
 			entities = append(entities, entity)
 		}
 	default:
-		return entities, errors.Errorf("GetEntitis failed: result type not supported %s", string(r.Data.ResultType))
+		return entities, errors.Errorf("GetEntities failed: result type not supported %s", string(r.Data.ResultType))
 	}
 
 	return entities, nil
