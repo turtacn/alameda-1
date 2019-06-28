@@ -7,6 +7,7 @@ import (
 	DAO "github.com/containers-ai/alameda/datahub/pkg/dao"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"time"
 )
 
@@ -66,11 +67,12 @@ func ReadRawdata(config *Config, queries []*Common.Query) ([]*Common.ReadRawdata
 			}
 		}
 
-		if query.GetExpression() == "query" {
+		switch query.GetExpression() {
+		case "query":
 			response, err = prometheusClient.Query(queryExpression, opt.startTime, opt.timeout)
-		} else if query.GetExpression() == "query_range" {
+		case "query_range":
 			response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
-		} else {
+		default:
 			response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
 		}
 
@@ -80,7 +82,7 @@ func ReadRawdata(config *Config, queries []*Common.Query) ([]*Common.ReadRawdata
 			scope.Errorf("receive error response from prometheus: %s", response.Error)
 			return make([]*Common.ReadRawdata, 0), errors.New(response.Error)
 		} else {
-			readRawdata := PrometheusResponseToReadRawdata(&response, query)
+			readRawdata, _ := ResponseToReadRawdata(&response, query)
 			rawdata = append(rawdata, readRawdata)
 		}
 	}
@@ -159,20 +161,53 @@ func BuildQueryCondition(query *Common.Query) DAO.QueryCondition {
 	return queryCondition
 }
 
-func PrometheusResponseToReadRawdata(response *Response, query *Common.Query) *Common.ReadRawdata {
-	readRawdata := Common.ReadRawdata{Query: query}
+func ResponseToReadRawdata(response *Response, query *Common.Query) (*Common.ReadRawdata, error) {
+	var (
+		err         error
+		readRawdata = Common.ReadRawdata{Query: query}
+	)
 
 	if len(response.Data.Result) == 0 {
-		return &readRawdata
+		return &readRawdata, nil
 	}
+
+	entities, err := response.GetEntities()
+	if err != nil {
+		scope.Errorf("failed to transform prometheus response to read rawdata: %s", err.Error())
+		return nil, errors.New("failed to get entities from prometheus response")
+	}
+
+	// Build columns
+	for key := range entities[0].Labels {
+		readRawdata.Columns = append(readRawdata.Columns, key)
+	}
+	readRawdata.Columns = append(readRawdata.Columns, "value")
+
+	// Build groups
+	for _, entity := range entities {
+		group := Common.Group{}
+		for _, value := range entity.Values {
+			// Build rows of group
+			row := Common.Row{}
+			for i := 0; i < len(readRawdata.Columns)-1; i++ {
+				row.Values = append(row.Values, entity.Labels[readRawdata.Columns[i]])
+			}
+			row.Time = &timestamp.Timestamp{Seconds: value.UnixTime.Unix()}
+			row.Values = append(row.Values, value.SampleValue)
+			group.Rows = append(group.Rows, &row)
+		}
+		readRawdata.Groups = append(readRawdata.Groups, &group)
+	}
+
+	// Append rawdata json string
 	jsonStr, err := json.Marshal(response.Data)
 	if err != nil {
-		scope.Errorf("failed to Marshal response from Prometheus: %v", err)
+		scope.Errorf("failed to transform prometheus response to read rawdata: %s", err.Error())
+		return nil, errors.New("failed to marshal prometheus response")
 	}
-
 	readRawdata.Rawdata = string(jsonStr)
 
-	return &readRawdata
+	return &readRawdata, nil
 }
 
 func wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression string, aggregateFunc DAO.AggregateFunction, aggregateOverSeconds int64) (string, error) {

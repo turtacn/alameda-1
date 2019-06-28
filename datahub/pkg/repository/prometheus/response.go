@@ -156,7 +156,21 @@ func (r Response) GetMatrixResponse() (MatrixResponse, error) {
 }
 
 func (r Response) GetEntities() ([]Entity, error) {
+	if r.Status != StatusSuccess {
+		return make([]Entity, 0), errors.Errorf("GetEntities failed: response status is not %s", StatusSuccess)
+	}
 
+	switch r.Data.ResultType {
+	case MatrixResultType:
+		return r.GetEntitiesMatrix()
+	case VectorResultType:
+		return r.GetEntitiesVector()
+	default:
+		return make([]Entity, 0), errors.Errorf("GetEntities failed: result type not supported %s", string(r.Data.ResultType))
+	}
+}
+
+func (r Response) GetEntitiesMatrix() ([]Entity, error) {
 	var (
 		entities = make([]Entity, 0)
 	)
@@ -165,50 +179,98 @@ func (r Response) GetEntities() ([]Entity, error) {
 		return entities, errors.Errorf("GetEntities failed: response status is not %s", StatusSuccess)
 	}
 
-	switch r.Data.ResultType {
-	case MatrixResultType:
-		for _, r := range r.Data.Result {
-
-			matrixResult := MatrixResult{}
-			if _, ok := r.(map[string]interface{}); !ok {
-				return entities, errors.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
-			}
-			resultStr, err := json.Marshal(r.(map[string]interface{}))
-			if err != nil {
-				return entities, err
-			}
-			err = json.Unmarshal(resultStr, &matrixResult)
-			if err != nil {
-				return entities, err
-			}
-
-			entity := Entity{
-				Labels: matrixResult.Metric,
-				Values: make([]UnixTimeWithSampleValue, 0),
-			}
-			for _, value := range matrixResult.Values {
-
-				if _, ok := value[0].(float64); !ok {
-					return entities, errors.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[0]))
-				}
-				unixTime := time.Unix(int64(value[0].(float64)), 0)
-
-				if _, ok := value[1].(string); !ok {
-					return entities, errors.Errorf("error while building sample, cannot convert type %s to string", reflect.TypeOf(value[1]))
-				}
-				sampleValue := value[1].(string)
-
-				unixTimeWithSampleValue := UnixTimeWithSampleValue{
-					UnixTime:    unixTime,
-					SampleValue: sampleValue,
-				}
-				entity.Values = append(entity.Values, unixTimeWithSampleValue)
-			}
-
-			entities = append(entities, entity)
+	for _, r := range r.Data.Result {
+		matrixResult := MatrixResult{}
+		if _, ok := r.(map[string]interface{}); !ok {
+			return entities, errors.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
 		}
-	default:
-		return entities, errors.Errorf("GetEntities failed: result type not supported %s", string(r.Data.ResultType))
+
+		resultStr, err := json.Marshal(r.(map[string]interface{}))
+		if err != nil {
+			return entities, err
+		}
+
+		err = json.Unmarshal(resultStr, &matrixResult)
+		if err != nil {
+			return entities, err
+		}
+
+		entity := Entity{
+			Labels: matrixResult.Metric,
+			Values: make([]UnixTimeWithSampleValue, 0),
+		}
+		for _, value := range matrixResult.Values {
+
+			if _, ok := value[0].(float64); !ok {
+				return entities, errors.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(value[0]))
+			}
+			unixTime := time.Unix(int64(value[0].(float64)), 0)
+
+			if _, ok := value[1].(string); !ok {
+				return entities, errors.Errorf("error while building sample, cannot convert type %s to string", reflect.TypeOf(value[1]))
+			}
+			sampleValue := value[1].(string)
+
+			unixTimeWithSampleValue := UnixTimeWithSampleValue{
+				UnixTime:    unixTime,
+				SampleValue: sampleValue,
+			}
+			entity.Values = append(entity.Values, unixTimeWithSampleValue)
+		}
+
+		entities = append(entities, entity)
+	}
+
+	return entities, nil
+}
+
+func (r Response) GetEntitiesVector() ([]Entity, error) {
+	var (
+		entities = make([]Entity, 0)
+	)
+
+	if r.Status != StatusSuccess {
+		return entities, errors.Errorf("GetEntities failed: response status is not %s", StatusSuccess)
+	}
+
+	for _, r := range r.Data.Result {
+		vectorResult := VectorResult{}
+		if _, ok := r.(map[string]interface{}); !ok {
+			return entities, errors.Errorf("error while building sample, cannot convert type %s to map[string]interface{}", reflect.TypeOf(r).String())
+		}
+
+		resultStr, err := json.Marshal(r.(map[string]interface{}))
+		if err != nil {
+			return entities, err
+		}
+
+		err = json.Unmarshal(resultStr, &vectorResult)
+		if err != nil {
+			return entities, err
+		}
+
+		entity := Entity{
+			Labels: vectorResult.Metric,
+			Values: make([]UnixTimeWithSampleValue, 0),
+		}
+
+		if _, ok := vectorResult.Value[0].(float64); !ok {
+			return entities, errors.Errorf("error while building sample, cannot convert type %s to float64", reflect.TypeOf(vectorResult.Value[0]))
+		}
+		unixTime := time.Unix(int64(vectorResult.Value[0].(float64)), 0)
+
+		if _, ok := vectorResult.Value[1].(string); !ok {
+			return entities, errors.Errorf("error while building sample, cannot convert type %s to string", reflect.TypeOf(vectorResult.Value[1]))
+		}
+		sampleValue := vectorResult.Value[1].(string)
+
+		unixTimeWithSampleValue := UnixTimeWithSampleValue{
+			UnixTime:    unixTime,
+			SampleValue: sampleValue,
+		}
+		entity.Values = append(entity.Values, unixTimeWithSampleValue)
+
+		entities = append(entities, entity)
 	}
 
 	return entities, nil
