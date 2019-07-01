@@ -4,10 +4,9 @@ import (
 	"github.com/containers-ai/alameda/account-mgt/pkg/authentication"
 	"github.com/containers-ai/alameda/account-mgt/pkg/entity"
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
-	"golang.org/x/net/context"
 )
 
-func (c *ServiceUser) UserLogin(ctx context.Context, in *Accounts.LoginRequest) (*Accounts.LoginResponse, error) {
+func (c *ServiceUser) UserLogin(in *Accounts.LoginRequest) (*Accounts.LoginResponse, error) {
 	scope.Debug("[apis.accounts.UserLogin]")
 
 	response := Accounts.LoginResponse{}
@@ -15,11 +14,10 @@ func (c *ServiceUser) UserLogin(ctx context.Context, in *Accounts.LoginRequest) 
 	caller := entity.User{}
 	name := in.Name
 	password := in.Password
-	domainName := in.DomainName
 
 	caller.Info.Name = name
 	caller.Info.Password = password
-	caller.Info.DomainName = domainName
+	caller.Info.DomainName = ""
 	caller.Config = c.Config
 
 	err := caller.Authenticate(password)
