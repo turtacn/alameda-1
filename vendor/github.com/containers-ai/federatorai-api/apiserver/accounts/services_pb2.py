@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.apiserver.accounts',
   syntax='proto3',
   serialized_options=_b('Z;github.com/containers-ai/federatorai-api/apiserver/accounts'),
-  serialized_pb=_b('\n!apiserver/accounts/services.proto\x12\x1f\x63ontainersai.apiserver.accounts\x1a\x17google/rpc/status.proto\"\xc8\x01\n\x11\x43reateUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x03 \x01(\t\x12\x0c\n\x04role\x18\x04 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x05 \x01(\t\x12\r\n\x05\x65mail\x18\x06 \x01(\t\x12\x12\n\nfirst_name\x18\x07 \x01(\t\x12\x11\n\tlast_name\x18\x08 \x01(\t\x12\r\n\x05phone\x18\t \x01(\t\x12\x0b\n\x03URL\x18\n \x01(\t\x12\r\n\x05token\x18\x0b \x01(\t\"\xe5\x01\n\x12\x43reateUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x12\n\nfirst_name\x18\x06 \x01(\t\x12\x11\n\tlast_name\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\x0e\n\x06status\x18\n \x01(\t\x12\x15\n\rinfluxdb_info\x18\x0b \x01(\t\x12\x14\n\x0cgrafana_info\x18\x0c \x01(\t\"C\n\x0fReadUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\r\n\x05token\x18\x03 \x01(\t\"\xe3\x01\n\x10ReadUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x12\n\nfirst_name\x18\x06 \x01(\t\x12\x11\n\tlast_name\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\x0e\n\x06status\x18\n \x01(\t\x12\x15\n\rinfluxdb_info\x18\x0b \x01(\t\x12\x14\n\x0cgrafana_info\x18\x0c \x01(\t\"\xb3\x01\n\x11UpdateUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x0c\n\x04role\x18\x04 \x01(\t\x12\x12\n\nfirst_name\x18\x05 \x01(\t\x12\x11\n\tlast_name\x18\x06 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\r\n\x05token\x18\n \x01(\t\"\xe5\x01\n\x12UpdateUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x12\n\nfirst_name\x18\x06 \x01(\t\x12\x11\n\tlast_name\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\x0e\n\x06status\x18\n \x01(\t\x12\x15\n\rinfluxdb_info\x18\x0b \x01(\t\x12\x14\n\x0cgrafana_info\x18\x0c \x01(\t\"E\n\x11\x44\x65leteUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\r\n\x05token\x18\x03 \x01(\t\"E\n\x12\x44\x65leteUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\"C\n\x0cLoginRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x03 \x01(\t\"Z\n\rLoginResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x02 \x01(\t\x12\x12\n\ntoken_type\x18\x03 \x01(\t\x12\x11\n\texpire_in\x18\x04 \x01(\x05\"H\n\rLogoutRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x03 \x01(\t2\xa9\x05\n\x0f\x41\x63\x63ountsService\x12w\n\nCreateUser\x12\x32.containersai.apiserver.accounts.CreateUserRequest\x1a\x33.containersai.apiserver.accounts.CreateUserResponse\"\x00\x12q\n\x08ReadUser\x12\x30.containersai.apiserver.accounts.ReadUserRequest\x1a\x31.containersai.apiserver.accounts.ReadUserResponse\"\x00\x12w\n\nUpdateUser\x12\x32.containersai.apiserver.accounts.UpdateUserRequest\x1a\x33.containersai.apiserver.accounts.UpdateUserResponse\"\x00\x12w\n\nDeleteUser\x12\x32.containersai.apiserver.accounts.DeleteUserRequest\x1a\x33.containersai.apiserver.accounts.DeleteUserResponse\"\x00\x12h\n\x05Login\x12-.containersai.apiserver.accounts.LoginRequest\x1a..containersai.apiserver.accounts.LoginResponse\"\x00\x12N\n\x06Logout\x12..containersai.apiserver.accounts.LogoutRequest\x1a\x12.google.rpc.Status\"\x00\x42=Z;github.com/containers-ai/federatorai-api/apiserver/accountsb\x06proto3')
+  serialized_pb=_b('\n!apiserver/accounts/services.proto\x12\x1f\x63ontainersai.apiserver.accounts\x1a\x17google/rpc/status.proto\"\xb9\x01\n\x11\x43reateUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x03 \x01(\t\x12\x0c\n\x04role\x18\x04 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x05 \x01(\t\x12\r\n\x05\x65mail\x18\x06 \x01(\t\x12\x12\n\nfirst_name\x18\x07 \x01(\t\x12\x11\n\tlast_name\x18\x08 \x01(\t\x12\r\n\x05phone\x18\t \x01(\t\x12\x0b\n\x03URL\x18\n \x01(\t\"\xe5\x01\n\x12\x43reateUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x12\n\nfirst_name\x18\x06 \x01(\t\x12\x11\n\tlast_name\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\x0e\n\x06status\x18\n \x01(\t\x12\x15\n\rinfluxdb_info\x18\x0b \x01(\t\x12\x14\n\x0cgrafana_info\x18\x0c \x01(\t\"\x1f\n\x0fReadUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe3\x01\n\x10ReadUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x12\n\nfirst_name\x18\x06 \x01(\t\x12\x11\n\tlast_name\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\x0e\n\x06status\x18\n \x01(\t\x12\x15\n\rinfluxdb_info\x18\x0b \x01(\t\x12\x14\n\x0cgrafana_info\x18\x0c \x01(\t\"\xa4\x01\n\x11UpdateUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x0c\n\x04role\x18\x04 \x01(\t\x12\x12\n\nfirst_name\x18\x05 \x01(\t\x12\x11\n\tlast_name\x18\x06 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\"\xe5\x01\n\x12UpdateUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\x12\x0f\n\x07\x63ompany\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x12\n\nfirst_name\x18\x06 \x01(\t\x12\x11\n\tlast_name\x18\x07 \x01(\t\x12\r\n\x05phone\x18\x08 \x01(\t\x12\x0b\n\x03URL\x18\t \x01(\t\x12\x0e\n\x06status\x18\n \x01(\t\x12\x15\n\rinfluxdb_info\x18\x0b \x01(\t\x12\x14\n\x0cgrafana_info\x18\x0c \x01(\t\"!\n\x11\x44\x65leteUserRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"E\n\x12\x44\x65leteUserResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x13\n\x0b\x64omain_name\x18\x02 \x01(\t\x12\x0c\n\x04role\x18\x03 \x01(\t\".\n\x0cLoginRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"Z\n\rLoginResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x02 \x01(\t\x12\x12\n\ntoken_type\x18\x03 \x01(\t\x12\x11\n\texpire_in\x18\x04 \x01(\x05\"3\n\rLogoutRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x02 \x01(\t2\xa9\x05\n\x0f\x41\x63\x63ountsService\x12w\n\nCreateUser\x12\x32.containersai.apiserver.accounts.CreateUserRequest\x1a\x33.containersai.apiserver.accounts.CreateUserResponse\"\x00\x12q\n\x08ReadUser\x12\x30.containersai.apiserver.accounts.ReadUserRequest\x1a\x31.containersai.apiserver.accounts.ReadUserResponse\"\x00\x12w\n\nUpdateUser\x12\x32.containersai.apiserver.accounts.UpdateUserRequest\x1a\x33.containersai.apiserver.accounts.UpdateUserResponse\"\x00\x12w\n\nDeleteUser\x12\x32.containersai.apiserver.accounts.DeleteUserRequest\x1a\x33.containersai.apiserver.accounts.DeleteUserResponse\"\x00\x12h\n\x05Login\x12-.containersai.apiserver.accounts.LoginRequest\x1a..containersai.apiserver.accounts.LoginResponse\"\x00\x12N\n\x06Logout\x12..containersai.apiserver.accounts.LogoutRequest\x1a\x12.google.rpc.Status\"\x00\x42=Z;github.com/containers-ai/federatorai-api/apiserver/accountsb\x06proto3')
   ,
   dependencies=[google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
@@ -104,13 +104,6 @@ _CREATEUSERREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='token', full_name='containersai.apiserver.accounts.CreateUserRequest.token', index=10,
-      number=11, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -124,7 +117,7 @@ _CREATEUSERREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=96,
-  serialized_end=296,
+  serialized_end=281,
 )
 
 
@@ -231,8 +224,8 @@ _CREATEUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=299,
-  serialized_end=528,
+  serialized_start=284,
+  serialized_end=513,
 )
 
 
@@ -250,20 +243,6 @@ _READUSERREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='domain_name', full_name='containersai.apiserver.accounts.ReadUserRequest.domain_name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='token', full_name='containersai.apiserver.accounts.ReadUserRequest.token', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -276,8 +255,8 @@ _READUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=530,
-  serialized_end=597,
+  serialized_start=515,
+  serialized_end=546,
 )
 
 
@@ -384,8 +363,8 @@ _READUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=600,
-  serialized_end=827,
+  serialized_start=549,
+  serialized_end=776,
 )
 
 
@@ -459,13 +438,6 @@ _UPDATEUSERREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='token', full_name='containersai.apiserver.accounts.UpdateUserRequest.token', index=9,
-      number=10, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -478,8 +450,8 @@ _UPDATEUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=830,
-  serialized_end=1009,
+  serialized_start=779,
+  serialized_end=943,
 )
 
 
@@ -586,8 +558,8 @@ _UPDATEUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1012,
-  serialized_end=1241,
+  serialized_start=946,
+  serialized_end=1175,
 )
 
 
@@ -605,20 +577,6 @@ _DELETEUSERREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='domain_name', full_name='containersai.apiserver.accounts.DeleteUserRequest.domain_name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='token', full_name='containersai.apiserver.accounts.DeleteUserRequest.token', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -631,8 +589,8 @@ _DELETEUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1243,
-  serialized_end=1312,
+  serialized_start=1177,
+  serialized_end=1210,
 )
 
 
@@ -676,8 +634,8 @@ _DELETEUSERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1314,
-  serialized_end=1383,
+  serialized_start=1212,
+  serialized_end=1281,
 )
 
 
@@ -702,13 +660,6 @@ _LOGINREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='domain_name', full_name='containersai.apiserver.accounts.LoginRequest.domain_name', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -721,8 +672,8 @@ _LOGINREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1385,
-  serialized_end=1452,
+  serialized_start=1283,
+  serialized_end=1329,
 )
 
 
@@ -773,8 +724,8 @@ _LOGINRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1454,
-  serialized_end=1544,
+  serialized_start=1331,
+  serialized_end=1421,
 )
 
 
@@ -793,15 +744,8 @@ _LOGOUTREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='domain_name', full_name='containersai.apiserver.accounts.LogoutRequest.domain_name', index=1,
+      name='access_token', full_name='containersai.apiserver.accounts.LogoutRequest.access_token', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='access_token', full_name='containersai.apiserver.accounts.LogoutRequest.access_token', index=2,
-      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -818,8 +762,8 @@ _LOGOUTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1546,
-  serialized_end=1618,
+  serialized_start=1423,
+  serialized_end=1474,
 )
 
 DESCRIPTOR.message_types_by_name['CreateUserRequest'] = _CREATEUSERREQUEST
@@ -921,8 +865,8 @@ _ACCOUNTSSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1621,
-  serialized_end=2302,
+  serialized_start=1477,
+  serialized_end=2158,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateUser',

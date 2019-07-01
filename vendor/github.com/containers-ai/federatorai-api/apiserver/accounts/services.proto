@@ -17,7 +17,6 @@ message CreateUserRequest {
     string last_name = 8;
     string phone = 9;
     string URL = 10;
-    string token = 11;
 }
 
 message CreateUserResponse {
@@ -37,8 +36,6 @@ message CreateUserResponse {
 
 message ReadUserRequest {
     string name = 1;
-    string domain_name = 2;
-    string token = 3;
 }
 
 message ReadUserResponse {
@@ -66,7 +63,6 @@ message UpdateUserRequest {
     string company = 7;
     string phone = 8;
     string URL = 9;
-    string token = 10;
 }
 
 message UpdateUserResponse {
@@ -86,8 +82,6 @@ message UpdateUserResponse {
 
 message DeleteUserRequest {
     string name = 1;
-    string domain_name = 2;
-    string token = 3;
 }
 
 message DeleteUserResponse {
@@ -99,7 +93,6 @@ message DeleteUserResponse {
 message LoginRequest {
     string name = 1;
     string password = 2;
-    string domain_name = 3;
 }
 
 message LoginResponse {
@@ -111,8 +104,7 @@ message LoginResponse {
 
 message LogoutRequest {
     string name = 1;
-    string domain_name = 2;
-    string access_token = 3;
+    string access_token = 2;
 }
 
 service AccountsService {

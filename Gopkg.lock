@@ -50,7 +50,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:27692971970ef3cf1b5501f0f8c5f5a4a625d33ae7cdab51449bdfe6ffcbfb42"
+  digest = "1:db0dff1c4ec9a0d85b3331715eb5939bf35c9cfbd8bae592f291615fedfa6f50"
   name = "github.com/containers-ai/federatorai-api"
   packages = [
     "apiserver/accounts",
@@ -59,7 +59,7 @@
     "apiserver/rawdata",
   ]
   pruneopts = "T"
-  revision = "7901aa0a8aa10abcbcd6afb29821fb5a4f0d3260"
+  revision = "7550304b1c613b071dfaf6dec49a98334c8e6c03"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1216,6 +1216,7 @@
     "google.golang.org/genproto/googleapis/rpc/status",
     "google.golang.org/grpc",
     "google.golang.org/grpc/grpclog",
+    "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/reflection",
     "gopkg.in/ldap.v2",
     "gopkg.in/natefinch/lumberjack.v2",
