@@ -37,7 +37,26 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *datahub_v1alph
 	}
 	defer conn.Close()
 
-	return client.ListPodMetrics(ctx, in)
+	// Send to API server
+	out, err = client.ListPodMetrics(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListPodMetrics(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListPodMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListNodeMetrics list nodes' metrics
@@ -52,7 +71,26 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *datahub_v1alp
 	}
 	defer conn.Close()
 
-	return client.ListNodeMetrics(ctx, in)
+	// Send to API server
+	out, err = client.ListNodeMetrics(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListNodeMetrics(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListNodeMetricsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListAlamedaPods returns predicted pods
@@ -67,7 +105,26 @@ func (s *ServiceV1alpha1) ListAlamedaPods(ctx context.Context, in *datahub_v1alp
 	}
 	defer conn.Close()
 
-	return client.ListAlamedaPods(ctx, in)
+	// Send to API server
+	out, err = client.ListAlamedaPods(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListAlamedaPods(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListPodsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListAlamedaNodes list nodes in cluster
@@ -82,7 +139,26 @@ func (s *ServiceV1alpha1) ListAlamedaNodes(ctx context.Context, in *datahub_v1al
 	}
 	defer conn.Close()
 
-	return client.ListAlamedaNodes(ctx, in)
+	// Send to API server
+	out, err = client.ListAlamedaNodes(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListAlamedaNodes(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListNodesResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *datahub_v1alpha1.ListNodesRequest) (*datahub_v1alpha1.ListNodesResponse, error) {
@@ -96,7 +172,26 @@ func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *datahub_v1alpha1.Li
 	}
 	defer conn.Close()
 
-	return client.ListNodes(ctx, in)
+	// Send to API server
+	out, err = client.ListNodes(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListNodes(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListNodesResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *datahub_v1alpha1.ListControllersRequest) (*datahub_v1alpha1.ListControllersResponse, error) {
@@ -110,7 +205,26 @@ func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *datahub_v1alp
 	}
 	defer conn.Close()
 
-	return client.ListControllers(ctx, in)
+	// Send to API server
+	out, err = client.ListControllers(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListControllers(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListControllersResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListPodPredictions list pods' predictions
@@ -125,7 +239,26 @@ func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *datahub_v1
 	}
 	defer conn.Close()
 
-	return client.ListPodPredictions(ctx, in)
+	// Send to API server
+	out, err = client.ListPodPredictions(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListPodPredictions(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListPodPredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListNodePredictions list nodes' predictions
@@ -140,7 +273,26 @@ func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *datahub_v
 	}
 	defer conn.Close()
 
-	return client.ListNodePredictions(ctx, in)
+	// Send to API server
+	out, err = client.ListNodePredictions(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListNodePredictions(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListNodePredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListPodRecommendations list pod recommendations
@@ -155,7 +307,26 @@ func (s *ServiceV1alpha1) ListPodRecommendations(ctx context.Context, in *datahu
 	}
 	defer conn.Close()
 
-	return client.ListPodRecommendations(ctx, in)
+	// Send to API server
+	out, err = client.ListPodRecommendations(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListPodRecommendations(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListPodRecommendationsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListAvailablePodRecommendations list pod recommendations
@@ -170,7 +341,26 @@ func (s *ServiceV1alpha1) ListAvailablePodRecommendations(ctx context.Context, i
 	}
 	defer conn.Close()
 
-	return client.ListAvailablePodRecommendations(ctx, in)
+	// Send to API server
+	out, err = client.ListAvailablePodRecommendations(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListAvailablePodRecommendations(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListPodRecommendationsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListControllerRecommendations list controller recommendations
@@ -185,7 +375,26 @@ func (s *ServiceV1alpha1) ListControllerRecommendations(ctx context.Context, in 
 	}
 	defer conn.Close()
 
-	return client.ListControllerRecommendations(ctx, in)
+	// Send to API server
+	out, err = client.ListControllerRecommendations(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListControllerRecommendations(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListControllerRecommendationsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListPodsByNodeName list pods running on specific nodes
@@ -200,7 +409,26 @@ func (s *ServiceV1alpha1) ListPodsByNodeName(ctx context.Context, in *datahub_v1
 	}
 	defer conn.Close()
 
-	return client.ListPodsByNodeName(ctx, in)
+	// Send to API server
+	out, err = client.ListPodsByNodeName(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListPodsByNodeName(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListPodsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // ListSimulatedSchedulingScores list simulated scheduling scores
@@ -215,7 +443,26 @@ func (s *ServiceV1alpha1) ListSimulatedSchedulingScores(ctx context.Context, in 
 	}
 	defer conn.Close()
 
-	return client.ListSimulatedSchedulingScores(ctx, in)
+	// Send to API server
+	out, err = client.ListSimulatedSchedulingScores(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListSimulatedSchedulingScores(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ListSimulatedSchedulingScoresResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // CreatePods add containers information of pods to database
@@ -231,7 +478,19 @@ func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *datahub_v1alpha1.C
 	}
 	defer conn.Close()
 
-	return client.CreatePods(ctx, in)
+	// Send to API server
+	stat, err := client.CreatePods(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreatePods(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *datahub_v1alpha1.CreateControllersRequest) (*status.Status, error) {
@@ -246,7 +505,19 @@ func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *datahub_v1a
 	}
 	defer conn.Close()
 
-	return client.CreateControllers(ctx, in)
+	// Send to API server
+	stat, err := client.CreateControllers(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreateControllers(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 func (s *ServiceV1alpha1) DeleteControllers(ctx context.Context, in *datahub_v1alpha1.DeleteControllersRequest) (*status.Status, error) {
@@ -261,7 +532,19 @@ func (s *ServiceV1alpha1) DeleteControllers(ctx context.Context, in *datahub_v1a
 	}
 	defer conn.Close()
 
-	return client.DeleteControllers(ctx, in)
+	// Send to API server
+	stat, err := client.DeleteControllers(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.DeleteControllers(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // DeletePods update containers information of pods to database
@@ -277,7 +560,19 @@ func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *datahub_v1alpha1.D
 	}
 	defer conn.Close()
 
-	return client.DeletePods(ctx, in)
+	// Send to API server
+	stat, err := client.DeletePods(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.DeletePods(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // CreateAlamedaNodes add node information to database
@@ -293,7 +588,19 @@ func (s *ServiceV1alpha1) CreateAlamedaNodes(ctx context.Context, in *datahub_v1
 	}
 	defer conn.Close()
 
-	return client.CreateAlamedaNodes(ctx, in)
+	// Send to API server
+	stat, err := client.CreateAlamedaNodes(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreateAlamedaNodes(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // CreatePodPredictions add pod predictions information to database
@@ -309,7 +616,19 @@ func (s *ServiceV1alpha1) CreatePodPredictions(ctx context.Context, in *datahub_
 	}
 	defer conn.Close()
 
-	return client.CreatePodPredictions(ctx, in)
+	// Send to API server
+	stat, err := client.CreatePodPredictions(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreatePodPredictions(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // CreateNodePredictions add node predictions information to database
@@ -325,7 +644,19 @@ func (s *ServiceV1alpha1) CreateNodePredictions(ctx context.Context, in *datahub
 	}
 	defer conn.Close()
 
-	return client.CreateNodePredictions(ctx, in)
+	// Send to API server
+	stat, err := client.CreateNodePredictions(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreateNodePredictions(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // CreatePodRecommendations add pod recommendations information to database
@@ -341,7 +672,19 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *data
 	}
 	defer conn.Close()
 
-	return client.CreatePodRecommendations(ctx, in)
+	// Send to API server
+	stat, err := client.CreatePodRecommendations(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreatePodRecommendations(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // CreatePodRecommendations add pod recommendations information to database
@@ -357,7 +700,19 @@ func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, i
 	}
 	defer conn.Close()
 
-	return client.CreateControllerRecommendations(ctx, in)
+	// Send to API server
+	stat, err := client.CreateControllerRecommendations(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreateControllerRecommendations(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // CreateSimulatedSchedulingScores add simulated scheduling scores to database
@@ -373,7 +728,19 @@ func (s *ServiceV1alpha1) CreateSimulatedSchedulingScores(ctx context.Context, i
 	}
 	defer conn.Close()
 
-	return client.CreateSimulatedSchedulingScores(ctx, in)
+	// Send to API server
+	stat, err := client.CreateSimulatedSchedulingScores(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreateSimulatedSchedulingScores(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // DeleteAlamedaNodes remove node information to database
@@ -389,7 +756,19 @@ func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *datahub_v1
 	}
 	defer conn.Close()
 
-	return client.DeleteAlamedaNodes(ctx, in)
+	// Send to API server
+	stat, err := client.DeleteAlamedaNodes(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.DeleteAlamedaNodes(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 // Read rawdata from database
@@ -403,7 +782,26 @@ func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.
 	}
 	defer conn.Close()
 
-	return client.ReadRawdata(ctx, in)
+	// Send to API server
+	out, err = client.ReadRawdata(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ReadRawdata(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.ReadRawdataResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 // Write rawdata to database
@@ -417,7 +815,19 @@ func (s *ServiceV1alpha1) WriteRawdata(ctx context.Context, in *datahub_v1alpha1
 	}
 	defer conn.Close()
 
-	return client.WriteRawdata(ctx, in)
+	// Send to API server
+	stat, err := client.WriteRawdata(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = client.WriteRawdata(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 func (s *ServiceV1alpha1) ListWeaveScopeHosts(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeHostsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -431,7 +841,26 @@ func (s *ServiceV1alpha1) ListWeaveScopeHosts(ctx context.Context, in *datahub_v
 	}
 	defer conn.Close()
 
-	return client.ListWeaveScopeHosts(ctx, in)
+	// Send to API server
+	out, err = client.ListWeaveScopeHosts(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListWeaveScopeHosts(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) GetWeaveScopeHostDetails(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeHostsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -445,7 +874,26 @@ func (s *ServiceV1alpha1) GetWeaveScopeHostDetails(ctx context.Context, in *data
 	}
 	defer conn.Close()
 
-	return client.GetWeaveScopeHostDetails(ctx, in)
+	// Send to API server
+	out, err = client.GetWeaveScopeHostDetails(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.GetWeaveScopeHostDetails(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) ListWeaveScopePods(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopePodsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -459,7 +907,26 @@ func (s *ServiceV1alpha1) ListWeaveScopePods(ctx context.Context, in *datahub_v1
 	}
 	defer conn.Close()
 
-	return client.ListWeaveScopePods(ctx, in)
+	// Send to API server
+	out, err = client.ListWeaveScopePods(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListWeaveScopePods(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) GetWeaveScopePodDetails(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopePodsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -473,7 +940,26 @@ func (s *ServiceV1alpha1) GetWeaveScopePodDetails(ctx context.Context, in *datah
 	}
 	defer conn.Close()
 
-	return client.GetWeaveScopePodDetails(ctx, in)
+	// Send to API server
+	out, err = client.GetWeaveScopePodDetails(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.GetWeaveScopePodDetails(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) ListWeaveScopeContainers(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -487,7 +973,26 @@ func (s *ServiceV1alpha1) ListWeaveScopeContainers(ctx context.Context, in *data
 	}
 	defer conn.Close()
 
-	return client.ListWeaveScopeContainers(ctx, in)
+	// Send to API server
+	out, err = client.ListWeaveScopeContainers(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListWeaveScopeContainers(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) ListWeaveScopeContainersByHostname(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -501,7 +1006,26 @@ func (s *ServiceV1alpha1) ListWeaveScopeContainersByHostname(ctx context.Context
 	}
 	defer conn.Close()
 
-	return client.ListWeaveScopeContainersByHostname(ctx, in)
+	// Send to API server
+	out, err = client.ListWeaveScopeContainersByHostname(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListWeaveScopeContainersByHostname(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) ListWeaveScopeContainersByImage(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -515,7 +1039,26 @@ func (s *ServiceV1alpha1) ListWeaveScopeContainersByImage(ctx context.Context, i
 	}
 	defer conn.Close()
 
-	return client.ListWeaveScopeContainersByImage(ctx, in)
+	// Send to API server
+	out, err = client.ListWeaveScopeContainersByImage(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListWeaveScopeContainersByImage(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
 
 func (s *ServiceV1alpha1) GetWeaveScopeContainerDetails(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeContainersRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
@@ -529,5 +1072,24 @@ func (s *ServiceV1alpha1) GetWeaveScopeContainerDetails(ctx context.Context, in 
 	}
 	defer conn.Close()
 
-	return client.GetWeaveScopeContainerDetails(ctx, in)
+	// Send to API server
+	out, err = client.GetWeaveScopeContainerDetails(apiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if apiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.GetWeaveScopeContainerDetails(apiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &datahub_v1alpha1.WeaveScopeResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
 }
