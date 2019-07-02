@@ -2,7 +2,7 @@ package apiserver
 
 const (
 	defaultAddress  = "127.0.0.1:50055"
-	defaultUsername = "admin"
+	defaultUsername = "useradmin"
 	defaultPassword = "password"
 )
 

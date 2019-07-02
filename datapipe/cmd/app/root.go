@@ -2,14 +2,13 @@ package app
 
 import (
 	"errors"
-	"strings"
-
 	"github.com/containers-ai/alameda/cmd/app"
 	Config "github.com/containers-ai/alameda/datapipe/pkg/config"
-
+	RepoAPI "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 var RootCmd = &cobra.Command{
@@ -43,6 +42,10 @@ func setLoggerScopesWithConfig(config log.Config) {
 			scope.SetStackTraceLevel(stacktraceLevel)
 		}
 	}
+}
+
+func setAPIServerWithConfig(config RepoAPI.Config) {
+	RepoAPI.ServerInit(config)
 }
 
 func mergeConfigFileValueWithDefaultConfigValue() {

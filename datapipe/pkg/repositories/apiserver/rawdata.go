@@ -1,42 +1,22 @@
 package apiserver
 
 import (
-	"golang.org/x/net/context"
+	"fmt"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
-
+	"google.golang.org/grpc"
 	commonAPI "github.com/containers-ai/api/common"
 	fedRawdataAPI "github.com/containers-ai/federatorai-api/apiserver/rawdata"
-
-	fedRawAPI "github.com/containers-ai/federatorai-api/apiserver/rawdata"
-
-	"fmt"
-	"google.golang.org/grpc"
-	"time"
 )
 
-type loginCreds struct {
-	Username string
-	Password string
-}
-
-func (c *loginCreds) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
-	return map[string]string{
-		"username": c.Username,
-		"password": c.Password,
-	}, nil
-}
-func (c *loginCreds) RequireTransportSecurity() bool {
-	return false
-}
-
 func WriteRawdata(apiServerAddress string, databaseType commonAPI.DatabaseType, rowDataList []*commonAPI.WriteRawdata) (*status.Status, error) {
-	request := &fedRawdataAPI.WriteRawdataRequest{
-		DatabaseType: databaseType,
-		Rawdata: rowDataList,
-	}
+	var (
+		stat *status.Status
+		request = &fedRawdataAPI.WriteRawdataRequest{DatabaseType: databaseType, Rawdata: rowDataList}
+	)
 
-	conn, err := grpc.Dial(apiServerAddress, grpc.WithInsecure(), grpc.WithPerRPCCredentials(&loginCreds{Username: "user", Password: "password"}))
+	// Create connection to API server
+	conn, err := grpc.Dial(apiServerAddress, grpc.WithInsecure())
 	if err != nil {
 		fmt.Print(err)
 		return &status.Status{
@@ -45,17 +25,20 @@ func WriteRawdata(apiServerAddress string, databaseType commonAPI.DatabaseType, 
 		}, nil
 	}
 	defer conn.Close()
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
 
-	client := fedRawAPI.NewRawdataServiceClient(conn)
-	_, err = client.WriteRawdata(ctx, request)
-	if err != nil {
-		fmt.Print(err)
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, nil
+	client := fedRawdataAPI.NewRawdataServiceClient(conn)
+
+	// Send write rawdata request to API server
+	stat, err = client.WriteRawdata(NewContextWithCredential(), request)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if NeedResendRequest(stat, err) {
+			stat, err = client.WriteRawdata(NewContextWithCredential(), request)
+		}
 	}
 
-	return &status.Status{Code: int32(code.Code_OK)}, nil
+	stat, _ = CheckResponse(stat, err)
+
+	return stat, nil
 }
