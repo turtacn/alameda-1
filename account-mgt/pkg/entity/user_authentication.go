@@ -3,6 +3,7 @@ package entity
 import (
 	"fmt"
 	"github.com/containers-ai/alameda/account-mgt/pkg/authentication"
+	Errors "github.com/containers-ai/alameda/pkg/utils/errors"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
@@ -36,6 +37,16 @@ func (c *User) Authenticate(password string) error {
 	c.Info.CookieValue = authUserInfo.CookieValue
 
 	return nil
+}
+
+func (c *User) DoAuthentication() error {
+	if c.Info.Token != "" {
+		return c.Validate()
+	} else if c.Info.Name != "" && c.Info.Password != "" {
+		return c.Authenticate(c.Info.Password)
+	} else {
+		return Errors.NewError(Errors.ReasonInvalidCredential)
+	}
 }
 
 func (c *User) Validate() error {

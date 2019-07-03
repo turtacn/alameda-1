@@ -31,7 +31,7 @@ func NewServiceUser(arch string) *ServiceUser {
 }
 
 func (c *ServiceUser) IsUserExist(userName string) (bool, error) {
-	user := entity.NewUserEntity(userName, "", "")
+	user := entity.NewUserEntity(userName, "", "", c.Config)
 
 	exist, err := user.IsUserExist(userName)
 	if err != nil {
@@ -61,7 +61,7 @@ func Authenticate(ctx context.Context) (authentication.AuthUserInfo, error) {
 	} else {
 		if username != "" && password != "" {
 			// authenticate user by username/password
-			userInfo := entity.NewUserEntity(username, "", "")
+			userInfo := entity.NewUserEntity(username, "", "", nil)
 			err := userInfo.Authenticate(password)
 			if err != nil {
 				scope.Errorf("Failed to authenticate user(%s): %s", username, err.Error())
@@ -78,6 +78,19 @@ func Authenticate(ctx context.Context) (authentication.AuthUserInfo, error) {
 		}
 	}
 	return authInfo, nil
+}
+
+func GetUserCredentialFromContext(ctx context.Context) (string, string, string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		scope.Errorf("No authentication info contained in context")
+		err := Errors.NewError(Errors.ReasonInvalidParams)
+		return "", "", "", err
+	}
+	username := strings.Join(md.Get("Username"), "")
+	password := strings.Join(md.Get("Password"), "")
+	token := strings.Join(md.Get("Token"), "")
+	return username, password, token, nil
 }
 
 func CreateFakeUserContainers(ainfo *authentication.AuthUserInfo) (string, string, error) {

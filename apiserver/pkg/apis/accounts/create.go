@@ -6,18 +6,10 @@ import (
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
 )
 
-func (c *ServiceUser) CreateUser(authInfo authentication.AuthUserInfo, in *Accounts.CreateUserRequest) (*Accounts.CreateUserResponse, error) {
+func (c *ServiceUser) CreateUser(caller *entity.User, in *Accounts.CreateUserRequest) (*Accounts.CreateUserResponse, error) {
 	scope.Debug("[apis.accounts.CreateUser]")
 
 	response := Accounts.CreateUserResponse{}
-	caller := entity.User{}
-	caller.Info.Name = authInfo.Name
-	caller.Info.DomainName = authInfo.DomainName
-	caller.Info.Token = authInfo.Token
-	caller.Info.Cookie = authInfo.Cookie
-	caller.Info.Role = authInfo.Role
-	caller.Config = c.Config
-
 	// owner := authentication.NewAuthUserInfo(in.DomainName, in.Name)
 	// only one domain "localdomain"
 	owner := authentication.NewAuthUserInfo("localdomain", in.Name)

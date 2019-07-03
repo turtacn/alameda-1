@@ -6,17 +6,10 @@ import (
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
 )
 
-func (c *ServiceUser) UpdateUser(authInfo authentication.AuthUserInfo, in *Accounts.UpdateUserRequest) (*Accounts.UpdateUserResponse, error) {
+func (c *ServiceUser) UpdateUser(caller *entity.User, in *Accounts.UpdateUserRequest) (*Accounts.UpdateUserResponse, error) {
 	scope.Debug("[apis.accounts.UpdateUser]")
 
 	response := Accounts.UpdateUserResponse{}
-	caller := entity.User{}
-	caller.Info.Name = authInfo.Name
-	caller.Info.DomainName = authInfo.DomainName
-	caller.Info.Token = authInfo.Token
-	caller.Info.Cookie = authInfo.Cookie
-	caller.Info.Role = authInfo.Role
-	caller.Config = c.Config
 	owner := authentication.NewAuthUserInfo("", in.Name)
 	err := caller.ReadUser(owner)
 	if err != nil {
@@ -31,7 +24,7 @@ func (c *ServiceUser) UpdateUser(authInfo authentication.AuthUserInfo, in *Accou
 	}
 	if in.Role != "" {
 		// change user role only if caller role is super or domain-admin
-		if authInfo.Role == RoleSuper || authInfo.Role == RoleDomainAdmin {
+		if caller.Info.Role == RoleSuper || caller.Info.Role == RoleDomainAdmin {
 			owner.Role = in.Role
 		}
 	}

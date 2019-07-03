@@ -6,17 +6,11 @@ import (
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
 )
 
-func (c *ServiceUser) DeleteUser(authInfo authentication.AuthUserInfo, in *Accounts.DeleteUserRequest) (*Accounts.DeleteUserResponse, error) {
+func (c *ServiceUser) DeleteUser(caller *entity.User, in *Accounts.DeleteUserRequest) (*Accounts.DeleteUserResponse, error) {
 	scope.Debug("[apis.accounts.DeleteUser]")
 
 	response := Accounts.DeleteUserResponse{}
-	caller := entity.User{}
-	caller.Info.Name = authInfo.Name
-	caller.Info.DomainName = authInfo.DomainName
-	caller.Info.Token = authInfo.Token
-	caller.Info.Cookie = authInfo.Cookie
-	caller.Info.Role = authInfo.Role
-	caller.Config = c.Config
+
 	isExist, err := caller.IsUserExist(in.Name)
 	if err != nil {
 		scope.Errorf("Failed to delete user(%s), unable to check user: %s", in.Name, err.Error())

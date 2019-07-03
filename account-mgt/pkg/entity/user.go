@@ -11,11 +11,11 @@ type User struct {
 	Config *config.Config
 }
 
-func NewUserEntity(name string, domainName string, role string) *User {
+func NewUserEntity(name string, password string, token string, cfg *config.Config) *User {
 	userInfo := objects.UserInfo{
-		Name:       name,
-		DomainName: domainName,
-		Role:       role,
+		Name:     name,
+		Password: password,
+		Token:    token,
 	}
-	return &User{Info: userInfo}
+	return &User{Info: userInfo, Config: cfg}
 }

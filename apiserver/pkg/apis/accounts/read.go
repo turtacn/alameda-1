@@ -7,18 +7,11 @@ import (
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
 )
 
-func (c *ServiceUser) ReadUser(authInfo authentication.AuthUserInfo, in *Accounts.ReadUserRequest) (*Accounts.ReadUserResponse, error) {
+func (c *ServiceUser) ReadUser(caller *entity.User, in *Accounts.ReadUserRequest) (*Accounts.ReadUserResponse, error) {
 	scope.Debug("[apis.accounts.ReadUser]")
 
 	response := Accounts.ReadUserResponse{}
 
-	caller := entity.User{}
-	caller.Info.Name = authInfo.Name
-	caller.Info.DomainName = authInfo.DomainName
-	caller.Info.Token = authInfo.Token
-	caller.Info.Cookie = authInfo.Cookie
-	caller.Info.Role = authInfo.Role
-	caller.Config = c.Config
 	owner := authentication.NewAuthUserInfo("", in.Name)
 	err := caller.ReadUser(owner)
 	if err == nil {

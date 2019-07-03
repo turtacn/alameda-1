@@ -1,6 +1,8 @@
 package accounts
 
 import (
+	"fmt"
+	"github.com/containers-ai/alameda/account-mgt/pkg/entity"
 	APIServerConfig "github.com/containers-ai/alameda/apiserver/pkg/config"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	Errors "github.com/containers-ai/alameda/pkg/utils/errors"
@@ -47,20 +49,38 @@ func (c *ServiceAccount) Authorize(user, loginUser, loginDomain, loginRole strin
 	}
 }
 
+func (c *ServiceAccount) AuthUser(ctx context.Context, ownerUser, msgPrefix string) (*entity.User, error) {
+	user, password, token, err := GetUserCredentialFromContext(ctx)
+	if err != nil {
+		scope.Errorf("%s, get user credential error: %s", msgPrefix, err.Error())
+		return nil, err
+	}
+	userInfo := entity.NewUserEntity(user, password, token, c.Config)
+	err = userInfo.DoAuthentication()
+	if err != nil {
+		scope.Errorf("%s, user authentication error: %s", msgPrefix, err.Error())
+		return nil, err
+	}
+	err = c.Authorize(ownerUser, userInfo.Info.Name, userInfo.Info.DomainName, userInfo.Info.Role)
+	if err != nil {
+		scope.Errorf("%s, user authorization error: %s", msgPrefix, err.Error())
+		return nil, err
+	}
+	return userInfo, nil
+}
+
 func (c *ServiceAccount) CreateUser(ctx context.Context, in *Accounts.CreateUserRequest) (*Accounts.CreateUserResponse, error) {
 	scope.Debug("Request received from CreateUser grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	authInfo, err := Authenticate(ctx)
-	if err != nil {
-		return &Accounts.CreateUserResponse{}, err
-	}
-	err = c.Authorize(in.Name, authInfo.Name, authInfo.DomainName, authInfo.Role)
+	errMsgPrefix := fmt.Sprintf("Failed to create user(%s)", in.Name)
+	userInfo, err := c.AuthUser(ctx, in.Name, errMsgPrefix)
 	if err != nil {
 		return &Accounts.CreateUserResponse{}, err
 	}
 	userSvc := ServiceUser{Config: c.Config}
-	out, err := userSvc.CreateUser(authInfo, in)
+	out, err := userSvc.CreateUser(userInfo, in)
 	if err != nil {
+		scope.Errorf("%s: %s", errMsgPrefix, err.Error())
 		return out, err
 	}
 
@@ -70,16 +90,13 @@ func (c *ServiceAccount) CreateUser(ctx context.Context, in *Accounts.CreateUser
 func (c *ServiceAccount) ReadUser(ctx context.Context, in *Accounts.ReadUserRequest) (*Accounts.ReadUserResponse, error) {
 	scope.Debug("Request received from ReadUser grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	authInfo, err := Authenticate(ctx)
-	if err != nil {
-		return &Accounts.ReadUserResponse{}, err
-	}
-	err = c.Authorize(in.Name, authInfo.Name, authInfo.DomainName, authInfo.Role)
+	errMsgPrefix := fmt.Sprintf("Failed to read user(%s)", in.Name)
+	userInfo, err := c.AuthUser(ctx, in.Name, errMsgPrefix)
 	if err != nil {
 		return &Accounts.ReadUserResponse{}, err
 	}
 	userSvc := ServiceUser{Config: c.Config}
-	out, err := userSvc.ReadUser(authInfo, in)
+	out, err := userSvc.ReadUser(userInfo, in)
 	if err != nil {
 		return out, err
 	}
@@ -90,16 +107,13 @@ func (c *ServiceAccount) ReadUser(ctx context.Context, in *Accounts.ReadUserRequ
 func (c *ServiceAccount) UpdateUser(ctx context.Context, in *Accounts.UpdateUserRequest) (*Accounts.UpdateUserResponse, error) {
 	scope.Debug("Request received from UpdateUser grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	authInfo, err := Authenticate(ctx)
-	if err != nil {
-		return &Accounts.UpdateUserResponse{}, err
-	}
-	err = c.Authorize(in.Name, authInfo.Name, authInfo.DomainName, authInfo.Role)
+	errMsgPrefix := fmt.Sprintf("Failed to update user(%s)", in.Name)
+	userInfo, err := c.AuthUser(ctx, in.Name, errMsgPrefix)
 	if err != nil {
 		return &Accounts.UpdateUserResponse{}, err
 	}
 	userSvc := ServiceUser{Config: c.Config}
-	out, err := userSvc.UpdateUser(authInfo, in)
+	out, err := userSvc.UpdateUser(userInfo, in)
 	if err != nil {
 		return out, err
 	}
@@ -110,19 +124,17 @@ func (c *ServiceAccount) UpdateUser(ctx context.Context, in *Accounts.UpdateUser
 func (c *ServiceAccount) DeleteUser(ctx context.Context, in *Accounts.DeleteUserRequest) (*Accounts.DeleteUserResponse, error) {
 	scope.Debug("Request received from DeleteUser grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	authInfo, err := Authenticate(ctx)
-	if err != nil {
-		return &Accounts.DeleteUserResponse{}, err
-	}
-	err = c.Authorize(in.Name, authInfo.Name, authInfo.DomainName, authInfo.Role)
+	errMsgPrefix := fmt.Sprintf("Failed to delete user(%s)", in.Name)
+	userInfo, err := c.AuthUser(ctx, in.Name, errMsgPrefix)
 	if err != nil {
 		return &Accounts.DeleteUserResponse{}, err
 	}
 	if in.Name == "super" {
+		scope.Errorf("Cannot delete user(super)!")
 		return &Accounts.DeleteUserResponse{}, Errors.NewError(Errors.ReasonInvalidRequest, "Cannot delete user(super)")
 	}
 	userSvc := ServiceUser{Config: c.Config}
-	out, err := userSvc.DeleteUser(authInfo, in)
+	out, err := userSvc.DeleteUser(userInfo, in)
 	if err != nil {
 		return out, err
 	}
