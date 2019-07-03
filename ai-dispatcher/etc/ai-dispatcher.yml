@@ -1,0 +1,41 @@
+datahub_address: datahub.alameda.svc.cluster.local:50050
+
+queue:
+  url: amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672
+  retry:
+    publish_time: 3
+    publish_interval_ms: 500
+
+service_setting:
+  granularities:
+    - 30s
+    - 1h
+    - 6h
+    - 24h
+  predict_units:
+    - POD
+    - NODE
+
+granularities:
+  24h:
+    data_granularity: 24h
+    data_granularity_sec: 86400
+  6h:
+    data_granularity: 6h
+    data_granularity_sec: 21600
+  1h:
+    data_granularity: 1h
+    data_granularity_sec: 3600
+  30s:
+    data_granularity: 30s
+    data_granularity_sec: 30
+
+predict_units:
+  POD:
+    type: POD    
+  NODE:
+    type: NODE
+
+log:
+  set_logcallers: true
+  output_level: "info" # debug, info, warn, error, fatal, none
