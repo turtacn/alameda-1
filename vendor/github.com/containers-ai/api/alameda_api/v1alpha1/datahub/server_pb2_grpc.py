@@ -2,6 +2,7 @@
 import grpc
 
 from alameda_api.v1alpha1.datahub import server_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
@@ -144,6 +145,11 @@ class DatahubServiceStub(object):
     self.WriteRawdata = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/WriteRawdata',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.WriteRawdataRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
+    self.Ping = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/Ping',
+        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
     self.ListWeaveScopeHosts = channel.unary_unary(
@@ -375,6 +381,13 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Ping(self, request, context):
+    """Used to do liveness test
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def ListWeaveScopeHosts(self, request, context):
     """weave scope--------------------------------------------------
     """
@@ -562,6 +575,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'WriteRawdata': grpc.unary_unary_rpc_method_handler(
           servicer.WriteRawdata,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.WriteRawdataRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'Ping': grpc.unary_unary_rpc_method_handler(
+          servicer.Ping,
+          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'ListWeaveScopeHosts': grpc.unary_unary_rpc_method_handler(

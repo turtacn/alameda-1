@@ -25,6 +25,7 @@ import (
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -1175,6 +1176,12 @@ func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRaw
 			Message: err.Error(),
 		}, err
 	}
+
+	return &status.Status{Code: int32(code.Code_OK)}, nil
+}
+
+func (s *Server) Ping(ctx context.Context, in *empty.Empty) (*status.Status, error) {
+	scope.Debug("Request received from Ping grpc function")
 
 	return &status.Status{Code: int32(code.Code_OK)}, nil
 }
