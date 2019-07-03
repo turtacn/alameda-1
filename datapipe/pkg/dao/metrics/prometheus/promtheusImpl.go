@@ -45,7 +45,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	}
 
 	podContainerCPURepo = promRepository.NewPodContainerCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
-	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
+	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, req.RateRange, options...)
 	if err != nil {
 		return podsMetricMap, errors.Wrap(err, "list pod metrics failed")
 	}

@@ -20,7 +20,7 @@ func NewPodContainerCPUUsagePercentageRepositoryWithConfig(cfg prometheus.Config
 }
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, options ...Option) ([]prometheus.Entity, error) {
+func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, rateRange uint64, options ...Option) ([]prometheus.Entity, error) {
 
 	var (
 		err error
@@ -50,9 +50,9 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 	queryLabelsString = c.buildQueryLabelsStringByNamespaceAndPodName(namespace, podName)
 
 	if queryLabelsString != "" {
-		queryExpression = fmt.Sprintf("%s{%s}", metricName, queryLabelsString)
+		queryExpression = fmt.Sprintf(metricName, ","+queryLabelsString, rateRange)
 	} else {
-		queryExpression = fmt.Sprintf("%s", metricName)
+		queryExpression = fmt.Sprintf(metricName, "", rateRange)
 	}
 
 	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))

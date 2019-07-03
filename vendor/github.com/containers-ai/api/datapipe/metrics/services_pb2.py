@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.datapipe.metrics',
   syntax='proto3',
   serialized_options=_b('Z-github.com/containers-ai/api/datapipe/metrics'),
-  serialized_pb=_b('\n\x1f\x64\x61tapipe/metrics/services.proto\x12\x1d\x63ontainersai.datapipe.metrics\x1a\x13\x63ommon/common.proto\x1a\x1d\x64\x61tahub/metrics/metrics.proto\x1a\x1d\x64\x61tahub/resources/types.proto\x1a\x17google/rpc/status.proto\"W\n\x17\x43reatePodMetricsRequest\x12<\n\x0bpod_metrics\x18\x01 \x03(\x0b\x32\'.containersai.datahub.metrics.PodMetric\"Z\n\x18\x43reateNodeMetricsRequest\x12>\n\x0cnode_metrics\x18\x01 \x03(\x0b\x32(.containersai.datahub.metrics.NodeMetric\"\x9e\x01\n\x15ListPodMetricsRequest\x12G\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32..containersai.datahub.resources.NamespacedName\x12<\n\x0fquery_condition\x18\x02 \x01(\x0b\x32#.containersai.common.QueryCondition\"z\n\x16ListPodMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12<\n\x0bpod_metrics\x18\x02 \x03(\x0b\x32\'.containersai.datahub.metrics.PodMetric\"j\n\x16ListNodeMetricsRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\x12<\n\x0fquery_condition\x18\x02 \x01(\x0b\x32#.containersai.common.QueryCondition\"}\n\x17ListNodeMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12>\n\x0cnode_metrics\x18\x02 \x03(\x0b\x32(.containersai.datahub.metrics.NodeMetric2\xdc\x03\n\x0eMetricsService\x12`\n\x10\x43reatePodMetrics\x12\x36.containersai.datapipe.metrics.CreatePodMetricsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x62\n\x11\x43reateNodeMetrics\x12\x37.containersai.datapipe.metrics.CreateNodeMetricsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x7f\n\x0eListPodMetrics\x12\x34.containersai.datapipe.metrics.ListPodMetricsRequest\x1a\x35.containersai.datapipe.metrics.ListPodMetricsResponse\"\x00\x12\x82\x01\n\x0fListNodeMetrics\x12\x35.containersai.datapipe.metrics.ListNodeMetricsRequest\x1a\x36.containersai.datapipe.metrics.ListNodeMetricsResponse\"\x00\x42/Z-github.com/containers-ai/api/datapipe/metricsb\x06proto3')
+  serialized_pb=_b('\n\x1f\x64\x61tapipe/metrics/services.proto\x12\x1d\x63ontainersai.datapipe.metrics\x1a\x13\x63ommon/common.proto\x1a\x1d\x64\x61tahub/metrics/metrics.proto\x1a\x1d\x64\x61tahub/resources/types.proto\x1a\x17google/rpc/status.proto\"k\n\x17\x43reatePodMetricsRequest\x12<\n\x0bpod_metrics\x18\x01 \x03(\x0b\x32\'.containersai.datahub.metrics.PodMetric\x12\x12\n\nrate_range\x18\x02 \x01(\x04\"Z\n\x18\x43reateNodeMetricsRequest\x12>\n\x0cnode_metrics\x18\x01 \x03(\x0b\x32(.containersai.datahub.metrics.NodeMetric\"\xb2\x01\n\x15ListPodMetricsRequest\x12G\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32..containersai.datahub.resources.NamespacedName\x12<\n\x0fquery_condition\x18\x02 \x01(\x0b\x32#.containersai.common.QueryCondition\x12\x12\n\nrate_range\x18\x03 \x01(\x04\"z\n\x16ListPodMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12<\n\x0bpod_metrics\x18\x02 \x03(\x0b\x32\'.containersai.datahub.metrics.PodMetric\"j\n\x16ListNodeMetricsRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\x12<\n\x0fquery_condition\x18\x02 \x01(\x0b\x32#.containersai.common.QueryCondition\"}\n\x17ListNodeMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12>\n\x0cnode_metrics\x18\x02 \x03(\x0b\x32(.containersai.datahub.metrics.NodeMetric2\xdc\x03\n\x0eMetricsService\x12`\n\x10\x43reatePodMetrics\x12\x36.containersai.datapipe.metrics.CreatePodMetricsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x62\n\x11\x43reateNodeMetrics\x12\x37.containersai.datapipe.metrics.CreateNodeMetricsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x7f\n\x0eListPodMetrics\x12\x34.containersai.datapipe.metrics.ListPodMetricsRequest\x1a\x35.containersai.datapipe.metrics.ListPodMetricsResponse\"\x00\x12\x82\x01\n\x0fListNodeMetrics\x12\x35.containersai.datapipe.metrics.ListNodeMetricsRequest\x1a\x36.containersai.datapipe.metrics.ListNodeMetricsResponse\"\x00\x42/Z-github.com/containers-ai/api/datapipe/metricsb\x06proto3')
   ,
   dependencies=[common_dot_common__pb2.DESCRIPTOR,datahub_dot_metrics_dot_metrics__pb2.DESCRIPTOR,datahub_dot_resources_dot_types__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
@@ -44,6 +44,13 @@ _CREATEPODMETRICSREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='rate_range', full_name='containersai.datapipe.metrics.CreatePodMetricsRequest.rate_range', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -57,7 +64,7 @@ _CREATEPODMETRICSREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=174,
-  serialized_end=261,
+  serialized_end=281,
 )
 
 
@@ -87,8 +94,8 @@ _CREATENODEMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=263,
-  serialized_end=353,
+  serialized_start=283,
+  serialized_end=373,
 )
 
 
@@ -113,6 +120,13 @@ _LISTPODMETRICSREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='rate_range', full_name='containersai.datapipe.metrics.ListPodMetricsRequest.rate_range', index=2,
+      number=3, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -125,8 +139,8 @@ _LISTPODMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=356,
-  serialized_end=514,
+  serialized_start=376,
+  serialized_end=554,
 )
 
 
@@ -163,8 +177,8 @@ _LISTPODMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=516,
-  serialized_end=638,
+  serialized_start=556,
+  serialized_end=678,
 )
 
 
@@ -201,8 +215,8 @@ _LISTNODEMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=640,
-  serialized_end=746,
+  serialized_start=680,
+  serialized_end=786,
 )
 
 
@@ -239,8 +253,8 @@ _LISTNODEMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=748,
-  serialized_end=873,
+  serialized_start=788,
+  serialized_end=913,
 )
 
 _CREATEPODMETRICSREQUEST.fields_by_name['pod_metrics'].message_type = datahub_dot_metrics_dot_metrics__pb2._PODMETRIC
@@ -311,8 +325,8 @@ _METRICSSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=876,
-  serialized_end=1352,
+  serialized_start=916,
+  serialized_end=1392,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreatePodMetrics',

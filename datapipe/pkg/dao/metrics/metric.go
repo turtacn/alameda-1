@@ -19,6 +19,7 @@ type ListPodMetricsRequest struct {
 	Namespace metadata.NamespaceName
 	PodName   metadata.PodName
 	dao.QueryCondition
+	RateRange uint64
 }
 
 // ListNodeMetricsRequest Argument of method ListNodeMetrics

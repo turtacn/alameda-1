@@ -12,7 +12,8 @@ import (
 
 const (
 	// MetricName Metric name to query from prometheus
-	MetricName = "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate"
+	//MetricName = "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate"
+	MetricName = `sum(rate(container_cpu_usage_seconds_total{container_name!="",image!="",job="kubelet"%s}[%dm])) by(namespace, pod_name, container_name)`
 	// NamespaceLabel Namespace label name in the metric
 	NamespaceLabel = "namespace"
 	// PodLabelName pod label name in the metric

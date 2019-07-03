@@ -20,6 +20,7 @@ import (
 	containerEntity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/metrics/container"
 	nodeEntity "github.com/containers-ai/alameda/datapipe/pkg/entities/influxdb/metrics/node"
 
+	"fmt"
 	apiServer "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 )
 
@@ -40,11 +41,17 @@ func NewServiceMetric(cfg *DatapipeConfig.Config) *ServiceMetric {
 func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetricsAPI.CreatePodMetricsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	rateRange := in.GetRateRange()
+	tableName := containerEntity.MetricMeasurementName
+	if rateRange != 0 && rateRange != 5 {
+		tableName = fmt.Sprintf("%s_%dm", tableName, rateRange)
+	}
+
 	rowDataList := make([]*commonAPI.WriteRawdata, 0)
 
 	rowData := &commonAPI.WriteRawdata{
 		Database:    containerEntity.MetricDatabaseName,
-		Table:       containerEntity.MetricMeasurementName,
+		Table:       tableName,
 		Columns:     containerEntity.MetricColumns,
 		Rows:        make([]*commonAPI.Row, 0),
 		ColumnTypes: containerEntity.MetricColumnsTypes,
@@ -81,8 +88,18 @@ func (c *ServiceMetric) CreatePodMetrics(ctx context.Context, in *dataPipeMetric
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
-	return retStatus, err
+	stat, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 func (c *ServiceMetric) CreateNodeMetrics(ctx context.Context, in *dataPipeMetricsAPI.CreateNodeMetricsRequest) (*status.Status, error) {
@@ -123,8 +140,18 @@ func (c *ServiceMetric) CreateNodeMetrics(ctx context.Context, in *dataPipeMetri
 
 	rowDataList = append(rowDataList, rowData)
 
-	retStatus, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
-	return retStatus, err
+	stat, err := apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if apiServer.NeedResendRequest(stat, err) {
+			stat, err = apiServer.WriteRawdata(c.Config.APIServer.Address, commonAPI.DatabaseType_INFLUXDB, rowDataList)
+		}
+	}
+
+	stat, _ = apiServer.CheckResponse(stat, err)
+
+	return stat, nil
 }
 
 func (c *ServiceMetric) ListPodMetrics(ctx context.Context, in *dataPipeMetricsAPI.ListPodMetricsRequest) (*dataPipeMetricsAPI.ListPodMetricsResponse, error) {
@@ -159,11 +186,17 @@ func (c *ServiceMetric) ListPodMetrics(ctx context.Context, in *dataPipeMetricsA
 		podName = in.GetNamespacedName().GetName()
 	}
 
+	rateRange := in.GetRateRange()
+	if rateRange == 0 {
+		rateRange = 5
+	}
+
 	queryCondition := requests.DatahubQueryConditionExtend{QueryCondition: in.GetQueryCondition()}.DaoQueryCondition()
 	listPodMetricsRequest := metric_dao.ListPodMetricsRequest{
 		Namespace:      namespace,
 		PodName:        podName,
 		QueryCondition: queryCondition,
+		RateRange:      rateRange,
 	}
 
 	podsMetricMap, err := metricDAO.ListPodMetrics(listPodMetricsRequest)
