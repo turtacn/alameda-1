@@ -12,6 +12,7 @@ import (
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/scores"
 	"github.com/containers-ai/alameda/datapipe/pkg/apis/v1alpha1"
 	"github.com/containers-ai/alameda/datapipe/pkg/config"
+	"github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	V1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	Metrics "github.com/containers-ai/api/datapipe/metrics"
@@ -71,6 +72,9 @@ func (s *Server) Run() error {
 
 	s.registerGRPCServer(server)
 	reflection.Register(server)
+
+	// Initialize token of API server
+	apiserver.GetToken(true, 5)
 
 	if err := server.Serve(ln); err != nil {
 		s.err <- fmt.Errorf("GRPC server(datapipe) failed to serve: %s", err.Error())

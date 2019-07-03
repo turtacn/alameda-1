@@ -22,6 +22,7 @@ var (
 			initConfig()
 			initLogger()
 			setLoggerScopesWithConfig(*config.Log)
+			setAPIServerWithConfig(*config.APIServer)
 			startProbing()
 		},
 	}

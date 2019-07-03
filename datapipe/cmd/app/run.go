@@ -31,6 +31,7 @@ var (
 			initConfig()
 			initLogger()
 			setLoggerScopesWithConfig(*config.Log)
+			setAPIServerWithConfig(*config.APIServer)
 			displayConfig()
 			server, err = datapipe.NewServer(config)
 			if err != nil {
