@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:ebe7dd99c1ffb2bcb35665df45b5bdac67a233fa52657f21204e1985f899c5c2"
+  digest = "1:3eb834568daac05ed79fcba4843e9c881bbe1f5d872d5f803323dae885339451"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -46,7 +46,7 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "f6d74903a26f409f78daceab9f4d5e2873b73e61"
+  revision = "06598693691065be4328dcd011d19ad783649ee0"
 
 [[projects]]
   branch = "development"
@@ -151,11 +151,14 @@
   digest = "1:a2ecb56e5053d942aafc86738915fb94c9131bac848c543b8b6764365fd69080"
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/empty",
+    "ptypes/struct",
     "ptypes/timestamp",
   ]
   pruneopts = "T"
@@ -587,6 +590,14 @@
   pruneopts = "T"
   revision = "2c12c60302a5a0e62ee102ca9bc996277c2f64f5"
   version = "v1.2.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:929449f148cb0ddda822ecab56b4dd9a2e2dcbb6454854fa1dfec9e8bfb0ca06"
+  name = "github.com/streadway/amqp"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "75d898a42a940fbc854dfd1a4199eabdc00cf024"
 
 [[projects]]
   digest = "1:17c4ccf5cdb1627aaaeb5c1725cb13aec97b63ea2033d4a6824dcaedf94223dc"
@@ -1193,8 +1204,10 @@
     "github.com/containers-ai/federatorai-api/apiserver/ping",
     "github.com/containers-ai/federatorai-api/apiserver/rawdata",
     "github.com/emicklei/go-restful",
+    "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/empty",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/influxdata/influxdb/client/v2",
     "github.com/mattbaird/jsonpatch",
@@ -1207,6 +1220,7 @@
     "github.com/rs/xid",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
+    "github.com/streadway/amqp",
     "github.com/stretchr/testify/assert",
     "go.uber.org/zap",
     "go.uber.org/zap/zapcore",

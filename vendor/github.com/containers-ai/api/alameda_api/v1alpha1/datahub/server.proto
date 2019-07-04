@@ -3,6 +3,7 @@ syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
 
+import "google/protobuf/empty.proto";
 import "google/rpc/status.proto";
 import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/predict.proto";
@@ -29,6 +30,7 @@ message QueryCondition {
 message ListPodMetricsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
+    uint64 rate_range = 3;
 }
 
 /**
@@ -443,6 +445,10 @@ service DatahubService {
 
     // Used to write rawdata to database
     rpc WriteRawdata(WriteRawdataRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to do liveness test
+    rpc Ping(google.protobuf.Empty)
         returns (google.rpc.Status) {}
 
     //weave scope--------------------------------------------------

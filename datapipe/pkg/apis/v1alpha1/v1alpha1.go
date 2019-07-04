@@ -10,6 +10,8 @@ import (
 
 	apiServer "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 	"google.golang.org/genproto/googleapis/rpc/code"
+
+	"github.com/golang/protobuf/ptypes/empty"
 )
 
 var (
@@ -828,6 +830,12 @@ func (s *ServiceV1alpha1) WriteRawdata(ctx context.Context, in *datahub_v1alpha1
 	stat, _ = apiServer.CheckResponse(stat, err)
 
 	return stat, nil
+}
+
+func (s *ServiceV1alpha1) Ping(ctx context.Context, in *empty.Empty) (*status.Status, error) {
+	scope.Debug("Request received from Ping grpc function")
+
+	return &status.Status{Code: int32(code.Code_OK)}, nil
 }
 
 func (s *ServiceV1alpha1) ListWeaveScopeHosts(ctx context.Context, in *datahub_v1alpha1.ListWeaveScopeHostsRequest) (*datahub_v1alpha1.WeaveScopeResponse, error) {
