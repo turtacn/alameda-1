@@ -40,8 +40,14 @@ func (r *ContainerRepository) ListContainerMetrics(in *datahub_v1alpha1.ListPodM
 	groupByTime := fmt.Sprintf("%s(%ds)", container_entity.PodTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
 	selectedField := fmt.Sprintf("sum(%s) as %s", container_entity.Value, container_entity.Value)
 
+	rateRange := in.GetRateRange()
+	measurementName := container_entity.MetricMeasurementName
+	if rateRange != 0 && rateRange != 5 {
+		measurementName = fmt.Sprintf("%s_%dm", measurementName, rateRange)
+	}
+
 	influxdbStatement := influxdb.StatementNew{
-		Measurement:    influxdb.Measurement(container_entity.MetricMeasurementName),
+		Measurement:    influxdb.Measurement(measurementName),
 		SelectedFields: []string{selectedField},
 		GroupByTags:    []string{container_entity.PodNamespace, container_entity.PodName, container_entity.Name, container_entity.MetricType, groupByTime},
 	}
