@@ -1,0 +1,42 @@
+image:
+  registry: docker.io
+  repository: rabbitmq
+  tag: 3.7.15-alpine  
+  pullPolicy: IfNotPresent
+  
+rabbitmq:
+  username: admin
+  password: adminpass
+
+service:
+  type: ClusterIP
+  port: 5672
+  managerPort: 15672
+  annotations:    
+
+podLabels: {}
+
+resources: {}
+
+replicas: 1
+
+updateStrategy:
+  type: RollingUpdate
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podAnnotations: {}
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  timeoutSeconds: 15
+  periodSeconds: 60
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 20
+  timeoutSeconds: 10
+  periodSeconds: 60

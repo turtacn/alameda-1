@@ -6,7 +6,7 @@
 #fullnameOverride: "alameda-ai"
 
 image:
-  repository: alameda-ai
+  repository: quay.io/prophetstor/alameda-ai
   tag: latest
   pullPolicy: IfNotPresent
   #  accessToken: ""

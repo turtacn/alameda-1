@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "recommender.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: alameda
+    component: {{ .Values.global.component.recommender.name }}
+spec:
+  replicas: {{ .Values.global.component.recommender.replicaCount }}
+  selector:
+    matchLabels:
+      app: alameda
+      component: {{ .Values.global.component.recommender.name }}
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: {{ .Values.global.component.recommender.name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: FEDERATOR_AI_SETUP_TYPE
+            value: "on-premise"
+          volumeMounts:
+          - name: {{ include "recommender.fullname" . }}
+            mountPath: /etc/alameda/federatorai-recommendation/config.toml
+            subPath: config.toml            
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/federatorai-recommender
+              - probe
+              - --type=readiness
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/federatorai-recommender
+              - probe
+              - --type=liveness
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+      - name: {{ include "recommender.fullname" . }}
+        configMap:
+          name: {{ include "recommender.fullname" . }}          
+    {{- if .Values.image.accessToken }}
+      imagePullSecrets:
+        - name: {{ include "recommender.fullname" . }}-imagepull
+    {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

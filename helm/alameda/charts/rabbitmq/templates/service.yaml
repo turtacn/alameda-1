@@ -1,0 +1,24 @@
+{{- if .Values.global.predictQueueEnable }}
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ template "rabbitmq.fullname" . }}
+  labels:
+    app: {{ template "rabbitmq.name" . }}
+    chart: {{ template "rabbitmq.chart" .  }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    type: {{ .Values.service.type }} 
+spec:   
+  ports:
+    - name: amqp
+      port: {{ .Values.service.port }}
+      targetPort: amqp
+    - name: stats
+      port: {{ .Values.service.managerPort }}
+      targetPort: stats  
+  selector:
+    app: {{ template "rabbitmq.name" . }}
+    release: "{{ .Release.Name }}"
+{{- end }}
