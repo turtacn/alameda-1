@@ -9,7 +9,8 @@ global:
   ## If true, create & use RBAC resources
   ##
   rbacEnable: true
-  executionEnable: false
+  executionEnable: true
+  predictQueueEnable: true
 
   component:
     operator:
@@ -33,7 +34,7 @@ global:
         bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
       influxdbConfig:
         scheme: "http"
-        url: "alameda-influxdb"
+        url: "alameda-influxdb.default.svc"
         port: 8086
         username: "alameda"
         password: "alameda"
@@ -43,9 +44,23 @@ global:
     admission:
       name: "admission-controller"
       replicaCount: 1
+    recommender:
+      name: "alameda-recommender"
+      replicaCount: 1
+    executor:
+      name: "alameda-executor"
+      replicaCount: 1
+    aidispatcher:
+      name: "alameda-ai-dispatcher"
+      replicaCount: 1
+      rabbitmqConfig:
+        name: "alameda-rabbitmq"
+        username: "admin"
+        password: "adminpass"
+        port: 5672
 
 image:
-  repository: operator
+  repository: quay.io/prophetstor/alameda-operator-ubi
   tag: latest
   pullPolicy: IfNotPresent
   #  accessToken: ""

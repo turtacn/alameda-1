@@ -6,7 +6,7 @@
 #fullnameOverride: "datahub"
 
 image:
-  repository: datahub
+  repository: quay.io/prophetstor/alameda-datahub-ubi
   tag: latest
   pullPolicy: IfNotPresent
   #  accessToken: ""

@@ -6,7 +6,7 @@
 #fullnameOverride: "evictioner"
 
 image:
-  repository: evictioner
+  repository: quay.io/prophetstor/alameda-evictioner-ubi
   tag: latest
   pullPolicy: IfNotPresent
 

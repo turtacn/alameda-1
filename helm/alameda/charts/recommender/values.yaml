@@ -1,18 +1,14 @@
-# Default values for admission-controller.
+# Default values for evictioner.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-#nameOverride: "admission"
-#fullnameOverride: "admission"
+#nameOverride: "evictioner"
+#fullnameOverride: "evictioner"
 
 image:
-  repository: quay.io/prophetstor/alameda-admission-ubi
+  repository: quay.io/prophetstor/alameda-recommender-ubi
   tag: latest
   pullPolicy: IfNotPresent
-
-service:
-  type: ClusterIP
-  port: 80
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

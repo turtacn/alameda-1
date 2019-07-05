@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "executor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: alameda
+    component: {{ .Values.global.component.executor.name }}
+spec:
+  selector:
+    matchLabels:
+      component: {{ .Values.global.component.executor.name }}
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: {{ .Values.global.component.executor.name }}
+    spec:
+      serviceAccountName: alameda-executor
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        volumeMounts:
+          - name: {{ include "executor.fullname" . }}
+            mountPath: /etc/alameda/federatorai-execution/config.yml
+            subPath: config.yml
+        readinessProbe:
+          exec:
+            command:
+            - /usr/local/bin/federatorai-executor
+            - probe
+            - --type=readiness
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - /usr/local/bin/federatorai-executor
+            - probe
+            - --type=liveness
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:        
+        - name: {{ include "executor.fullname" . }}
+          configMap:
+            name: {{ include "executor.fullname" . }}
