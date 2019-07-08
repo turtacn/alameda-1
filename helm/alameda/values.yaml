@@ -35,6 +35,7 @@ global:
       influxdbConfig:
         scheme: "http"
         url: "alameda-influxdb.default.svc"
+        svcName: "alameda-influxdb"
         port: 8086
         username: "alameda"
         password: "alameda"
