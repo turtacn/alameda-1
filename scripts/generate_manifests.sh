@@ -39,6 +39,28 @@ while test $# -gt 0;do
     esac
 done
 
+INFLUXDB_NS_VALUE='value: "{{ .Values.global.component.datahub.influxdbConfig.scheme }}:\/\/{{ .Values.global.component.datahub.influxdbConfig.svcName }}.{{ .Release.Namespace }}.svc:{{ .Values.global.component.datahub.influxdbConfig.port }}"'
+INFLUXDB_DEFAULT_NS_VALUE='value: "{{ .Values.global.component.datahub.influxdbConfig.scheme }}:\/\/{{ .Values.global.component.datahub.influxdbConfig.url }}:{{ .Values.global.component.datahub.influxdbConfig.port }}"'
+DATAHUB_DEPLOYMENT_FILE=$REPO_ROOT_DIR/helm/alameda/charts/datahub/templates/deployment.yaml
+INFLUXDB_NS_URL='url: http:\/\/alameda-influxdb.alameda.svc:8086'
+INFLUXDB_DEFAULT_NS_URL='url: http:\/\/alameda-influxdb.default.svc:8086'
+GRAFANA_VALUES_FILE=$REPO_ROOT_DIR/helm/grafana/values.yaml
+
+replace::influxdb::ns::to::default() {
+    sed -i -e 's/'"$INFLUXDB_NS_VALUE"'/'"$INFLUXDB_DEFAULT_NS_VALUE"'/g' $DATAHUB_DEPLOYMENT_FILE
+    sed -i -e 's/'"$INFLUXDB_NS_URL"'/'"$INFLUXDB_DEFAULT_NS_URL"'/g' $GRAFANA_VALUES_FILE
+}
+
+restore::influxdb::ns() {
+    sed -i -e 's/'"$INFLUXDB_DEFAULT_NS_VALUE"'/'"$INFLUXDB_NS_VALUE"'/g' $DATAHUB_DEPLOYMENT_FILE
+    sed -i -e 's/'"$INFLUXDB_DEFAULT_NS_URL"'/'"$INFLUXDB_NS_URL"'/g' $GRAFANA_VALUES_FILE
+}
+
+# influxdb helm template does not use release name as namespace,
+# the namespace of output manifest is default so we substitute
+# influxdb namespace used by other components to default first.
+replace::influxdb::ns::to::default
+
 NAMESPACE=alameda
 tmpdir=`mktemp -d 2>/dev/null || mktemp -d -t 'charttmpdir'`
 tmpchartdir=${tmpdir}
@@ -110,4 +132,4 @@ echo "$namespaceResource" > ${chartdir}/alameda-grafana/namespace.yaml
 #echo "$namespaceResource" > ${chartdir}/alameda-rabbitmq/namespace.yaml
 
 rm -rf ${tmpdir}
-
+restore::influxdb::ns

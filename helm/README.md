@@ -22,7 +22,7 @@ and assumes **Prometheus** is running in your cluster.
 Users can install Alameda by following:
 1. Install InfluxDB chart by executing:
 ```
-$ helm install stable/influxdb --version 1.1.3 --name alameda-influxdb --namespace alameda
+$ helm install stable/influxdb --version 1.1.9 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
 ```
 2. Install Alameda chart for component _alameda-operator_, _alameda-datahub_, _alameda-ai_, _alameda-evictioner_ and _admission-controller_ by executing:
 ```
@@ -35,11 +35,11 @@ $ helm install --name alameda --namespace alameda ./alameda
 ```
 $ helm install --name alameda-grafana --namespace alameda ./grafana/
 ```
-> **Note**: This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 2.0.1 with customized dashboards.
+> **Note**: This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 3.5.7 with customized dashboards.
 
 4. (Optional) If your environment does not have a running Prometheus, you can install it by executing:
 ```
-$ helm install stable/prometheus-operator --version 4.3.1 --name prometheus --namespace monitoring
+$ helm install stable/prometheus-operator --version 5.15.0 --name prometheus --namespace monitoring
 ```
 This will install Prometheus and the default setting will have all the metrics that Alameda needs. For detail metrics needed by Alameda, please visit [metrics_used_in_Alameda.md](../docs/metrics_used_in_Alameda.md) document.
 
@@ -47,9 +47,9 @@ This will install Prometheus and the default setting will have all the metrics t
 
 ```console
 $ git clone https://github.com/containers-ai/alameda
-$ helm install stable/influxdb --version 1.1.3 --name alameda-influxdb --namespace alameda
+$ helm install stable/influxdb --version 1.1.9 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
 ### Install Prometheus if no existed one
-# $ helm install stable/prometheus-operator --version 4.3.1 --name prometheus --namespace monitoring
+# $ helm install stable/prometheus-operator --version 5.15.0 --name prometheus --namespace monitoring
 $ helm install --name alameda --namespace alameda ./alameda/
 $ helm install --name alameda-grafana --namespace alameda ./grafana/
 ```

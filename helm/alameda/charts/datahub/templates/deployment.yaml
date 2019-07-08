@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
-              value: "{{ .Values.global.component.datahub.influxdbConfig.scheme }}://{{ .Values.global.component.datahub.influxdbConfig.url }}:{{ .Values.global.component.datahub.influxdbConfig.port }}"
+              value: "{{ .Values.global.component.datahub.influxdbConfig.scheme }}://{{ .Values.global.component.datahub.influxdbConfig.svcName }}.{{ .Release.Namespace }}.svc:{{ .Values.global.component.datahub.influxdbConfig.port }}"
             - name: ALAMEDA_DATAHUB_INFLUXDB_USERNAME
               value: "{{ .Values.global.component.datahub.influxdbConfig.username }}"
             - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD

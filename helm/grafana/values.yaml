@@ -253,7 +253,7 @@ datasources:
     - name: InfluxDB
       type: influxdb
       database: _internal
-      url: http://alameda-influxdb.default.svc:8086
+      url: http://alameda-influxdb.alameda.svc:8086
       access: proxy
       isDefault: false
 
