@@ -1,9 +1,9 @@
-# Default values for evictioner.
+# Default values for ai-dispatcher.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-#nameOverride: "evictioner"
-#fullnameOverride: "evictioner"
+#nameOverride: "ai-dispatcher"
+#fullnameOverride: "ai-dispatcher"
 
 image:
   repository: quay.io/prophetstor/alameda-ai-dispatcher  

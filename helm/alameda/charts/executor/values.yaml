@@ -1,9 +1,9 @@
-# Default values for evictioner.
+# Default values for executor.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-#nameOverride: "evictioner"
-#fullnameOverride: "evictioner"
+#nameOverride: "executor"
+#fullnameOverride: "executor"
 
 image:
   repository: quay.io/prophetstor/alameda-executor-ubi

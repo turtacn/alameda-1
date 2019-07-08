@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: alameda
-          image: "operator:latest"
+          image: "quay.io/prophetstor/alameda-operator-ubi:latest"
           imagePullPolicy: IfNotPresent
           env:
             - name: NAMESPACE_NAME

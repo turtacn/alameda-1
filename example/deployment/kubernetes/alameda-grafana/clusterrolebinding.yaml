@@ -7,7 +7,7 @@ metadata:
   name: alameda-grafana-clusterrolebinding
   labels:
     app: grafana
-    chart: grafana-2.0.1
+    chart: grafana-3.5.7
     release: alameda-grafana
     heritage: Tiller
 subjects:
