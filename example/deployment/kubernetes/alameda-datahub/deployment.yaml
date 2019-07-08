@@ -22,11 +22,11 @@ spec:
     spec:
       containers:
         - name: datahub
-          image: "datahub:latest"
+          image: "quay.io/prophetstor/alameda-datahub-ubi:latest"
           imagePullPolicy: IfNotPresent
           env:
             - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
-              value: "http://alameda-influxdb:8086"
+              value: "http://alameda-influxdb.default.svc:8086"
             - name: ALAMEDA_DATAHUB_INFLUXDB_USERNAME
               value: "alameda"
             - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD

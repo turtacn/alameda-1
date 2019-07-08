@@ -4,9 +4,10 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: alameda-grafana
+  namespace: alameda
   labels:
     app: grafana
-    chart: grafana-2.0.1
+    chart: grafana-3.5.7
     heritage: Tiller
     release: alameda-grafana
 rules:

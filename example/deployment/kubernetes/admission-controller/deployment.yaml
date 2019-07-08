@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alameda-admission-controller
+  namespace: alameda
   labels:
     app: alameda
     component: admission-controller
@@ -21,7 +22,7 @@ spec:
     spec:
       containers:
         - name: admission-controller
-          image: "admission-controller:latest"
+          image: "quay.io/prophetstor/alameda-admission-ubi:latest"
           imagePullPolicy: IfNotPresent
           env:
             - name: NAMESPACE_NAME
@@ -41,7 +42,7 @@ spec:
             - name: ALAMEDA_ADMCTL_DEPLOYED_NAMESPACE
               value: "alameda"
             - name: ALAMEDA_ADMCTL_ENABLE
-              value: "false"
+              value: "true"
             - name: ALAMEDA_ADMCTL_DATAHUB_ADDRESS
               value: "alameda-datahub.alameda:50050"
 #            - name: ALAMEDA_ADMCTL_LOG_OUTPUT_LEVEL

@@ -22,11 +22,15 @@ spec:
     spec:
       containers:
         - name: alameda-ai
-          image: "alameda-ai:latest"
+          image: "quay.io/prophetstor/alameda-ai:latest"
           imagePullPolicy: IfNotPresent
           env:
             - name: DATAHUB_ADDRESS
               value: "alameda-datahub.alameda:50050"
+            - name: PREDICT_QUEUE_ENABLED
+              value: "true"
+            - name: PREDICT_QUEUE_URL
+              value: "amqp://admin:adminpass@alameda-rabbitmq.alameda:5672"
           resources:
             {}
             
