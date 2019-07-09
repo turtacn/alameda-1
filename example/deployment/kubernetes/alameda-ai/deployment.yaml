@@ -29,6 +29,8 @@ spec:
               value: "alameda-datahub.alameda:50050"
             - name: PREDICT_QUEUE_ENABLED
               value: "true"
+            - name: MAXIMUM_PREDICT_PROCESSES
+              value: "8"
             - name: PREDICT_QUEUE_URL
               value: "amqp://admin:adminpass@alameda-rabbitmq.alameda:5672"
           resources:

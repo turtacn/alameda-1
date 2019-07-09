@@ -18,7 +18,13 @@ global:
       replicaCount: 1
     alamedaai:
       name: "alameda-ai"
+      # number of workers while predictQueueEnable is set to true      
       replicaCount: 1
+      # maximum number of processes to predict unit
+      # each job message consumed from queue to
+      # create one process to predict
+      # works while predictQueueEnable is set to true
+      maximumPredictProcesses: 8
     datahub:
       name: "alameda-datahub"
       replicaCount: 1
