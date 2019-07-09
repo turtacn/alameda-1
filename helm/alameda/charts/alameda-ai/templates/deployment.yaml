@@ -27,6 +27,8 @@ spec:
               value: "{{ .Values.global.component.datahub.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.datahub.service.port }}"
             - name: PREDICT_QUEUE_ENABLED
               value: "{{ .Values.global.predictQueueEnable }}"
+            - name: MAXIMUM_PREDICT_PROCESSES
+              value: "{{ .Values.global.component.alamedaai.maximumPredictProcesses }}"
             - name: PREDICT_QUEUE_URL
               value: "amqp://{{ .Values.global.component.aidispatcher.rabbitmqConfig.username }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.password }}@{{ .Values.global.component.aidispatcher.rabbitmqConfig.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.port }}"
           resources:
