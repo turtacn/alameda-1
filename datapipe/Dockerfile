@@ -33,4 +33,4 @@ EXPOSE 50060/tcp
 
 USER ${USER_UID}
 ENTRYPOINT ["/sbin/tini","-v", "--"]
-CMD ["/init.sh"]
+CMD ["/init.sh", "start"]

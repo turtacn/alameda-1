@@ -9,7 +9,7 @@ if [ "`cat /etc/passwd | awk -F: '{print $3}' | grep \"^${MY_UID}$\"`" = "" ]; t
     echo "alameda:x:${MY_UID}:0:Federator.ai:${AIHOME}:/bin/sh" >> /etc/passwd
 fi
 
-cron_run_hourly()
+do_crond()
 {
     sleep_time=3600
     while :; do
@@ -23,6 +23,40 @@ cron_run_hourly()
     exit 0
 }
 
+do_liveness()
+{
+    ${AIHOME}/bin/apiserver probe | grep ", READY$" > /dev/null
+    [ "$?" != "0" ] && echo "Failed in server liveness probe." && return $?
+    return 0
+}
+
+do_readiness()
+{
+    ${AIHOME}/bin/apiserver probe | grep ", READY$" > /dev/null
+    [ "$?" != "0" ] && echo "Failed in server readiness probe." && return $?
+    return 0
+}
+
+do_start()
+{
+    # start crond
+    $0 crond &
+
+    # start main service
+    while :; do
+        cd ${AIHOME}/bin
+        ${AIHOME}/bin/apiserver run
+        [ -f /tmp/.pause ] && sleep 300 || sleep 30
+    done
+    return $?
+}
+
+show_usage()
+{
+    /bin/echo -e "\n\nUsage: $0 [crond|liveness|readiness|start]\n\n"
+    exit 1
+}
+
 #
 # Main
 #
@@ -30,19 +64,24 @@ cron_run_hourly()
 # start crond only
 case "$1" in
     "crond")
-        cron_run_hourly
+        do_crond
+        exit $?
+        ;;
+    "liveness")
+        do_liveness
+        exit $?
+        ;;
+    "readiness")
+        do_readiness
+        exit $?
+        ;;
+    "start")
+        do_start
+        ;;
+    *)
+        show_usage
         exit $?
         ;;
 esac
-
-# start crond
-$0 crond &
-
-# start main service
-while :; do
-    cd ${AIHOME}/bin
-    ${AIHOME}/bin/apiserver run
-    [ -f /tmp/.pause ] && sleep 300 || sleep 30
-done
 
 exit 0
