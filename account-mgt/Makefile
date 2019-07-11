@@ -12,4 +12,4 @@ all: docker-build
 
 ## docker-build: Build the docker image.
 docker-build:
-	docker build build/build-image/ -t ${IMG} -f build/build-image/Dockerfile
+	docker build . -t ${IMG} -f Dockerfile

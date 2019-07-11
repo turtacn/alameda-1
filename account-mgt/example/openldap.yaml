@@ -24,13 +24,6 @@ spec:
           requests:
             memory: 128Mi
         args: ["--copy-service"]
-        volumeMounts:
-          - name: ldap-data
-            mountPath: /var/lib/ldap
-          - name: ldap-config
-            mountPath: /etc/ldap/slapd.d
-          - name: ldap-certs
-            mountPath: /container/service/slapd/assets/certs
         ports:
         - containerPort: 389
           name: openldap1
@@ -76,7 +69,7 @@ spec:
         - name: LDAP_BACKEND
           value: "mdb"
         - name: LDAP_TLS
-          value: "true"
+          value: "false"
         - name: LDAP_TLS_CRT_FILENAME
           value: "ldap.crt"
         - name: LDAP_TLS_KEY_FILENAME
@@ -103,17 +96,14 @@ spec:
           value: "true"
         - name: LDAP_SSL_HELPER_PREFIX
           value: "ldap"
+        volumeMounts:
+        - mountPath: /data
+          name: data
       restartPolicy: Always
       volumes:
-        - name: ldap-data
-          hostPath:
-            path: "/data/ldap/db"
-        - name: ldap-config
-          hostPath:
-            path: "/data/ldap/config"
-        - name: ldap-certs
-          hostPath:
-            path: "/data/ldap/certs"
+      - hostPath:
+          path: "/data"
+        name: data
 
 # # ldap - service
 ---
@@ -132,4 +122,3 @@ spec:
   #  name: openldap2
   selector:
     app: openldap
-
