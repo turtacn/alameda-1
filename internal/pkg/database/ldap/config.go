@@ -9,15 +9,15 @@ type Config struct {
 	Address string `mapstructure:"address"`
 }
 
-// NewDefaultConfig Provide default configuration
-func NewDefaultConfig() Config {
+// Provide default configuration for LDAP
+func NewDefaultConfig() *Config {
 	var config = Config{
 		Address: defaultAddress,
 	}
-	return config
+	return &config
 }
 
-// Validate Confirm the configuration is validate
+// Confirm the configuration is validated
 func (c *Config) Validate() error {
 	return nil
 }
