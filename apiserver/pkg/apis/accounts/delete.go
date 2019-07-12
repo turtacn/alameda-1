@@ -24,12 +24,6 @@ func (c *ServiceUser) DeleteUser(caller *entity.User, in *Accounts.DeleteUserReq
 			scope.Errorf("Failed to read user(%s) info from ldap for user deletion: %s", owner.Name, err.Error())
 			return &response, err
 		}
-		// TODO: delete (or reserve) influxdb and grafana container for the user
-		err = DeleteFakeUserContainers(*owner)
-		if err != nil {
-			scope.Errorf("Failed to remove user(%s) containers: %s", owner.Name, err.Error())
-			return &response, err
-		}
 		err = caller.DeleteUser(owner)
 		if err != nil {
 			scope.Errorf("Failed to delete user(%s) from domain(%s): %s", owner.Name, owner.DomainName, err.Error())

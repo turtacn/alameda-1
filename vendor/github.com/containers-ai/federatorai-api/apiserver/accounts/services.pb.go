@@ -24,27 +24,82 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type CreateUserRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	DomainName           string   `protobuf:"bytes,3,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
-	Role                 string   `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
-	Company              string   `protobuf:"bytes,5,opt,name=company,proto3" json:"company,omitempty"`
-	Email                string   `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
-	FirstName            string   `protobuf:"bytes,7,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
-	LastName             string   `protobuf:"bytes,8,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Phone                string   `protobuf:"bytes,9,opt,name=phone,proto3" json:"phone,omitempty"`
-	URL                  string   `protobuf:"bytes,10,opt,name=URL,proto3" json:"URL,omitempty"`
+type ClusterInfo struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	InfluxdbInfo         string   `protobuf:"bytes,2,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
+	GrafanaInfo          string   `protobuf:"bytes,3,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ClusterInfo) Reset()         { *m = ClusterInfo{} }
+func (m *ClusterInfo) String() string { return proto.CompactTextString(m) }
+func (*ClusterInfo) ProtoMessage()    {}
+func (*ClusterInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_services_7314b31c6748b9cf, []int{0}
+}
+func (m *ClusterInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ClusterInfo.Unmarshal(m, b)
+}
+func (m *ClusterInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ClusterInfo.Marshal(b, m, deterministic)
+}
+func (dst *ClusterInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClusterInfo.Merge(dst, src)
+}
+func (m *ClusterInfo) XXX_Size() int {
+	return xxx_messageInfo_ClusterInfo.Size(m)
+}
+func (m *ClusterInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClusterInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClusterInfo proto.InternalMessageInfo
+
+func (m *ClusterInfo) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *ClusterInfo) GetInfluxdbInfo() string {
+	if m != nil {
+		return m.InfluxdbInfo
+	}
+	return ""
+}
+
+func (m *ClusterInfo) GetGrafanaInfo() string {
+	if m != nil {
+		return m.GrafanaInfo
+	}
+	return ""
+}
+
+type CreateUserRequest struct {
+	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Password             string         `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	DomainName           string         `protobuf:"bytes,3,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string         `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string         `protobuf:"bytes,5,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string         `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string         `protobuf:"bytes,7,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string         `protobuf:"bytes,8,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string         `protobuf:"bytes,9,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string         `protobuf:"bytes,10,opt,name=URL,proto3" json:"URL,omitempty"`
+	Clusters             []*ClusterInfo `protobuf:"bytes,11,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
 func (m *CreateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateUserRequest) ProtoMessage()    {}
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{0}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{1}
 }
 func (m *CreateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserRequest.Unmarshal(m, b)
@@ -134,29 +189,35 @@ func (m *CreateUserRequest) GetURL() string {
 	return ""
 }
 
+func (m *CreateUserRequest) GetClusters() []*ClusterInfo {
+	if m != nil {
+		return m.Clusters
+	}
+	return nil
+}
+
 type CreateUserResponse struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
-	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
-	Company              string   `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
-	Email                string   `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
-	FirstName            string   `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
-	LastName             string   `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
-	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
-	Status               string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
-	InfluxdbInfo         string   `protobuf:"bytes,11,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
-	GrafanaInfo          string   `protobuf:"bytes,12,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string         `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string         `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string         `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string         `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string         `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string         `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string         `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string         `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Status               string         `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	Clusters             []*ClusterInfo `protobuf:"bytes,11,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *CreateUserResponse) Reset()         { *m = CreateUserResponse{} }
 func (m *CreateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateUserResponse) ProtoMessage()    {}
 func (*CreateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{1}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{2}
 }
 func (m *CreateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserResponse.Unmarshal(m, b)
@@ -246,18 +307,11 @@ func (m *CreateUserResponse) GetStatus() string {
 	return ""
 }
 
-func (m *CreateUserResponse) GetInfluxdbInfo() string {
+func (m *CreateUserResponse) GetClusters() []*ClusterInfo {
 	if m != nil {
-		return m.InfluxdbInfo
+		return m.Clusters
 	}
-	return ""
-}
-
-func (m *CreateUserResponse) GetGrafanaInfo() string {
-	if m != nil {
-		return m.GrafanaInfo
-	}
-	return ""
+	return nil
 }
 
 type ReadUserRequest struct {
@@ -271,7 +325,7 @@ func (m *ReadUserRequest) Reset()         { *m = ReadUserRequest{} }
 func (m *ReadUserRequest) String() string { return proto.CompactTextString(m) }
 func (*ReadUserRequest) ProtoMessage()    {}
 func (*ReadUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{2}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{3}
 }
 func (m *ReadUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReadUserRequest.Unmarshal(m, b)
@@ -299,28 +353,27 @@ func (m *ReadUserRequest) GetName() string {
 }
 
 type ReadUserResponse struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
-	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
-	Company              string   `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
-	Email                string   `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
-	FirstName            string   `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
-	LastName             string   `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
-	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
-	Status               string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
-	InfluxdbInfo         string   `protobuf:"bytes,11,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
-	GrafanaInfo          string   `protobuf:"bytes,12,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string         `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string         `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string         `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string         `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string         `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string         `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string         `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string         `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Status               string         `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	Clusters             []*ClusterInfo `protobuf:"bytes,11,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *ReadUserResponse) Reset()         { *m = ReadUserResponse{} }
 func (m *ReadUserResponse) String() string { return proto.CompactTextString(m) }
 func (*ReadUserResponse) ProtoMessage()    {}
 func (*ReadUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{3}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{4}
 }
 func (m *ReadUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReadUserResponse.Unmarshal(m, b)
@@ -410,40 +463,34 @@ func (m *ReadUserResponse) GetStatus() string {
 	return ""
 }
 
-func (m *ReadUserResponse) GetInfluxdbInfo() string {
+func (m *ReadUserResponse) GetClusters() []*ClusterInfo {
 	if m != nil {
-		return m.InfluxdbInfo
+		return m.Clusters
 	}
-	return ""
-}
-
-func (m *ReadUserResponse) GetGrafanaInfo() string {
-	if m != nil {
-		return m.GrafanaInfo
-	}
-	return ""
+	return nil
 }
 
 type UpdateUserRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Role                 string   `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
-	FirstName            string   `protobuf:"bytes,5,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
-	LastName             string   `protobuf:"bytes,6,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Company              string   `protobuf:"bytes,7,opt,name=company,proto3" json:"company,omitempty"`
-	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
-	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Password             string         `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Email                string         `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Role                 string         `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	FirstName            string         `protobuf:"bytes,5,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string         `protobuf:"bytes,6,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Company              string         `protobuf:"bytes,7,opt,name=company,proto3" json:"company,omitempty"`
+	Phone                string         `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string         `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Clusters             []*ClusterInfo `protobuf:"bytes,10,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *UpdateUserRequest) Reset()         { *m = UpdateUserRequest{} }
 func (m *UpdateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserRequest) ProtoMessage()    {}
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{4}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{5}
 }
 func (m *UpdateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserRequest.Unmarshal(m, b)
@@ -526,29 +573,35 @@ func (m *UpdateUserRequest) GetURL() string {
 	return ""
 }
 
+func (m *UpdateUserRequest) GetClusters() []*ClusterInfo {
+	if m != nil {
+		return m.Clusters
+	}
+	return nil
+}
+
 type UpdateUserResponse struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DomainName           string   `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
-	Role                 string   `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
-	Company              string   `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
-	Email                string   `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
-	FirstName            string   `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
-	LastName             string   `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Phone                string   `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
-	URL                  string   `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
-	Status               string   `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
-	InfluxdbInfo         string   `protobuf:"bytes,11,opt,name=influxdb_info,json=influxdbInfo,proto3" json:"influxdb_info,omitempty"`
-	GrafanaInfo          string   `protobuf:"bytes,12,opt,name=grafana_info,json=grafanaInfo,proto3" json:"grafana_info,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DomainName           string         `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3" json:"domain_name,omitempty"`
+	Role                 string         `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Company              string         `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Email                string         `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	FirstName            string         `protobuf:"bytes,6,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
+	LastName             string         `protobuf:"bytes,7,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
+	Phone                string         `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`
+	URL                  string         `protobuf:"bytes,9,opt,name=URL,proto3" json:"URL,omitempty"`
+	Status               string         `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	Clusters             []*ClusterInfo `protobuf:"bytes,11,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
 func (m *UpdateUserResponse) Reset()         { *m = UpdateUserResponse{} }
 func (m *UpdateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserResponse) ProtoMessage()    {}
 func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{5}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{6}
 }
 func (m *UpdateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserResponse.Unmarshal(m, b)
@@ -638,18 +691,11 @@ func (m *UpdateUserResponse) GetStatus() string {
 	return ""
 }
 
-func (m *UpdateUserResponse) GetInfluxdbInfo() string {
+func (m *UpdateUserResponse) GetClusters() []*ClusterInfo {
 	if m != nil {
-		return m.InfluxdbInfo
+		return m.Clusters
 	}
-	return ""
-}
-
-func (m *UpdateUserResponse) GetGrafanaInfo() string {
-	if m != nil {
-		return m.GrafanaInfo
-	}
-	return ""
+	return nil
 }
 
 type DeleteUserRequest struct {
@@ -663,7 +709,7 @@ func (m *DeleteUserRequest) Reset()         { *m = DeleteUserRequest{} }
 func (m *DeleteUserRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteUserRequest) ProtoMessage()    {}
 func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{6}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{7}
 }
 func (m *DeleteUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteUserRequest.Unmarshal(m, b)
@@ -703,7 +749,7 @@ func (m *DeleteUserResponse) Reset()         { *m = DeleteUserResponse{} }
 func (m *DeleteUserResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteUserResponse) ProtoMessage()    {}
 func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{7}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{8}
 }
 func (m *DeleteUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteUserResponse.Unmarshal(m, b)
@@ -756,7 +802,7 @@ func (m *LoginRequest) Reset()         { *m = LoginRequest{} }
 func (m *LoginRequest) String() string { return proto.CompactTextString(m) }
 func (*LoginRequest) ProtoMessage()    {}
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{8}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{9}
 }
 func (m *LoginRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginRequest.Unmarshal(m, b)
@@ -804,7 +850,7 @@ func (m *LoginResponse) Reset()         { *m = LoginResponse{} }
 func (m *LoginResponse) String() string { return proto.CompactTextString(m) }
 func (*LoginResponse) ProtoMessage()    {}
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{9}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{10}
 }
 func (m *LoginResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LoginResponse.Unmarshal(m, b)
@@ -864,7 +910,7 @@ func (m *LogoutRequest) Reset()         { *m = LogoutRequest{} }
 func (m *LogoutRequest) String() string { return proto.CompactTextString(m) }
 func (*LogoutRequest) ProtoMessage()    {}
 func (*LogoutRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_032546f1bfc07868, []int{10}
+	return fileDescriptor_services_7314b31c6748b9cf, []int{11}
 }
 func (m *LogoutRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_LogoutRequest.Unmarshal(m, b)
@@ -899,6 +945,7 @@ func (m *LogoutRequest) GetAccessToken() string {
 }
 
 func init() {
+	proto.RegisterType((*ClusterInfo)(nil), "containersai.apiserver.accounts.ClusterInfo")
 	proto.RegisterType((*CreateUserRequest)(nil), "containersai.apiserver.accounts.CreateUserRequest")
 	proto.RegisterType((*CreateUserResponse)(nil), "containersai.apiserver.accounts.CreateUserResponse")
 	proto.RegisterType((*ReadUserRequest)(nil), "containersai.apiserver.accounts.ReadUserRequest")
@@ -1150,53 +1197,56 @@ var _AccountsService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("apiserver/accounts/services.proto", fileDescriptor_services_032546f1bfc07868)
+	proto.RegisterFile("apiserver/accounts/services.proto", fileDescriptor_services_7314b31c6748b9cf)
 }
 
-var fileDescriptor_services_032546f1bfc07868 = []byte{
-	// 694 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x56, 0xcb, 0x6e, 0x13, 0x3d,
-	0x14, 0x6e, 0x2e, 0x93, 0xcb, 0x49, 0xaa, 0xb6, 0x56, 0xf5, 0xff, 0xa3, 0x20, 0x54, 0x3a, 0x08,
-	0xc1, 0xa6, 0x33, 0xd0, 0x2e, 0x11, 0x48, 0x5c, 0x84, 0x54, 0xa9, 0xea, 0x22, 0x6d, 0x37, 0x48,
-	0x28, 0x72, 0x27, 0x4e, 0x6a, 0x91, 0xd8, 0xae, 0xed, 0xd0, 0x76, 0xcb, 0x9a, 0x17, 0xe1, 0x69,
-	0x10, 0xcf, 0xc1, 0x4b, 0xa0, 0xb1, 0x27, 0x99, 0xa1, 0x93, 0x64, 0xa6, 0x84, 0x65, 0x77, 0xf6,
-	0xe7, 0x73, 0xf1, 0xf7, 0xf9, 0x1c, 0xdb, 0xb0, 0x8b, 0x05, 0x55, 0x44, 0x7e, 0x21, 0x32, 0xc0,
-	0x61, 0xc8, 0x27, 0x4c, 0xab, 0x20, 0x9a, 0xd3, 0x90, 0x28, 0x5f, 0x48, 0xae, 0x39, 0xda, 0x09,
-	0x39, 0xd3, 0x98, 0x32, 0x22, 0x15, 0xa6, 0xfe, 0xcc, 0xde, 0x9f, 0xda, 0x77, 0xfe, 0x1f, 0x72,
-	0x3e, 0x1c, 0x91, 0x40, 0x8a, 0x30, 0x50, 0x1a, 0xeb, 0x49, 0xec, 0xe9, 0x7d, 0x2b, 0xc3, 0xd6,
-	0x3b, 0x49, 0xb0, 0x26, 0x67, 0x8a, 0xc8, 0x2e, 0xb9, 0x9c, 0x10, 0xa5, 0x11, 0x82, 0x2a, 0xc3,
-	0x63, 0xe2, 0x96, 0x1e, 0x95, 0x9e, 0x35, 0xbb, 0x66, 0x8c, 0x3a, 0xd0, 0x10, 0x58, 0xa9, 0x2b,
-	0x2e, 0xfb, 0x6e, 0xd9, 0xe0, 0xb3, 0x39, 0xda, 0x81, 0x56, 0x9f, 0x8f, 0x31, 0x65, 0x3d, 0xe3,
-	0x56, 0x31, 0xcb, 0x60, 0xa1, 0xe3, 0xc8, 0x19, 0x41, 0x55, 0xf2, 0x11, 0x71, 0xab, 0x36, 0x60,
-	0x34, 0x46, 0x2e, 0xd4, 0x43, 0x3e, 0x16, 0x98, 0xdd, 0xb8, 0x8e, 0x81, 0xa7, 0x53, 0xb4, 0x0d,
-	0x0e, 0x19, 0x63, 0x3a, 0x72, 0x6b, 0x06, 0xb7, 0x13, 0xf4, 0x10, 0x60, 0x40, 0xa5, 0xd2, 0x36,
-	0x47, 0xdd, 0x2c, 0x35, 0x0d, 0x62, 0x52, 0x3c, 0x80, 0xe6, 0x08, 0x4f, 0x57, 0x1b, 0x76, 0x83,
-	0x11, 0x60, 0x16, 0xb7, 0xc1, 0x11, 0x17, 0x9c, 0x11, 0xb7, 0x69, 0x23, 0x9a, 0x09, 0xda, 0x84,
-	0xca, 0x59, 0xf7, 0xc8, 0x05, 0x83, 0x45, 0x43, 0xef, 0x67, 0x19, 0x50, 0x5a, 0x0e, 0x25, 0x38,
-	0x53, 0x64, 0xae, 0x1e, 0xb7, 0x38, 0x97, 0x17, 0x72, 0xae, 0xcc, 0xe7, 0x5c, 0x5d, 0xc0, 0xd9,
-	0x59, 0xcc, 0xb9, 0xb6, 0x94, 0x73, 0x7d, 0x11, 0xe7, 0xc6, 0x1c, 0xce, 0xcd, 0x19, 0x67, 0xf4,
-	0x1f, 0xd4, 0x6c, 0x49, 0xc4, 0x42, 0xc4, 0x33, 0xf4, 0x18, 0xd6, 0x29, 0x1b, 0x8c, 0x26, 0xd7,
-	0xfd, 0xf3, 0x1e, 0x65, 0x03, 0xee, 0xb6, 0xcc, 0x72, 0x7b, 0x0a, 0x1e, 0xb2, 0x01, 0x47, 0xbb,
-	0xd0, 0x1e, 0x4a, 0x3c, 0xc0, 0x0c, 0x5b, 0x9b, 0xb6, 0xb1, 0x69, 0xc5, 0x58, 0x64, 0xe2, 0x3d,
-	0x81, 0x8d, 0x2e, 0xc1, 0xfd, 0x9c, 0xfa, 0xf2, 0x7e, 0x94, 0x61, 0x33, 0xb1, 0xbb, 0x17, 0x7e,
-	0x75, 0xe1, 0x7f, 0x95, 0x60, 0xeb, 0x4c, 0xf4, 0x57, 0xec, 0xed, 0x99, 0x3e, 0x95, 0xb4, 0x3e,
-	0xf3, 0x1a, 0xfa, 0x4f, 0xcd, 0x9c, 0xa5, 0x9a, 0xd5, 0x6e, 0x69, 0x96, 0x3a, 0x9f, 0x7a, 0xe6,
-	0x7c, 0x8a, 0xa8, 0x69, 0x5a, 0x37, 0xcd, 0xf6, 0xbe, 0x82, 0x56, 0xaf, 0xa0, 0xa7, 0xb0, 0xf5,
-	0x9e, 0x8c, 0x48, 0x6e, 0x01, 0x79, 0x9f, 0x00, 0xa5, 0x0d, 0xff, 0xb1, 0xf6, 0xde, 0x6b, 0x68,
-	0x1f, 0xf1, 0x21, 0x65, 0x7f, 0x59, 0xc3, 0xde, 0xd7, 0x12, 0xac, 0xc7, 0x01, 0x96, 0x6c, 0x6d,
-	0x17, 0xda, 0x38, 0x0c, 0x89, 0x52, 0x3d, 0xcd, 0x3f, 0x13, 0x16, 0x47, 0x69, 0x59, 0xec, 0x34,
-	0x82, 0xa2, 0x43, 0x35, 0x6b, 0x3d, 0x7d, 0x23, 0xa6, 0x5b, 0x6c, 0x1a, 0xe4, 0xf4, 0x46, 0x98,
-	0x43, 0x25, 0xd7, 0x82, 0x4a, 0xd2, 0xa3, 0xcc, 0x54, 0x89, 0xd3, 0x6d, 0x58, 0xe0, 0x90, 0x79,
-	0x1f, 0xcc, 0x1e, 0xf8, 0x44, 0x2f, 0x63, 0x91, 0xbf, 0x87, 0xfd, 0xef, 0x0e, 0x6c, 0xbc, 0x89,
-	0x1f, 0xf6, 0x13, 0xfb, 0x0f, 0x40, 0x57, 0x00, 0xc9, 0xb3, 0x85, 0xf6, 0xfd, 0x9c, 0xff, 0x80,
-	0x9f, 0x79, 0xf2, 0x3b, 0x07, 0x77, 0xf2, 0xb1, 0x2a, 0x7a, 0x6b, 0xe8, 0x12, 0x1a, 0xd3, 0x4b,
-	0x1b, 0x3d, 0xcf, 0x0d, 0x71, 0xeb, 0x1d, 0xe8, 0xbc, 0xb8, 0x83, 0xc7, 0x2c, 0xe5, 0x15, 0x40,
-	0xd2, 0xe7, 0x05, 0xb8, 0x66, 0xae, 0xc0, 0x02, 0x5c, 0xb3, 0x17, 0x89, 0x4d, 0x9c, 0x14, 0x79,
-	0x81, 0xc4, 0x99, 0xd6, 0x29, 0x90, 0x38, 0xdb, 0x45, 0xde, 0x1a, 0xba, 0x00, 0xc7, 0x54, 0x2f,
-	0xda, 0xcb, 0xf5, 0x4f, 0xb7, 0x49, 0xc7, 0x2f, 0x6a, 0x3e, 0xcb, 0x74, 0x0c, 0x35, 0x5b, 0xa3,
-	0xa8, 0x90, 0x6f, 0x52, 0xcc, 0x1d, 0xe4, 0xdb, 0x2f, 0xa6, 0x2f, 0x45, 0xe8, 0x9f, 0x98, 0x6b,
-	0xc8, 0x5b, 0x7b, 0xfb, 0xea, 0xe3, 0xcb, 0x21, 0xd5, 0x17, 0x93, 0x73, 0x3f, 0xe4, 0xe3, 0x20,
-	0x89, 0xb8, 0x87, 0x69, 0x30, 0x20, 0x7d, 0x22, 0xb1, 0xe6, 0x12, 0xd3, 0x3d, 0x2c, 0x68, 0x90,
-	0xfd, 0xe6, 0x9e, 0xd7, 0xcc, 0x27, 0xf5, 0xe0, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x78, 0xcf,
-	0x80, 0x7e, 0x03, 0x0b, 0x00, 0x00,
+var fileDescriptor_services_7314b31c6748b9cf = []byte{
+	// 740 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x96, 0xcd, 0x4e, 0x1b, 0x3b,
+	0x14, 0xc7, 0x61, 0x92, 0xc9, 0xc7, 0x49, 0xb8, 0x80, 0x85, 0xee, 0x1d, 0xe5, 0xea, 0x0a, 0x98,
+	0xab, 0xaa, 0x2c, 0xca, 0xa4, 0x85, 0x65, 0xd5, 0x4a, 0x2d, 0xa8, 0x6a, 0x24, 0xc4, 0x22, 0xc0,
+	0xa6, 0x52, 0x15, 0x99, 0x89, 0x13, 0xac, 0x26, 0xf6, 0x60, 0x7b, 0x0a, 0x6c, 0xfb, 0x36, 0x7d,
+	0x80, 0x3e, 0x48, 0x55, 0xa9, 0xcf, 0x53, 0x8d, 0x3d, 0xc9, 0x4c, 0xf3, 0x35, 0x43, 0xc9, 0x92,
+	0xdd, 0xf8, 0xef, 0x73, 0x7c, 0x3c, 0xbf, 0x73, 0x7c, 0x6c, 0xd8, 0xc5, 0x01, 0x95, 0x44, 0x7c,
+	0x26, 0xa2, 0x89, 0x7d, 0x9f, 0x87, 0x4c, 0xc9, 0x66, 0x34, 0xa6, 0x3e, 0x91, 0x5e, 0x20, 0xb8,
+	0xe2, 0x68, 0xdb, 0xe7, 0x4c, 0x61, 0xca, 0x88, 0x90, 0x98, 0x7a, 0x63, 0x7b, 0x6f, 0x64, 0xdf,
+	0xf8, 0xa7, 0xcf, 0x79, 0x7f, 0x40, 0x9a, 0x22, 0xf0, 0x9b, 0x52, 0x61, 0x15, 0xc6, 0x9e, 0x2e,
+	0x81, 0xda, 0xd1, 0x20, 0x94, 0x8a, 0x88, 0x16, 0xeb, 0x71, 0xf4, 0x17, 0x58, 0xad, 0x63, 0x67,
+	0x75, 0x67, 0x75, 0xaf, 0xda, 0xb6, 0x5a, 0xc7, 0xe8, 0x7f, 0x58, 0xa3, 0xac, 0x37, 0x08, 0x6f,
+	0xbb, 0x97, 0x1d, 0xca, 0x7a, 0xdc, 0xb1, 0xf4, 0x54, 0x7d, 0x24, 0x6a, 0xa7, 0x5d, 0xa8, 0xf7,
+	0x05, 0xee, 0x61, 0x86, 0x8d, 0x4d, 0x41, 0xdb, 0xd4, 0x62, 0x2d, 0x32, 0x71, 0x7f, 0x5a, 0xb0,
+	0x79, 0x24, 0x08, 0x56, 0xe4, 0x42, 0x12, 0xd1, 0x26, 0xd7, 0x21, 0x91, 0x0a, 0x21, 0x28, 0x32,
+	0x3c, 0x24, 0x71, 0x3c, 0xfd, 0x8d, 0x1a, 0x50, 0x09, 0xb0, 0x94, 0x37, 0x5c, 0x74, 0xe3, 0x60,
+	0xe3, 0x31, 0xda, 0x86, 0x5a, 0x97, 0x0f, 0x31, 0x65, 0x1d, 0xed, 0x66, 0xe2, 0x80, 0x91, 0x4e,
+	0x23, 0x67, 0x04, 0x45, 0xc1, 0x07, 0xc4, 0x29, 0x9a, 0x05, 0xa3, 0x6f, 0xe4, 0x40, 0xd9, 0xe7,
+	0xc3, 0x00, 0xb3, 0x3b, 0xc7, 0xd6, 0xf2, 0x68, 0x88, 0xb6, 0xc0, 0x26, 0x43, 0x4c, 0x07, 0x4e,
+	0x49, 0xeb, 0x66, 0x80, 0xfe, 0x03, 0xe8, 0x51, 0x21, 0x95, 0x89, 0x51, 0xd6, 0x53, 0x55, 0xad,
+	0xe8, 0x10, 0xff, 0x42, 0x75, 0x80, 0x47, 0xb3, 0x15, 0xb3, 0xc1, 0x48, 0xd0, 0x93, 0x5b, 0x60,
+	0x07, 0x57, 0x9c, 0x11, 0xa7, 0x6a, 0x56, 0xd4, 0x03, 0xb4, 0x01, 0x85, 0x8b, 0xf6, 0x89, 0x03,
+	0x5a, 0x8b, 0x3e, 0xd1, 0x7b, 0xa8, 0xf8, 0x86, 0xba, 0x74, 0x6a, 0x3b, 0x85, 0xbd, 0xda, 0xc1,
+	0x33, 0x2f, 0x23, 0x85, 0x5e, 0x2a, 0x4d, 0xed, 0xb1, 0xb7, 0xfb, 0xc3, 0x02, 0x94, 0x06, 0x2b,
+	0x03, 0xce, 0x24, 0x99, 0x49, 0x76, 0x82, 0x9e, 0x35, 0x97, 0x5e, 0x61, 0x36, 0xbd, 0xe2, 0x1c,
+	0x7a, 0xf6, 0x7c, 0x7a, 0xa5, 0x85, 0xf4, 0xca, 0xf3, 0xe8, 0x55, 0x66, 0xd0, 0xab, 0x26, 0xf4,
+	0xfe, 0x86, 0x92, 0xa9, 0xe1, 0x18, 0x69, 0x3c, 0x5a, 0x22, 0xd5, 0x27, 0xb0, 0xde, 0x26, 0xb8,
+	0x9b, 0x51, 0xab, 0xee, 0x77, 0x0b, 0x36, 0x12, 0xbb, 0x47, 0xf4, 0xcb, 0x40, 0xff, 0xcd, 0x82,
+	0xcd, 0x8b, 0xa0, 0xfb, 0xc0, 0x4e, 0x31, 0x26, 0x54, 0x48, 0x13, 0x9a, 0xd5, 0x1e, 0x7e, 0xa7,
+	0x66, 0x2f, 0xa4, 0x56, 0x9a, 0xa0, 0x96, 0xca, 0x50, 0x79, 0x2a, 0x43, 0xb9, 0x78, 0xa6, 0xb9,
+	0xc1, 0x83, 0x1b, 0x41, 0x9a, 0xdb, 0x63, 0x35, 0x2e, 0xa3, 0x1a, 0x9f, 0xc2, 0xe6, 0x31, 0x19,
+	0x90, 0xcc, 0x62, 0x74, 0x3f, 0x02, 0x4a, 0x1b, 0x2e, 0x99, 0xbe, 0xfb, 0x1a, 0xea, 0x27, 0xbc,
+	0x4f, 0xd9, 0x1f, 0x9e, 0x07, 0xf7, 0xcb, 0x2a, 0xac, 0xc5, 0x0b, 0x2c, 0xd8, 0xda, 0x2e, 0xd4,
+	0xb1, 0xef, 0x13, 0x29, 0x3b, 0x8a, 0x7f, 0x22, 0x2c, 0x5e, 0xa5, 0x66, 0xb4, 0xf3, 0x48, 0x8a,
+	0xd2, 0xaa, 0xe7, 0x3a, 0xea, 0x2e, 0x18, 0x6d, 0xb1, 0xaa, 0x95, 0xf3, 0xbb, 0x40, 0xa7, 0x95,
+	0xdc, 0x06, 0x54, 0x90, 0x0e, 0x65, 0xba, 0x4e, 0xec, 0x76, 0xc5, 0x08, 0x2d, 0xe6, 0xbe, 0xd3,
+	0x7b, 0xe0, 0xa1, 0x5a, 0xf4, 0x17, 0xd9, 0x7b, 0x38, 0xf8, 0x6a, 0xc3, 0xfa, 0x9b, 0x38, 0x6f,
+	0x67, 0xe6, 0x21, 0x84, 0x6e, 0x00, 0x92, 0x6b, 0x10, 0x1d, 0x64, 0xa7, 0x7b, 0xf2, 0x31, 0xd2,
+	0x38, 0xbc, 0x97, 0x8f, 0xa1, 0xe8, 0xae, 0xa0, 0x6b, 0xa8, 0x8c, 0xae, 0x00, 0xf4, 0x3c, 0x73,
+	0x89, 0x89, 0x5b, 0xa5, 0xf1, 0xe2, 0x1e, 0x1e, 0xe3, 0x90, 0x37, 0x00, 0xc9, 0x49, 0xcf, 0xf1,
+	0xaf, 0x53, 0xed, 0x34, 0xc7, 0xbf, 0x4e, 0xb7, 0x12, 0x13, 0x38, 0x29, 0xf2, 0x1c, 0x81, 0xa7,
+	0x8e, 0x4e, 0x8e, 0xc0, 0xd3, 0xa7, 0xc8, 0x5d, 0x41, 0x57, 0x60, 0xeb, 0xea, 0x45, 0xfb, 0x99,
+	0xfe, 0xe9, 0x63, 0xd2, 0xf0, 0xf2, 0x9a, 0x8f, 0x23, 0x9d, 0x42, 0xc9, 0xd4, 0x28, 0xca, 0xe5,
+	0x9b, 0x14, 0x73, 0x03, 0x79, 0xe6, 0x8d, 0xed, 0x89, 0xc0, 0xf7, 0xce, 0x74, 0x23, 0x72, 0x57,
+	0xde, 0xbe, 0xfa, 0xf0, 0xb2, 0x4f, 0xd5, 0x55, 0x78, 0xe9, 0xf9, 0x7c, 0xd8, 0x4c, 0x56, 0xdc,
+	0xc7, 0xb4, 0xd9, 0x23, 0x5d, 0x22, 0xb0, 0xe2, 0x02, 0xd3, 0x7d, 0x1c, 0xd0, 0xe6, 0xf4, 0x3b,
+	0xff, 0xb2, 0xa4, 0x5f, 0xe9, 0x87, 0xbf, 0x02, 0x00, 0x00, 0xff, 0xff, 0x4e, 0x1c, 0x9c, 0x51,
+	0x04, 0x0c, 0x00, 0x00,
 }

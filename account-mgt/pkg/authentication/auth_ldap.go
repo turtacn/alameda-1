@@ -591,13 +591,23 @@ func (c *AuthLdap) loadUserAllData(authUserInfo *AuthUserInfo, entry *ldap.Entry
 func (c *AuthLdap) loadUserDescriptionData(authUserInfo *AuthUserInfo, entry *ldap.Entry) {
 	description := entry.GetAttributeValues("description")
 	attrMap := map[string]string{}
+	clusters := []ClusterInfo{}
 	for _, attr := range description {
 		attr = strings.TrimSpace(attr)
 		i := strings.Index(attr, "=")
 		if i > 0 {
 			key := strings.TrimSpace(attr[0:i])
 			value := strings.TrimSpace(attr[i+1:])
-			attrMap[key] = value
+			if key != "cluster" {
+				attrMap[key] = value
+			} else {
+				// collect cluster info(s)
+				// format: "<cluster-id>;<influxdb-info>;<grafana-info>"
+				data := strings.Split(value, ";")
+				if len(data) >= 3 {
+					clusters = append(clusters, ClusterInfo{data[0], data[1], data[2]})
+				}
+			}
 			//scope.Info(fmt.Sprintf("authentication.Authenticate: attributes is %v", authUserInfo.Attributes))
 		}
 	}
@@ -647,11 +657,8 @@ func (c *AuthLdap) loadUserDescriptionData(authUserInfo *AuthUserInfo, entry *ld
 	if value, ok := attrMap["timezone"]; ok {
 		authUserInfo.Timezone = value
 	}
-	if value, ok := attrMap["influxdbInfo"]; ok {
-		authUserInfo.InfluxdbInfo = value
-	}
-	if value, ok := attrMap["grafanaInfo"]; ok {
-		authUserInfo.GrafanaInfo = value
+	if len(clusters) > 0 {
+		authUserInfo.Clusters = clusters
 	}
 }
 
@@ -672,8 +679,11 @@ func (c *AuthLdap) genDescriptionAttrs(authUserInfo *AuthUserInfo) []string {
 	attrs = append(attrs, fmt.Sprintf("phone=%s", authUserInfo.Phone))
 	attrs = append(attrs, fmt.Sprintf("sendConfirmCount=%d", authUserInfo.SendConfirmCount))
 	attrs = append(attrs, fmt.Sprintf("timezone=%s", authUserInfo.Timezone))
-	attrs = append(attrs, fmt.Sprintf("influxdbInfo=%s", authUserInfo.InfluxdbInfo))
-	attrs = append(attrs, fmt.Sprintf("grafanaInfo=%s", authUserInfo.GrafanaInfo))
+	if len(authUserInfo.Clusters) > 0 {
+		for _, cluster := range authUserInfo.Clusters {
+			attrs = append(attrs, fmt.Sprintf("cluster=%s;%s;%s", cluster.ID, cluster.InfluxdbInfo, cluster.GrafanaInfo))
+		}
+	}
 
 	return attrs
 }

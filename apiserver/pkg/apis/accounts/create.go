@@ -21,17 +21,15 @@ func (c *ServiceUser) CreateUser(caller *entity.User, in *Accounts.CreateUserReq
 	owner.Phone = in.Phone
 	owner.URL = in.URL
 	owner.Status = "created"
-	// TODO: call to creating influxdb and grafana container functions, continue to create ldap user if success
-	influxdbInfo, grafanaInfo, err := CreateFakeUserContainers(owner)
-	if err != nil {
-		scope.Errorf("Failed to create service container during create user(%s): %s", owner.Name, err.Error())
-		return &response, err
+	if len(in.Clusters) > 0 {
+		for _, cluster := range in.Clusters {
+			cinfo := authentication.ClusterInfo{ID: cluster.ID, InfluxdbInfo: cluster.InfluxdbInfo, GrafanaInfo: cluster.GrafanaInfo}
+			owner.Clusters = append(owner.Clusters, cinfo)
+		}
+	} else {
+		owner.Clusters = []authentication.ClusterInfo{}
 	}
-	scope.Infof("create user(%s) influxdb: %s", owner.Name, influxdbInfo)
-	scope.Infof("create user(%s) grafana: %s", owner.Name, grafanaInfo)
-	owner.InfluxdbInfo = influxdbInfo
-	owner.GrafanaInfo = grafanaInfo
-	err = caller.CreateUser(owner)
+	err := caller.CreateUser(owner)
 	if err == nil {
 		scope.Infof("Create user(%s) in domain(%s) successfully", owner.Name, owner.DomainName)
 		response.Name = owner.Name
@@ -44,16 +42,20 @@ func (c *ServiceUser) CreateUser(caller *entity.User, in *Accounts.CreateUserReq
 		response.Email = owner.Email
 		response.URL = owner.URL
 		response.Status = owner.Status
-		response.InfluxdbInfo = influxdbInfo
-		response.GrafanaInfo = grafanaInfo
+		if len(owner.Clusters) > 0 {
+			for _, cluster := range owner.Clusters {
+				cinfo := new(Accounts.ClusterInfo)
+				cinfo.ID = cluster.ID
+				cinfo.InfluxdbInfo = cluster.InfluxdbInfo
+				cinfo.GrafanaInfo = cluster.GrafanaInfo
+				response.Clusters = append(response.Clusters, cinfo)
+			}
+		} else {
+			response.Clusters = []*Accounts.ClusterInfo{}
+		}
 		return &response, nil
 	} else {
-		// TODO: remove the containers which created for this user
 		scope.Errorf("Failed to create user(%s) in domain(%s): %s", owner.Name, owner.DomainName, err.Error())
-		err1 := DeleteFakeUserContainers(*owner)
-		if err1 != nil {
-			scope.Errorf("Failed to rollback containers for user(%s) creation failure: %s", owner.Name, err1.Error())
-		}
 		return &response, err
 	}
 }

@@ -6,6 +6,12 @@ import "google/rpc/status.proto";
 
 option go_package = "github.com/containers-ai/federatorai-api/apiserver/accounts";
 
+message ClusterInfo {
+    string ID = 1;
+    string influxdb_info = 2;
+    string grafana_info = 3;
+}
+
 message CreateUserRequest {
     string name = 1;
     string password = 2;
@@ -17,6 +23,7 @@ message CreateUserRequest {
     string last_name = 8;
     string phone = 9;
     string URL = 10;
+    repeated ClusterInfo clusters = 11;
 }
 
 message CreateUserResponse {
@@ -30,8 +37,7 @@ message CreateUserResponse {
     string phone = 8;
     string URL = 9;
     string status = 10;
-    string influxdb_info = 11;
-    string grafana_info = 12;
+    repeated ClusterInfo clusters = 11;
 }
 
 message ReadUserRequest {
@@ -49,8 +55,7 @@ message ReadUserResponse {
     string phone = 8;
     string URL = 9;
     string status = 10;
-    string influxdb_info = 11;
-    string grafana_info = 12;
+    repeated ClusterInfo clusters = 11;
 }
 
 message UpdateUserRequest {
@@ -63,6 +68,7 @@ message UpdateUserRequest {
     string company = 7;
     string phone = 8;
     string URL = 9;
+    repeated ClusterInfo clusters = 10;
 }
 
 message UpdateUserResponse {
@@ -76,8 +82,7 @@ message UpdateUserResponse {
     string phone = 8;
     string URL = 9;
     string status = 10;
-    string influxdb_info = 11;
-    string grafana_info = 12;
+    repeated ClusterInfo clusters = 11;
 }
 
 message DeleteUserRequest {

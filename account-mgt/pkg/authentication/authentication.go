@@ -22,6 +22,12 @@ var UserMaximum = 0
 
 var scope = log.RegisterScope("account-mgt", "account-mgt log", 0)
 
+type ClusterInfo struct {
+	ID           string
+	InfluxdbInfo string
+	GrafanaInfo  string
+}
+
 type AuthUserInfo struct {
 	Name       string
 	DomainName string
@@ -42,8 +48,7 @@ type AuthUserInfo struct {
 	Status        string
 	CreatedAt     string
 	UpdatedAt     string
-	InfluxdbInfo  string
-	GrafanaInfo   string
+	Clusters      []ClusterInfo
 
 	SendConfirmCount int
 	Timezone         string
@@ -82,8 +87,7 @@ func NewAuthUserInfo(domainName, name string) *AuthUserInfo {
 		Status:        "",
 		CreatedAt:     "",
 		UpdatedAt:     "",
-		InfluxdbInfo:  "",
-		GrafanaInfo:   "",
+		Clusters:      []ClusterInfo{},
 
 		SendConfirmCount: 0,
 		Timezone:         "",

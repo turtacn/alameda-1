@@ -25,8 +25,15 @@ func (c *ServiceUser) ReadUser(caller *entity.User, in *Accounts.ReadUserRequest
 		response.Phone = owner.Phone
 		response.URL = owner.URL
 		response.Status = owner.Status
-		response.InfluxdbInfo = owner.InfluxdbInfo
-		response.GrafanaInfo = owner.GrafanaInfo
+		if len(owner.Clusters) > 0 {
+			for _, cluster := range owner.Clusters {
+				cinfo := new(Accounts.ClusterInfo)
+				cinfo.ID = cluster.ID
+				cinfo.InfluxdbInfo = cluster.InfluxdbInfo
+				cinfo.GrafanaInfo = cluster.GrafanaInfo
+				response.Clusters = append(response.Clusters, cinfo)
+			}
+		}
 		return &response, nil
 	} else {
 		scope.Errorf("Failed to read user(%s) info: %s", in.Name, err.Error())

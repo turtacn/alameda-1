@@ -43,6 +43,12 @@ func (c *ServiceUser) UpdateUser(caller *entity.User, in *Accounts.UpdateUserReq
 	if in.Phone != "" {
 		owner.Phone = in.Phone
 	}
+	if len(in.Clusters) > 0 {
+		for _, cluster := range in.Clusters {
+			cinfo := authentication.ClusterInfo{ID: cluster.ID, InfluxdbInfo: cluster.InfluxdbInfo, GrafanaInfo: cluster.GrafanaInfo}
+			owner.Clusters = append(owner.Clusters, cinfo)
+		}
+	}
 	err = caller.UpdateUser(owner)
 	if err != nil {
 		scope.Errorf("Failed to update user(%s) account info: %s", owner.Name, err.Error())
@@ -59,8 +65,15 @@ func (c *ServiceUser) UpdateUser(caller *entity.User, in *Accounts.UpdateUserReq
 		response.Phone = owner.Phone
 		response.URL = owner.URL
 		response.Status = owner.Status
-		response.InfluxdbInfo = owner.InfluxdbInfo
-		response.GrafanaInfo = owner.GrafanaInfo
+		if len(owner.Clusters) > 0 {
+			for _, cluster := range owner.Clusters {
+				cinfo := new(Accounts.ClusterInfo)
+				cinfo.ID = cluster.ID
+				cinfo.InfluxdbInfo = cluster.InfluxdbInfo
+				cinfo.GrafanaInfo = cluster.GrafanaInfo
+				response.Clusters = append(response.Clusters, cinfo)
+			}
+		}
 		return &response, nil
 	}
 }
