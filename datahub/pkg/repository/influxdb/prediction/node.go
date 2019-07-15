@@ -2,29 +2,29 @@ package prediction
 
 import (
 	"fmt"
+	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	EntityInfluxPredictionNode "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/node"
+	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
+	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/golang/protobuf/ptypes"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
+	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
-
-	prediction_dao "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
-	node_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/prediction/node"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	datahub_utils "github.com/containers-ai/alameda/datahub/pkg/utils"
-	influxdb_client "github.com/influxdata/influxdb/client/v2"
-	"github.com/pkg/errors"
-
-	"github.com/containers-ai/alameda/datahub/pkg/metric"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	"github.com/golang/protobuf/ptypes"
 )
 
 type NodeRepository struct {
-	influxDB *influxdb.InfluxDBRepository
+	influxDB *InternalInflux.InfluxClient
 }
 
-func NewNodeRepositoryWithConfig(influxDBCfg influxdb.Config) *NodeRepository {
+func NewNodeRepositoryWithConfig(influxDBCfg InternalInflux.Config) *NodeRepository {
 	return &NodeRepository{
-		influxDB: &influxdb.InfluxDBRepository{
+		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
 			Username: influxDBCfg.Username,
 			Password: influxDBCfg.Password,
@@ -34,19 +34,19 @@ func NewNodeRepositoryWithConfig(influxDBCfg influxdb.Config) *NodeRepository {
 
 func (r *NodeRepository) CreateNodePrediction(in *datahub_v1alpha1.CreateNodePredictionsRequest) error {
 
-	points := make([]*influxdb_client.Point, 0)
+	points := make([]*InfluxClient.Point, 0)
 
 	for _, nodePrediction := range in.GetNodePredictions() {
 		nodeName := nodePrediction.GetName()
 		isScheduled := nodePrediction.GetIsScheduled()
 
-		r.appendMetricDataToPoints(metric.NodeMetricKindRaw, nodePrediction.GetPredictedRawData(), &points, nodeName, isScheduled)
-		r.appendMetricDataToPoints(metric.NodeMetricKindUpperbound, nodePrediction.GetPredictedUpperboundData(), &points, nodeName, isScheduled)
-		r.appendMetricDataToPoints(metric.NodeMetricKindLowerbound, nodePrediction.GetPredictedLowerboundData(), &points, nodeName, isScheduled)
+		r.appendMetricDataToPoints(Metric.NodeMetricKindRaw, nodePrediction.GetPredictedRawData(), &points, nodeName, isScheduled)
+		r.appendMetricDataToPoints(Metric.NodeMetricKindUpperbound, nodePrediction.GetPredictedUpperboundData(), &points, nodeName, isScheduled)
+		r.appendMetricDataToPoints(Metric.NodeMetricKindLowerbound, nodePrediction.GetPredictedLowerboundData(), &points, nodeName, isScheduled)
 	}
 
-	err := r.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.Prediction),
+	err := r.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.Prediction),
 	})
 	if err != nil {
 		return errors.Wrap(err, "create node prediction failed")
@@ -55,14 +55,14 @@ func (r *NodeRepository) CreateNodePrediction(in *datahub_v1alpha1.CreateNodePre
 	return nil
 }
 
-func (r *NodeRepository) appendMetricDataToPoints(kind metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*influxdb_client.Point, nodeName string, isScheduled bool) error {
+func (r *NodeRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*InfluxClient.Point, nodeName string, isScheduled bool) error {
 	for _, metricData := range metricDataList {
 		metricType := ""
 		switch metricData.GetMetricType() {
 		case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-			metricType = metric.TypeContainerCPUUsageSecondsPercentage
+			metricType = Metric.TypeContainerCPUUsageSecondsPercentage
 		case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
-			metricType = metric.TypeContainerMemoryUsageBytes
+			metricType = Metric.TypeContainerMemoryUsageBytes
 		}
 
 		if metricType == "" {
@@ -78,22 +78,22 @@ func (r *NodeRepository) appendMetricDataToPoints(kind metric.ContainerMetricKin
 			tempTimeSeconds := data.GetTime().Seconds
 			value := data.GetNumValue()
 			valueWithoutFraction := strings.Split(value, ".")[0]
-			valueInFloat64, err := datahub_utils.StringToFloat64(valueWithoutFraction)
+			valueInFloat64, err := Utils.StringToFloat64(valueWithoutFraction)
 			if err != nil {
 				return errors.Wrap(err, "new influxdb data point failed")
 			}
 
 			tags := map[string]string{
-				node_entity.Name:        nodeName,
-				node_entity.IsScheduled: strconv.FormatBool(isScheduled),
-				node_entity.Metric:      metricType,
-				node_entity.Kind:        kind,
-				node_entity.Granularity: strconv.FormatInt(granularity, 10),
+				EntityInfluxPredictionNode.Name:        nodeName,
+				EntityInfluxPredictionNode.IsScheduled: strconv.FormatBool(isScheduled),
+				EntityInfluxPredictionNode.Metric:      metricType,
+				EntityInfluxPredictionNode.Kind:        kind,
+				EntityInfluxPredictionNode.Granularity: strconv.FormatInt(granularity, 10),
 			}
 			fields := map[string]interface{}{
-				node_entity.Value: valueInFloat64,
+				EntityInfluxPredictionNode.Value: valueInFloat64,
 			}
-			point, err := influxdb_client.NewPoint(string(Node), tags, fields, time.Unix(tempTimeSeconds, 0))
+			point, err := InfluxClient.NewPoint(string(Node), tags, fields, time.Unix(tempTimeSeconds, 0))
 			if err != nil {
 				return errors.Wrap(err, "new influxdb data point failed")
 			}
@@ -104,65 +104,68 @@ func (r *NodeRepository) appendMetricDataToPoints(kind metric.ContainerMetricKin
 	return nil
 }
 
-func (r *NodeRepository) ListNodePredictionsByRequest(request prediction_dao.ListNodePredictionsRequest) ([]*datahub_v1alpha1.NodePrediction, error) {
+func (r *NodeRepository) ListNodePredictionsByRequest(request DaoPrediction.ListNodePredictionsRequest) ([]*datahub_v1alpha1.NodePrediction, error) {
 	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
-	influxdbStatement := influxdb.Statement{
-		Measurement: Node,
-		WhereClause: whereClause,
-		//GroupByTags: []string{node_entity.Name, node_entity.Metric, node_entity.IsScheduled, node_entity.Kind, node_entity.Granularity},
-		GroupByTags: []string{node_entity.Name, node_entity.Metric, node_entity.IsScheduled, node_entity.Kind},
-	}
 
-	queryCondition := influxdb.QueryCondition{
+	queryCondition := DBCommon.QueryCondition{
 		StartTime:      request.QueryCondition.StartTime,
 		EndTime:        request.QueryCondition.EndTime,
 		StepTime:       request.QueryCondition.StepTime,
 		TimestampOrder: request.QueryCondition.TimestampOrder,
 		Limit:          request.QueryCondition.Limit,
 	}
-	influxdbStatement.AppendTimeConditionIntoWhereClause(queryCondition)
-	influxdbStatement.SetLimitClauseFromQueryCondition(queryCondition)
-	influxdbStatement.SetOrderClauseFromQueryCondition(queryCondition)
+
+	influxdbStatement := InternalInflux.Statement{
+		QueryCondition: &queryCondition,
+		Measurement:    Node,
+		WhereClause:    whereClause,
+		//GroupByTags: []string{node_entity.Name, node_entity.Metric, node_entity.IsScheduled, node_entity.Kind, node_entity.Granularity},
+		GroupByTags: []string{EntityInfluxPredictionNode.Name, EntityInfluxPredictionNode.Metric, EntityInfluxPredictionNode.IsScheduled, EntityInfluxPredictionNode.Kind},
+	}
+
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
+	influxdbStatement.SetLimitClauseFromQueryCondition()
+	influxdbStatement.SetOrderClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()
 
-	results, err := r.influxDB.QueryDB(cmd, string(influxdb.Prediction))
+	results, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Prediction))
 	if err != nil {
 		return []*datahub_v1alpha1.NodePrediction{}, errors.Wrap(err, "list node prediction failed")
 	}
 
-	rows := influxdb.PackMap(results)
+	rows := InternalInflux.PackMap(results)
 	nodePredictions := r.getNodePredictionsFromInfluxRows(rows)
 
 	return nodePredictions, nil
 }
 
-func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*influxdb.InfluxDBRow) []*datahub_v1alpha1.NodePrediction {
+func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*datahub_v1alpha1.NodePrediction {
 	nodeMap := map[string]*datahub_v1alpha1.NodePrediction{}
 	nodeMetricKindMap := map[string]*datahub_v1alpha1.MetricData{}
 	nodeMetricKindSampleMap := map[string][]*datahub_v1alpha1.Sample{}
 
 	for _, row := range rows {
-		name := row.Tags[node_entity.Name]
-		metricType := row.Tags[node_entity.Metric]
-		isScheduled := row.Tags[node_entity.IsScheduled]
+		name := row.Tags[EntityInfluxPredictionNode.Name]
+		metricType := row.Tags[EntityInfluxPredictionNode.Metric]
+		isScheduled := row.Tags[EntityInfluxPredictionNode.IsScheduled]
 
 		metricValue := datahub_v1alpha1.MetricType(datahub_v1alpha1.MetricType_value[metricType])
 		switch metricType {
-		case metric.TypeContainerCPUUsageSecondsPercentage:
+		case Metric.TypeContainerCPUUsageSecondsPercentage:
 			metricValue = datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE
-		case metric.TypeContainerMemoryUsageBytes:
+		case Metric.TypeContainerMemoryUsageBytes:
 			metricValue = datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES
 		}
 
-		kind := metric.NodeMetricKindRaw
-		if val, ok := row.Tags[node_entity.Kind]; ok {
+		kind := Metric.NodeMetricKindRaw
+		if val, ok := row.Tags[EntityInfluxPredictionNode.Kind]; ok {
 			if val != "" {
 				kind = val
 			}
 		}
 
 		granularity := int64(30)
-		if val, ok := row.Tags[node_entity.Granularity]; ok {
+		if val, ok := row.Tags[EntityInfluxPredictionNode.Granularity]; ok {
 			if val != "" {
 				granularity, _ = strconv.ParseInt(val, 10, 64)
 			}
@@ -179,8 +182,8 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*influxdb.Influ
 		nodeMetricKindMap[metricKey].Granularity = granularity
 
 		for _, data := range row.Data {
-			t, _ := time.Parse(time.RFC3339, data[node_entity.Time])
-			value := data[node_entity.Value]
+			t, _ := time.Parse(time.RFC3339, data[EntityInfluxPredictionNode.Time])
+			value := data[EntityInfluxPredictionNode.Value]
 
 			googleTimestamp, _ := ptypes.TimestampProto(t)
 
@@ -203,9 +206,9 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*influxdb.Influ
 
 		nodeMetricKindMap[metricKey].Data = nodeMetricKindSampleMap[metricKey]
 
-		if kind == metric.NodeMetricKindUpperbound {
+		if kind == Metric.NodeMetricKindUpperbound {
 			nodeMap[nodeKey].PredictedUpperboundData = append(nodeMap[nodeKey].PredictedUpperboundData, nodeMetricKindMap[metricKey])
-		} else if kind == metric.NodeMetricKindLowerbound {
+		} else if kind == Metric.NodeMetricKindLowerbound {
 			nodeMap[nodeKey].PredictedLowerboundData = append(nodeMap[nodeKey].PredictedLowerboundData, nodeMetricKindMap[metricKey])
 		} else {
 			nodeMap[nodeKey].PredictedRawData = append(nodeMap[nodeKey].PredictedRawData, nodeMetricKindMap[metricKey])
@@ -220,7 +223,7 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*influxdb.Influ
 	return nodeList
 }
 
-func (r *NodeRepository) buildInfluxQLWhereClauseFromRequest(request prediction_dao.ListNodePredictionsRequest) string {
+func (r *NodeRepository) buildInfluxQLWhereClauseFromRequest(request DaoPrediction.ListNodePredictionsRequest) string {
 
 	var (
 		whereClause string
@@ -228,22 +231,22 @@ func (r *NodeRepository) buildInfluxQLWhereClauseFromRequest(request prediction_
 	)
 
 	for _, nodeName := range request.NodeNames {
-		conditions += fmt.Sprintf(`"%s" = '%s' or `, node_entity.Name, nodeName)
+		conditions += fmt.Sprintf(`"%s" = '%s' or `, EntityInfluxPredictionNode.Name, nodeName)
 	}
 
 	conditions = strings.TrimSuffix(conditions, "or ")
 
 	if conditions != "" {
 		if request.Granularity == 30 {
-			conditions += fmt.Sprintf(` AND ("%s"='' OR "%s"='%d')`, node_entity.Granularity, node_entity.Granularity, request.Granularity)
+			conditions += fmt.Sprintf(` AND ("%s"='' OR "%s"='%d')`, EntityInfluxPredictionNode.Granularity, EntityInfluxPredictionNode.Granularity, request.Granularity)
 		} else {
-			conditions += fmt.Sprintf(` AND "%s"='%d'`, node_entity.Granularity, request.Granularity)
+			conditions += fmt.Sprintf(` AND "%s"='%d'`, EntityInfluxPredictionNode.Granularity, request.Granularity)
 		}
 	} else {
 		if request.Granularity == 30 {
-			conditions += fmt.Sprintf(`("%s"='' OR "%s"='%d')`, node_entity.Granularity, node_entity.Granularity, request.Granularity)
+			conditions += fmt.Sprintf(`("%s"='' OR "%s"='%d')`, EntityInfluxPredictionNode.Granularity, EntityInfluxPredictionNode.Granularity, request.Granularity)
 		} else {
-			conditions += fmt.Sprintf(`"%s"='%d'`, node_entity.Granularity, request.Granularity)
+			conditions += fmt.Sprintf(`"%s"='%d'`, EntityInfluxPredictionNode.Granularity, request.Granularity)
 		}
 	}
 

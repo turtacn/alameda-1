@@ -2,51 +2,51 @@ package metric
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUtilization"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	EntityPromthNodeMemUtilization "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUtilization"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
+	"time"
 )
 
 // NodeMemoryUtilizationRepository Repository to access metric from prometheus
 type NodeMemoryUtilizationRepository struct {
-	PrometheusConfig prometheus.Config
+	PrometheusConfig InternalPromth.Config
 }
 
 // NewNodeMemoryUtilizationRepositoryWithConfig New node cpu utilization percentage repository with prometheus configuration
-func NewNodeMemoryUtilizationRepositoryWithConfig(cfg prometheus.Config) NodeMemoryUtilizationRepository {
+func NewNodeMemoryUtilizationRepositoryWithConfig(cfg InternalPromth.Config) NodeMemoryUtilizationRepository {
 	return NodeMemoryUtilizationRepository{PrometheusConfig: cfg}
 }
 
 // ListMetricsByNodeName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, options ...Option) ([]prometheus.Entity, error) {
+func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
 
 	var (
 		err error
 
-		prometheusClient *prometheus.Prometheus
+		prometheusClient *InternalPromth.Prometheus
 
 		nodeMemoryUtilizationMetricName   string
 		nodeMemoryUtilizationLabelsString string
 		queryExpression                   string
 
-		response prometheus.Response
+		response InternalPromth.Response
 
-		entities []prometheus.Entity
+		entities []InternalPromth.Entity
 	)
 
-	prometheusClient, err = prometheus.New(n.PrometheusConfig)
+	prometheusClient, err = InternalPromth.NewClient(&n.PrometheusConfig)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node memory utilization by node name failed")
 	}
 
-	opt := buildDefaultOptions()
+	opt := DBCommon.NewDefaultOptions()
 	for _, option := range options {
 		option(&opt)
 	}
 
-	nodeMemoryUtilizationMetricName = nodeMemoryUtilization.MetricName
+	nodeMemoryUtilizationMetricName = EntityPromthNodeMemUtilization.MetricName
 	nodeMemoryUtilizationLabelsString = n.buildNodeMemoryUtilizationQueryLabelsStringByNodeName(nodeName)
 
 	if nodeMemoryUtilizationLabelsString != "" {
@@ -55,16 +55,16 @@ func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, 
 		queryExpression = fmt.Sprintf("%s", nodeMemoryUtilizationMetricName)
 	}
 
-	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))
-	queryExpression, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression, opt.aggregateOverTimeFunc, stepTimeInSeconds)
+	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
+	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node memory utilization by node name failed")
 	}
 
-	response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
+	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node memory utilization by node name failed")
-	} else if response.Status != prometheus.StatusSuccess {
+	} else if response.Status != InternalPromth.StatusSuccess {
 		return entities, errors.Errorf("list node memory utilization by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
@@ -83,7 +83,7 @@ func (n NodeMemoryUtilizationRepository) buildNodeMemoryUtilizationQueryLabelsSt
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, nodeMemoryUtilization.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemUtilization.NodeLabel, nodeName)
 	}
 
 	return queryLabelsString

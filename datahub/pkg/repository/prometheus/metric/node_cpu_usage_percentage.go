@@ -2,54 +2,54 @@ package metric
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	EntityPromthNodeCpu "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
+	"time"
 )
 
 // NodeCPUUsagePercentageRepository Repository to access metric node:node_cpu_utilisation:avg1m from prometheus
 type NodeCPUUsagePercentageRepository struct {
-	PrometheusConfig prometheus.Config
+	PrometheusConfig InternalPromth.Config
 }
 
 // NewNodeCPUUsagePercentageRepositoryWithConfig New node cpu usage percentage repository with prometheus configuration
-func NewNodeCPUUsagePercentageRepositoryWithConfig(cfg prometheus.Config) NodeCPUUsagePercentageRepository {
+func NewNodeCPUUsagePercentageRepositoryWithConfig(cfg InternalPromth.Config) NodeCPUUsagePercentageRepository {
 	return NodeCPUUsagePercentageRepository{PrometheusConfig: cfg}
 }
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string, options ...Option) ([]prometheus.Entity, error) {
+func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
 
 	var (
 		err error
 
-		prometheusClient *prometheus.Prometheus
+		prometheusClient *InternalPromth.Prometheus
 
 		queryLabelsString string
 
 		queryExpressionSum string
 		queryExpressionAvg string
 
-		response prometheus.Response
+		response InternalPromth.Response
 
-		entities []prometheus.Entity
+		entities []InternalPromth.Entity
 	)
 
-	prometheusClient, err = prometheus.New(n.PrometheusConfig)
+	prometheusClient, err = InternalPromth.NewClient(&n.PrometheusConfig)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
-	opt := buildDefaultOptions()
+	opt := DBCommon.NewDefaultOptions()
 	for _, option := range options {
 		option(&opt)
 	}
 
-	//metricName = nodeCPUUsagePercentage.MetricName
-	metricNameSum := nodeCPUUsagePercentage.MetricNameSum
-	metricNameAvg := nodeCPUUsagePercentage.MetricNameAvg
+	//metricName = EntityPromthNodeCpu.MetricName
+	metricNameSum := EntityPromthNodeCpu.MetricNameSum
+	metricNameAvg := EntityPromthNodeCpu.MetricNameAvg
 
 	queryLabelsString = n.buildQueryLabelsStringByNodeName(nodeName)
 
@@ -61,22 +61,22 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 		queryExpressionAvg = fmt.Sprintf("%s", metricNameAvg)
 	}
 
-	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))
-	queryExpressionSum, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpressionSum, opt.aggregateOverTimeFunc, stepTimeInSeconds)
+	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
+	queryExpressionSum, err = InternalPromth.WrapQueryExpression(queryExpressionSum, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
-	queryExpressionAvg, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpressionAvg, opt.aggregateOverTimeFunc, stepTimeInSeconds)
+	queryExpressionAvg, err = InternalPromth.WrapQueryExpression(queryExpressionAvg, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
 	queryExpression := fmt.Sprintf("1000 * %s * %s", queryExpressionSum, queryExpressionAvg)
 
-	response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
+	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
-	} else if response.Status != prometheus.StatusSuccess {
+	} else if response.Status != InternalPromth.StatusSuccess {
 		return entities, errors.Errorf("list node cpu usage metrics by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
@@ -95,7 +95,7 @@ func (n NodeCPUUsagePercentageRepository) buildQueryLabelsStringByNodeName(nodeN
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, nodeCPUUsagePercentage.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeCpu.NodeLabel, nodeName)
 	}
 
 	return queryLabelsString

@@ -2,23 +2,23 @@ package clusterstatus
 
 import (
 	"fmt"
+	EntityInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
+	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
-	"time"
-
-	controller_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	datahub_api "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	influxdb_client "github.com/influxdata/influxdb/client/v2"
 	"strings"
+	"time"
 )
 
 type ControllerRepository struct {
-	influxDB *influxdb.InfluxDBRepository
+	influxDB *InternalInflux.InfluxClient
 }
 
-func NewControllerRepository(influxDBCfg *influxdb.Config) *ControllerRepository {
+func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepository {
 	return &ControllerRepository{
-		influxDB: &influxdb.InfluxDBRepository{
+		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
 			Username: influxDBCfg.Username,
 			Password: influxDBCfg.Password,
@@ -26,8 +26,8 @@ func NewControllerRepository(influxDBCfg *influxdb.Config) *ControllerRepository
 	}
 }
 
-func (c *ControllerRepository) CreateControllers(controllers []*datahub_api.Controller) error {
-	points := make([]*influxdb_client.Point, 0)
+func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1.Controller) error {
+	points := make([]*InfluxClient.Point, 0)
 	for _, controller := range controllers {
 		controllerNamespace := controller.GetControllerInfo().GetNamespacedName().GetNamespace()
 		controllerName := controller.GetControllerInfo().GetNamespacedName().GetName()
@@ -46,30 +46,30 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_api.Cont
 		}
 
 		tags := map[string]string{
-			string(controller_entity.ControllerNamespace):      controllerNamespace,
-			string(controller_entity.ControllerName):           controllerName,
-			string(controller_entity.ControllerOwnerNamespace): ownerNamespace,
-			string(controller_entity.ControllerOwnerName):      ownerName,
+			string(EntityInfluxClusterStatus.ControllerNamespace):      controllerNamespace,
+			string(EntityInfluxClusterStatus.ControllerName):           controllerName,
+			string(EntityInfluxClusterStatus.ControllerOwnerNamespace): ownerNamespace,
+			string(EntityInfluxClusterStatus.ControllerOwnerName):      ownerName,
 		}
 
 		fields := map[string]interface{}{
-			string(controller_entity.ControllerKind):            controllerKind,
-			string(controller_entity.ControllerOwnerKind):       ownerKind,
-			string(controller_entity.ControllerReplicas):        controller.GetReplicas(),
-			string(controller_entity.ControllerEnableExecution): strconv.FormatBool(controllerExecution),
-			string(controller_entity.ControllerPolicy):          controllerPolicy,
-			string(controller_entity.ControllerSpecReplicas):    controller.GetSpecReplicas(),
+			string(EntityInfluxClusterStatus.ControllerKind):            controllerKind,
+			string(EntityInfluxClusterStatus.ControllerOwnerKind):       ownerKind,
+			string(EntityInfluxClusterStatus.ControllerReplicas):        controller.GetReplicas(),
+			string(EntityInfluxClusterStatus.ControllerEnableExecution): strconv.FormatBool(controllerExecution),
+			string(EntityInfluxClusterStatus.ControllerPolicy):          controllerPolicy,
+			string(EntityInfluxClusterStatus.ControllerSpecReplicas):    controller.GetSpecReplicas(),
 		}
 
-		pt, err := influxdb_client.NewPoint(string(Controller), tags, fields, time.Unix(0, 0))
+		pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(0, 0))
 		if err != nil {
 			scope.Error(err.Error())
 		}
 		points = append(points, pt)
 	}
 
-	err := c.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.ClusterStatus),
+	err := c.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.ClusterStatus),
 	})
 
 	if err != nil {
@@ -79,32 +79,32 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_api.Cont
 	return nil
 }
 
-func (c *ControllerRepository) ListControllers(in *datahub_api.ListControllersRequest) ([]*datahub_api.Controller, error) {
+func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControllersRequest) ([]*datahub_v1alpha1.Controller, error) {
 	namespace := in.GetNamespacedName().GetNamespace()
 	name := in.GetNamespacedName().GetName()
 
 	whereStr := c.convertQueryCondition(namespace, name)
 
-	influxdbStatement := influxdb.Statement{
+	influxdbStatement := InternalInflux.Statement{
 		Measurement: Controller,
 		WhereClause: whereStr,
-		GroupByTags: []string{controller_entity.ControllerNamespace, controller_entity.ControllerName},
+		GroupByTags: []string{EntityInfluxClusterStatus.ControllerNamespace, EntityInfluxClusterStatus.ControllerName},
 	}
 
 	cmd := influxdbStatement.BuildQueryCmd()
 
-	results, err := c.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
-		return make([]*datahub_api.Controller, 0), err
+		return make([]*datahub_v1alpha1.Controller, 0), err
 	}
 
-	influxdbRows := influxdb.PackMap(results)
+	influxdbRows := InternalInflux.PackMap(results)
 
 	controllerList := c.getControllersFromInfluxRows(influxdbRows)
 	return controllerList, nil
 }
 
-func (c *ControllerRepository) DeleteControllers(in *datahub_api.DeleteControllersRequest) error {
+func (c *ControllerRepository) DeleteControllers(in *datahub_v1alpha1.DeleteControllersRequest) error {
 	controllers := in.GetControllers()
 	whereStr := ""
 
@@ -121,7 +121,7 @@ func (c *ControllerRepository) DeleteControllers(in *datahub_api.DeleteControlle
 	}
 	cmd := fmt.Sprintf("DROP SERIES FROM %s %s", string(Controller), whereStr)
 
-	_, err := c.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	_, err := c.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
 		return err
 	}
@@ -147,34 +147,34 @@ func (c *ControllerRepository) convertQueryCondition(namespace string, name stri
 	return ret
 }
 
-func (c *ControllerRepository) getControllersFromInfluxRows(rows []*influxdb.InfluxDBRow) []*datahub_api.Controller {
-	controllerList := make([]*datahub_api.Controller, 0)
+func (c *ControllerRepository) getControllersFromInfluxRows(rows []*InternalInflux.InfluxRow) []*datahub_v1alpha1.Controller {
+	controllerList := make([]*datahub_v1alpha1.Controller, 0)
 	for _, row := range rows {
-		namespace := row.Tags[controller_entity.ControllerNamespace]
-		name := row.Tags[controller_entity.ControllerName]
+		namespace := row.Tags[EntityInfluxClusterStatus.ControllerNamespace]
+		name := row.Tags[EntityInfluxClusterStatus.ControllerName]
 
-		tempController := &datahub_api.Controller{
-			ControllerInfo: &datahub_api.ResourceInfo{
-				NamespacedName: &datahub_api.NamespacedName{
+		tempController := &datahub_v1alpha1.Controller{
+			ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
 					Namespace: namespace,
 					Name:      name,
 				},
 			},
 		}
 
-		ownerInfoList := make([]*datahub_api.ResourceInfo, 0)
+		ownerInfoList := make([]*datahub_v1alpha1.ResourceInfo, 0)
 		for _, data := range row.Data {
-			ownerNamespace := data[controller_entity.ControllerOwnerNamespace]
-			ownerName := data[controller_entity.ControllerOwnerName]
-			tempOwnerKind := data[controller_entity.ControllerOwnerKind]
-			var ownerKind datahub_api.Kind
+			ownerNamespace := data[EntityInfluxClusterStatus.ControllerOwnerNamespace]
+			ownerName := data[EntityInfluxClusterStatus.ControllerOwnerName]
+			tempOwnerKind := data[EntityInfluxClusterStatus.ControllerOwnerKind]
+			var ownerKind datahub_v1alpha1.Kind
 
-			if val, found := datahub_api.Kind_value[tempOwnerKind]; found {
-				ownerKind = datahub_api.Kind(val)
+			if val, found := datahub_v1alpha1.Kind_value[tempOwnerKind]; found {
+				ownerKind = datahub_v1alpha1.Kind(val)
 			}
 
-			tempOwner := &datahub_api.ResourceInfo{
-				NamespacedName: &datahub_api.NamespacedName{
+			tempOwner := &datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
 					Namespace: ownerNamespace,
 					Name:      ownerName,
 				},
@@ -184,23 +184,23 @@ func (c *ControllerRepository) getControllersFromInfluxRows(rows []*influxdb.Inf
 			ownerInfoList = append(ownerInfoList, tempOwner)
 
 			//------
-			tempKind := data[controller_entity.ControllerKind]
-			var kind datahub_api.Kind
-			if val, found := datahub_api.Kind_value[tempKind]; found {
-				kind = datahub_api.Kind(val)
+			tempKind := data[EntityInfluxClusterStatus.ControllerKind]
+			var kind datahub_v1alpha1.Kind
+			if val, found := datahub_v1alpha1.Kind_value[tempKind]; found {
+				kind = datahub_v1alpha1.Kind(val)
 			}
 			tempController.ControllerInfo.Kind = kind
 
-			tempReplicas, _ := strconv.ParseInt(data[string(controller_entity.ControllerReplicas)], 10, 32)
+			tempReplicas, _ := strconv.ParseInt(data[string(EntityInfluxClusterStatus.ControllerReplicas)], 10, 32)
 			tempController.Replicas = int32(tempReplicas)
 
-			enableExecution, _ := strconv.ParseBool(data[controller_entity.ControllerEnableExecution])
+			enableExecution, _ := strconv.ParseBool(data[EntityInfluxClusterStatus.ControllerEnableExecution])
 			tempController.EnableRecommendationExecution = enableExecution
 
-			tempPolicy := data[controller_entity.ControllerPolicy]
-			var policy datahub_api.RecommendationPolicy
-			if val, found := datahub_api.RecommendationPolicy_value[tempPolicy]; found {
-				policy = datahub_api.RecommendationPolicy(val)
+			tempPolicy := data[EntityInfluxClusterStatus.ControllerPolicy]
+			var policy datahub_v1alpha1.RecommendationPolicy
+			if val, found := datahub_v1alpha1.RecommendationPolicy_value[tempPolicy]; found {
+				policy = datahub_v1alpha1.RecommendationPolicy(val)
 			}
 			tempController.Policy = policy
 		}

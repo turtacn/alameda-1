@@ -2,9 +2,6 @@ package datahub
 
 import (
 	"fmt"
-	"net"
-
-	"github.com/containers-ai/alameda/datahub/pkg/dao"
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -15,8 +12,10 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/weavescope"
-
 	datahubUtil "github.com/containers-ai/alameda/datahub/pkg/utils"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
@@ -36,13 +35,11 @@ import (
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"net"
 	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-
-	influxdbBase "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	prometheusBase "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 )
 
 type Server struct {
@@ -143,7 +140,7 @@ func (s *Server) Err() <-chan error {
 }
 
 func (s *Server) InitInfluxdbDatabase() {
-	influxdbClient := influxdbBase.New(&influxdbBase.Config{
+	influxdbClient := InternalInflux.NewClient(&InternalInflux.Config{
 		Address:                s.Config.InfluxDB.Address,
 		Username:               s.Config.InfluxDB.Username,
 		Password:               s.Config.InfluxDB.Password,
@@ -203,7 +200,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *datahub_v1alpha1.ListPo
 		requestExt     datahubListPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
-		queryCondition dao.QueryCondition
+		queryCondition DBCommon.QueryCondition
 
 		podsMetricMap     metric_dao.PodsMetricMap
 		datahubPodMetrics []*datahub_v1alpha1.PodMetric
@@ -355,7 +352,7 @@ func (s *Server) ListNodeMetrics(ctx context.Context, in *datahub_v1alpha1.ListN
 
 		requestExt     datahubListNodeMetricsRequestExtended
 		nodeNames      []string
-		queryCondition dao.QueryCondition
+		queryCondition DBCommon.QueryCondition
 
 		nodesMetricMap     metric_dao.NodesMetricMap
 		datahubNodeMetrics []*datahub_v1alpha1.NodeMetric
@@ -542,7 +539,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{in}
 	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
 
-	podsPredicitons, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
+	podsPredictions, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
 
 	if err != nil {
 		scope.Errorf("ListPodPrediction failed: %+v", err)
@@ -555,14 +552,14 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *datahub_v1alpha1.Li
 	}
 
 	if in.GetFillDays() > 0 {
-		predictionDAO.FillPodPredictions(podsPredicitons, in.GetFillDays())
+		predictionDAO.FillPodPredictions(podsPredictions, in.GetFillDays())
 	}
 
 	return &datahub_v1alpha1.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		PodPredictions: podsPredicitons,
+		PodPredictions: podsPredictions,
 	}, nil
 }
 
@@ -1123,9 +1120,9 @@ func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawda
 
 	switch in.GetDatabaseType() {
 	case Common.DatabaseType_INFLUXDB:
-		rawdata, err = influxdbBase.ReadRawdata(s.Config.InfluxDB, in.GetQueries())
+		rawdata, err = InternalInflux.ReadRawdata(s.Config.InfluxDB, in.GetQueries())
 	case Common.DatabaseType_PROMETHEUS:
-		rawdata, err = prometheusBase.ReadRawdata(s.Config.Prometheus, in.GetQueries())
+		rawdata, err = InternalPromth.ReadRawdata(s.Config.Prometheus, in.GetQueries())
 	default:
 		err = errors.New(fmt.Sprintf("database type(%s) is not supported", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
 	}
@@ -1162,7 +1159,7 @@ func (s *Server) WriteRawdata(ctx context.Context, in *datahub_v1alpha1.WriteRaw
 
 	switch in.GetDatabaseType() {
 	case Common.DatabaseType_INFLUXDB:
-		err = influxdbBase.WriteRawdata(s.Config.InfluxDB, in.GetRawdata())
+		err = InternalInflux.WriteRawdata(s.Config.InfluxDB, in.GetRawdata())
 	case Common.DatabaseType_PROMETHEUS:
 		err = errors.New(fmt.Sprintf("database type(%s) is not supported yet", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
 	default:

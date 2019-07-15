@@ -2,19 +2,19 @@ package impl
 
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
-	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	influxdb_repository_preditcion "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/prediction"
+	RepoInfluxPrediction "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/prediction"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 )
 
 type influxDB struct {
-	influxDBConfig influxdb_repository.Config
+	influxDBConfig InternalInflux.Config
 }
 
 // NewInfluxDBWithConfig Constructor of influxdb prediction dao
-func NewInfluxDBWithConfig(config influxdb_repository.Config) prediction.DAO {
+func NewInfluxDBWithConfig(config InternalInflux.Config) prediction.DAO {
 	return influxDB{
 		influxDBConfig: config,
 	}
@@ -24,10 +24,10 @@ func NewInfluxDBWithConfig(config influxdb_repository.Config) prediction.DAO {
 func (i influxDB) CreateContainerPredictions(in *datahub_v1alpha1.CreatePodPredictionsRequest) error {
 	var (
 		err            error
-		predictionRepo *influxdb_repository_preditcion.ContainerRepository
+		predictionRepo *RepoInfluxPrediction.ContainerRepository
 	)
 
-	predictionRepo = influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
+	predictionRepo = RepoInfluxPrediction.NewContainerRepositoryWithConfig(i.influxDBConfig)
 
 	err = predictionRepo.CreateContainerPrediction(in)
 	if err != nil {
@@ -39,7 +39,7 @@ func (i influxDB) CreateContainerPredictions(in *datahub_v1alpha1.CreatePodPredi
 
 // ListPodPredictions Implementation of prediction dao interface
 func (i influxDB) ListPodPredictions(request prediction.ListPodPredictionsRequest) ([]*datahub_v1alpha1.PodPrediction, error) {
-	predictionRepo := influxdb_repository_preditcion.NewContainerRepositoryWithConfig(i.influxDBConfig)
+	predictionRepo := RepoInfluxPrediction.NewContainerRepositoryWithConfig(i.influxDBConfig)
 	return predictionRepo.ListContainerPredictionsByRequest(request)
 }
 
@@ -83,7 +83,7 @@ func (i influxDB) FillPodPredictions(predictions []*datahub_v1alpha1.PodPredicti
 
 // CreateNodePredictions Implementation of prediction dao interface
 func (i influxDB) CreateNodePredictions(in *datahub_v1alpha1.CreateNodePredictionsRequest) error {
-	predictionRepo := influxdb_repository_preditcion.NewNodeRepositoryWithConfig(i.influxDBConfig)
+	predictionRepo := RepoInfluxPrediction.NewNodeRepositoryWithConfig(i.influxDBConfig)
 
 	err := predictionRepo.CreateNodePrediction(in)
 	if err != nil {
@@ -95,6 +95,6 @@ func (i influxDB) CreateNodePredictions(in *datahub_v1alpha1.CreateNodePredictio
 
 // ListNodePredictions Implementation of prediction dao interface
 func (i influxDB) ListNodePredictions(request prediction.ListNodePredictionsRequest) ([]*datahub_v1alpha1.NodePrediction, error) {
-	predictionRepo := influxdb_repository_preditcion.NewNodeRepositoryWithConfig(i.influxDBConfig)
+	predictionRepo := RepoInfluxPrediction.NewNodeRepositoryWithConfig(i.influxDBConfig)
 	return predictionRepo.ListNodePredictionsByRequest(request)
 }

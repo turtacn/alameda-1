@@ -2,9 +2,9 @@ package metric
 
 import (
 	"fmt"
-	"github.com/containers-ai/alameda/datahub/pkg/dao"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	"sort"
 )
 
@@ -18,13 +18,13 @@ type MetricsDAO interface {
 type ListPodMetricsRequest struct {
 	Namespace metadata.NamespaceName
 	PodName   metadata.PodName
-	dao.QueryCondition
+	DBCommon.QueryCondition
 }
 
 // ListNodeMetricsRequest Argument of method ListNodeMetrics
 type ListNodeMetricsRequest struct {
 	NodeNames []metadata.NodeName
-	dao.QueryCondition
+	DBCommon.QueryCondition
 }
 
 // GetNodeNames Return nodes name in request
@@ -64,10 +64,10 @@ func (c ContainerMetric) NamespacePodContainerName() metadata.NamespacePodContai
 }
 
 // SortByTimestamp Sort each metric samples by timestamp in input order
-func (c *ContainerMetric) SortByTimestamp(order dao.Order) {
+func (c *ContainerMetric) SortByTimestamp(order DBCommon.Order) {
 
 	for _, samples := range c.Metrics {
-		if order == dao.Asc {
+		if order == DBCommon.Asc {
 			sort.Sort(metric.SamplesByAscTimestamp(samples))
 		} else {
 			sort.Sort(metric.SamplesByDescTimestamp(samples))
@@ -137,7 +137,7 @@ func (p *PodMetric) Merge(in *PodMetric) {
 }
 
 // SortByTimestamp Sort each container metric's content
-func (p *PodMetric) SortByTimestamp(order dao.Order) {
+func (p *PodMetric) SortByTimestamp(order DBCommon.Order) {
 
 	for _, containerMetric := range *p.ContainersMetricMap {
 		containerMetric.SortByTimestamp(order)
@@ -168,7 +168,7 @@ func (p *PodsMetricMap) AddContainerMetric(c *ContainerMetric) {
 }
 
 // SortByTimestamp Sort each pod metric's content
-func (p *PodsMetricMap) SortByTimestamp(order dao.Order) {
+func (p *PodsMetricMap) SortByTimestamp(order DBCommon.Order) {
 
 	for _, podMetric := range *p {
 		podMetric.SortByTimestamp(order)
@@ -198,10 +198,10 @@ func (n *NodeMetric) Merge(in *NodeMetric) {
 }
 
 // SortByTimestamp Sort each metric samples by timestamp in input order
-func (n *NodeMetric) SortByTimestamp(order dao.Order) {
+func (n *NodeMetric) SortByTimestamp(order DBCommon.Order) {
 
 	for _, samples := range n.Metrics {
-		if order == dao.Asc {
+		if order == DBCommon.Asc {
 			sort.Sort(metric.SamplesByAscTimestamp(samples))
 		} else {
 			sort.Sort(metric.SamplesByDescTimestamp(samples))
@@ -236,7 +236,7 @@ func (n *NodesMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
 }
 
 // SortByTimestamp Sort each node metric's content
-func (n *NodesMetricMap) SortByTimestamp(order dao.Order) {
+func (n *NodesMetricMap) SortByTimestamp(order DBCommon.Order) {
 
 	for _, nodeMetric := range *n {
 		nodeMetric.SortByTimestamp(order)

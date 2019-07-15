@@ -2,10 +2,9 @@ package datahub
 
 import (
 	"errors"
-
-	influxdb_repository "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/weavescope"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
+	InternalWeaveScope "github.com/containers-ai/alameda/internal/pkg/weavescope"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
@@ -14,25 +13,25 @@ const (
 )
 
 type Config struct {
-	BindAddress string                      `mapstructure:"bind-address"`
-	Prometheus  *prometheus.Config          `mapstructure:"prometheus"`
-	InfluxDB    *influxdb_repository.Config `mapstructure:"influxdb"`
-	WeaveScope  *weavescope.Config          `mapstructure:"weavescope"`
-	Log         *log.Config                 `mapstructure:"log"`
+	BindAddress string                     `mapstructure:"bind-address"`
+	Prometheus  *InternalPromth.Config     `mapstructure:"prometheus"`
+	InfluxDB    *InternalInflux.Config     `mapstructure:"influxdb"`
+	WeaveScope  *InternalWeaveScope.Config `mapstructure:"weavescope"`
+	Log         *log.Config                `mapstructure:"log"`
 }
 
 func NewDefaultConfig() Config {
 
 	var (
 		defaultlogConfig        = log.NewDefaultConfig()
-		defaultPrometheusConfig = prometheus.NewDefaultConfig()
-		defaultInfluxDBConfig   = influxdb_repository.NewDefaultConfig()
-		defaultWeaveScopeConfig = weavescope.NewDefaultConfig()
+		defaultPrometheusConfig = InternalPromth.NewDefaultConfig()
+		defaultInfluxDBConfig   = InternalInflux.NewDefaultConfig()
+		defaultWeaveScopeConfig = InternalWeaveScope.NewDefaultConfig()
 		config                  = Config{
 			BindAddress: defaultBindAddress,
-			Prometheus:  &defaultPrometheusConfig,
-			InfluxDB:    &defaultInfluxDBConfig,
-			WeaveScope:  &defaultWeaveScopeConfig,
+			Prometheus:  defaultPrometheusConfig,
+			InfluxDB:    defaultInfluxDBConfig,
+			WeaveScope:  defaultWeaveScopeConfig,
 			Log:         &defaultlogConfig,
 		}
 	)
@@ -46,7 +45,7 @@ func (c *Config) Validate() error {
 
 	err = c.Prometheus.Validate()
 	if err != nil {
-		return errors.New("gRPC config validate failed: " + err.Error())
+		return errors.New("failed to validate gRPC config: " + err.Error())
 	}
 
 	return nil
