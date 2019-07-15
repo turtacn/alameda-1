@@ -2,51 +2,51 @@ package metric
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerCPUUsagePercentage"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	EntityPromthContainerCpuUsage "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerCPUUsagePercentage"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
+	"time"
 )
 
 // PodContainerCPUUsagePercentageRepository Repository to access metric namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate from prometheus
 type PodContainerCPUUsagePercentageRepository struct {
-	PrometheusConfig prometheus.Config
+	PrometheusConfig InternalPromth.Config
 }
 
 // NewPodContainerCPUUsagePercentageRepositoryWithConfig New pod container cpu usage percentage repository with prometheus configuration
-func NewPodContainerCPUUsagePercentageRepositoryWithConfig(cfg prometheus.Config) PodContainerCPUUsagePercentageRepository {
+func NewPodContainerCPUUsagePercentageRepositoryWithConfig(cfg InternalPromth.Config) PodContainerCPUUsagePercentageRepository {
 	return PodContainerCPUUsagePercentageRepository{PrometheusConfig: cfg}
 }
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, options ...Option) ([]prometheus.Entity, error) {
+func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
 
 	var (
 		err error
 
-		prometheusClient *prometheus.Prometheus
+		prometheusClient *InternalPromth.Prometheus
 
 		metricName        string
 		queryLabelsString string
 		queryExpression   string
 
-		response prometheus.Response
+		response InternalPromth.Response
 
-		entities []prometheus.Entity
+		entities []InternalPromth.Entity
 	)
 
-	prometheusClient, err = prometheus.New(c.PrometheusConfig)
+	prometheusClient, err = InternalPromth.NewClient(&c.PrometheusConfig)
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
-	opt := buildDefaultOptions()
+	opt := DBCommon.NewDefaultOptions()
 	for _, option := range options {
 		option(&opt)
 	}
 
-	metricName = containerCPUUsagePercentage.MetricName
+	metricName = EntityPromthContainerCpuUsage.MetricName
 	queryLabelsString = c.buildQueryLabelsStringByNamespaceAndPodName(namespace, podName)
 
 	if queryLabelsString != "" {
@@ -55,16 +55,16 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 		queryExpression = fmt.Sprintf("%s", metricName)
 	}
 
-	stepTimeInSeconds := int64(opt.stepTime.Nanoseconds() / int64(time.Second))
-	queryExpression, err = wrapQueryExpressionWithAggregationOverTimeFunction(queryExpression, opt.aggregateOverTimeFunc, stepTimeInSeconds)
+	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
+	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
-	response, err = prometheusClient.QueryRange(queryExpression, opt.startTime, opt.endTime, opt.stepTime)
+	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
-	} else if response.Status != prometheus.StatusSuccess {
+	} else if response.Status != InternalPromth.StatusSuccess {
 		return entities, errors.Errorf("list pod container cpu usage metric by namespaced name failed: receive error response from prometheus: %s", response.Error)
 	}
 
@@ -80,8 +80,8 @@ func (c PodContainerCPUUsagePercentageRepository) buildDefaultQueryLabelsString(
 
 	var queryLabelsString = ""
 
-	queryLabelsString += fmt.Sprintf(`%s != "",`, containerCPUUsagePercentage.PodLabelName)
-	queryLabelsString += fmt.Sprintf(`%s != "POD"`, containerCPUUsagePercentage.ContainerLabel)
+	queryLabelsString += fmt.Sprintf(`%s != "",`, EntityPromthContainerCpuUsage.PodLabelName)
+	queryLabelsString += fmt.Sprintf(`%s != "POD"`, EntityPromthContainerCpuUsage.ContainerLabel)
 
 	return queryLabelsString
 }
@@ -93,11 +93,11 @@ func (c PodContainerCPUUsagePercentageRepository) buildQueryLabelsStringByNamesp
 	)
 
 	if namespace != "" {
-		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, containerCPUUsagePercentage.NamespaceLabel, namespace)
+		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, EntityPromthContainerCpuUsage.NamespaceLabel, namespace)
 	}
 
 	if podName != "" {
-		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, containerCPUUsagePercentage.PodLabelName, podName)
+		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, EntityPromthContainerCpuUsage.PodLabelName, podName)
 	}
 
 	return queryLabelsString

@@ -1,61 +1,65 @@
 package score
 
 import (
-	score_dao "github.com/containers-ai/alameda/datahub/pkg/dao/score"
-	influxdb_entity_score "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/score"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
+	EntityInfluxScore "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/score"
+	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 )
 
 // SimulatedSchedulingScoreRepository Repository of simulated_scheduling_score data
 type SimulatedSchedulingScoreRepository struct {
-	influxDB *influxdb.InfluxDBRepository
+	influxDB *InternalInflux.InfluxClient
 }
 
 // NewRepositoryWithConfig New SimulatedSchedulingScoreRepository with influxdb configuration
-func NewRepositoryWithConfig(cfg influxdb.Config) SimulatedSchedulingScoreRepository {
+func NewRepositoryWithConfig(cfg InternalInflux.Config) SimulatedSchedulingScoreRepository {
 	return SimulatedSchedulingScoreRepository{
-		influxDB: influxdb.New(&cfg),
+		influxDB: InternalInflux.NewClient(&cfg),
 	}
 }
 
 // ListScoresByRequest List scores from influxDB
-func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request score_dao.ListRequest) ([]*influxdb_entity_score.SimulatedSchedulingScoreEntity, error) {
+func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request DaoScore.ListRequest) ([]*EntityInfluxScore.SimulatedSchedulingScoreEntity, error) {
 
 	var (
 		err error
 
-		results      []influxdb_client.Result
-		influxdbRows []*influxdb.InfluxDBRow
-		scores       = make([]*influxdb_entity_score.SimulatedSchedulingScoreEntity, 0)
+		results      []InfluxClient.Result
+		influxdbRows []*InternalInflux.InfluxRow
+		scores       = make([]*EntityInfluxScore.SimulatedSchedulingScoreEntity, 0)
 	)
 
-	influxdbStatement := influxdb.Statement{
-		Measurement: SimulatedSchedulingScore,
-	}
-
-	queryCondition := influxdb.QueryCondition{
+	queryCondition := DBCommon.QueryCondition{
 		StartTime:      request.QueryCondition.StartTime,
 		EndTime:        request.QueryCondition.EndTime,
 		StepTime:       request.QueryCondition.StepTime,
 		TimestampOrder: request.QueryCondition.TimestampOrder,
 		Limit:          request.QueryCondition.Limit,
 	}
-	influxdbStatement.AppendTimeConditionIntoWhereClause(queryCondition)
-	influxdbStatement.SetLimitClauseFromQueryCondition(queryCondition)
-	influxdbStatement.SetOrderClauseFromQueryCondition(queryCondition)
+
+	influxdbStatement := InternalInflux.Statement{
+		QueryCondition: &queryCondition,
+		Measurement:    SimulatedSchedulingScore,
+	}
+
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
+	influxdbStatement.SetOrderClauseFromQueryCondition()
+	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()
 
-	results, err = r.influxDB.QueryDB(cmd, string(influxdb.Score))
+	results, err = r.influxDB.QueryDB(cmd, string(RepoInflux.Score))
 	if err != nil {
 		return scores, errors.Wrap(err, "list scores failed")
 	}
 
-	influxdbRows = influxdb.PackMap(results)
+	influxdbRows = InternalInflux.PackMap(results)
 	for _, influxdbRow := range influxdbRows {
 		for _, data := range influxdbRow.Data {
-			scoreEntity := influxdb_entity_score.NewSimulatedSchedulingScoreEntityFromMap(data)
+			scoreEntity := EntityInfluxScore.NewSimulatedSchedulingScoreEntityFromMap(data)
 			scores = append(scores, &scoreEntity)
 		}
 	}
@@ -65,12 +69,12 @@ func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request score_da
 }
 
 // CreateScores Create simulated_scheduling_score data points into influxdb
-func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*score_dao.SimulatedSchedulingScore) error {
+func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*DaoScore.SimulatedSchedulingScore) error {
 
 	var (
 		err error
 
-		points = make([]*influxdb_client.Point, 0)
+		points = make([]*InfluxClient.Point, 0)
 	)
 
 	for _, score := range scores {
@@ -78,7 +82,7 @@ func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*score_dao.Sim
 		time := score.Timestamp
 		scoreBefore := score.ScoreBefore
 		scoreAfter := score.ScoreAfter
-		entity := influxdb_entity_score.SimulatedSchedulingScoreEntity{
+		entity := EntityInfluxScore.SimulatedSchedulingScoreEntity{
 			Time:        time,
 			ScoreBefore: &scoreBefore,
 			ScoreAfter:  &scoreAfter,
@@ -91,8 +95,8 @@ func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*score_dao.Sim
 		points = append(points, point)
 	}
 
-	err = r.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.Score),
+	err = r.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.Score),
 	})
 	if err != nil {
 		return errors.Wrap(err, "create scores failed")

@@ -1,36 +1,36 @@
 package influxdb
 
 import (
-	score_dao "github.com/containers-ai/alameda/datahub/pkg/dao/score"
-	influxdb_entity_score "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/score"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	influxdb_repository_score "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/score"
+	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
+	EntityInfluxScore "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/score"
+	RepoInfluxScore "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/score"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	"github.com/pkg/errors"
 )
 
 type influxdbDAO struct {
-	config influxdb.Config
+	config InternalInflux.Config
 }
 
 // NewWithConfig New influxdb score dao implement
-func NewWithConfig(config influxdb.Config) score_dao.DAO {
+func NewWithConfig(config InternalInflux.Config) DaoScore.DAO {
 	return influxdbDAO{
 		config: config,
 	}
 }
 
 // ListSimulatedScheduingScores Function implementation of score dao
-func (dao influxdbDAO) ListSimulatedScheduingScores(request score_dao.ListRequest) ([]*score_dao.SimulatedSchedulingScore, error) {
+func (dao influxdbDAO) ListSimulatedScheduingScores(request DaoScore.ListRequest) ([]*DaoScore.SimulatedSchedulingScore, error) {
 
 	var (
 		err error
 
-		scoreRepository       influxdb_repository_score.SimulatedSchedulingScoreRepository
-		influxdbScoreEntities []*influxdb_entity_score.SimulatedSchedulingScoreEntity
-		scores                = make([]*score_dao.SimulatedSchedulingScore, 0)
+		scoreRepository       RepoInfluxScore.SimulatedSchedulingScoreRepository
+		influxdbScoreEntities []*EntityInfluxScore.SimulatedSchedulingScoreEntity
+		scores                = make([]*DaoScore.SimulatedSchedulingScore, 0)
 	)
 
-	scoreRepository = influxdb_repository_score.NewRepositoryWithConfig(dao.config)
+	scoreRepository = RepoInfluxScore.NewRepositoryWithConfig(dao.config)
 	influxdbScoreEntities, err = scoreRepository.ListScoresByRequest(request)
 	if err != nil {
 		return scores, errors.Wrap(err, "list simulated scheduing scores failed")
@@ -38,7 +38,7 @@ func (dao influxdbDAO) ListSimulatedScheduingScores(request score_dao.ListReques
 
 	for _, influxdbScoreEntity := range influxdbScoreEntities {
 
-		score := score_dao.SimulatedSchedulingScore{
+		score := DaoScore.SimulatedSchedulingScore{
 			Timestamp: influxdbScoreEntity.Time,
 		}
 
@@ -57,15 +57,15 @@ func (dao influxdbDAO) ListSimulatedScheduingScores(request score_dao.ListReques
 }
 
 // CreateSimulatedScheduingScores Function implementation of score dao
-func (dao influxdbDAO) CreateSimulatedScheduingScores(scores []*score_dao.SimulatedSchedulingScore) error {
+func (dao influxdbDAO) CreateSimulatedScheduingScores(scores []*DaoScore.SimulatedSchedulingScore) error {
 
 	var (
 		err error
 
-		scoreRepository influxdb_repository_score.SimulatedSchedulingScoreRepository
+		scoreRepository RepoInfluxScore.SimulatedSchedulingScoreRepository
 	)
 
-	scoreRepository = influxdb_repository_score.NewRepositoryWithConfig(dao.config)
+	scoreRepository = RepoInfluxScore.NewRepositoryWithConfig(dao.config)
 	err = scoreRepository.CreateScores(scores)
 	if err != nil {
 		return errors.Wrap(err, "create simulated scheduing scores failed")

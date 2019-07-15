@@ -2,18 +2,17 @@ package clusterstatus
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
-
-	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
+	EntityInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
 	"github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/utils/enumconv"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	proto_timestmap "github.com/golang/protobuf/ptypes/timestamp"
-	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -22,12 +21,12 @@ var (
 
 // ContainerRepository is used to operate node measurement of cluster_status database
 type ContainerRepository struct {
-	influxDB *influxdb.InfluxDBRepository
+	influxDB *InternalInflux.InfluxClient
 }
 
 // IsTag checks the column is tag or not
 func (containerRepository *ContainerRepository) IsTag(column string) bool {
-	for _, tag := range cluster_status_entity.ContainerTags {
+	for _, tag := range EntityInfluxClusterStatus.ContainerTags {
 		if column == string(tag) {
 			return true
 		}
@@ -36,9 +35,9 @@ func (containerRepository *ContainerRepository) IsTag(column string) bool {
 }
 
 // NewContainerRepository creates the ContainerRepository instance
-func NewContainerRepository(influxDBCfg *influxdb.Config) *ContainerRepository {
+func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
 	return &ContainerRepository{
-		influxDB: &influxdb.InfluxDBRepository{
+		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
 			Username: influxDBCfg.Username,
 			Password: influxDBCfg.Password,
@@ -66,20 +65,20 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 
 	case datahub_v1alpha1.Kind_DEPLOYMENT:
 		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' %s)`,
-			cluster_status_entity.ContainerNamespace, namespace,
-			cluster_status_entity.ContainerTopControllerName, name,
-			cluster_status_entity.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENT],
+			EntityInfluxClusterStatus.ContainerNamespace, namespace,
+			EntityInfluxClusterStatus.ContainerTopControllerName, name,
+			EntityInfluxClusterStatus.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENT],
 			podCreatePeriodCondition)
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
 		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' %s)`,
-			cluster_status_entity.ContainerNamespace, namespace,
-			cluster_status_entity.ContainerTopControllerName, name,
-			cluster_status_entity.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENTCONFIG],
+			EntityInfluxClusterStatus.ContainerNamespace, namespace,
+			EntityInfluxClusterStatus.ContainerTopControllerName, name,
+			EntityInfluxClusterStatus.ContainerTopControllerKind, enumconv.KindDisp[datahub_v1alpha1.Kind_DEPLOYMENTCONFIG],
 			podCreatePeriodCondition)
 	case datahub_v1alpha1.Kind_ALAMEDASCALER:
 		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' %s)`,
-			cluster_status_entity.ContainerAlamedaScalerNamespace, namespace,
-			cluster_status_entity.ContainerAlamedaScalerName, name,
+			EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, namespace,
+			EntityInfluxClusterStatus.ContainerAlamedaScalerName, name,
 			podCreatePeriodCondition)
 	default:
 		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
@@ -94,17 +93,17 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 
 	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
 		string(Container), whereStr,
-		string(cluster_status_entity.ContainerNamespace), string(cluster_status_entity.ContainerPodName),
-		string(cluster_status_entity.ContainerAlamedaScalerNamespace), string(cluster_status_entity.ContainerAlamedaScalerName))
+		string(EntityInfluxClusterStatus.ContainerNamespace), string(EntityInfluxClusterStatus.ContainerPodName),
+		string(EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace), string(EntityInfluxClusterStatus.ContainerAlamedaScalerName))
 	scope.Debugf("ListAlamedaContainers command: %s", cmd)
-	if results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus)); err == nil {
+	if results, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus)); err == nil {
 
-		containerEntities := make([]*cluster_status_entity.ContainerEntity, 0)
+		containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
 
-		rows := influxdb.PackMap(results)
+		rows := InternalInflux.PackMap(results)
 		for _, row := range rows {
 			for _, data := range row.Data {
-				entity := cluster_status_entity.NewContainerEntityFromMap(data)
+				entity := EntityInfluxClusterStatus.NewContainerEntityFromMap(data)
 				containerEntities = append(containerEntities, &entity)
 			}
 		}
@@ -118,7 +117,7 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 
 // CreateContainers add containers information container measurement
 func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub_v1alpha1.Pod) error {
-	points := []*influxdb_client.Point{}
+	points := []*InfluxClient.Point{}
 	for _, pod := range pods {
 		containerEntities, err := buildContainerEntitiesFromDatahubPod(pod)
 		if err != nil {
@@ -132,8 +131,8 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 			points = append(points, p)
 		}
 	}
-	err := containerRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.ClusterStatus),
+	err := containerRepository.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.ClusterStatus),
 	})
 	if err != nil {
 		return errors.Wrap(err, "create containers to influxdb failed")
@@ -152,10 +151,10 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub
 		alaScalerNS := pod.GetAlamedaScaler().GetNamespace()
 		alaScalerName := pod.GetAlamedaScaler().GetName()
 		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s' AND \"%s\"='%s' AND \"%s\"='%s' AND \"%s\"='%s'", Container,
-			cluster_status_entity.ContainerNamespace, podNS, cluster_status_entity.ContainerPodName, podName,
-			cluster_status_entity.ContainerAlamedaScalerNamespace, alaScalerNS, cluster_status_entity.ContainerAlamedaScalerName, alaScalerName)
+			EntityInfluxClusterStatus.ContainerNamespace, podNS, EntityInfluxClusterStatus.ContainerPodName, podName,
+			EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, alaScalerNS, EntityInfluxClusterStatus.ContainerAlamedaScalerName, alaScalerName)
 		scope.Debugf("DeleteContainers command: %s", cmd)
-		_, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+		_, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 		if err != nil {
 			scope.Errorf(err.Error())
 		}
@@ -164,13 +163,13 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub
 }
 
 // ListPodsContainers list containers information container measurement
-func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datahub_v1alpha1.Pod) ([]*cluster_status_entity.ContainerEntity, error) {
+func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datahub_v1alpha1.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
 
 	var (
 		cmd                 = ""
 		cmdSelectString     = ""
 		cmdTagsFilterString = ""
-		containerEntities   = make([]*cluster_status_entity.ContainerEntity, 0)
+		containerEntities   = make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
 	)
 
 	if len(pods) == 0 {
@@ -191,22 +190,22 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 		}
 
 		cmdTagsFilterString += fmt.Sprintf(`("%s" = '%s' and "%s" = '%s') or `,
-			cluster_status_entity.ContainerNamespace, namespace,
-			cluster_status_entity.ContainerPodName, podName,
+			EntityInfluxClusterStatus.ContainerNamespace, namespace,
+			EntityInfluxClusterStatus.ContainerPodName, podName,
 		)
 	}
 	cmdTagsFilterString = strings.TrimSuffix(cmdTagsFilterString, "or ")
 
 	cmd = fmt.Sprintf("%s where %s", cmdSelectString, cmdTagsFilterString)
-	results, err := containerRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	results, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
 		return containerEntities, errors.Wrap(err, "list pod containers failed")
 	}
 
-	rows := influxdb.PackMap(results)
+	rows := InternalInflux.PackMap(results)
 	for _, row := range rows {
 		for _, data := range row.Data {
-			entity := cluster_status_entity.NewContainerEntityFromMap(data)
+			entity := EntityInfluxClusterStatus.NewContainerEntityFromMap(data)
 			containerEntities = append(containerEntities, &entity)
 		}
 	}
@@ -246,7 +245,7 @@ func (containerRepository *ContainerRepository) getPodCreatePeriodCondition(time
 	return ""
 }
 
-func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster_status_entity.ContainerEntity, error) {
+func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
 
 	var (
 		namespace                                 *string
@@ -332,7 +331,7 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 	enableVPA := pod.GetEnable_VPA()
 	enableHPA := pod.GetEnable_HPA()
 
-	containerEntities := make([]*cluster_status_entity.ContainerEntity, 0)
+	containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
 	for _, datahubContainer := range pod.Containers {
 
 		name = &datahubContainer.Name
@@ -416,8 +415,8 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 			restartCount = &containerStatus.RestartCount
 		}
 
-		containerEntity := &cluster_status_entity.ContainerEntity{
-			Time:                                      influxdb.ZeroTime,
+		containerEntity := &EntityInfluxClusterStatus.ContainerEntity{
+			Time:                                      InternalInflux.ZeroTime,
 			Namespace:                                 namespace,
 			PodName:                                   podName,
 			PodPhase:                                  podPhase,
@@ -465,7 +464,7 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*cluster
 	return containerEntities, nil
 }
 
-func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_entity.ContainerEntity) []*datahub_v1alpha1.Pod {
+func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClusterStatus.ContainerEntity) []*datahub_v1alpha1.Pod {
 
 	datahubPods := make([]*datahub_v1alpha1.Pod, 0)
 	datahubPodMap := make(map[string]*datahub_v1alpha1.Pod)
@@ -575,7 +574,7 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 					Namespace: alamedaScalerNamespace,
 				},
 				NodeName: nodeName,
-				StartTime: &proto_timestmap.Timestamp{
+				StartTime: &timestamp.Timestamp{
 					Seconds: podCreatedTime,
 				},
 				Policy: enumconv.RecommendationPolicyEnum[policy],
@@ -613,7 +612,7 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*cluster_status_e
 	return datahubPods
 }
 
-func containerEntityToDatahubContainer(containerEntity *cluster_status_entity.ContainerEntity) *datahub_v1alpha1.Container {
+func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatus.ContainerEntity) *datahub_v1alpha1.Container {
 
 	var (
 		statusWaitingReason                       string
@@ -779,7 +778,7 @@ func containerEntityToDatahubContainer(containerEntity *cluster_status_entity.Co
 	}
 }
 
-func getDatahubPodIDString(containerEntity *cluster_status_entity.ContainerEntity) string {
+func getDatahubPodIDString(containerEntity *EntityInfluxClusterStatus.ContainerEntity) string {
 
 	var (
 		namespace         string

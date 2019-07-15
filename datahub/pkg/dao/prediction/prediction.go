@@ -2,10 +2,9 @@ package prediction
 
 import (
 	"fmt"
-
-	"github.com/containers-ai/alameda/datahub/pkg/dao"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 )
 
@@ -27,14 +26,14 @@ type ListPodPredictionsRequest struct {
 	Namespace   string
 	PodName     string
 	Granularity int64
-	dao.QueryCondition
+	DBCommon.QueryCondition
 }
 
 // ListNodePredictionsRequest ListNodePredictionsRequest
 type ListNodePredictionsRequest struct {
 	NodeNames   []string
 	Granularity int64
-	dao.QueryCondition
+	DBCommon.QueryCondition
 }
 
 // ContainerPrediction Prediction model to represent one container Prediction

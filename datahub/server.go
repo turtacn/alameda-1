@@ -2,7 +2,6 @@ package datahub
 
 import (
 	"fmt"
-	Dao "github.com/containers-ai/alameda/datahub/pkg/dao"
 	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	DaoClusterStatusImpl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -13,10 +12,11 @@ import (
 	DaoRecommendationImpl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	DaoScoreImplInfluxDB "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
-	DaoWeavescope "github.com/containers-ai/alameda/datahub/pkg/dao/weavescope"
-	RepoInfluxDB "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	RepoPrometheus "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	DaoWeaveScope "github.com/containers-ai/alameda/datahub/pkg/dao/weavescope"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	OperatorAPIs "github.com/containers-ai/alameda/operator/pkg/apis"
 	OperatorAPIsAutoScalingV1Alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	OperatorReconcilerAlamedaRecommendation "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
@@ -141,7 +141,7 @@ func (s *Server) Err() <-chan error {
 }
 
 func (s *Server) InitInfluxdbDatabase() {
-	influxdbClient := RepoInfluxDB.New(&RepoInfluxDB.Config{
+	influxdbClient := InternalInflux.NewClient(&InternalInflux.Config{
 		Address:                s.Config.InfluxDB.Address,
 		Username:               s.Config.InfluxDB.Username,
 		Password:               s.Config.InfluxDB.Password,
@@ -233,7 +233,7 @@ func (s *Server) ListPodMetricsPrometheus(ctx context.Context, in *DatahubV1Alph
 		requestExt     datahubListPodMetricsRequestExtended
 		namespace      = ""
 		podName        = ""
-		queryCondition Dao.QueryCondition
+		queryCondition DBCommon.QueryCondition
 
 		podsMetricMap     DaoMetric.PodsMetricMap
 		datahubPodMetrics []*DatahubV1Alpha1.PodMetric
@@ -408,7 +408,7 @@ func (s *Server) ListNodeMetricsPromethues(ctx context.Context, in *DatahubV1Alp
 
 		requestExt     datahubListNodeMetricsRequestExtended
 		nodeNames      []string
-		queryCondition Dao.QueryCondition
+		queryCondition DBCommon.QueryCondition
 
 		nodesMetricMap     DaoMetric.NodesMetricMap
 		datahubNodeMetrics []*DatahubV1Alpha1.NodeMetric
@@ -595,7 +595,7 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *DatahubV1Alpha1.Lis
 	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{in}
 	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
 
-	podsPredicitons, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
+	podsPredictions, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
 
 	if err != nil {
 		scope.Errorf("ListPodPrediction failed: %+v", err)
@@ -608,14 +608,14 @@ func (s *Server) ListPodPredictions(ctx context.Context, in *DatahubV1Alpha1.Lis
 	}
 
 	if in.GetFillDays() > 0 {
-		predictionDAO.FillPodPredictions(podsPredicitons, in.GetFillDays())
+		predictionDAO.FillPodPredictions(podsPredictions, in.GetFillDays())
 	}
 
 	return &DatahubV1Alpha1.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		PodPredictions: podsPredicitons,
+		PodPredictions: podsPredictions,
 	}, nil
 }
 
@@ -1178,9 +1178,9 @@ func (s *Server) ReadRawdata(ctx context.Context, in *DatahubV1Alpha1.ReadRawdat
 
 	switch in.GetDatabaseType() {
 	case Common.DatabaseType_INFLUXDB:
-		rawdata, err = RepoInfluxDB.ReadRawdata(s.Config.InfluxDB, in.GetQueries())
+		rawdata, err = InternalInflux.ReadRawdata(s.Config.InfluxDB, in.GetQueries())
 	case Common.DatabaseType_PROMETHEUS:
-		rawdata, err = RepoPrometheus.ReadRawdata(s.Config.Prometheus, in.GetQueries())
+		rawdata, err = InternalPromth.ReadRawdata(s.Config.Prometheus, in.GetQueries())
 	default:
 		err = errors.New(fmt.Sprintf("database type(%s) is not supported", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
 	}
@@ -1217,7 +1217,7 @@ func (s *Server) WriteRawdata(ctx context.Context, in *DatahubV1Alpha1.WriteRawd
 
 	switch in.GetDatabaseType() {
 	case Common.DatabaseType_INFLUXDB:
-		err = RepoInfluxDB.WriteRawdata(s.Config.InfluxDB, in.GetRawdata())
+		err = InternalInflux.WriteRawdata(s.Config.InfluxDB, in.GetRawdata())
 	case Common.DatabaseType_PROMETHEUS:
 		err = errors.New(fmt.Sprintf("database type(%s) is not supported yet", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
 	default:
@@ -1244,7 +1244,7 @@ func (s *Server) Ping(ctx context.Context, in *empty.Empty) (*status.Status, err
 func (s *Server) ListWeaveScopeHosts(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeHostsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 
@@ -1267,7 +1267,7 @@ func (s *Server) ListWeaveScopeHosts(ctx context.Context, in *DatahubV1Alpha1.Li
 func (s *Server) GetWeaveScopeHostDetails(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeHostsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.GetWeaveScopeHostDetails(in)
@@ -1289,7 +1289,7 @@ func (s *Server) GetWeaveScopeHostDetails(ctx context.Context, in *DatahubV1Alph
 func (s *Server) ListWeaveScopePods(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopePodsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.ListWeaveScopePods(in)
@@ -1311,7 +1311,7 @@ func (s *Server) ListWeaveScopePods(ctx context.Context, in *DatahubV1Alpha1.Lis
 func (s *Server) GetWeaveScopePodDetails(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopePodsRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.GetWeaveScopePodDetails(in)
@@ -1333,7 +1333,7 @@ func (s *Server) GetWeaveScopePodDetails(ctx context.Context, in *DatahubV1Alpha
 func (s *Server) ListWeaveScopeContainers(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.ListWeaveScopeContainers(in)
@@ -1355,7 +1355,7 @@ func (s *Server) ListWeaveScopeContainers(ctx context.Context, in *DatahubV1Alph
 func (s *Server) ListWeaveScopeContainersByHostname(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.ListWeaveScopeContainersByHostname(in)
@@ -1377,7 +1377,7 @@ func (s *Server) ListWeaveScopeContainersByHostname(ctx context.Context, in *Dat
 func (s *Server) ListWeaveScopeContainersByImage(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.ListWeaveScopeContainersByImage(in)
@@ -1399,7 +1399,7 @@ func (s *Server) ListWeaveScopeContainersByImage(ctx context.Context, in *Datahu
 func (s *Server) GetWeaveScopeContainerDetails(ctx context.Context, in *DatahubV1Alpha1.ListWeaveScopeContainersRequest) (*DatahubV1Alpha1.WeaveScopeResponse, error) {
 	response := &DatahubV1Alpha1.WeaveScopeResponse{}
 
-	weaveScopeDAO := DaoWeavescope.WeaveScope{
+	weaveScopeDAO := DaoWeaveScope.WeaveScope{
 		WeaveScopeConfig: s.Config.WeaveScope,
 	}
 	rawdata, err := weaveScopeDAO.GetWeaveScopeContainerDetails(in)

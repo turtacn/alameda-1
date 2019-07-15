@@ -2,23 +2,22 @@ package clusterstatus
 
 import (
 	"fmt"
-	"strings"
-
-	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
-	cluster_status_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	datahub_api "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
+	EntityInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/cluster_status"
+	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
+	"strings"
 )
 
 type NodeRepository struct {
-	influxDB *influxdb.InfluxDBRepository
+	influxDB *InternalInflux.InfluxClient
 }
 
 func (nodeRepository *NodeRepository) IsTag(column string) bool {
-	for _, tag := range cluster_status_entity.NodeTags {
+	for _, tag := range EntityInfluxClusterStatus.NodeTags {
 		if column == string(tag) {
 			return true
 		}
@@ -26,9 +25,9 @@ func (nodeRepository *NodeRepository) IsTag(column string) bool {
 	return false
 }
 
-func NewNodeRepository(influxDBCfg *influxdb.Config) *NodeRepository {
+func NewNodeRepository(influxDBCfg *InternalInflux.Config) *NodeRepository {
 	return &NodeRepository{
-		influxDB: &influxdb.InfluxDBRepository{
+		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
 			Username: influxDBCfg.Username,
 			Password: influxDBCfg.Password,
@@ -38,12 +37,12 @@ func NewNodeRepository(influxDBCfg *influxdb.Config) *NodeRepository {
 
 // AddAlamedaNodes add node information to database
 func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
-	points := []*influxdb_client.Point{}
+	points := []*InfluxClient.Point{}
 	for _, alamedaNode := range alamedaNodes {
 		isInCluster := true
 		startTime := alamedaNode.StartTime.GetSeconds()
-		entity := cluster_status_entity.NodeEntity{
-			Time:        influxdb.ZeroTime,
+		entity := EntityInfluxClusterStatus.NodeEntity{
+			Time:        InternalInflux.ZeroTime,
 			Name:        &alamedaNode.Name,
 			IsInCluster: &isInCluster,
 			CreatedTime: &startTime,
@@ -58,8 +57,8 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 			scope.Error(err.Error())
 		}
 	}
-	err := nodeRepository.influxDB.WritePoints(points, influxdb_client.BatchPointsConfig{
-		Database: string(influxdb.ClusterStatus),
+	err := nodeRepository.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.ClusterStatus),
 	})
 	if err != nil {
 		return errors.Wrapf(err, "add alameda nodes failed: %s", err.Error())
@@ -72,8 +71,8 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 	errMsg := ""
 	for _, alamedaNode := range alamedaNodes {
 		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s'",
-			string(Node), string(cluster_status_entity.NodeName), alamedaNode.Name)
-		_, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+			string(Node), string(EntityInfluxClusterStatus.NodeName), alamedaNode.Name)
+		_, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 		if err != nil {
 			hasErr = true
 			errMsg += errMsg + err.Error()
@@ -85,26 +84,26 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 	return nil
 }
 
-func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_api.TimeRange) ([]*cluster_status_entity.NodeEntity, error) {
+func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alpha1.TimeRange) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
 
-	nodeEntities := []*cluster_status_entity.NodeEntity{}
+	nodeEntities := []*EntityInfluxClusterStatus.NodeEntity{}
 	nodeCreatePeriodCondition := nodeRepository.getNodeCreatePeriodCondition(timeRange)
 
 	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s %s",
-		string(Node), string(cluster_status_entity.NodeInCluster), "true", nodeCreatePeriodCondition)
+		string(Node), string(EntityInfluxClusterStatus.NodeInCluster), "true", nodeCreatePeriodCondition)
 
 	scope.Infof(fmt.Sprintf("Query nodes in cluster: %s", cmd))
-	results, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	results, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
 		return nodeEntities, errors.Wrap(err, "list alameda nodes from influxdb failed")
 	}
 
 	if len(results) == 1 && len(results[0].Series) > 0 {
 
-		influxdbRows := influxdb.PackMap(results)
+		influxdbRows := InternalInflux.PackMap(results)
 		for _, influxdbRow := range influxdbRows {
 			for _, data := range influxdbRow.Data {
-				nodeEntity := cluster_status_entity.NewNodeEntityFromMap(data)
+				nodeEntity := EntityInfluxClusterStatus.NewNodeEntityFromMap(data)
 				nodeEntities = append(nodeEntities, &nodeEntity)
 			}
 		}
@@ -113,22 +112,22 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_api.Ti
 	return nodeEntities, nil
 }
 
-func (nodeRepository *NodeRepository) ListNodes(request cluster_status_dao.ListNodesRequest) ([]*cluster_status_entity.NodeEntity, error) {
+func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNodesRequest) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
 
-	nodeEntities := []*cluster_status_entity.NodeEntity{}
+	nodeEntities := []*EntityInfluxClusterStatus.NodeEntity{}
 
 	whereClause := nodeRepository.buildInfluxQLWhereClauseFromRequest(request)
 	cmd := fmt.Sprintf("SELECT * FROM %s %s", string(Node), whereClause)
 	scope.Debug(fmt.Sprintf("Query nodes in cluster: %s", cmd))
-	results, err := nodeRepository.influxDB.QueryDB(cmd, string(influxdb.ClusterStatus))
+	results, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
 		return nodeEntities, errors.Wrap(err, "list nodes from influxdb failed")
 	}
 
-	influxdbRows := influxdb.PackMap(results)
+	influxdbRows := InternalInflux.PackMap(results)
 	for _, influxdbRow := range influxdbRows {
 		for _, data := range influxdbRow.Data {
-			nodeEntity := cluster_status_entity.NewNodeEntityFromMap(data)
+			nodeEntity := EntityInfluxClusterStatus.NewNodeEntityFromMap(data)
 			nodeEntities = append(nodeEntities, &nodeEntity)
 		}
 	}
@@ -136,18 +135,18 @@ func (nodeRepository *NodeRepository) ListNodes(request cluster_status_dao.ListN
 	return nodeEntities, nil
 }
 
-func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(request cluster_status_dao.ListNodesRequest) string {
+func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(request DaoClusterStatus.ListNodesRequest) string {
 
 	var (
 		whereClause string
 		conditions  string
 	)
 
-	conditions += fmt.Sprintf("\"%s\" = %t", cluster_status_entity.NodeInCluster, request.InCluster)
+	conditions += fmt.Sprintf("\"%s\" = %t", EntityInfluxClusterStatus.NodeInCluster, request.InCluster)
 
 	statementFilteringNodes := ""
 	for _, nodeName := range request.NodeNames {
-		statementFilteringNodes += fmt.Sprintf(`"%s" = '%s' OR `, cluster_status_entity.NodeName, nodeName)
+		statementFilteringNodes += fmt.Sprintf(`"%s" = '%s' OR `, EntityInfluxClusterStatus.NodeName, nodeName)
 	}
 	statementFilteringNodes = strings.TrimSuffix(statementFilteringNodes, "OR ")
 	if statementFilteringNodes != "" {
@@ -159,7 +158,7 @@ func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(reques
 	return whereClause
 }
 
-func (nodeRepository *NodeRepository) getNodeCreatePeriodCondition(timeRange *datahub_api.TimeRange) string {
+func (nodeRepository *NodeRepository) getNodeCreatePeriodCondition(timeRange *datahub_v1alpha1.TimeRange) string {
 	if timeRange == nil {
 		return ""
 	}

@@ -1,9 +1,8 @@
 package score
 
 import (
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	"time"
-
-	"github.com/containers-ai/alameda/datahub/pkg/dao"
 )
 
 // DAO DAO interface of score
@@ -21,5 +20,5 @@ type SimulatedSchedulingScore struct {
 
 // ListRequest Request argument for list api.
 type ListRequest struct {
-	dao.QueryCondition
+	DBCommon.QueryCondition
 }

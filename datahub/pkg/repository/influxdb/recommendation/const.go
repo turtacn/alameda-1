@@ -1,7 +1,7 @@
 package recommendation
 
 import (
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 )
 
 const (
