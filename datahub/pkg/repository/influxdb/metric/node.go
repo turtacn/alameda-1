@@ -2,9 +2,9 @@ package metric
 
 import (
 	"fmt"
-	node_entity "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/metric/node"
-	"github.com/containers-ai/alameda/datahub/pkg/metric"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
+	EntityInfluxMetricNode "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/metric/node"
+	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
@@ -14,13 +14,13 @@ import (
 
 // ContainerRepository is used to operate node measurement of cluster_status database
 type NodeRepository struct {
-	influxDB *influxdb.InfluxDBRepository
+	influxDB *InternalInflux.InfluxClient
 }
 
 // NewContainerRepositoryWithConfig New container repository with influxDB configuration
-func NewNodeRepositoryWithConfig(influxDBCfg influxdb.Config) *NodeRepository {
+func NewNodeRepositoryWithConfig(influxDBCfg InternalInflux.Config) *NodeRepository {
 	return &NodeRepository{
-		influxDB: &influxdb.InfluxDBRepository{
+		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
 			Username: influxDBCfg.Username,
 			Password: influxDBCfg.Password,
@@ -32,56 +32,56 @@ func NewNodeRepositoryWithConfig(influxDBCfg influxdb.Config) *NodeRepository {
 func (r *NodeRepository) ListNodeMetrics(in *datahub_v1alpha1.ListNodeMetricsRequest) ([]*datahub_v1alpha1.NodeMetric, error) {
 	nodeMetricList := make([]*datahub_v1alpha1.NodeMetric, 0)
 
-	groupByTime := fmt.Sprintf("%s(%ds)", node_entity.NodeTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
-	SelectedFields := fmt.Sprintf("sum(%s) as %s", node_entity.Value, node_entity.Value)
+	groupByTime := fmt.Sprintf("%s(%ds)", EntityInfluxMetricNode.NodeTime, in.GetQueryCondition().GetTimeRange().GetStep().GetSeconds())
+	SelectedFields := fmt.Sprintf("sum(%s) as %s", EntityInfluxMetricNode.Value, EntityInfluxMetricNode.Value)
 
-	influxdbStatement := influxdb.StatementNew{
-		Measurement:    influxdb.Measurement(node_entity.MetricMeasurementName),
+	influxdbStatement := InternalInflux.Statement{
+		Measurement:    InternalInflux.Measurement(EntityInfluxMetricNode.MetricMeasurementName),
 		SelectedFields: []string{SelectedFields},
-		GroupByTags:    []string{node_entity.Name, node_entity.MetricType, groupByTime},
+		GroupByTags:    []string{EntityInfluxMetricNode.Name, EntityInfluxMetricNode.MetricType, groupByTime},
 	}
 
 	nodeList := in.GetNodeNames()
 	whereNames := ""
 	for _, value := range nodeList {
-		whereNames += fmt.Sprintf("\"%s\"='%s' OR ", node_entity.Name, value)
+		whereNames += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetricNode.Name, value)
 	}
 	whereNames = strings.TrimSuffix(whereNames, "OR ")
 	whereNames = "(" + whereNames + ")"
 
-	influxdbStatement.AppendWhereConditionDirect(whereNames)
-	influxdbStatement.AppendTimeCondition(">=", in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds())
-	influxdbStatement.AppendTimeCondition("<=", in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds())
-	influxdbStatement.AppendLimitClauseFromQueryCondition()
-	influxdbStatement.AppendOrderClauseFromQueryCondition()
+	influxdbStatement.AppendWhereClauseDirectly(whereNames)
+	influxdbStatement.AppendWhereClauseWithTime(">=", in.GetQueryCondition().GetTimeRange().GetStartTime().GetSeconds())
+	influxdbStatement.AppendWhereClauseWithTime("<=", in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds())
+	influxdbStatement.SetLimitClauseFromQueryCondition()
+	influxdbStatement.SetOrderClauseFromQueryCondition()
 
 	cmd := influxdbStatement.BuildQueryCmd()
 
-	results, err := r.influxDB.QueryDB(cmd, node_entity.MetricDatabaseName)
+	results, err := r.influxDB.QueryDB(cmd, EntityInfluxMetricNode.MetricDatabaseName)
 	if err != nil {
 		return nodeMetricList, errors.Wrap(err, "list container prediction failed")
 	}
 
-	rows := influxdb.PackMap(results)
+	rows := InternalInflux.PackMap(results)
 
 	nodeMetricList = r.getNodeMetricsFromInfluxRows(rows)
 	return nodeMetricList, nil
 }
 
-func (r *NodeRepository) getNodeMetricsFromInfluxRows(rows []*influxdb.InfluxDBRow) []*datahub_v1alpha1.NodeMetric {
+func (r *NodeRepository) getNodeMetricsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*datahub_v1alpha1.NodeMetric {
 	nodeMap := map[string]*datahub_v1alpha1.NodeMetric{}
 	nodeMetricMap := map[string]*datahub_v1alpha1.MetricData{}
 	nodeMetricSampleMap := map[string][]*datahub_v1alpha1.Sample{}
 
 	for _, row := range rows {
-		nodeName := row.Tags[node_entity.Name]
-		metricType := row.Tags[node_entity.MetricType]
+		nodeName := row.Tags[EntityInfluxMetricNode.Name]
+		metricType := row.Tags[EntityInfluxMetricNode.MetricType]
 
 		metricValue := datahub_v1alpha1.MetricType(datahub_v1alpha1.MetricType_value[metricType])
 		switch metricType {
-		case metric.TypeContainerCPUUsageSecondsPercentage:
+		case Metric.TypeContainerCPUUsageSecondsPercentage:
 			metricValue = datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE
-		case metric.TypeContainerMemoryUsageBytes:
+		case Metric.TypeContainerMemoryUsageBytes:
 			metricValue = datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES
 		}
 
@@ -93,8 +93,8 @@ func (r *NodeRepository) getNodeMetricsFromInfluxRows(rows []*influxdb.InfluxDBR
 		nodeMetricMap[metricKey].MetricType = metricValue
 
 		for _, data := range row.Data {
-			t, _ := time.Parse(time.RFC3339, data[node_entity.NodeTime])
-			value := data[node_entity.Value]
+			t, _ := time.Parse(time.RFC3339, data[EntityInfluxMetricNode.NodeTime])
+			value := data[EntityInfluxMetricNode.Value]
 
 			googleTimestamp, _ := ptypes.TimestampProto(t)
 

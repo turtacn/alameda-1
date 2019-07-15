@@ -5,13 +5,13 @@ import (
 	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	DaoClusterStatusImpl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	DaoMetricInfluxdb "github.com/containers-ai/alameda/datahub/pkg/dao/metric/influxdb"
-	DaoMetricPrometheus "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
+	DaoMetricInflux "github.com/containers-ai/alameda/datahub/pkg/dao/metric/influxdb"
+	DaoMetricPromth "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
 	DaoPredictionImpl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
 	DaoRecommendation "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
 	DaoRecommendationImpl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
-	DaoScoreImplInfluxDB "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
+	DaoScoreImplInflux "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
 	DaoWeaveScope "github.com/containers-ai/alameda/datahub/pkg/dao/weavescope"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
@@ -195,7 +195,7 @@ func (s *Server) ListPodMetrics(ctx context.Context, in *DatahubV1Alpha1.ListPod
 	}
 
 	//--------------------------------------------------------
-	metricDAO := DaoMetricInfluxdb.NewWithConfig(*s.Config.InfluxDB)
+	metricDAO := DaoMetricInflux.NewWithConfig(*s.Config.InfluxDB)
 	podMetricList, err := metricDAO.ListContainerMetrics(in)
 
 	if err != nil {
@@ -249,7 +249,7 @@ func (s *Server) ListPodMetricsPrometheus(ctx context.Context, in *DatahubV1Alph
 		}, nil
 	}
 
-	metricDAO = DaoMetricPrometheus.NewWithConfig(*s.Config.Prometheus)
+	metricDAO = DaoMetricPromth.NewWithConfig(*s.Config.Prometheus)
 
 	if in.GetNamespacedName() != nil {
 		namespace = in.GetNamespacedName().GetNamespace()
@@ -377,7 +377,7 @@ func (s *Server) ListPodMetricsDemo(ctx context.Context, in *DatahubV1Alpha1.Lis
 func (s *Server) ListNodeMetrics(ctx context.Context, in *DatahubV1Alpha1.ListNodeMetricsRequest) (*DatahubV1Alpha1.ListNodeMetricsResponse, error) {
 	scope.Debug("Request received from ListNodeMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	metricDAO := DaoMetricInfluxdb.NewWithConfig(*s.Config.InfluxDB)
+	metricDAO := DaoMetricInflux.NewWithConfig(*s.Config.InfluxDB)
 	nodeMetricList, err := metricDAO.ListNodeMetrics(in)
 
 	if err != nil {
@@ -424,7 +424,7 @@ func (s *Server) ListNodeMetricsPromethues(ctx context.Context, in *DatahubV1Alp
 		}, nil
 	}
 
-	metricDAO = DaoMetricPrometheus.NewWithConfig(*s.Config.Prometheus)
+	metricDAO = DaoMetricPromth.NewWithConfig(*s.Config.Prometheus)
 
 	nodeNames = in.GetNodeNames()
 	queryCondition = datahubQueryConditionExtend{queryCondition: in.GetQueryCondition()}.daoQueryCondition()
@@ -858,7 +858,7 @@ func (s *Server) ListSimulatedSchedulingScores(ctx context.Context, in *DatahubV
 		datahubScores = make([]*DatahubV1Alpha1.SimulatedSchedulingScore, 0)
 	)
 
-	scoreDAO = DaoScoreImplInfluxDB.NewWithConfig(*s.Config.InfluxDB)
+	scoreDAO = DaoScoreImplInflux.NewWithConfig(*s.Config.InfluxDB)
 
 	datahubListSimulatedSchedulingScoresRequestExtended := datahubListSimulatedSchedulingScoresRequestExtended{in}
 	scoreDAOListRequest = datahubListSimulatedSchedulingScoresRequestExtended.daoLisRequest()
@@ -1110,7 +1110,7 @@ func (s *Server) CreateSimulatedSchedulingScores(ctx context.Context, in *Datahu
 		daoSimulatedSchedulingScoreEntites = make([]*DaoScore.SimulatedSchedulingScore, 0)
 	)
 
-	scoreDAO = DaoScoreImplInfluxDB.NewWithConfig(*s.Config.InfluxDB)
+	scoreDAO = DaoScoreImplInflux.NewWithConfig(*s.Config.InfluxDB)
 
 	for _, scoreEntity := range in.GetScores() {
 
