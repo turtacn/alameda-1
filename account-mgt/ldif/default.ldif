@@ -5,16 +5,16 @@ objectclass: organizationalUnit
 ou: localdomain
 description: namespace=federatorai
 
-dn: uid=useradmin,ou=localdomain,dc=prophetstor,dc=com
+dn: uid=admin,ou=localdomain,dc=prophetstor,dc=com
 changeType: add
 objectClass: inetOrgPerson
 objectClass: top
 userPassword: password
 uid: useradmin
 employeeType: domain-admin
-cn: useradmin
-sn: useradmin
-mail: useradmin@localdomain.com
+cn: admin
+sn: admin
+mail: admin@localdomain.com
 ou: localdomain
 description: namespace=federatorai
 description: timezone=+0000
