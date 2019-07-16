@@ -5,6 +5,7 @@ queue:
   retry:
     publish_time: 3
     publish_interval_ms: 500
+    connect_interval_ms: 3000
 
 service_setting:
   granularities:
