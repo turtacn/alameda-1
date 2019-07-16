@@ -3,6 +3,7 @@ package app
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/dispatcher"
 	alameda_app "github.com/containers-ai/alameda/cmd/app"
@@ -52,20 +53,21 @@ var rootCmd = &cobra.Command{
 		}
 		conn, err := grpc.Dial(datahubAddr, grpc.WithInsecure())
 		if err != nil {
-			return
 			scope.Errorf("Datahub connection constructs failed. %s", err.Error())
+			return
 		}
 
-		queueUrl := viper.GetString("queue.url")
-		if queueUrl == "" {
+		queueURL := viper.GetString("queue.url")
+		if queueURL == "" {
 			scope.Errorf("No configuration of queue url.")
 			return
 		}
-		queueConn, err := amqp.Dial(queueUrl)
-		if err != nil {
-			scope.Errorf("Queue connection constructs failed. %s", err.Error())
-			return
+		queueConnRetryItvMS := viper.GetInt64("queue.retry.connect_interval_ms")
+		if queueConnRetryItvMS == 0 {
+			queueConnRetryItvMS = 3000
 		}
+		queueConn := getQueueConn(queueURL, queueConnRetryItvMS)
+
 		defer queueConn.Close()
 		defer conn.Close()
 		dp := dispatcher.NewDispatcher(conn, queueConn)
@@ -135,5 +137,17 @@ func setLoggerScopesWithConfig() {
 		if stacktraceLevel, ok := log.StringToLevel(stackTraceLvl); ok {
 			scope.SetStackTraceLevel(stacktraceLevel)
 		}
+	}
+}
+
+func getQueueConn(queueURL string, retryItvMS int64) *amqp.Connection {
+	for {
+		queueConn, err := amqp.Dial(queueURL)
+		if err != nil {
+			scope.Errorf("Queue connection constructs failed and will retry after %v milliseconds. %s", retryItvMS, err.Error())
+			time.Sleep(time.Duration(retryItvMS) * time.Millisecond)
+			continue
+		}
+		return queueConn
 	}
 }
