@@ -1,19 +1,20 @@
 package apiserver
 
 import (
+	"github.com/containers-ai/alameda/datapipe/pkg/config/apiserver"
     "golang.org/x/net/context"
     "google.golang.org/grpc/metadata"
     "time"
 )
 
 var (
-	serverAddr     = defaultAddress
-	serverUsername = defaultUsername
-	serverPassword = defaultPassword
+	serverAddr     = apiserver.DefaultAddress
+	serverUsername = apiserver.DefaultUsername
+	serverPassword = apiserver.DefaultPassword
 	serverToken    = ""
 )
 
-func ServerInit(config Config) {
+func ServerInit(config apiserver.Config) {
 	serverAddr     = config.Address
 	serverUsername = config.Username
 	serverPassword = config.Password

@@ -1,50 +1,50 @@
 package prometheus
 
 import (
-	"sync"
-
-	metric "github.com/containers-ai/alameda/datapipe/pkg/dao/metrics"
+	"github.com/containers-ai/alameda/datapipe/pkg/dao/metrics"
 	"github.com/containers-ai/alameda/datapipe/pkg/entities/prometheus/containerCPUUsagePercentage"
 	"github.com/containers-ai/alameda/datapipe/pkg/entities/prometheus/containerMemoryUsageBytes"
 	"github.com/containers-ai/alameda/datapipe/pkg/entities/prometheus/nodeCPUUsagePercentage"
 	"github.com/containers-ai/alameda/datapipe/pkg/entities/prometheus/nodeMemoryUsageBytes"
-	"github.com/containers-ai/alameda/datapipe/pkg/repositories/prometheus"
-	promRepository "github.com/containers-ai/alameda/datapipe/pkg/repositories/prometheus/metric"
+	RepoPromthMetric "github.com/containers-ai/alameda/datapipe/pkg/repositories/prometheus/metric"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
+	"sync"
 )
 
 type prometheusMetricDAOImpl struct {
-	prometheusConfig prometheus.Config
+	prometheusConfig InternalPromth.Config
 }
 
 // NewWithConfig Constructor of prometheus metric dao
-func NewWithConfig(config prometheus.Config) metric.MetricsDAO {
+func NewWithConfig(config InternalPromth.Config) metrics.MetricsDAO {
 	return &prometheusMetricDAOImpl{prometheusConfig: config}
 }
 
 // ListPodMetrics Method implementation of MetricsDAO
-func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsRequest) (metric.PodsMetricMap, error) {
+func (p *prometheusMetricDAOImpl) ListPodMetrics(req metrics.ListPodMetricsRequest) (metrics.PodsMetricMap, error) {
 
 	var (
 		err error
 
-		podContainerCPURepo     promRepository.PodContainerCPUUsagePercentageRepository
-		podContainerMemoryRepo  promRepository.PodContainerMemoryUsageBytesRepository
-		containerCPUEntities    []prometheus.Entity
-		containerMemoryEntities []prometheus.Entity
+		podContainerCPURepo     RepoPromthMetric.PodContainerCPUUsagePercentageRepository
+		podContainerMemoryRepo  RepoPromthMetric.PodContainerMemoryUsageBytesRepository
+		containerCPUEntities    []InternalPromth.Entity
+		containerMemoryEntities []InternalPromth.Entity
 
-		podsMetricMap    = metric.PodsMetricMap{}
+		podsMetricMap    = metrics.PodsMetricMap{}
 		ptrPodsMetricMap = &podsMetricMap
 	)
 
-	options := []promRepository.Option{
-		promRepository.StartTime(req.StartTime),
-		promRepository.EndTime(req.EndTime),
-		promRepository.StepDuration(req.StepTime),
-		promRepository.AggregateOverTimeFunction(req.AggregateOverTimeFunction),
+	options := []DBCommon.Option{
+		DBCommon.StartTime(req.StartTime),
+		DBCommon.EndTime(req.EndTime),
+		DBCommon.StepTime(req.StepTime),
+		DBCommon.AggregateOverTimeFunc(req.AggregateOverTimeFunction),
 	}
 
-	podContainerCPURepo = promRepository.NewPodContainerCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
+	podContainerCPURepo = RepoPromthMetric.NewPodContainerCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
 	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, req.RateRange, options...)
 	if err != nil {
 		return podsMetricMap, errors.Wrap(err, "list pod metrics failed")
@@ -56,7 +56,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
 	}
 
-	podContainerMemoryRepo = promRepository.NewPodContainerMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
+	podContainerMemoryRepo = RepoPromthMetric.NewPodContainerMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
 	containerMemoryEntities, err = podContainerMemoryRepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
 	if err != nil {
 		return podsMetricMap, errors.Wrap(err, "list pod metrics failed")
@@ -75,16 +75,16 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 }
 
 // ListNodesMetric Method implementation of MetricsDAO
-func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequest) (metric.NodesMetricMap, error) {
+func (p *prometheusMetricDAOImpl) ListNodesMetric(req metrics.ListNodeMetricsRequest) (metrics.NodesMetricMap, error) {
 
 	var (
 		wg             = sync.WaitGroup{}
 		nodeNames      []string
-		nodeMetricChan = make(chan metric.NodeMetric)
+		nodeMetricChan = make(chan metrics.NodeMetric)
 		errChan        chan error
 		done           = make(chan bool)
 
-		nodesMetricMap    = metric.NodesMetricMap{}
+		nodesMetricMap    = metrics.NodesMetricMap{}
 		ptrNodesMetricMap = &nodesMetricMap
 	)
 
@@ -94,11 +94,11 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 		nodeNames = req.GetEmptyNodeNames()
 	}
 
-	options := []promRepository.Option{
-		promRepository.StartTime(req.StartTime),
-		promRepository.EndTime(req.EndTime),
-		promRepository.StepDuration(req.StepTime),
-		promRepository.AggregateOverTimeFunction(req.AggregateOverTimeFunction),
+	options := []DBCommon.Option{
+		DBCommon.StartTime(req.StartTime),
+		DBCommon.EndTime(req.EndTime),
+		DBCommon.StepTime(req.StepTime),
+		DBCommon.AggregateOverTimeFunc(req.AggregateOverTimeFunction),
 	}
 
 	errChan = make(chan error, len(nodeNames))
@@ -115,7 +115,7 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 	select {
 	case _ = <-done:
 	case err := <-errChan:
-		return metric.NodesMetricMap{}, errors.Wrap(err, "list nodes metrics failed")
+		return metrics.NodesMetricMap{}, errors.Wrap(err, "list nodes metrics failed")
 	}
 
 	ptrNodesMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
@@ -124,19 +124,19 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 	return *ptrNodesMetricMap, nil
 }
 
-func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricChan chan<- metric.NodeMetric, errChan chan<- error, wg *sync.WaitGroup, options ...promRepository.Option) {
+func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricChan chan<- metrics.NodeMetric, errChan chan<- error, wg *sync.WaitGroup, options ...DBCommon.Option) {
 
 	var (
 		err                     error
-		nodeCPUUsageRepo        promRepository.NodeCPUUsagePercentageRepository
-		nodeMemoryUsageRepo     promRepository.NodeMemoryUsageBytesRepository
-		nodeCPUUsageEntities    []prometheus.Entity
-		nodeMemoryUsageEntities []prometheus.Entity
+		nodeCPUUsageRepo        RepoPromthMetric.NodeCPUUsagePercentageRepository
+		nodeMemoryUsageRepo     RepoPromthMetric.NodeMemoryUsageBytesRepository
+		nodeCPUUsageEntities    []InternalPromth.Entity
+		nodeMemoryUsageEntities []InternalPromth.Entity
 	)
 
 	defer wg.Done()
 
-	nodeCPUUsageRepo = promRepository.NewNodeCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
+	nodeCPUUsageRepo = RepoPromthMetric.NewNodeCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
 	nodeCPUUsageEntities, err = nodeCPUUsageRepo.ListMetricsByNodeName(nodeName, options...)
 	if err != nil {
 		errChan <- errors.Wrap(err, "list node cpu usage metrics failed")
@@ -149,7 +149,7 @@ func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricC
 		nodeMetricChan <- nodeMetric
 	}
 
-	nodeMemoryUsageRepo = promRepository.NewNodeMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
+	nodeMemoryUsageRepo = RepoPromthMetric.NewNodeMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
 	nodeMemoryUsageEntities, err = nodeMemoryUsageRepo.ListMetricsByNodeName(nodeName, options...)
 	if err != nil {
 		errChan <- errors.Wrap(err, "list node memory usage metrics failed")
@@ -163,7 +163,7 @@ func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricC
 	}
 }
 
-func addNodeMetricToNodesMetricMap(nodesMetricMap *metric.NodesMetricMap, nodeMetricChan <-chan metric.NodeMetric, done chan<- bool) {
+func addNodeMetricToNodesMetricMap(nodesMetricMap *metrics.NodesMetricMap, nodeMetricChan <-chan metrics.NodeMetric, done chan<- bool) {
 
 	for {
 		nodeMetric, more := <-nodeMetricChan

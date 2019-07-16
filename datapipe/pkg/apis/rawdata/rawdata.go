@@ -2,8 +2,8 @@ package rawdata
 
 import (
 	"fmt"
-	DatahubPrometheus "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
 	DatapipeConfig "github.com/containers-ai/alameda/datapipe/pkg/config"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	Common "github.com/containers-ai/api/common"
@@ -36,15 +36,15 @@ func (c *ServiceRawdata) ReadRawdata(ctx context.Context, in *Rawdata.ReadRawdat
 		rawdata = make([]*Common.ReadRawdata, 0)
 	)
 
-	promthConfig := DatahubPrometheus.Config{}
+	promthConfig := InternalPromth.Config{}
 	promthConfig.URL = c.Config.Prometheus.URL
 	promthConfig.BearerTokenFile = c.Config.Prometheus.BearerTokenFile
-	promthConfig.TLSConfig = &DatahubPrometheus.TLSConfig{}
+	promthConfig.TLSConfig = &InternalPromth.TLSConfig{}
 	promthConfig.TLSConfig.InsecureSkipVerify = c.Config.Prometheus.TLSConfig.InsecureSkipVerify
 
 	switch in.GetDatabaseType() {
 	case Common.DatabaseType_PROMETHEUS:
-		rawdata, err = DatahubPrometheus.ReadRawdata(&promthConfig, in.GetQueries())
+		rawdata, err = InternalPromth.ReadRawdata(&promthConfig, in.GetQueries())
 	default:
 		err = errors.New(fmt.Sprintf("database type(%s) is not supported", Common.DatabaseType_name[int32(in.GetDatabaseType())]))
 	}

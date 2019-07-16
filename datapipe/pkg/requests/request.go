@@ -1,13 +1,12 @@
 package requests
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"time"
-
-	"github.com/containers-ai/alameda/datapipe/pkg/dao"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	CommonAPI "github.com/containers-ai/api/common"
 	dataPipeMetricsAPI "github.com/containers-ai/api/datapipe/metrics"
 	dataPipePredictionsAPI "github.com/containers-ai/api/datapipe/predictions"
+	"github.com/golang/protobuf/ptypes"
+	"time"
 )
 
 type DatahubListPodMetricsRequestExtended struct {
@@ -30,18 +29,11 @@ type DatahubListPodPredictionsRequestExtended struct {
 	request *dataPipePredictionsAPI.ListPodPredictionsRequest
 }
 
-var (
-	DatahubAggregateFunction_DAOAggregateFunction = map[CommonAPI.TimeRange_AggregateFunction]dao.AggregateFunction{
-		CommonAPI.TimeRange_NONE: dao.None,
-		CommonAPI.TimeRange_MAX:  dao.Max,
-	}
-)
-
 type DatahubQueryConditionExtend struct {
 	QueryCondition *CommonAPI.QueryCondition
 }
 
-func (d DatahubQueryConditionExtend) DaoQueryCondition() dao.QueryCondition {
+func (d DatahubQueryConditionExtend) DaoQueryCondition() DBCommon.QueryCondition {
 
 	var (
 		queryStartTime      *time.Time
@@ -49,8 +41,8 @@ func (d DatahubQueryConditionExtend) DaoQueryCondition() dao.QueryCondition {
 		queryStepTime       *time.Duration
 		queryTimestampOrder int
 		queryLimit          int
-		queryCondition      = dao.QueryCondition{}
-		aggregateFunc       = dao.None
+		queryCondition      = DBCommon.QueryCondition{}
+		aggregateFunc       = DBCommon.None
 	)
 
 	if d.QueryCondition == nil {
@@ -74,11 +66,11 @@ func (d DatahubQueryConditionExtend) DaoQueryCondition() dao.QueryCondition {
 
 		switch d.QueryCondition.GetOrder() {
 		case CommonAPI.QueryCondition_ASC:
-			queryTimestampOrder = dao.Asc
+			queryTimestampOrder = DBCommon.Asc
 		case CommonAPI.QueryCondition_DESC:
-			queryTimestampOrder = dao.Desc
+			queryTimestampOrder = DBCommon.Desc
 		default:
-			queryTimestampOrder = dao.Asc
+			queryTimestampOrder = DBCommon.Asc
 		}
 
 		queryLimit = int(d.QueryCondition.GetLimit())
@@ -86,11 +78,11 @@ func (d DatahubQueryConditionExtend) DaoQueryCondition() dao.QueryCondition {
 	queryTimestampOrder = int(d.QueryCondition.GetOrder())
 	queryLimit = int(d.QueryCondition.GetLimit())
 
-	if aggFunc, exist := DatahubAggregateFunction_DAOAggregateFunction[CommonAPI.TimeRange_AggregateFunction(d.QueryCondition.TimeRange.AggregateFunction)]; exist {
+	if aggFunc, exist := DBCommon.TimeRange2AggregationOverTime[CommonAPI.TimeRange_AggregateFunction(d.QueryCondition.TimeRange.AggregateFunction)]; exist {
 		aggregateFunc = aggFunc
 	}
 
-	queryCondition = dao.QueryCondition{
+	queryCondition = DBCommon.QueryCondition{
 		StartTime:      queryStartTime,
 		EndTime:        queryEndTime,
 		StepTime:       queryStepTime,

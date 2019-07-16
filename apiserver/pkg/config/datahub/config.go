@@ -1,7 +1,7 @@
 package datahub
 
 const (
-	defaultAddress = "127.0.0.1:50050"
+	defaultAddress = "alameda-datahub.federatorai:50050"
 )
 
 // Configuration of API server data source
@@ -10,11 +10,11 @@ type Config struct {
 }
 
 // NewDefaultConfig Provide default configuration
-func NewDefaultConfig() Config {
+func NewDefaultConfig() *Config {
 	var config = Config{
 		Address: defaultAddress,
 	}
-	return config
+	return &config
 }
 
 // Validate Confirm the configuration is validate

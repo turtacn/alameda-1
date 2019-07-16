@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/containers-ai/alameda/apiserver/pkg/repositories/datahub"
-	"github.com/containers-ai/alameda/apiserver/pkg/repositories/ldap"
+	"github.com/containers-ai/alameda/apiserver/pkg/config/datahub"
+	"github.com/containers-ai/alameda/internal/pkg/database/ldap"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
@@ -24,8 +24,8 @@ func NewDefaultConfig() Config {
 		defaultLDAPConfig      = ldap.NewDefaultConfig()
 		config                 = Config{
 			BindAddress: defaultBindAddress,
-			Datahub:     &defaultAPIServerConfig,
-			Ldap:        &defaultLDAPConfig,
+			Datahub:     defaultAPIServerConfig,
+			Ldap:        defaultLDAPConfig,
 			Log:         &defaultLogConfig,
 		}
 	)

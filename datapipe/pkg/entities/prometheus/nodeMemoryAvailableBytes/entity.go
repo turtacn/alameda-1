@@ -1,9 +1,9 @@
 package nodeMemoryAvailableBytes
 
 import (
-	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	"github.com/containers-ai/alameda/datahub/pkg/metric"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	metric "github.com/containers-ai/alameda/datapipe/pkg/apis/metrics/define"
+	DaoMetric "github.com/containers-ai/alameda/datapipe/pkg/dao/metrics"
+	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 )
 
 const (
@@ -13,16 +13,16 @@ const (
 	NodeLabel = "node"
 )
 
-// Entity Node memory avaliable entity
+// Entity Node memory available entity
 type Entity struct {
-	PrometheusEntity prometheus.Entity
+	PrometheusEntity InternalPromth.Entity
 
 	NodeName string
 	Samples  []metric.Sample
 }
 
 // NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
-func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
+func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 
 	var (
 		samples []metric.Sample
@@ -46,13 +46,13 @@ func NewEntityFromPrometheusEntity(e prometheus.Entity) Entity {
 }
 
 // NodeMetric Build NodeMetric base on entity properties
-func (e *Entity) NodeMetric() metric_dao.NodeMetric {
+func (e *Entity) NodeMetric() DaoMetric.NodeMetric {
 
 	var (
-		nodeMetric metric_dao.NodeMetric
+		nodeMetric DaoMetric.NodeMetric
 	)
 
-	nodeMetric = metric_dao.NodeMetric{
+	nodeMetric = DaoMetric.NodeMetric{
 		NodeName: e.NodeName,
 		Metrics: map[metric.NodeMetricType][]metric.Sample{
 			metric.TypeNodeMemoryAvailableBytes: e.Samples,

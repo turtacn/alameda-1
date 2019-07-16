@@ -2,7 +2,7 @@ bind-address = ":50060"
 
 [apiserver]
     address = "127.0.0.1:50055"
-    username = "useradmin"
+    username = "admin"
     password = "password"
 
 [prometheus]

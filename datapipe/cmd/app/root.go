@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/containers-ai/alameda/cmd/app"
 	Config "github.com/containers-ai/alameda/datapipe/pkg/config"
+	APIConfig "github.com/containers-ai/alameda/datapipe/pkg/config/apiserver"
 	RepoAPI "github.com/containers-ai/alameda/datapipe/pkg/repositories/apiserver"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
@@ -44,7 +45,7 @@ func setLoggerScopesWithConfig(config log.Config) {
 	}
 }
 
-func setAPIServerWithConfig(config RepoAPI.Config) {
+func setAPIServerWithConfig(config APIConfig.Config) {
 	RepoAPI.ServerInit(config)
 }
 
