@@ -1,0 +1,65 @@
+/// This file has messages related to metric data of containers, pods, and nodes
+syntax = "proto3";
+
+package containers_ai.alameda.v1alpha1.datahub;
+import "google/protobuf/timestamp.proto";
+
+enum EventType {
+    EVENT_TYPE_UNDEFINED                    = 0;
+    EVENT_TYPE_ALAMEDA_SCALER_CREATE        = 1;
+    EVENT_TYPE_ALAMEDA_SCALER_DELETE        = 2;
+    EVENT_TYPE_NODE_REGISTER                = 3;
+    EVENT_TYPE_DEPLOYMENT_REGISTER          = 4;
+    EVENT_TYPE_DEPLOYMENT_CONFIG_REGISTER   = 5;
+    EVENT_TYPE_POD_REGISTER                 = 6;
+    EVENT_TYPE_NODE_DEREGISTER              = 7;
+    EVENT_TYPE_DEPLOYMENT_DEREGISTER        = 8;
+    EVENT_TYPE_DEPLOYMENT_CONFIG_DEREGISTER = 9;
+    EVENT_TYPE_POD_DEREGISTER               = 10;
+    EVENT_TYPE_NODE_PREDICTION_CREATE       = 11;
+    EVENT_TYPE_POD_PREDICTION_CREATE        = 12;
+    EVENT_TYPE_VPA_RECOMMENDATION_CREATE    = 13;
+    EVENT_TYPE_HPA_RECOMMENDATION_CREATE    = 14;
+    EVENT_TYPE_POD_EVICT                    = 15;
+    EVENT_TYPE_POD_PATCH                    = 16;
+    EVENT_TYPE_ANOMALY_METRIC_DETECT        = 17;
+    EVENT_TYPE_ANOMALY_ANALYSIS_CREATE      = 18;
+}
+
+enum EventVersion {
+    EVENT_VERSION_UNDEFINED = 0;
+    EVENT_VERSION_V1        = 1;
+}
+
+enum EventLevel {
+    EVENT_LEVEL_UNDEFINED = 0;
+    EVENT_LEVEL_DEBUG     = 1;
+    EVENT_LEVEL_INFO      = 2;
+    EVENT_LEVEL_WARNING   = 3;
+    EVENT_LEVEL_ERROR     = 4;
+    EVENT_LEVEL_FATAL     = 5;
+}
+
+message EventSource {
+    string host      = 1;
+    string component = 2;
+}
+
+message K8SObjectReference {
+    string kind        = 1;
+    string namespace   = 2;
+    string name        = 3;
+    string api_version = 4;
+}
+message Event {
+    google.protobuf.Timestamp time       = 1;
+    string                    id         = 2;
+    string                    cluster_id = 3;
+    EventSource               source     = 4;
+    EventType                 type       = 5;
+    EventVersion              version    = 6;
+    EventLevel                level      = 7;
+    K8SObjectReference        subject    = 8;
+    string                    message    = 9;
+    string                    data       = 10;
+}
