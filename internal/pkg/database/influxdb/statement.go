@@ -50,6 +50,25 @@ func (s *Statement) AppendWhereClause(key string, operator string, value string)
 	}
 }
 
+func (s *Statement) AppendWhereClauseByList(key string, operator string, listOperator string, values []string) {
+	if len(values) == 0 {
+		return
+	}
+
+	condition := "("
+	for _, value := range values {
+		condition += fmt.Sprintf("\"%s\"%s'%s' %s ", key, operator, value, listOperator)
+	}
+	condition = strings.TrimSuffix(condition, fmt.Sprintf("%s ", listOperator))
+	condition += ")"
+
+	if s.WhereClause == "" {
+		s.WhereClause += fmt.Sprintf("WHERE %s ", condition)
+	} else {
+		s.WhereClause += fmt.Sprintf("AND %s ", condition)
+	}
+}
+
 func (s *Statement) AppendWhereClauseDirectly(condition string) {
 	if condition == "" {
 		return

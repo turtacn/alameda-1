@@ -20,3 +20,9 @@ log:
 
 weavescope:
   url: "http://127.0.0.1:4040"
+
+rabbitmq:
+  url: "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
+  retry:
+    publish_time: 3
+    publish_interval_ms: 500

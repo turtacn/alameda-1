@@ -4,6 +4,7 @@ import (
 	"fmt"
 	cluster_status_dao "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	cluster_status_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
+	event_dao "github.com/containers-ai/alameda/datahub/pkg/dao/event"
 	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	prometheusMetricDAO "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
 	prediction_dao_impl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
@@ -152,6 +153,7 @@ func (s *Server) InitInfluxdbDatabase() {
 		"alameda_prediction",
 		"alameda_recommendation",
 		"alameda_score",
+		"alameda_event",
 	}
 
 	for _, db := range databaseList {
@@ -1114,7 +1116,7 @@ func (s *Server) ReadRawdata(ctx context.Context, in *datahub_v1alpha1.ReadRawda
 	scope.Debug("Request received from ReadRawdata grpc function")
 
 	var (
-		err error
+		err     error
 		rawdata = make([]*Common.ReadRawdata, 0)
 	)
 
@@ -1357,5 +1359,58 @@ func (s *Server) GetWeaveScopeContainerDetails(ctx context.Context, in *datahub_
 	}
 
 	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) CreateEvents(ctx context.Context, in *datahub_v1alpha1.CreateEventsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateEvents grpc function")
+
+	eventDAO := event_dao.NewEventWithConfig(s.Config.InfluxDB, s.Config.RabbitMQ)
+
+	err := eventDAO.CreateEvents(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	err = eventDAO.SendEvents(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+func (s *Server) ListEvents(ctx context.Context, in *datahub_v1alpha1.ListEventsRequest) (*datahub_v1alpha1.ListEventsResponse, error) {
+	scope.Debug("Request received from ListEvents grpc function")
+
+	eventDAO := event_dao.NewEventWithConfig(s.Config.InfluxDB, s.Config.RabbitMQ)
+	events, err := eventDAO.ListEvents(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListEventsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INTERNAL),
+			},
+			Events: events,
+		}, nil
+	}
+
+	response := &datahub_v1alpha1.ListEventsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		Events: events,
+	}
+
 	return response, nil
 }
