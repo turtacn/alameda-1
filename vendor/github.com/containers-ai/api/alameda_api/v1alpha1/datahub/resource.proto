@@ -60,6 +60,7 @@ message Node {
     string name = 1;
     Capacity capacity = 2;
     google.protobuf.Timestamp start_time = 3;
+    Provider provider = 4;
 }
 
 /**
@@ -95,4 +96,11 @@ message Controller {
     bool enable_recommendation_execution = 4;
     RecommendationPolicy policy          = 5;
     int32 spec_replicas                  = 6;
+}
+
+message Provider {
+    string provider      = 1;
+    string instance_type = 2;
+    string region        = 3;
+    string zone          = 4;
 }
