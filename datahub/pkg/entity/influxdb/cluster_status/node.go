@@ -1,51 +1,53 @@
 package clusterstatus
 
 import (
-	"strconv"
-	"time"
-
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	influxdb_client "github.com/influxdata/influxdb/client/v2"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
+	"strconv"
+	"time"
 )
 
 type nodeField = string
 type nodeTag = string
 
 const (
-	// NodeTime is the time node information is inserted to databse
-	NodeTime nodeTag = "time"
-	// NodeName is the name of node
-	NodeName nodeTag = "name"
+	NodeTime nodeTag = "time" // NodeTime is the time node information is inserted to database
+	NodeName nodeTag = "name" // NodeName is the name of node
 
-	// NodeGroup is node group name
-	NodeGroup nodeField = "group"
-	// NodeInCluster is the state node is in cluster or not
-	NodeInCluster nodeField = "in_cluster"
-	// NodeCPUCores is the amount of cores in node
-	NodeCPUCores nodeField = "node_cpu_cores"
-	// NodeMemoryBytes is the amount of momory bytes in node
-	NodeMemoryBytes nodeField = "node_memory_bytes"
+	NodeGroup       nodeField = "group"             // NodeGroup is node group name
+	NodeInCluster   nodeField = "in_cluster"        // NodeInCluster is the state node is in cluster or not
+	NodeCPUCores    nodeField = "node_cpu_cores"    // NodeCPUCores is the amount of cores in node
+	NodeMemoryBytes nodeField = "node_memory_bytes" // NodeMemoryBytes is the amount of momory bytes in node
 
 	NodeCreateTime nodeField = "create_time"
+
+	NodeIOProvider     nodeField = "io_provider" // Cloud service provider
+	NodeIOInstanceType nodeField = "io_instance_type"
+	NodeIORegion       nodeField = "io_region"
+	NodeIOZone         nodeField = "io_zone"
 )
 
 var (
 	// NodeTags list tags of node measurement
 	NodeTags = []nodeTag{NodeTime, NodeName}
 	// NodeFields list fields of node measurement
-	NodeFields = []nodeField{NodeGroup, NodeInCluster}
+	NodeFields = []nodeField{NodeGroup, NodeInCluster, NodeCPUCores, NodeMemoryBytes, NodeCreateTime, NodeIOProvider, NodeIOInstanceType, NodeIORegion, NodeIOZone}
 )
 
 // NodeEntity is entity in database
 type NodeEntity struct {
-	Time        time.Time
-	Name        *string
-	NodeGroup   *string
-	IsInCluster *bool
-	CPUCores    *int64
-	MemoryBytes *int64
-	CreatedTime *int64
+	Time           time.Time
+	Name           *string
+	NodeGroup      *string
+	IsInCluster    *bool
+	CPUCores       *int64
+	MemoryBytes    *int64
+	CreatedTime    *int64
+	IOProvider     *string
+	IOInstanceType *string
+	IORegion       *string
+	IOZone         *string
 }
 
 // NewNodeEntityFromMap Build entity from map
@@ -76,11 +78,23 @@ func NewNodeEntityFromMap(data map[string]string) NodeEntity {
 		value, _ := strconv.ParseInt(memoryBytes, 10, 64)
 		entity.MemoryBytes = &value
 	}
+	if ioProvider, exist := data[NodeIOProvider]; exist {
+		entity.IOProvider = &ioProvider
+	}
+	if ioInstanceType, exist := data[NodeIOInstanceType]; exist {
+		entity.IOInstanceType = &ioInstanceType
+	}
+	if ioRegion, exist := data[NodeIORegion]; exist {
+		entity.IORegion = &ioRegion
+	}
+	if ioZone, exist := data[NodeIOZone]; exist {
+		entity.IOZone = &ioZone
+	}
 
 	return entity
 }
 
-func (e NodeEntity) InfluxDBPoint(measurementName string) (*influxdb_client.Point, error) {
+func (e NodeEntity) InfluxDBPoint(measurementName string) (*InfluxClient.Point, error) {
 
 	tags := map[string]string{}
 	if e.Name != nil {
@@ -103,14 +117,27 @@ func (e NodeEntity) InfluxDBPoint(measurementName string) (*influxdb_client.Poin
 	if e.CreatedTime != nil {
 		fields[NodeCreateTime] = *e.CreatedTime
 	}
+	if e.IOProvider != nil {
+		fields[NodeIOProvider] = *e.IOProvider
+	}
+	if e.IOInstanceType != nil {
+		fields[NodeIOInstanceType] = *e.IOInstanceType
+	}
+	if e.IORegion != nil {
+		fields[NodeIORegion] = *e.IORegion
+	}
+	if e.IOZone != nil {
+		fields[NodeIOZone] = *e.IOZone
+	}
 
-	return influxdb_client.NewPoint(measurementName, tags, fields, e.Time)
+	return InfluxClient.NewPoint(measurementName, tags, fields, e.Time)
 }
 
 func (e NodeEntity) BuildDatahubNode() *datahub_v1alpha1.Node {
 
 	node := &datahub_v1alpha1.Node{
 		Capacity: &datahub_v1alpha1.Capacity{},
+		Provider: &datahub_v1alpha1.Provider{},
 	}
 
 	if e.Name != nil {
@@ -121,6 +148,18 @@ func (e NodeEntity) BuildDatahubNode() *datahub_v1alpha1.Node {
 	}
 	if e.MemoryBytes != nil {
 		node.Capacity.MemoryBytes = *e.MemoryBytes
+	}
+	if e.IOProvider != nil {
+		node.Provider.Provider = *e.IOProvider
+	}
+	if e.IOInstanceType != nil {
+		node.Provider.InstanceType = *e.IOInstanceType
+	}
+	if e.IORegion != nil {
+		node.Provider.Region = *e.IORegion
+	}
+	if e.IOZone != nil {
+		node.Provider.Zone = *e.IOZone
 	}
 
 	return node
