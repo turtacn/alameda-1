@@ -31,21 +31,23 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *DatahubV1alpha
 
 	out := new(DatahubV1alpha1.ListPodMetricsResponse)
 
-	//Authenticate
-	out.Status = &status.Status{
-		Code: int32(code.Code_INTERNAL),
-	}
-
+	// Do authentication
 	_, err := Accounts.Authenticate(ctx)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 
-	//call datahub api
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 	defer conn.Close()
@@ -59,21 +61,23 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alph
 
 	out := new(DatahubV1alpha1.ListNodeMetricsResponse)
 
-	//Authenticate
-	out.Status = &status.Status{
-		Code: int32(code.Code_INTERNAL),
-	}
-
+	// Do authentication
 	_, err := Accounts.Authenticate(ctx)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 
-	//call datahub api
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 	defer conn.Close()
@@ -87,21 +91,23 @@ func (s *ServiceV1alpha1) ListAlamedaPods(ctx context.Context, in *DatahubV1alph
 
 	out := new(DatahubV1alpha1.ListPodsResponse)
 
-	//Authenticate
-	out.Status = &status.Status{
-		Code: int32(code.Code_INTERNAL),
-	}
-
+	// Do authentication
 	_, err := Accounts.Authenticate(ctx)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 
-	//call datahub api
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 	defer conn.Close()
@@ -115,21 +121,23 @@ func (s *ServiceV1alpha1) ListAlamedaNodes(ctx context.Context, in *DatahubV1alp
 
 	out := new(DatahubV1alpha1.ListNodesResponse)
 
-	//Authenticate
-	out.Status = &status.Status{
-		Code: int32(code.Code_INTERNAL),
-	}
-
+	// Do authentication
 	_, err := Accounts.Authenticate(ctx)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 
-	//call datahub api
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 	defer conn.Close()
@@ -142,21 +150,23 @@ func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *DatahubV1alpha1.Lis
 
 	out := new(DatahubV1alpha1.ListNodesResponse)
 
-	//Authenticate
-	out.Status = &status.Status{
-		Code: int32(code.Code_INTERNAL),
-	}
-
+	// Do authentication
 	_, err := Accounts.Authenticate(ctx)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 
-	//call datahub api
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 	defer conn.Close()
@@ -169,21 +179,23 @@ func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *DatahubV1alph
 
 	out := new(DatahubV1alpha1.ListControllersResponse)
 
-	//Authenticate
-	out.Status = &status.Status{
-		Code: int32(code.Code_INTERNAL),
-	}
-
+	// Do authentication
 	_, err := Accounts.Authenticate(ctx)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 
-	//call datahub api
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
-		out.Status.Message = err.Error()
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
 		return out, nil
 	}
 	defer conn.Close()
@@ -197,6 +209,17 @@ func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *DatahubV1a
 
 	out := new(DatahubV1alpha1.ListPodPredictionsResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -216,6 +239,17 @@ func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *DatahubV1
 
 	out := new(DatahubV1alpha1.ListNodePredictionsResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -235,6 +269,17 @@ func (s *ServiceV1alpha1) ListPodRecommendations(ctx context.Context, in *Datahu
 
 	out := new(DatahubV1alpha1.ListPodRecommendationsResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -254,6 +299,17 @@ func (s *ServiceV1alpha1) ListAvailablePodRecommendations(ctx context.Context, i
 
 	out := new(DatahubV1alpha1.ListPodRecommendationsResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -273,6 +329,17 @@ func (s *ServiceV1alpha1) ListControllerRecommendations(ctx context.Context, in 
 
 	out := new(DatahubV1alpha1.ListControllerRecommendationsResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -292,6 +359,17 @@ func (s *ServiceV1alpha1) ListPodsByNodeName(ctx context.Context, in *DatahubV1a
 
 	out := new(DatahubV1alpha1.ListPodsResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -311,6 +389,17 @@ func (s *ServiceV1alpha1) ListSimulatedSchedulingScores(ctx context.Context, in 
 
 	out := new(DatahubV1alpha1.ListSimulatedSchedulingScoresResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -328,6 +417,16 @@ func (s *ServiceV1alpha1) ListSimulatedSchedulingScores(ctx context.Context, in 
 func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *DatahubV1alpha1.CreatePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePods grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -343,6 +442,16 @@ func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *DatahubV1alpha1.Cr
 func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *DatahubV1alpha1.CreateControllersRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllers grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -358,6 +467,16 @@ func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *DatahubV1al
 func (s *ServiceV1alpha1) DeleteControllers(ctx context.Context, in *DatahubV1alpha1.DeleteControllersRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteControllers grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -374,6 +493,16 @@ func (s *ServiceV1alpha1) DeleteControllers(ctx context.Context, in *DatahubV1al
 func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *DatahubV1alpha1.DeletePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeletePods grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -390,6 +519,16 @@ func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *DatahubV1alpha1.De
 func (s *ServiceV1alpha1) CreateAlamedaNodes(ctx context.Context, in *DatahubV1alpha1.CreateAlamedaNodesRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateAlamedaNodes grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -406,6 +545,16 @@ func (s *ServiceV1alpha1) CreateAlamedaNodes(ctx context.Context, in *DatahubV1a
 func (s *ServiceV1alpha1) CreatePodPredictions(ctx context.Context, in *DatahubV1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodPredictions grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -422,6 +571,16 @@ func (s *ServiceV1alpha1) CreatePodPredictions(ctx context.Context, in *DatahubV
 func (s *ServiceV1alpha1) CreateNodePredictions(ctx context.Context, in *DatahubV1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNodePredictions grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -438,6 +597,16 @@ func (s *ServiceV1alpha1) CreateNodePredictions(ctx context.Context, in *Datahub
 func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *DatahubV1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodRecommendations grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -454,6 +623,16 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *Data
 func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, in *DatahubV1alpha1.CreateControllerRecommendationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllerRecommendations grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -470,6 +649,16 @@ func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, i
 func (s *ServiceV1alpha1) CreateSimulatedSchedulingScores(ctx context.Context, in *DatahubV1alpha1.CreateSimulatedSchedulingScoresRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateSimulatedSchedulingScores grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -486,6 +675,16 @@ func (s *ServiceV1alpha1) CreateSimulatedSchedulingScores(ctx context.Context, i
 func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *DatahubV1alpha1.DeleteAlamedaNodesRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteAlamedaNodes grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -501,8 +700,20 @@ func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *DatahubV1a
 // Read rawdata from database
 func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *DatahubV1alpha1.ReadRawdataRequest) (*DatahubV1alpha1.ReadRawdataResponse, error) {
 	scope.Debug("Request received from ReadRawdata grpc function")
+
 	out := new(DatahubV1alpha1.ReadRawdataResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -520,6 +731,16 @@ func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *DatahubV1alpha1.R
 func (s *ServiceV1alpha1) WriteRawdata(ctx context.Context, in *DatahubV1alpha1.WriteRawdataRequest) (*status.Status, error) {
 	scope.Debug("Request received from WriteRawdata grpc function")
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		return &status.Status{
@@ -543,6 +764,17 @@ func (s *ServiceV1alpha1) ListWeaveScopeHosts(ctx context.Context, in *DatahubV1
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -561,6 +793,17 @@ func (s *ServiceV1alpha1) GetWeaveScopeHostDetails(ctx context.Context, in *Data
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -579,6 +822,17 @@ func (s *ServiceV1alpha1) ListWeaveScopePods(ctx context.Context, in *DatahubV1a
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -597,6 +851,17 @@ func (s *ServiceV1alpha1) GetWeaveScopePodDetails(ctx context.Context, in *Datah
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -615,6 +880,17 @@ func (s *ServiceV1alpha1) ListWeaveScopeContainers(ctx context.Context, in *Data
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -633,6 +909,17 @@ func (s *ServiceV1alpha1) ListWeaveScopeContainersByHostname(ctx context.Context
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -651,6 +938,17 @@ func (s *ServiceV1alpha1) ListWeaveScopeContainersByImage(ctx context.Context, i
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -669,6 +967,17 @@ func (s *ServiceV1alpha1) GetWeaveScopeContainerDetails(ctx context.Context, in 
 
 	out := new(DatahubV1alpha1.WeaveScopeResponse)
 
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
 	conn, client, err := RepoDatahub.CreateClient(s.Target)
 	if err != nil {
 		out.Status = &status.Status{
@@ -680,4 +989,58 @@ func (s *ServiceV1alpha1) GetWeaveScopeContainerDetails(ctx context.Context, in 
 	defer conn.Close()
 
 	return client.GetWeaveScopeContainerDetails(ctx, in)
+}
+
+func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.CreateEventsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateEvents grpc function")
+
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Call datahub api
+	conn, client, err := RepoDatahub.CreateClient(s.Target)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+	defer conn.Close()
+
+	return client.CreateEvents(ctx, in)
+}
+
+func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *DatahubV1alpha1.ListEventsRequest) (*DatahubV1alpha1.ListEventsResponse, error) {
+	scope.Debug("Request received from ListEvents grpc function")
+
+	out := new(DatahubV1alpha1.ListEventsResponse)
+
+	// Do authentication
+	_, err := Accounts.Authenticate(ctx)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_UNAUTHENTICATED),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+
+	// Call datahub api
+	conn, client, err := RepoDatahub.CreateClient(s.Target)
+	if err != nil {
+		out.Status = &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}
+		return out, nil
+	}
+	defer conn.Close()
+
+	return client.ListEvents(ctx, in)
 }
