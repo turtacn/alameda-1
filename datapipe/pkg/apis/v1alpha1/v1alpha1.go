@@ -1098,3 +1098,63 @@ func (s *ServiceV1alpha1) GetWeaveScopeContainerDetails(ctx context.Context, in 
 
 	return out, nil
 }
+
+func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.CreateEventsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateEvents grpc function")
+
+	conn, client, err := RepoApiServer.CreateClient(s.Target)
+	if err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+	defer conn.Close()
+
+	// Send to API server
+	stat, err := client.CreateEvents(RepoApiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if stat != nil {
+		if RepoApiServer.NeedResendRequest(stat, err) {
+			stat, err = client.CreateEvents(RepoApiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	stat, _ = RepoApiServer.CheckResponse(stat, err)
+
+	return stat, nil
+}
+
+func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *DatahubV1alpha1.ListEventsRequest) (*DatahubV1alpha1.ListEventsResponse, error) {
+	scope.Debug("Request received from ListEvents grpc function")
+
+	out := new(DatahubV1alpha1.ListEventsResponse)
+
+	conn, client, err := RepoApiServer.CreateClient(s.Target)
+	if err != nil {
+		return out, nil
+	}
+	defer conn.Close()
+
+	// Send to API server
+	out, err = client.ListEvents(RepoApiServer.NewContextWithCredential(), in)
+
+	// Check if needs to resend request
+	if out != nil {
+		if RepoApiServer.NeedResendRequest(out.GetStatus(), err) {
+			out, err = client.ListEvents(RepoApiServer.NewContextWithCredential(), in)
+		}
+	}
+
+	if err != nil {
+		return &DatahubV1alpha1.ListEventsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	return out, nil
+}
