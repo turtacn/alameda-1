@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"strings"
 
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
@@ -44,7 +45,6 @@ func (repo *AlamedaNodeRepository) CreateAlamedaNode(nodes []*corev1.Node) error
 func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*corev1.Node) error {
 	alamedaNodes := []*datahub_v1alpha1.Node{}
 	for _, node := range nodes {
-
 		cpuCores, ok := node.Status.Capacity.Cpu().AsInt64()
 		if !ok {
 			// TODO: use node.Status.Capacity.Cpu().AsDec()
@@ -58,8 +58,7 @@ func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*corev1.Node) error
 			scope.Errorf("create alameda node %s to Datahub failed, cannot convert memory capacity, skip this node", node.GetName())
 			return nil
 		}
-
-		alamedaNodes = append(alamedaNodes, &datahub_v1alpha1.Node{
+		newNode := &datahub_v1alpha1.Node{
 			Name: node.GetName(),
 			Capacity: &datahub_v1alpha1.Capacity{
 				CpuCores:    cpuCores,
@@ -68,7 +67,20 @@ func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*corev1.Node) error
 			StartTime: &timestamp.Timestamp{
 				Seconds: node.ObjectMeta.GetCreationTimestamp().Unix(),
 			},
-		})
+			Provider: &datahub_v1alpha1.Provider{},
+		}
+		labels := node.GetObjectMeta().GetLabels()
+		if value, ok := labels["label_beta_kubernetes_io_instance_type"]; ok {
+			newNode.Provider.InstanceType = value
+		}
+		if value, ok := labels["label_failure_domain_beta_kubernetes_io_region"]; ok {
+			newNode.Provider.Region = value
+		}
+		if value, ok := labels["label_failure_domain_beta_kubernetes_io_zone"]; ok {
+			newNode.Provider.Zone = value
+		}
+		newNode.Provider.Provider = strings.Split(node.Spec.ProviderID, ":")[0]
+		alamedaNodes = append(alamedaNodes, newNode)
 	}
 	req := datahub_v1alpha1.CreateAlamedaNodesRequest{
 		AlamedaNodes: alamedaNodes,
