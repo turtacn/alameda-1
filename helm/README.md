@@ -39,7 +39,7 @@ $ helm install --name alameda-grafana --namespace alameda ./grafana/
 
 4. (Optional) If your environment does not have a running Prometheus, you can install it by executing:
 ```
-$ helm install stable/prometheus-operator --version 5.15.0 --name prometheus --namespace monitoring
+$ helm install stable/prometheus-operator --version 5.16.0 --name prometheus --namespace monitoring
 ```
 This will install Prometheus and the default setting will have all the metrics that Alameda needs. For detail metrics needed by Alameda, please visit [metrics_used_in_Alameda.md](../docs/metrics_used_in_Alameda.md) document.
 
@@ -49,7 +49,7 @@ This will install Prometheus and the default setting will have all the metrics t
 $ git clone https://github.com/containers-ai/alameda
 $ helm install stable/influxdb --version 1.1.9 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
 ### Install Prometheus if no existed one
-# $ helm install stable/prometheus-operator --version 5.15.0 --name prometheus --namespace monitoring
+# $ helm install stable/prometheus-operator --version 5.16.0 --name prometheus --namespace monitoring
 $ helm install --name alameda --namespace alameda ./alameda/
 $ helm install --name alameda-grafana --namespace alameda ./grafana/
 ```

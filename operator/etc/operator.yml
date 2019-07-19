@@ -17,4 +17,3 @@ k8s-webhook-server:
 
 pod-info:
   labels-file: "/etc/podinfo/labels"
-
