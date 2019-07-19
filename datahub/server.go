@@ -4,6 +4,7 @@ import (
 	"fmt"
 	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status"
 	DaoClusterStatusImpl "github.com/containers-ai/alameda/datahub/pkg/dao/cluster_status/impl"
+	DaoEvent "github.com/containers-ai/alameda/datahub/pkg/dao/event"
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	DaoMetricInflux "github.com/containers-ai/alameda/datahub/pkg/dao/metric/influxdb"
 	DaoMetricPromth "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
@@ -154,6 +155,7 @@ func (s *Server) InitInfluxdbDatabase() {
 		"alameda_recommendation",
 		"alameda_score",
 		"alameda_metric",
+		"alameda_event",
 	}
 
 	for _, db := range databaseList {
@@ -1415,5 +1417,58 @@ func (s *Server) GetWeaveScopeContainerDetails(ctx context.Context, in *DatahubV
 	}
 
 	response.Rawdata = rawdata
+	return response, nil
+}
+
+func (s *Server) CreateEvents(ctx context.Context, in *DatahubV1Alpha1.CreateEventsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateEvents grpc function")
+
+	eventDAO := DaoEvent.NewEventWithConfig(s.Config.InfluxDB, s.Config.RabbitMQ)
+
+	err := eventDAO.CreateEvents(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	err = eventDAO.SendEvents(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+func (s *Server) ListEvents(ctx context.Context, in *DatahubV1Alpha1.ListEventsRequest) (*DatahubV1Alpha1.ListEventsResponse, error) {
+	scope.Debug("Request received from ListEvents grpc function")
+
+	eventDAO := DaoEvent.NewEventWithConfig(s.Config.InfluxDB, s.Config.RabbitMQ)
+	events, err := eventDAO.ListEvents(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &DatahubV1Alpha1.ListEventsResponse{
+			Status: &status.Status{
+				Code: int32(code.Code_INTERNAL),
+			},
+			Events: events,
+		}, nil
+	}
+
+	response := &DatahubV1Alpha1.ListEventsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		Events: events,
+	}
+
 	return response, nil
 }

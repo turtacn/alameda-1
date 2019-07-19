@@ -22,4 +22,7 @@ const (
 
 	// Score is score database
 	Score influxdb.Database = "alameda_score"
+
+	// Event is score database
+	Event influxdb.Database = "alameda_event"
 )
