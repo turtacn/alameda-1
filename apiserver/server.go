@@ -7,8 +7,10 @@ import (
 	"github.com/containers-ai/alameda/apiserver/pkg/apis/agents"
 	"github.com/containers-ai/alameda/apiserver/pkg/apis/ping"
 	"github.com/containers-ai/alameda/apiserver/pkg/apis/rawdata"
+	"github.com/containers-ai/alameda/apiserver/pkg/apis/v1alpha1"
 	"github.com/containers-ai/alameda/apiserver/pkg/config"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	Accounts "github.com/containers-ai/federatorai-api/apiserver/accounts"
 	Agents "github.com/containers-ai/federatorai-api/apiserver/agents"
 	Ping "github.com/containers-ai/federatorai-api/apiserver/ping"
@@ -17,9 +19,6 @@ import (
 	"google.golang.org/grpc/reflection"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"net"
-
-	"github.com/containers-ai/alameda/datapipe/pkg/apis/v1alpha1"
-	V1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 )
 
 type Server struct {
@@ -102,6 +101,6 @@ func (s *Server) registerGRPCServer(server *grpc.Server) {
 	Rawdata.RegisterRawdataServiceServer(server, rdata)
 
 	v1alpha1Srv := v1alpha1.NewServiceV1alpha1()
-	V1alpha1.RegisterDatahubServiceServer(server, v1alpha1Srv)
+	DatahubV1alpha1.RegisterDatahubServiceServer(server, v1alpha1Srv)
 	v1alpha1Srv.Target = s.Config.Datahub.Address
 }
