@@ -11,6 +11,7 @@ import "alameda_api/v1alpha1/datahub/metric.proto";
 import "alameda_api/v1alpha1/datahub/resource.proto";
 import "alameda_api/v1alpha1/datahub/recommendation.proto";
 import "alameda_api/v1alpha1/datahub/score.proto";
+import "alameda_api/v1alpha1/datahub/event.proto";
 import "common/common.proto";
 
 message QueryCondition {
@@ -341,6 +342,25 @@ message WriteRawdataRequest {
     repeated containersai.common.WriteRawdata rawdata = 2;
 }
 
+message ListEventsRequest {
+    repeated string         id         = 1;
+    repeated string         cluster_id = 2;
+    repeated EventType      type       = 3;
+    repeated EventVersion   version    = 4;
+    repeated EventLevel     level      = 5;
+
+    QueryCondition query_condition = 6;
+}
+
+message ListEventsResponse {
+    google.rpc.Status status = 1;
+    repeated Event events = 2;
+}
+
+message CreateEventsRequest {
+    repeated Event events = 1;
+}
+
 /**
  * Service for providing data stored in the backend
  */
@@ -451,7 +471,7 @@ service DatahubService {
     rpc Ping(google.protobuf.Empty)
         returns (google.rpc.Status) {}
 
-    //weave scope--------------------------------------------------
+    // weave scope--------------------------------------------------
     rpc ListWeaveScopeHosts(ListWeaveScopeHostsRequest)
         returns (WeaveScopeResponse){}
 
@@ -475,4 +495,13 @@ service DatahubService {
 
     rpc GetWeaveScopeContainerDetails(ListWeaveScopeContainersRequest)
         returns (WeaveScopeResponse){}
+
+    // events
+    rpc CreateEvents(CreateEventsRequest)
+        returns (google.rpc.Status){}
+
+    rpc ListEvents(ListEventsRequest)
+        returns (ListEventsResponse){}
+
+
 }
