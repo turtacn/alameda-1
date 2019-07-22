@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"time"
 
 	"github.com/spf13/viper"
@@ -32,7 +34,9 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
 			false,     // delete when unused
 			false,     // exclusive
 			false,     // no-wait
-			nil,       // arguments
+			amqp.Table{
+				"x-message-deduplication": true,
+			}, // arguments
 		)
 		if err != nil {
 			continue
@@ -47,6 +51,9 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
 				ContentType:  "text/plain",
 				Body:         []byte(jsonStr),
 				DeliveryMode: 2, // 2 means persistent
+				Headers: amqp.Table{
+					"x-deduplication-header": sender.getMessageHash(jsonStr),
+				},
 			})
 
 		if err == nil {
@@ -82,4 +89,11 @@ func (sender *RabbitMQSender) getRetry() *retry {
 		publishRetryTime:       publishRetryTime,
 		publishRetryIntervalMS: publishRetryIntervalMS,
 	}
+}
+
+func (sender *RabbitMQSender) getMessageHash(msgStr string) string {
+	h := sha1.New()
+	h.Write([]byte(msgStr))
+	bs := h.Sum(nil)
+	return fmt.Sprintf("%x", bs)
 }
