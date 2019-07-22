@@ -1,4 +1,4 @@
-package datahub
+package config
 
 import (
 	"errors"
@@ -23,9 +23,8 @@ type Config struct {
 }
 
 func NewDefaultConfig() Config {
-
 	var (
-		defaultlogConfig        = log.NewDefaultConfig()
+		defaultLogConfig        = log.NewDefaultConfig()
 		defaultPrometheusConfig = InternalPromth.NewDefaultConfig()
 		defaultInfluxDBConfig   = InternalInflux.NewDefaultConfig()
 		defaultWeaveScopeConfig = InternalWeaveScope.NewDefaultConfig()
@@ -36,7 +35,7 @@ func NewDefaultConfig() Config {
 			InfluxDB:    defaultInfluxDBConfig,
 			WeaveScope:  defaultWeaveScopeConfig,
 			RabbitMQ:    defaultRabbitMQConfig,
-			Log:         &defaultlogConfig,
+			Log:         &defaultLogConfig,
 		}
 	)
 
@@ -44,7 +43,6 @@ func NewDefaultConfig() Config {
 }
 
 func (c *Config) Validate() error {
-
 	var err error
 
 	err = c.Prometheus.Validate()

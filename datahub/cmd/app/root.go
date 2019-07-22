@@ -2,14 +2,12 @@ package app
 
 import (
 	"errors"
-	"strings"
-
 	"github.com/containers-ai/alameda/cmd/app"
-	"github.com/containers-ai/alameda/datahub"
-
+	DatahubConfig "github.com/containers-ai/alameda/datahub/pkg/config"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 var RootCmd = &cobra.Command{
@@ -22,7 +20,7 @@ var (
 	configurationFilePath string
 
 	scope  *log.Scope
-	config datahub.Config
+	config DatahubConfig.Config
 )
 
 func init() {
@@ -53,17 +51,18 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 		viper.SetConfigFile(configurationFilePath)
 		err := viper.ReadInConfig()
 		if err != nil {
-			panic(errors.New("Read configuration file failed: " + err.Error()))
+			panic(errors.New("Failed to read configuration file: " + err.Error()))
 		}
 		err = viper.Unmarshal(&config)
 		if err != nil {
-			panic(errors.New("Unmarshal configuration failed: " + err.Error()))
+			panic(errors.New("Failed to unmarshal configuration file: " + err.Error()))
 		}
 	}
 }
 
 func initConfig() {
-	config = datahub.NewDefaultConfig()
+
+	config = DatahubConfig.NewDefaultConfig()
 
 	initViperSetting()
 	mergeConfigFileValueWithDefaultConfigValue()

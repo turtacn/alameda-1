@@ -1,25 +1,25 @@
-package datahub
+package v1alpha1
 
 import (
-	metric_dao "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	"github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
-	"github.com/containers-ai/alameda/datahub/pkg/metric"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
+	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
+	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 )
 
 type daoPodMetricExtended struct {
-	*metric_dao.PodMetric
+	*DaoMetric.PodMetric
 }
 
-func (p daoPodMetricExtended) datahubPodMetric() *datahub_v1alpha1.PodMetric {
+func (p daoPodMetricExtended) datahubPodMetric() *DatahubV1alpha1.PodMetric {
 
 	var (
-		datahubPodMetric datahub_v1alpha1.PodMetric
+		datahubPodMetric DatahubV1alpha1.PodMetric
 	)
 
-	datahubPodMetric = datahub_v1alpha1.PodMetric{
-		NamespacedName: &datahub_v1alpha1.NamespacedName{
+	datahubPodMetric = DatahubV1alpha1.PodMetric{
+		NamespacedName: &DatahubV1alpha1.NamespacedName{
 			Namespace: string(p.Namespace),
 			Name:      string(p.PodName),
 		},
@@ -35,24 +35,24 @@ func (p daoPodMetricExtended) datahubPodMetric() *datahub_v1alpha1.PodMetric {
 }
 
 type daoContainerMetricExtended struct {
-	*metric_dao.ContainerMetric
+	*DaoMetric.ContainerMetric
 }
 
-func (c daoContainerMetricExtended) datahubContainerMetric() *datahub_v1alpha1.ContainerMetric {
+func (c daoContainerMetricExtended) datahubContainerMetric() *DatahubV1alpha1.ContainerMetric {
 
 	var (
-		metricDataChan  = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan  = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutines = 0
 
-		datahubContainerMetric datahub_v1alpha1.ContainerMetric
+		datahubContainerMetric DatahubV1alpha1.ContainerMetric
 	)
 
-	datahubContainerMetric = datahub_v1alpha1.ContainerMetric{
+	datahubContainerMetric = DatahubV1alpha1.ContainerMetric{
 		Name: string(c.ContainerName),
 	}
 
 	for metricType, samples := range c.Metrics {
-		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+		if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {
 			numOfGoroutines++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
 		}
@@ -67,24 +67,24 @@ func (c daoContainerMetricExtended) datahubContainerMetric() *datahub_v1alpha1.C
 }
 
 type daoNodeMetricExtended struct {
-	*metric_dao.NodeMetric
+	*DaoMetric.NodeMetric
 }
 
-func (n daoNodeMetricExtended) datahubNodeMetric() *datahub_v1alpha1.NodeMetric {
+func (n daoNodeMetricExtended) datahubNodeMetric() *DatahubV1alpha1.NodeMetric {
 
 	var (
-		metricDataChan  = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan  = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutines = 0
 
-		datahubNodeMetric datahub_v1alpha1.NodeMetric
+		datahubNodeMetric DatahubV1alpha1.NodeMetric
 	)
 
-	datahubNodeMetric = datahub_v1alpha1.NodeMetric{
+	datahubNodeMetric = DatahubV1alpha1.NodeMetric{
 		Name: n.NodeName,
 	}
 
 	for metricType, samples := range n.Metrics {
-		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+		if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {
 			numOfGoroutines++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
 		}
@@ -99,17 +99,17 @@ func (n daoNodeMetricExtended) datahubNodeMetric() *datahub_v1alpha1.NodeMetric 
 }
 
 type daoPtrPodPredictionExtended struct {
-	*prediction.PodPrediction
+	*DaoPrediction.PodPrediction
 }
 
-func (p daoPtrPodPredictionExtended) datahubPodPrediction() *datahub_v1alpha1.PodPrediction {
+func (p daoPtrPodPredictionExtended) datahubPodPrediction() *DatahubV1alpha1.PodPrediction {
 
 	var (
-		datahubPodPrediction datahub_v1alpha1.PodPrediction
+		datahubPodPrediction DatahubV1alpha1.PodPrediction
 	)
 
-	datahubPodPrediction = datahub_v1alpha1.PodPrediction{
-		NamespacedName: &datahub_v1alpha1.NamespacedName{
+	datahubPodPrediction = DatahubV1alpha1.PodPrediction{
+		NamespacedName: &DatahubV1alpha1.NamespacedName{
 			Namespace: string(p.Namespace),
 			Name:      string(p.PodName),
 		},
@@ -125,24 +125,24 @@ func (p daoPtrPodPredictionExtended) datahubPodPrediction() *datahub_v1alpha1.Po
 }
 
 type daoContainerPredictionExtended struct {
-	*prediction.ContainerPrediction
+	*DaoPrediction.ContainerPrediction
 }
 
-func (c daoContainerPredictionExtended) datahubContainerPrediction() *datahub_v1alpha1.ContainerPrediction {
+func (c daoContainerPredictionExtended) datahubContainerPrediction() *DatahubV1alpha1.ContainerPrediction {
 
 	var (
-		metricDataChan = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutine = 0
 
-		datahubContainerPrediction datahub_v1alpha1.ContainerPrediction
+		datahubContainerPrediction DatahubV1alpha1.ContainerPrediction
 	)
 
-	datahubContainerPrediction = datahub_v1alpha1.ContainerPrediction{
+	datahubContainerPrediction = DatahubV1alpha1.ContainerPrediction{
 		Name: string(c.ContainerName),
 	}
 
 	for metricType, samples := range c.PredictionsRaw {
-		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+		if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {
 			numOfGoroutine++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
 		}
@@ -157,25 +157,25 @@ func (c daoContainerPredictionExtended) datahubContainerPrediction() *datahub_v1
 }
 
 type daoPtrNodePredictionExtended struct {
-	*prediction.NodePrediction
+	*DaoPrediction.NodePrediction
 }
 
-func (d daoPtrNodePredictionExtended) datahubNodePrediction() *datahub_v1alpha1.NodePrediction {
+func (d daoPtrNodePredictionExtended) datahubNodePrediction() *DatahubV1alpha1.NodePrediction {
 
 	var (
-		metricDataChan = make(chan datahub_v1alpha1.MetricData)
+		metricDataChan = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutine = 0
 
-		datahubNodePrediction datahub_v1alpha1.NodePrediction
+		datahubNodePrediction DatahubV1alpha1.NodePrediction
 	)
 
-	datahubNodePrediction = datahub_v1alpha1.NodePrediction{
+	datahubNodePrediction = DatahubV1alpha1.NodePrediction{
 		Name:        string(d.NodeName),
 		IsScheduled: d.IsScheduled,
 	}
 
 	for metricType, samples := range d.Predictions {
-		if datahubMetricType, exist := metric.TypeToDatahubMetricType[metricType]; exist {
+		if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {
 			numOfGoroutine++
 			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
 		}
@@ -190,13 +190,13 @@ func (d daoPtrNodePredictionExtended) datahubNodePrediction() *datahub_v1alpha1.
 }
 
 type daoPtrNodesPredictionMapExtended struct {
-	*prediction.NodesPredictionMap
+	*DaoPrediction.NodesPredictionMap
 }
 
-func (d daoPtrNodesPredictionMapExtended) datahubNodePredictions() []*datahub_v1alpha1.NodePrediction {
+func (d daoPtrNodesPredictionMapExtended) datahubNodePredictions() []*DatahubV1alpha1.NodePrediction {
 
 	var (
-		datahubNodePredictions = make([]*datahub_v1alpha1.NodePrediction, 0)
+		datahubNodePredictions = make([]*DatahubV1alpha1.NodePrediction, 0)
 	)
 
 	for _, ptrIsScheduledNodePredictionMap := range *d.NodesPredictionMap {
@@ -219,13 +219,13 @@ func (d daoPtrNodesPredictionMapExtended) datahubNodePredictions() []*datahub_v1
 	return datahubNodePredictions
 }
 
-func produceDatahubMetricDataFromSamples(metricType datahub_v1alpha1.MetricType, samples []metric.Sample, MetricDataChan chan<- datahub_v1alpha1.MetricData) {
+func produceDatahubMetricDataFromSamples(metricType DatahubV1alpha1.MetricType, samples []Metric.Sample, MetricDataChan chan<- DatahubV1alpha1.MetricData) {
 
 	var (
-		datahubMetricData datahub_v1alpha1.MetricData
+		datahubMetricData DatahubV1alpha1.MetricData
 	)
 
-	datahubMetricData = datahub_v1alpha1.MetricData{
+	datahubMetricData = DatahubV1alpha1.MetricData{
 		MetricType: metricType,
 	}
 
@@ -237,7 +237,7 @@ func produceDatahubMetricDataFromSamples(metricType datahub_v1alpha1.MetricType,
 			googleTimestamp = nil
 		}
 
-		datahubSample := datahub_v1alpha1.Sample{Time: googleTimestamp, NumValue: sample.Value}
+		datahubSample := DatahubV1alpha1.Sample{Time: googleTimestamp, NumValue: sample.Value}
 		datahubMetricData.Data = append(datahubMetricData.Data, &datahubSample)
 	}
 

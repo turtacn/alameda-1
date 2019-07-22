@@ -3,15 +3,13 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/containers-ai/alameda/cmd/app"
 	"github.com/containers-ai/alameda/datahub"
 	"github.com/spf13/cobra"
 )
 
 const (
-	envVarPrefix = "ALAMEDA_DATAHUB"
-
+	envVarPrefix                    = "ALAMEDA_DATAHUB"
 	defaultRotationMaxSizeMegabytes = 100
 	defaultRotationMaxBackups       = 7
 	defaultLogRotateOutputFile      = "/var/log/alameda/alameda-datahub.log"
@@ -53,6 +51,6 @@ func displayConfig() {
 	if configBin, err := json.MarshalIndent(config, "", "  "); err != nil {
 		scope.Error(err.Error())
 	} else {
-		scope.Infof(fmt.Sprintf("Datahub configuration: %s", string(configBin)))
+		scope.Infof(fmt.Sprintf("Alameda datahub server configuration: %s", string(configBin)))
 	}
 }
