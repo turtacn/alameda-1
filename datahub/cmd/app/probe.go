@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	PROBE_TYPE_READINESS = "readiness"
-	PROBE_TYPE_LIVENESS  = "liveness"
+	ProbeTypeLiveness  = "liveness"
+	ProbeTypeReadiness = "readiness"
 )
 
 var (
@@ -33,21 +33,21 @@ func init() {
 }
 
 func parseProbeFlag() {
-	ProbeCmd.Flags().StringVar(&probeType, "type", PROBE_TYPE_READINESS, "The probe type for datahub.")
+	ProbeCmd.Flags().StringVar(&probeType, "type", ProbeTypeLiveness, "The probe type for datahub.")
 }
 
 func startProbing() {
-	if probeType == PROBE_TYPE_LIVENESS {
+	if probeType == ProbeTypeLiveness {
 		probe.LivenessProbe(&probe.LivenessProbeConfig{
 			BindAddr: config.BindAddress,
 		})
-	} else if probeType == PROBE_TYPE_READINESS {
+	} else if probeType == ProbeTypeReadiness {
 		probe.ReadinessProbe(&probe.ReadinessProbeConfig{
 			InfluxdbAddr:  config.InfluxDB.Address,
 			PrometheusCfg: config.Prometheus,
 		})
 	} else {
-		scope.Errorf("Probe type does not supports %s, please try %s or %s.", probeType, PROBE_TYPE_LIVENESS, PROBE_TYPE_READINESS)
+		scope.Errorf("Probe type does not supports %s, please try %s or %s.", probeType, ProbeTypeLiveness, ProbeTypeReadiness)
 		os.Exit(1)
 	}
 }

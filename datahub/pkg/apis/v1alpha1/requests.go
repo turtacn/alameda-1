@@ -1,17 +1,17 @@
-package datahub
+package v1alpha1
 
 import (
 	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 	"time"
 )
 
 type datahubListPodMetricsRequestExtended struct {
-	datahub_v1alpha1.ListPodMetricsRequest
+	DatahubV1alpha1.ListPodMetricsRequest
 }
 
 func (r datahubListPodMetricsRequestExtended) validate() error {
@@ -19,7 +19,7 @@ func (r datahubListPodMetricsRequestExtended) validate() error {
 }
 
 type datahubListNodeMetricsRequestExtended struct {
-	datahub_v1alpha1.ListNodeMetricsRequest
+	DatahubV1alpha1.ListNodeMetricsRequest
 }
 
 func (r datahubListNodeMetricsRequestExtended) validate() error {
@@ -27,7 +27,7 @@ func (r datahubListNodeMetricsRequestExtended) validate() error {
 }
 
 type datahubCreatePodPredictionsRequestExtended struct {
-	datahub_v1alpha1.CreatePodPredictionsRequest
+	DatahubV1alpha1.CreatePodPredictionsRequest
 }
 
 func (r datahubCreatePodPredictionsRequestExtended) validate() error {
@@ -72,7 +72,7 @@ func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []
 	return containerPredictions
 }
 
-func (r datahubCreatePodPredictionsRequestExtended) fillMetricData(data []*datahub_v1alpha1.MetricData, containerPrediction *DaoPrediction.ContainerPrediction, kind Metric.ContainerMetricKind) {
+func (r datahubCreatePodPredictionsRequestExtended) fillMetricData(data []*DatahubV1alpha1.MetricData, containerPrediction *DaoPrediction.ContainerPrediction, kind Metric.ContainerMetricKind) {
 	for _, rawData := range data {
 		samples := []Metric.Sample{}
 		for _, datahubSample := range rawData.GetData() {
@@ -89,9 +89,9 @@ func (r datahubCreatePodPredictionsRequestExtended) fillMetricData(data []*datah
 
 		var metricType Metric.ContainerMetricType
 		switch rawData.GetMetricType() {
-		case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+		case DatahubV1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 			metricType = Metric.TypeContainerCPUUsageSecondsPercentage
-		case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+		case DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES:
 			metricType = Metric.TypeContainerMemoryUsageBytes
 		}
 
@@ -108,7 +108,7 @@ func (r datahubCreatePodPredictionsRequestExtended) fillMetricData(data []*datah
 }
 
 type datahubCreateNodePredictionsRequestExtended struct {
-	datahub_v1alpha1.CreateNodePredictionsRequest
+	DatahubV1alpha1.CreateNodePredictionsRequest
 }
 
 func (r datahubCreateNodePredictionsRequestExtended) validate() error {
@@ -149,9 +149,9 @@ func (r datahubCreateNodePredictionsRequestExtended) daoNodePredictions() []*Dao
 
 			var metricType Metric.ContainerMetricType
 			switch rawData.GetMetricType() {
-			case datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+			case DatahubV1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
 				metricType = Metric.TypeNodeCPUUsageSecondsPercentage
-			case datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:
+			case DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES:
 				metricType = Metric.TypeNodeMemoryUsageBytes
 			}
 			NodePrediction.Predictions[metricType] = samples
@@ -164,7 +164,7 @@ func (r datahubCreateNodePredictionsRequestExtended) daoNodePredictions() []*Dao
 }
 
 type datahubListPodPredictionsRequestExtended struct {
-	request *datahub_v1alpha1.ListPodPredictionsRequest
+	request *DatahubV1alpha1.ListPodPredictionsRequest
 }
 
 func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest() DaoPrediction.ListPodPredictionsRequest {
@@ -199,7 +199,7 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 }
 
 type datahubListNodePredictionsRequestExtended struct {
-	request *datahub_v1alpha1.ListNodePredictionsRequest
+	request *DatahubV1alpha1.ListNodePredictionsRequest
 }
 
 func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest() DaoPrediction.ListNodePredictionsRequest {
@@ -231,7 +231,7 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 }
 
 type datahubListSimulatedSchedulingScoresRequestExtended struct {
-	request *datahub_v1alpha1.ListSimulatedSchedulingScoresRequest
+	request *DatahubV1alpha1.ListSimulatedSchedulingScoresRequest
 }
 
 func (r datahubListSimulatedSchedulingScoresRequestExtended) daoLisRequest() DaoScore.ListRequest {
@@ -249,14 +249,14 @@ func (r datahubListSimulatedSchedulingScoresRequestExtended) daoLisRequest() Dao
 }
 
 var (
-	datahubAggregateFunction_DAOAggregateFunction = map[datahub_v1alpha1.TimeRange_AggregateFunction]DBCommon.AggregateFunction{
-		datahub_v1alpha1.TimeRange_NONE: DBCommon.None,
-		datahub_v1alpha1.TimeRange_MAX:  DBCommon.MaxOverTime,
+	datahubAggregateFunction_DAOAggregateFunction = map[DatahubV1alpha1.TimeRange_AggregateFunction]DBCommon.AggregateFunction{
+		DatahubV1alpha1.TimeRange_NONE: DBCommon.None,
+		DatahubV1alpha1.TimeRange_MAX:  DBCommon.MaxOverTime,
 	}
 )
 
 type datahubQueryConditionExtend struct {
-	queryCondition *datahub_v1alpha1.QueryCondition
+	queryCondition *DatahubV1alpha1.QueryCondition
 }
 
 func (d datahubQueryConditionExtend) daoQueryCondition() DBCommon.QueryCondition {
@@ -291,9 +291,9 @@ func (d datahubQueryConditionExtend) daoQueryCondition() DBCommon.QueryCondition
 		}
 
 		switch d.queryCondition.GetOrder() {
-		case datahub_v1alpha1.QueryCondition_ASC:
+		case DatahubV1alpha1.QueryCondition_ASC:
 			queryTimestampOrder = DBCommon.Asc
-		case datahub_v1alpha1.QueryCondition_DESC:
+		case DatahubV1alpha1.QueryCondition_DESC:
 			queryTimestampOrder = DBCommon.Desc
 		default:
 			queryTimestampOrder = DBCommon.Asc
@@ -304,16 +304,16 @@ func (d datahubQueryConditionExtend) daoQueryCondition() DBCommon.QueryCondition
 	queryTimestampOrder = int(d.queryCondition.GetOrder())
 	queryLimit = int(d.queryCondition.GetLimit())
 
-	if aggFunc, exist := datahubAggregateFunction_DAOAggregateFunction[datahub_v1alpha1.TimeRange_AggregateFunction(d.queryCondition.TimeRange.AggregateFunction)]; exist {
+	if aggFunc, exist := datahubAggregateFunction_DAOAggregateFunction[DatahubV1alpha1.TimeRange_AggregateFunction(d.queryCondition.TimeRange.AggregateFunction)]; exist {
 		aggregateFunc = aggFunc
 	}
 
 	queryCondition = DBCommon.QueryCondition{
-		StartTime:                 queryStartTime,
-		EndTime:                   queryEndTime,
-		StepTime:                  queryStepTime,
-		TimestampOrder:            queryTimestampOrder,
-		Limit:                     queryLimit,
+		StartTime:      queryStartTime,
+		EndTime:        queryEndTime,
+		StepTime:       queryStepTime,
+		TimestampOrder: queryTimestampOrder,
+		Limit:          queryLimit,
 		AggregateOverTimeFunction: aggregateFunc,
 	}
 	return queryCondition
