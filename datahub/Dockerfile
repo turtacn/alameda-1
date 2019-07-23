@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.11.5-stretch as builder
+FROM golang:1.12-stretch as builder
 
 # Copy in the go src
 WORKDIR /go/src/github.com/containers-ai/alameda
