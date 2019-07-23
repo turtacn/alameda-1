@@ -7,7 +7,6 @@ import (
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/dispatcher"
 	alameda_app "github.com/containers-ai/alameda/cmd/app"
-	"github.com/containers-ai/alameda/datahub"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -19,8 +18,7 @@ var (
 	cfgFile             string
 	logRotateOutputFile string
 
-	scope  *log.Scope
-	config datahub.Config
+	scope *log.Scope
 )
 
 const (
