@@ -3,10 +3,12 @@
 
 package containers_ai_alameda_v1alpha1_datahub
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import timestamp "github.com/golang/protobuf/ptypes/timestamp"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -17,7 +19,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type EventType int32
 
@@ -64,6 +66,7 @@ var EventType_name = map[int32]string{
 	17: "EVENT_TYPE_ANOMALY_METRIC_DETECT",
 	18: "EVENT_TYPE_ANOMALY_ANALYSIS_CREATE",
 }
+
 var EventType_value = map[string]int32{
 	"EVENT_TYPE_UNDEFINED":                    0,
 	"EVENT_TYPE_ALAMEDA_SCALER_CREATE":        1,
@@ -89,8 +92,9 @@ var EventType_value = map[string]int32{
 func (x EventType) String() string {
 	return proto.EnumName(EventType_name, int32(x))
 }
+
 func (EventType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_event_78f0d4068c22a89c, []int{0}
+	return fileDescriptor_36b20178a12f9241, []int{0}
 }
 
 type EventVersion int32
@@ -104,6 +108,7 @@ var EventVersion_name = map[int32]string{
 	0: "EVENT_VERSION_UNDEFINED",
 	1: "EVENT_VERSION_V1",
 }
+
 var EventVersion_value = map[string]int32{
 	"EVENT_VERSION_UNDEFINED": 0,
 	"EVENT_VERSION_V1":        1,
@@ -112,8 +117,9 @@ var EventVersion_value = map[string]int32{
 func (x EventVersion) String() string {
 	return proto.EnumName(EventVersion_name, int32(x))
 }
+
 func (EventVersion) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_event_78f0d4068c22a89c, []int{1}
+	return fileDescriptor_36b20178a12f9241, []int{1}
 }
 
 type EventLevel int32
@@ -135,6 +141,7 @@ var EventLevel_name = map[int32]string{
 	4: "EVENT_LEVEL_ERROR",
 	5: "EVENT_LEVEL_FATAL",
 }
+
 var EventLevel_value = map[string]int32{
 	"EVENT_LEVEL_UNDEFINED": 0,
 	"EVENT_LEVEL_DEBUG":     1,
@@ -147,8 +154,9 @@ var EventLevel_value = map[string]int32{
 func (x EventLevel) String() string {
 	return proto.EnumName(EventLevel_name, int32(x))
 }
+
 func (EventLevel) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_event_78f0d4068c22a89c, []int{2}
+	return fileDescriptor_36b20178a12f9241, []int{2}
 }
 
 type EventSource struct {
@@ -163,16 +171,17 @@ func (m *EventSource) Reset()         { *m = EventSource{} }
 func (m *EventSource) String() string { return proto.CompactTextString(m) }
 func (*EventSource) ProtoMessage()    {}
 func (*EventSource) Descriptor() ([]byte, []int) {
-	return fileDescriptor_event_78f0d4068c22a89c, []int{0}
+	return fileDescriptor_36b20178a12f9241, []int{0}
 }
+
 func (m *EventSource) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_EventSource.Unmarshal(m, b)
 }
 func (m *EventSource) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_EventSource.Marshal(b, m, deterministic)
 }
-func (dst *EventSource) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventSource.Merge(dst, src)
+func (m *EventSource) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventSource.Merge(m, src)
 }
 func (m *EventSource) XXX_Size() int {
 	return xxx_messageInfo_EventSource.Size(m)
@@ -211,16 +220,17 @@ func (m *K8SObjectReference) Reset()         { *m = K8SObjectReference{} }
 func (m *K8SObjectReference) String() string { return proto.CompactTextString(m) }
 func (*K8SObjectReference) ProtoMessage()    {}
 func (*K8SObjectReference) Descriptor() ([]byte, []int) {
-	return fileDescriptor_event_78f0d4068c22a89c, []int{1}
+	return fileDescriptor_36b20178a12f9241, []int{1}
 }
+
 func (m *K8SObjectReference) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_K8SObjectReference.Unmarshal(m, b)
 }
 func (m *K8SObjectReference) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_K8SObjectReference.Marshal(b, m, deterministic)
 }
-func (dst *K8SObjectReference) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_K8SObjectReference.Merge(dst, src)
+func (m *K8SObjectReference) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_K8SObjectReference.Merge(m, src)
 }
 func (m *K8SObjectReference) XXX_Size() int {
 	return xxx_messageInfo_K8SObjectReference.Size(m)
@@ -279,16 +289,17 @@ func (m *Event) Reset()         { *m = Event{} }
 func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 func (*Event) Descriptor() ([]byte, []int) {
-	return fileDescriptor_event_78f0d4068c22a89c, []int{2}
+	return fileDescriptor_36b20178a12f9241, []int{2}
 }
+
 func (m *Event) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Event.Unmarshal(m, b)
 }
 func (m *Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Event.Marshal(b, m, deterministic)
 }
-func (dst *Event) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Event.Merge(dst, src)
+func (m *Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Event.Merge(m, src)
 }
 func (m *Event) XXX_Size() int {
 	return xxx_messageInfo_Event.Size(m)
@@ -370,19 +381,19 @@ func (m *Event) GetData() string {
 }
 
 func init() {
-	proto.RegisterType((*EventSource)(nil), "containers_ai.alameda.v1alpha1.datahub.EventSource")
-	proto.RegisterType((*K8SObjectReference)(nil), "containers_ai.alameda.v1alpha1.datahub.K8SObjectReference")
-	proto.RegisterType((*Event)(nil), "containers_ai.alameda.v1alpha1.datahub.Event")
 	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.EventType", EventType_name, EventType_value)
 	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.EventVersion", EventVersion_name, EventVersion_value)
 	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.EventLevel", EventLevel_name, EventLevel_value)
+	proto.RegisterType((*EventSource)(nil), "containers_ai.alameda.v1alpha1.datahub.EventSource")
+	proto.RegisterType((*K8SObjectReference)(nil), "containers_ai.alameda.v1alpha1.datahub.K8SObjectReference")
+	proto.RegisterType((*Event)(nil), "containers_ai.alameda.v1alpha1.datahub.Event")
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/event.proto", fileDescriptor_event_78f0d4068c22a89c)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/event.proto", fileDescriptor_36b20178a12f9241)
 }
 
-var fileDescriptor_event_78f0d4068c22a89c = []byte{
+var fileDescriptor_36b20178a12f9241 = []byte{
 	// 773 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0xdf, 0x6e, 0xe2, 0x46,
 	0x14, 0xc6, 0x0b, 0xe1, 0xcf, 0x72, 0xd8, 0xa6, 0xde, 0xe9, 0xae, 0xd6, 0x9b, 0xee, 0x6e, 0x52,

@@ -36,11 +36,11 @@ import (
 	"github.com/influxdata/influxdb/query"
 	"github.com/influxdata/influxdb/services/meta"
 	"github.com/influxdata/influxdb/services/storage"
+	"github.com/influxdata/influxdb/storage/reads"
+	"github.com/influxdata/influxdb/storage/reads/datatypes"
 	"github.com/influxdata/influxdb/tsdb"
 	"github.com/influxdata/influxdb/uuid"
 	"github.com/influxdata/influxql"
-	"github.com/influxdata/platform/storage/reads"
-	"github.com/influxdata/platform/storage/reads/datatypes"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
@@ -56,6 +56,12 @@ const (
 	DefaultDebugRequestsInterval = 10 * time.Second
 
 	MaxDebugRequestsInterval = 6 * time.Hour
+)
+
+var (
+	// ErrBearerAuthDisabled is returned when client specifies bearer auth in
+	// a request but bearer auth is disabled.
+	ErrBearerAuthDisabled = errors.New("bearer auth disabld")
 )
 
 // AuthenticationMethod defines the type of authentication used.
@@ -239,6 +245,10 @@ func (h *Handler) Open() {
 		h.Logger.Info("opened HTTP access log", zap.String("path", path))
 	}
 	h.accessLogFilters = StatusFilters(h.Config.AccessLogStatusFilters)
+
+	if h.Config.AuthEnabled && h.Config.SharedSecret == "" {
+		h.Logger.Info("Auth is enabled but shared-secret is blank. BearerAuthentication is disabled.")
+	}
 
 	if h.Config.FluxEnabled {
 		h.registered = true
@@ -985,7 +995,8 @@ func (h *Handler) servePromWrite(w http.ResponseWriter, r *http.Request, user me
 			h.Logger.Info("Prom write handler", zap.Error(err))
 		}
 
-		if err != prometheus.ErrNaNDropped {
+		// Check if the error was from something other than dropping invalid values.
+		if _, ok := err.(prometheus.DroppedValuesError); !ok {
 			h.httpError(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -1029,6 +1040,7 @@ func (h *Handler) servePromWrite(w http.ResponseWriter, r *http.Request, user me
 // servePromRead will convert a Prometheus remote read request into a storage
 // query and returns data in Prometheus remote read protobuf format.
 func (h *Handler) servePromRead(w http.ResponseWriter, r *http.Request, user meta.User) {
+	atomic.AddInt64(&h.stats.PromReadRequests, 1)
 	compressed, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		h.httpError(w, err.Error(), http.StatusInternalServerError)
@@ -1057,6 +1069,25 @@ func (h *Handler) servePromRead(w http.ResponseWriter, r *http.Request, user met
 		return
 	}
 
+	respond := func(resp *remote.ReadResponse) {
+		data, err := proto.Marshal(resp)
+		if err != nil {
+			h.httpError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/x-protobuf")
+		w.Header().Set("Content-Encoding", "snappy")
+
+		compressed = snappy.Encode(nil, data)
+		if _, err := w.Write(compressed); err != nil {
+			h.httpError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		atomic.AddInt64(&h.stats.QueryRequestBytesTransmitted, int64(len(compressed)))
+	}
+
 	ctx := context.Background()
 	rs, err := h.Store.Read(ctx, readRequest)
 	if err != nil {
@@ -1068,6 +1099,12 @@ func (h *Handler) servePromRead(w http.ResponseWriter, r *http.Request, user met
 	resp := &remote.ReadResponse{
 		Results: []*remote.QueryResult{{}},
 	}
+
+	if rs == nil {
+		respond(resp)
+		return
+	}
+
 	for rs.Next() {
 		cur := rs.Cursor()
 		if cur == nil {
@@ -1125,22 +1162,8 @@ func (h *Handler) servePromRead(w http.ResponseWriter, r *http.Request, user met
 			)
 		}
 	}
-	data, err := proto.Marshal(resp)
-	if err != nil {
-		h.httpError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
-	w.Header().Set("Content-Type", "application/x-protobuf")
-	w.Header().Set("Content-Encoding", "snappy")
-
-	compressed = snappy.Encode(nil, data)
-	if _, err := w.Write(compressed); err != nil {
-		h.httpError(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	atomic.AddInt64(&h.stats.QueryRequestBytesTransmitted, int64(len(compressed)))
+	respond(resp)
 }
 
 func (h *Handler) serveFluxQuery(w http.ResponseWriter, r *http.Request, user meta.User) {
@@ -1209,11 +1232,9 @@ func (h *Handler) serveFluxQuery(w http.ResponseWriter, r *http.Request, user me
 		encoder := pr.Dialect.Encoder()
 		results := flux.NewResultIteratorFromQuery(q)
 		if h.Config.FluxLogEnabled {
-			if s, ok := results.(flux.Statisticser); ok {
-				defer func() {
-					stats = s.Statistics()
-				}()
-			}
+			defer func() {
+				stats = results.Statistics()
+			}()
 		}
 		defer results.Release()
 
@@ -1583,6 +1604,11 @@ func authenticate(inner func(http.ResponseWriter, *http.Request, meta.User), h *
 					return
 				}
 			case BearerAuthentication:
+				if h.Config.SharedSecret == "" {
+					atomic.AddInt64(&h.stats.AuthenticationFailures, 1)
+					h.httpError(w, ErrBearerAuthDisabled.Error(), http.StatusUnauthorized)
+					return
+				}
 				keyLookupFn := func(token *jwt.Token) (interface{}, error) {
 					// Check for expected signing method.
 					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

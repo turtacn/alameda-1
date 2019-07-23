@@ -1,5 +1,49 @@
-v1.7.5 [unreleased]
+v1.7.7 [2019-06-26]
 -------------------
+
+### Bugfixes
+
+-	[#13441](https://github.com/influxdata/influxdb/pull/13441): Fix the sort order for aggregates so that they are sorted by tag and then time.
+-	[#13459](https://github.com/influxdata/influxdb/pull/13459): Fill resets the previous value when a new series or window is encountered.
+-	[#13463](https://github.com/influxdata/influxdb/pull/13463): Use the timezone when evaluating time literals in subqueries.
+-	[#13566](https://github.com/influxdata/influxdb/pull/13566): Fix csv decoder bug where empty tag values cause an array index panic.
+-	[#13697](https://github.com/influxdata/influxdb/pull/13697): Remove query language from version command.
+-	[#13837](https://github.com/influxdata/influxdb/pull/13837): Fix open/close race in SeriesFile.
+-	[#13854](https://github.com/influxdata/influxdb/pull/13854): Fix the ordering for selectors within a subquery with different outer tags.
+-	[#13860](https://github.com/influxdata/influxdb/pull/13860): Sync series segment after truncate.
+-	[#14083](https://github.com/influxdata/influxdb/pull/14083): Don't panic when length of source slice is too large.
+
+v1.7.6 [2019-04-16]
+-------------------
+
+### Bugfixes
+
+-	[#13067](https://github.com/influxdata/influxdb/pull/13067): Ensure credentials are passed for Flux queries when using influx command.
+-	[#13098](https://github.com/influxdata/influxdb/pull/13098): Back port of data generate improvements.
+-	[#13132](https://github.com/influxdata/influxdb/pull/13132): Fix security vulnerability when shared secret is blank.
+-	[#13150](https://github.com/influxdata/influxdb/pull/13150): Add nil check for tagKeyValueEntry.setIDs().
+-	[#13160](https://github.com/influxdata/influxdb/pull/13160): Drop all unsupported Prometheus values written to the remote write endpoint.
+-	[#13206](https://github.com/influxdata/influxdb/pull/13206): Update predicate key mapping to match 2.x behavior.
+-	[#13330](https://github.com/influxdata/influxdb/pull/13330): Fix panic in Prometheus read API.
+-	[#13338](https://github.com/influxdata/influxdb/pull/13338): Add a version constraint for influxql.
+
+### Features
+
+-	[#13049](https://github.com/influxdata/influxdb/pull/13049): Upgrade flux to the latest version and remove the platform dependency.
+-	[#13121](https://github.com/influxdata/influxdb/pull/13121): Upgrade flux to 0.24.0.
+-	[#13168](https://github.com/influxdata/influxdb/pull/13168): track remote read requests to prometheus remote read handler.
+
+v1.7.5 [2019-03-26]
+-------------------
+
+### Bugfixes
+
+-	[#11908](https://github.com/influxdata/influxdb/pull/11908): Update tagKeyValue mutex to write lock.
+-	[#11971](https://github.com/influxdata/influxdb/pull/11971): Fix some more shard epoch races.
+
+### Features
+
+-	[#12215](https://github.com/influxdata/influxdb/pull/12215): Add gen-init and gen-exec commands.Add support for describing data-generation schema via a TOML file.
 
 v1.7.4 [2019-02-13]
 -------------------

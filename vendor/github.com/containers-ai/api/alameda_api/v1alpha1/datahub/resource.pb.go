@@ -3,10 +3,12 @@
 
 package containers_ai_alameda_v1alpha1_datahub
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import timestamp "github.com/golang/protobuf/ptypes/timestamp"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -17,9 +19,9 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// *
+//*
 // Represents kubernetes resource kind
 //
 type Kind int32
@@ -37,6 +39,7 @@ var Kind_name = map[int32]string{
 	2: "DEPLOYMENTCONFIG",
 	3: "ALAMEDASCALER",
 }
+
 var Kind_value = map[string]int32{
 	"POD":              0,
 	"DEPLOYMENT":       1,
@@ -47,11 +50,12 @@ var Kind_value = map[string]int32{
 func (x Kind) String() string {
 	return proto.EnumName(Kind_name, int32(x))
 }
+
 func (Kind) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{0}
+	return fileDescriptor_e45e09c80210b55a, []int{0}
 }
 
-// *
+//*
 // Represents a container and its containing limit and requeset configurations
 //
 type Container struct {
@@ -68,16 +72,17 @@ func (m *Container) Reset()         { *m = Container{} }
 func (m *Container) String() string { return proto.CompactTextString(m) }
 func (*Container) ProtoMessage()    {}
 func (*Container) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{0}
+	return fileDescriptor_e45e09c80210b55a, []int{0}
 }
+
 func (m *Container) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Container.Unmarshal(m, b)
 }
 func (m *Container) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Container.Marshal(b, m, deterministic)
 }
-func (dst *Container) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Container.Merge(dst, src)
+func (m *Container) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Container.Merge(m, src)
 }
 func (m *Container) XXX_Size() int {
 	return xxx_messageInfo_Container.Size(m)
@@ -116,7 +121,7 @@ func (m *Container) GetStatus() *ContainerStatus {
 	return nil
 }
 
-// *
+//*
 // Represents a Kubernetes pod
 //
 type Pod struct {
@@ -144,16 +149,17 @@ func (m *Pod) Reset()         { *m = Pod{} }
 func (m *Pod) String() string { return proto.CompactTextString(m) }
 func (*Pod) ProtoMessage()    {}
 func (*Pod) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{1}
+	return fileDescriptor_e45e09c80210b55a, []int{1}
 }
+
 func (m *Pod) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pod.Unmarshal(m, b)
 }
 func (m *Pod) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Pod.Marshal(b, m, deterministic)
 }
-func (dst *Pod) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Pod.Merge(dst, src)
+func (m *Pod) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Pod.Merge(m, src)
 }
 func (m *Pod) XXX_Size() int {
 	return xxx_messageInfo_Pod.Size(m)
@@ -269,7 +275,7 @@ func (m *Pod) GetAppPartOf() string {
 	return ""
 }
 
-// *
+//*
 // Represents the capacity of a Kubernetes node
 //
 type Capacity struct {
@@ -285,16 +291,17 @@ func (m *Capacity) Reset()         { *m = Capacity{} }
 func (m *Capacity) String() string { return proto.CompactTextString(m) }
 func (*Capacity) ProtoMessage()    {}
 func (*Capacity) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{2}
+	return fileDescriptor_e45e09c80210b55a, []int{2}
 }
+
 func (m *Capacity) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Capacity.Unmarshal(m, b)
 }
 func (m *Capacity) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Capacity.Marshal(b, m, deterministic)
 }
-func (dst *Capacity) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Capacity.Merge(dst, src)
+func (m *Capacity) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Capacity.Merge(m, src)
 }
 func (m *Capacity) XXX_Size() int {
 	return xxx_messageInfo_Capacity.Size(m)
@@ -326,7 +333,7 @@ func (m *Capacity) GetNetwotkMegabitsPerSecond() int64 {
 	return 0
 }
 
-// *
+//*
 // Represents a Kubernetes node
 //
 type Node struct {
@@ -343,16 +350,17 @@ func (m *Node) Reset()         { *m = Node{} }
 func (m *Node) String() string { return proto.CompactTextString(m) }
 func (*Node) ProtoMessage()    {}
 func (*Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{3}
+	return fileDescriptor_e45e09c80210b55a, []int{3}
 }
+
 func (m *Node) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Node.Unmarshal(m, b)
 }
 func (m *Node) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Node.Marshal(b, m, deterministic)
 }
-func (dst *Node) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Node.Merge(dst, src)
+func (m *Node) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Node.Merge(m, src)
 }
 func (m *Node) XXX_Size() int {
 	return xxx_messageInfo_Node.Size(m)
@@ -391,7 +399,7 @@ func (m *Node) GetProvider() *Provider {
 	return nil
 }
 
-// *
+//*
 // Represents top controller of the pod
 //
 type TopController struct {
@@ -407,16 +415,17 @@ func (m *TopController) Reset()         { *m = TopController{} }
 func (m *TopController) String() string { return proto.CompactTextString(m) }
 func (*TopController) ProtoMessage()    {}
 func (*TopController) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{4}
+	return fileDescriptor_e45e09c80210b55a, []int{4}
 }
+
 func (m *TopController) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TopController.Unmarshal(m, b)
 }
 func (m *TopController) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_TopController.Marshal(b, m, deterministic)
 }
-func (dst *TopController) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TopController.Merge(dst, src)
+func (m *TopController) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TopController.Merge(m, src)
 }
 func (m *TopController) XXX_Size() int {
 	return xxx_messageInfo_TopController.Size(m)
@@ -460,16 +469,17 @@ func (m *ResourceInfo) Reset()         { *m = ResourceInfo{} }
 func (m *ResourceInfo) String() string { return proto.CompactTextString(m) }
 func (*ResourceInfo) ProtoMessage()    {}
 func (*ResourceInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{5}
+	return fileDescriptor_e45e09c80210b55a, []int{5}
 }
+
 func (m *ResourceInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ResourceInfo.Unmarshal(m, b)
 }
 func (m *ResourceInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ResourceInfo.Marshal(b, m, deterministic)
 }
-func (dst *ResourceInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ResourceInfo.Merge(dst, src)
+func (m *ResourceInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResourceInfo.Merge(m, src)
 }
 func (m *ResourceInfo) XXX_Size() int {
 	return xxx_messageInfo_ResourceInfo.Size(m)
@@ -510,16 +520,17 @@ func (m *Controller) Reset()         { *m = Controller{} }
 func (m *Controller) String() string { return proto.CompactTextString(m) }
 func (*Controller) ProtoMessage()    {}
 func (*Controller) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{6}
+	return fileDescriptor_e45e09c80210b55a, []int{6}
 }
+
 func (m *Controller) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Controller.Unmarshal(m, b)
 }
 func (m *Controller) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Controller.Marshal(b, m, deterministic)
 }
-func (dst *Controller) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Controller.Merge(dst, src)
+func (m *Controller) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Controller.Merge(m, src)
 }
 func (m *Controller) XXX_Size() int {
 	return xxx_messageInfo_Controller.Size(m)
@@ -586,16 +597,17 @@ func (m *Provider) Reset()         { *m = Provider{} }
 func (m *Provider) String() string { return proto.CompactTextString(m) }
 func (*Provider) ProtoMessage()    {}
 func (*Provider) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_a7063695a92ea1ad, []int{7}
+	return fileDescriptor_e45e09c80210b55a, []int{7}
 }
+
 func (m *Provider) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Provider.Unmarshal(m, b)
 }
 func (m *Provider) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Provider.Marshal(b, m, deterministic)
 }
-func (dst *Provider) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Provider.Merge(dst, src)
+func (m *Provider) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Provider.Merge(m, src)
 }
 func (m *Provider) XXX_Size() int {
 	return xxx_messageInfo_Provider.Size(m)
@@ -635,6 +647,7 @@ func (m *Provider) GetZone() string {
 }
 
 func init() {
+	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.Kind", Kind_name, Kind_value)
 	proto.RegisterType((*Container)(nil), "containers_ai.alameda.v1alpha1.datahub.Container")
 	proto.RegisterType((*Pod)(nil), "containers_ai.alameda.v1alpha1.datahub.Pod")
 	proto.RegisterType((*Capacity)(nil), "containers_ai.alameda.v1alpha1.datahub.Capacity")
@@ -643,14 +656,13 @@ func init() {
 	proto.RegisterType((*ResourceInfo)(nil), "containers_ai.alameda.v1alpha1.datahub.ResourceInfo")
 	proto.RegisterType((*Controller)(nil), "containers_ai.alameda.v1alpha1.datahub.Controller")
 	proto.RegisterType((*Provider)(nil), "containers_ai.alameda.v1alpha1.datahub.Provider")
-	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.Kind", Kind_name, Kind_value)
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/resource.proto", fileDescriptor_resource_a7063695a92ea1ad)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/resource.proto", fileDescriptor_e45e09c80210b55a)
 }
 
-var fileDescriptor_resource_a7063695a92ea1ad = []byte{
+var fileDescriptor_e45e09c80210b55a = []byte{
 	// 1006 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x56, 0xef, 0x6e, 0x1b, 0x45,
 	0x10, 0xc7, 0xb9, 0xd4, 0x39, 0x8f, 0x63, 0xc7, 0xac, 0xaa, 0xea, 0x48, 0x55, 0x1a, 0x5c, 0x09,

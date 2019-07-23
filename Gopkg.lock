@@ -27,14 +27,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:efcbd9893f52da4a7be5d3f6d5cd45a3aff8c82df8dbf3aa2d25f9b47d4c1cd1"
+  digest = "1:88ebadea4be1856b59e323bb28bc9a33f69e6594356ecc442a9f95ab3385d4dc"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
     "common",
   ]
   pruneopts = "T"
-  revision = "e5dbaf792d2e420c46600f8b25aa3ecc49c3751c"
+  revision = "43b2b704ca296377f3bfb8066c59a2423edeb4ca"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -123,7 +123,7 @@
   revision = "6f2cf27854a4a29e3811b0371547be335d411b8b"
 
 [[projects]]
-  digest = "1:a2ecb56e5053d942aafc86738915fb94c9131bac848c543b8b6764365fd69080"
+  digest = "1:ee6b8c03e5ab6cf9628a3c538430d007f8534483dc46c7ff5955a4359d5ef865"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -137,8 +137,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "T"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   branch = "master"
@@ -248,7 +248,7 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:1dd93d3aa6fe16ced2aa9d306a5ebe3a8e83cea825d263c92940bd2dce744975"
+  digest = "1:acfd64c4ecaca7798395f5b80012c46c356df3bd73fac9e1e81000373c05f4d2"
   name = "github.com/influxdata/influxdb"
   packages = [
     "client/v2",
@@ -256,18 +256,8 @@
     "pkg/escape",
   ]
   pruneopts = "T"
-  revision = "ef77e72f435b71b1ad6da7d6a6a4c4a262439379"
-  version = "v1.7.4"
-
-[[projects]]
-  digest = "1:dce89a23d5e3b147ba2cb39e659e85f53a72cff74f7ec61da30f3154a3848f3d"
-  name = "github.com/influxdata/platform"
-  packages = [
-    "models",
-    "pkg/escape",
-  ]
-  pruneopts = "T"
-  revision = "0f79e4ea3248354c789cba274542e0a8e55971db"
+  revision = "f8fdf652f348fc9980997fe1c972e2b79ddd13b0"
+  version = "v1.7.7"
 
 [[projects]]
   digest = "1:ee5840274624ad20cac08227aeca582fbdaf3727ef9dd37ae935706240679e09"
