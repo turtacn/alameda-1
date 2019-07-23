@@ -1,4 +1,4 @@
-FROM docker.io/rabbitmq:3.7.16-alpine
+FROM docker.io/rabbitmq:3.7.16-management-alpine
 
 COPY plugins/ plugins/
 

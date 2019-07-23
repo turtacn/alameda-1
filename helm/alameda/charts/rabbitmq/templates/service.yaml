@@ -15,9 +15,9 @@ spec:
     - name: amqp
       port: {{ .Values.service.port }}
       targetPort: amqp
-    - name: stats
+    - name: http
       port: {{ .Values.service.managerPort }}
-      targetPort: stats  
+      targetPort: http
   selector:
     app: {{ template "rabbitmq.name" . }}
     release: "{{ .Release.Name }}"
