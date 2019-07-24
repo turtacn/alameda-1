@@ -1,19 +1,19 @@
 log:
-  set-logcallers: true
-  output-level: "info" # debug, info, warn, error, fatal, none
+  setLogcallers: true
+  outputLevel: "info" # debug, info, warn, error, fatal, none
 
 datahub:
   address: "datahub.alameda.svc.cluster.local:50050"
-  retry-interval:
+  retryInterval:
     default: 3 # second
 
-k8s-webhook-server:
+k8sWebhookServer:
   port: 50443
-  validating-webhook-config-name: "operator-k8s-admission-validation"
-  cert-dir: "/tmp/k8s-webhook-server/cert/"
+  validatingWebhookConfigName: "operator-k8s-admission-validation"
+  certDir: "/tmp/k8s-webhook-server/cert/"
   service:
     name: operator-admission-service
     port: 443
 
-pod-info:
-  labels-file: "/etc/podinfo/labels"
+podInfo:
+  labelsFile: "/etc/podinfo/labels"

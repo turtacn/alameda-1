@@ -116,17 +116,17 @@ spec:
               cpu: 50m
               memory: 200Mi
           env:
-            - name: ALAMEDA_ADMCTL_DEPLOYED_NAMESPACE
+            - name: ALAMEDA_ADMCTL_DEPLOYEDNAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: ALAMEDA_ADMCTL_ENABLE
               value: "false"
-            - name: ALAMEDA_ADMCTL_CA_CERT_FILE
+            - name: ALAMEDA_ADMCTL_CA_CERTFILE
               value: "/etc/tls-certs/caCert.pem"
-            - name: ALAMEDA_ADMCTL_TLS_CERT_FILE
+            - name: ALAMEDA_ADMCTL_TLS_CERTFILE
               value: "/etc/tls-certs/serverCert.pem"
-            - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
+            - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEYFILE
               value: "/etc/tls-certs/serverKey.pem"
             - name: NAMESPACE_NAME
               valueFrom:

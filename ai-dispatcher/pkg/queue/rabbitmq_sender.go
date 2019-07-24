@@ -76,12 +76,12 @@ func NewRabbitMQSender(conn *amqp.Connection) *RabbitMQSender {
 }
 
 func (sender *RabbitMQSender) getRetry() *retry {
-	publishRetryTime := viper.GetInt("queue.retry.publish_time")
+	publishRetryTime := viper.GetInt("queue.retry.publishTime")
 	if publishRetryTime == 0 {
 		publishRetryTime = DEFAULT_PUBLISH_RETRY_TIME
 	}
 
-	publishRetryIntervalMS := viper.GetInt64("queue.retry.publish_interval_ms")
+	publishRetryIntervalMS := viper.GetInt64("queue.retry.publishIntervalMs")
 	if publishRetryIntervalMS == 0 {
 		publishRetryIntervalMS = DEFAULT_PUBLISH_RETRY_INTERVAL_MS
 	}

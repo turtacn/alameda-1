@@ -24,7 +24,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: ALAMEDA_AI_DISPATCHER_DATAHUB_ADDRESS  
+            - name: ALAMEDA_AI_DISPATCHER_DATAHUBADDRESS
               value: "{{ .Values.global.component.datahub.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.datahub.service.port }}"
             - name: ALAMEDA_AI_DISPATCHER_QUEUE_URL
               value: "amqp://{{ .Values.global.component.aidispatcher.rabbitmqConfig.username }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.password }}@{{ .Values.global.component.aidispatcher.rabbitmqConfig.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.port }}"

@@ -38,7 +38,7 @@ func parseProbeFlag() {
 }
 
 func startProbing() {
-	datahubAddr := viper.GetString("datahub_address")
+	datahubAddr := viper.GetString("datahubAddress")
 	if probeType == PROBE_TYPE_LIVENESS {
 		probe.LivenessProbe(&probe.LivenessProbeConfig{})
 	} else if probeType == PROBE_TYPE_READINESS {

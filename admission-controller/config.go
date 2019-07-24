@@ -17,12 +17,12 @@ const (
 
 // Config contains the server (the webhook) cert and key.
 type Config struct {
-	CACertFile              string                      `mapstructure:"ca-cert-file"`
-	CertFile                string                      `mapstructure:"tls-cert-file"`
-	KeyFile                 string                      `mapstructure:"tls-private-key-file"`
+	CACertFile              string                      `mapstructure:"caCertFile"`
+	CertFile                string                      `mapstructure:"tlsCertFile"`
+	KeyFile                 string                      `mapstructure:"tlsPrivateKeyFile"`
 	Enable                  bool                        `mapstructure:"enable"`
-	JsonPatchValidationFunc JsonPatchValidationFuncName `mapstructure:"json-patch-validation-func"`
-	DeployedNamespace       string                      `mapstructure:"deployed-namespace"`
+	JsonPatchValidationFunc JsonPatchValidationFuncName `mapstructure:"jsonPatchValidationFunc"`
+	DeployedNamespace       string                      `mapstructure:"deployedNamespace"`
 	Log                     *log.Config                 `mapstructure:"log"`
 	Datahub                 *datahub.Config             `mapstructure:"datahub"`
 	Port                    int32                       `mapstructure:"port"`

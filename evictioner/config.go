@@ -12,7 +12,7 @@ type Config struct {
 	Log      *log.Config      `mapstructure:"log"`
 	Eviction *eviction.Config `mapstructure:"eviction"`
 	Datahub  *datahub.Config  `mapstructure:"datahub"`
-	AdmCtr   *admctr.Config   `mapstructure:"admission-controller"`
+	AdmCtr   *admctr.Config   `mapstructure:"admissionController"`
 }
 
 // NewDefaultConfig returns Config instance

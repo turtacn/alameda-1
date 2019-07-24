@@ -34,8 +34,8 @@ type Dispatcher struct {
 
 func NewDispatcher(datahubGrpcCn *grpc.ClientConn, queueConn *amqp.Connection) *Dispatcher {
 	dispatcher := &Dispatcher{
-		svcGranularities: viper.GetStringSlice("service_setting.granularities"),
-		svcPredictUnits:  viper.GetStringSlice("service_setting.predict_units"),
+		svcGranularities: viper.GetStringSlice("serviceSetting.granularities"),
+		svcPredictUnits:  viper.GetStringSlice("serviceSetting.predictUnits"),
 		datahubGrpcCn:    datahubGrpcCn,
 		queueConn:        queueConn,
 	}
@@ -50,7 +50,7 @@ func (dispatcher *Dispatcher) Start() {
 	// each sender use distinct channel which is not thread safe.
 	// all jobs are published to the same queue.
 	for _, granularity := range dispatcher.svcGranularities {
-		granuSec := viper.GetInt(fmt.Sprintf("granularities.%s.data_granularity_sec", granularity))
+		granuSec := viper.GetInt(fmt.Sprintf("granularities.%s.dataGranularitySec", granularity))
 		if granuSec == 0 {
 			scope.Warnf("Granularity %v is not defined or set incorrect.", granularity)
 			continue
@@ -78,7 +78,7 @@ func (dispatcher *Dispatcher) dispatch(queueSender queue.QueueSender, granularit
 	for {
 		for _, pdUnit := range dispatcher.svcPredictUnits {
 
-			pdUnitType := viper.GetString(fmt.Sprintf("predict_units.%s.type", pdUnit))
+			pdUnitType := viper.GetString(fmt.Sprintf("predictUnits.%s.type", pdUnit))
 
 			if pdUnitType == "" {
 				scope.Warnf("Unit %s is not defined or set incorrect.", pdUnit)
