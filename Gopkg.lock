@@ -27,7 +27,7 @@
 
 [[projects]]
   branch = "development"
-  digest = "1:31d523dec780b3f4b46c51701490fe40883d8e3b2f174b0c4ee0889d00ac4238"
+  digest = "1:1e13f314f06db40d232d7664483316b2da83c6111e2ccfcff21763f3cd98f7e1"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -46,7 +46,7 @@
     "datapipe/scores",
   ]
   pruneopts = "T"
-  revision = "a35cc8f53907b76b6ef8d038efebc3655b0908db"
+  revision = "e6ecff00bfc054080ca6554faca751d28a155f32"
 
 [[projects]]
   branch = "development"
@@ -148,7 +148,7 @@
   revision = "6f2cf27854a4a29e3811b0371547be335d411b8b"
 
 [[projects]]
-  digest = "1:a2ecb56e5053d942aafc86738915fb94c9131bac848c543b8b6764365fd69080"
+  digest = "1:ee6b8c03e5ab6cf9628a3c538430d007f8534483dc46c7ff5955a4359d5ef865"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -162,8 +162,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = "T"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   branch = "master"

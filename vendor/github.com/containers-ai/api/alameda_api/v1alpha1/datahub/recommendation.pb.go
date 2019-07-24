@@ -3,10 +3,12 @@
 
 package containers_ai_alameda_v1alpha1_datahub
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import timestamp "github.com/golang/protobuf/ptypes/timestamp"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -17,7 +19,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type ControllerRecommendedType int32
 
@@ -32,6 +34,7 @@ var ControllerRecommendedType_name = map[int32]string{
 	1: "CRT_Primitive",
 	2: "CRT_K8s",
 }
+
 var ControllerRecommendedType_value = map[string]int32{
 	"CRT_Undefined": 0,
 	"CRT_Primitive": 1,
@@ -41,11 +44,12 @@ var ControllerRecommendedType_value = map[string]int32{
 func (x ControllerRecommendedType) String() string {
 	return proto.EnumName(ControllerRecommendedType_name, int32(x))
 }
+
 func (ControllerRecommendedType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{0}
+	return fileDescriptor_38918555374a9c25, []int{0}
 }
 
-// *
+//*
 // Represents a resource configuration recommendation
 //
 // It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
@@ -65,16 +69,17 @@ func (m *ContainerRecommendation) Reset()         { *m = ContainerRecommendation
 func (m *ContainerRecommendation) String() string { return proto.CompactTextString(m) }
 func (*ContainerRecommendation) ProtoMessage()    {}
 func (*ContainerRecommendation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{0}
+	return fileDescriptor_38918555374a9c25, []int{0}
 }
+
 func (m *ContainerRecommendation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerRecommendation.Unmarshal(m, b)
 }
 func (m *ContainerRecommendation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ContainerRecommendation.Marshal(b, m, deterministic)
 }
-func (dst *ContainerRecommendation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ContainerRecommendation.Merge(dst, src)
+func (m *ContainerRecommendation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ContainerRecommendation.Merge(m, src)
 }
 func (m *ContainerRecommendation) XXX_Size() int {
 	return xxx_messageInfo_ContainerRecommendation.Size(m)
@@ -120,7 +125,7 @@ func (m *ContainerRecommendation) GetInitialRequestRecommendations() []*MetricDa
 	return nil
 }
 
-// *
+//*
 // Represents a recommended pod-to-node assignment (i.e. pod placement)
 //
 type AssignPodPolicy struct {
@@ -139,16 +144,17 @@ func (m *AssignPodPolicy) Reset()         { *m = AssignPodPolicy{} }
 func (m *AssignPodPolicy) String() string { return proto.CompactTextString(m) }
 func (*AssignPodPolicy) ProtoMessage()    {}
 func (*AssignPodPolicy) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{1}
+	return fileDescriptor_38918555374a9c25, []int{1}
 }
+
 func (m *AssignPodPolicy) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AssignPodPolicy.Unmarshal(m, b)
 }
 func (m *AssignPodPolicy) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_AssignPodPolicy.Marshal(b, m, deterministic)
 }
-func (dst *AssignPodPolicy) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AssignPodPolicy.Merge(dst, src)
+func (m *AssignPodPolicy) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AssignPodPolicy.Merge(m, src)
 }
 func (m *AssignPodPolicy) XXX_Size() int {
 	return xxx_messageInfo_AssignPodPolicy.Size(m)
@@ -216,96 +222,16 @@ func (m *AssignPodPolicy) GetNodeName() string {
 	return ""
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*AssignPodPolicy) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _AssignPodPolicy_OneofMarshaler, _AssignPodPolicy_OneofUnmarshaler, _AssignPodPolicy_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*AssignPodPolicy) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*AssignPodPolicy_NodePriority)(nil),
 		(*AssignPodPolicy_NodeSelector)(nil),
 		(*AssignPodPolicy_NodeName)(nil),
 	}
 }
 
-func _AssignPodPolicy_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*AssignPodPolicy)
-	// policy
-	switch x := m.Policy.(type) {
-	case *AssignPodPolicy_NodePriority:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.NodePriority); err != nil {
-			return err
-		}
-	case *AssignPodPolicy_NodeSelector:
-		b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.NodeSelector); err != nil {
-			return err
-		}
-	case *AssignPodPolicy_NodeName:
-		b.EncodeVarint(4<<3 | proto.WireBytes)
-		b.EncodeStringBytes(x.NodeName)
-	case nil:
-	default:
-		return fmt.Errorf("AssignPodPolicy.Policy has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _AssignPodPolicy_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*AssignPodPolicy)
-	switch tag {
-	case 2: // policy.node_priority
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(NodePriority)
-		err := b.DecodeMessage(msg)
-		m.Policy = &AssignPodPolicy_NodePriority{msg}
-		return true, err
-	case 3: // policy.node_selector
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Selector)
-		err := b.DecodeMessage(msg)
-		m.Policy = &AssignPodPolicy_NodeSelector{msg}
-		return true, err
-	case 4: // policy.node_name
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeStringBytes()
-		m.Policy = &AssignPodPolicy_NodeName{x}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _AssignPodPolicy_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*AssignPodPolicy)
-	// policy
-	switch x := m.Policy.(type) {
-	case *AssignPodPolicy_NodePriority:
-		s := proto.Size(x.NodePriority)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *AssignPodPolicy_NodeSelector:
-		s := proto.Size(x.NodeSelector)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *AssignPodPolicy_NodeName:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(len(x.NodeName)))
-		n += len(x.NodeName)
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
-}
-
-// *
+//*
 // Represents a set of container resource configuration recommendations of a pod
 //
 type PodRecommendation struct {
@@ -326,16 +252,17 @@ func (m *PodRecommendation) Reset()         { *m = PodRecommendation{} }
 func (m *PodRecommendation) String() string { return proto.CompactTextString(m) }
 func (*PodRecommendation) ProtoMessage()    {}
 func (*PodRecommendation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{2}
+	return fileDescriptor_38918555374a9c25, []int{2}
 }
+
 func (m *PodRecommendation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PodRecommendation.Unmarshal(m, b)
 }
 func (m *PodRecommendation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_PodRecommendation.Marshal(b, m, deterministic)
 }
-func (dst *PodRecommendation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PodRecommendation.Merge(dst, src)
+func (m *PodRecommendation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PodRecommendation.Merge(m, src)
 }
 func (m *PodRecommendation) XXX_Size() int {
 	return xxx_messageInfo_PodRecommendation.Size(m)
@@ -415,16 +342,17 @@ func (m *ControllerRecommendation) Reset()         { *m = ControllerRecommendati
 func (m *ControllerRecommendation) String() string { return proto.CompactTextString(m) }
 func (*ControllerRecommendation) ProtoMessage()    {}
 func (*ControllerRecommendation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{3}
+	return fileDescriptor_38918555374a9c25, []int{3}
 }
+
 func (m *ControllerRecommendation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ControllerRecommendation.Unmarshal(m, b)
 }
 func (m *ControllerRecommendation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ControllerRecommendation.Marshal(b, m, deterministic)
 }
-func (dst *ControllerRecommendation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ControllerRecommendation.Merge(dst, src)
+func (m *ControllerRecommendation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ControllerRecommendation.Merge(m, src)
 }
 func (m *ControllerRecommendation) XXX_Size() int {
 	return xxx_messageInfo_ControllerRecommendation.Size(m)
@@ -478,16 +406,17 @@ func (m *ControllerRecommendedSpec) Reset()         { *m = ControllerRecommended
 func (m *ControllerRecommendedSpec) String() string { return proto.CompactTextString(m) }
 func (*ControllerRecommendedSpec) ProtoMessage()    {}
 func (*ControllerRecommendedSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{4}
+	return fileDescriptor_38918555374a9c25, []int{4}
 }
+
 func (m *ControllerRecommendedSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ControllerRecommendedSpec.Unmarshal(m, b)
 }
 func (m *ControllerRecommendedSpec) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ControllerRecommendedSpec.Marshal(b, m, deterministic)
 }
-func (dst *ControllerRecommendedSpec) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ControllerRecommendedSpec.Merge(dst, src)
+func (m *ControllerRecommendedSpec) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ControllerRecommendedSpec.Merge(m, src)
 }
 func (m *ControllerRecommendedSpec) XXX_Size() int {
 	return xxx_messageInfo_ControllerRecommendedSpec.Size(m)
@@ -598,16 +527,17 @@ func (m *ControllerRecommendedSpecK8S) Reset()         { *m = ControllerRecommen
 func (m *ControllerRecommendedSpecK8S) String() string { return proto.CompactTextString(m) }
 func (*ControllerRecommendedSpecK8S) ProtoMessage()    {}
 func (*ControllerRecommendedSpecK8S) Descriptor() ([]byte, []int) {
-	return fileDescriptor_recommendation_3593efb072cd623d, []int{5}
+	return fileDescriptor_38918555374a9c25, []int{5}
 }
+
 func (m *ControllerRecommendedSpecK8S) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ControllerRecommendedSpecK8S.Unmarshal(m, b)
 }
 func (m *ControllerRecommendedSpecK8S) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ControllerRecommendedSpecK8S.Marshal(b, m, deterministic)
 }
-func (dst *ControllerRecommendedSpecK8S) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ControllerRecommendedSpecK8S.Merge(dst, src)
+func (m *ControllerRecommendedSpecK8S) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ControllerRecommendedSpecK8S.Merge(m, src)
 }
 func (m *ControllerRecommendedSpecK8S) XXX_Size() int {
 	return xxx_messageInfo_ControllerRecommendedSpecK8S.Size(m)
@@ -661,20 +591,20 @@ func (m *ControllerRecommendedSpecK8S) GetCreateTime() *timestamp.Timestamp {
 }
 
 func init() {
+	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedType", ControllerRecommendedType_name, ControllerRecommendedType_value)
 	proto.RegisterType((*ContainerRecommendation)(nil), "containers_ai.alameda.v1alpha1.datahub.ContainerRecommendation")
 	proto.RegisterType((*AssignPodPolicy)(nil), "containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy")
 	proto.RegisterType((*PodRecommendation)(nil), "containers_ai.alameda.v1alpha1.datahub.PodRecommendation")
 	proto.RegisterType((*ControllerRecommendation)(nil), "containers_ai.alameda.v1alpha1.datahub.ControllerRecommendation")
 	proto.RegisterType((*ControllerRecommendedSpec)(nil), "containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedSpec")
 	proto.RegisterType((*ControllerRecommendedSpecK8S)(nil), "containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedSpecK8s")
-	proto.RegisterEnum("containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedType", ControllerRecommendedType_name, ControllerRecommendedType_value)
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/recommendation.proto", fileDescriptor_recommendation_3593efb072cd623d)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/recommendation.proto", fileDescriptor_38918555374a9c25)
 }
 
-var fileDescriptor_recommendation_3593efb072cd623d = []byte{
+var fileDescriptor_38918555374a9c25 = []byte{
 	// 906 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x56, 0x4d, 0x6f, 0x1c, 0x35,
 	0x18, 0x6e, 0xf6, 0x23, 0xd9, 0x78, 0x9b, 0xec, 0xc6, 0x0a, 0xed, 0x34, 0x50, 0xb5, 0xda, 0x03,

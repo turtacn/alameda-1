@@ -3,10 +3,12 @@
 
 package containers_ai_alameda_v1alpha1_datahub
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import timestamp "github.com/golang/protobuf/ptypes/timestamp"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -17,9 +19,9 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// *
+//*
 // Represents a system score before and after pod scheduled on node
 //
 type SimulatedSchedulingScore struct {
@@ -35,16 +37,17 @@ func (m *SimulatedSchedulingScore) Reset()         { *m = SimulatedSchedulingSco
 func (m *SimulatedSchedulingScore) String() string { return proto.CompactTextString(m) }
 func (*SimulatedSchedulingScore) ProtoMessage()    {}
 func (*SimulatedSchedulingScore) Descriptor() ([]byte, []int) {
-	return fileDescriptor_score_7fec08fea56b5deb, []int{0}
+	return fileDescriptor_9dc8032f2854053c, []int{0}
 }
+
 func (m *SimulatedSchedulingScore) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SimulatedSchedulingScore.Unmarshal(m, b)
 }
 func (m *SimulatedSchedulingScore) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SimulatedSchedulingScore.Marshal(b, m, deterministic)
 }
-func (dst *SimulatedSchedulingScore) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SimulatedSchedulingScore.Merge(dst, src)
+func (m *SimulatedSchedulingScore) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SimulatedSchedulingScore.Merge(m, src)
 }
 func (m *SimulatedSchedulingScore) XXX_Size() int {
 	return xxx_messageInfo_SimulatedSchedulingScore.Size(m)
@@ -81,10 +84,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("alameda_api/v1alpha1/datahub/score.proto", fileDescriptor_score_7fec08fea56b5deb)
+	proto.RegisterFile("alameda_api/v1alpha1/datahub/score.proto", fileDescriptor_9dc8032f2854053c)
 }
 
-var fileDescriptor_score_7fec08fea56b5deb = []byte{
+var fileDescriptor_9dc8032f2854053c = []byte{
 	// 209 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x34, 0x8e, 0xb1, 0x6e, 0xc3, 0x20,
 	0x10, 0x86, 0xe5, 0xb4, 0xea, 0x40, 0x3a, 0x79, 0xb2, 0xb2, 0x24, 0xed, 0x50, 0x79, 0x3a, 0x94,
