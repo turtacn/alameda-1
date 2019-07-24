@@ -19,11 +19,11 @@ type service struct {
 
 type Config struct {
 	Port                        int32   `mapstructure:"port"`
-	CertDir                     string  `mapstructure:"cert-dir"`
+	CertDir                     string  `mapstructure:"certDir"`
 	Service                     service `mapstructure:"service"`
 	Secret                      secret  `mapstructure:"secret"`
-	ValidatingWebhookConfigName string  `mapstructure:"validating-webhook-config-name"`
-	MutatingWebhookConfigName   string  `mapstructure:"mutating-webhook-config-name"`
+	ValidatingWebhookConfigName string  `mapstructure:"validatingWebhookConfigName"`
+	MutatingWebhookConfigName   string  `mapstructure:"mutatingWebhookConfigName"`
 }
 
 func NewConfig() *Config {

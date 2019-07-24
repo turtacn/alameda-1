@@ -12,8 +12,8 @@ import (
 type Config struct {
 	Log              *log.Config      `mapstructure:"log"`
 	Datahub          *datahub.Config  `mapstructure:"datahub"`
-	K8SWebhookServer *k8swhsrv.Config `mapstructure:"k8s-webhook-server"`
-	PodInfo          *podinfo.Config  `mapstructure:"pod-info"`
+	K8SWebhookServer *k8swhsrv.Config `mapstructure:"k8sWebhookServer"`
+	PodInfo          *podinfo.Config  `mapstructure:"podInfo"`
 	Manager          manager.Manager
 }
 

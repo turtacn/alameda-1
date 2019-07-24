@@ -44,7 +44,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		initLogger()
 		setLoggerScopesWithConfig()
-		datahubAddr := viper.GetString("datahub_address")
+		datahubAddr := viper.GetString("datahubAddress")
 		if datahubAddr == "" {
 			scope.Errorf("No configuration of datahub address.")
 			return
@@ -60,7 +60,7 @@ var rootCmd = &cobra.Command{
 			scope.Errorf("No configuration of queue url.")
 			return
 		}
-		queueConnRetryItvMS := viper.GetInt64("queue.retry.connect_interval_ms")
+		queueConnRetryItvMS := viper.GetInt64("queue.retry.connectIntervalMs")
 		if queueConnRetryItvMS == 0 {
 			queueConnRetryItvMS = 3000
 		}
@@ -114,18 +114,18 @@ func initLogger() {
 
 func setLoggerScopesWithConfig() {
 	setLogCallers := true
-	if viper.IsSet("log.set_logcallers") {
-		setLogCallers = viper.GetBool("log.set_logcallers")
+	if viper.IsSet("log.setLogcallers") {
+		setLogCallers = viper.GetBool("log.setLogcallers")
 	}
 
 	outputLevel := "none"
-	if viper.IsSet("log.output_level") {
-		outputLevel = viper.GetString("log.output_level")
+	if viper.IsSet("log.outputLevel") {
+		outputLevel = viper.GetString("log.outputLevel")
 	}
 
 	stackTraceLvl := "none"
-	if viper.IsSet("log.stacktrace_level") {
-		stackTraceLvl = viper.GetString("log.stacktrace_level")
+	if viper.IsSet("log.stacktraceLevel") {
+		stackTraceLvl = viper.GetString("log.stacktraceLevel")
 	}
 	for _, scope := range log.Scopes() {
 		scope.SetLogCallers(setLogCallers)

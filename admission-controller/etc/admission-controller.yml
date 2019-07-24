@@ -1,24 +1,24 @@
 # CA certificate file to provide in k8s object MutatingWebhookConfiguration
-ca-cert-file: ""
+caCertFile: ""
 
 # The ssl certificate file to use to run HTTPS server.
-tls-cert-file: ""
+tlsCertFile: ""
 
 # The ssl key file to use to run HTTPS server.
-tls-private-key-file: ""
+tlsPrivateKeyFile: ""
 
 # Determines whether admission-controller is enabled.
 enable: false
 
 # Specified which namespace did the admission-controller deployed on. 
-deployed-namespace: "alameda"
+deployedNamespace: "alameda"
 
 # Option of json patch validation function, empty value may use default function which won't do any validation.
-json-patch-validation-func: "" # openshift3.9
+jsonPatchValidationFunc: "" # openshift3.9
 
 log:
-  set-logcallers: true
-  output-level: "info" # debug, info, warn, error, fatal, none
+  setLogcallers: true
+  outputLevel: "info" # debug, info, warn, error, fatal, none
 
 datahub:
   address: datahub.alameda.svc:50050

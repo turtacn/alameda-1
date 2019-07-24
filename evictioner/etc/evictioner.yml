@@ -1,15 +1,15 @@
 log:
-  set-logcallers: true
-  output-level: "info" # debug, info, warn, error, fatal, none
+  setLogcallers: true
+  outputLevel: "info" # debug, info, warn, error, fatal, none
 
 datahub:
   address: "datahub.alameda.svc.cluster.local:50050"
 
 eviction:
-  check-cycle: 3 # second
+  checkCycle: 3 # second
   enable: false
-  purge-container-cpu-memory: false
+  purgeContainerCpuMemory: false
 
-admission-controller:
-  service-name: admission-controller
-  service-port: 443
+admissionController:
+  serviceName: admission-controller
+  servicePort: 443

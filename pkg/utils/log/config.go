@@ -45,9 +45,9 @@ import (
 )
 
 type Config struct {
-	SetLogCallers   bool   `mapstructure:"set-logcallers"`
-	StackTraceLevel string `mapstructure:"stacktrace-level"`
-	OutputLevel     string `mapstructure:"output-level"`
+	SetLogCallers   bool   `mapstructure:"setLogcallers"`
+	StackTraceLevel string `mapstructure:"stacktraceLevel"`
+	OutputLevel     string `mapstructure:"outputLevel"`
 }
 
 func NewDefaultConfig() Config {

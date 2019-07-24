@@ -1,7 +1,7 @@
 package podinfo
 
 type Config struct {
-	LabelsFile string
+	LabelsFile string `mapstructure:"labelsFile"`
 }
 
 func NewConfig() *Config {

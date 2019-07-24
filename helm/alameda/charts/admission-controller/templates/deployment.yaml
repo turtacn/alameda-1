@@ -31,13 +31,13 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name 
-            - name: ALAMEDA_ADMCTL_CA_CERT_FILE
+            - name: ALAMEDA_ADMCTL_CA_CERTFILE
               value: "/etc/tls-certs/ca.crt"
-            - name: ALAMEDA_ADMCTL_TLS_CERT_FILE
+            - name: ALAMEDA_ADMCTL_TLS_CERTFILE
               value: "/etc/tls-certs/tls.crt"
-            - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEY_FILE
+            - name: ALAMEDA_ADMCTL_TLS_PRIVATE_KEYFILE
               value: "/etc/tls-certs/tls.key"
-            - name: ALAMEDA_ADMCTL_DEPLOYED_NAMESPACE
+            - name: ALAMEDA_ADMCTL_DEPLOYEDNAMESPACE
               value: "{{ .Release.Namespace }}"
             - name: ALAMEDA_ADMCTL_ENABLE
               value: "{{ .Values.global.executionEnable }}"

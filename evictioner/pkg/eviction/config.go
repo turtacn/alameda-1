@@ -7,9 +7,9 @@ type triggerThreshold struct {
 
 // Config is eviction configuration
 type Config struct {
-	CheckCycle              int64 `mapstructure:"check-cycle"`
+	CheckCycle              int64 `mapstructure:"checkCycle"`
 	Enable                  bool  `mapstructure:"enable"`
-	PurgeContainerCPUMemory bool  `mapstructure:"purge-container-cpu-memory"`
+	PurgeContainerCPUMemory bool  `mapstructure:"purgeContainerCpuMemory"`
 }
 
 // NewDefaultConfig returns Config instance

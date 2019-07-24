@@ -3,8 +3,8 @@ package admctr
 import "fmt"
 
 type Config struct {
-	SvcName string `mapstructure:"service-name"`
-	SvcPort int32  `mapstructure:"service-port"`
+	SvcName string `mapstructure:"serviceName"`
+	SvcPort int32  `mapstructure:"servicePort"`
 }
 
 func NewConfig() *Config {

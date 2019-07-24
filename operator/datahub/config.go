@@ -13,7 +13,7 @@ type retryInterval struct {
 
 type Config struct {
 	Address       string        `mapstructure:"address"`
-	RetryInterval retryInterval `mapstructure:"retry-interval"`
+	RetryInterval retryInterval `mapstructure:"retryInterval"`
 }
 
 func NewConfig() *Config {
