@@ -14,7 +14,7 @@ const (
 )
 
 type Config struct {
-	BindAddress string                     `mapstructure:"bind-address"`
+	BindAddress string                     `mapstructure:"bindAddress"`
 	Prometheus  *InternalPromth.Config     `mapstructure:"prometheus"`
 	InfluxDB    *InternalInflux.Config     `mapstructure:"influxdb"`
 	WeaveScope  *InternalWeaveScope.Config `mapstructure:"weavescope"`

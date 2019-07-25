@@ -13,14 +13,14 @@ const (
 // Configuration of prometheus data source
 type Config struct {
 	URL             string     `mapstructure:"url"`
-	BearerTokenFile string     `mapstructure:"bearer-token-file"`
-	TLSConfig       *TLSConfig `mapstructure:"tls-config"`
+	BearerTokenFile string     `mapstructure:"bearerTokenFile"`
+	TLSConfig       *TLSConfig `mapstructure:"tlsConfig"`
 	bearerToken     string
 }
 
 // Configuration of tls connection
 type TLSConfig struct {
-	InsecureSkipVerify bool `mapstructure:"insecure-skip-verify"`
+	InsecureSkipVerify bool `mapstructure:"insecureSkipVerify"`
 }
 
 // Provide default configuration for prometheus
