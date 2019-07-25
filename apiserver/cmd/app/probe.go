@@ -16,7 +16,7 @@ var (
 
 	ProbeCmd = &cobra.Command{
 		Use:   "probe",
-		Short: "probe alameda api server",
+		Short: "probe alameda apiserver",
 		Long:  "",
 		Run: func(cmd *cobra.Command, args []string) {
 			initConfig()
@@ -32,7 +32,7 @@ func init() {
 }
 
 func parseProbeFlag() {
-	ProbeCmd.Flags().StringVar(&probeType, "type", probeTypeReadiness, "The probe type for api server.")
+	ProbeCmd.Flags().StringVar(&probeType, "type", probeTypeReadiness, "The probe type for apiserver.")
 }
 
 func startProbing() {

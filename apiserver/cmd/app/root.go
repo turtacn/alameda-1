@@ -85,5 +85,5 @@ func initLogger() {
 		panic(err)
 	}
 
-	scope = log.RegisterScope("apiserver_probe", "api server probe command", 0)
+	scope = log.RegisterScope("apiserver_probe", "apiserver probe command", 0)
 }

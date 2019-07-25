@@ -18,7 +18,7 @@ const (
 var (
 	RunCmd = &cobra.Command{
 		Use:   "run",
-		Short: "start alameda api server",
+		Short: "start alameda apiserver",
 		Long:  "",
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -49,6 +49,6 @@ func displayConfig() {
 	if configBin, err := json.MarshalIndent(config, "", "  "); err != nil {
 		scope.Error(err.Error())
 	} else {
-		scope.Infof(fmt.Sprintf("Alameda API server configuration: %s", string(configBin)))
+		scope.Infof(fmt.Sprintf("alameda apiserver configuration: %s", string(configBin)))
 	}
 }
