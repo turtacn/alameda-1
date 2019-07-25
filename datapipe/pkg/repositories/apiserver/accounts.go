@@ -16,7 +16,7 @@ func Login() (string, error) {
 
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		return "", errors.New("failed to connect to api server")
 	}
 	defer conn.Close()
@@ -24,7 +24,7 @@ func Login() (string, error) {
 	client := Accounts.NewAccountsServiceClient(conn)
 	response, err := client.Login(context.Background(), request)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		return "", errors.New("failed to login api server")
 	}
 

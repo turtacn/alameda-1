@@ -50,6 +50,6 @@ func displayConfig() {
 	if configBin, err := json.MarshalIndent(config, "", "  "); err != nil {
 		scope.Error(err.Error())
 	} else {
-		scope.Infof(fmt.Sprintf("Datapipe configuration: %s", string(configBin)))
+		scope.Infof(fmt.Sprintf("alameda datapipe configuration: %s", string(configBin)))
 	}
 }
