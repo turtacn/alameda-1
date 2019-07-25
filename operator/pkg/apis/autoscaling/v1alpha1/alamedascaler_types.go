@@ -68,6 +68,7 @@ type AlamedaResource struct {
 type AlamedaController struct {
 	Deployments       map[NamespacedName]AlamedaResource `json:"deployments,omitempty" protobuf:"bytes,1,opt,name=deployments"`
 	DeploymentConfigs map[NamespacedName]AlamedaResource `json:"deploymentConfigs,omitempty" protobuf:"bytes,2,opt,name=deployment_configs"`
+	StatefulSets      map[NamespacedName]AlamedaResource `json:"statefulSets,omitempty" protobuf:"bytes,3,opt,name=stateful_sets"`
 }
 
 type AlamedaControllerType int
@@ -75,17 +76,20 @@ type AlamedaControllerType int
 const (
 	DeploymentController       AlamedaControllerType = 1
 	DeploymentConfigController AlamedaControllerType = 2
+	StatefulSetController      AlamedaControllerType = 3
 )
 
 var (
 	AlamedaControllerTypeName = map[AlamedaControllerType]string{
 		DeploymentController:       "deployment",
 		DeploymentConfigController: "deploymentconfig",
+		StatefulSetController:      "statefulset",
 	}
 
 	K8SKindToAlamedaControllerType = map[string]AlamedaControllerType{
 		"Deployment":       DeploymentController,
 		"DeploymentConfig": DeploymentConfigController,
+		"StatefulSet":      StatefulSetController,
 	}
 )
 
@@ -143,14 +147,6 @@ type ScalingToolSpec struct {
 	ExecutionStrategy *ExecutionStrategy `json:"executionStrategy,omitempty" protobuf:"bytes,2,name=execution_strategy"`
 }
 
-type scalingToolType string
-
-const (
-	EnableVPA          scalingToolType = "vpa"
-	EnableHPA          scalingToolType = "hpa"
-	DefaultScalingTool bool            = true
-)
-
 // AlamedaScalerSpec defines the desired state of AlamedaScaler
 // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 type AlamedaScalerSpec struct {
@@ -181,31 +177,8 @@ type AlamedaScaler struct {
 	Status AlamedaScalerStatus `json:"status,omitempty"`
 }
 
-type ScalingToolstruct struct {
-	VpaFlag bool
-	HpaFlag bool
-}
-
-var (
-	ScalingTool ScalingToolstruct = ScalingToolstruct{VpaFlag: false, HpaFlag: false}
-)
-
-func (as *AlamedaScaler) setDefaultValueToScalingTools() {
-	sct := ScalingToolstruct{VpaFlag: false, HpaFlag: false}
-	switch as.Spec.ScalingTool.Type {
-	case string(EnableVPA):
-		sct.VpaFlag = true
-	case string(EnableHPA):
-		sct.HpaFlag = true
-	default:
-		sct.VpaFlag = DefaultScalingTool
-	}
-	ScalingTool = sct
-}
-
 func (as *AlamedaScaler) SetDefaultValue() { //this function is set alamedascaler default value
 	as.setDefaultEnableExecution()
-	as.setDefaultValueToScalingTools()
 	as.setDefaultScalingTool()
 }
 
@@ -213,18 +186,16 @@ func (as *AlamedaScaler) SetCustomResourceVersion(v string) {
 	as.Spec.CustomResourceVersion = v
 }
 
+func (as *AlamedaScaler) SetStatusAlamedaController(ac AlamedaController) {
+	as.Status.AlamedaController = ac
+}
+
 func (as *AlamedaScaler) GenCustomResourceVersion() string {
 	v := as.ResourceVersion
 	return v
 }
 
-func (as *AlamedaScaler) ResetStatusAlamedaController() {
-	as.Status.AlamedaController = AlamedaController{
-		Deployments:       make(map[NamespacedName]AlamedaResource),
-		DeploymentConfigs: make(map[NamespacedName]AlamedaResource),
-	}
-}
-
+// GetMonitoredPods returns pods restoring in AlamedaScaler.Status
 func (as *AlamedaScaler) GetMonitoredPods() []*AlamedaPod {
 	pods := make([]*AlamedaPod, 0)
 
@@ -241,6 +212,14 @@ func (as *AlamedaScaler) GetMonitoredPods() []*AlamedaPod {
 			pods = append(pods, &cpPod)
 		}
 	}
+
+	for _, alamedaResource := range as.Status.AlamedaController.StatefulSets {
+		for _, pod := range alamedaResource.Pods {
+			cpPod := pod
+			pods = append(pods, &cpPod)
+		}
+	}
+
 	return pods
 }
 
@@ -263,6 +242,37 @@ func (as *AlamedaScaler) IsScalingToolTypeHPA() bool {
 
 func (as *AlamedaScaler) IsScalingToolTypeVPA() bool {
 	return as.Spec.ScalingTool.Type == ScalingToolTypeVPA
+}
+
+// HasAlamedaPod returns true if the pod is reocording in AlamedaScaler.Status
+func (as *AlamedaScaler) HasAlamedaPod(namespace, name string) bool {
+
+	for _, deployment := range as.Status.AlamedaController.Deployments {
+		deploymentNS := deployment.Namespace
+		for _, pod := range deployment.Pods {
+			if deploymentNS == namespace && pod.Name == name {
+				return true
+			}
+		}
+	}
+	for _, deploymentConfig := range as.Status.AlamedaController.DeploymentConfigs {
+		deploymentConfigNS := deploymentConfig.Namespace
+		for _, pod := range deploymentConfig.Pods {
+			if deploymentConfigNS == namespace && pod.Name == name {
+				return true
+			}
+		}
+	}
+	for _, statefulSet := range as.Status.AlamedaController.StatefulSets {
+		statefulSetNS := statefulSet.Namespace
+		for _, pod := range statefulSet.Pods {
+			if statefulSetNS == namespace && pod.Name == name {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func (as *AlamedaScaler) setDefaultEnableExecution() {

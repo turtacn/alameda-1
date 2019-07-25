@@ -3,6 +3,8 @@ package alamedascaler
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	utils "github.com/containers-ai/alameda/operator/pkg/utils"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
@@ -52,49 +54,6 @@ func (reconciler *Reconciler) HasAlamedaDeploymentConfig(deploymentConfigNS, dep
 	return ok
 }
 
-// HasAlamedaPod checks the AlamedaScaler has the AlamedaPod or not
-func (reconciler *Reconciler) HasAlamedaPod(podNS, podName string) bool {
-	for _, deployment := range reconciler.alamedascaler.Status.AlamedaController.Deployments {
-		deploymentNS := deployment.Namespace
-		for _, pod := range deployment.Pods {
-			if deploymentNS == podNS && pod.Name == podName {
-				return true
-			}
-		}
-	}
-	for _, deploymentConfig := range reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs {
-		deploymentConfigNS := deploymentConfig.Namespace
-		for _, pod := range deploymentConfig.Pods {
-			if deploymentConfigNS == podNS && pod.Name == podName {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-// RemoveAlamedaDeployment removes deployment from alamedaController of AlamedaScaler
-func (reconciler *Reconciler) RemoveAlamedaDeployment(deploymentNS, deploymentName string) *autoscaling_v1alpha1.AlamedaScaler {
-	key := utils.GetNamespacedNameKey(deploymentNS, deploymentName)
-
-	if _, ok := reconciler.alamedascaler.Status.AlamedaController.Deployments[autoscaling_v1alpha1.NamespacedName(key)]; ok {
-		delete(reconciler.alamedascaler.Status.AlamedaController.Deployments, autoscaling_v1alpha1.NamespacedName(key))
-	}
-
-	return reconciler.alamedascaler
-}
-
-// RemoveAlamedaDeploymentConfig removes deployment from alamedaController of AlamedaScaler
-func (reconciler *Reconciler) RemoveAlamedaDeploymentConfig(deploymentConfigNS, deploymentConfigName string) *autoscaling_v1alpha1.AlamedaScaler {
-	key := utils.GetNamespacedNameKey(deploymentConfigNS, deploymentConfigName)
-
-	if _, ok := reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs[autoscaling_v1alpha1.NamespacedName(key)]; ok {
-		delete(reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs, autoscaling_v1alpha1.NamespacedName(key))
-		return reconciler.alamedascaler
-	}
-	return reconciler.alamedascaler
-}
-
 // InitAlamedaController try to initialize alamedaController field of AlamedaScaler
 func (reconciler *Reconciler) InitAlamedaController() (*autoscaling_v1alpha1.AlamedaScaler, bool) {
 	needUpdate := false
@@ -107,6 +66,18 @@ func (reconciler *Reconciler) InitAlamedaController() (*autoscaling_v1alpha1.Ala
 		needUpdate = true
 	}
 	return reconciler.alamedascaler, needUpdate
+}
+
+// ResetAlamedaController try to initialize alamedaController field of AlamedaScaler
+func (reconciler *Reconciler) ResetAlamedaController() {
+
+	ac := autoscaling_v1alpha1.AlamedaController{
+		Deployments:       make(map[autoscaling_v1alpha1.NamespacedName]autoscaling_v1alpha1.AlamedaResource),
+		DeploymentConfigs: make(map[autoscaling_v1alpha1.NamespacedName]autoscaling_v1alpha1.AlamedaResource),
+		StatefulSets:      make(map[autoscaling_v1alpha1.NamespacedName]autoscaling_v1alpha1.AlamedaResource),
+	}
+
+	reconciler.alamedascaler.SetStatusAlamedaController(ac)
 }
 
 // UpdateStatusByDeployment updates status by deployment
@@ -207,6 +178,58 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 	}
 	reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs = deploymentConfigsMap
 	return reconciler.alamedascaler
+}
+
+// UpdateStatusByStatefulSet updates status by StatefulSet
+func (reconciler *Reconciler) UpdateStatusByStatefulSet(statefulSet *appsv1.StatefulSet) (*autoscaling_v1alpha1.AlamedaScaler, error) {
+	alamedaScalerNS := reconciler.alamedascaler.GetNamespace()
+	alamedaScalerName := reconciler.alamedascaler.GetName()
+
+	listResources := utilsresource.NewListResources(reconciler.client)
+	alamedaStatefulSetNS := statefulSet.GetNamespace()
+	alamedaStatefulSetName := statefulSet.GetName()
+	alamedaStatefulSetUID := statefulSet.GetUID()
+	alamedaPodsMap := map[autoscaling_v1alpha1.NamespacedName]autoscaling_v1alpha1.AlamedaPod{}
+	alamedaStatefulSetsMap := reconciler.alamedascaler.Status.AlamedaController.StatefulSets
+	if alamedaStatefulSetsMap == nil {
+		alamedaStatefulSetsMap = map[autoscaling_v1alpha1.NamespacedName]autoscaling_v1alpha1.AlamedaResource{}
+	}
+	alamedaPods, err := listResources.ListPodsByStatefulSet(alamedaStatefulSetNS, alamedaStatefulSetName)
+	if err != nil {
+		return nil, errors.Wrap(err, "list pods by StatefulSet failed")
+	}
+	for _, alamedaPod := range alamedaPods {
+		if !PodIsMonitoredByAlameda(&alamedaPod) {
+			continue
+		}
+		alamedaPodNamespace := alamedaPod.GetNamespace()
+		alamedaPodName := alamedaPod.GetName()
+		alamedaPodUID := alamedaPod.GetUID()
+		alamedascalerReconcilerScope.Debug(fmt.Sprintf("Pod (%s/%s) belongs to AlamedaScaler (%s/%s).", alamedaStatefulSetNS, alamedaPodName, alamedaScalerNS, alamedaScalerName))
+		alamedaContainers := []autoscaling_v1alpha1.AlamedaContainer{}
+		for _, alamedaContainer := range alamedaPod.Spec.Containers {
+			alamedaContainers = append(alamedaContainers, autoscaling_v1alpha1.AlamedaContainer{
+				Name: alamedaContainer.Name,
+			})
+		}
+		alamedaPodsMap[autoscaling_v1alpha1.NamespacedName(utils.GetNamespacedNameKey(alamedaPod.GetNamespace(), alamedaPodName))] = autoscaling_v1alpha1.AlamedaPod{
+			Namespace:  alamedaPodNamespace,
+			Name:       alamedaPodName,
+			UID:        string(alamedaPodUID),
+			Containers: alamedaContainers,
+		}
+	}
+
+	specReplicas := statefulSet.Spec.Replicas
+	alamedaStatefulSetsMap[autoscaling_v1alpha1.NamespacedName(utils.GetNamespacedNameKey(statefulSet.GetNamespace(), statefulSet.GetName()))] = autoscaling_v1alpha1.AlamedaResource{
+		Namespace:    alamedaStatefulSetNS,
+		Name:         alamedaStatefulSetName,
+		UID:          string(alamedaStatefulSetUID),
+		Pods:         alamedaPodsMap,
+		SpecReplicas: specReplicas,
+	}
+	reconciler.alamedascaler.Status.AlamedaController.StatefulSets = alamedaStatefulSetsMap
+	return reconciler.alamedascaler, nil
 }
 
 func PodIsMonitoredByAlameda(pod *core_v1.Pod) bool {

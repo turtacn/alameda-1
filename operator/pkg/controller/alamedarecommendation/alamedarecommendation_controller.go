@@ -24,7 +24,6 @@ import (
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedarecommendation_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
-	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
@@ -106,8 +105,7 @@ func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (r
 				if scalers, err := listResources.ListAllAlamedaScaler(); err == nil {
 					for _, scaler := range scalers {
 						if scaler.GetUID() == or.UID {
-							alamedascalerReconciler := alamedascaler_reconciler.NewReconciler(r, &scaler)
-							if !alamedascalerReconciler.HasAlamedaPod(alamedaRecommendation.Namespace, alamedaRecommendation.Name) {
+							if !scaler.HasAlamedaPod(alamedaRecommendation.Namespace, alamedaRecommendation.Name) {
 								alamedarecommendationScope.Infof(fmt.Sprintf("AlamedaRecommendation (%s/%s) is already removed from AlamedaScaler (%s/%s)", request.Namespace, request.Name, scaler.Namespace, scaler.Name))
 								if err = r.Delete(context.TODO(), alamedaRecommendation); err != nil {
 									alamedarecommendationScope.Error(err.Error())

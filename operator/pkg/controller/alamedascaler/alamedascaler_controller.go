@@ -134,8 +134,7 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		alamedaScalerNS := alamedaScaler.GetNamespace()
 		alamedaScalerName := alamedaScaler.GetName()
 		alamedascalerReconciler := alamedascaler_reconciler.NewReconciler(r, alamedaScaler)
-		alamedaScaler, _ := alamedascalerReconciler.InitAlamedaController()
-		alamedaScaler.ResetStatusAlamedaController()
+		alamedascalerReconciler.ResetAlamedaController()
 
 		scope.Infof(fmt.Sprintf("AlamedaScaler (%s/%s) found, try to sync latest alamedacontrollers.", alamedaScalerNS, alamedaScalerName))
 		// select matched deployments
@@ -145,6 +144,7 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			}
 		} else {
 			scope.Error(err.Error())
+			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
 		// select matched deploymentConfigs
@@ -154,6 +154,20 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			}
 		} else {
 			scope.Error(err.Error())
+		}
+
+		// select matched statefulSets
+		if statefulSets, err := listResources.ListStatefulSetsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
+			for _, statefulSet := range statefulSets {
+				alamedaScaler, err = alamedascalerReconciler.UpdateStatusByStatefulSet(&statefulSet)
+				if err != nil {
+					scope.Errorf("update AlamedaScaler's (%s/%s) status by StatefulSets failed, retry reconciling: %s", request.Namespace, request.Name, err.Error())
+					return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
+				}
+			}
+		} else {
+			scope.Error(err.Error())
+			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
 		if err := updateResource.UpdateAlamedaScaler(alamedaScaler); err != nil {
@@ -205,8 +219,20 @@ func (r *ReconcileAlamedaScaler) syncAlamedaScalerWithDepResources(alamedaScaler
 	numOfGoroutine := 2
 	done := make(chan bool)
 	errChan := make(chan error)
-	go r.syncDatahubResource(done, errChan, alamedaScaler, existingPodsMap)
-	go r.syncAlamedaRecommendation(done, errChan, alamedaScaler, existingPodsMap)
+	go func() {
+		if err := r.syncDatahubResource(alamedaScaler, existingPodsMap); err != nil {
+			errChan <- err
+		} else {
+			done <- true
+		}
+	}()
+	go func() {
+		if err := r.syncAlamedaRecommendation(alamedaScaler, existingPodsMap); err != nil {
+			errChan <- err
+		} else {
+			done <- true
+		}
+	}()
 
 	for i := 0; i < numOfGoroutine; i++ {
 		select {
@@ -222,13 +248,13 @@ func (r *ReconcileAlamedaScaler) syncAlamedaScalerWithDepResources(alamedaScaler
 	return nil
 }
 
-func (r *ReconcileAlamedaScaler) syncDatahubResource(done chan bool, errChan chan error, alamedaScaler *autoscalingv1alpha1.AlamedaScaler, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {
+func (r *ReconcileAlamedaScaler) syncDatahubResource(alamedaScaler *autoscalingv1alpha1.AlamedaScaler, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {
 
 	currentPods := alamedaScaler.GetMonitoredPods()
 
 	if len(currentPods) > 0 {
 		if err := r.createPodsToDatahub(alamedaScaler, currentPods); err != nil {
-			errChan <- errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
+			return errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
 		}
 	}
 
@@ -236,10 +262,9 @@ func (r *ReconcileAlamedaScaler) syncDatahubResource(done chan bool, errChan cha
 		Namespace: alamedaScaler.GetNamespace(),
 		Name:      alamedaScaler.GetName(),
 	}, existingPodsMap); err != nil {
-		errChan <- errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
+		return errors.Wrapf(err, "sync Datahub resource failed: %s", err.Error())
 	}
 
-	done <- true
 	return nil
 }
 
@@ -308,6 +333,34 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			EnableRecommendationExecution: scaler.IsEnableExecution(),
 			Replicas:                      int32(len(deploy.Pods)),
 			SpecReplicas:                  *deploy.SpecReplicas,
+		})
+	}
+	for _, statefulSet := range scaler.Status.AlamedaController.StatefulSets {
+		policy := datahub_v1alpha1.RecommendationPolicy_RECOMMENDATIONPOLICY_UNDEFINED
+		if scaler.Spec.Policy == autoscalingv1alpha1.RecommendationPolicySTABLE {
+			policy = datahub_v1alpha1.RecommendationPolicy_STABLE
+		} else if scaler.Spec.Policy == autoscalingv1alpha1.RecommendationPolicyCOMPACT {
+			policy = datahub_v1alpha1.RecommendationPolicy_COMPACT
+		}
+		watchedReses = append(watchedReses, &datahub_v1alpha1.Controller{
+			ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: statefulSet.Namespace,
+					Name:      statefulSet.Name,
+				},
+				Kind: datahub_v1alpha1.Kind_DEPLOYMENT,
+			},
+			OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
+				NamespacedName: &datahub_v1alpha1.NamespacedName{
+					Namespace: scaler.GetNamespace(),
+					Name:      scaler.GetName(),
+				},
+				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
+			}},
+			Policy:                        policy,
+			EnableRecommendationExecution: scaler.IsEnableExecution(),
+			Replicas:                      int32(len(statefulSet.Pods)),
+			SpecReplicas:                  *statefulSet.SpecReplicas,
 		})
 	}
 	err := k8sRes.CreateAlamedaWatchedResource(watchedReses)
@@ -382,6 +435,31 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 					}},
 				})
 			}
+		} else if ctlrKind == datahub_v1alpha1.Kind_STATEFULSET {
+			for _, statefulSet := range scaler.Status.AlamedaController.StatefulSets {
+				if ctlrName == statefulSet.Name {
+					inScaler = true
+					break
+				}
+			}
+			if !inScaler {
+				delCtlrs = append(delCtlrs, &datahub_v1alpha1.Controller{
+					ControllerInfo: &datahub_v1alpha1.ResourceInfo{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: ctlrNS,
+							Name:      ctlrName,
+						},
+						Kind: datahub_v1alpha1.Kind_STATEFULSET,
+					},
+					OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: scaler.GetNamespace(),
+							Name:      scaler.GetName(),
+						},
+						Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
+					}},
+				})
+			}
 		}
 	}
 
@@ -429,7 +507,7 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		nodeName := ""
 		resourceLink := ""
 		podStatus := &datahub_v1alpha1.PodStatus{}
-		replicas := int32(1)
+		replicas := int32(-1)
 		if corePod, err := getResource.GetPod(pod.Namespace, pod.Name); err == nil {
 			podStatus = datahubutilspod.NewStatus(corePod)
 			replicas = datahubutilspod.GetReplicasFromPod(corePod, r)
@@ -702,7 +780,7 @@ func getPodsObservedByAlamedaScalerFromDatahub(scalerNamespacedName *types.Names
 	return podsInDatahub, nil
 }
 
-func (r *ReconcileAlamedaScaler) syncAlamedaRecommendation(done chan bool, errChan chan error, alamedaScaler *autoscalingv1alpha1.AlamedaScaler, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {
+func (r *ReconcileAlamedaScaler) syncAlamedaRecommendation(alamedaScaler *autoscalingv1alpha1.AlamedaScaler, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {
 
 	currentPods := alamedaScaler.GetMonitoredPods()
 
@@ -714,7 +792,6 @@ func (r *ReconcileAlamedaScaler) syncAlamedaRecommendation(done chan bool, errCh
 		return errors.Wrapf(err, "sync AlamedaRecommendation failed: %s", err.Error())
 	}
 
-	done <- true
 	return nil
 }
 

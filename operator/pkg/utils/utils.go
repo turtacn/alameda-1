@@ -22,6 +22,8 @@ func ParseResourceLinkForTopController(resourceLink string) (*datahub_v1alpha1.T
 			kind = datahub_v1alpha1.Kind_DEPLOYMENT
 		case "deploymentconfigs":
 			kind = datahub_v1alpha1.Kind_DEPLOYMENTCONFIG
+		case "statefulsets":
+			kind = datahub_v1alpha1.Kind_STATEFULSET
 		default:
 			kind = datahub_v1alpha1.Kind_POD
 		}
@@ -33,5 +35,5 @@ func ParseResourceLinkForTopController(resourceLink string) (*datahub_v1alpha1.T
 			Kind: kind,
 		}, nil
 	}
-	return &datahub_v1alpha1.TopController{}, fmt.Errorf("Resource link format is not correct.")
+	return &datahub_v1alpha1.TopController{}, fmt.Errorf("resource link format is not correct")
 }

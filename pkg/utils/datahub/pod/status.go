@@ -42,7 +42,14 @@ func GetReplicasFromPod(pod *corev1.Pod, client client.Client) int32 {
 			} else {
 				scope.Errorf("Get replicationcontroller for number of replicas failed due to %s", err.Error())
 			}
+		} else if or.Kind == consts.K8S_KIND_STATEFULSET {
+			sts, err := getResource.GetStatefulSet(pod.GetNamespace(), or.Name)
+			if err == nil {
+				return sts.Status.Replicas
+			} else {
+				scope.Errorf("Get StatefulSet for number of replicas failed due to %s", err.Error())
+			}
 		}
 	}
-	return int32(1)
+	return int32(-1)
 }

@@ -97,6 +97,22 @@ func getControlleHierarchy(client client.Client, curOwnerRef metav1.OwnerReferen
 				return getControlleHierarchy(client, *controllerOwnerRef, namespace, resultStr) + resultStr
 			}
 		}
+	} else if strings.ToLower(orKind) == "statefulset" {
+		statefulSet := &appsv1.StatefulSet{}
+		err := client.Get(context.TODO(), types.NamespacedName{
+			Namespace: namespace,
+			Name:      orName,
+		}, statefulSet)
+		if err != nil {
+			scope.Error(err.Error())
+		} else {
+			controllerOwnerRef := getControllerOwnerRef(statefulSet.OwnerReferences)
+			resultStr = fmt.Sprintf("/statefulsets/%s", statefulSet.GetName())
+			if controllerOwnerRef == nil {
+				return resultStr
+			}
+			return getControlleHierarchy(client, *controllerOwnerRef, namespace, resultStr) + resultStr
+		}
 	}
 	return resultStr
 }
