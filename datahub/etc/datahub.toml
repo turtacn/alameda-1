@@ -1,21 +1,21 @@
-bind-address = ":50050"
+bindAddress = ":50050"
 
 [prometheus]
     url = "https://prometheus-k8s.openshift-monitoring:9091"
-    bearer-token-file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-    [tls-config]
-        insecure-skip-verify = true
+    bearerTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    [tlsConfig]
+        insecureSkipVerify = true
 
 [influxdb]
     address = "https://influxdb.alameda.svc.cluster.local:8086"
     username = "alameda"
     password = "alameda"
-    retention-duration = "30d"
-    retention-shard-duration = "1d"
+    retentionDuration = "30d"
+    retentionShardDuration = "1d"
 
 [log]
-    set-logcallers = true
-    output-level = "info" # debug, info, warn, error, fatal, none
+    setLogcallers = true
+    outputLevel = "info" # debug, info, warn, error, fatal, none
 
 [weavescope]
   url = "http://127.0.0.1:4040"

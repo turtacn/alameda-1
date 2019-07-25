@@ -12,7 +12,7 @@ const (
 
 // Configuration of datapipe data source
 type Config struct {
-	BindAddress string             `mapstructure:"bind-address"`
+	BindAddress string             `mapstructure:"bindAddress"`
 	APIServer   *apiserver.Config  `mapstructure:"apiserver"`
 	Prometheus  *prometheus.Config `mapstructure:"prometheus"`
 	Log         *log.Config        `mapstructure:"log"`

@@ -11,7 +11,7 @@ const (
 )
 
 type Config struct {
-	BindAddress string          `mapstructure:"bind-address"`
+	BindAddress string          `mapstructure:"bindAddress"`
 	Datahub     *datahub.Config `mapstructure:"datahub"`
 	Ldap        *ldap.Config    `mapstructure:"ldap"`
 	Log         *log.Config     `mapstructure:"log"`

@@ -1,4 +1,4 @@
-bind-address = ":50060"
+bindAddress = ":50060"
 
 [apiserver]
     address = "127.0.0.1:50055"
@@ -7,10 +7,10 @@ bind-address = ":50060"
 
 [prometheus]
     url = "https://prometheus-k8s.openshift-monitoring:9091"
-    bearer-token-file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-    [tls-config]
-        insecure-skip-verify = true
+    bearerTokenFile = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    [tlsConfig]
+        insecureSkipVerify = true
 
 [log]
-    set-logcallers = true
-    output-level = "info" # debug, info, warn, error, fatal, none
+    setLogcallers = true
+    outputLevel = "info" # debug, info, warn, error, fatal, none

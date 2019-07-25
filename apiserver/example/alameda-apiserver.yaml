@@ -5,14 +5,14 @@ metadata:
   namespace: federatorai
 data:
   apiserver.toml: |-
-    bind-address = ":50055"
+    bindAddress = ":50055"
 
     [datahub]
         address = "alameda-datahub.federatorai:50050"
 
     [log]
-        set-logcallers = true
-        output-level = "info" # debug, info, warn, error, fatal, none
+        setLogcallers = true
+        outputLevel = "info" # debug, info, warn, error, fatal, none
 ---
 
 apiVersion: apps/v1beta1
