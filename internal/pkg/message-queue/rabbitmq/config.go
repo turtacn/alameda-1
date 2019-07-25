@@ -13,8 +13,8 @@ type Config struct {
 }
 
 type Retry struct {
-	PublishTime       int   `mapstructure:"publish_time"`
-	PublishIntervalMS int64 `mapstructure:"publish_interval_ms"`
+	PublishTime       int   `mapstructure:"publishTime"`
+	PublishIntervalMS int64 `mapstructure:"publishIntervalMs"`
 }
 
 // Provide default configuration for weave scope
