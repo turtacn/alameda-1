@@ -88,6 +88,17 @@ func (listResources *ListResources) ListDeploymentConfigsByNamespaceLabels(names
 	return deploymentConfigList.Items, nil
 }
 
+// ListStatefulSetsByNamespaceLabels return statefulsets by namespace and labels
+func (listResources *ListResources) ListStatefulSetsByNamespaceLabels(namespace string, labels map[string]string) ([]appsv1.StatefulSet, error) {
+	statefulSetList := &appsv1.StatefulSetList{}
+
+	if err := listResources.listResourcesByNamespaceLabels(statefulSetList, namespace, labels); err != nil {
+		return []appsv1.StatefulSet{}, err
+	}
+
+	return statefulSetList.Items, nil
+}
+
 // ListDeploymentConfigsByLabels return DeploymentConfigs by labels
 func (listResources *ListResources) ListDeploymentConfigsByLabels(labels map[string]string) ([]appsapi_v1.DeploymentConfig, error) {
 	deploymentConfigList := &appsapi_v1.DeploymentConfigList{}
@@ -200,6 +211,41 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 						}
 					}
 				}
+			}
+		}
+	}
+
+	return pods, nil
+}
+
+// ListPodsByStatefulSet return pods by statefulSet namespace and name
+func (listResources *ListResources) ListPodsByStatefulSet(namespace, name string) ([]corev1.Pod, error) {
+
+	pods := []corev1.Pod{}
+	statefulSet := &appsv1.StatefulSet{}
+
+	// Get statefulSet
+	err := listResources.client.Get(context.TODO(), types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}, statefulSet)
+	if err != nil {
+		return pods, errors.Errorf("get StatefulSet (%s/%s) failed: %s", namespace, name, err.Error())
+	}
+
+	// List pods containing labels that statefulSet selects in the same namespace
+	// And filter out pods that does not have any ownerReference which references to the statefulSet
+	podList := &corev1.PodList{}
+	err = listResources.client.List(context.TODO(),
+		client.InNamespace(namespace).MatchingLabels(statefulSet.Spec.Selector.MatchLabels),
+		podList)
+	if err != nil {
+		return pods, errors.Errorf("list pods with labels same with StatefulSet.Spec.Selector.MatchLabels (%s/%s) failed: %s", namespace, name, err.Error())
+	}
+	for _, pod := range podList.Items {
+		for _, or := range pod.GetOwnerReferences() {
+			if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "statefulset" && or.Name == name {
+				pods = append(pods, pod)
 			}
 		}
 	}

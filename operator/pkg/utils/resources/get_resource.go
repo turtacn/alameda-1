@@ -65,6 +65,13 @@ func (getResource *GetResource) GetDeployment(namespace, name string) (*appsv1.D
 	return deployment, err
 }
 
+// GetStatefulSet returns statefulSet
+func (getResource *GetResource) GetStatefulSet(namespace, name string) (*appsv1.StatefulSet, error) {
+	statefulSet := &appsv1.StatefulSet{}
+	err := getResource.getResource(statefulSet, namespace, name)
+	return statefulSet, err
+}
+
 // GetAlamedaScaler return alamedascaler
 func (getResource *GetResource) GetAlamedaScaler(namespace, name string) (*autuscaling.AlamedaScaler, error) {
 	alamedaScaler := &autuscaling.AlamedaScaler{}
@@ -108,6 +115,18 @@ func (getResource *GetResource) GetObservingAlamedaScalerOfController(controller
 			for _, matchedLblDeploymentConfig := range matchedLblDeploymentConfigs {
 				// deploymentConfig can only join one AlamedaScaler
 				if matchedLblDeploymentConfig.GetName() == controllerName {
+					return &alamedaScaler, nil
+				}
+			}
+		case autuscaling.StatefulSetController:
+
+			matchedLblStatefulSets, err := listResources.ListDeploymentConfigsByNamespaceLabels(controllerNamespace, alamedaScaler.Spec.Selector.MatchLabels)
+			if err != nil {
+				return nil, errors.Errorf("get observing AlamedaScaler of StatefulSet %s/%s failed: %s", controllerNamespace, controllerName, err.Error())
+			}
+			for _, matchedLblStatefulSet := range matchedLblStatefulSets {
+				// deploymentConfig can only join one AlamedaScaler
+				if matchedLblStatefulSet.GetName() == controllerName {
 					return &alamedaScaler, nil
 				}
 			}
