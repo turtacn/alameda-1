@@ -82,8 +82,7 @@ func (r *ContainerRepository) appendMetricDataToPoints(kind Metric.ContainerMetr
 		for _, data := range metricData.GetData() {
 			tempTimeSeconds := data.GetTime().Seconds
 			value := data.GetNumValue()
-			valueWithoutFraction := strings.Split(value, ".")[0]
-			valueInFloat64, err := Utils.StringToFloat64(valueWithoutFraction)
+			valueInFloat64, err := Utils.StringToFloat64(value)
 			if err != nil {
 				return errors.Wrap(err, "new influxdb data point failed")
 			}
