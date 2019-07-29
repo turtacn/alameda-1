@@ -41,6 +41,7 @@ const (
 	ContainerTopControllerName containerField = "top_controller_name"
 	// ContainerTopControllerKind is top controller kind of the pod
 	ContainerTopControllerKind containerField = "top_controller_kind"
+	ContainerPodTotalCost      containerField = "pod_total_cost"
 )
 
 const (
@@ -82,5 +83,6 @@ var (
 		ContainerStartTime, ContainerEndTime,
 		ContainerTopControllerName,
 		ContainerTopControllerKind,
+		ContainerPodTotalCost,
 	}
 )

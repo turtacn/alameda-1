@@ -91,8 +91,8 @@ func (s *ServiceV1alpha1) ListSimulatedSchedulingScores(ctx context.Context, in 
 		}
 		datahubScore := DatahubV1alpha1.SimulatedSchedulingScore{
 			Time:        t,
-			ScoreBefore: float32(daoSimulatedSchedulingScore.ScoreBefore),
-			ScoreAfter:  float32(daoSimulatedSchedulingScore.ScoreAfter),
+			ScoreBefore: daoSimulatedSchedulingScore.ScoreBefore,
+			ScoreAfter:  daoSimulatedSchedulingScore.ScoreAfter,
 		}
 		datahubScores = append(datahubScores, &datahubScore)
 	}

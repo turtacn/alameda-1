@@ -41,14 +41,15 @@ message AssignPodPolicy {
  *
  */
 message PodRecommendation {
-    NamespacedName namespaced_name = 1;
-    bool apply_recommendation_now = 2;
-    AssignPodPolicy assign_pod_policy = 3;
+    NamespacedName                   namespaced_name           = 1;
+    bool                             apply_recommendation_now  = 2;
+    AssignPodPolicy                  assign_pod_policy         = 3;
     repeated ContainerRecommendation container_recommendations = 4;
-    google.protobuf.Timestamp start_time = 5;
-    google.protobuf.Timestamp end_time = 6;
-    TopController top_controller = 7;
-    string recommendation_id = 8;
+    google.protobuf.Timestamp        start_time                = 5;
+    google.protobuf.Timestamp        end_time                  = 6;
+    TopController                    top_controller            = 7;
+    string                           recommendation_id         = 8;
+    double                           total_cost                = 9;
 }
 
 enum ControllerRecommendedType {
@@ -70,12 +71,13 @@ message ControllerRecommendedSpec {
     int32                     desired_replicas      = 4;
     google.protobuf.Timestamp time                  = 5;
     google.protobuf.Timestamp create_time           = 6;
-    float                     current_cpu_requests  = 7;
-    float                     current_mem_requests  = 8;
-    float                     current_cpu_limits    = 9;
-    float                     current_mem_limits    = 10;
-    float                     desired_cpu_limits    = 11;
-    float                     desired_mem_limits    = 12;
+    double                    current_cpu_requests  = 7;
+    double                    current_mem_requests  = 8;
+    double                    current_cpu_limits    = 9;
+    double                    current_mem_limits    = 10;
+    double                    desired_cpu_limits    = 11;
+    double                    desired_mem_limits    = 12;
+    double                    total_cost            = 13;
 }
 
 message ControllerRecommendedSpecK8s {

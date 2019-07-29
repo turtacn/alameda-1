@@ -64,6 +64,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 
 		podNS := podRecommendation.GetNamespacedName().GetNamespace()
 		podName := podRecommendation.GetNamespacedName().GetName()
+		podTotalCost := podRecommendation.GetTotalCost()
 		containerRecommendations := podRecommendation.GetContainerRecommendations()
 		topController := podRecommendation.GetTopController()
 
@@ -100,6 +101,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 				EntityInfluxRecommend.ContainerTopControllerKind: enumconv.KindDisp[(topController.GetKind())],
 				EntityInfluxRecommend.ContainerPolicy:            podPolicyValue,
 				EntityInfluxRecommend.ContainerPolicyTime:        podRecommendation.GetAssignPodPolicy().GetTime().GetSeconds(),
+				EntityInfluxRecommend.ContainerPodTotalCost:      podTotalCost,
 			}
 
 			initialLimitRecommendation := make(map[datahub_v1alpha1.MetricType]interface{})
@@ -382,6 +384,9 @@ func (c *ContainerRepository) queryRecommendationNew(cmd string, granularity int
 					NodeName: data[EntityInfluxRecommend.ContainerPolicy],
 				},
 			}
+
+			tempTotalCost, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ContainerPodTotalCost], 64)
+			podRecommendation.TotalCost = tempTotalCost
 
 			containerRecommendation := &datahub_v1alpha1.ContainerRecommendation{}
 			containerRecommendation.Name = data[EntityInfluxRecommend.ContainerName]

@@ -19,6 +19,7 @@ const (
 	ControllerCurrentMEMLimit   controllerField = "current_mem_limits"
 	ControllerDesiredCPULimit   controllerField = "desired_cpu_limits"
 	ControllerDesiredMEMLimit   controllerField = "desired_mem_limits"
+	ControllerTotalCost         controllerField = "total_cost"
 )
 
 var (
@@ -42,5 +43,6 @@ var (
 		ControllerCurrentMEMLimit,
 		ControllerDesiredCPULimit,
 		ControllerDesiredMEMLimit,
+		ControllerTotalCost,
 	}
 )
