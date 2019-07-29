@@ -53,6 +53,7 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 				EntityInfluxRecommend.ControllerCurrentMEMLimit:   recommendedSpec.GetCurrentMemLimits(),
 				EntityInfluxRecommend.ControllerDesiredCPULimit:   recommendedSpec.GetDesiredCpuLimits(),
 				EntityInfluxRecommend.ControllerDesiredMEMLimit:   recommendedSpec.GetDesiredMemLimits(),
+				EntityInfluxRecommend.ControllerTotalCost:         recommendedSpec.GetTotalCost(),
 			}
 
 			pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(recommendedSpec.GetTime().GetSeconds(), 0))
@@ -143,12 +144,13 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 			t, _ := time.Parse(time.RFC3339, data[EntityInfluxRecommend.ControllerTime])
 			tempTime, _ := ptypes.TimestampProto(t)
 
-			currentCpuRequests, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentCPURequest], 32)
-			currentMemRequests, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentMEMRequest], 32)
-			currentCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentCPULimit], 32)
-			currentMemLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentMEMLimit], 32)
-			desiredCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerDesiredCPULimit], 32)
-			desiredMemLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerDesiredMEMLimit], 32)
+			currentCpuRequests, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentCPURequest], 64)
+			currentMemRequests, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentMEMRequest], 64)
+			currentCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentCPULimit], 64)
+			currentMemLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerCurrentMEMLimit], 64)
+			desiredCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerDesiredCPULimit], 64)
+			desiredMemLimits, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerDesiredMEMLimit], 64)
+			totalCost, _ := strconv.ParseFloat(data[EntityInfluxRecommend.ControllerTotalCost], 64)
 
 			var commendationType datahub_v1alpha1.ControllerRecommendedType
 			if tempType, exist := data[EntityInfluxRecommend.ControllerType]; exist {
@@ -179,12 +181,13 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 							Seconds: createTime,
 						},
 						Kind:               commendationKind,
-						CurrentCpuRequests: float32(currentCpuRequests),
-						CurrentMemRequests: float32(currentMemRequests),
-						CurrentCpuLimits:   float32(currentCpuLimits),
-						CurrentMemLimits:   float32(currentMemLimits),
-						DesiredCpuLimits:   float32(desiredCpuLimits),
-						DesiredMemLimits:   float32(desiredMemLimits),
+						CurrentCpuRequests: currentCpuRequests,
+						CurrentMemRequests: currentMemRequests,
+						CurrentCpuLimits:   currentCpuLimits,
+						CurrentMemLimits:   currentMemLimits,
+						DesiredCpuLimits:   desiredCpuLimits,
+						DesiredMemLimits:   desiredMemLimits,
+						TotalCost:          totalCost,
 					},
 				}
 

@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n(alameda_api/v1alpha1/datahub/score.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\"o\n\x18SimulatedSchedulingScore\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0cscore_before\x18\x02 \x01(\x02\x12\x13\n\x0bscore_after\x18\x03 \x01(\x02\x62\x06proto3')
+  serialized_pb=_b('\n(alameda_api/v1alpha1/datahub/score.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\"o\n\x18SimulatedSchedulingScore\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0cscore_before\x18\x02 \x01(\x01\x12\x13\n\x0bscore_after\x18\x03 \x01(\x01\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -44,14 +44,14 @@ _SIMULATEDSCHEDULINGSCORE = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='score_before', full_name='containers_ai.alameda.v1alpha1.datahub.SimulatedSchedulingScore.score_before', index=1,
-      number=2, type=2, cpp_type=6, label=1,
+      number=2, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='score_after', full_name='containers_ai.alameda.v1alpha1.datahub.SimulatedSchedulingScore.score_after', index=2,
-      number=3, type=2, cpp_type=6, label=1,
+      number=3, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

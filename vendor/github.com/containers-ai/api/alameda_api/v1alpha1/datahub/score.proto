@@ -11,6 +11,6 @@ import "google/protobuf/timestamp.proto";
  */
 message SimulatedSchedulingScore {
     google.protobuf.Timestamp time = 1;
-    float score_before = 2;
-    float score_after = 3;
+    double score_before = 2;
+    double score_after = 3;
 }
