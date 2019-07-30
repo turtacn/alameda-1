@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/containers-ai/alameda/cmd/app"
 	DatahubConfig "github.com/containers-ai/alameda/datahub/pkg/config"
+	"github.com/containers-ai/alameda/internal/pkg/event-mgt"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -85,4 +86,8 @@ func initLogger() {
 	}
 
 	scope = log.RegisterScope("datahub_probe", "datahub probe command", 0)
+}
+
+func initEventMgt() {
+	eventmgt.InitEventMgt(config.InfluxDB, config.RabbitMQ)
 }
