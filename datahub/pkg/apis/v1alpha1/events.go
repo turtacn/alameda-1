@@ -1,7 +1,7 @@
 package v1alpha1
 
 import (
-	DaoEvent "github.com/containers-ai/alameda/datahub/pkg/dao/event"
+	EventMgt "github.com/containers-ai/alameda/internal/pkg/event-mgt"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
@@ -11,18 +11,9 @@ import (
 func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.CreateEventsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateEvents grpc function")
 
-	eventDAO := DaoEvent.NewEventWithConfig(s.Config.InfluxDB, s.Config.RabbitMQ)
+	eventMgt := EventMgt.NewEventMgt(s.Config.InfluxDB, s.Config.RabbitMQ)
 
-	err := eventDAO.CreateEvents(in)
-	if err != nil {
-		scope.Error(err.Error())
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, nil
-	}
-
-	err = eventDAO.SendEvents(in)
+	err := eventMgt.PostEvents(in)
 	if err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
@@ -39,8 +30,9 @@ func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.
 func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *DatahubV1alpha1.ListEventsRequest) (*DatahubV1alpha1.ListEventsResponse, error) {
 	scope.Debug("Request received from ListEvents grpc function")
 
-	eventDAO := DaoEvent.NewEventWithConfig(s.Config.InfluxDB, s.Config.RabbitMQ)
-	events, err := eventDAO.ListEvents(in)
+	eventMgt := EventMgt.NewEventMgt(s.Config.InfluxDB, s.Config.RabbitMQ)
+
+	events, err := eventMgt.ListEvents(in)
 	if err != nil {
 		scope.Error(err.Error())
 		return &DatahubV1alpha1.ListEventsResponse{
