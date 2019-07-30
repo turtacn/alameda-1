@@ -11,9 +11,7 @@ import (
 func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.CreateEventsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateEvents grpc function")
 
-	eventMgt := EventMgt.NewEventMgt(s.Config.InfluxDB, s.Config.RabbitMQ)
-
-	err := eventMgt.PostEvents(in)
+	err := EventMgt.PostEvents(in)
 	if err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
@@ -30,9 +28,7 @@ func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.
 func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *DatahubV1alpha1.ListEventsRequest) (*DatahubV1alpha1.ListEventsResponse, error) {
 	scope.Debug("Request received from ListEvents grpc function")
 
-	eventMgt := EventMgt.NewEventMgt(s.Config.InfluxDB, s.Config.RabbitMQ)
-
-	events, err := eventMgt.ListEvents(in)
+	events, err := EventMgt.ListEvents(in)
 	if err != nil {
 		scope.Error(err.Error())
 		return &DatahubV1alpha1.ListEventsResponse{

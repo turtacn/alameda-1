@@ -30,6 +30,7 @@ var (
 			app.PrintSoftwareVer()
 			initConfig()
 			initLogger()
+			initEventMgt()
 			setLoggerScopesWithConfig(*config.Log)
 			displayConfig()
 			server, err = datahub.NewServer(config)
