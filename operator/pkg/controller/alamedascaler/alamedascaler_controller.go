@@ -348,7 +348,7 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 					Namespace: statefulSet.Namespace,
 					Name:      statefulSet.Name,
 				},
-				Kind: datahub_v1alpha1.Kind_DEPLOYMENT,
+				Kind: datahub_v1alpha1.Kind_STATEFULSET,
 			},
 			OwnerInfo: []*datahub_v1alpha1.ResourceInfo{&datahub_v1alpha1.ResourceInfo{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
