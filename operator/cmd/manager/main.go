@@ -188,20 +188,30 @@ func main() {
 		scope.Error(err.Error())
 	}
 
-	scope.Info("setting up webhooks")
+	scope.Info("Setting up webhooks")
 	if err := webhook.AddToManager(mgr); err != nil {
 		scope.Errorf("unable to register webhooks to the manager: %s", err.Error())
 		os.Exit(1)
 	}
 
-	// go applyCRDs(k8sConfig)
-	go registerNodes(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
-	go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
-	go launchWebhook(&mgr, &operatorConf)
-	go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
-	scope.Info("Starting the Cmd.")
+	// To use instance from return value of function mgr.GetClient(),
+	// block till the cache is synchronized, or the cache will be empty and get/list nothing.
+	go func() {
+		stopChan := make(chan struct{})
+		ok := mgr.GetCache().WaitForCacheSync(stopChan)
+		if !ok {
+			scope.Error("Wait for cache synchronization failed")
+		} else {
+			go registerNodes(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+			go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+			go syncAlamedaResourcesWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+			go launchWebhook(&mgr, &operatorConf)
+			go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
+		}
+	}()
 
 	// Start the Cmd
+	scope.Info("Starting the Cmd.")
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		scope.Error(err.Error())
 	}
