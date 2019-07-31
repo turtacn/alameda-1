@@ -58,6 +58,7 @@ spec:
                   enum:
                   - vpa
                   - hpa
+                  - N/A
                   type: string
               type: object
             selector:

@@ -135,8 +135,9 @@ app.federator.ai/part-of  | The name of a higher level application this one is p
 
 - Field: type
   - type: string
-  - description: Type of scaling tool that will be used in recommendations. Currently supported tools are _vpa_ and _hpa_.
-_vpa_ means Alameda will make recommendations to change the cpu and memory resource _limit_ and _request_ of a managed container. _hpa_ means Alameda will make recommendations to change the _replicas_ of a managed _Deployment_/_DeploymentConfig_ object. Default is _hpa_.
+  - description: Type of scaling tool that will be used in recommendations. Currently supported tools are _N/A_, _vpa_ and _hpa_.
+_N/A_ means Alameda will only produces resource predictions.
+_vpa_ means Alameda will make recommendations to change the cpu and memory resource _limit_ and _request_ of a managed container. _hpa_ means Alameda will make recommendations to change the _replicas_ of a managed _Deployment_/_DeploymentConfig_ object. Default is _N/A_.
 - Field: executionStrategy
   - type: [ExecutionStrategy](#executionstrategy)
   - description: Configuration of execution strategy.
