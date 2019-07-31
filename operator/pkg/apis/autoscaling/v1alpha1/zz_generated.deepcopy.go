@@ -205,6 +205,11 @@ func (in *AlamedaResource) DeepCopyInto(out *AlamedaResource) {
 			(*out)[key] = *val.DeepCopy()
 		}
 	}
+	if in.SpecReplicas != nil {
+		in, out := &in.SpecReplicas, &out.SpecReplicas
+		*out = new(int32)
+		**out = **in
+	}
 	return
 }
 

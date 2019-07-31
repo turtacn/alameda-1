@@ -134,11 +134,11 @@ type ScalingToolType = string
 const (
 	ScalingToolTypeVPA     ScalingToolType = "vpa"
 	ScalingToolTypeHPA     ScalingToolType = "hpa"
-	ScalingToolTypeDefault ScalingToolType = ScalingToolTypeHPA
+	ScalingToolTypeDefault ScalingToolType = "N/A"
 )
 
 type ScalingToolSpec struct {
-	// +kubebuilder:validation:Enum=vpa,hpa
+	// +kubebuilder:validation:Enum=vpa,hpa,N/A
 	Type              string             `json:"type,omitempty" protobuf:"bytes,1,name=type"`
 	ExecutionStrategy *ExecutionStrategy `json:"executionStrategy,omitempty" protobuf:"bytes,2,name=execution_strategy"`
 }
