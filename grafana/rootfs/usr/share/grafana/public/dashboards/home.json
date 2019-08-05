@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 5,
-  "iteration": 1564715713410,
+  "iteration": 1564975508356,
   "links": [],
   "panels": [
     {
@@ -93,7 +93,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
+        "w": 4,
         "x": 0,
         "y": 5
       },
@@ -174,8 +174,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 9,
-        "x": 8,
+        "w": 4,
+        "x": 4,
         "y": 5
       },
       "id": 28,
@@ -240,15 +240,14 @@
       "colorBackground": false,
       "colorValue": true,
       "colors": [
-        "#299c46",
+        "rgba(245, 54, 54, 0.9)",
         "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
+        "rgba(50, 172, 45, 0.97)"
       ],
       "datasource": "Prometheus",
-      "description": "Percentage of nodes over cluster that have unscheduled objects",
-      "format": "percentunit",
+      "format": "percent",
       "gauge": {
-        "maxValue": 1,
+        "maxValue": 100,
         "minValue": 0,
         "show": true,
         "thresholdLabels": true,
@@ -256,204 +255,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 7,
-        "x": 17,
+        "w": 4,
+        "x": 8,
         "y": 5
-      },
-      "id": 66,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_spec_unschedulable)  / count(up{job=\"kubelet\"})",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 2,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "0.1, 0.5",
-      "title": "Nodes Unschedulable",
-      "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "max"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "rgba(245, 54, 54, 0.9)",
-        "rgba(237, 129, 40, 0.89)",
-        "rgba(50, 172, 45, 0.97)"
-      ],
-      "datasource": "Prometheus",
-      "format": "percentunit",
-      "gauge": {
-        "maxValue": 1,
-        "minValue": 0,
-        "show": true,
-        "thresholdLabels": true,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 10
-      },
-      "id": 32,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"})",
-          "format": "time_series",
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "0.5, 0.9",
-      "title": "Node Ready",
-      "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "min"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "rgba(245, 54, 54, 0.9)",
-        "rgba(237, 129, 40, 0.89)",
-        "rgba(50, 172, 45, 0.97)"
-      ],
-      "datasource": "Prometheus",
-      "format": "percentunit",
-      "gauge": {
-        "maxValue": 1,
-        "minValue": 0,
-        "show": true,
-        "thresholdLabels": true,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 6,
-        "y": 10
       },
       "id": 34,
       "interval": null,
@@ -492,14 +296,97 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"}))",
+          "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"})) * 100",
           "format": "time_series",
           "intervalFactor": 2,
           "refId": "A"
         }
       ],
-      "thresholds": "0.5, 0.8",
+      "thresholds": "50, 90",
       "title": "Nodes UP",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "min"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": true,
+      "colors": [
+        "rgba(245, 54, 54, 0.9)",
+        "rgba(237, 129, 40, 0.89)",
+        "rgba(50, 172, 45, 0.97)"
+      ],
+      "datasource": "Prometheus",
+      "format": "percent",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": true,
+        "thresholdLabels": true,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "id": 32,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"}) * 100",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "50, 90",
+      "title": "Node Ready",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -522,9 +409,9 @@
         "#d44a3a"
       ],
       "datasource": "Prometheus",
-      "format": "percentunit",
+      "format": "percent",
       "gauge": {
-        "maxValue": 1,
+        "maxValue": 100,
         "minValue": 0,
         "show": true,
         "thresholdLabels": true,
@@ -532,9 +419,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 5,
-        "x": 12,
-        "y": 10
+        "w": 4,
+        "x": 16,
+        "y": 5
       },
       "id": 62,
       "interval": null,
@@ -573,7 +460,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(kube_node_status_condition{condition=\"MemoryPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"MemoryPressure\"})",
+          "expr": "sum(kube_node_status_condition{condition=\"MemoryPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"MemoryPressure\"}) * 100",
           "format": "time_series",
           "groupBy": [
             {
@@ -611,7 +498,7 @@
           "tags": []
         }
       ],
-      "thresholds": "0.1, 0.5",
+      "thresholds": "10, 50",
       "title": "Node Memory Pressure",
       "transparent": true,
       "type": "singlestat",
@@ -637,7 +524,7 @@
       "datasource": "Prometheus",
       "format": "percent",
       "gauge": {
-        "maxValue": 1,
+        "maxValue": 100,
         "minValue": 0,
         "show": true,
         "thresholdLabels": true,
@@ -645,9 +532,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 7,
-        "x": 17,
-        "y": 10
+        "w": 4,
+        "x": 20,
+        "y": 5
       },
       "id": 64,
       "interval": null,
@@ -686,7 +573,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"DiskPressure\"})",
+          "expr": "sum(kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"DiskPressure\"}) * 100",
           "format": "time_series",
           "groupBy": [
             {
@@ -724,7 +611,7 @@
           "tags": []
         }
       ],
-      "thresholds": "0.1, 0.5",
+      "thresholds": "10, 50",
       "title": "Node Disk Pressure",
       "transparent": true,
       "type": "singlestat",
@@ -746,7 +633,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 10
       },
       "id": 48,
       "links": [],
@@ -930,7 +817,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 15
       },
       "id": 16,
       "panels": [],
@@ -945,7 +832,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 16
       },
       "id": 50,
       "links": [],
@@ -1181,7 +1068,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 20
       },
       "id": 20,
       "panels": [],
@@ -1199,7 +1086,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 21
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1436,7 +1323,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 21
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1947,5 +1834,5 @@
   "timezone": "",
   "title": "ProphetStor",
   "uid": "b6TFPVNZk",
-  "version": 89
+  "version": 92
 }
