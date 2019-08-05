@@ -44,6 +44,7 @@ func startProbing() {
 	} else if probeType == PROBE_TYPE_READINESS {
 		probe.ReadinessProbe(&probe.ReadinessProbeConfig{
 			DatahubAddr: datahubAddr,
+			QueueURL:    viper.GetString("queue.url"),
 		})
 	} else {
 		scope.Errorf("Probe type does not supports %s, please try %s or %s.", probeType, PROBE_TYPE_LIVENESS, PROBE_TYPE_READINESS)

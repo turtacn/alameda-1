@@ -2,6 +2,8 @@ package probe
 
 import (
 	"fmt"
+	"github.com/streadway/amqp"
+	InternalRabbitMQ "github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
@@ -13,6 +15,7 @@ import (
 type ReadinessProbeConfig struct {
 	InfluxdbAddr  string
 	PrometheusCfg *InternalPromth.Config
+	RabbitMQCfg  *InternalRabbitMQ.Config
 }
 
 func pingInfluxdb(influxdbAddr string) error {
@@ -72,5 +75,13 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 		return fmt.Errorf("No node memory metric found")
 	}
 
+	return nil
+}
+
+func connQueue(url string) error {
+	_, err := amqp.Dial(url)
+	if err != nil {
+		return err
+	}
 	return nil
 }

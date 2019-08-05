@@ -35,6 +35,8 @@ spec:
               value: "{{ .Values.global.component.datahub.prometheusConfig.bearerTokenFile }}"
             - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
               value: "{{ .Values.global.component.datahub.prometheusConfig.scheme }}://{{ .Values.global.component.datahub.prometheusConfig.url }}:{{ .Values.global.component.datahub.prometheusConfig.port }}"
+            - name: ALAMEDA_DATAHUB_RABBITMQ_URL
+              value: "amqp://{{ .Values.global.component.aidispatcher.rabbitmqConfig.username }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.password }}@{{ .Values.global.component.aidispatcher.rabbitmqConfig.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.port }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           readinessProbe:

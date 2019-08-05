@@ -45,6 +45,7 @@ func startProbing() {
 		probe.ReadinessProbe(&probe.ReadinessProbeConfig{
 			InfluxdbAddr:  config.InfluxDB.Address,
 			PrometheusCfg: config.Prometheus,
+			RabbitMQCfg: config.RabbitMQ,
 		})
 	} else {
 		scope.Errorf("Probe type does not supports %s, please try %s or %s.", probeType, ProbeTypeLiveness, ProbeTypeReadiness)
