@@ -142,7 +142,7 @@ const (
 )
 
 type ScalingToolSpec struct {
-	// +kubebuilder:validation:Enum=vpa,hpa,N/A
+	// +kubebuilder:validation:Enum=,vpa,hpa,N/A
 	Type              string             `json:"type,omitempty" protobuf:"bytes,1,name=type"`
 	ExecutionStrategy *ExecutionStrategy `json:"executionStrategy,omitempty" protobuf:"bytes,2,name=execution_strategy"`
 }
