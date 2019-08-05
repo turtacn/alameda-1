@@ -77,7 +77,7 @@ metadata:
 mkdir -p ${chartdir}/alameda-operator/ ${chartdir}/admission-controller/ \
     ${chartdir}/alameda-ai/ ${chartdir}/alameda-datahub/ ${chartdir}/alameda-evictioner/ \
     ${chartdir}/alameda-recommender/ ${chartdir}/alameda-executor/ \
-    ${chartdir}/alameda-ai-dispatcher/
+    ${chartdir}/alameda-ai-dispatcher/ ${chartdir}/alameda-notifier/
 # isolate rabbitmq component due to it is controlled by predictQueueEnable flag
 mkdir -p ${chartdir}/alameda-rabbitmq/
 
@@ -99,6 +99,8 @@ mv ${tmpoutputdir}/alameda/charts/recommender/templates/* ${chartdir}/alameda-re
 echo "$namespaceResource" > ${chartdir}/alameda-recommender/namespace.yaml
 mv ${tmpoutputdir}/alameda/charts/executor/templates/* ${chartdir}/alameda-executor/
 echo "$namespaceResource" > ${chartdir}/alameda-executor/namespace.yaml
+mv ${tmpoutputdir}/alameda/charts/notifier/templates/* ${chartdir}/alameda-notifier/
+echo "$namespaceResource" > ${chartdir}/alameda-notifier/namespace.yaml
 
 # predictQueueEnable is false, no files can be moved in ai-dispatcher templates
 mv ${tmpoutputdir}/alameda/charts/ai-dispatcher/templates/* ${chartdir}/alameda-ai-dispatcher/
@@ -108,7 +110,7 @@ echo "$namespaceResource" > ${chartdir}/alameda-rabbitmq/namespace.yaml
 
 # generate InfluxDB manifests
 mkdir -p ${tmpoutputdir}
-helm fetch stable/influxdb --version 1.3.1 --untar --untardir ${tmpchartdir}
+helm fetch stable/influxdb --version 1.3.2 --untar --untardir ${tmpchartdir}
 helm template --name alameda-influxdb --namespace $NAMESPACE ${tmpchartdir}/influxdb --set persistence.enabled=false --output-dir ${tmpoutputdir}
 
 mkdir -p ${chartdir}/alameda-influxdb/

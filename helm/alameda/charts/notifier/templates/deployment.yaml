@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alameda
+    component: {{ .Values.global.component.notifier.name }}
+  name: {{ include "notifier.fullname" . }}  
+  namespace: {{ .Release.Namespace }}  
+spec:
+{{- if .Values.global.rbacEnable }}
+  serviceAccountName: {{ include "notifier.fullname" . }}
+{{- end }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alameda
+      component: {{ .Values.global.component.notifier.name }}
+  template:
+    metadata:
+      labels:
+        app: alameda
+        component: {{ .Values.global.component.notifier.name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}        
+        env:
+          - name: ALAMEDA_NOTIFIER_RABBITMQ_URL 
+            value: "amqp://{{ .Values.global.component.aidispatcher.rabbitmqConfig.username }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.password }}@{{ .Values.global.component.aidispatcher.rabbitmqConfig.name }}.{{ .Release.Namespace }}:{{ .Values.global.component.aidispatcher.rabbitmqConfig.port }}"
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        readinessProbe:
+          exec:
+            command:
+            - /usr/local/bin/notifier              
+            - --readiness-probe              
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - /usr/local/bin/notifier              
+            - --liveness-probe              
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: {{ include "notifier.fullname" . }}-webhook-server-cert

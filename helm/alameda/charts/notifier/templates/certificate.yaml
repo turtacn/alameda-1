@@ -1,0 +1,13 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ include "notifier.fullname" . }}-serving-cert
+  namespace: {{ .Release.Namespace }}  
+spec:
+  commonName: {{ include "notifier.fullname" . }}-webhook-service.{{ .Release.Namespace }}.svc
+  dnsNames:
+  - {{ include "notifier.fullname" . }}-webhook-service.{{ .Release.Namespace }}.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: {{ include "notifier.fullname" . }}-selfsigned-issuer
+  secretName: {{ include "notifier.fullname" . }}-webhook-server-cert

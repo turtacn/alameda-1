@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "notifier.fullname" . }}-webhook-service
+  namespace: {{ .Release.Namespace }} 
+spec:
+  ports:
+  - port: 443
+    targetPort: {{ .Values.webhook.port }}    
+  selector:
+    app: alameda
+    component: {{ .Values.global.component.notifier.name }}
+

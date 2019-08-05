@@ -1,0 +1,10 @@
+version: "2"
+domain: containers.ai
+repo: github.com/containers-ai/alameda
+resources:
+- group: notifying
+  version: v1alpha1
+  kind: AlamedaNotificationTopic
+- group: notifying
+  version: v1alpha1
+  kind: AlamedaNotificationChannel

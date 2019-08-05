@@ -7,7 +7,7 @@ metadata:
   namespace: alameda
   labels:
     app: grafana
-    chart: grafana-3.5.7
+    chart: grafana-3.8.1
     release: alameda-grafana
     heritage: Tiller
 spec:
@@ -25,10 +25,10 @@ spec:
         app: grafana
         release: alameda-grafana
       annotations:
-        checksum/config: 0f36feee94088210850847dcb340a2f1d798fd5fda88b0e93e60da8eeb6e0376
-        checksum/dashboards-json-config: 4a0401262d997fd0383dc9e54fcd23be0f3976f47d6dd8c4f63eb64806a5a5c3
+        checksum/config: 5e337023f61dc15dec81c2a3e81e601da4c0dd4f9feea37fe1f5b8dec613d1f4
+        checksum/dashboards-json-config: 9953d887a87f1a8c3a30ac9e05e76e646fec3a1240d241686bcc4ec5d5d215c7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/secret: 00084b0f03eb1b635dfa5be3b6358a9ae8d8bddb41ad7b5b1e90303e1e2a4ecd
+        checksum/secret: 68bc12f682492f70e0a6284104aeebf0143faf2b550c2ce02a1fc9aff29a923d
     spec:
       serviceAccountName: alameda-grafana
       securityContext:
@@ -40,7 +40,8 @@ spec:
           image: "appropriate/curl:latest"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
-          args: [ "-c", "mkdir -p /var/lib/grafana/dashboards/default", "/etc/grafana/download_dashboards.sh" ]
+          args: [ "-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh /etc/grafana/download_dashboards.sh" ]
+          env:
           volumeMounts:
             - name: config
               mountPath: "/etc/grafana/download_dashboards.sh"

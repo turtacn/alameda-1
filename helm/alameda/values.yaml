@@ -65,6 +65,9 @@ global:
         username: "admin"
         password: "adminpass"
         port: 5672
+    notifier:
+      name: "alameda-notifier"
+      replicaCount: 1
 
 image:
   repository: quay.io/prophetstor/alameda-operator-ubi
