@@ -14,8 +14,8 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 
 # Copy the evictioner into a thin image
 FROM registry.access.redhat.com/ubi8/ubi-minimal
-ENV SUMMARY="Alameda Evictioner is used to update pod resource with recommandtion."	\
-    DESCRIPTION="Alameda Evictioner is used to update pod resource with recommandtion." \
+ENV SUMMARY="Alameda Evictioner is used to evict pods needed to update resource with recommandtion."	\
+    DESCRIPTION="Alameda Evictioner is used to evict pods needed to update resource with recommandtion." \
     NAME="Alameda Evictioner" \
     VERSION="latest" \
     USER_UID=1001 \

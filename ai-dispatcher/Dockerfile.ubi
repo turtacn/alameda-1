@@ -14,8 +14,8 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 
 # Copy the ai-dispatcher into a thin image
 FROM registry.access.redhat.com/ubi8/ubi-minimal
-ENV SUMMARY="Alameda AI Dispatcher is used to update pod resource with recommandtion."	\
-    DESCRIPTION="Alameda AI Dispatcher is used to update pod resource with recommandtion." \
+ENV SUMMARY="Alameda AI Dispatcher is used to dispatch predict jobs to queue."	\
+    DESCRIPTION="Alameda AI Dispatcher is used to dispatch predict jobs to queue." \
     NAME="Alameda AI Dispatcher" \
     VERSION="latest" \
     USER_UID=1001 \
