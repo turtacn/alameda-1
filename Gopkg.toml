@@ -50,3 +50,7 @@ version="v1.4.7"
 [[override]]
   name="k8s.io/client-go"
   version="kubernetes-1.13.3"
+
+[[override]]
+  name="github.com/containers-ai/api"
+  branch="4.2"

@@ -71,6 +71,7 @@ enum Kind {
     DEPLOYMENT = 1;
     DEPLOYMENTCONFIG = 2;
     ALAMEDASCALER = 3;
+    STATEFULSET = 4;
 }
 
 /**
