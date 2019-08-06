@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 5,
-  "iteration": 1564975508356,
+  "iteration": 1565073321818,
   "links": [],
   "panels": [
     {
@@ -1076,6 +1076,118 @@
       "type": "row"
     },
     {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "InfluxDB",
+      "description": "Change AlamedaScaler by the AlamedaScaler selector on the top",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 68,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "alameda_scaler_name",
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": "",
+      "title": "Alameda Scaler Name",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "avg"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -1086,7 +1198,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1141,7 +1253,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~\"$s_pod\", container_name=~\"$s_container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1169,7 +1281,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage'  and \"pod_name\" =~ /^[[s_pod]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage'  and \"pod_name\" =~ /^[[pod]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1209,7 +1321,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[s_container]]$/ and \"pod_name\" =~ /^[[s_pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -1249,7 +1361,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[s_container]]$/ and \"pod_name\" =~ /^[[s_pod]]$/ and time >= now() and time <= now() + 1d  group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d  group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1323,7 +1435,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1373,7 +1485,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{pod_name=~\"$s_pod\", container_name=~\"$s_container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1401,7 +1513,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"pod_name\" =~ /^[[s_pod]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"pod_name\" =~ /^[[pod]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1441,7 +1553,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[s_container]]$/ and \"pod_name\" =~ /^[[s_pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -1481,7 +1593,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[s_container]]$/ and \"pod_name\" =~ /^[[s_pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1553,38 +1665,13 @@
       {
         "allValue": null,
         "current": {
-          "text": "node-11-90",
-          "value": "node-11-90"
-        },
-        "datasource": "Prometheus",
-        "definition": "label_values(kube_node_labels, label_kubernetes_io_hostname)",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "node",
-        "options": [],
-        "query": "label_values(kube_node_labels, label_kubernetes_io_hostname)",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
           "text": "test",
           "value": "test"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\"",
         "hide": 2,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Namespace",
         "multi": false,
         "name": "ns",
@@ -1603,59 +1690,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "alameda-busybox",
+          "value": "alameda-busybox"
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
-        "hide": 2,
-        "includeAll": true,
+        "definition": "select alameda_scaler_name, enable_VPA  from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
+        "hide": 0,
+        "includeAll": false,
         "label": "AlamedaScaler",
         "multi": false,
         "name": "scaler",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "alameda-busybox",
-            "value": "alameda-busybox"
-          },
-          {
-            "selected": false,
-            "text": "alameda-nginx",
-            "value": "alameda-nginx"
-          }
-        ],
-        "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
-        "refresh": 0,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
-        "hide": 2,
-        "includeAll": true,
-        "label": "pod",
-        "multi": false,
-        "name": "pod",
         "options": [],
-        "query": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
+        "query": "select alameda_scaler_name, enable_VPA  from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1673,11 +1719,36 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
+        "definition": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
+        "hide": 2,
+        "includeAll": true,
+        "label": "pod",
+        "multi": true,
+        "name": "pod",
+        "options": [],
+        "query": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
         "hide": 2,
         "includeAll": true,
         "label": "container",
-        "multi": false,
+        "multi": true,
         "name": "container",
         "options": [
           {
@@ -1689,107 +1760,9 @@
             "selected": false,
             "text": "busybox",
             "value": "busybox"
-          },
-          {
-            "selected": false,
-            "text": "nginx",
-            "value": "nginx"
           }
         ],
-        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/",
-        "refresh": 0,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "alameda-busybox",
-          "value": "alameda-busybox"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Scaler",
-        "multi": false,
-        "name": "s_scaler",
-        "options": [
-          {
-            "selected": true,
-            "text": "alameda-busybox",
-            "value": "alameda-busybox"
-          },
-          {
-            "selected": false,
-            "text": "alameda-nginx",
-            "value": "alameda-nginx"
-          }
-        ],
-        "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
-        "refresh": 0,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "busybox-fffc6769d-d6q6s",
-          "value": "busybox-fffc6769d-d6q6s"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$s_scaler'",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "s_pod",
-        "options": [],
-        "query": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$s_scaler'",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "busybox",
-          "value": "busybox"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$s_scaler'",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "s_container",
-        "options": [
-          {
-            "selected": true,
-            "text": "busybox",
-            "value": "busybox"
-          }
-        ],
-        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$s_scaler'",
+        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
         "refresh": 0,
         "regex": "",
         "skipUrlSync": false,
@@ -1834,5 +1807,5 @@
   "timezone": "",
   "title": "ProphetStor",
   "uid": "b6TFPVNZk",
-  "version": 92
+  "version": 117
 }
