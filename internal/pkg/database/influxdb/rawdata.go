@@ -238,13 +238,40 @@ func changeFormat(value string, dataType Common.DataType) interface{} {
 	case Common.DataType_DATATYPE_BOOL:
 		valueBool, _ := strconv.ParseBool(value)
 		return valueBool
+	case Common.DataType_DATATYPE_INT:
+		valueInt, _ := strconv.ParseInt(value, 10, 32)
+		return valueInt
+	case Common.DataType_DATATYPE_INT8:
+		valueInt, _ := strconv.ParseInt(value, 10, 32)
+		return valueInt
+	case Common.DataType_DATATYPE_INT16:
+		valueInt, _ := strconv.ParseInt(value, 10, 32)
+		return valueInt
 	case Common.DataType_DATATYPE_INT32:
 		valueInt, _ := strconv.ParseInt(value, 10, 32)
 		return valueInt
 	case Common.DataType_DATATYPE_INT64:
 		valueInt, _ := strconv.ParseInt(value, 10, 64)
 		return valueInt
+	case Common.DataType_DATATYPE_UINT:
+		valueUint, _ := strconv.ParseUint(value, 10, 32)
+		return valueUint
+	case Common.DataType_DATATYPE_UINT8:
+		valueUint, _ := strconv.ParseUint(value, 10, 32)
+		return valueUint
+	case Common.DataType_DATATYPE_UINT16:
+		valueUint, _ := strconv.ParseUint(value, 10, 32)
+		return valueUint
+	case Common.DataType_DATATYPE_UINT32:
+		valueUint, _ := strconv.ParseUint(value, 10, 32)
+		return valueUint
+	case Common.DataType_DATATYPE_UTIN64:
+		valueUint, _ := strconv.ParseUint(value, 10, 64)
+		return valueUint
 	case Common.DataType_DATATYPE_FLOAT32:
+		valueFloat, _ := strconv.ParseFloat(value, 32)
+		return valueFloat
+	case Common.DataType_DATATYPE_FLOAT64:
 		valueFloat, _ := strconv.ParseFloat(value, 64)
 		return valueFloat
 	case Common.DataType_DATATYPE_STRING:
