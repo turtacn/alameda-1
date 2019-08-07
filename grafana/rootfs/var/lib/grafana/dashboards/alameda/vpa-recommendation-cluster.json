@@ -17,8 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 9,
-  "iteration": 1560761259450,
+  "iteration": 1564736091154,
   "links": [],
   "panels": [
     {
@@ -390,6 +389,22 @@
           "unit": "short"
         },
         {
+          "alias": "Created Time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "create_time",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -425,7 +440,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from alameda_cluster_status..node",
+          "query": "select create_time *1000 , \"name\", node_cpu_cores, node_memory_bytes, in_cluster from alameda_cluster_status..node",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -1068,5 +1083,5 @@
   "timezone": "",
   "title": "Cluster-Wide VPA Resource Recommendations",
   "uid": "addqwe",
-  "version": 4
+  "version": 1
 }

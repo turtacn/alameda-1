@@ -17,8 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1560761281179,
+  "iteration": 1564736669901,
   "links": [],
   "panels": [
     {
@@ -390,6 +389,22 @@
           "unit": "short"
         },
         {
+          "alias": "Created Time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "create_time",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -425,7 +440,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from alameda_cluster_status..node",
+          "query": "select create_time *1000 , \"name\", node_cpu_cores, node_memory_bytes, in_cluster from alameda_cluster_status..node",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -935,8 +950,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "webapp",
-          "value": "webapp"
+          "text": "test",
+          "value": "test"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1062,5 +1077,5 @@
   "timezone": "",
   "title": "Per Namespace VPA Resource Recommendations",
   "uid": "addaewe",
-  "version": 3
+  "version": 1
 }
