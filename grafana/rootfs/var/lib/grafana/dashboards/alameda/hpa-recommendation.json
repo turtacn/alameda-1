@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1565178996736,
+  "iteration": 1565180073684,
   "links": [],
   "panels": [
     {
@@ -206,7 +206,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from (select * from alameda_cluster_status..container where top_controller_kind = 'StatefulSet' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1), (select * from alameda_cluster_status..container where top_controller_kind = 'Deployment' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1) group by alameda_scaler_name, alameda_scaler_namespace",
+          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from (select * from alameda_cluster_status..container where top_controller_kind = 'StatefulSet' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1), (select * from alameda_cluster_status..container where top_controller_kind = 'Deployment' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1), (select * from alameda_cluster_status..container where top_controller_kind = 'DeploymentConfig' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1) group by alameda_scaler_name, alameda_scaler_namespace",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
