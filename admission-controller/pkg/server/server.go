@@ -314,6 +314,11 @@ func (ac *admissionController) listPodByController(controllerID namespaceKindNam
 		if err != nil {
 			return pods, errors.Wrapf(err, "list pods controlled by controllerID: %s failed", controllerID.String())
 		}
+	case "StatefulSet":
+		podsInCluster, err = listResource.ListPodsByStatefulSet(controllerID.getNamespace(), controllerID.getName())
+		if err != nil {
+			return pods, errors.Wrapf(err, "list pods controlled by controllerID: %s failed", controllerID.String())
+		}
 	default:
 		return pods, errors.Errorf("no matching resource lister for controller kind: %s", controllerID.getKind())
 	}
