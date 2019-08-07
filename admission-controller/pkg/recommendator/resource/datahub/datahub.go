@@ -22,11 +22,13 @@ var (
 		"Pod":              datahub_v1alpha1.Kind_POD,
 		"Deployment":       datahub_v1alpha1.Kind_DEPLOYMENT,
 		"DeploymentConfig": datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
+		"StatefulSet":      datahub_v1alpha1.Kind_STATEFULSET,
 	}
 	datahubKind_K8SKind = map[datahub_v1alpha1.Kind]string{
 		datahub_v1alpha1.Kind_POD:              "Pod",
 		datahub_v1alpha1.Kind_DEPLOYMENT:       "Deployment",
 		datahub_v1alpha1.Kind_DEPLOYMENTCONFIG: "DeploymentConfig",
+		datahub_v1alpha1.Kind_STATEFULSET:      "StatefulSet",
 	}
 	datahubMetricType_K8SResourceName = map[datahub_v1alpha1.MetricType]core_v1.ResourceName{
 		datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE: core_v1.ResourceCPU,
