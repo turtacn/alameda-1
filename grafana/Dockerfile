@@ -3,7 +3,9 @@ FROM grafana/grafana:5.4.3
 ENV APPHOME=/opt/prophetstor/federatorai/grafana \
     APP_DEBUG=0
 
-WORKDIR ${APPHOME}
+COPY . /tmp/src
+
+## avoid define WORKDIR to use original container defination
 
 USER root
 RUN set -x \
@@ -12,11 +14,18 @@ RUN set -x \
     && apt-get install -y nano curl procps sqlite3 \
     && apt-get autoremove -y && apt-get autoclean -y && rm -rf /var/lib/apt/lists/* 
 
-COPY ./rootfs/usr/share/grafana/public/dashboards/home.json /usr/share/grafana/public/dashboards/home.json
-
 RUN set -x \
-    && chmod 777 /usr/share/grafana/public/dashboards/* \
-    && touch /var/lib/grafana/grafana.db \
-    && chmod -R 777 /var/lib/grafana/
+    && mkdir -p ${APPHOME} \
+    && mkdir -p usr/share/grafana/public/dashboards var/lib/grafana/dashboards/alameda \
+    && chmod 777 usr/share/grafana/public/dashboards var/lib/grafana/dashboards/alameda \
+    && chmod 777 /tmp/src/rootfs/usr/share/grafana/public/dashboards/* /tmp/src/rootfs/var/lib/grafana/dashboards/alameda/* \
+    && (cd /tmp/src/rootfs; tar czvf ${APPHOME}/alameda-dashboard.tgz .; cd -) \
+    && (cd /; tar xzvf ${APPHOME}/alameda-dashboard.tgz; cd -) \
+    && cp /tmp/src/tini /sbin/tini && chmod 755 /sbin/tini \
+    && cp /tmp/src/init.sh /init.sh && chmod 755 /init.sh
+    && rm -rf /tmp/src
 
 USER grafana
+
+ENTRYPOINT ["/sbin/tini","-v", "--"]
+CMD ["/init.sh", "start"]
