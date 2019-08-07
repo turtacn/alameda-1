@@ -54,7 +54,8 @@ import (
 )
 
 var (
-	scope = logUtil.RegisterScope("alamedascaler", "alamedascaler log", 0)
+	scope                      = logUtil.RegisterScope("alamedascaler", "alamedascaler log", 0)
+	enableStatefulSetExecution = false
 )
 
 var cachedFirstSynced = false
@@ -358,7 +359,7 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				Kind: datahub_v1alpha1.Kind_ALAMEDASCALER,
 			}},
 			Policy:                        policy,
-			EnableRecommendationExecution: scaler.IsEnableExecution(),
+			EnableRecommendationExecution: enableStatefulSetExecution,
 			Replicas:                      int32(len(statefulSet.Pods)),
 			SpecReplicas:                  *statefulSet.SpecReplicas,
 		})
@@ -605,6 +606,15 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		if _, exist := scaler.Labels["app.federator.ai/part-of"]; exist {
 			appPartOf = scaler.Labels["app.federator.ai/part-of"]
 		}
+
+		enableVPA := scaler.IsScalingToolTypeVPA()
+		enableHPA := scaler.IsScalingToolTypeHPA()
+		if topCtrl != nil {
+			if topCtrl.Kind == datahub_v1alpha1.Kind_STATEFULSET {
+				enableVPA = enableStatefulSetExecution
+				enableHPA = enableStatefulSetExecution
+			}
+		}
 		podsNeedCreating = append(podsNeedCreating, &datahub_v1alpha1.Pod{
 			AlamedaScaler: &datahub_v1alpha1.NamespacedName{
 				Namespace: scaler.Namespace,
@@ -621,8 +631,8 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			StartTime:     startTime,
 			TopController: topCtrl,
 			Status:        podStatus,
-			Enable_VPA:    scaler.IsScalingToolTypeVPA(),
-			Enable_HPA:    scaler.IsScalingToolTypeHPA(),
+			Enable_VPA:    enableVPA,
+			Enable_HPA:    enableHPA,
 			AppName:       appName,
 			AppPartOf:     appPartOf,
 		})
