@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1565172051480,
+  "iteration": 1565178996736,
   "links": [],
   "panels": [
     {
@@ -171,54 +171,6 @@
           "unit": "short"
         },
         {
-          "alias": "Alameda Scaler Name",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "alameda_scaler_name",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Alameda Scaler Namespace",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "alameda_scaler_namespace",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Node Name",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "node_name",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -251,11 +203,10 @@
               "type": "fill"
             }
           ],
-          "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from alameda_cluster_status..container where enable_HPA = true and alameda_scaler_name = '$scaler' group by alameda_scaler_name, alameda_scaler_namespace,  node_name",
+          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from (select * from alameda_cluster_status..container where top_controller_kind = 'StatefulSet' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1), (select * from alameda_cluster_status..container where top_controller_kind = 'Deployment' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1) group by alameda_scaler_name, alameda_scaler_namespace",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -371,7 +322,6 @@
               "type": "fill"
             }
           ],
-          "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
