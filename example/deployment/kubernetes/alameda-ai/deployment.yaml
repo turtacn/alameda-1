@@ -1,9 +1,9 @@
 ---
-# Source: alameda/charts/alameda-ai/templates/deployment.yaml
+# Source: alameda/charts/ai/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: alameda-alameda-ai
+  name: alameda-ai
   namespace: alameda
   labels:
     app: alameda
@@ -21,7 +21,7 @@ spec:
         component: alameda-ai
     spec:
       containers:
-        - name: alameda-ai
+        - name: ai
           image: "quay.io/prophetstor/alameda-ai:latest"
           imagePullPolicy: IfNotPresent
           env:
@@ -36,4 +36,4 @@ spec:
           resources:
             {}
             
-      serviceAccountName: alameda-alameda-ai
+      serviceAccountName: alameda-ai

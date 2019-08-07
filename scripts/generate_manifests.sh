@@ -89,7 +89,7 @@ mv ${tmpoutputdir}/alameda/templates/* ${chartdir}/alameda-operator/
 echo "$namespaceResource" > ${chartdir}/alameda-operator/namespace.yaml
 mv ${tmpoutputdir}/alameda/charts/admission-controller/templates/* ${chartdir}/admission-controller/
 echo "$namespaceResource" > ${chartdir}/admission-controller/namespace.yaml
-mv ${tmpoutputdir}/alameda/charts/alameda-ai/templates/* ${chartdir}/alameda-ai/
+mv ${tmpoutputdir}/alameda/charts/ai/templates/* ${chartdir}/alameda-ai/
 echo "$namespaceResource" > ${chartdir}/alameda-ai/namespace.yaml
 mv ${tmpoutputdir}/alameda/charts/datahub/templates/* ${chartdir}/alameda-datahub/
 echo "$namespaceResource" > ${chartdir}/alameda-datahub/namespace.yaml
@@ -108,7 +108,7 @@ echo "$namespaceResource" > ${chartdir}/alameda-rabbitmq/namespace.yaml
 
 # generate InfluxDB manifests
 mkdir -p ${tmpoutputdir}
-helm fetch stable/influxdb --version 1.1.9 --untar --untardir ${tmpchartdir}
+helm fetch stable/influxdb --version 1.3.1 --untar --untardir ${tmpchartdir}
 helm template --name alameda-influxdb --namespace $NAMESPACE ${tmpchartdir}/influxdb --set persistence.enabled=false --output-dir ${tmpoutputdir}
 
 mkdir -p ${chartdir}/alameda-influxdb/
