@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 5,
-  "iteration": 1565073321818,
+  "iteration": 1565169646319,
   "links": [],
   "panels": [
     {
@@ -1253,7 +1253,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1281,7 +1281,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage'  and \"pod_name\" =~ /^[[pod]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage'  and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1321,7 +1321,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[container]]$/ and \"namespace\" =~ /^[[ns]]$/  and \"pod_name\" =~ /^[[pod]]$/  and time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -1361,7 +1361,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d  group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[container]]$/ and \"namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d  group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1485,7 +1485,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1513,7 +1513,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"pod_name\" =~ /^[[pod]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1553,7 +1553,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -1593,7 +1593,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ and time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1719,14 +1719,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
+        "definition": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
         "hide": 2,
         "includeAll": true,
         "label": "pod",
         "multi": true,
         "name": "pod",
         "options": [],
-        "query": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
+        "query": "select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1744,7 +1744,7 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
+        "definition": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
         "hide": 2,
         "includeAll": true,
         "label": "container",
@@ -1762,7 +1762,7 @@
             "value": "busybox"
           }
         ],
-        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_name\" = '$scaler'",
+        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
         "refresh": 0,
         "regex": "",
         "skipUrlSync": false,
@@ -1805,7 +1805,7 @@
     ]
   },
   "timezone": "",
-  "title": "ProphetStor",
+  "title": "Dashboard",
   "uid": "b6TFPVNZk",
-  "version": 117
+  "version": 122
 }

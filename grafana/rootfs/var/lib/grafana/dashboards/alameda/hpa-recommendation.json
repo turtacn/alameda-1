@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 10,
-  "iteration": 1560932393249,
+  "iteration": 1565172051480,
   "links": [],
   "panels": [
     {
@@ -172,6 +171,54 @@
           "unit": "short"
         },
         {
+          "alias": "Alameda Scaler Name",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "alameda_scaler_name",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Alameda Scaler Namespace",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "alameda_scaler_namespace",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Node Name",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "node_name",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -204,10 +251,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from alameda_cluster_status..container where enable_HPA = true group by alameda_scaler_name, alameda_scaler_namespace limit 1",
+          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from alameda_cluster_status..container where enable_HPA = true and alameda_scaler_name = '$scaler' group by alameda_scaler_name, alameda_scaler_namespace,  node_name",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -323,6 +371,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
@@ -1576,8 +1625,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "webapp",
-          "value": "webapp"
+          "text": "kafka",
+          "value": "kafka"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1601,8 +1650,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "nginx-app",
-          "value": "nginx-app"
+          "text": "alameda-kafka",
+          "value": "alameda-kafka"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -1626,8 +1675,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "nginx-deployment",
-          "value": "nginx-deployment"
+          "text": "my-kafka",
+          "value": "my-kafka"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
@@ -1732,5 +1781,5 @@
   "timezone": "",
   "title": "HPA Recommendation",
   "uid": "dddy5uda",
-  "version": 7
+  "version": 1
 }

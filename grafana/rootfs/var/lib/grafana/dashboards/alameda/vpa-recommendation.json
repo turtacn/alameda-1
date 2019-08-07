@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1560761297688,
+  "iteration": 1564736806543,
   "links": [],
   "panels": [
     {
@@ -388,6 +387,22 @@
           "unit": "short"
         },
         {
+          "alias": "Created Time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "create_time",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -423,7 +438,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from alameda_cluster_status..node",
+          "query": "select create_time *1000 , \"name\", node_cpu_cores, node_memory_bytes, in_cluster from alameda_cluster_status..node",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -1368,8 +1383,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "webapp",
-          "value": "webapp"
+          "text": "test",
+          "value": "test"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1393,8 +1408,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "influxdb-app",
-          "value": "influxdb-app"
+          "text": "alameda-busybox",
+          "value": "alameda-busybox"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -1418,8 +1433,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "influxdb-0-7bcfd4f68-fdd57",
-          "value": "influxdb-0-7bcfd4f68-fdd57"
+          "text": "busybox-fffc6769d-dn56t",
+          "value": "busybox-fffc6769d-dn56t"
         },
         "datasource": "InfluxDB",
         "definition": "select pod_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ group by \"pod_name\" order by time desc limit 1",
@@ -1443,8 +1458,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "influxdb-0",
-          "value": "influxdb-0"
+          "text": "busybox",
+          "value": "busybox"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",
@@ -1499,5 +1514,5 @@
   "timezone": "",
   "title": "VPA Recommendation",
   "uid": "7dqda",
-  "version": 9
+  "version": 1
 }
