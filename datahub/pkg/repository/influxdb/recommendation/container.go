@@ -244,6 +244,8 @@ func (c *ContainerRepository) ListContainerRecommendations(in *datahub_v1alpha1.
 		nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
 		nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
+	case datahub_v1alpha1.Kind_STATEFULSET:
+		nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", datahub_v1alpha1.Kind_name[int32(kind)])
 	}
@@ -297,6 +299,8 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alph
 	case datahub_v1alpha1.Kind_DEPLOYMENT:
 		nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+		nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
+	case datahub_v1alpha1.Kind_STATEFULSET:
 		nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", datahub_v1alpha1.Kind_name[int32(kind)])
