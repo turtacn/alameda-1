@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1564736806543,
+  "iteration": 1565251885176,
   "links": [],
   "panels": [
     {
@@ -889,7 +889,7 @@
       "timeShift": null,
       "title": "Container CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -912,12 +912,13 @@
           "show": true
         },
         {
-          "format": "decbytes",
+          "decimals": 0,
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -1337,7 +1338,7 @@
       "timeShift": null,
       "title": "Container Memory: Observation, Prediction, and Recommendation",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -1360,12 +1361,13 @@
           "show": true
         },
         {
-          "format": "decbytes",
+          "decimals": 0,
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -1383,8 +1385,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "test",
-          "value": "test"
+          "text": "nginx-vpa",
+          "value": "nginx-vpa"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_VPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1408,8 +1410,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-busybox",
-          "value": "alameda-busybox"
+          "text": "nginx-vpa",
+          "value": "nginx-vpa"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -1433,8 +1435,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "busybox-fffc6769d-dn56t",
-          "value": "busybox-fffc6769d-dn56t"
+          "text": "nginx-554b9c67f9-qzm2h",
+          "value": "nginx-554b9c67f9-qzm2h"
         },
         "datasource": "InfluxDB",
         "definition": "select pod_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ group by \"pod_name\" order by time desc limit 1",
@@ -1458,8 +1460,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "busybox",
-          "value": "busybox"
+          "text": "nginx",
+          "value": "nginx"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod'",

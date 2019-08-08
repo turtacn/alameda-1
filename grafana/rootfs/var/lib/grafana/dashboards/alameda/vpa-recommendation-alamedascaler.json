@@ -17,7 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1564736560062,
+  "iteration": 1565251367716,
   "links": [],
   "panels": [
     {
@@ -674,7 +674,7 @@
       "timeShift": null,
       "title": "CPU: Observation and Recommendation (in CPU milicore)",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -697,12 +697,13 @@
           "show": true
         },
         {
-          "format": "decbytes",
+          "decimals": 0,
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -904,7 +905,7 @@
       "timeShift": null,
       "title": "Memory: Observation and Recommendation",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -927,12 +928,13 @@
           "show": true
         },
         {
-          "format": "decbytes",
+          "decimals": 0,
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -950,8 +952,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "test",
-          "value": "test"
+          "text": "nginx-vpa",
+          "value": "nginx-vpa"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_VPA = true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -975,8 +977,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-busybox",
-          "value": "alameda-busybox"
+          "text": "nginx-vpa",
+          "value": "nginx-vpa"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
