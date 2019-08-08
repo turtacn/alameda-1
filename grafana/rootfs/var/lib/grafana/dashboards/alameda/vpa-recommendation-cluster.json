@@ -17,7 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1564736091154,
+  "iteration": 1565251095680,
   "links": [],
   "panels": [
     {
@@ -675,7 +675,7 @@
       "timeShift": null,
       "title": "CPU: Observation and Recommendation (in CPU milicore)",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -698,12 +698,13 @@
           "show": true
         },
         {
-          "format": "decbytes",
+          "decimals": 0,
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -906,7 +907,7 @@
       "timeShift": null,
       "title": "Memory: Observation and Recommendation",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -929,12 +930,13 @@
           "show": true
         },
         {
-          "format": "decbytes",
+          "decimals": 0,
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
