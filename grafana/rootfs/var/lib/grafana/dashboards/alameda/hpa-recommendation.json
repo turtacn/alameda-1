@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1565180073684,
+  "iteration": 1565246988648,
   "links": [],
   "panels": [
     {
@@ -421,7 +421,7 @@
       "tableColumn": "current replicas",
       "targets": [
         {
-          "expr": "sum(kube_replicationcontroller_spec_replicas{namespace = \"$ns\", replicationcontroller=~\"$controller.*\" }) or 1-absent(sum(kube_replicationcontroller_spec_replicas{namespace = \"$ns\", replicationcontroller=~\"$controller.*\" }))\n\n+ \n\nsum(kube_replicaset_spec_replicas{namespace = \"$ns\", replicaset=~\"$controller.*\" }) or 1-absent(sum(kube_replicaset_spec_replicas{namespace = \"$ns\", replicaset=~\"$controller.*\" }))",
+          "expr": "(sum(kube_statefulset_status_replicas{namespace=\"$ns\",statefulset=\"$controller\"}) or 1-absent(sum(kube_statefulset_status_replicas{namespace=\"$ns\",statefulset=\"$controller\"})))+(sum(kube_deployment_status_replicas{namespace=\"$ns\",deployment=\"$controller\"}) or 1-absent(sum(kube_deployment_status_replicas{namespace=\"$ns\",deployment=\"$controller\"})))+(sum(kube_replicationcontroller_status_replicas{namespace=\"$ns\",replicationcontroller=~\"$controller.*\"}) or 1-absent(sum(kube_replicationcontroller_status_replicas{namespace=\"$ns\",replicationcontroller=~\"$controller.*\"})))",
           "format": "time_series",
           "groupBy": [
             {
@@ -437,6 +437,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
@@ -1575,8 +1576,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "kafka",
-          "value": "kafka"
+          "text": "tomcat",
+          "value": "tomcat"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
@@ -1600,8 +1601,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-kafka",
-          "value": "alameda-kafka"
+          "text": "tomcat",
+          "value": "tomcat"
         },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
@@ -1625,8 +1626,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "my-kafka",
-          "value": "my-kafka"
+          "text": "tomcathost",
+          "value": "tomcathost"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
