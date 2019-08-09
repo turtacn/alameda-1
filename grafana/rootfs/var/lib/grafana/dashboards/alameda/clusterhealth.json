@@ -438,7 +438,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(up{job=\"kubelet\"})",
+          "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
           "format": "time_series",
           "intervalFactor": 2,
           "refId": "A",

@@ -134,7 +134,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "count(up{job=\"kubelet\"})",
+          "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
           "format": "time_series",
           "intervalFactor": 2,
           "refId": "A"
@@ -1691,10 +1691,6 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "alameda-busybox",
-          "value": "alameda-busybox"
-        },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
         "hide": 0,
@@ -1757,11 +1753,6 @@
             "selected": true,
             "text": "All",
             "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "busybox",
-            "value": "busybox"
           }
         ],
         "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
