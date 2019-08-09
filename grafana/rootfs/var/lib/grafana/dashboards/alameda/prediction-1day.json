@@ -684,7 +684,7 @@
       "timeFrom": "75m",
       "timeRegions": [],
       "timeShift": "0m+15m",
-      "title": "CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
+      "title": "CPU: Observation, and Prediction (in CPU milicore)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -924,7 +924,7 @@
       "timeFrom": "75m",
       "timeRegions": [],
       "timeShift": "0m+15m",
-      "title": "Memory: Observation, Prediction, and Recommendation",
+      "title": "Memory: Observation, and Prediction",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1170,7 +1170,7 @@
       "timeFrom": "6d",
       "timeRegions": [],
       "timeShift": "0d+1d",
-      "title": "CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
+      "title": "CPU: Observation, and Prediction (in CPU milicore)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1406,7 +1406,7 @@
       "timeFrom": "6d",
       "timeRegions": [],
       "timeShift": "0d+1d",
-      "title": "Memory: Observation, Prediction, and Recommendation",
+      "title": "Memory: Observation, and Prediction",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1654,7 +1654,7 @@
       "timeFrom": "6w",
       "timeRegions": [],
       "timeShift": "0w+1w",
-      "title": "CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
+      "title": "CPU: Observation, and Prediction (in CPU milicore)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1885,7 +1885,7 @@
       "timeFrom": "6w",
       "timeRegions": [],
       "timeShift": "0w+1w",
-      "title": "Memory: Observation, Prediction, and Recommendation",
+      "title": "Memory: Observation, and Prediction",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2130,7 +2130,7 @@
       "timeFrom": "21w",
       "timeRegions": [],
       "timeShift": "0w+4w",
-      "title": "CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
+      "title": "CPU: Observation, and Prediction (in CPU milicore)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -2361,7 +2361,7 @@
       "timeFrom": "21w",
       "timeRegions": [],
       "timeShift": "0w+4w",
-      "title": "Memory: Observation, Prediction, and Recommendation",
+      "title": "Memory: Observation, and Prediction",
       "tooltip": {
         "shared": true,
         "sort": 0,

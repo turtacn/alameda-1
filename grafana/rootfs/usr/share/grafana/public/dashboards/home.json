@@ -1072,7 +1072,7 @@
       },
       "id": 20,
       "panels": [],
-      "title": "Resource Usage and Recommendation",
+      "title": "Resource Usage and Prediction",
       "type": "row"
     },
     {
@@ -1386,7 +1386,7 @@
       "timeFrom": "3d",
       "timeRegions": [],
       "timeShift": "0d+1d",
-      "title": "CPU: Observation, Prediction, and Recommendation (in CPU milicore)",
+      "title": "CPU: Observation, and Prediction (in CPU milicore)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -1618,7 +1618,7 @@
       "timeFrom": "3d",
       "timeRegions": [],
       "timeShift": "0d+1d",
-      "title": "Memory: Observation, Prediction, and Recommendation",
+      "title": "Memory: Observation, and Prediction",
       "tooltip": {
         "shared": false,
         "sort": 0,
