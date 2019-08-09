@@ -476,7 +476,7 @@
       },
       "id": 32,
       "panels": [],
-      "title": "Resource Usage (next 15 minutes)",
+      "title": "Resource Usage (1 hour + 15 minutes)",
       "type": "row"
     },
     {
@@ -972,7 +972,7 @@
       },
       "id": 50,
       "panels": [],
-      "title": "Resource Usage (next 1 day)",
+      "title": "Resource Usage (5 days + 1 day)",
       "type": "row"
     },
     {
@@ -1453,7 +1453,7 @@
       },
       "id": 38,
       "panels": [],
-      "title": "Resource Usage (next 1 week)",
+      "title": "Resource Usage (5 weeks + 1 week)",
       "type": "row"
     },
     {
@@ -1932,7 +1932,7 @@
       },
       "id": 44,
       "panels": [],
-      "title": "Resource Usage (next 1 month)",
+      "title": "Resource Usage (5 months + 1 month)",
       "type": "row"
     },
     {
