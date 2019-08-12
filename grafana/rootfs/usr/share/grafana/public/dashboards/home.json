@@ -136,6 +136,7 @@
         {
           "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 2,
           "refId": "A"
         }
@@ -218,6 +219,7 @@
           "expr": "count(increase(kube_pod_container_status_restarts_total[1h]) > 5)",
           "format": "time_series",
           "hide": false,
+          "instant": true,
           "intervalFactor": 2,
           "refId": "A"
         }
@@ -298,6 +300,7 @@
         {
           "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"})) * 100",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 2,
           "refId": "A"
         }
@@ -380,6 +383,7 @@
           "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"}) * 100",
           "format": "time_series",
           "hide": false,
+          "instant": true,
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A"
@@ -477,6 +481,7 @@
             }
           ],
           "intervalFactor": 2,
+          "instant": true,
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -590,6 +595,7 @@
             }
           ],
           "intervalFactor": 2,
+          "instant": true,
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
