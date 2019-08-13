@@ -157,6 +157,15 @@ func (getResource *GetResource) GetReplicasCountByController(namespace, name, ki
 			return 0, err
 		}
 		return deploymentConfig.Spec.Replicas, nil
+	case "statefulset":
+		statefulSet, err := getResource.GetStatefulSet(namespace, name)
+		if err != nil {
+			return 0, err
+		}
+		if statefulSet.Spec.Replicas == nil {
+			return 0, errors.Errorf("statefulSet's spec.replicas is nil")
+		}
+		return *statefulSet.Spec.Replicas, nil
 	default:
 		return 0, errors.Errorf("not supported kind \"%s\"", kind)
 	}
