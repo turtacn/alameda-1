@@ -119,6 +119,8 @@ func (listResources *ListResources) ListPodsByController(namespace, name, kind s
 		pods, err = listResources.ListPodsByDeployment(namespace, name)
 	case "deploymentconfig":
 		pods, err = listResources.ListPodsByDeploymentConfig(namespace, name)
+	case "statefulset":
+		pods, err = listResources.ListPodsByStatefulSet(namespace, name)
 	default:
 		err = errors.Errorf("not supported kind \"%s\"", kind)
 	}
