@@ -200,14 +200,30 @@ dashboardProviders:
   dashboardproviders.yaml:
     apiVersion: 1
     providers:
-    - name: 'alameda'
+    - name: 'Health'
       orgId: 1
-      folder: 'alameda'
+      folder: 'Health'
       type: file
       disableDeletion: false
       editable: true
       options:
-        path: /var/lib/grafana/dashboards/alameda
+        path: /var/lib/grafana/dashboards/Health
+    - name: 'Recommendation'
+      orgId: 1
+      folder: 'Recommendation'
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/Recommendation
+    - name: 'Planning'
+      orgId: 1
+      folder: 'Planning'
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/Planning
 
 ## Configure grafana dashboard to import
 ## NOTE: To use dashboards you must also enable/configure dashboardProviders
@@ -216,7 +232,12 @@ dashboardProviders:
 ## dashboards per provider, use provider name as key.
 ##
 dashboards:
-  alameda:
+  Health:
+    clusterhealth:
+      json: dashboards/clusterhealth.json
+    nodehealth:
+      json: dashboards/nodehealth.json
+  Recommendation:
     hpa-recommendation:
       json: dashboards/hpa-recommendation.json
     vpa-recommendation:
@@ -227,10 +248,7 @@ dashboards:
       json: dashboards/vpa-recommendation-namespace.json
     vpa-recommendation-alamedascaler:
       json: dashboards/vpa-recommendation-alamedascaler.json
-    clusterhealth:
-      json: dashboards/clusterhealth.json
-    nodehealth:
-      json: dashboards/nodehealth.json
+  Planning:
     prediction-1day:
       json: dashboards/prediction-1day.json
 #    prometheus-stats:
