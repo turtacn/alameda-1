@@ -1,0 +1,26 @@
+apiVersion: 1
+providers:
+- disableDeletion: false
+  editable: true
+  folder: Health
+  name: Health
+  options:
+    path: /var/lib/grafana/dashboards/Health
+  orgId: 1
+  type: file
+- disableDeletion: false
+  editable: true
+  folder: Planning
+  name: Planning
+  options:
+    path: /var/lib/grafana/dashboards/Planning
+  orgId: 1
+  type: file
+- disableDeletion: false
+  editable: true
+  folder: Recommendation
+  name: Recommendation
+  options:
+    path: /var/lib/grafana/dashboards/Recommendation
+  orgId: 1
+  type: file

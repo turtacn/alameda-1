@@ -24,7 +24,7 @@ RUN set -x \
     && mkdir -p ${APPHOME} \
     && mkdir -p usr/share/grafana/public/dashboards var/lib/grafana/dashboards/alameda \
     && chmod 777 usr/share/grafana/public/dashboards var/lib/grafana/dashboards/alameda \
-    && chmod 777 /tmp/src/rootfs/usr/share/grafana/public/dashboards/* /tmp/src/rootfs/var/lib/grafana/dashboards/alameda/* \
+    && chmod -R 777 /tmp/src/rootfs/usr/share/grafana/ /tmp/src/rootfs/var/lib/grafana/ /tmp/src/rootfs/etc/grafana/ \
     && (cd /tmp/src/rootfs; tar czvf ${APPHOME}/alameda-dashboard.tgz .; cd -) \
     && (cd /; tar xzvf ${APPHOME}/alameda-dashboard.tgz; cd -) \
     && cp /tmp/src/tini /sbin/tini && chmod 755 /sbin/tini \
