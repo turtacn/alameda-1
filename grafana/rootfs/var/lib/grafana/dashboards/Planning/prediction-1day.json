@@ -1295,10 +1295,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(21600s)",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 1 and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(21600s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1335,10 +1334,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(86400s)",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 2 and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(86400s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -1668,10 +1666,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and \"planning_type\" = 'recommendation' and  time >= now() -5d and time <= now()+1d  group by time(21600s)",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and \"planning_type\" = 1 and  time >= now() -5d and time <= now()+1d  group by time(21600s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1708,10 +1705,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(86400s)",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 2 and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(86400s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -2052,10 +2048,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(86400s)",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 1 and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(86400s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2092,10 +2087,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(604800s)",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 2 and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(604800s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -2422,10 +2416,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(86400s)",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 1 and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(86400s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2462,10 +2455,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(604800s)",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 2 and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(604800s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -2805,10 +2797,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(604800s)",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"planning_type\" = 1 and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(604800s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2845,10 +2836,9 @@
               "type": "fill"
             }
           ],
-          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '2592000' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(2592000s)",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '2592000' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 2 and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(2592000s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -3174,10 +3164,9 @@
               "type": "fill"
             }
           ],
-          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(604800s)",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"planning_type\" = 1 and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(604800s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -3214,10 +3203,9 @@
               "type": "fill"
             }
           ],
-          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '2592000' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(2592000s)",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '2592000' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 2 and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(2592000s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
