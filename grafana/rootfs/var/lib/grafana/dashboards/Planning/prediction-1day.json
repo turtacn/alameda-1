@@ -518,7 +518,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage (in 15m)",
+          "alias": "Prediction: CPU usage (previous 1h)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -542,6 +542,13 @@
         {
           "alias": "Prediction: CPU usage lowerbound",
           "lines": false
+        },
+        {
+          "alias": "Prediction: CPU usage (next 15m)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -560,7 +567,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage (in 15m)",
+          "alias": "Prediction: CPU usage (previous 1h)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -579,7 +586,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -60m and time <= now()+14m group by time(30s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and time >=now()-1h and time < now() group by time(30s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -662,6 +669,46 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" ='$ns'  AND time >= now() and time <= now() + 14m group by time(30s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: CPU usage (next 15m)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and time >=now()-30s and time < now()+ 15m  group by time(30s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "E",
           "resultFormat": "time_series",
           "select": [
             [
@@ -762,7 +809,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage(15m)",
+          "alias": "Prediction: memory usage(previous 1h)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -783,6 +830,13 @@
         {
           "alias": "Prediction: memory usage lowerbound",
           "lines": false
+        },
+        {
+          "alias": "Prediction: memory usage(next 15m)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -800,7 +854,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage(15m)",
+          "alias": "Prediction: memory usage(previous 1h)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -819,7 +873,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 60m and time <= now() + 14m  group by time(30s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 60m and time < now()  group by time(30s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -902,6 +956,46 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'   AND time >= now() and time <= now() + 14m  group by time(30s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: memory usage(next 15m)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 30s and time < now()+15m group by time(30s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "E",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1013,7 +1107,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage(in 1d)",
+          "alias": "Prediction: CPU usage(previous 5 days)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -1033,6 +1127,23 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
+        },
+        {
+          "alias": "Recommendation",
+          "color": "#7eb26d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Planning",
+          "color": "#f2c96d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Prediction: CPU usage(next 1 day)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -1049,7 +1160,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage(in 1d)",
+          "alias": "Prediction: CPU usage(previous 5 days)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1067,7 +1178,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -5d and time <= now()+1d group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -5d and time < now() group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1090,7 +1201,6 @@
         {
           "alias": "Prediction: CPU usage upperbound",
           "datasource": "InfluxDB",
-          "hide": true,
           "groupBy": [
             {
               "params": [
@@ -1105,6 +1215,7 @@
               "type": "fill"
             }
           ],
+          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'   AND time >= now() and time <= now() + 1d group by time(3600s)",
@@ -1150,6 +1261,126 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" ='$ns'  AND time >= now() and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Recommendation",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(21600s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Planning",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(86400s)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: CPU usage(next 1 day)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -3600s and time <= now()+1d group by time(3600s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1249,7 +1480,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage(in 1d)",
+          "alias": "Prediction: memory usage(previous 5 days)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -1267,6 +1498,23 @@
           "color": "#f9e2d2",
           "hideTooltip": true,
           "lines": false
+        },
+        {
+          "alias": "Recommendation",
+          "color": "#7eb26d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Planning",
+          "color": "#f2c96d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Prediction: memory usage(next 1 day)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -1284,7 +1532,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage(in 1d)",
+          "alias": "Prediction: memory usage(previous 5 days)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1303,7 +1551,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 5d and time <= now() + 1d  group by time(3600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 5d and time < now() group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1386,6 +1634,125 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'   AND time >= now() and time <= now() + 1d  group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Recommendation",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and \"planning_type\" = 'recommendation' and  time >= now() -5d and time <= now()+1d  group by time(21600s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Planning",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5d and time <= now()+1d  group by time(86400s)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: memory usage(next 1 day)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 3600s and time <= now()+1d group by time(3600s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1496,7 +1863,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage(in 1 week)",
+          "alias": "Prediction: CPU usage(previous 5 weeks)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -1516,6 +1883,23 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
+        },
+        {
+          "alias": "Recommendation",
+          "color": "#7eb26d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Planning",
+          "color": "#f2c96d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Prediction: CPU usage(next 1 week)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -1533,7 +1917,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage(in 1 week)",
+          "alias": "Prediction: CPU usage(previous 5 weeks)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1551,7 +1935,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() - 5w and time <= now()+1w group by time(21600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() - 5w and time < now() group by time(21600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1634,6 +2018,126 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" ='$ns'  AND time >= now() and time <= now() + 1w group by time(21600s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Recommendation",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(86400s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Planning",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(604800s)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: CPU usage(next 1 week)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now()-21600s  and time <= now()+1w group by time(21600s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1733,7 +2237,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage(in 1 week)",
+          "alias": "Prediction: memory usage(previous 5 weeks)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -1750,6 +2254,23 @@
           "alias": "Prediction: memory usage lowerbound",
           "hideTooltip": true,
           "lines": false
+        },
+        {
+          "alias": "Recommendation",
+          "color": "#7eb26d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Planning",
+          "color": "#f2c96d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Prediction: memory usage(next 1 week)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -1766,7 +2287,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage(in 1 week)",
+          "alias": "Prediction: memory usage(previous 5 weeks)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1784,7 +2305,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 5w and time <= now() + 1w  group by time(21600s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 5w and time < now() group by time(21600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1867,6 +2388,125 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'   AND time >= now() and time <= now() + 1w  group by time(21600s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Recommendation",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(86400s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Planning",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -5w and time <= now()+1w  group by time(604800s)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: memory usage(next 1 week)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 21600s and time < now() +1w group by time(21600s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1977,7 +2617,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage(in 1 month)",
+          "alias": "Prediction: CPU usage(previous 5 months)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -1997,6 +2637,23 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
+        },
+        {
+          "alias": "Recommendation",
+          "color": "#7eb26d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Planning",
+          "color": "#f2c96d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Prediction: CPU usage(next 1 month)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -2013,7 +2670,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage(in 1 month)",
+          "alias": "Prediction: CPU usage(previous 5 months)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -2031,7 +2688,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -20w and time <= now()+4w group by time(86400s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -20w and time < now() group by time(86400s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -2114,6 +2771,125 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" ='$ns'  AND time >= now() and time <= now() + 4w group by time(86400s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Recommendation",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(604800s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Planning",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '2592000' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(2592000s)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: CPU usage(next 1 month)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" = '$ns'  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -86400s and time <= now()+4w group by time(86400s)) where count = $count_pod",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2213,7 +2989,7 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage(in 1 month)",
+          "alias": "Prediction: memory usage(previsous 5 months)",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -2230,6 +3006,23 @@
           "alias": "Prediction: memory usage lowerbound",
           "hideTooltip": true,
           "lines": false
+        },
+        {
+          "alias": "Recommendation",
+          "color": "#7eb26d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Planning",
+          "color": "#f2c96d",
+          "steppedLine": true
+        },
+        {
+          "alias": "Prediction: memory usage(next 1 month)",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         }
       ],
       "spaceLength": 10,
@@ -2246,7 +3039,7 @@
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage(in 1 month)",
+          "alias": "Prediction: memory usage(previsous 5 months)",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -2264,7 +3057,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 20w and time <= now() + 4w  group by time(86400s)",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 20w and time < now() group by time(86400s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -2347,6 +3140,125 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'   AND time >= now() and time <= now() + 4w  group by time(86400s)",
           "rawQuery": true,
           "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Recommendation",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '604800' and \"planning_type\" = 'recommendation' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(604800s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Planning",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '2592000' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'planning' and \"namespace\" = '$ns' and  time >= now() -20w and time <= now()+4w  group by time(2592000s)",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: memory usage(next 1 month)",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" = '$ns'  AND time >= now() - 86400s and time < now()+ 4w group by time(86400s)",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2714,6 +3626,31 @@
         "name": "h_container",
         "options": [],
         "query": "select \"name\", enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and \"pod_name\" =~ /^[[namespace_pod]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" =~ /^[[alamedascaler_pod]]$/ and 'Application' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "6",
+          "value": "6"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select count(pod_name) from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource' and \"pod_name\" = '$pod'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Application' = '$resource' )",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Count",
+        "multi": false,
+        "name": "count_pod",
+        "options": [],
+        "query": "select count(pod_name) from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource' and \"pod_name\" = '$pod'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Application' = '$resource' )",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
