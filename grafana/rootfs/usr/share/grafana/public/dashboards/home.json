@@ -873,7 +873,7 @@
           "unit": "short"
         },
         {
-          "alias": "Alameda Scaler Name",
+          "alias": "Application Name",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1091,7 +1091,7 @@
         "#d44a3a"
       ],
       "datasource": "InfluxDB",
-      "description": "Change AlamedaScaler by the AlamedaScaler selector on the top",
+      "description": "Change Application by the Application selector on the top",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -1181,7 +1181,7 @@
         }
       ],
       "thresholds": "",
-      "title": "Alameda Scaler Name",
+      "title": "Application Name",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -1701,7 +1701,7 @@
         "definition": "select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
         "hide": 0,
         "includeAll": false,
-        "label": "AlamedaScaler",
+        "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],

@@ -137,7 +137,7 @@
               "unit": "short"
             },
             {
-              "alias": "AlamedaScaler Name",
+              "alias": "Application Name",
               "colorMode": null,
               "colors": [
                 "rgba(245, 54, 54, 0.9)",
@@ -2418,8 +2418,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "AlamedaScaler",
-          "value": "AlamedaScaler"
+          "text": "Application",
+          "value": "Application"
         },
         "hide": 0,
         "includeAll": false,
@@ -2434,8 +2434,8 @@
           },
           {
             "selected": false,
-            "text": "AlamedaScaler",
-            "value": "AlamedaScaler"
+            "text": "Application",
+            "value": "Application"
           },
           {
             "selected": false,
@@ -2443,7 +2443,7 @@
             "value": "Namespace"
           }
         ],
-        "query": "Container, AlamedaScaler, Namespace",
+        "query": "Container, Application, Namespace",
         "skipUrlSync": false,
         "type": "custom"
       },
@@ -2482,7 +2482,7 @@
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\"  where \"alameda_scaler_namespace\" = '$ns'  and 'Namespace' != '$resource'",
         "hide": 0,
         "includeAll": false,
-        "label": "AlamedaScaler",
+        "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],
@@ -2681,14 +2681,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select pod_name, enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource' and \"pod_name\" = '$pod'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'AlamedaScaler' = '$resource' )",
+        "definition": "select pod_name, enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource' and \"pod_name\" = '$pod'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Application' = '$resource' )",
         "hide": 2,
         "includeAll": true,
         "label": "h_pod",
         "multi": false,
         "name": "h_pod",
         "options": [],
-        "query": "select pod_name, enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource' and \"pod_name\" = '$pod'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'AlamedaScaler' = '$resource' )",
+        "query": "select pod_name, enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource' and \"pod_name\" = '$pod'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and 'Application' = '$resource' )",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2703,17 +2703,17 @@
         "allValue": null,
         "current": {
           "text": "busybox",
-          "value": "busybox"
+          "value": "__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and \"pod_name\" =~ /^[[namespace_pod]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" =~ /^[[alamedascaler_pod]]$/ and 'AlamedaScaler' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
+        "definition": "select \"name\", enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and \"pod_name\" =~ /^[[namespace_pod]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" =~ /^[[alamedascaler_pod]]$/ and 'Application' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
         "hide": 2,
         "includeAll": true,
         "label": "h_container",
         "multi": false,
         "name": "h_container",
         "options": [],
-        "query": "select \"name\", enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and \"pod_name\" =~ /^[[namespace_pod]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" =~ /^[[alamedascaler_pod]]$/ and 'AlamedaScaler' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
+        "query": "select \"name\", enable_VPA from (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[namespace_scaler]]$/ and \"pod_name\" =~ /^[[namespace_pod]]$/ and 'Namespace' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" =~ /^[[alamedascaler_pod]]$/ and 'Application' = '$resource'), (select * from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
