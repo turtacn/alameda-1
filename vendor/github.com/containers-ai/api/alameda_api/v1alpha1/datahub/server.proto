@@ -3,15 +3,16 @@ syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
 
+import "common/common.proto";
+import "alameda_api/v1alpha1/datahub/metadata.proto";
+import "alameda_api/v1alpha1/datahub/metric.proto";
+import "alameda_api/v1alpha1/datahub/planning.proto";
+import "alameda_api/v1alpha1/datahub/predict.proto";
+import "alameda_api/v1alpha1/datahub/recommendation.proto";
+import "alameda_api/v1alpha1/datahub/resource.proto";
+import "alameda_api/v1alpha1/datahub/score.proto";
 import "google/protobuf/empty.proto";
 import "google/rpc/status.proto";
-import "alameda_api/v1alpha1/datahub/metadata.proto";
-import "alameda_api/v1alpha1/datahub/predict.proto";
-import "alameda_api/v1alpha1/datahub/metric.proto";
-import "alameda_api/v1alpha1/datahub/resource.proto";
-import "alameda_api/v1alpha1/datahub/recommendation.proto";
-import "alameda_api/v1alpha1/datahub/score.proto";
-import "common/common.proto";
 
 message QueryCondition {
     TimeRange time_range = 1;
@@ -25,16 +26,17 @@ message QueryCondition {
 
 /**
  * Represents a request for listing metric data of a pod
- * 
+ *
  */
 message ListPodMetricsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
+    uint64 rate_range = 3;
 }
 
 /**
  * Represents a response for a listing pod metric data request
- * 
+ *
  */
 message ListPodMetricsResponse {
     google.rpc.Status status = 1;
@@ -43,7 +45,7 @@ message ListPodMetricsResponse {
 
 /**
  * Represents a request for listing metric data of a node
- * 
+ *
  */
 message ListNodeMetricsRequest {
     repeated string node_names = 1;
@@ -52,7 +54,7 @@ message ListNodeMetricsRequest {
 
 /**
  * Represents a response for a listing node metrics request
- * 
+ *
  */
 message ListNodeMetricsResponse {
     google.rpc.Status status = 1;
@@ -61,7 +63,7 @@ message ListNodeMetricsResponse {
 
 /**
  * Represents a response for a listing pods request
- * 
+ *
  */
 message ListPodsResponse {
     google.rpc.Status status = 1;
@@ -70,7 +72,7 @@ message ListPodsResponse {
 
 /**
  * Represents a request for listing pods that need to be predicted
- * 
+ *
  */
 message ListAlamedaPodsRequest {
     NamespacedName namespaced_name = 1;
@@ -88,7 +90,7 @@ message ListAlamedaNodesRequest {
 
 /**
  * Represents a request for listing nodes' information
- * 
+ *
  */
 message ListNodesRequest {
     repeated string node_names = 1;
@@ -96,7 +98,7 @@ message ListNodesRequest {
 
 /**
  * Represents a response for a listing nodes request
- * 
+ *
  */
 message ListNodesResponse {
     google.rpc.Status status = 1;
@@ -115,7 +117,7 @@ message ListControllersResponse {
 
 /**
  * Represents a request for listing predictions of pods
- * 
+ *
  */
 message ListPodPredictionsRequest {
     NamespacedName namespaced_name = 1;
@@ -126,7 +128,7 @@ message ListPodPredictionsRequest {
 
 /**
  * Represents a response for a listing predictions of pods request
- * 
+ *
  */
 message ListPodPredictionsResponse {
     google.rpc.Status status = 1;
@@ -135,7 +137,7 @@ message ListPodPredictionsResponse {
 
 /**
  * Represents a request for listing predictions of nodes
- * 
+ *
  */
 message ListNodePredictionsRequest {
     repeated string node_names = 1;
@@ -145,7 +147,7 @@ message ListNodePredictionsRequest {
 
 /**
  * Represents a response for a listing predictions of nodes request
- * 
+ *
  */
 message ListNodePredictionsResponse {
     google.rpc.Status status = 1;
@@ -154,7 +156,7 @@ message ListNodePredictionsResponse {
 
 /**
  * Represents a request for listing recommendations of pods
- * 
+ *
  */
 message ListPodRecommendationsRequest {
     NamespacedName namespaced_name = 1;
@@ -165,7 +167,7 @@ message ListPodRecommendationsRequest {
 
 /**
  * Represents a response for listing pod recommendations request
- * 
+ *
  */
 message ListPodRecommendationsResponse {
     google.rpc.Status status = 1;
@@ -173,7 +175,7 @@ message ListPodRecommendationsResponse {
 }
 
 /**
- * Represents a request for listing recommendations of pods
+ * Represents a request for listing recommendations of controllers
  *
  */
 message ListControllerRecommendationsRequest {
@@ -183,7 +185,7 @@ message ListControllerRecommendationsRequest {
 }
 
 /**
- * Represents a response for listing pod recommendations request
+ * Represents a response for listing controller recommendations request
  *
  */
 message ListControllerRecommendationsResponse {
@@ -192,8 +194,49 @@ message ListControllerRecommendationsResponse {
 }
 
 /**
+ * Represents a request for listing plannings of pods
+ *
+ */
+message ListPodPlanningsRequest {
+    NamespacedName namespaced_name = 1;
+    QueryCondition query_condition = 2;
+    Kind kind = 3;
+    int64 granularity = 4;
+    PlanningType planning_type = 5;
+}
+
+/**
+ * Represents a response for listing pod plannings request
+ *
+ */
+message ListPodPlanningsResponse {
+    google.rpc.Status status = 1;
+    repeated PodPlanning pod_plannings = 2;
+}
+
+/**
+ * Represents a request for listing plannings of controllers
+ *
+ */
+message ListControllerPlanningsRequest {
+    NamespacedName namespaced_name = 1;
+    QueryCondition query_condition = 2;
+    ControllerPlanningType ctl_planning_type = 3;
+    PlanningType planning_type = 4;
+}
+
+/**
+ * Represents a response for listing controller plannings request
+ *
+ */
+message ListControllerPlanningsResponse {
+    google.rpc.Status status = 1;
+    repeated ControllerPlanning controller_plannings = 2;
+}
+
+/**
  * Represents a request for listing pods by nodes' name
- * 
+ *
  */
 message ListPodsByNodeNamesRequest {
     repeated string node_names = 1;
@@ -201,7 +244,7 @@ message ListPodsByNodeNamesRequest {
 
 /**
  * Represents a request for listing system scores of pod scheduled on node
- * 
+ *
  */
 message ListSimulatedSchedulingScoresRequest {
     QueryCondition query_condition = 1;
@@ -209,12 +252,12 @@ message ListSimulatedSchedulingScoresRequest {
 
 /**
  * Represents a response for listing system scores request
- * 
+ *
  */
 message ListSimulatedSchedulingScoresResponse {
     google.rpc.Status status = 1;
     repeated SimulatedSchedulingScore scores = 2;
-} 
+}
 
 /**
  * Represents a request for creating predictions of containers' metric data belonging to a pod
@@ -225,7 +268,7 @@ message CreatePodPredictionsRequest {
 
 /**
  * Represents a request for creating predictions of a node metric data
- * 
+ *
  */
 message CreateNodePredictionsRequest {
     repeated NodePrediction node_predictions = 1;
@@ -233,7 +276,7 @@ message CreateNodePredictionsRequest {
 
 /**
  * Represents a request for creating a pod's recommendation
- * 
+ *
  */
 message CreatePodRecommendationsRequest {
     repeated PodRecommendation pod_recommendations = 1;
@@ -249,8 +292,25 @@ message CreateControllerRecommendationsRequest {
 }
 
 /**
+ * Represents a request for creating a pod's plannings
+ *
+ */
+message CreatePodPlanningsRequest {
+    repeated PodPlanning pod_plannings = 1;
+    int64 granularity = 2;
+}
+
+/**
+ * Represents a request for creating a controller's plannings
+ *
+ */
+message CreateControllerPlanningsRequest {
+    repeated ControllerPlanning controller_plannings = 1;
+}
+
+/**
  * Represents a request for creating pods
- * 
+ *
  */
 message CreatePodsRequest {
     repeated Pod pods = 1;
@@ -262,7 +322,7 @@ message CreateControllersRequest {
 
 /**
  * Represents a request for adding nodes that need to be predicted
- * 
+ *
  */
 message CreateAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
@@ -270,7 +330,7 @@ message CreateAlamedaNodesRequest {
 
 /**
  * Represents a request for adding scheduling scores produced by ai engine
- * 
+ *
  */
 message CreateSimulatedSchedulingScoresRequest {
     repeated SimulatedSchedulingScore scores = 1;
@@ -278,7 +338,7 @@ message CreateSimulatedSchedulingScoresRequest {
 
 /**
  * Represents a request for deleting pods data
- * 
+ *
  */
 message DeletePodsRequest {
     repeated Pod pods = 1;
@@ -289,8 +349,8 @@ message DeleteControllersRequest {
 }
 
 /**
- * Represents a request for stoping predicting nodes 
- * 
+ * Represents a request for stoping predicting nodes
+ *
  */
 message DeleteAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
@@ -344,7 +404,7 @@ message WriteRawdataRequest {
  * Service for providing data stored in the backend
  */
 service DatahubService {
-    
+
     // Used to list pod metric data
     rpc ListPodMetrics(ListPodMetricsRequest)
         returns (ListPodMetricsResponse) {}
@@ -388,13 +448,21 @@ service DatahubService {
     rpc ListControllerRecommendations(ListControllerRecommendationsRequest)
         returns (ListControllerRecommendationsResponse) {}
 
+    // Used to list pod plannings
+    rpc ListPodPlannings(ListPodPlanningsRequest)
+        returns (ListPodPlanningsResponse) {}
+
+    // Used to list controller plannings
+    rpc ListControllerPlannings(ListControllerPlanningsRequest)
+        returns (ListControllerPlanningsResponse) {}
+
     // Used to list pods by a node name
     rpc ListPodsByNodeName(ListPodsByNodeNamesRequest)
-        returns (ListPodsResponse) {} 
-        
+        returns (ListPodsResponse) {}
+
     // Used to list system scores
     rpc ListSimulatedSchedulingScores(ListSimulatedSchedulingScoresRequest)
-        returns (ListSimulatedSchedulingScoresResponse) {} 
+        returns (ListSimulatedSchedulingScoresResponse) {}
 
     // Used to add pods that need to be predicted
     rpc CreatePods(CreatePodsRequest)
@@ -402,7 +470,7 @@ service DatahubService {
 
     rpc CreateControllers(CreateControllersRequest)
         returns (google.rpc.Status){}
-    
+
     // Used to add nodes that need to be predicted
     rpc CreateAlamedaNodes(CreateAlamedaNodesRequest)
         returns (google.rpc.Status){}
@@ -423,9 +491,17 @@ service DatahubService {
     rpc CreateControllerRecommendations(CreateControllerRecommendationsRequest)
         returns (google.rpc.Status) {}
 
-    // Used to create scores of system 
+    // Used to create plannings of pods
+    rpc CreatePodPlannings(CreatePodPlanningsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to create plannings of controller
+    rpc CreateControllerPlannings(CreateControllerPlanningsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to create scores of system
     rpc CreateSimulatedSchedulingScores(CreateSimulatedSchedulingScoresRequest)
-        returns (google.rpc.Status) {} 
+        returns (google.rpc.Status) {}
 
     // Used to delete info of pods
     rpc DeletePods(DeletePodsRequest)
@@ -450,7 +526,7 @@ service DatahubService {
     rpc Ping(google.protobuf.Empty)
         returns (google.rpc.Status) {}
 
-    //weave scope--------------------------------------------------
+    // weave scope--------------------------------------------------
     rpc ListWeaveScopeHosts(ListWeaveScopeHostsRequest)
         returns (WeaveScopeResponse){}
 

@@ -15,8 +15,8 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 from alameda_api.v1alpha1.datahub import metadata_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2
-from alameda_api.v1alpha1.datahub import pod_assignment_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2
 from alameda_api.v1alpha1.datahub import metric_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2
+from alameda_api.v1alpha1.datahub import pod_assignment_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2
 from alameda_api.v1alpha1.datahub import resource_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resource__pb2
 
 
@@ -25,9 +25,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n1alameda_api/v1alpha1/datahub/recommendation.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\x1a\x31\x61lameda_api/v1alpha1/datahub/pod_assignment.proto\x1a)alameda_api/v1alpha1/datahub/metric.proto\x1a+alameda_api/v1alpha1/datahub/resource.proto\"\x87\x03\n\x17\x43ontainerRecommendation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12Q\n\x15limit_recommendations\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12S\n\x17request_recommendations\x18\x03 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12Y\n\x1dinitial_limit_recommendations\x18\x04 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12[\n\x1finitial_request_recommendations\x18\x05 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xf4\x01\n\x0f\x41ssignPodPolicy\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12M\n\rnode_priority\x18\x02 \x01(\x0b\x32\x34.containers_ai.alameda.v1alpha1.datahub.NodePriorityH\x00\x12I\n\rnode_selector\x18\x03 \x01(\x0b\x32\x30.containers_ai.alameda.v1alpha1.datahub.SelectorH\x00\x12\x13\n\tnode_name\x18\x04 \x01(\tH\x00\x42\x08\n\x06policy\"\x86\x04\n\x11PodRecommendation\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12 \n\x18\x61pply_recommendation_now\x18\x02 \x01(\x08\x12R\n\x11\x61ssign_pod_policy\x18\x03 \x01(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy\x12\x62\n\x19\x63ontainer_recommendations\x18\x04 \x03(\x0b\x32?.containers_ai.alameda.v1alpha1.datahub.ContainerRecommendation\x12.\n\nstart_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12M\n\x0etop_controller\x18\x07 \x01(\x0b\x32\x35.containers_ai.alameda.v1alpha1.datahub.TopController\x12\x19\n\x11recommendation_id\x18\x08 \x01(\t\"\xb8\x02\n\x18\x43ontrollerRecommendation\x12[\n\x10recommended_type\x18\x01 \x01(\x0e\x32\x41.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedType\x12[\n\x10recommended_spec\x18\x02 \x01(\x0b\x32\x41.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedSpec\x12\x62\n\x14recommended_spec_k8s\x18\x03 \x01(\x0b\x32\x44.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedSpecK8s\"\xe3\x03\n\x19\x43ontrollerRecommendedSpec\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12:\n\x04kind\x18\x02 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x18\n\x10\x63urrent_replicas\x18\x03 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x04 \x01(\x05\x12(\n\x04time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14\x63urrent_cpu_requests\x18\x07 \x01(\x02\x12\x1c\n\x14\x63urrent_mem_requests\x18\x08 \x01(\x02\x12\x1a\n\x12\x63urrent_cpu_limits\x18\t \x01(\x02\x12\x1a\n\x12\x63urrent_mem_limits\x18\n \x01(\x02\x12\x1a\n\x12\x64\x65sired_cpu_limits\x18\x0b \x01(\x02\x12\x1a\n\x12\x64\x65sired_mem_limits\x18\x0c \x01(\x02\"\xba\x02\n\x1c\x43ontrollerRecommendedSpecK8s\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12:\n\x04kind\x18\x02 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x18\n\x10\x63urrent_replicas\x18\x03 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x04 \x01(\x05\x12(\n\x04time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*N\n\x19\x43ontrollerRecommendedType\x12\x11\n\rCRT_Undefined\x10\x00\x12\x11\n\rCRT_Primitive\x10\x01\x12\x0b\n\x07\x43RT_K8s\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n1alameda_api/v1alpha1/datahub/recommendation.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\x1a)alameda_api/v1alpha1/datahub/metric.proto\x1a\x31\x61lameda_api/v1alpha1/datahub/pod_assignment.proto\x1a+alameda_api/v1alpha1/datahub/resource.proto\"\x87\x03\n\x17\x43ontainerRecommendation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12Q\n\x15limit_recommendations\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12S\n\x17request_recommendations\x18\x03 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12Y\n\x1dinitial_limit_recommendations\x18\x04 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12[\n\x1finitial_request_recommendations\x18\x05 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\x86\x04\n\x11PodRecommendation\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12 \n\x18\x61pply_recommendation_now\x18\x02 \x01(\x08\x12R\n\x11\x61ssign_pod_policy\x18\x03 \x01(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy\x12\x62\n\x19\x63ontainer_recommendations\x18\x04 \x03(\x0b\x32?.containers_ai.alameda.v1alpha1.datahub.ContainerRecommendation\x12.\n\nstart_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12M\n\x0etop_controller\x18\x07 \x01(\x0b\x32\x35.containers_ai.alameda.v1alpha1.datahub.TopController\x12\x19\n\x11recommendation_id\x18\x08 \x01(\t\"\xb8\x02\n\x18\x43ontrollerRecommendation\x12[\n\x10recommended_type\x18\x01 \x01(\x0e\x32\x41.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedType\x12[\n\x10recommended_spec\x18\x02 \x01(\x0b\x32\x41.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedSpec\x12\x62\n\x14recommended_spec_k8s\x18\x03 \x01(\x0b\x32\x44.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedSpecK8s\"\xe3\x03\n\x19\x43ontrollerRecommendedSpec\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12:\n\x04kind\x18\x02 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x18\n\x10\x63urrent_replicas\x18\x03 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x04 \x01(\x05\x12(\n\x04time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14\x63urrent_cpu_requests\x18\x07 \x01(\x02\x12\x1c\n\x14\x63urrent_mem_requests\x18\x08 \x01(\x02\x12\x1a\n\x12\x63urrent_cpu_limits\x18\t \x01(\x02\x12\x1a\n\x12\x63urrent_mem_limits\x18\n \x01(\x02\x12\x1a\n\x12\x64\x65sired_cpu_limits\x18\x0b \x01(\x02\x12\x1a\n\x12\x64\x65sired_mem_limits\x18\x0c \x01(\x02\"\xba\x02\n\x1c\x43ontrollerRecommendedSpecK8s\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12:\n\x04kind\x18\x02 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x18\n\x10\x63urrent_replicas\x18\x03 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x04 \x01(\x05\x12(\n\x04time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*N\n\x19\x43ontrollerRecommendedType\x12\x11\n\rCRT_Undefined\x10\x00\x12\x11\n\rCRT_Primitive\x10\x01\x12\x0b\n\x07\x43RT_K8s\x10\x02\x62\x06proto3')
   ,
-  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resource__pb2.DESCRIPTOR,])
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resource__pb2.DESCRIPTOR,])
 
 _CONTROLLERRECOMMENDEDTYPE = _descriptor.EnumDescriptor(
   name='ControllerRecommendedType',
@@ -50,8 +50,8 @@ _CONTROLLERRECOMMENDEDTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2590,
-  serialized_end=2668,
+  serialized_start=2343,
+  serialized_end=2421,
 )
 _sym_db.RegisterEnumDescriptor(_CONTROLLERRECOMMENDEDTYPE)
 
@@ -118,61 +118,6 @@ _CONTAINERRECOMMENDATION = _descriptor.Descriptor(
   ],
   serialized_start=311,
   serialized_end=702,
-)
-
-
-_ASSIGNPODPOLICY = _descriptor.Descriptor(
-  name='AssignPodPolicy',
-  full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='time', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.time', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='node_priority', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.node_priority', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='node_selector', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.node_selector', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='node_name', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.node_name', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-    _descriptor.OneofDescriptor(
-      name='policy', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.policy',
-      index=0, containing_type=None, fields=[]),
-  ],
-  serialized_start=705,
-  serialized_end=949,
 )
 
 
@@ -251,8 +196,8 @@ _PODRECOMMENDATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=952,
-  serialized_end=1470,
+  serialized_start=705,
+  serialized_end=1223,
 )
 
 
@@ -296,8 +241,8 @@ _CONTROLLERRECOMMENDATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1473,
-  serialized_end=1785,
+  serialized_start=1226,
+  serialized_end=1538,
 )
 
 
@@ -404,8 +349,8 @@ _CONTROLLERRECOMMENDEDSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1788,
-  serialized_end=2271,
+  serialized_start=1541,
+  serialized_end=2024,
 )
 
 
@@ -470,28 +415,16 @@ _CONTROLLERRECOMMENDEDSPECK8S = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2274,
-  serialized_end=2588,
+  serialized_start=2027,
+  serialized_end=2341,
 )
 
 _CONTAINERRECOMMENDATION.fields_by_name['limit_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
 _CONTAINERRECOMMENDATION.fields_by_name['request_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
 _CONTAINERRECOMMENDATION.fields_by_name['initial_limit_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
 _CONTAINERRECOMMENDATION.fields_by_name['initial_request_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
-_ASSIGNPODPOLICY.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_ASSIGNPODPOLICY.fields_by_name['node_priority'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2._NODEPRIORITY
-_ASSIGNPODPOLICY.fields_by_name['node_selector'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2._SELECTOR
-_ASSIGNPODPOLICY.oneofs_by_name['policy'].fields.append(
-  _ASSIGNPODPOLICY.fields_by_name['node_priority'])
-_ASSIGNPODPOLICY.fields_by_name['node_priority'].containing_oneof = _ASSIGNPODPOLICY.oneofs_by_name['policy']
-_ASSIGNPODPOLICY.oneofs_by_name['policy'].fields.append(
-  _ASSIGNPODPOLICY.fields_by_name['node_selector'])
-_ASSIGNPODPOLICY.fields_by_name['node_selector'].containing_oneof = _ASSIGNPODPOLICY.oneofs_by_name['policy']
-_ASSIGNPODPOLICY.oneofs_by_name['policy'].fields.append(
-  _ASSIGNPODPOLICY.fields_by_name['node_name'])
-_ASSIGNPODPOLICY.fields_by_name['node_name'].containing_oneof = _ASSIGNPODPOLICY.oneofs_by_name['policy']
 _PODRECOMMENDATION.fields_by_name['namespaced_name'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2._NAMESPACEDNAME
-_PODRECOMMENDATION.fields_by_name['assign_pod_policy'].message_type = _ASSIGNPODPOLICY
+_PODRECOMMENDATION.fields_by_name['assign_pod_policy'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_pod__assignment__pb2._ASSIGNPODPOLICY
 _PODRECOMMENDATION.fields_by_name['container_recommendations'].message_type = _CONTAINERRECOMMENDATION
 _PODRECOMMENDATION.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _PODRECOMMENDATION.fields_by_name['end_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -508,7 +441,6 @@ _CONTROLLERRECOMMENDEDSPECK8S.fields_by_name['kind'].enum_type = alameda__api_do
 _CONTROLLERRECOMMENDEDSPECK8S.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _CONTROLLERRECOMMENDEDSPECK8S.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 DESCRIPTOR.message_types_by_name['ContainerRecommendation'] = _CONTAINERRECOMMENDATION
-DESCRIPTOR.message_types_by_name['AssignPodPolicy'] = _ASSIGNPODPOLICY
 DESCRIPTOR.message_types_by_name['PodRecommendation'] = _PODRECOMMENDATION
 DESCRIPTOR.message_types_by_name['ControllerRecommendation'] = _CONTROLLERRECOMMENDATION
 DESCRIPTOR.message_types_by_name['ControllerRecommendedSpec'] = _CONTROLLERRECOMMENDEDSPEC
@@ -522,13 +454,6 @@ ContainerRecommendation = _reflection.GeneratedProtocolMessageType('ContainerRec
   # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.ContainerRecommendation)
   ))
 _sym_db.RegisterMessage(ContainerRecommendation)
-
-AssignPodPolicy = _reflection.GeneratedProtocolMessageType('AssignPodPolicy', (_message.Message,), dict(
-  DESCRIPTOR = _ASSIGNPODPOLICY,
-  __module__ = 'alameda_api.v1alpha1.datahub.recommendation_pb2'
-  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy)
-  ))
-_sym_db.RegisterMessage(AssignPodPolicy)
 
 PodRecommendation = _reflection.GeneratedProtocolMessageType('PodRecommendation', (_message.Message,), dict(
   DESCRIPTOR = _PODRECOMMENDATION,

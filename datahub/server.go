@@ -43,6 +43,8 @@ import (
 
 	influxdbBase "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	prometheusBase "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus"
+	DaoPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/planning"
+	DaoPlanningImpl "github.com/containers-ai/alameda/datahub/pkg/dao/planning/impl"
 )
 
 type Server struct {
@@ -777,6 +779,67 @@ func (s *Server) ListControllerRecommendations(ctx context.Context, in *datahub_
 	return response, nil
 }
 
+// ListPodPlannings list pod plannings
+func (s *Server) ListPodPlannings(ctx context.Context, in *datahub_v1alpha1.ListPodPlanningsRequest) (*datahub_v1alpha1.ListPodPlanningsResponse, error) {
+	scope.Debug("Request received from ListPodPlannings grpc function: " + utils.InterfaceToString(in))
+
+	var containerDAO DaoPlanning.ContainerOperation = &DaoPlanningImpl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	podPlannings, err := containerDAO.ListPodPlannings(in)
+	if err != nil {
+		scope.Error(err.Error())
+		return &datahub_v1alpha1.ListPodPlanningsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	res := &datahub_v1alpha1.ListPodPlanningsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		PodPlannings: podPlannings,
+	}
+	scope.Debug("Response sent from ListPodPlannings grpc function: " + utils.InterfaceToString(res))
+	return res, nil
+}
+
+// ListControllerPlannings list controller plannings
+func (s *Server) ListControllerPlannings(ctx context.Context, in *datahub_v1alpha1.ListControllerPlanningsRequest) (*datahub_v1alpha1.ListControllerPlanningsResponse, error) {
+	scope.Debug("Request received from ListControllerPlannings grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := &DaoPlanningImpl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	controllerPlannings, err := controllerDAO.ListControllerPlannings(in)
+	if err != nil {
+		scope.Errorf("api ListControllerPlannings failed: %v", err)
+		response := &datahub_v1alpha1.ListControllerPlanningsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+			ControllerPlannings: controllerPlannings,
+		}
+		return response, nil
+	}
+
+	response := &datahub_v1alpha1.ListControllerPlanningsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		ControllerPlannings: controllerPlannings,
+	}
+
+	scope.Debug("Response sent from ListControllerPlannings grpc function: " + utils.InterfaceToString(response))
+	return response, nil
+}
+
 // ListPodsByNodeName list pods running on specific nodes
 func (s *Server) ListPodsByNodeName(ctx context.Context, in *datahub_v1alpha1.ListPodsByNodeNamesRequest) (*datahub_v1alpha1.ListPodsResponse, error) {
 	scope.Debug("Request received from ListPodsByNodeName grpc function: " + utils.InterfaceToString(in))
@@ -1030,6 +1093,51 @@ func (s *Server) CreateControllerRecommendations(ctx context.Context, in *datahu
 
 	controllerRecommendationList := in.GetControllerRecommendations()
 	err := controllerDAO.AddControllerRecommendations(controllerRecommendationList)
+
+	if err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, err
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+// CreatePodPlannings add pod plannings information to database
+func (s *Server) CreatePodPlannings(ctx context.Context, in *datahub_v1alpha1.CreatePodPlanningsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreatePodPlannings grpc function: " + utils.InterfaceToString(in))
+
+	var containerDAO DaoPlanning.ContainerOperation = &DaoPlanningImpl.Container{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	if err := containerDAO.AddPodPlannings(in); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, err
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+// CreateControllerPlannings add controller plannings information to database
+func (s *Server) CreateControllerPlannings(ctx context.Context, in *datahub_v1alpha1.CreateControllerPlanningsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateControllerPlannings grpc function: " + utils.InterfaceToString(in))
+
+	controllerDAO := DaoPlanningImpl.Controller{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+
+	controllerPlanningList := in.GetControllerPlannings()
+	err := controllerDAO.AddControllerPlannings(controllerPlanningList)
 
 	if err != nil {
 		scope.Error(err.Error())

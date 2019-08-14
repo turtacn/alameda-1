@@ -3,6 +3,8 @@ syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
 
+import "google/protobuf/timestamp.proto";
+
 /**
  * Represents the priority of a node
  */
@@ -12,4 +14,17 @@ message NodePriority {
 
 message Selector {
     map<string, string> selector = 1;
+}
+
+/**
+ * Represents a recommended pod-to-node assignment (i.e. pod placement)
+ *
+ */
+message AssignPodPolicy {
+    google.protobuf.Timestamp time = 1;
+    oneof policy {
+        NodePriority node_priority = 2;
+        Selector node_selector = 3;
+        string node_name = 4;
+    };
 }

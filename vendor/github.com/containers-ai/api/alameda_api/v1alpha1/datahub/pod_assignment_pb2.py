@@ -12,6 +12,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -19,8 +20,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n1alameda_api/v1alpha1/datahub/pod_assignment.proto\x12&containers_ai.alameda.v1alpha1.datahub\"\x1d\n\x0cNodePriority\x12\r\n\x05nodes\x18\x01 \x03(\t\"\x8d\x01\n\x08Selector\x12P\n\x08selector\x18\x01 \x03(\x0b\x32>.containers_ai.alameda.v1alpha1.datahub.Selector.SelectorEntry\x1a/\n\rSelectorEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x62\x06proto3')
-)
+  serialized_pb=_b('\n1alameda_api/v1alpha1/datahub/pod_assignment.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\"\x1d\n\x0cNodePriority\x12\r\n\x05nodes\x18\x01 \x03(\t\"\x8d\x01\n\x08Selector\x12P\n\x08selector\x18\x01 \x03(\x0b\x32>.containers_ai.alameda.v1alpha1.datahub.Selector.SelectorEntry\x1a/\n\rSelectorEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf4\x01\n\x0f\x41ssignPodPolicy\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12M\n\rnode_priority\x18\x02 \x01(\x0b\x32\x34.containers_ai.alameda.v1alpha1.datahub.NodePriorityH\x00\x12I\n\rnode_selector\x18\x03 \x01(\x0b\x32\x30.containers_ai.alameda.v1alpha1.datahub.SelectorH\x00\x12\x13\n\tnode_name\x18\x04 \x01(\tH\x00\x42\x08\n\x06policyb\x06proto3')
+  ,
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 
 
@@ -51,8 +53,8 @@ _NODEPRIORITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=93,
-  serialized_end=122,
+  serialized_start=126,
+  serialized_end=155,
 )
 
 
@@ -89,8 +91,8 @@ _SELECTOR_SELECTORENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=219,
-  serialized_end=266,
+  serialized_start=252,
+  serialized_end=299,
 )
 
 _SELECTOR = _descriptor.Descriptor(
@@ -119,14 +121,82 @@ _SELECTOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=125,
-  serialized_end=266,
+  serialized_start=158,
+  serialized_end=299,
+)
+
+
+_ASSIGNPODPOLICY = _descriptor.Descriptor(
+  name='AssignPodPolicy',
+  full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='time', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.time', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='node_priority', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.node_priority', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='node_selector', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.node_selector', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='node_name', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.node_name', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='policy', full_name='containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy.policy',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=302,
+  serialized_end=546,
 )
 
 _SELECTOR_SELECTORENTRY.containing_type = _SELECTOR
 _SELECTOR.fields_by_name['selector'].message_type = _SELECTOR_SELECTORENTRY
+_ASSIGNPODPOLICY.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_ASSIGNPODPOLICY.fields_by_name['node_priority'].message_type = _NODEPRIORITY
+_ASSIGNPODPOLICY.fields_by_name['node_selector'].message_type = _SELECTOR
+_ASSIGNPODPOLICY.oneofs_by_name['policy'].fields.append(
+  _ASSIGNPODPOLICY.fields_by_name['node_priority'])
+_ASSIGNPODPOLICY.fields_by_name['node_priority'].containing_oneof = _ASSIGNPODPOLICY.oneofs_by_name['policy']
+_ASSIGNPODPOLICY.oneofs_by_name['policy'].fields.append(
+  _ASSIGNPODPOLICY.fields_by_name['node_selector'])
+_ASSIGNPODPOLICY.fields_by_name['node_selector'].containing_oneof = _ASSIGNPODPOLICY.oneofs_by_name['policy']
+_ASSIGNPODPOLICY.oneofs_by_name['policy'].fields.append(
+  _ASSIGNPODPOLICY.fields_by_name['node_name'])
+_ASSIGNPODPOLICY.fields_by_name['node_name'].containing_oneof = _ASSIGNPODPOLICY.oneofs_by_name['policy']
 DESCRIPTOR.message_types_by_name['NodePriority'] = _NODEPRIORITY
 DESCRIPTOR.message_types_by_name['Selector'] = _SELECTOR
+DESCRIPTOR.message_types_by_name['AssignPodPolicy'] = _ASSIGNPODPOLICY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 NodePriority = _reflection.GeneratedProtocolMessageType('NodePriority', (_message.Message,), dict(
@@ -150,6 +220,13 @@ Selector = _reflection.GeneratedProtocolMessageType('Selector', (_message.Messag
   ))
 _sym_db.RegisterMessage(Selector)
 _sym_db.RegisterMessage(Selector.SelectorEntry)
+
+AssignPodPolicy = _reflection.GeneratedProtocolMessageType('AssignPodPolicy', (_message.Message,), dict(
+  DESCRIPTOR = _ASSIGNPODPOLICY,
+  __module__ = 'alameda_api.v1alpha1.datahub.pod_assignment_pb2'
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.AssignPodPolicy)
+  ))
+_sym_db.RegisterMessage(AssignPodPolicy)
 
 
 _SELECTOR_SELECTORENTRY._options = None
