@@ -280,11 +280,11 @@
     {
       "cacheTimeout": null,
       "colorBackground": false,
-      "colorValue": false,
+      "colorValue": true,
       "colors": [
         "#299c46",
         "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
+        "#f2c96d"
       ],
       "datasource": "InfluxDB",
       "format": "none",
@@ -378,7 +378,7 @@
           "tags": []
         }
       ],
-      "thresholds": "",
+      "thresholds": "0,0",
       "title": "Desired replica",
       "type": "singlestat",
       "valueFontSize": "80%",
