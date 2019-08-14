@@ -171,6 +171,38 @@
           "unit": "short"
         },
         {
+          "alias": "Application Name",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "alameda_scaler_name",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Application Namespace",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "alameda_scaler_namespace",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -227,7 +259,7 @@
           "tags": []
         }
       ],
-      "title": "Managed Controllers with HPA ScalingTool per Selected AlamedaScaler",
+      "title": "Managed Controllers with HPA ScalingTool per Selected Application",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -1608,7 +1640,7 @@
         "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
         "hide": 0,
         "includeAll": false,
-        "label": "AlamedaScaler",
+        "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],

@@ -141,7 +141,7 @@
           "unit": "short"
         },
         {
-          "alias": "AlamedaScaler Name",
+          "alias": "Application Name",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -984,7 +984,7 @@
         "definition": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and enable_VPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
         "hide": 0,
         "includeAll": false,
-        "label": "AlamedaScaler",
+        "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],
@@ -1077,7 +1077,7 @@
     ]
   },
   "timezone": "",
-  "title": "Per AlamedaScaler VPA Resource Recommendations",
+  "title": "Per Application VPA Resource Recommendations",
   "uid": "awdhhqw",
   "version": 1
 }
