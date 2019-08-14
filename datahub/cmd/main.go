@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/containers-ai/alameda/cmd/app"
-	datahub_app "github.com/containers-ai/alameda/datahub/cmd/app"
+	DatahubApp "github.com/containers-ai/alameda/datahub/cmd/app"
 )
 
 var (
-	// VERSION is sofeware version
+	// VERSION is software version
 	VERSION string
 	// BUILD_TIME is build time
 	BUILD_TIME string
@@ -26,5 +26,5 @@ func setSoftwareInfo() {
 }
 
 func main() {
-	datahub_app.RootCmd.Execute()
+	DatahubApp.RootCmd.Execute()
 }

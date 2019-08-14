@@ -1,0 +1,75 @@
+/// This file has messages related to plannings of containers, pods, and controllers
+syntax = "proto3";
+
+package containers_ai.alameda.v1alpha1.datahub;
+
+import "google/protobuf/timestamp.proto";
+import "alameda_api/v1alpha1/datahub/metadata.proto";
+import "alameda_api/v1alpha1/datahub/metric.proto";
+import "alameda_api/v1alpha1/datahub/pod_assignment.proto";
+import "alameda_api/v1alpha1/datahub/resource.proto";
+
+enum PlanningType {
+    PT_UNDEFINED      = 0;
+    PT_RECOMMENDATION = 1;
+    PT_PLANNING       = 2;
+}
+
+enum ControllerPlanningType {
+    CPT_UNDEFINED = 0;
+    CPT_PRIMITIVE = 1;
+    CPT_K8S       = 2;
+}
+
+message ContainerPlanning {
+    string   name                                 = 1;
+    repeated MetricData limit_plannings           = 2;
+    repeated MetricData request_plannings         = 3;
+    repeated MetricData initial_limit_plannings   = 4;
+    repeated MetricData initial_request_plannings = 5;
+}
+
+message PodPlanning {
+    PlanningType               planning_type       = 1;
+    NamespacedName             namespaced_name     = 2;
+    bool                       apply_planning_now  = 3;
+    AssignPodPolicy            assign_pod_policy   = 4;
+    repeated ContainerPlanning container_plannings = 5;
+    google.protobuf.Timestamp  start_time          = 6;
+    google.protobuf.Timestamp  end_time            = 7;
+    TopController              top_controller      = 8;
+    string                     planning_id         = 9;
+    double                     total_cost          = 10;
+}
+
+message ControllerPlanning {
+    PlanningType              planning_type         = 1;
+    ControllerPlanningType    ctl_planning_type     = 2;
+    ControllerPlanningSpec    ctl_planning_spec     = 3;
+    ControllerPlanningSpecK8s ctl_planning_spec_k8s = 4;
+}
+
+message ControllerPlanningSpec {
+    NamespacedName            namespaced_name      = 1;
+    Kind                      kind                 = 2;
+    int32                     current_replicas     = 3;
+    int32                     desired_replicas     = 4;
+    google.protobuf.Timestamp time                 = 5;
+    google.protobuf.Timestamp create_time          = 6;
+    double                    current_cpu_requests = 7;
+    double                    current_mem_requests = 8;
+    double                    current_cpu_limits   = 9;
+    double                    current_mem_limits   = 10;
+    double                    desired_cpu_limits   = 11;
+    double                    desired_mem_limits   = 12;
+    double                    total_cost           = 13;
+}
+
+message ControllerPlanningSpecK8s {
+    NamespacedName            namespaced_name  = 1;
+    Kind                      kind             = 2;
+    int32                     current_replicas = 3;
+    int32                     desired_replicas = 4;
+    google.protobuf.Timestamp time             = 5;
+    google.protobuf.Timestamp create_time      = 6;
+}

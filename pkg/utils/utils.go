@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	Common "github.com/containers-ai/api/common"
 	"os"
+	"time"
 )
 
 // InterfaceToString encodes interface to string
@@ -13,6 +16,11 @@ func InterfaceToString(data interface{}) string {
 	} else {
 		return string(configBin)
 	}
+}
+
+func StringToByteArray(str string) []byte {
+	var data = []byte(str)
+	return data
 }
 
 // GetRunningNamespace retrieves value from env NAMESPACE_NAME
@@ -46,4 +54,19 @@ func RawdataRead2Write(readRawdata []*Common.ReadRawdata) []*Common.WriteRawdata
 	}
 
 	return writeRawdata
+}
+
+func GenerateUUID() string {
+	// generate 32 bits timestamp
+ 	unix32bits := uint32(time.Now().UTC().Unix())
+
+ 	buff := make([]byte, 12)
+
+ 	numRead, err := rand.Read(buff)
+
+ 	if numRead != len(buff) || err != nil {
+ 		panic(err)
+ 	}
+
+ 	return fmt.Sprintf("%x-%x-%x-%x-%x-%x", unix32bits, buff[0:2], buff[2:4], buff[4:6], buff[6:8], buff[8:])
 }

@@ -1,0 +1,75 @@
+// This file has messages related to keycode managements
+
+syntax = "proto3";
+
+package containersai.datahub.keycodes;
+
+import "datahub/keycodes/keycodes.proto";
+import "google/protobuf/empty.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/keycodes";
+
+// Represents a request for adding a keycode
+message AddKeycodeRequest {
+    string keycode = 1; // example:"A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST"
+}
+
+// Represents a response for adding a keycode
+message AddKeycodeResponse {
+    google.rpc.Status status = 1;
+    Keycode keycode = 2;
+}
+
+// Represents a request for retrieving keycodes detailed information
+message ListKeycodesRequest {
+    repeated string keycodes = 1;
+}
+
+// Represents a response for a retrieving keycodes detailed information request
+message ListKeycodesResponse {
+    google.rpc.Status status = 1;
+    repeated Keycode keycodes = 2;
+    Keycode summary           = 3;
+}
+
+// Represents a request for deleting a keycode
+message DeleteKeycodeRequest {
+    string keycode = 1; // example: "A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST"
+}
+
+// Represents a request for generating license registration data
+message GenerateRegistrationDataResponse {
+    google.rpc.Status status = 1;
+    string data = 2; // example: "FaS3fivdY7d1xEYxmSa+mg=="
+}
+
+// Represents a request for activating license signature data
+message ActivateRegistrationDataRequest {
+    string data = 1; // example: "FaS3fivdY7d1xEYxmSa+mg=="
+}
+
+/**
+ * Service for providing operation of keycodes
+ */
+service KeycodesService {
+    // Used to add a keycode
+    rpc AddKeycode(AddKeycodeRequest)
+        returns (AddKeycodeResponse) {}
+
+    // Used to retrieve keycodes detailed information
+    rpc ListKeycodes(ListKeycodesRequest)
+        returns (ListKeycodesResponse) {}
+
+    // Used to delete a keycode
+    rpc DeleteKeycode(DeleteKeycodeRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to generate license registration data
+    rpc GenerateRegistrationData(google.protobuf.Empty)
+        returns (GenerateRegistrationDataResponse) {}
+
+    // Used to activate license signature data
+    rpc ActivateRegistrationData(ActivateRegistrationDataRequest)
+        returns (google.rpc.Status) {}
+}

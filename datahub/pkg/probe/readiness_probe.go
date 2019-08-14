@@ -2,12 +2,12 @@ package probe
 
 import (
 	"fmt"
-	"github.com/streadway/amqp"
-	InternalRabbitMQ "github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
+	InternalRabbitMQ "github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
 	"github.com/pkg/errors"
+	"github.com/streadway/amqp"
 	"os/exec"
 	"strings"
 )
@@ -15,7 +15,7 @@ import (
 type ReadinessProbeConfig struct {
 	InfluxdbAddr  string
 	PrometheusCfg *InternalPromth.Config
-	RabbitMQCfg  *InternalRabbitMQ.Config
+	RabbitMQCfg   *InternalRabbitMQ.Config
 }
 
 func pingInfluxdb(influxdbAddr string) error {

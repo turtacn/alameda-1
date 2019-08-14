@@ -27,14 +27,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:314d6fddf26c4aaf4718de8cda2d7ffaee53eda3aa2347033faff431b97ab6c8"
+  digest = "1:d8abcb52b36c80dd2aff5dc95517709c062285ab8365401061f74c8696ef9519"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
     "common",
+    "datahub/keycodes",
   ]
   pruneopts = "T"
-  revision = "2223058cd29add0acd19f40e1e50aab5cdb1401c"
+  revision = "612c4c93ff8b6a4e8038ef0e6f3384ef30a5183a"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1131,6 +1132,7 @@
   input-imports = [
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/containers-ai/api/common",
+    "github.com/containers-ai/api/datahub/keycodes",
     "github.com/emicklei/go-restful",
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",

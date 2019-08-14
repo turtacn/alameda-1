@@ -3,16 +3,17 @@ syntax = "proto3";
 
 package containers_ai.alameda.v1alpha1.datahub;
 
+import "common/common.proto";
+import "alameda_api/v1alpha1/datahub/event.proto";
+import "alameda_api/v1alpha1/datahub/metadata.proto";
+import "alameda_api/v1alpha1/datahub/metric.proto";
+import "alameda_api/v1alpha1/datahub/planning.proto";
+import "alameda_api/v1alpha1/datahub/predict.proto";
+import "alameda_api/v1alpha1/datahub/recommendation.proto";
+import "alameda_api/v1alpha1/datahub/resource.proto";
+import "alameda_api/v1alpha1/datahub/score.proto";
 import "google/protobuf/empty.proto";
 import "google/rpc/status.proto";
-import "alameda_api/v1alpha1/datahub/metadata.proto";
-import "alameda_api/v1alpha1/datahub/predict.proto";
-import "alameda_api/v1alpha1/datahub/metric.proto";
-import "alameda_api/v1alpha1/datahub/resource.proto";
-import "alameda_api/v1alpha1/datahub/recommendation.proto";
-import "alameda_api/v1alpha1/datahub/score.proto";
-import "alameda_api/v1alpha1/datahub/event.proto";
-import "common/common.proto";
 
 message QueryCondition {
     TimeRange time_range = 1;
@@ -175,7 +176,7 @@ message ListPodRecommendationsResponse {
 }
 
 /**
- * Represents a request for listing recommendations of pods
+ * Represents a request for listing recommendations of controllers
  *
  */
 message ListControllerRecommendationsRequest {
@@ -185,12 +186,53 @@ message ListControllerRecommendationsRequest {
 }
 
 /**
- * Represents a response for listing pod recommendations request
+ * Represents a response for listing controller recommendations request
  *
  */
 message ListControllerRecommendationsResponse {
     google.rpc.Status status = 1;
     repeated ControllerRecommendation controller_recommendations = 2;
+}
+
+/**
+ * Represents a request for listing plannings of pods
+ *
+ */
+message ListPodPlanningsRequest {
+    NamespacedName namespaced_name = 1;
+    QueryCondition query_condition = 2;
+    Kind kind = 3;
+    int64 granularity = 4;
+    PlanningType planning_type = 5;
+}
+
+/**
+ * Represents a response for listing pod plannings request
+ *
+ */
+message ListPodPlanningsResponse {
+    google.rpc.Status status = 1;
+    repeated PodPlanning pod_plannings = 2;
+}
+
+/**
+ * Represents a request for listing plannings of controllers
+ *
+ */
+message ListControllerPlanningsRequest {
+    NamespacedName namespaced_name = 1;
+    QueryCondition query_condition = 2;
+    ControllerPlanningType ctl_planning_type = 3;
+    PlanningType planning_type = 4;
+}
+
+/**
+ * Represents a response for listing controller plannings request
+ *
+ */
+message ListControllerPlanningsResponse {
+    google.rpc.Status status = 1;
+    repeated ControllerPlanning controller_plannings = 2;
 }
 
 /**
@@ -248,6 +290,23 @@ message CreatePodRecommendationsRequest {
  */
 message CreateControllerRecommendationsRequest {
     repeated ControllerRecommendation controller_recommendations = 1;
+}
+
+/**
+ * Represents a request for creating a pod's plannings
+ *
+ */
+message CreatePodPlanningsRequest {
+    repeated PodPlanning pod_plannings = 1;
+    int64 granularity = 2;
+}
+
+/**
+ * Represents a request for creating a controller's plannings
+ *
+ */
+message CreateControllerPlanningsRequest {
+    repeated ControllerPlanning controller_plannings = 1;
 }
 
 /**
@@ -409,6 +468,14 @@ service DatahubService {
     rpc ListControllerRecommendations(ListControllerRecommendationsRequest)
         returns (ListControllerRecommendationsResponse) {}
 
+    // Used to list pod plannings
+    rpc ListPodPlannings(ListPodPlanningsRequest)
+        returns (ListPodPlanningsResponse) {}
+
+    // Used to list controller plannings
+    rpc ListControllerPlannings(ListControllerPlanningsRequest)
+        returns (ListControllerPlanningsResponse) {}
+
     // Used to list pods by a node name
     rpc ListPodsByNodeName(ListPodsByNodeNamesRequest)
         returns (ListPodsResponse) {}
@@ -442,6 +509,14 @@ service DatahubService {
 
     // Used to create recommendations of controller
     rpc CreateControllerRecommendations(CreateControllerRecommendationsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to create plannings of pods
+    rpc CreatePodPlannings(CreatePodPlanningsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to create plannings of controller
+    rpc CreateControllerPlannings(CreateControllerPlanningsRequest)
         returns (google.rpc.Status) {}
 
     // Used to create scores of system
@@ -502,6 +577,4 @@ service DatahubService {
 
     rpc ListEvents(ListEventsRequest)
         returns (ListEventsResponse){}
-
-
 }

@@ -56,7 +56,7 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *Data
 	}, nil
 }
 
-// CreatePodRecommendations add pod recommendations information to database
+// CreatePodRecommendations add controller recommendations information to database
 func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, in *DatahubV1alpha1.CreateControllerRecommendationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllerRecommendations grpc function: " + AlamedaUtils.InterfaceToString(in))
 

@@ -1,0 +1,42 @@
+// This file has messages related to keycode managements
+
+syntax = "proto3";
+
+package containersai.datahub.keycodes;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/datahub/keycodes";
+
+message Keycode {
+    string keycode                        = 1; // example: "A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST"`
+    string keycode_type                   = 2; // example: "Regular/Trial"`
+    int32 keycode_version                 = 3; // example:"2"`
+    google.protobuf.Timestamp apply_time  = 4; // example:"2018-01-01T00:00:00Z"`
+    google.protobuf.Timestamp expire_time = 5; // example:"2018-12-31T11:59:59Z"`
+    string license_state                  = 6; // example:"Valid/Invalid/Expired"`
+    bool registered                       = 7; // example:"false"`
+    Capacity capacity                     = 8;
+    Functionality functionality           = 9;
+    Retention retention                   = 10;
+    ServiceAgreement service_agreement    = 11;
+}
+
+message Capacity {
+    int32 users = 1; // example:"-1"`
+    int32 hosts = 2; // example:"20"`
+    int32 disks = 3; // example:"200"`
+}
+
+message Functionality {
+    bool disk_prophet = 1; // example:"true"`
+    bool workload     = 2; // example:"true"`
+}
+
+message Retention {
+    int32 valid_month = 1; // example:"0"`
+    int32 years       = 2; // example:"1"`
+}
+
+message ServiceAgreement {
+}

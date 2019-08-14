@@ -98,7 +98,7 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alph
 	cmd := fmt.Sprintf("SELECT * FROM %s WHERE \"%s\"=%s %s",
 		string(Node), string(EntityInfluxClusterStatus.NodeInCluster), "true", nodeCreatePeriodCondition)
 
-	scope.Infof(fmt.Sprintf("Query nodes in cluster: %s", cmd))
+	scope.Debug(fmt.Sprintf("Query nodes in cluster: %s", cmd))
 	results, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
 		return nodeEntities, errors.Wrap(err, "list alameda nodes from influxdb failed")

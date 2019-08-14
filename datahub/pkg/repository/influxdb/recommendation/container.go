@@ -27,16 +27,6 @@ type ContainerRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-// IsTag checks the column is tag or not
-func (containerRepository *ContainerRepository) IsTag(column string) bool {
-	for _, tag := range EntityInfluxRecommend.ContainerTags {
-		if column == string(tag) {
-			return true
-		}
-	}
-	return false
-}
-
 // NewContainerRepository creates the ContainerRepository instance
 func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
 	return &ContainerRepository{
@@ -46,6 +36,16 @@ func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerReposi
 			Password: influxDBCfg.Password,
 		},
 	}
+}
+
+// IsTag checks the column is tag or not
+func (c *ContainerRepository) IsTag(column string) bool {
+	for _, tag := range EntityInfluxRecommend.ContainerTags {
+		if column == string(tag) {
+			return true
+		}
+	}
+	return false
 }
 
 // CreateContainerRecommendations add containers information container measurement
@@ -272,7 +272,7 @@ func (c *ContainerRepository) ListContainerRecommendations(in *datahub_v1alpha1.
 	cmd := influxdbStatement.BuildQueryCmd()
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 
-	podRecommendations, err := c.queryRecommendationNew(cmd, granularity)
+	podRecommendations, err := c.queryRecommendation(cmd, granularity)
 	if err != nil {
 		return podRecommendations, err
 	}
@@ -328,7 +328,7 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alph
 	cmd := influxdbStatement.BuildQueryCmd()
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 
-	podRecommendations, err := c.queryRecommendationNew(cmd, granularity)
+	podRecommendations, err := c.queryRecommendation(cmd, granularity)
 	if err != nil {
 		return podRecommendations, err
 	}
@@ -336,7 +336,7 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alph
 	return podRecommendations, nil
 }
 
-func (c *ContainerRepository) queryRecommendationNew(cmd string, granularity int64) ([]*datahub_v1alpha1.PodRecommendation, error) {
+func (c *ContainerRepository) queryRecommendation(cmd string, granularity int64) ([]*datahub_v1alpha1.PodRecommendation, error) {
 	podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Recommendation))

@@ -20,6 +20,9 @@ const (
 	// Recommendation is recommendation database
 	Recommendation influxdb.Database = "alameda_recommendation"
 
+	// Planning is planning database
+	Planning influxdb.Database = "alameda_planning"
+
 	// Score is score database
 	Score influxdb.Database = "alameda_score"
 
