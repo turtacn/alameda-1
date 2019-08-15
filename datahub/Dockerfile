@@ -16,12 +16,12 @@ ENV FEDAIHOME="/opt/prophetstor/federatorai" \
 
 RUN mkdir -p /opt/prophetstor/federatorai/bin /opt/prophetstor/federatorai/lib /opt/prophetstor/federatorai/etc /opt/prophetstor/federatorai/var/tmp
 WORKDIR /opt/prophetstor/federatorai/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/keycodemgt/bin/license_main bin/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/keycodemgt/lib/license_helper.so lib/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/keycodemgt/lib/license_util.so lib/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/keycodemgt/lib/util_crypto.so lib/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/keycodemgt/lib/util_ldap.so lib/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/keycodemgt/lib/_utilModule.so lib/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/bin/license_main bin/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/lib/license_helper.so lib/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/lib/license_util.so lib/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/lib/util_crypto.so lib/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/lib/util_ldap.so lib/
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/lib/_utilModule.so lib/
 
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/etc/datahub.yml /etc/alameda/datahub/datahub.yml
