@@ -4,11 +4,18 @@ import (
 	"fmt"
 	Client "github.com/influxdata/influxdb/client/v2"
 	"strings"
+	"time"
 )
 
-// Creates database
+// Create database
 func (p *InfluxClient) CreateDatabase(db string) error {
 	_, err := p.QueryDB(fmt.Sprintf("CREATE DATABASE %s", db), db)
+	return err
+}
+
+// Delete database
+func (p *InfluxClient) DeleteDatabase(db string) error {
+	_, err := p.QueryDB(fmt.Sprintf("DROP DATABASE %s", db), db)
 	return err
 }
 
@@ -74,6 +81,22 @@ func (p *InfluxClient) ModifyDefaultRetentionPolicy(db string) error {
 	retentionCmd := fmt.Sprintf("ALTER RETENTION POLICY \"autogen\" on \"%s\" DURATION %s SHARD DURATION %s", db, duration, shardGroupDuration)
 	_, err := p.QueryDB(retentionCmd, db)
 	return err
+}
+
+func (p *InfluxClient) Ping() error {
+	client := p.newHttpClient()
+	defer client.Close()
+
+	duration, version, err := client.Ping(10 * time.Second)
+	if err != nil {
+		scope.Error("failed to ping to InfluxDB")
+		return err
+	}
+
+	scope.Info(duration.String())
+	scope.Info(version)
+
+	return nil
 }
 
 func (p *InfluxClient) newHttpClient() Client.Client {
