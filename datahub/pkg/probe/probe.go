@@ -1,9 +1,8 @@
 package probe
 
 import (
-	"os"
-
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	"os"
 )
 
 var scope = log.RegisterScope("probe", "datahub health probe", 0)
@@ -19,25 +18,25 @@ func LivenessProbe(cfg *LivenessProbeConfig) {
 }
 
 func ReadinessProbe(cfg *ReadinessProbeConfig) {
-	influxdbAddr := cfg.InfluxdbAddr
+	influxdbCfg := cfg.InfluxdbCfg
 	prometheusCfg := cfg.PrometheusCfg
 	queueCfg := cfg.RabbitMQCfg
 
-	err := pingInfluxdb(influxdbAddr)
+	err := queryInfluxdb(influxdbCfg)
 	if err != nil {
-		scope.Errorf("Readiness probe: ping influxdb with address (%s) failed due to %s", influxdbAddr, err.Error())
+		scope.Errorf("Readiness probe: failed to ping influxdb with address (%s) due to %s", influxdbCfg.Address, err.Error())
 		os.Exit(1)
 	}
 
 	err = queryPrometheus(prometheusCfg)
 	if err != nil {
-		scope.Errorf("Readiness probe: query prometheus failed with url (%s) due to %s", prometheusCfg.URL, err.Error())
+		scope.Errorf("Readiness probe: failed to query prometheus with url (%s) due to %s", prometheusCfg.URL, err.Error())
 		os.Exit(1)
 	}
 
-	err = connQueue(queueCfg.URL)
+	err = queryQueue(queueCfg)
 	if err != nil {
-		scope.Errorf("Readiness probe: query queue failed with url (%s) due to %s", queueCfg.URL, err.Error())
+		scope.Errorf("Readiness probe: failed to query queue with url (%s) due to %s", queueCfg.URL, err.Error())
 		os.Exit(1)
 	}
 	os.Exit(0)

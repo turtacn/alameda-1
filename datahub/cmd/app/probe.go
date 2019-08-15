@@ -1,10 +1,9 @@
 package app
 
 import (
-	"os"
-
 	"github.com/containers-ai/alameda/datahub/pkg/probe"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 const (
@@ -43,12 +42,12 @@ func startProbing() {
 		})
 	} else if probeType == ProbeTypeReadiness {
 		probe.ReadinessProbe(&probe.ReadinessProbeConfig{
-			InfluxdbAddr:  config.InfluxDB.Address,
+			InfluxdbCfg:   config.InfluxDB,
 			PrometheusCfg: config.Prometheus,
 			RabbitMQCfg:   config.RabbitMQ,
 		})
 	} else {
-		scope.Errorf("Probe type does not supports %s, please try %s or %s.", probeType, ProbeTypeLiveness, ProbeTypeReadiness)
+		scope.Errorf("Probe type %s is not supported, please try %s or %s.", probeType, ProbeTypeLiveness, ProbeTypeReadiness)
 		os.Exit(1)
 	}
 }
