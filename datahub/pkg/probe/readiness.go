@@ -4,6 +4,7 @@ import (
 	"fmt"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	InternalRabbitMQ "github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
 	"github.com/pkg/errors"
@@ -13,20 +14,15 @@ import (
 )
 
 type ReadinessProbeConfig struct {
-	InfluxdbAddr  string
+	InfluxdbCfg   *InternalInflux.Config
 	PrometheusCfg *InternalPromth.Config
 	RabbitMQCfg   *InternalRabbitMQ.Config
 }
 
-func pingInfluxdb(influxdbAddr string) error {
-	pingURL := fmt.Sprintf("%s/ping", influxdbAddr)
-	curlCmd := exec.Command("curl", "-sl", "-I", pingURL)
-	if strings.Contains(pingURL, "https") {
-		curlCmd = exec.Command("curl", "-sl", "-I", "-k", pingURL)
-	}
-	_, err := curlCmd.CombinedOutput()
+func queryInfluxdb(influxdbConfig *InternalInflux.Config) error {
+	err := pingInfluxdb(influxdbConfig.Address)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to ping to influxdb")
 	}
 	return nil
 }
@@ -42,7 +38,7 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 	}
 
 	if err == nil && len(containerCPUEntities) == 0 {
-		return fmt.Errorf("No container CPU metric found")
+		return fmt.Errorf("no container CPU metric found")
 	}
 
 	podContainerMemoryRepo := RepoPromthMetric.NewPodContainerMemoryUsageBytesRepositoryWithConfig(*prometheusConfig)
@@ -52,7 +48,7 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 	}
 
 	if err == nil && len(containerMemoryEntities) == 0 {
-		return fmt.Errorf("No container memory metric found")
+		return fmt.Errorf("no container memory metric found")
 	}
 
 	nodeCPUUsageRepo := RepoPromthMetric.NewNodeCPUUsagePercentageRepositoryWithConfig(*prometheusConfig)
@@ -62,7 +58,7 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 	}
 
 	if err == nil && len(nodeCPUUsageEntities) == 0 {
-		return fmt.Errorf("No node CPU metric found")
+		return fmt.Errorf("no node CPU metric found")
 	}
 
 	nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryUsageBytesRepositoryWithConfig(*prometheusConfig)
@@ -72,14 +68,31 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 	}
 
 	if err == nil && len(nodeMemoryUsageEntities) == 0 {
-		return fmt.Errorf("No node memory metric found")
+		return fmt.Errorf("no node memory metric found")
 	}
 
 	return nil
 }
 
+func queryQueue(rabbitmqConfig *InternalRabbitMQ.Config) error {
+	return connQueue(rabbitmqConfig.URL)
+}
+
 func connQueue(url string) error {
 	_, err := amqp.Dial(url)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func pingInfluxdb(influxdbAddr string) error {
+	pingURL := fmt.Sprintf("%s/ping", influxdbAddr)
+	curlCmd := exec.Command("curl", "-sl", "-I", pingURL)
+	if strings.Contains(pingURL, "https") {
+		curlCmd = exec.Command("curl", "-sl", "-I", "-k", pingURL)
+	}
+	_, err := curlCmd.CombinedOutput()
 	if err != nil {
 		return err
 	}
