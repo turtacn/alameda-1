@@ -1043,11 +1043,11 @@
         "options": [
           {
             "selected": true,
-            "text": "15m",
-            "value": "15m"
+            "text": "5m",
+            "value": "5m"
           }
         ],
-        "query": "15m",
+        "query": "5m",
         "skipUrlSync": false,
         "type": "constant"
       }
@@ -1055,7 +1055,7 @@
   },
   "time": {
     "from": "now-2h",
-    "to": "now"
+    "to": "now+5m"
   },
   "timepicker": {
     "refresh_intervals": [
