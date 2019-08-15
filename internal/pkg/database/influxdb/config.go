@@ -9,6 +9,7 @@ const (
 	defaultAddress                = "https://influxdb.alameda.svc.cluster.local:8086"
 	defaultUsername               = "datahub"
 	defaultPassword               = "datahub"
+	defaultInsecureSkipVerify     = true
 	defaultRetentionDuration      = "30d"
 	defaultRetentionShardDuration = "1d"
 )
@@ -18,6 +19,7 @@ type Config struct {
 	Address                string `mapstructure:"address"`
 	Username               string `mapstructure:"username"`
 	Password               string `mapstructure:"password"`
+	InsecureSkipVerify     bool   `mapstructure:"insecureSkipVerify"`
 	RetentionDuration      string `mapstructure:"retentionDuration"`
 	RetentionShardDuration string `mapstructure:"retentionShardDuration"`
 }
@@ -28,6 +30,7 @@ func NewDefaultConfig() *Config {
 		Address:                defaultAddress,
 		Username:               defaultUsername,
 		Password:               defaultPassword,
+		InsecureSkipVerify:     defaultInsecureSkipVerify,
 		RetentionDuration:      defaultRetentionDuration,
 		RetentionShardDuration: defaultRetentionShardDuration,
 	}

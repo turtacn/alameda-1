@@ -31,6 +31,8 @@ spec:
               value: "alameda"
             - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
               value: "alameda"
+            - name: ALAMEDA_DATAHUB_INFLUXDB_INSECURESKIPVERIFY
+              value: "true"
             - name: ALAMEDA_DATAHUB_PROMETHEUS_TLSCONFIG_INSECURESKIPVERIFY
               value: "true"
             - name: ALAMEDA_DATAHUB_PROMETHEUS_BEARERTOKENFILE
@@ -41,7 +43,7 @@ spec:
               value: "amqp://admin:adminpass@alameda-rabbitmq.alameda:5672"
           resources:
             {}
-            
+
           readinessProbe:
             exec:
               command:

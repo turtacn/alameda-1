@@ -29,6 +29,8 @@ spec:
               value: "{{ .Values.global.component.datahub.influxdbConfig.username }}"
             - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
               value: "{{ .Values.global.component.datahub.influxdbConfig.password }}"
+            - name: ALAMEDA_DATAHUB_INFLUXDB_INSECURESKIPVERIFY
+              value: "{{ .Values.global.component.datahub.influxdbConfig.insecureSkipVerify }}"
             - name: ALAMEDA_DATAHUB_PROMETHEUS_TLSCONFIG_INSECURESKIPVERIFY
               value: "{{ .Values.global.component.datahub.prometheusConfig.insecureSkipVerify }}"
             - name: ALAMEDA_DATAHUB_PROMETHEUS_BEARERTOKENFILE

@@ -11,9 +11,10 @@ influxdb:
   address: "https://influxdb.alameda.svc.cluster.local:8086"
   username: "alameda"
   password: "alameda"
+  insecureSkipVerify: true
   retentionDuration: "30d"
   retentionShardDuration: "1d"
-    
+
 log:
   setLogcallers: true
   outputLevel: "info" # debug, info, warn, error, fatal, none
