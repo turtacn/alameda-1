@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	datahubclient "github.com/containers-ai/alameda/operator/datahub/client"
@@ -55,6 +56,9 @@ import (
 
 var (
 	scope = logUtil.RegisterScope("alamedascaler", "alamedascaler log", 0)
+
+	onceCheckHasOpenshiftAPIAppsV1 = sync.Once{}
+	hasOpenshiftAPIAppsV1          = false
 )
 
 var cachedFirstSynced = false
@@ -113,6 +117,15 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 	listResources := utilsresource.NewListResources(r)
 	updateResource := utilsresource.NewUpdateResource(r)
 
+	onceCheckHasOpenshiftAPIAppsV1.Do(
+		func() {
+			exist, err := utils.ServerHasOpenshiftAPIAppsV1()
+			if err != nil {
+				panic(errors.Wrap(err, "Check if apiServer has openshift apps v1 api failed"))
+			}
+			hasOpenshiftAPIAppsV1 = exist
+		})
+
 	// Take care of AlamedaScaler
 	if alamedaScaler, err := getResource.GetAlamedaScaler(request.Namespace, request.Name); err != nil && k8sErrors.IsNotFound(err) {
 		scope.Infof("AlamedaScaler (%s/%s) is deleted, remove alameda pods from datahub.", request.Namespace, request.Name)
@@ -140,7 +153,11 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		// select matched deployments
 		if alamedaDeployments, err := listResources.ListDeploymentsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
 			for _, alamedaDeployment := range alamedaDeployments {
-				alamedaScaler = alamedascalerReconciler.UpdateStatusByDeployment(&alamedaDeployment)
+				alamedaScaler, err = alamedascalerReconciler.UpdateStatusByDeployment(&alamedaDeployment)
+				if err != nil {
+					scope.Errorf("Update status of AlamedaScaler (%s/%s) by Deployment failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
+					return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
+				}
 			}
 		} else {
 			scope.Error(err.Error())
@@ -148,12 +165,19 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		}
 
 		// select matched deploymentConfigs
-		if alamedaDeploymentConfigs, err := listResources.ListDeploymentConfigsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
-			for _, alamedaDeploymentConfig := range alamedaDeploymentConfigs {
-				alamedaScaler = alamedascalerReconciler.UpdateStatusByDeploymentConfig(&alamedaDeploymentConfig)
+		if hasOpenshiftAPIAppsV1 {
+			if alamedaDeploymentConfigs, err := listResources.ListDeploymentConfigsByNamespaceLabels(request.Namespace, alamedaScaler.Spec.Selector.MatchLabels); err == nil {
+				for _, alamedaDeploymentConfig := range alamedaDeploymentConfigs {
+					alamedaScaler, err = alamedascalerReconciler.UpdateStatusByDeploymentConfig(&alamedaDeploymentConfig)
+					if err != nil {
+						scope.Errorf("Update status of AlamedaScaler (%s/%s) by DeploymentConfig failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
+						return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
+					}
+				}
+			} else {
+				scope.Error(err.Error())
+				return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 			}
-		} else {
-			scope.Error(err.Error())
 		}
 
 		// select matched statefulSets
@@ -171,30 +195,30 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 		}
 
 		if err := updateResource.UpdateAlamedaScaler(alamedaScaler); err != nil {
-			scope.Errorf("update AlamedaScaler %s/%s failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
+			scope.Errorf("Update AlamedaScaler (%s/%s) failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
 		if err := r.createAlamedaWatchedResourcesToDatahub(alamedaScaler); err != nil {
-			scope.Errorf("create watched resources to datahub failed: %s", err.Error())
+			scope.Errorf("Create AlamedaScaler (%s/%s) watched resources to datahub failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
 		// list all controller with namespace same as alamedaScaler
 		controllers, err := r.listAlamedaWatchedResourcesToDatahub(alamedaScaler)
 		if err != nil {
-			scope.Errorf("list watched resources to datahub failed: %s", err.Error())
+			scope.Errorf("List AlamedaScaler (%s/%s) watched resources to datahub failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
 		err = r.deleteAlamedaWatchedResourcesToDatahub(alamedaScaler, controllers)
 		if err != nil {
-			scope.Errorf("delete watched resources to datahub failed: %s", err.Error())
+			scope.Errorf("Delete AlamedaScaler (%s/%s) watched resources to datahub failed: %s", alamedaScalerNS, alamedaScalerName, err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
 		// after updating AlamedaPod in AlamedaScaler, start create AlamedaRecommendation if necessary and register alameda pod to datahub
-		scope.Debugf("Start syncing alamedascaler to datahub. %s", alamutils.InterfaceToString(alamedaScaler))
+		scope.Debugf("Start syncing AlamedaScaler (%s/%s) to datahub. %s", alamedaScalerNS, alamedaScalerName, alamutils.InterfaceToString(alamedaScaler))
 		if err := r.syncAlamedaScalerWithDepResources(alamedaScaler); err != nil {
 			scope.Error(err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil

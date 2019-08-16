@@ -81,7 +81,7 @@ func (reconciler *Reconciler) ResetAlamedaController() {
 }
 
 // UpdateStatusByDeployment updates status by deployment
-func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deployment) *autoscaling_v1alpha1.AlamedaScaler {
+func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deployment) (*autoscaling_v1alpha1.AlamedaScaler, error) {
 	alamedaScalerNS := reconciler.alamedascaler.GetNamespace()
 	alamedaScalerName := reconciler.alamedascaler.GetName()
 
@@ -116,6 +116,8 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 				Containers: alamedaContainers,
 			}
 		}
+	} else if err != nil {
+		return reconciler.alamedascaler, errors.Wrap(err, "list Pods by Deployment failed")
 	}
 
 	specReplicas := deployment.Spec.Replicas
@@ -127,11 +129,11 @@ func (reconciler *Reconciler) UpdateStatusByDeployment(deployment *appsv1.Deploy
 		SpecReplicas: specReplicas,
 	}
 	reconciler.alamedascaler.Status.AlamedaController.Deployments = alamedaDeploymentsMap
-	return reconciler.alamedascaler
+	return reconciler.alamedascaler, nil
 }
 
 // UpdateStatusByDeploymentConfig updates status by DeploymentConfig
-func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *appsapi_v1.DeploymentConfig) *autoscaling_v1alpha1.AlamedaScaler {
+func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *appsapi_v1.DeploymentConfig) (*autoscaling_v1alpha1.AlamedaScaler, error) {
 	scalerNS := reconciler.alamedascaler.GetNamespace()
 	scalerName := reconciler.alamedascaler.GetName()
 
@@ -166,6 +168,8 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 				Containers: alamedaContainers,
 			}
 		}
+	} else if err != nil {
+		return reconciler.alamedascaler, errors.Wrap(err, "list Pods by DeploymentConfig failed")
 	}
 
 	specReplicas := deploymentconfig.Spec.Replicas
@@ -177,7 +181,7 @@ func (reconciler *Reconciler) UpdateStatusByDeploymentConfig(deploymentconfig *a
 		SpecReplicas: &specReplicas,
 	}
 	reconciler.alamedascaler.Status.AlamedaController.DeploymentConfigs = deploymentConfigsMap
-	return reconciler.alamedascaler
+	return reconciler.alamedascaler, nil
 }
 
 // UpdateStatusByStatefulSet updates status by StatefulSet

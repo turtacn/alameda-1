@@ -29,6 +29,7 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
+	"github.com/containers-ai/alameda/operator/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/viper"
@@ -183,9 +184,13 @@ func main() {
 		scope.Error(err.Error())
 	}
 
-	// Setup all Controllers
+	// Setup Controllers
+	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); !ok {
+		controller.AddToManagerFuncs = removeFunctions(controller.AddToManagerFuncs, controller.OpenshiftControllerAddFuncs)
+	}
 	if err := controller.AddToManager(mgr); err != nil {
 		scope.Error(err.Error())
+		os.Exit(1)
 	}
 
 	scope.Info("Setting up webhooks")
@@ -215,4 +220,19 @@ func main() {
 	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
 		scope.Error(err.Error())
 	}
+}
+
+func removeFunctions(functionList1, functionList2 []func(manager.Manager) error) []func(manager.Manager) error {
+
+	functions := make([]func(manager.Manager) error, 0, len(functionList1))
+	for _, f1 := range functionList1 {
+		for _, f2 := range functionList2 {
+			f1Str := fmt.Sprintf("%p", f1)
+			f2Str := fmt.Sprintf("%p", f2)
+			if f1Str != f2Str {
+				functions = append(functions, f1)
+			}
+		}
+	}
+	return functions
 }
