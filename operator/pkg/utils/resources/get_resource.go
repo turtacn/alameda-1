@@ -120,7 +120,7 @@ func (getResource *GetResource) GetObservingAlamedaScalerOfController(controller
 			}
 		case autuscaling.StatefulSetController:
 
-			matchedLblStatefulSets, err := listResources.ListDeploymentConfigsByNamespaceLabels(controllerNamespace, alamedaScaler.Spec.Selector.MatchLabels)
+			matchedLblStatefulSets, err := listResources.ListStatefulSetsByNamespaceLabels(controllerNamespace, alamedaScaler.Spec.Selector.MatchLabels)
 			if err != nil {
 				return nil, errors.Errorf("get observing AlamedaScaler of StatefulSet %s/%s failed: %s", controllerNamespace, controllerName, err.Error())
 			}
