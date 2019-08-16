@@ -607,7 +607,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
+          "query": "select sum(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by time($recomInterval) fill(none)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -647,7 +647,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(resource_request_cpu ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
+          "query": "select sum(resource_request_cpu ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by time($recomInterval) fill(none)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -838,7 +838,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(resource_limit_memory ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
+          "query": "select sum(resource_limit_memory ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by time($recomInterval) fill(none)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -878,7 +878,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(resource_request_memory ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by pod_name, time($recomInterval)) group by time($recomInterval)",
+          "query": "select sum(resource_request_memory ) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ AND $timeFilter group by time($recomInterval) fill(none)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1028,8 +1028,8 @@
       },
       {
         "current": {
-          "text": "15m",
-          "value": "15m"
+          "text": "30s",
+          "value": "30s"
         },
         "hide": 2,
         "label": null,
@@ -1037,11 +1037,11 @@
         "options": [
           {
             "selected": true,
-            "text": "5m",
-            "value": "5m"
+            "text": "30s",
+            "value": "30s"
           }
         ],
-        "query": "5m",
+        "query": "30s",
         "skipUrlSync": false,
         "type": "constant"
       }
