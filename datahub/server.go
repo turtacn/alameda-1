@@ -3,11 +3,13 @@ package datahub
 import (
 	"fmt"
 	"github.com/containers-ai/alameda/datahub/pkg/apis/v1alpha1"
+	"github.com/containers-ai/alameda/datahub/pkg/apis/keycodes"
 	DatahubConfig "github.com/containers-ai/alameda/datahub/pkg/config"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	OperatorAPIs"github.com/containers-ai/alameda/operator/pkg/apis"
+	OperatorAPIs "github.com/containers-ai/alameda/operator/pkg/apis"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	DatahubKeycodes "github.com/containers-ai/api/datahub/keycodes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -153,6 +155,9 @@ func (s *Server) newGRPCServer() (*grpc.Server, error) {
 }
 
 func (s *Server) Register(server *grpc.Server) {
-	v1alphaSrv := v1alpha1.NewService(&s.Config, s.K8SClient)
-	DatahubV1alpha1.RegisterDatahubServiceServer(server, v1alphaSrv)
+	v1alpha1Srv := v1alpha1.NewService(&s.Config, s.K8SClient)
+	DatahubV1alpha1.RegisterDatahubServiceServer(server, v1alpha1Srv)
+
+	keycodesSrv := keycodes.NewService(&s.Config)
+	DatahubKeycodes.RegisterKeycodesServiceServer(server, keycodesSrv)
 }

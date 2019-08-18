@@ -4,12 +4,12 @@ type containerTag = string
 type containerField = string
 
 const (
-	ContainerPlanningType                   containerTag = "planning_type"
-	ContainerTime                           containerTag = "time"
-	ContainerNamespace                      containerTag = "namespace"
-	ContainerName                           containerTag = "name"
-	ContainerPodName                        containerTag = "pod_name"
-	ContainerGranularity                    containerTag = "granularity"
+	ContainerPlanningType containerTag = "planning_type"
+	ContainerTime         containerTag = "time"
+	ContainerNamespace    containerTag = "namespace"
+	ContainerName         containerTag = "name"
+	ContainerPodName      containerTag = "pod_name"
+	ContainerGranularity  containerTag = "granularity"
 
 	ContainerPolicy                       containerField = "policy"
 	ContainerPolicyTime                   containerField = "policy_time"

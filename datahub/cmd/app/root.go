@@ -3,8 +3,9 @@ package app
 import (
 	"errors"
 	"github.com/containers-ai/alameda/cmd/app"
+	Keycodes "github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes"
 	DatahubConfig "github.com/containers-ai/alameda/datahub/pkg/config"
-	"github.com/containers-ai/alameda/internal/pkg/event-mgt"
+	EventMgt "github.com/containers-ai/alameda/internal/pkg/event-mgt"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -45,7 +46,6 @@ func setLoggerScopesWithConfig(config log.Config) {
 }
 
 func mergeConfigFileValueWithDefaultConfigValue() {
-
 	if configurationFilePath == "" {
 
 	} else {
@@ -63,7 +63,6 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 }
 
 func initConfig() {
-
 	config = DatahubConfig.NewDefaultConfig()
 
 	initViperSetting()
@@ -77,7 +76,6 @@ func initViperSetting() {
 }
 
 func initLogger() {
-
 	opt := log.DefaultOptions()
 	opt.RotationMaxSize = defaultRotationMaxSizeMegabytes
 	opt.RotationMaxBackups = defaultRotationMaxBackups
@@ -91,5 +89,12 @@ func initLogger() {
 }
 
 func initEventMgt() {
-	eventmgt.InitEventMgt(config.InfluxDB, config.RabbitMQ)
+	EventMgt.InitEventMgt(config.InfluxDB, config.RabbitMQ)
+}
+
+func initKeycode() {
+	Keycodes.KeycodeInit(config.Keycode)
+
+	keycodeMgt := Keycodes.NewKeycodeMgt()
+	keycodeMgt.Refresh(true)
 }

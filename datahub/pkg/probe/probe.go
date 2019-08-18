@@ -39,5 +39,6 @@ func ReadinessProbe(cfg *ReadinessProbeConfig) {
 		scope.Errorf("Readiness probe: failed to query queue with url (%s) due to %s", queueCfg.URL, err.Error())
 		os.Exit(1)
 	}
+
 	os.Exit(0)
 }

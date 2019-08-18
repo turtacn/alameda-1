@@ -19,6 +19,12 @@ func (p *InfluxClient) DeleteDatabase(db string) error {
 	return err
 }
 
+// Delete measurement
+func (p *InfluxClient) DeleteMeasurement(db, measurement string) error {
+	_, err := p.QueryDB(fmt.Sprintf("DROP MEASUREMENT %s", measurement), db)
+	return err
+}
+
 // Write points to database
 func (p *InfluxClient) WritePoints(points []*Client.Point, bpCfg Client.BatchPointsConfig) error {
 	client := p.newHttpClient()

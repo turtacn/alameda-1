@@ -31,6 +31,7 @@ var (
 			initConfig()
 			initLogger()
 			initEventMgt()
+			initKeycode()
 			setLoggerScopesWithConfig(*config.Log)
 			displayConfig()
 			server, err = datahub.NewServer(config)

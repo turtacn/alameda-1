@@ -4,11 +4,11 @@ type controllerTag = string
 type controllerField = string
 
 const (
-	ControllerPlanningType        controllerTag = "planning_type"
-	ControllerTime                controllerTag = "time"
-	ControllerNamespace           controllerTag = "namespace"
-	ControllerName                controllerTag = "name"
-	ControllerType                controllerTag = "type"
+	ControllerPlanningType controllerTag = "planning_type"
+	ControllerTime         controllerTag = "time"
+	ControllerNamespace    controllerTag = "namespace"
+	ControllerName         controllerTag = "name"
+	ControllerType         controllerTag = "type"
 
 	ControllerKind              controllerField = "kind"
 	ControllerCurrentReplicas   controllerField = "current_replicas"

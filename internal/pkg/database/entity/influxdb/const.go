@@ -13,5 +13,9 @@ const (
 )
 
 const (
+	// ClusterStatus is cluster_status database
+	ClusterStatus influxdb.Database = "alameda_cluster_status"
+
+	// Event is event database
 	Event influxdb.Database = "alameda_event"
 )

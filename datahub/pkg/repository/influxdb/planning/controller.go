@@ -38,9 +38,9 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 
 			tags := map[string]string{
 				EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
-				EntityInfluxPlanning.ControllerNamespace:   planningSpec.GetNamespacedName().GetNamespace(),
-				EntityInfluxPlanning.ControllerName:        planningSpec.GetNamespacedName().GetName(),
-				EntityInfluxPlanning.ControllerType:        DatahubV1alpha1.ControllerPlanningType_CPT_PRIMITIVE.String(),
+				EntityInfluxPlanning.ControllerNamespace:    planningSpec.GetNamespacedName().GetNamespace(),
+				EntityInfluxPlanning.ControllerName:         planningSpec.GetNamespacedName().GetName(),
+				EntityInfluxPlanning.ControllerType:         DatahubV1alpha1.ControllerPlanningType_CPT_PRIMITIVE.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -70,9 +70,9 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 
 			tags := map[string]string{
 				EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
-				EntityInfluxPlanning.ControllerNamespace:   planningSpec.GetNamespacedName().GetNamespace(),
-				EntityInfluxPlanning.ControllerName:        planningSpec.GetNamespacedName().GetName(),
-				EntityInfluxPlanning.ControllerType:        DatahubV1alpha1.ControllerPlanningType_CPT_K8S.String(),
+				EntityInfluxPlanning.ControllerNamespace:    planningSpec.GetNamespacedName().GetNamespace(),
+				EntityInfluxPlanning.ControllerName:         planningSpec.GetNamespacedName().GetName(),
+				EntityInfluxPlanning.ControllerType:         DatahubV1alpha1.ControllerPlanningType_CPT_K8S.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -172,7 +172,7 @@ func (c *ControllerRepository) getControllersPlanningsFromInfluxRows(rows []*Int
 
 			if ctlPlanningType == DatahubV1alpha1.ControllerPlanningType_CPT_PRIMITIVE {
 				tempPlanning := &DatahubV1alpha1.ControllerPlanning{
-					PlanningType: DatahubV1alpha1.PlanningType(DatahubV1alpha1.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
+					PlanningType:    DatahubV1alpha1.PlanningType(DatahubV1alpha1.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
 					CtlPlanningType: ctlPlanningType,
 					CtlPlanningSpec: &DatahubV1alpha1.ControllerPlanningSpec{
 						NamespacedName: &DatahubV1alpha1.NamespacedName{
@@ -200,7 +200,7 @@ func (c *ControllerRepository) getControllersPlanningsFromInfluxRows(rows []*Int
 
 			} else if ctlPlanningType == DatahubV1alpha1.ControllerPlanningType_CPT_K8S {
 				tempPlanning := &DatahubV1alpha1.ControllerPlanning{
-					PlanningType: DatahubV1alpha1.PlanningType(DatahubV1alpha1.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
+					PlanningType:    DatahubV1alpha1.PlanningType(DatahubV1alpha1.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
 					CtlPlanningType: ctlPlanningType,
 					CtlPlanningSpecK8S: &DatahubV1alpha1.ControllerPlanningSpecK8S{
 						NamespacedName: &DatahubV1alpha1.NamespacedName{

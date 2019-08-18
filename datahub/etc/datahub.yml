@@ -27,3 +27,7 @@ rabbitmq:
   retry:
     publishTime: 3
     publishIntervalMs: 500
+
+keycode:
+  cliPath: "/opt/prophetstor/federatorai/bin/license_main"
+  refreshInterval: 180
