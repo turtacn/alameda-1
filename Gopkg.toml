@@ -29,6 +29,10 @@ required = [
   name="sigs.k8s.io/controller-tools"
   version="v0.1.9"
 
+[[constraint]]
+  name="github.com/robfig/cron"
+  version="v1.2.0"
+
 # For dependency below: Refer to issue https://github.com/golang/dep/issues/1799
 [[override]]
 name = "gopkg.in/fsnotify.v1"

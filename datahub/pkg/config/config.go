@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	Keycodes "github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes"
+	Notifier "github.com/containers-ai/alameda/datahub/pkg/notifier"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalLdap "github.com/containers-ai/alameda/internal/pkg/database/ldap"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
@@ -21,6 +22,7 @@ type Config struct {
 	InfluxDB    *InternalInflux.Config     `mapstructure:"influxdb"`
 	Ldap        *InternalLdap.Config       `mapstructure:"ldap"`
 	Keycode     *Keycodes.Config           `mapstructure:"keycode"`
+	Notifier    *Notifier.Config           `mapstructure:"notifier"`
 	WeaveScope  *InternalWeaveScope.Config `mapstructure:"weavescope"`
 	RabbitMQ    *InternalRabbitMQ.Config   `mapstructure:"rabbitmq"`
 	Log         *log.Config                `mapstructure:"log"`
@@ -33,6 +35,7 @@ func NewDefaultConfig() Config {
 		defaultInfluxDBConfig   = InternalInflux.NewDefaultConfig()
 		defaultLdapConfig       = InternalLdap.NewDefaultConfig()
 		defaultKeycodeConfig    = Keycodes.NewDefaultConfig()
+		defaultNotifierConfig   = Notifier.NewDefaultConfig()
 		defaultWeaveScopeConfig = InternalWeaveScope.NewDefaultConfig()
 		defaultRabbitMQConfig   = InternalRabbitMQ.NewDefaultConfig()
 		config                  = Config{
@@ -41,6 +44,7 @@ func NewDefaultConfig() Config {
 			InfluxDB:    defaultInfluxDBConfig,
 			Ldap:        defaultLdapConfig,
 			Keycode:     defaultKeycodeConfig,
+			Notifier:    defaultNotifierConfig,
 			WeaveScope:  defaultWeaveScopeConfig,
 			RabbitMQ:    defaultRabbitMQConfig,
 			Log:         &defaultLogConfig,

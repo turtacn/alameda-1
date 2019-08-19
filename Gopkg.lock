@@ -499,6 +499,14 @@
   revision = "bf6a532e95b1f7a62adf0ab5050a5bb2237ad2f4"
 
 [[projects]]
+  digest = "1:ed615c5430ecabbb0fb7629a182da65ecee6523900ac1ac932520860878ffcad"
+  name = "github.com/robfig/cron"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "b41be1df696709bb6395fe435af20370037c0b4c"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:b7bf9fd95d38ebe6726a63b7d0320611f7c920c64e2c8313eba0cec51926bf55"
   name = "github.com/spf13/afero"
   packages = [
@@ -1147,6 +1155,7 @@
     "github.com/openshift/api/apps/v1",
     "github.com/openshift/client-go/apps/clientset/versioned",
     "github.com/pkg/errors",
+    "github.com/robfig/cron",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
     "github.com/streadway/amqp",

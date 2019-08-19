@@ -6,10 +6,7 @@ import (
 	EntityInflux "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb"
 	EntityInfluxKeycode "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb/cluster_status"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	Events "github.com/containers-ai/alameda/internal/pkg/event-mgt"
-	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"math"
 	"strings"
@@ -199,27 +196,27 @@ func (c *KeycodeMgt) Refresh(force bool) error {
 		case KeycodeStatusNoKeycode:
 			c.writeInfluxEntry("N/A", KeycodeStatusNoKeycode)
 			c.deleteInfluxEntry("Summary")
-			c.postEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
 		case KeycodeStatusInvalid:
 			c.writeInfluxEntry("Summary", KeycodeStatusInvalid)
 			c.deleteInfluxEntry("N/A")
-			c.postEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
 		case KeycodeStatusExpired:
 			c.writeInfluxEntry("Summary", KeycodeStatusExpired)
 			c.deleteInfluxEntry("N/A")
-			c.postEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
 		case KeycodeStatusNotActivated:
 			c.writeInfluxEntry("Summary", KeycodeStatusNotActivated)
 			c.deleteInfluxEntry("N/A")
-			c.postEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
 		case KeycodeStatusValid:
 			c.writeInfluxEntry("Summary", KeycodeStatusValid)
 			c.deleteInfluxEntry("N/A")
-			c.postEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
 		default:
 			c.writeInfluxEntry("Summary", KeycodeStatusUnknown)
 			c.deleteInfluxEntry("N/A")
-			c.postEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeStatusUnknown))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeStatusUnknown))
 		}
 	}
 
@@ -243,18 +240,6 @@ func (c *KeycodeMgt) IsExpired() bool {
 	}
 
 	return true
-}
-
-func (c *KeycodeMgt) postEvent(level DatahubV1alpha1.EventLevel, message string) {
-	if level == DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO {
-		scope.Info(message)
-	} else {
-		scope.Error(message)
-	}
-
-	request := &DatahubV1alpha1.CreateEventsRequest{}
-	request.Events = append(request.Events, c.generateEvent(level, message))
-	Events.PostEvents(request)
 }
 
 func (c *KeycodeMgt) writeInfluxEntry(keycode, status string) error {
@@ -306,15 +291,4 @@ func (c *KeycodeMgt) deleteInfluxEntry(keycode string) error {
 		}
 	}
 	return nil
-}
-
-func (c *KeycodeMgt) generateEvent(level DatahubV1alpha1.EventLevel, message string) *DatahubV1alpha1.Event {
-	event := &DatahubV1alpha1.Event{
-		Time:    &timestamp.Timestamp{Seconds: time.Now().Unix()},
-		Id:      AlamedaUtils.GenerateUUID(),
-		Version: DatahubV1alpha1.EventVersion_EVENT_VERSION_V1,
-		Level:   level,
-		Message: message,
-	}
-	return event
 }

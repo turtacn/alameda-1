@@ -5,6 +5,7 @@ import (
 	"github.com/containers-ai/alameda/cmd/app"
 	Keycodes "github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes"
 	DatahubConfig "github.com/containers-ai/alameda/datahub/pkg/config"
+	Notifier "github.com/containers-ai/alameda/datahub/pkg/notifier"
 	EventMgt "github.com/containers-ai/alameda/internal/pkg/event-mgt"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/spf13/cobra"
@@ -97,4 +98,10 @@ func initKeycode() {
 
 	keycodeMgt := Keycodes.NewKeycodeMgt()
 	keycodeMgt.Refresh(true)
+}
+
+func initNotifier() {
+	Notifier.NotifierInit(config.Notifier)
+
+	go Notifier.Run()
 }
