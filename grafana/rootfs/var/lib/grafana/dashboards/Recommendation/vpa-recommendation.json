@@ -545,7 +545,7 @@
         {
           "alias": "Prediction: CPU usage lowerbound (in 15m)",
           "color": "#f9e2d2",
-          "hideTooltip": false,
+          "hideTooltip": true,
           "legend": false,
           "lines": false
         },
@@ -987,14 +987,14 @@
           "alias": "Prediction: memory usage upperbound (in 15m)",
           "color": "#f9e2d2",
           "fillBelowTo": "Prediction: memory usage lowerbound (in 15m)",
-          "hideTooltip": false,
+          "hideTooltip": true,
           "legend": false,
           "lines": false
         },
         {
           "alias": "Prediction: memory usage lowerbound (in 15m)",
           "color": "#f9e2d2",
-          "hideTooltip": false,
+          "hideTooltip": true,
           "legend": false,
           "lines": false
         },
