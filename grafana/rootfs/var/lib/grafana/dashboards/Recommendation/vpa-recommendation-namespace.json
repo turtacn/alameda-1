@@ -1301,15 +1301,17 @@
       {
         "allValue": null,
         "current": {
-          "text": "nginx",
-          "value": "nginx"
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ and \"pod_name\" =~ /^[[pod]]$/",
         "hide": 2,
-        "includeAll": false,
+        "includeAll": true,
         "label": null,
-        "multi": false,
+        "multi": true,
         "name": "container",
         "options": [],
         "query": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" =~ /^[[scaler]]$/ and \"pod_name\" =~ /^[[pod]]$/",
