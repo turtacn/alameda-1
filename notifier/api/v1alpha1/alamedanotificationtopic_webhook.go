@@ -38,7 +38,7 @@ func (r *AlamedaNotificationTopic) SetupWebhookWithManager(mgr ctrl.Manager) err
 var _ webhook.Defaulter = &AlamedaNotificationTopic{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *AlamedaNotificationTopic) Default() {	
+func (r *AlamedaNotificationTopic) Default() {
 }
 
 // +kubebuilder:webhook:path=/validate-notifying-containers-ai-v1alpha1-alamedanotificationtopic,mutating=false,failurePolicy=fail,groups=notifying.containers.ai,resources=alamedanotificationtopics,verbs=create;update,versions=v1alpha1,name=valamedanotificationtopic.containers.ai
@@ -46,7 +46,12 @@ func (r *AlamedaNotificationTopic) Default() {
 var _ webhook.Validator = &AlamedaNotificationTopic{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *AlamedaNotificationTopic) ValidateCreate() error {	
+func (r *AlamedaNotificationTopic) ValidateCreate() error {
+	return nil
+}
+
+// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
+func (r *AlamedaNotificationTopic) ValidateDelete() error {
 	return nil
 }
 

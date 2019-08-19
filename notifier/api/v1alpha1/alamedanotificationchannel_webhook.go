@@ -80,11 +80,16 @@ func (r *AlamedaNotificationChannel) Default() {
 var _ webhook.Validator = &AlamedaNotificationChannel{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *AlamedaNotificationChannel) ValidateCreate() error {	
+func (r *AlamedaNotificationChannel) ValidateCreate() error {
+	return nil
+}
+
+// ValidateDelete implements webhook.Validator so a webhook will be registered for the type
+func (r *AlamedaNotificationChannel) ValidateDelete() error {
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *AlamedaNotificationChannel) ValidateUpdate(old runtime.Object) error {	
+func (r *AlamedaNotificationChannel) ValidateUpdate(old runtime.Object) error {
 	return nil
 }
