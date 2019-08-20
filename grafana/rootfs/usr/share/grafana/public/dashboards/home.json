@@ -33,10 +33,10 @@
       "type": "row"
     },
     {
-      "content": "<center>\n  <img style=\"vertical-align:middle;\" src=\"https://i1.wp.com/www.prophetstor.com/wp-content/uploads/2017/05/prophetstor_white_logo.png?fit=143%2C62&ssl=1\">\n  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \n  <span style=\"vertical-align:middle; font-size:30px;\">Federator.ai</span>\n</center>\n",
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div style=\"text-align:center;\">\n        <img style=\"vertical-align:middle;\" src=\"https://i1.wp.com/www.prophetstor.com/wp-content/uploads/2017/05/prophetstor_white_logo.png?fit=143%2C62&ssl=1\">\n        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \n        <span style=\"vertical-align:middle; font-size:30px;\">Federator.ai</span>\n      </div>\n    </td>\n  </tr>\n</table>\n",
       "gridPos": {
-        "h": 3,
-        "w": 13,
+        "h": 6,
+        "w": 9,
         "x": 0,
         "y": 1
       },
@@ -49,9 +49,9 @@
     {
       "content": "<h1 style=\"position: relative; text-align: center; vertical-align:middle; font-size:30px; top: 30%;\">__DEV_VERSION__</h1>",
       "gridPos": {
-        "h": 3,
-        "w": 11,
-        "x": 13,
+        "h": 6,
+        "w": 8,
+        "x": 9,
         "y": 1
       },
       "id": 6,
@@ -61,12 +61,140 @@
       "type": "text"
     },
     {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "InfluxDB",
+      "format": "dateTimeAsIso",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 7,
+        "x": 17,
+        "y": 1
+      },
+      "id": 70,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "expire_timestamp",
+      "targets": [
+        {
+          "expr": "",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": "",
+      "title": "License Expired Time",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "avg"
+    },
+    {
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>",
+      "gridPos": {
+        "h": 3,
+        "w": 7,
+        "x": 17,
+        "y": 4
+      },
+      "id": 72,
+      "links": [],
+      "mode": "html",
+      "title": "License Status",
+      "type": "text"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 7
       },
       "id": 18,
       "panels": [],
@@ -95,7 +223,7 @@
         "h": 5,
         "w": 4,
         "x": 0,
-        "y": 5
+        "y": 8
       },
       "id": 30,
       "interval": null,
@@ -177,7 +305,7 @@
         "h": 5,
         "w": 4,
         "x": 4,
-        "y": 5
+        "y": 8
       },
       "id": 28,
       "interval": null,
@@ -259,7 +387,7 @@
         "h": 5,
         "w": 4,
         "x": 8,
-        "y": 5
+        "y": 8
       },
       "id": 34,
       "interval": null,
@@ -341,7 +469,7 @@
         "h": 5,
         "w": 4,
         "x": 12,
-        "y": 5
+        "y": 8
       },
       "id": 32,
       "interval": null,
@@ -425,7 +553,7 @@
         "h": 5,
         "w": 4,
         "x": 16,
-        "y": 5
+        "y": 8
       },
       "id": 62,
       "interval": null,
@@ -480,8 +608,8 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 2,
           "instant": true,
+          "intervalFactor": 2,
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -539,7 +667,7 @@
         "h": 5,
         "w": 4,
         "x": 20,
-        "y": 5
+        "y": 8
       },
       "id": 64,
       "interval": null,
@@ -594,8 +722,8 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 2,
           "instant": true,
+          "intervalFactor": 2,
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -639,7 +767,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 13
       },
       "id": 48,
       "links": [],
@@ -823,7 +951,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 18
       },
       "id": 16,
       "panels": [],
@@ -838,7 +966,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 50,
       "links": [],
@@ -1074,7 +1202,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "id": 20,
       "panels": [],
@@ -1104,7 +1232,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 24
       },
       "id": 68,
       "interval": null,
@@ -1204,7 +1332,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 26
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1441,7 +1569,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 26
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1754,15 +1882,40 @@
         "label": "container",
         "multi": true,
         "name": "container",
+        "options": [],
+        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Not Activated",
+          "value": "Not Activated"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select status from alameda_cluster_status..keycode limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "lic_status",
         "options": [
           {
             "selected": true,
-            "text": "All",
-            "value": "$__all"
+            "text": "Not Activated",
+            "value": "Not Activated"
           }
         ],
-        "query": "select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
-        "refresh": 2,
+        "query": "select status from alameda_cluster_status..keycode limit 1",
+        "refresh": 0,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
