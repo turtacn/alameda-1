@@ -2,10 +2,10 @@ apiVersion: 1
 providers:
 - disableDeletion: false
   editable: true
-  folder: Health
-  name: Health
+  folder: Insight
+  name: Insight
   options:
-    path: /var/lib/grafana/dashboards/Health
+    path: /var/lib/grafana/dashboards/Insight
   orgId: 1
   type: file
 - disableDeletion: false
