@@ -26,6 +26,10 @@ const (
 	NodeIOInstanceType nodeField = "io_instance_type"
 	NodeIORegion       nodeField = "io_region"
 	NodeIOZone         nodeField = "io_zone"
+	NodeIOOS           nodeField = "io_os"
+	NodeIORole         nodeField = "io_role"
+	NodeIOInstanceID   nodeField = "io_instance_id"
+	NodeIOStorageSize  nodeField = "io_storage_size"
 )
 
 var (
@@ -48,6 +52,10 @@ type NodeEntity struct {
 	IOInstanceType *string
 	IORegion       *string
 	IOZone         *string
+	IOOS           *string
+	IORole         *string
+	IOInstanceID   *string
+	IOStorageSize  *int64
 }
 
 // NewNodeEntityFromMap Build entity from map
@@ -90,6 +98,19 @@ func NewNodeEntityFromMap(data map[string]string) NodeEntity {
 	if ioZone, exist := data[NodeIOZone]; exist {
 		entity.IOZone = &ioZone
 	}
+	if ioOs, exist := data[NodeIOOS]; exist {
+		entity.IOOS = &ioOs
+	}
+	if ioRole, exist := data[NodeIORole]; exist {
+		entity.IORole = &ioRole
+	}
+	if ioInstanceID, exist := data[NodeIOInstanceID]; exist {
+		entity.IOInstanceID = &ioInstanceID
+	}
+	if ioStorageSize, exist := data[NodeIOStorageSize]; exist {
+		value, _ := strconv.ParseInt(ioStorageSize, 10, 64)
+		entity.IOStorageSize = &value
+	}
 
 	return entity
 }
@@ -129,6 +150,18 @@ func (e NodeEntity) InfluxDBPoint(measurementName string) (*InfluxClient.Point, 
 	if e.IOZone != nil {
 		fields[NodeIOZone] = *e.IOZone
 	}
+	if e.IOOS != nil {
+		fields[NodeIOOS] = *e.IOOS
+	}
+	if e.IORole != nil {
+		fields[NodeIORole] = *e.IORole
+	}
+	if e.IOInstanceID != nil {
+		fields[NodeIOInstanceID] = *e.IOInstanceID
+	}
+	if e.IOStorageSize != nil {
+		fields[NodeIOStorageSize] = *e.IOStorageSize
+	}
 
 	return InfluxClient.NewPoint(measurementName, tags, fields, e.Time)
 }
@@ -160,6 +193,18 @@ func (e NodeEntity) BuildDatahubNode() *datahub_v1alpha1.Node {
 	}
 	if e.IOZone != nil {
 		node.Provider.Zone = *e.IOZone
+	}
+	if e.IOOS != nil {
+		node.Provider.Os = *e.IOOS
+	}
+	if e.IORole != nil {
+		node.Provider.Role = *e.IORole
+	}
+	if e.IOInstanceID != nil {
+		node.Provider.InstanceId = *e.IOInstanceID
+	}
+	if e.IOStorageSize != nil {
+		node.Provider.StorageSize = *e.IOStorageSize
 	}
 
 	return node

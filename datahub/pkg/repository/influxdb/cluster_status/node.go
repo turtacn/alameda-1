@@ -56,6 +56,10 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 			entity.IOInstanceType = &nodeProvider.InstanceType
 			entity.IORegion = &nodeProvider.Region
 			entity.IOZone = &nodeProvider.Zone
+			entity.IOOS = &nodeProvider.Os
+			entity.IORole = &nodeProvider.Role
+			entity.IOInstanceID = &nodeProvider.InstanceId
+			entity.IOStorageSize = &nodeProvider.StorageSize
 		}
 		if pt, err := entity.InfluxDBPoint(string(Node)); err == nil {
 			points = append(points, pt)
