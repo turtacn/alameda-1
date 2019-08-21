@@ -35,6 +35,6 @@ keycode:
 notifier:
   keycode:
     enabled: true
-    specs: "0 * * * * *"
+    specs: "0 0 * * * *"
     eventInterval: "90,60,30,15,7,6,5,4,3,2,1,0,-1,-2,-3,-4,-5,-6,-7"
     eventLevel: "90:Info,15:Warn,0:Error"

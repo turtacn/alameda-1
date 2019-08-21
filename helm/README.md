@@ -48,9 +48,10 @@ $ helm install --name alameda-grafana --namespace alameda ./grafana/
 
 5. (Optional) If your environment does not have a running Prometheus, you can install it by executing:
 ```
-$ helm install stable/prometheus-operator --version 6.6.1 --name prometheus --namespace monitoring
+$ helm install stable/prometheus-operator --version 6.4.4 --name prometheus --namespace monitoring
 ```
 This will install Prometheus and the default setting will have all the metrics that Alameda needs. For detail metrics needed by Alameda, please visit [metrics_used_in_Alameda.md](../docs/metrics_used_in_Alameda.md) document.
+> **Note**: prometheus chart version greater than 6.4.4 has rules changed which make datahub work abnormal in kubernetes version 1.14 or later.
 
 ## TL;DR;
 
@@ -58,7 +59,7 @@ This will install Prometheus and the default setting will have all the metrics t
 $ git clone https://github.com/containers-ai/alameda
 $ helm install stable/influxdb --version 1.3.2 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
 ### Install Prometheus if no existed one
-# $ helm install stable/prometheus-operator --version 6.6.1 --name prometheus --namespace monitoring
+# $ helm install stable/prometheus-operator --version 6.4.4 --name prometheus --namespace monitoring
 $ helm install --name alameda --namespace alameda ./alameda/
 $ helm install --name alameda-grafana --namespace alameda ./grafana/
 ```
