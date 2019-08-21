@@ -170,6 +170,7 @@ func main() {
 	mgr, err := manager.New(k8sConfig, manager.Options{})
 	if err != nil {
 		scope.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// TODO: There are config dependency, this manager should have it's config.
@@ -182,6 +183,7 @@ func main() {
 	// Setup Scheme for all resources
 	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
 		scope.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Setup Controllers
