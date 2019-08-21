@@ -24,3 +24,11 @@ providers:
     path: /var/lib/grafana/dashboards/Recommendation
   orgId: 1
   type: file
+- disableDeletion: false
+  editable: true
+  folder: Cost
+  name: Cost
+  options:
+    path: /var/lib/grafana/dashboards/Cost
+  orgId: 1
+  type: file
