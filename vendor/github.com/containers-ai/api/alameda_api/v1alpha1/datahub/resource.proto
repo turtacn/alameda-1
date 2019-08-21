@@ -104,4 +104,8 @@ message Provider {
     string instance_type = 2;
     string region        = 3;
     string zone          = 4;
+    string os            = 5;
+    string role          = 6;
+    string instance_id   = 7;
+    int64  storage_size  = 8;
 }
