@@ -1,0 +1,1125 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 15,
+  "iteration": 1563864349416,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "panels": [
+        {
+          "columns": [],
+          "datasource": "InfluxDB-GPU",
+          "fontSize": "100%",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 2
+          },
+          "id": 4,
+          "links": [],
+          "options": {},
+          "pageSize": null,
+          "scroll": true,
+          "showHeader": true,
+          "sort": {
+            "col": 0,
+            "desc": true
+          },
+          "styles": [
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "mappingType": 1,
+              "pattern": "Time",
+              "thresholds": [],
+              "type": "date",
+              "unit": "short"
+            },
+            {
+              "alias": "gpu.Number",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 0,
+              "mappingType": 1,
+              "pattern": "k8s",
+              "thresholds": [],
+              "type": "number",
+              "unit": "none"
+            }
+          ],
+          "targets": [
+            {
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "hide": false,
+              "measurement": "k8s",
+              "orderByTime": "ASC",
+              "policy": "autogen",
+              "query": "SELECT value, NodeName, PodName, PodImg, ProjCode, ProjCreator, ProjType  FROM \"autogen\".\"k8s\" WHERE (\"NodeName\" =~ /^$nodeName$/) AND $timeFilter ORDER BY time DESC",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": [
+                {
+                  "key": "NodeName",
+                  "operator": "=~",
+                  "value": "/^$nodeName$/"
+                }
+              ]
+            },
+            {
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "hide": true,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT sum(\"value\") AS \"sum_value\" FROM \"autogen\".\"k8s\" WHERE $timeFilter AND  (\"NodeName\" =~ /^$nodeName$/) GROUP BY time(5m)  ORDER BY time DESC",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "hide": true,
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT value, NodeName, PodName, PodImg, ProjCode, ProjCreator, ProjType  FROM \"autogen\".\"k8s\" WHERE (\"ProjCreator\" ='mamafun1981') AND $timeFilter ORDER BY time DESC",
+              "rawQuery": true,
+              "refId": "C",
+              "resultFormat": "table",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "GPU APPLY",
+          "transform": "table",
+          "type": "table"
+        }
+      ],
+      "title": "GPU APPLY",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 6,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus-GPU",
+          "fill": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 2
+          },
+          "id": 10,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {},
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "nvidia_gpu_duty_cycle{host=~\"$host\"}",
+              "format": "time_series",
+              "instant": false,
+              "intervalFactor": 1,
+              "legendFormat": " gpu{{minor_number}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "GPU Utilization / Card",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus-GPU",
+          "fill": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 2
+          },
+          "id": 8,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {},
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "nvidia_gpu_memory_used_bytes{host=~\"$host\"}/nvidia_gpu_memory_total_bytes{host=~\"$host\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "gpu{{minor_number}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Memory Utilization / Card",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "fill": 0,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 10
+          },
+          "id": 12,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": false,
+            "rightSide": true,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {},
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "nvidia_gpu_temperature_celsius{host=~\"$host\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": " gpu{{minor_number}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "GPU Temperature",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "celsius",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "fill": 4,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 10
+          },
+          "id": 13,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": false,
+            "min": false,
+            "rightSide": true,
+            "show": false,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {},
+          "percentage": false,
+          "pointradius": 2,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "nvidia_gpu_power_usage_milliwatts{host=~\"$host\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": " gpu{{minor_number}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeRegions": [],
+          "timeShift": null,
+          "title": "Power Usage",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "mwatt",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        }
+      ],
+      "title": "Utilization",
+      "type": "row"
+    }
+  ],
+  "schemaVersion": 18,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "gn0505.twcc.ai",
+          "value": "gn0505.twcc.ai"
+        },
+        "datasource": "Prometheus-GPU",
+        "definition": "label_values(nvidia_gpu_num_devices, host)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Host:",
+        "multi": false,
+        "name": "host",
+        "options": [],
+        "query": "label_values(nvidia_gpu_num_devices, host)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Tesla V100-SXM2-32GB",
+          "value": "Tesla V100-SXM2-32GB"
+        },
+        "datasource": "Prometheus-GPU",
+        "definition": "label_values(nvidia_gpu_duty_cycle{host=~\"$host\"}, name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "GPU Name:",
+        "multi": false,
+        "name": "gpuName",
+        "options": [],
+        "query": "label_values(nvidia_gpu_duty_cycle{host=~\"$host\"}, name)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "GPU-29bc889b-426a-6f39-6033-15e6be2b712b",
+          "value": "GPU-29bc889b-426a-6f39-6033-15e6be2b712b"
+        },
+        "datasource": "Prometheus-GPU",
+        "definition": "label_values(nvidia_gpu_duty_cycle{host=~\"$host\"}, uuid)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "UUID:",
+        "multi": false,
+        "name": "uuid",
+        "options": [],
+        "query": "label_values(nvidia_gpu_duty_cycle{host=~\"$host\"}, uuid)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "gn0505.twcc.ai",
+          "value": "gn0505.twcc.ai"
+        },
+        "datasource": "InfluxDB-GPU",
+        "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"NodeName\" WHERE \"NodeName\" =~ /^$host$/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Node Name:",
+        "multi": false,
+        "name": "nodeName",
+        "options": [],
+        "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"NodeName\" WHERE \"NodeName\" =~ /^$host$/",
+        "refresh": 2,
+        "regex": "/gn.*/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "ntunlp2019",
+          "value": "ntunlp2019"
+        },
+        "datasource": "InfluxDB-GPU",
+        "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCreator\" WHERE \"NodeName\" =~ /^$nodeName$/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Proj Creator:",
+        "multi": false,
+        "name": "projCreator",
+        "options": [
+          {
+            "selected": false,
+            "text": "asafes45",
+            "value": "asafes45"
+          },
+          {
+            "selected": false,
+            "text": "c00yun00",
+            "value": "c00yun00"
+          },
+          {
+            "selected": false,
+            "text": "chting658",
+            "value": "chting658"
+          },
+          {
+            "selected": false,
+            "text": "ckip1819",
+            "value": "ckip1819"
+          },
+          {
+            "selected": false,
+            "text": "eric84220",
+            "value": "eric84220"
+          },
+          {
+            "selected": false,
+            "text": "mlib2018",
+            "value": "mlib2018"
+          },
+          {
+            "selected": false,
+            "text": "motorona74",
+            "value": "motorona74"
+          },
+          {
+            "selected": true,
+            "text": "ntunlp2019",
+            "value": "ntunlp2019"
+          },
+          {
+            "selected": false,
+            "text": "oscartai520",
+            "value": "oscartai520"
+          },
+          {
+            "selected": false,
+            "text": "p00ckp00",
+            "value": "p00ckp00"
+          },
+          {
+            "selected": false,
+            "text": "peggy9464",
+            "value": "peggy9464"
+          },
+          {
+            "selected": false,
+            "text": "robert456123",
+            "value": "robert456123"
+          },
+          {
+            "selected": false,
+            "text": "robert80203",
+            "value": "robert80203"
+          },
+          {
+            "selected": false,
+            "text": "sonyeric101",
+            "value": "sonyeric101"
+          },
+          {
+            "selected": false,
+            "text": "sthost01",
+            "value": "sthost01"
+          },
+          {
+            "selected": false,
+            "text": "sthost06",
+            "value": "sthost06"
+          },
+          {
+            "selected": false,
+            "text": "sthost11",
+            "value": "sthost11"
+          },
+          {
+            "selected": false,
+            "text": "sunny3184",
+            "value": "sunny3184"
+          },
+          {
+            "selected": false,
+            "text": "u00wcl02",
+            "value": "u00wcl02"
+          },
+          {
+            "selected": false,
+            "text": "u1597171",
+            "value": "u1597171"
+          },
+          {
+            "selected": false,
+            "text": "u2882621",
+            "value": "u2882621"
+          },
+          {
+            "selected": false,
+            "text": "u6748622",
+            "value": "u6748622"
+          },
+          {
+            "selected": false,
+            "text": "u6916098",
+            "value": "u6916098"
+          },
+          {
+            "selected": false,
+            "text": "u6982367",
+            "value": "u6982367"
+          },
+          {
+            "selected": false,
+            "text": "u8880716",
+            "value": "u8880716"
+          },
+          {
+            "selected": false,
+            "text": "u9078173",
+            "value": "u9078173"
+          },
+          {
+            "selected": false,
+            "text": "u9485983",
+            "value": "u9485983"
+          },
+          {
+            "selected": false,
+            "text": "u9764578",
+            "value": "u9764578"
+          },
+          {
+            "selected": false,
+            "text": "wesleyc3",
+            "value": "wesleyc3"
+          },
+          {
+            "selected": false,
+            "text": "willchen945",
+            "value": "willchen945"
+          },
+          {
+            "selected": false,
+            "text": "wr4222687777",
+            "value": "wr4222687777"
+          },
+          {
+            "selected": false,
+            "text": "yenserver811",
+            "value": "yenserver811"
+          }
+        ],
+        "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCreator\" WHERE \"NodeName\" =~ /^$nodeName$/",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "rk_health",
+          "value": "rk_health"
+        },
+        "datasource": "InfluxDB-GPU",
+        "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCode\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Proj Code:",
+        "multi": false,
+        "name": "projCode",
+        "options": [],
+        "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCode\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "RK_",
+          "value": "RK_"
+        },
+        "datasource": "InfluxDB-GPU",
+        "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjType\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Proj Type:",
+        "multi": false,
+        "name": "projType",
+        "options": [
+          {
+            "selected": true,
+            "text": "RK_",
+            "value": "RK_"
+          }
+        ],
+        "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjType\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "network_health_p5m9r",
+          "value": "network_health_p5m9r"
+        },
+        "datasource": "InfluxDB-GPU",
+        "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodName\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "PodName",
+        "multi": false,
+        "name": "podName",
+        "options": [],
+        "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodName\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "kairen/network_health:v1.1.0",
+          "value": "kairen/network_health:v1.1.0"
+        },
+        "datasource": "InfluxDB-GPU",
+        "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodImg\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Pod Img:",
+        "multi": false,
+        "name": "podImg",
+        "options": [
+          {
+            "selected": true,
+            "text": "kairen/network_health:v1.1.0",
+            "value": "kairen/network_health:v1.1.0"
+          }
+        ],
+        "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodImg\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "gn0107.twcc.ai",
+          "value": "gn0107.twcc.ai"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Issue Node:",
+        "multi": false,
+        "name": "issueNode",
+        "options": [
+          {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Pod_NoWorkLoad :",
+            "value": "Pod_NoWorkLoad :"
+          },
+          {
+            "selected": false,
+            "text": "gn0101.twcc.ai",
+            "value": "gn0101.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0102.twcc.ai",
+            "value": "gn0102.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0104.twcc.ai",
+            "value": "gn0104.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0105.twcc.ai",
+            "value": "gn0105.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0106.twcc.ai",
+            "value": "gn0106.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0108.twcc.ai",
+            "value": "gn0108.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0111.twcc.ai",
+            "value": "gn0111.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0113.twcc.ai",
+            "value": "gn0113.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0114.twcc.ai",
+            "value": "gn0114.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0115.twcc.ai",
+            "value": "gn0115.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0116.twcc.ai",
+            "value": "gn0116.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "NoPod_WorkLoad :",
+            "value": "NoPod_WorkLoad :"
+          },
+          {
+            "selected": true,
+            "text": "gn0107.twcc.ai",
+            "value": "gn0107.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0109.twcc.ai",
+            "value": "gn0109.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0110.twcc.ai",
+            "value": "gn0110.twcc.ai"
+          },
+          {
+            "selected": false,
+            "text": "gn0112.twcc.ai",
+            "value": "gn0112.twcc.ai"
+          }
+        ],
+        "query": "Pod_NoWorkLoad :, gn0101.twcc.ai, gn0102.twcc.ai, gn0104.twcc.ai, gn0105.twcc.ai, gn0106.twcc.ai, gn0108.twcc.ai, gn0111.twcc.ai, gn0113.twcc.ai, gn0114.twcc.ai, gn0115.twcc.ai, gn0116.twcc.ai, NoPod_WorkLoad :, gn0107.twcc.ai, gn0109.twcc.ai, gn0110.twcc.ai, gn0112.twcc.ai,",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "GPU for Node",
+  "uid": "QB498s7Zz",
+  "version": 75
+}
