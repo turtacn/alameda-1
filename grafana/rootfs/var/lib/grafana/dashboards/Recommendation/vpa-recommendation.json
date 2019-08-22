@@ -518,17 +518,17 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Recommendation: CPU limit(previous 1 hour)",
+          "alias": "Recommendation: CPU limit",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Recommendation: CPU request(previous 1 hour)",
+          "alias": "Recommendation: CPU request",
           "color": "#7eb26d",
           "steppedLine": true
         },
         {
-          "alias": "Prediction: CPU usage(previous 1 hour)",
+          "alias": "Prediction: CPU usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -548,23 +548,6 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
-        },
-        {
-          "alias": "Prediction: CPU usage(next 15 minutes)",
-          "color": "#f9e2d2",
-          "dashLength": 5,
-          "dashes": true,
-          "spaceLength": 4
-        },
-        {
-          "alias": "Recommendation: CPU limit(next 15 minutes)",
-          "color": "#f2c96d",
-          "steppedLine": true
-        },
-        {
-          "alias": "Recommendation: CPU request(next 15 minutes)",
-          "color": "#7eb26d",
-          "steppedLine": true
         }
       ],
       "spaceLength": 10,
@@ -583,7 +566,7 @@
           "refId": "C"
         },
         {
-          "alias": "Recommendation: CPU limit(previous 1 hour)",
+          "alias": "Recommendation: CPU limit",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -602,7 +585,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval)  fill(none)",
+          "query": "select sum from (select sum(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval)  fill(none)), (select sum from (select sum(resource_limit_cpu),count(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now() and time <= now()+15m group by time($recomInterval) fill(none)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -623,7 +606,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation: CPU request(previous 1 hour)",
+          "alias": "Recommendation: CPU request",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -642,7 +625,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by  time($recomInterval) fill(none)",
+          "query": "select sum from (select sum(resource_request_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by  time($recomInterval) fill(none)), (select sum from (select sum(resource_request_cpu ), count(resource_request_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now() and time <= now()+15m group by time($recomInterval) fill(none)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -663,14 +646,14 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage(previous 1 hour)",
+          "alias": "Prediction: CPU usage",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": false,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-1h and time < now() group by time($recomInterval)",
+          "query": "select sum from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-1h and time < now() group by time($recomInterval)), (select sum from (select sum(value),count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now() and time <= now()+15m group by time($recomInterval)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -745,114 +728,6 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() and time <= now() + 15m group by time(30s)",
           "rawQuery": true,
           "refId": "G",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "node",
-              "operator": "=",
-              "value": "ip-172-23-1-91.us-east-2.compute.internal"
-            },
-            {
-              "condition": "AND",
-              "key": "type",
-              "operator": "=",
-              "value": "cpu"
-            }
-          ]
-        },
-        {
-          "alias": "Prediction: CPU usage(next 15 minutes)",
-          "datasource": "InfluxDB",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "node_prediction",
-          "orderByTime": "ASC",
-          "policy": "node_prediction",
-          "query": "select sum from (select sum(value),count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-30s and time <= now()+15m group by time($recomInterval)) where count = $count_pod",
-          "rawQuery": true,
-          "refId": "E",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "node",
-              "operator": "=",
-              "value": "ip-172-23-1-91.us-east-2.compute.internal"
-            },
-            {
-              "condition": "AND",
-              "key": "type",
-              "operator": "=",
-              "value": "cpu"
-            }
-          ]
-        },
-        {
-          "alias": "Recommendation: CPU limit(next 15 minutes)",
-          "datasource": "InfluxDB",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "node_prediction",
-          "orderByTime": "ASC",
-          "policy": "node_prediction",
-          "query": "select sum from (select sum(resource_limit_cpu),count(resource_limit_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-10m and time <= now()+15m group by time($recomInterval) fill(none)) where count = $count_pod",
-          "rawQuery": true,
-          "refId": "H",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "node",
-              "operator": "=",
-              "value": "ip-172-23-1-91.us-east-2.compute.internal"
-            },
-            {
-              "condition": "AND",
-              "key": "type",
-              "operator": "=",
-              "value": "cpu"
-            }
-          ]
-        },
-        {
-          "alias": "Recommendation: CPU request(next 15 minutes)",
-          "datasource": "InfluxDB",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "node_prediction",
-          "orderByTime": "ASC",
-          "policy": "node_prediction",
-          "query": "select sum from (select sum(resource_request_cpu ), count(resource_request_cpu) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-10m and time <= now()+15m group by time($recomInterval) fill(none)) where count = $count_pod",
-          "rawQuery": true,
-          "refId": "I",
           "resultFormat": "time_series",
           "select": [
             [
@@ -963,17 +838,17 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Recommendation: memory limit(previous 1 hour)",
+          "alias": "Recommendation: memory limit",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Recommendation: memory request(previous 1 hour)",
+          "alias": "Recommendation: memory request",
           "color": "#7eb26d",
           "steppedLine": true
         },
         {
-          "alias": "Prediction: memory usage(previous 1 hour)",
+          "alias": "Prediction: memory usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -993,23 +868,6 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
-        },
-        {
-          "alias": "Prediction: memory usage(next 15 minutes)",
-          "color": "#f9e2d2",
-          "dashLength": 5,
-          "dashes": true,
-          "spaceLength": 4
-        },
-        {
-          "alias": "Recommendation: memory limit(next 15 minutes)",
-          "color": "#f2c96d",
-          "steppedLine": true
-        },
-        {
-          "alias": "Recommendation: memory request(next 15 minutes)",
-          "color": "#7eb26d",
-          "steppedLine": true
         }
       ],
       "spaceLength": 10,
@@ -1028,7 +886,7 @@
           "refId": "C"
         },
         {
-          "alias": "Recommendation: memory limit(previous 1 hour)",
+          "alias": "Recommendation: memory limit",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1047,7 +905,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_limit_memory) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval) fill(none)",
+          "query": "select sum from (select sum(resource_limit_memory) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval) fill(none)), (select sum from (select sum(resource_limit_memory ), count(resource_limit_memory) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[h_pod]]$/ and granularity = '30' and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now() and time <= now()+20m group by time($recomInterval) fill(none)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1068,7 +926,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation: memory request(previous 1 hour)",
+          "alias": "Recommendation: memory request",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1087,7 +945,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(resource_request_memory) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval) fill(none)",
+          "query": "select sum from (select sum(resource_request_memory) from \"alameda_recommendation\"..\"container\" where granularity = '30' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval) fill(none)), (select sum from (select sum(resource_request_memory ), count(resource_request_memory) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[h_pod]]$/ and granularity = '30' and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now() and time <= now()+20m group by time($recomInterval) fill(none)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1108,14 +966,14 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage(previous 1 hour)",
+          "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": false,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval)",
+          "query": "select sum from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now()-1h and time < now() group by time($recomInterval)), (select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now() and time <= now()+20m group by time($recomInterval)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1190,114 +1048,6 @@
           "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/   AND time >= now() and time <= now() + 15m group by time(30s)",
           "rawQuery": true,
           "refId": "F",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "node",
-              "operator": "=",
-              "value": "ip-172-23-1-91.us-east-2.compute.internal"
-            },
-            {
-              "condition": "AND",
-              "key": "type",
-              "operator": "=",
-              "value": "cpu"
-            }
-          ]
-        },
-        {
-          "alias": "Prediction: memory usage(next 15 minutes)",
-          "datasource": "InfluxDB",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "node_prediction",
-          "orderByTime": "ASC",
-          "policy": "node_prediction",
-          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-30s and time <= now()+20m group by time($recomInterval)) where count = $count_pod",
-          "rawQuery": true,
-          "refId": "G",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "node",
-              "operator": "=",
-              "value": "ip-172-23-1-91.us-east-2.compute.internal"
-            },
-            {
-              "condition": "AND",
-              "key": "type",
-              "operator": "=",
-              "value": "cpu"
-            }
-          ]
-        },
-        {
-          "alias": "Recommendation: memory limit(next 15 minutes)",
-          "datasource": "InfluxDB",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "node_prediction",
-          "orderByTime": "ASC",
-          "policy": "node_prediction",
-          "query": "select sum from (select sum(resource_limit_memory ), count(resource_limit_memory) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[h_pod]]$/ and granularity = '30' and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-10m and time <= now()+20m group by time($recomInterval) fill(none)) where count = $count_pod",
-          "rawQuery": true,
-          "refId": "H",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "node",
-              "operator": "=",
-              "value": "ip-172-23-1-91.us-east-2.compute.internal"
-            },
-            {
-              "condition": "AND",
-              "key": "type",
-              "operator": "=",
-              "value": "cpu"
-            }
-          ]
-        },
-        {
-          "alias": "Recommendation: memory request(next 15 minutes)",
-          "datasource": "InfluxDB",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "node_prediction",
-          "orderByTime": "ASC",
-          "policy": "node_prediction",
-          "query": "select sum from (select sum(resource_request_memory ), count(resource_request_memory) from \"alameda_recommendation\"..\"container\" where \"pod_name\" =~ /^[[h_pod]]$/ and granularity = '30' and \"namespace\" =~ /^[[h_ns]]$/ AND time>=now()-10m and time <= now()+20m group by time($recomInterval) fill(none)) where count = $count_pod",
-          "rawQuery": true,
-          "refId": "I",
           "resultFormat": "time_series",
           "select": [
             [
