@@ -93,6 +93,14 @@ const (
 	ContainerUsedRecommendationID containerField = "used_recommendation_id"
 	ContainerEnableVPA            containerField = "enable_VPA"
 	ContainerEnableHPA            containerField = "enable_HPA"
+	// ContainerAlamedaScalerResourceLimitCPU is maximum amount of CPU resource allowed
+	ContainerAlamedaScalerResourceLimitCPU containerField = "alameda_scaler_resource_limit_cpu"
+	// ContainerAlamedaScalerResourceLimitMemory is maximum amount of memory resource allowed
+	ContainerAlamedaScalerResourceLimitMemory containerField = "alameda_scaler_resource_limit_memory"
+	// ContainerAlamedaScalerResourceRequestCPU is minimum amount of CPU resource required
+	ContainerAlamedaScalerResourceRequestCPU containerField = "alameda_scaler_resource_request_cpu"
+	// ContainerAlamedaScalerResourceRequestMemory is minimum amount of memory resource required
+	ContainerAlamedaScalerResourceRequestMemory containerField = "alameda_scaler_resource_request_memory"
 )
 
 var (
@@ -120,6 +128,7 @@ var (
 		ContainerPodCreateTime, ContainerResourceLink,
 		ContainerTopControllerName, ContainerTopControllerKind, ContainerTpoControllerReplicas,
 		ContainerEnableHPA, ContainerEnableVPA,
+		ContainerAlamedaScalerResourceLimitCPU, ContainerAlamedaScalerResourceLimitMemory, ContainerAlamedaScalerResourceRequestCPU, ContainerAlamedaScalerResourceRequestMemory,
 	}
 )
 
@@ -167,6 +176,10 @@ type ContainerEntity struct {
 	UsedRecommendationID                      *string
 	EnableVPA                                 *bool
 	EnableHPA                                 *bool
+	AlamedaScalerResourceLimitCPU             *float64
+	AlamedaScalerResourceLimitMemory          *float64
+	AlamedaScalerResourceRequestCPU           *float64
+	AlamedaScalerResourceRequestMemory        *float64
 }
 
 // NewContainerEntityFromMap Build entity from map
@@ -323,6 +336,22 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 		b, _ := strconv.ParseBool(enableHPA)
 		entity.EnableHPA = &b
 	}
+	if alamedaScalerResourceLimitCPU, exist := data[ContainerAlamedaScalerResourceLimitCPU]; exist {
+		value, _ := strconv.ParseFloat(alamedaScalerResourceLimitCPU, 64)
+		entity.AlamedaScalerResourceLimitCPU = &value
+	}
+	if alamedaScalerResourceLimitMemory, exist := data[ContainerAlamedaScalerResourceLimitMemory]; exist {
+		value, _ := strconv.ParseFloat(alamedaScalerResourceLimitMemory, 64)
+		entity.AlamedaScalerResourceLimitMemory = &value
+	}
+	if alamedaScalerResourceRequestCPU, exist := data[ContainerAlamedaScalerResourceRequestCPU]; exist {
+		value, _ := strconv.ParseFloat(alamedaScalerResourceRequestCPU, 64)
+		entity.AlamedaScalerResourceRequestCPU = &value
+	}
+	if alamedaScalerResourceRequestMemory, exist := data[ContainerAlamedaScalerResourceRequestMemory]; exist {
+		value, _ := strconv.ParseFloat(alamedaScalerResourceRequestMemory, 64)
+		entity.AlamedaScalerResourceRequestMemory = &value
+	}
 
 	return entity
 }
@@ -454,6 +483,18 @@ func (e ContainerEntity) InfluxDBPoint(measurementName string) (*influxdb_client
 	}
 	if e.EnableHPA != nil {
 		fields[ContainerEnableHPA] = *e.EnableHPA
+	}
+	if e.AlamedaScalerResourceLimitCPU != nil {
+		fields[ContainerAlamedaScalerResourceLimitCPU] = *e.AlamedaScalerResourceLimitCPU
+	}
+	if e.AlamedaScalerResourceLimitMemory != nil {
+		fields[ContainerAlamedaScalerResourceLimitMemory] = *e.AlamedaScalerResourceLimitMemory
+	}
+	if e.AlamedaScalerResourceRequestCPU != nil {
+		fields[ContainerAlamedaScalerResourceRequestCPU] = *e.AlamedaScalerResourceRequestCPU
+	}
+	if e.AlamedaScalerResourceRequestMemory != nil {
+		fields[ContainerAlamedaScalerResourceRequestMemory] = *e.AlamedaScalerResourceRequestMemory
 	}
 
 	return influxdb_client.NewPoint(measurementName, tags, fields, e.Time)

@@ -14,7 +14,13 @@ enum MetricType {
     UNDEFINED = 0;
     CPU_USAGE_SECONDS_PERCENTAGE = 1;
     MEMORY_USAGE_BYTES = 2;
-} 
+}
+
+enum ResourceName {
+    RESOURCE_NAME_UNDEFINED = 0;
+    CPU = 1;
+    MEMORY = 2;
+}
 
 /**
  * Represents metric data of a container
@@ -73,4 +79,14 @@ message MetricData {
     // data can be time series or non-time series
     repeated Sample data = 2;
     int64 granularity = 3;
+}
+
+/**
+ * ResourceRequirements describes the compute resource requirements
+ */
+message ResourceRequirements {
+    // limits describes the maximum amount of compute resources allowed
+    map<int32, string> limits = 1;
+    // requests describes the minimum amount of compute resources required
+    map<int32, string> requests = 2;
 }

@@ -285,6 +285,10 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*EntityI
 		topControllerKind                         *string
 		topControllerReplicas                     *int32
 		usedRecommendationID                      *string
+		alamedaScalerResourceLimitCPU             *float64
+		alamedaScalerResourceLimitMemory          *float64
+		alamedaScalerResourceRequestCPU           *float64
+		alamedaScalerResourceRequestMemory        *float64
 	)
 
 	nodeName = &pod.NodeName
@@ -414,6 +418,49 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*EntityI
 			}
 			restartCount = &containerStatus.RestartCount
 		}
+		if pod.GetAlamedaScalerResources() != nil {
+			resourceRequirements := pod.GetAlamedaScalerResources()
+			if resourceRequirements.GetLimits() != nil {
+				for resourceName, value := range resourceRequirements.GetLimits() {
+					switch resourceName {
+					case int32(datahub_v1alpha1.ResourceName_CPU):
+						val, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						alamedaScalerResourceLimitCPU = &val
+					case int32(datahub_v1alpha1.ResourceName_MEMORY):
+						val, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						alamedaScalerResourceLimitMemory = &val
+					default:
+						scope.Warnf("no mapping resource name for Datahub.ResourceName: %d, skip assigning value", resourceName)
+					}
+				}
+			}
+			if resourceRequirements.GetRequests() != nil {
+				for resourceName, value := range resourceRequirements.GetRequests() {
+					switch resourceName {
+					case int32(datahub_v1alpha1.ResourceName_CPU):
+						val, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						alamedaScalerResourceRequestCPU = &val
+					case int32(datahub_v1alpha1.ResourceName_MEMORY):
+						val, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						alamedaScalerResourceRequestMemory = &val
+					default:
+						scope.Warnf("no mapping resource name for Datahub.ResourceName: %d, skip assigning value", resourceName)
+					}
+				}
+			}
+		}
 
 		containerEntity := &EntityInfluxClusterStatus.ContainerEntity{
 			Time:                                      InternalInflux.ZeroTime,
@@ -458,6 +505,10 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*EntityI
 			AppPartOf:                                 &appPartOf,
 			EnableHPA:                                 &enableHPA,
 			EnableVPA:                                 &enableVPA,
+			AlamedaScalerResourceLimitCPU:             alamedaScalerResourceLimitCPU,
+			AlamedaScalerResourceLimitMemory:          alamedaScalerResourceLimitMemory,
+			AlamedaScalerResourceRequestCPU:           alamedaScalerResourceRequestCPU,
+			AlamedaScalerResourceRequestMemory:        alamedaScalerResourceRequestMemory,
 		}
 		containerEntities = append(containerEntities, containerEntity)
 	}
@@ -478,26 +529,30 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 		if !exist {
 
 			var (
-				podName                string
-				podPhase               string
-				podMessage             string
-				podReason              string
-				namespace              string
-				resourceLink           string
-				alamedaScalerNamespace string
-				alamedaScalerName      string
-				nodeName               string
-				podCreatedTime         int64
-				policy                 string
-				topControllerNamespace string
-				topControllerName      string
-				topControllerKind      string
-				topControllerReplicas  int32
-				usedRecommendationID   string
-				appName                string
-				appPartOf              string
-				enableHPA              bool
-				enableVPA              bool
+				podName                            string
+				podPhase                           string
+				podMessage                         string
+				podReason                          string
+				namespace                          string
+				resourceLink                       string
+				alamedaScalerNamespace             string
+				alamedaScalerName                  string
+				nodeName                           string
+				podCreatedTime                     int64
+				policy                             string
+				topControllerNamespace             string
+				topControllerName                  string
+				topControllerKind                  string
+				topControllerReplicas              int32
+				usedRecommendationID               string
+				appName                            string
+				appPartOf                          string
+				enableHPA                          bool
+				enableVPA                          bool
+				alamedaScalerResourceLimitCPU      string
+				alamedaScalerResourceLimitMemory   string
+				alamedaScalerResourceRequestCPU    string
+				alamedaScalerResourceRequestMemory string
 			)
 
 			if containerEntity.PodName != nil {
@@ -561,6 +616,18 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 			if containerEntity.EnableVPA != nil {
 				enableVPA = *containerEntity.EnableVPA
 			}
+			if containerEntity.AlamedaScalerResourceLimitCPU != nil {
+				alamedaScalerResourceLimitCPU = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceLimitCPU, 'f', -1, 64)
+			}
+			if containerEntity.AlamedaScalerResourceLimitMemory != nil {
+				alamedaScalerResourceLimitMemory = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceLimitMemory, 'f', -1, 64)
+			}
+			if containerEntity.AlamedaScalerResourceRequestCPU != nil {
+				alamedaScalerResourceRequestCPU = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceRequestCPU, 'f', -1, 64)
+			}
+			if containerEntity.AlamedaScalerResourceRequestMemory != nil {
+				alamedaScalerResourceRequestMemory = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceRequestMemory, 'f', -1, 64)
+			}
 
 			datahubPod = &datahub_v1alpha1.Pod{
 				NamespacedName: &datahub_v1alpha1.NamespacedName{
@@ -596,6 +663,16 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 				AppPartOf:  appPartOf,
 				Enable_HPA: enableHPA,
 				Enable_VPA: enableVPA,
+				AlamedaScalerResources: &datahub_v1alpha1.ResourceRequirements{
+					Limits: map[int32]string{
+						int32(datahub_v1alpha1.ResourceName_CPU):    alamedaScalerResourceLimitCPU,
+						int32(datahub_v1alpha1.ResourceName_MEMORY): alamedaScalerResourceLimitMemory,
+					},
+					Requests: map[int32]string{
+						int32(datahub_v1alpha1.ResourceName_CPU):    alamedaScalerResourceRequestCPU,
+						int32(datahub_v1alpha1.ResourceName_MEMORY): alamedaScalerResourceRequestMemory,
+					},
+				},
 			}
 			datahubPodMap[podID] = datahubPod
 		}

@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/metric.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\"h\n\x0f\x43ontainerMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xb0\x01\n\tPodMetric\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12R\n\x11\x63ontainer_metrics\x18\x02 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.ContainerMetric\"c\n\nNodeMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"s\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tnum_value\x18\x03 \x01(\t\"\xca\x02\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12^\n\x11\x61ggregateFunction\x18\x04 \x01(\x0e\x32\x43.containers_ai.alameda.v1alpha1.datahub.TimeRange.AggregateFunction\x12.\n\napply_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"&\n\x11\x41ggregateFunction\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03MAX\x10\x01\"\xa8\x01\n\nMetricData\x12G\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricType\x12<\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32..containers_ai.alameda.v1alpha1.datahub.Sample\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03*U\n\nMetricType\x12\r\n\tUNDEFINED\x10\x00\x12 \n\x1c\x43PU_USAGE_SECONDS_PERCENTAGE\x10\x01\x12\x16\n\x12MEMORY_USAGE_BYTES\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/metric.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\"h\n\x0f\x43ontainerMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xb0\x01\n\tPodMetric\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12R\n\x11\x63ontainer_metrics\x18\x02 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.ContainerMetric\"c\n\nNodeMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"s\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tnum_value\x18\x03 \x01(\t\"\xca\x02\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12^\n\x11\x61ggregateFunction\x18\x04 \x01(\x0e\x32\x43.containers_ai.alameda.v1alpha1.datahub.TimeRange.AggregateFunction\x12.\n\napply_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"&\n\x11\x41ggregateFunction\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03MAX\x10\x01\"\xa8\x01\n\nMetricData\x12G\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricType\x12<\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32..containers_ai.alameda.v1alpha1.datahub.Sample\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\"\xae\x02\n\x14ResourceRequirements\x12X\n\x06limits\x18\x01 \x03(\x0b\x32H.containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry\x12\\\n\x08requests\x18\x02 \x03(\x0b\x32J.containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry\x1a-\n\x0bLimitsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rRequestsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*U\n\nMetricType\x12\r\n\tUNDEFINED\x10\x00\x12 \n\x1c\x43PU_USAGE_SECONDS_PERCENTAGE\x10\x01\x12\x16\n\x12MEMORY_USAGE_BYTES\x10\x02*@\n\x0cResourceName\x12\x1b\n\x17RESOURCE_NAME_UNDEFINED\x10\x00\x12\x07\n\x03\x43PU\x10\x01\x12\n\n\x06MEMORY\x10\x02\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,])
 
@@ -49,15 +49,45 @@ _METRICTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1202,
-  serialized_end=1287,
+  serialized_start=1507,
+  serialized_end=1592,
 )
 _sym_db.RegisterEnumDescriptor(_METRICTYPE)
 
 MetricType = enum_type_wrapper.EnumTypeWrapper(_METRICTYPE)
+_RESOURCENAME = _descriptor.EnumDescriptor(
+  name='ResourceName',
+  full_name='containers_ai.alameda.v1alpha1.datahub.ResourceName',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='RESOURCE_NAME_UNDEFINED', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CPU', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MEMORY', index=2, number=2,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1594,
+  serialized_end=1658,
+)
+_sym_db.RegisterEnumDescriptor(_RESOURCENAME)
+
+ResourceName = enum_type_wrapper.EnumTypeWrapper(_RESOURCENAME)
 UNDEFINED = 0
 CPU_USAGE_SECONDS_PERCENTAGE = 1
 MEMORY_USAGE_BYTES = 2
+RESOURCE_NAME_UNDEFINED = 0
+CPU = 1
+MEMORY = 2
 
 
 _TIMERANGE_AGGREGATEFUNCTION = _descriptor.EnumDescriptor(
@@ -346,6 +376,118 @@ _METRICDATA = _descriptor.Descriptor(
   serialized_end=1200,
 )
 
+
+_RESOURCEREQUIREMENTS_LIMITSENTRY = _descriptor.Descriptor(
+  name='LimitsEntry',
+  full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry.key', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1411,
+  serialized_end=1456,
+)
+
+_RESOURCEREQUIREMENTS_REQUESTSENTRY = _descriptor.Descriptor(
+  name='RequestsEntry',
+  full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry.key', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1458,
+  serialized_end=1505,
+)
+
+_RESOURCEREQUIREMENTS = _descriptor.Descriptor(
+  name='ResourceRequirements',
+  full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='limits', full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.limits', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='requests', full_name='containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.requests', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_RESOURCEREQUIREMENTS_LIMITSENTRY, _RESOURCEREQUIREMENTS_REQUESTSENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1203,
+  serialized_end=1505,
+)
+
 _CONTAINERMETRIC.fields_by_name['metric_data'].message_type = _METRICDATA
 _PODMETRIC.fields_by_name['namespaced_name'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2._NAMESPACEDNAME
 _PODMETRIC.fields_by_name['container_metrics'].message_type = _CONTAINERMETRIC
@@ -360,13 +502,19 @@ _TIMERANGE.fields_by_name['apply_time'].message_type = google_dot_protobuf_dot_t
 _TIMERANGE_AGGREGATEFUNCTION.containing_type = _TIMERANGE
 _METRICDATA.fields_by_name['metric_type'].enum_type = _METRICTYPE
 _METRICDATA.fields_by_name['data'].message_type = _SAMPLE
+_RESOURCEREQUIREMENTS_LIMITSENTRY.containing_type = _RESOURCEREQUIREMENTS
+_RESOURCEREQUIREMENTS_REQUESTSENTRY.containing_type = _RESOURCEREQUIREMENTS
+_RESOURCEREQUIREMENTS.fields_by_name['limits'].message_type = _RESOURCEREQUIREMENTS_LIMITSENTRY
+_RESOURCEREQUIREMENTS.fields_by_name['requests'].message_type = _RESOURCEREQUIREMENTS_REQUESTSENTRY
 DESCRIPTOR.message_types_by_name['ContainerMetric'] = _CONTAINERMETRIC
 DESCRIPTOR.message_types_by_name['PodMetric'] = _PODMETRIC
 DESCRIPTOR.message_types_by_name['NodeMetric'] = _NODEMETRIC
 DESCRIPTOR.message_types_by_name['Sample'] = _SAMPLE
 DESCRIPTOR.message_types_by_name['TimeRange'] = _TIMERANGE
 DESCRIPTOR.message_types_by_name['MetricData'] = _METRICDATA
+DESCRIPTOR.message_types_by_name['ResourceRequirements'] = _RESOURCEREQUIREMENTS
 DESCRIPTOR.enum_types_by_name['MetricType'] = _METRICTYPE
+DESCRIPTOR.enum_types_by_name['ResourceName'] = _RESOURCENAME
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ContainerMetric = _reflection.GeneratedProtocolMessageType('ContainerMetric', (_message.Message,), {
@@ -411,5 +559,30 @@ MetricData = _reflection.GeneratedProtocolMessageType('MetricData', (_message.Me
   })
 _sym_db.RegisterMessage(MetricData)
 
+ResourceRequirements = _reflection.GeneratedProtocolMessageType('ResourceRequirements', (_message.Message,), {
 
+  'LimitsEntry' : _reflection.GeneratedProtocolMessageType('LimitsEntry', (_message.Message,), {
+    'DESCRIPTOR' : _RESOURCEREQUIREMENTS_LIMITSENTRY,
+    '__module__' : 'alameda_api.v1alpha1.datahub.metric_pb2'
+    # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry)
+    })
+  ,
+
+  'RequestsEntry' : _reflection.GeneratedProtocolMessageType('RequestsEntry', (_message.Message,), {
+    'DESCRIPTOR' : _RESOURCEREQUIREMENTS_REQUESTSENTRY,
+    '__module__' : 'alameda_api.v1alpha1.datahub.metric_pb2'
+    # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry)
+    })
+  ,
+  'DESCRIPTOR' : _RESOURCEREQUIREMENTS,
+  '__module__' : 'alameda_api.v1alpha1.datahub.metric_pb2'
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.ResourceRequirements)
+  })
+_sym_db.RegisterMessage(ResourceRequirements)
+_sym_db.RegisterMessage(ResourceRequirements.LimitsEntry)
+_sym_db.RegisterMessage(ResourceRequirements.RequestsEntry)
+
+
+_RESOURCEREQUIREMENTS_LIMITSENTRY._options = None
+_RESOURCEREQUIREMENTS_REQUESTSENTRY._options = None
 # @@protoc_insertion_point(module_scope)
