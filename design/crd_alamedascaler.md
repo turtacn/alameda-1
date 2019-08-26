@@ -148,6 +148,10 @@ _vpa_ means Alameda will make recommendations to change the cpu and memory resou
   - type: string
   - description: The maximum number of unavailable pods that can be tolerable during rolling update. The value can be an absoult number or a percentage of desired pods. Absolute number is calculated from percentage by rounding up. Alameda-Evictioner will keep at least (spec.replicas - absoult number) of pods in running in Deployments/DeploymentConfig to prevent service offline. For example: when this field is set to 30%, and their are 4 replicas running in the Deployments, Alameda-Evictioner will keep 2 (calculated from 4 - round_up(4 * 0.3)) pods in running phase while doing rolling update. This field can not be 0 and the default value is 25%.
 > **Note** : This option will only work for _vpa_ scalingTool. For _hpa_ scalingTool, the rolling update policy is specified in the _Deployment_/_DeploymentConfig_ object itself.
+- Field: resources
+  - type: [ResourceRequirements](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#resourcerequirements-v1-core)
+  - description: The schema of this fields is as same as **ResourceRequirements** defined in kubernetes API documentation. Currently, only supports field is ResourceRequirements.Requests. Setting ResourceRequirements.Requests will prevents AlamedaExecution from patching too low resources into Pod spec.
+> **Note** : This option will only work for _vpa_ scalingTool.
 - Field: triggerThreshold
   - type: [TriggerThreshold](#triggerthreshold)
   - description: Configuration of trigger threshold.

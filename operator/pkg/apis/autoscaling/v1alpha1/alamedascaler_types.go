@@ -115,8 +115,9 @@ func NewDefaultTriggerThreshold() TriggerThreshold {
 
 type ExecutionStrategy struct {
 	// +kubebuilder:validation:Pattern=^\d*[1-9]+\d*(%?$)$|^\d*[1-9]+\d*\.\d*(%?$)$|^\d*\.\d*[1-9]+\d*(%?$)$
-	MaxUnavailable   string            `json:"maxUnavailable,omitempty" protobuf:"bytes,1,name=max_unavailable"`
-	TriggerThreshold *TriggerThreshold `json:"triggerThreshold,omitempty" protobuf:"bytes,2,name=trigger_threshold"`
+	MaxUnavailable   string                       `json:"maxUnavailable,omitempty" protobuf:"bytes,1,name=max_unavailable"`
+	TriggerThreshold *TriggerThreshold            `json:"triggerThreshold,omitempty" protobuf:"bytes,2,name=trigger_threshold"`
+	Resources        *corev1.ResourceRequirements `json:"resources,omitempty" protobuf:"bytes,3,name=resources"`
 }
 
 const (
@@ -227,6 +228,42 @@ func (as *AlamedaScaler) GetLabelMapToSetToAlamedaRecommendationLabel() map[stri
 	m := make(map[string]string)
 	m["alamedascaler"] = fmt.Sprintf("%s.%s", as.GetName(), as.GetNamespace())
 	return m
+}
+
+func (as *AlamedaScaler) GetRequestCPUMilliCores() string {
+
+	cpuMilliCores := ""
+
+	executionStrategy := as.Spec.ScalingTool.ExecutionStrategy
+	if executionStrategy != nil {
+		if executionStrategy.Resources != nil {
+			if executionStrategy.Resources.Requests != nil {
+				if executionStrategy.Resources.Requests.Cpu() != nil {
+					cpuMilliCores = fmt.Sprintf("%d", executionStrategy.Resources.Requests.Cpu().MilliValue())
+				}
+			}
+		}
+	}
+
+	return cpuMilliCores
+}
+
+func (as *AlamedaScaler) GetRequestMemoryBytes() string {
+
+	memoryBytes := ""
+
+	executionStrategy := as.Spec.ScalingTool.ExecutionStrategy
+	if executionStrategy != nil {
+		if executionStrategy.Resources != nil {
+			if executionStrategy.Resources.Requests != nil {
+				if executionStrategy.Resources.Requests.Cpu() != nil {
+					memoryBytes = fmt.Sprintf("%d", executionStrategy.Resources.Requests.Memory().Value())
+				}
+			}
+		}
+	}
+
+	return memoryBytes
 }
 
 func (as *AlamedaScaler) IsEnableExecution() bool {

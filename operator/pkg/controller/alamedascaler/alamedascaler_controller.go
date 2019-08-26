@@ -650,6 +650,12 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			Enable_HPA:    scaler.IsScalingToolTypeHPA(),
 			AppName:       appName,
 			AppPartOf:     appPartOf,
+			AlamedaScalerResources: &datahub_v1alpha1.ResourceRequirements{
+				Requests: map[int32]string{
+					int32(datahub_v1alpha1.ResourceName_CPU):    scaler.GetRequestCPUMilliCores(),
+					int32(datahub_v1alpha1.ResourceName_MEMORY): scaler.GetRequestMemoryBytes(),
+				},
+			},
 		})
 	}
 
