@@ -82,7 +82,7 @@ func newNode(k8sNode corev1.Node) (nodeInfo, error) {
 		}
 		switch key {
 		case "StorageSize":
-			node.StorageSize = k8sNode.Status.Allocatable.StorageEphemeral().Value()
+			node.StorageSize = k8sNode.Status.Capacity.StorageEphemeral().Value()
 		}
 	}
 
