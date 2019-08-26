@@ -22,7 +22,7 @@ and assumes **Prometheus** is running in your cluster.
 Users can install Alameda by following:
 1. Install InfluxDB chart by executing:
 ```
-$ helm install stable/influxdb --version 1.3.2 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
+$ helm install stable/influxdb --version 1.3.3 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
 ```
 2. Install cert-manager
 Please refer to [install guide](https://github.com/jetstack/cert-manager/blob/release-0.9/deploy/charts/cert-manager/README.md) for installing cert-manager.
@@ -44,7 +44,7 @@ $ helm install --name alameda --namespace alameda ./alameda
 ```
 $ helm install --name alameda-grafana --namespace alameda ./grafana/
 ```
-> **Note**: This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 3.8.1 with customized dashboards.
+> **Note**: This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 3.8.4 with customized dashboards.
 
 5. (Optional) If your environment does not have a running Prometheus, you can install it by executing:
 ```
@@ -57,7 +57,7 @@ This will install Prometheus and the default setting will have all the metrics t
 
 ```console
 $ git clone https://github.com/containers-ai/alameda
-$ helm install stable/influxdb --version 1.3.2 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
+$ helm install stable/influxdb --version 1.3.3 --set persistence.enabled=false --name alameda-influxdb --namespace alameda
 ### Install Prometheus if no existed one
 # $ helm install stable/prometheus-operator --version 6.4.4 --name prometheus --namespace monitoring
 $ helm install --name alameda --namespace alameda ./alameda/

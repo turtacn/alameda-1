@@ -110,7 +110,7 @@ echo "$namespaceResource" > ${chartdir}/alameda-rabbitmq/namespace.yaml
 
 # generate InfluxDB manifests
 mkdir -p ${tmpoutputdir}
-helm fetch stable/influxdb --version 1.3.2 --untar --untardir ${tmpchartdir}
+helm fetch stable/influxdb --version 1.3.3 --untar --untardir ${tmpchartdir}
 helm template --name alameda-influxdb --namespace $NAMESPACE ${tmpchartdir}/influxdb --set persistence.enabled=false --output-dir ${tmpoutputdir}
 
 mkdir -p ${chartdir}/alameda-influxdb/

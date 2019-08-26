@@ -1,4 +1,4 @@
-This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 3.5.7
+This chart is fetched from https://kubernetes-charts.storage.googleapis.com with version 3.8.4
 
 It is also configured with additional data sources and dashboards. The additional data sources are:
 ```
