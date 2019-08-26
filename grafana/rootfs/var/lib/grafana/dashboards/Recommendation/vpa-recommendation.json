@@ -535,15 +535,15 @@
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: CPU usage upperbound (in 15m)",
+          "alias": "Prediction: CPU usage upperbound(in 15 minutes)",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: CPU usage lowerbound (in 15m)",
+          "fillBelowTo": "Prediction: CPU usage lowerbound(in 15 minutes)",
           "hideTooltip": true,
           "legend": false,
           "lines": false
         },
         {
-          "alias": "Prediction: CPU usage lowerbound (in 15m)",
+          "alias": "Prediction: CPU usage lowerbound(in 15 minutes)",
           "color": "#f9e2d2",
           "hideTooltip": true,
           "legend": false,
@@ -682,14 +682,14 @@
           ]
         },
         {
-          "alias": "Prediction: CPU usage upperbound (in 15m)",
+          "alias": "Prediction: CPU usage upperbound(in 15 minutes)",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": true,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time >= now() and time <= now() + 15m group by time(30s)",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now() and time <= now()+15m group by time(30s)) where count = $count_pod",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -718,14 +718,14 @@
           ]
         },
         {
-          "alias": "Prediction: CPU usage lowerbound (in 15m)",
+          "alias": "Prediction: CPU usage lowerbound(in 15 minutes)",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": true,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() and time <= now() + 15m group by time(30s)",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/   AND time >= now() and time <= now()+15m group by time(30s)) where count = $count_pod",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -855,15 +855,15 @@
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: memory usage upperbound (in 15m)",
+          "alias": "Prediction: memory usage upperbound(in 15 minutes)",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: memory usage lowerbound (in 15m)",
+          "fillBelowTo": "Prediction: memory usage lowerbound(in 15 minutes)",
           "hideTooltip": true,
           "legend": false,
           "lines": false
         },
         {
-          "alias": "Prediction: memory usage lowerbound (in 15m)",
+          "alias": "Prediction: memory usage lowerbound(in 15 minutes)",
           "color": "#f9e2d2",
           "hideTooltip": true,
           "legend": false,
@@ -1002,14 +1002,14 @@
           ]
         },
         {
-          "alias": "Prediction: memory usage upperbound (in 15m)",
+          "alias": "Prediction: memory usage upperbound(in 15 minutes)",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": true,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time >= now() and time <= now() + 15m group by time(30s)",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'upper_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time>=now() and time <= now()+15m group by time(30s)) where count = $count_pod\n",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1038,14 +1038,14 @@
           ]
         },
         {
-          "alias": "Prediction: memory usage lowerbound (in 15m)",
+          "alias": "Prediction: memory usage lowerbound(in 15 minutes)",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": true,
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/   AND time >= now() and time <= now() + 15m group by time(30s)",
+          "query": "select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'lower_bound' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/   AND time >= now() and time <= now()+15m group by time(30s)) where count = $count_pod",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
