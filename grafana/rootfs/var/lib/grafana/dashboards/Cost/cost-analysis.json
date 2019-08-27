@@ -15,7 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1565246988648,
+  "id": 14,
+  "iteration": 1566901059423,
   "links": [],
   "panels": [
     {
@@ -28,8 +29,50 @@
       },
       "id": 12,
       "panels": [],
-      "title": "Managed Objects",
+      "title": "Current Cluster Configuration",
       "type": "row"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"config_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\">\n    </td>\n  </tr>\n</table>\n<script>\n  var currentProvider = `${current_provider}`.toLowerCase();\n  if (currentProvider === 'aws') {\n    document.getElementById('config_provider').src = 'https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG';\n  } else if ( currentProvider === 'azure') {\n    document.getElementById('config_provider').src = 'https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png';\n    document.getElementById('config_provider').style.height = '50%';\n    document.getElementById('config_provider').style.width = '50%';\n  } else if ( currentProvider === 'gcp') {\n    document.getElementById('config_provider').src = 'https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png';\n    document.getElementById('config_provider').style.height = '40%';\n  }\n  //document.getElementById('config_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'black'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 1
+      },
+      "id": 34,
+      "links": [],
+      "mode": "html",
+      "title": "Current Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = '$116.82/month' || `$${current_cost}/month`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 1
+      },
+      "id": 94,
+      "links": [],
+      "mode": "html",
+      "title": "Current Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${current_region}`.toUpperCase();\n  document.getElementById('config_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 1
+      },
+      "id": 40,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
     },
     {
       "columns": [],
@@ -37,9 +80,9 @@
       "description": "",
       "fontSize": "100%",
       "gridPos": {
-        "h": 5,
-        "w": 24,
-        "x": 0,
+        "h": 4,
+        "w": 13,
+        "x": 11,
         "y": 1
       },
       "id": 5,
@@ -48,7 +91,452 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 0,
+        "col": 4,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Name",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "name",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Role",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "io_role",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Instance Type",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "io_instance_type",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "vCPU",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "node_cpu_cores",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Memory Size",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "node_memory_bytes",
+          "thresholds": [],
+          "type": "number",
+          "unit": "decbytes"
+        },
+        {
+          "alias": "Storage Size",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "io_storage_size",
+          "thresholds": [],
+          "type": "number",
+          "unit": "decbytes"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select  \"name\", io_role, io_instance_type, node_cpu_cores, node_memory_bytes, io_storage_size from alameda_cluster_status..node\n",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Current Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 42,
+      "panels": [],
+      "title": "Cost Analysis for Cloud Services (Monthly)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "hideTimeOverride": true,
+      "id": 48,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Prediction: CPU usage",
+          "color": "#5195ce",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
+        {
+          "alias": "Prediction: memory usage",
+          "color": "#f9d9f9",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
+        {
+          "alias": "Observation : CPU Usage",
+          "color": "#1f78c1"
+        },
+        {
+          "alias": "Observation: memory usage",
+          "color": "#e5a8e2"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])) / $current_cpu_total",
+          "format": "time_series",
+          "hide": false,
+          "interval": "86400s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "C"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])) * 100 / $current_memory_total",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 1,
+          "legendFormat": "Observation: memory usage",
+          "refId": "D"
+        },
+        {
+          "alias": "Prediction: CPU usage",
+          "datasource": "InfluxDB",
+          "expr": "",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select * from (select sum(value)/ $current_cpu_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/  and  time >= now() -20w and time < now() group by time(86400s)), (select sum from (select sum(value)/ $current_cpu_total, count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() and time <= now()+4w group by time(86400s)) where count = $count_pod)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select * from (select sum(value)*100/$current_memory_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() -20w and time < now() group by time(86400s)), (select sum from (select sum(value)*100/$current_memory_total , count(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+4w group by time(86400s)) where count = $count_pod)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "21w",
+      "timeRegions": [],
+      "timeShift": "0w+4w",
+      "title": "Resource Utilization for Managed Pods",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 15
+      },
+      "id": 75,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$73.92/month' || `$${monthly_aws_cost}/month`;\n  document.getElementById('monthly_aws').innerHTML = price;\n  document.getElementById('monthly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 15
+      },
+      "id": 28,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_aws_region}` || 'ap-northeast-1a';\n  document.getElementById('monthly_aws_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 15
+      },
+      "id": 72,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 15
+      },
+      "id": 90,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 11,
         "desc": true
       },
       "styles": [
@@ -59,7 +547,7 @@
           "type": "hidden"
         },
         {
-          "alias": "Project (Namespace)",
+          "alias": "Instance Type, vCPU and Memory",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -69,109 +557,13 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
           "mappingType": 1,
-          "pattern": "namespace",
+          "pattern": "displayname",
           "thresholds": [],
           "type": "string",
           "unit": "short"
         },
         {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "current replicas",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "desired replicas",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "memory limit",
-          "thresholds": [],
-          "type": "number",
-          "unit": "bytes"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "memory request",
-          "thresholds": [],
-          "type": "number",
-          "unit": "bytes"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "cpu limit",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "cpu request",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        },
-        {
-          "alias": "Application Name",
+          "alias": "Master(On-demand)",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -181,13 +573,19 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
           "mappingType": 1,
-          "pattern": "alameda_scaler_name",
+          "pattern": "masterondemandnum",
           "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
         },
         {
-          "alias": "Application Namespace",
+          "alias": "Master(RI)",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -197,9 +595,75 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
           "mappingType": 1,
-          "pattern": "alameda_scaler_namespace",
+          "pattern": "masterrinum",
           "thresholds": [],
-          "type": "number",
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
           "unit": "short"
         },
         {
@@ -235,10 +699,11 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select top_controller_kind as \"kind\", top_controller_name as \"controller\" from (select * from alameda_cluster_status..container where top_controller_kind = 'StatefulSet' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1), (select * from alameda_cluster_status..container where top_controller_kind = 'Deployment' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1), (select * from alameda_cluster_status..container where top_controller_kind = 'DeploymentConfig' and enable_HPA = true and alameda_scaler_name = '$scaler' limit 1) group by alameda_scaler_name, alameda_scaler_namespace",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost  from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -259,7 +724,517 @@
           "tags": []
         }
       ],
-      "title": "Managed Controllers with HPA ScalingTool per Selected Application",
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 19
+      },
+      "id": 78,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$188.46/month' || `$${monthly_azure_cost}/month`;\n  document.getElementById('monthly_azure').innerHTML = price;\n  document.getElementById('monthly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 19
+      },
+      "id": 30,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_azure_region}` || 'East Asia';\n  document.getElementById('monthly_azure_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 19
+      },
+      "id": 82,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 19
+      },
+      "id": 91,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "4.00",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  // https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png\n  //document.getElementById('monthly_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 23
+      },
+      "id": 79,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$137.39/month' || `$${monthly_gcp_cost}/month`;\n  document.getElementById('monthly_gcp').innerHTML = price;\n  document.getElementById('monthly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 23
+      },
+      "id": 32,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_gcp_region}` || 'asia-east1';\n  document.getElementById('monthly_gcp_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 23
+      },
+      "id": 83,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 23
+      },
+      "id": 92,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -270,74 +1245,96 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 27
       },
-      "id": 17,
+      "id": 46,
       "panels": [],
-      "title": "Controller Resource Usage and Recommendation",
+      "title": "Cost Analysis for Cloud Services (Daily)",
       "type": "row"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#f2c96d"
-      ],
-      "datasource": "InfluxDB",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
       "gridPos": {
-        "h": 3,
-        "w": 4,
+        "h": 9,
+        "w": 24,
         "x": 0,
-        "y": 7
+        "y": 28
       },
-      "id": 15,
-      "interval": null,
+      "hideTimeOverride": true,
+      "id": 16,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
         {
-          "name": "value to text",
-          "value": 1
+          "alias": "Prediction: CPU usage",
+          "color": "#5195ce",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
         },
         {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
+          "alias": "Prediction: memory usage",
+          "color": "#f9d9f9",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
         {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
+          "alias": "Observation : CPU Usage",
+          "color": "#1f78c1"
+        },
+        {
+          "alias": "Observation: memory usage",
+          "color": "#e5a8e2"
         }
       ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "desired replicas",
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[3600s])) / $current_cpu_total",
+          "format": "time_series",
+          "hide": false,
+          "interval": "3600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "C"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[3600s])) * 100 / $current_memory_total",
+          "format": "time_series",
+          "hide": false,
+          "interval": "3600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation: memory usage",
+          "refId": "D"
+        },
+        {
+          "alias": "Prediction: CPU usage",
+          "datasource": "InfluxDB",
           "expr": "",
           "format": "time_series",
           "groupBy": [
@@ -354,716 +1351,13 @@
               "type": "fill"
             }
           ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select desired_replicas as \"desired replicas\" from alameda_recommendation..controller where type = 'CRT_Primitive' and namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "0,0",
-      "title": "Desired replica",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "avg"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 4,
-        "y": 7
-      },
-      "hideTimeOverride": true,
-      "id": 14,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "current replicas",
-      "targets": [
-        {
-          "expr": "(sum(kube_statefulset_status_replicas{namespace=\"$ns\",statefulset=\"$controller\"}) or 1-absent(sum(kube_statefulset_status_replicas{namespace=\"$ns\",statefulset=\"$controller\"})))+(sum(kube_deployment_status_replicas{namespace=\"$ns\",deployment=\"$controller\"}) or 1-absent(sum(kube_deployment_status_replicas{namespace=\"$ns\",deployment=\"$controller\"})))+(sum(kube_replicationcontroller_status_replicas{namespace=\"$ns\",replicationcontroller=~\"$controller.*\"}) or 1-absent(sum(kube_replicationcontroller_status_replicas{namespace=\"$ns\",replicationcontroller=~\"$controller.*\"})))",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
           "hide": false,
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select current_replicas as \"current replicas\" from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
+          "query": "select * from (select sum(value)/ $current_cpu_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -5d and time < now() group by time(3600s)), (select sum from (select sum(value)/ $current_cpu_total, count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -3600s  and time <= now()+1d  group by time(3600s)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": "5m",
-      "timeShift": null,
-      "title": "Current replica",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 8,
-        "y": 7
-      },
-      "hideTimeOverride": true,
-      "id": 18,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "current_cpu_limits",
-      "targets": [
-        {
-          "expr": "1000 * sum(sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_cpu_limits from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1\n\nsum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_limits_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": "5m",
-      "title": "Total CPU limit (milicore)",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 12,
-        "y": 7
-      },
-      "hideTimeOverride": true,
-      "id": 19,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "current_cpu_requests",
-      "targets": [
-        {
-          "expr": "1000 * sum(sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "1000 * sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"})",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": "5m",
-      "title": "Total CPU request (milicore)",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus",
-      "format": "bytes",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
-        "y": 7
-      },
-      "hideTimeOverride": true,
-      "id": 20,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "current_mem_limits",
-      "targets": [
-        {
-          "expr": "sum(sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_mem_limits from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": "5m",
-      "title": "Total memory limit",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus",
-      "format": "bytes",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 7
-      },
-      "hideTimeOverride": true,
-      "id": 21,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "current_mem_requests",
-      "targets": [
-        {
-          "expr": "sum(sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_mem_requests from alameda_recommendation..controller where namespace = '$ns' and \"name\" = '$controller' order by time desc limit 1",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": "5m",
-      "title": "Total memory request",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "-- Mixed --",
-      "fill": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 10
-      },
-      "height": "",
-      "id": 9,
-      "interval": ">30s",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "Observation : CPU usage",
-          "color": "#5195ce"
-        },
-        {
-          "alias": "Observation : current CPU limit",
-          "color": "#f2c96d"
-        },
-        {
-          "alias": "Observation : current CPU request",
-          "color": "#7eb26d"
-        },
-        {
-          "alias": "Recommendation: desired CPU limit",
-          "color": "#f2c96d",
-          "steppedLine": true
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "datasource": "Prometheus",
-          "expr": "1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation : CPU usage",
-          "refId": "C"
-        },
-        {
-          "alias": "Observation : current CPU limit",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_cpu_limits from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "K",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1082,47 +1376,7 @@
           "tags": []
         },
         {
-          "alias": "Observation : current CPU request",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_cpu_requests  from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "L",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Recommendation: desired CPU limit",
+          "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1141,320 +1395,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select desired_cpu_limits from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "J",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Recommendation: desired replica",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select desired_replicas from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "M",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Observation : current replica",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_replicas from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "N",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Resource Object CPU Usage(milicore) vs Replica Recommendation",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "decimals": 0,
-          "format": "none",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "-- Mixed --",
-      "fill": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 16
-      },
-      "height": "",
-      "id": 10,
-      "interval": ">30s",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "Observation : memory usage",
-          "color": "#5195ce"
-        },
-        {
-          "alias": "Observation : current memory limit",
-          "color": "#f2c96d",
-          "steppedLine": true
-        },
-        {
-          "alias": "Observation : current memory request",
-          "color": "#7eb26d",
-          "steppedLine": true
-        },
-        {
-          "alias": "Recommendation : desired memory limit",
-          "color": "#f2c96d",
-          "steppedLine": true
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation : memory usage",
-          "refId": "C"
-        },
-        {
-          "alias": "Observation : current memory limit",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_mem_limits from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "J",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Observation : current memory request",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select current_mem_requests from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Recommendation : desired memory limit",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select desired_mem_limits from \"alameda_recommendation\"..\"controller\" where \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select * from (select sum(value)*100/$current_memory_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() -5d and time < now() group by time(3600s)), (select sum from (select sum(value) *100/$current_memory_total, count(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now()-3600s  and time <= now()+1d group by time(3600s)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1473,10 +1414,257 @@
             ]
           ],
           "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "6d",
+      "timeRegions": [],
+      "timeShift": "0d+1d",
+      "title": "Resource Utilization for Managed Pods",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         },
         {
-          "alias": "Observation : current replica",
-          "datasource": "InfluxDB",
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"daily_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('daily_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 37
+      },
+      "id": 57,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$2.46/day' || `$${daily_aws_cost}/day`;\n  document.getElementById('daily_aws').innerHTML = price;\n  document.getElementById('daily_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 37
+      },
+      "id": 54,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${daily_aws_region}`;\n  document.getElementById('daily_aws_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 37
+      },
+      "id": 58,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 37
+      },
+      "id": 84,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 11,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -1491,12 +1679,639 @@
               "type": "fill"
             }
           ],
-          "hide": true,
+          "hide": false,
+          "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select current_replicas from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )\n",
           "rawQuery": true,
-          "refId": "D",
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"daily_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('daily_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 41
+      },
+      "id": 60,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$4.57/day' || `$${daily_azure_cost}/day`;\n  document.getElementById('daily_azure').innerHTML = price;\n  document.getElementById('daily_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 41
+      },
+      "id": 55,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_azure_region}`;\n  document.getElementById('daily_azure_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 41
+      },
+      "id": 62,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 41
+      },
+      "id": 85,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n       <img id=\"daily_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('daily_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 45
+      },
+      "id": 63,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$6.28/day' || `$${daily_gcp_cost}/day`;\n  document.getElementById('daily_gcp').innerHTML = price;\n  document.getElementById('daily_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 45
+      },
+      "id": 56,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_gcp_region}`;\n  document.getElementById('daily_gcp_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 45
+      },
+      "id": 68,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 45
+      },
+      "id": 86,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "8.00 GB",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "id": 44,
+      "panels": [],
+      "title": "Cost Analysis for Cloud Services (Weekly)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "hideTimeOverride": true,
+      "id": 47,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Prediction: CPU usage",
+          "color": "#5195ce",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
+        {
+          "alias": "Prediction: memory usage",
+          "color": "#f9d9f9",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
+        {
+          "alias": "Observation : CPU Usage",
+          "color": "#1f78c1"
+        },
+        {
+          "alias": "Observation: memory usage",
+          "color": "#e5a8e2"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[21600s])) / $current_cpu_total",
+          "format": "time_series",
+          "interval": "21600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "C"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[21600s])) * 100 / $current_memory_total",
+          "format": "time_series",
+          "interval": "21600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation: memory usage",
+          "refId": "D"
+        },
+        {
+          "alias": "Prediction: CPU usage",
+          "datasource": "InfluxDB",
+          "expr": "",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select * from (select sum(value)/ $current_cpu_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -5w and time < now() group by time(21600s)), (select sum from( select sum(value)/ $current_cpu_total, count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() -21600s   and time <= now()+1w group by time(21600s)) where count = $count_pod)",
+          "rawQuery": true,
+          "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1515,7 +2330,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation : desired replica",
+          "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1531,12 +2346,12 @@
               "type": "fill"
             }
           ],
-          "hide": true,
+          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select desired_replicas from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select * from (select sum(value)*100/$current_memory_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() -5w and time < now() group by time(21600s)), (select sum from (select sum(value) *100/$current_memory_total, count(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now()-21600s  and time <= now()+1w group by time(21600s)) where count = $count_pod)",
           "rawQuery": true,
-          "refId": "E",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1556,10 +2371,10 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
+      "timeFrom": "6w",
       "timeRegions": [],
-      "timeShift": null,
-      "title": "Resource Object Memory vs Replica Recommendation",
+      "timeShift": "0w+1w",
+      "title": "Resource Utilization for Managed Pods",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1575,8 +2390,7 @@
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "bytes",
+          "format": "percent",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1584,8 +2398,7 @@
           "show": true
         },
         {
-          "decimals": 0,
-          "format": "none",
+          "format": "percent",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -1597,6 +2410,769 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"weekly_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('weekly_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 59
+      },
+      "id": 66,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$18.48/week' || `$${weekly_aws_cost}/week`;\n  document.getElementById('weekly_aws').innerHTML = price;\n  document.getElementById('weekly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 59
+      },
+      "id": 50,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_aws_region}` || 'ap-northeast-1a';\n  document.getElementById('weekly_aws_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 59
+      },
+      "id": 67,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 59
+      },
+      "id": 87,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "4.00",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n     <img id=\"weekly_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('weekly_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 63
+      },
+      "id": 69,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$34.34/week' || `$${weekly_azure_cost}/week`;\n  document.getElementById('weekly_azure').innerHTML = price;\n  document.getElementById('weekly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 63
+      },
+      "id": 51,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_azure_region}` || 'East Asia';\n  document.getElementById('weekly_azure_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 63
+      },
+      "id": 71,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 63
+      },
+      "id": 88,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n     <img id=\"weekly_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('weekly_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 67
+      },
+      "id": 74,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$47.11/week' || `$${weekly_gcp_cost}/week`;\n  document.getElementById('weekly_gcp').innerHTML = price;\n  document.getElementById('weekly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 67
+      },
+      "id": 52,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_gcp_region}` || 'asia-east1';\n  document.getElementById('weekly_gcp_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 67
+      },
+      "id": 77,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 67
+      },
+      "id": 89,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "-",
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
     }
   ],
   "refresh": "30s",
@@ -1608,18 +3184,46 @@
       {
         "allValue": null,
         "current": {
-          "text": "tomcat",
-          "value": "tomcat"
+          "tags": [],
+          "text": "Namespace",
+          "value": "Namespace"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Resource",
+        "multi": false,
+        "name": "resource",
+        "options": [
+          {
+            "selected": false,
+            "text": "Cluster",
+            "value": "Cluster"
+          },
+          {
+            "selected": true,
+            "text": "Namespace",
+            "value": "Namespace"
+          }
+        ],
+        "query": "Cluster, Namespace",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "nginx",
+          "value": "nginx"
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\" where 'Cluster' != '$resource'",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
         "multi": false,
         "name": "ns",
         "options": [],
-        "query": "select alameda_scaler_namespace,enable_HPA from alameda_cluster_status..container where enable_HPA= true group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\" where 'Cluster' != '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1633,18 +3237,46 @@
       {
         "allValue": null,
         "current": {
-          "text": "tomcat",
-          "value": "tomcat"
+          "text": "true",
+          "value": "true"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "RI Consideration",
+        "multi": false,
+        "name": "purchase_option",
+        "options": [
+          {
+            "selected": true,
+            "text": "true",
+            "value": "true"
+          },
+          {
+            "selected": false,
+            "text": "false",
+            "value": "false"
+          }
+        ],
+        "query": "true, false",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
-        "hide": 0,
+        "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\"  where \"alameda_scaler_namespace\" = '$ns'  and 'Namespace' != '$resource'",
+        "hide": 2,
         "includeAll": false,
         "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],
-        "query": "select alameda_scaler_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and enable_HPA= true group by \"alameda_scaler_namespace\", \"alameda_scaler_name\" order by time desc limit 1",
+        "query": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_name\"  where \"alameda_scaler_namespace\" = '$ns'  and 'Namespace' != '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1658,43 +3290,45 @@
       {
         "allValue": null,
         "current": {
-          "text": "tomcathost",
-          "value": "tomcathost"
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
-        "hide": 0,
-        "includeAll": false,
-        "label": "controller",
-        "multi": false,
-        "name": "controller",
-        "options": [],
-        "query": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select pod_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' group by \"pod_name\" order by time desc limit 1",
+        "definition": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource'",
         "hide": 2,
-        "includeAll": true,
-        "label": "pod",
-        "multi": true,
+        "includeAll": false,
+        "label": "Pod",
+        "multi": false,
         "name": "pod",
         "options": [],
-        "query": "select pod_name,enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' group by \"pod_name\" order by time desc limit 1",
+        "query": "show tag values on alameda_cluster_status from container with key=\"pod_name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource'",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Container",
+        "multi": false,
+        "name": "container",
+        "options": [],
+        "query": "show tag values on alameda_cluster_status from container with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1712,14 +3346,727 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\",enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' group by \"name\" order by time desc limit 1",
+        "definition": "select alameda_scaler_namespace, enable_VPA from (select alameda_scaler_namespace, enable_VPA from alameda_cluster_status..container where 'Cluster' = '$resource' group by alameda_scaler_namespace),(select alameda_scaler_namespace, enable_VPA from alameda_cluster_status..container where 'Cluster' != '$resource' and alameda_scaler_namespace = '$ns' group by alameda_scaler_namespace)",
         "hide": 2,
         "includeAll": true,
-        "label": "container",
-        "multi": true,
-        "name": "container",
+        "label": null,
+        "multi": false,
+        "name": "h_ns",
         "options": [],
-        "query": "select \"name\",enable_HPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' group by \"name\" order by time desc limit 1",
+        "query": "select alameda_scaler_namespace, enable_VPA from (select alameda_scaler_namespace, enable_VPA from alameda_cluster_status..container where 'Cluster' = '$resource' group by alameda_scaler_namespace),(select alameda_scaler_namespace, enable_VPA from alameda_cluster_status..container where 'Cluster' != '$resource' and alameda_scaler_namespace = '$ns' group by alameda_scaler_namespace)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select alameda_scaler_name, enable_VPA from ( select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "h_scaler",
+        "options": [],
+        "query": "select alameda_scaler_name, enable_VPA from ( select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select pod_name, enable_VPA from (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "h_pod",
+        "options": [],
+        "query": "select pod_name, enable_VPA from (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource')",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", enable_VPA from (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and 'Cluster' = '$resource'), (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and 'Namespace' = '$resource'), (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" =~ /^[[h_pod]]$/ and 'Application' = '$resource'), (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" ='$h_pod' and \"name\" = '$container' and 'Container' = '$resource')",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "h_container",
+        "options": [],
+        "query": "select \"name\", enable_VPA from (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and 'Cluster' = '$resource'), (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and 'Namespace' = '$resource'), (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" =~ /^[[h_pod]]$/ and 'Application' = '$resource'), (select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"='$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" ='$h_pod' and \"name\" = '$container' and 'Container' = '$resource')",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "2",
+          "value": "2"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select count(pod_name) from (select pod_name, enable_VPA from (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource'))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "count_pod",
+        "options": [],
+        "query": "select count(pod_name) from (select pod_name, enable_VPA from (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select pod_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"pod_name\" = '$pod' and 'Container' = '$resource'))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "aws",
+          "value": "aws"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select  io_provider  from alameda_cluster_status..node order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_provider",
+        "options": [],
+        "query": "select  io_provider  from alameda_cluster_status..node order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "us-west-2",
+          "value": "us-west-2"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select io_region from alameda_cluster_status..node order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_region",
+        "options": [],
+        "query": "select io_region from alameda_cluster_status..node order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "us-west-2a",
+          "value": "us-west-2a"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select io_zone from alameda_cluster_status..node order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_zone",
+        "options": [],
+        "query": "select io_zone from alameda_cluster_status..node order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select totalcost from alameda_fedemeter..calculate_instance order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_cost",
+        "options": [],
+        "query": "select totalcost from alameda_fedemeter..calculate_instance order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daily_aws_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daily_azure_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daily_gcp_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daily_aws_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daily_azure_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daily_gcp_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "weekly_aws_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "weekly_azure_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "weekly_gcp_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "weekly_aws_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "weekly_azure_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "weekly_gcp_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "6.16178",
+          "value": "6.16178"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "monthly_aws_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "12.274242",
+          "value": "12.274242"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "monthly_azure_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "11.591622",
+          "value": "11.591622"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  group by provider",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "monthly_gcp_cost",
+        "options": [],
+        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  group by provider",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "US West (Oregon)",
+          "value": "US West (Oregon)"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "monthly_aws_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "West US 2",
+          "value": "West US 2"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "monthly_azure_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "US West 1b",
+          "value": "US West 1b"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "monthly_gcp_region",
+        "options": [],
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "100",
+          "value": "100"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select  sum(node_cpu_cores)*10 from alameda_cluster_status..node",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_cpu_total",
+        "options": [],
+        "query": "select  sum(node_cpu_cores)*10 from alameda_cluster_status..node",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "19804012544",
+          "value": "19804012544"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select  sum(node_memory_bytes) from alameda_cluster_status..node",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_memory_total",
+        "options": [],
+        "query": "select  sum(node_memory_bytes) from alameda_cluster_status..node",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1764,5 +4111,5 @@
   "timezone": "",
   "title": "Cost Analysis",
   "uid": "eeey5uda",
-  "version": 1
+  "version": 59
 }
