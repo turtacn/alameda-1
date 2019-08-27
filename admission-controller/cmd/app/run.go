@@ -20,6 +20,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	openshiftappsv1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -176,8 +177,7 @@ func initLog() {
 func initThirdPartyClient() error {
 
 	var err error
-
-	conn, err := grpc.Dial(config.Datahub.Address, grpc.WithInsecure())
+	conn, err := grpc.Dial(config.Datahub.Address, grpc.WithInsecure(), grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(config.GRPC.Retry))))
 	if err != nil {
 		return err
 	}

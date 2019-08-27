@@ -5,6 +5,7 @@ import (
 
 	"github.com/containers-ai/alameda/admission-controller/pkg/service"
 	"github.com/containers-ai/alameda/pkg/framework/datahub"
+	"github.com/containers-ai/alameda/pkg/grpc"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 )
@@ -27,6 +28,7 @@ type Config struct {
 	Datahub                 *datahub.Config             `mapstructure:"datahub"`
 	Port                    int32                       `mapstructure:"port"`
 	Service                 *service.Config             `mapstructure:"service"`
+	GRPC                    *grpc.Config                `mapstructure:"gRPC"`
 }
 
 func NewDefaultConfig() Config {

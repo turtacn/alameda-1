@@ -29,3 +29,5 @@ service:
   name: admission-controller
   port: 443
 
+gRPC:
+  retry: 4
