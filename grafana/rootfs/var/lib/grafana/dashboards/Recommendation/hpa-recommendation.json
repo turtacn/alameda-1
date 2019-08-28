@@ -1665,7 +1665,7 @@
         "definition": "show tag values on alameda_cluster_status from controller with key=\"name\" where \"owner_namespace\" = '$ns' and \"owner_name\" = '$scaler'",
         "hide": 0,
         "includeAll": false,
-        "label": "controller",
+        "label": "Controller",
         "multi": false,
         "name": "controller",
         "options": [],
