@@ -5,8 +5,11 @@ USER root
 WORKDIR /opt/app-root/src/go/src/github.com/containers-ai/alameda
 ADD . .
 
-# Build
+# Build datahub executable binary
 RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd"]
+
+# Build license-utils executable binary
+RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/license-utils github.com/containers-ai/alameda/datahub/tools/license-utils/cmd"]
 
 # Copy the controller-manager into a thin image
 FROM registry.access.redhat.com/rhscl/s2i-core-rhel7:1-51
@@ -26,10 +29,16 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       vendor="Federator AI"
 
+# Copy datahub
 WORKDIR /opt/app-root/src
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/LICENSE /licenses/
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/datahub/etc/datahub.yml /etc/alameda/datahub/datahub.yml
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/datahub/datahub .
+
+# Copy license-utils
+WORKDIR /opt/app-root/src
+COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/datahub/license-utils .
+
 EXPOSE 50050/tcp
 
 RUN chown -R 1001:0 /etc/alameda/datahub/ && chown -R 1001:0 ./

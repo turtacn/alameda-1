@@ -9,8 +9,11 @@ WORKDIR /go/src/github.com/containers-ai/alameda
 
 COPY . .
 
-# Build
+# Build datahub executable binary
 RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd"]
+
+# Build license-utils executable binary
+RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/license-utils github.com/containers-ai/alameda/datahub/tools/license-utils/cmd"]
 
 # Copy the alameda-datahub into a thin image
 FROM registry.access.redhat.com/ubi8/ubi-minimal
@@ -32,10 +35,15 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       vendor="ProphetStor Data Services, Inc."
 
+# Copy datahub
 COPY --from=builder /go/src/github.com/containers-ai/alameda/LICENSE /licenses/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/etc/datahub.yml /etc/alameda/datahub/datahub.yml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/datahub /usr/local/bin/
 
+# Copy license-utils
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/license-utils /usr/local/bin/
+
+# Copy keycode management tool
 RUN mkdir -p -m ug+w /opt/prophetstor/federatorai/bin /opt/prophetstor/federatorai/lib /opt/prophetstor/federatorai/etc /opt/prophetstor/federatorai/var/tmp
 RUN chown -R 1001:0 /opt/prophetstor/federatorai
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes/bin/license_main /opt/prophetstor/federatorai/bin/

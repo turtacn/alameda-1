@@ -27,6 +27,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:dc9639273af918022abda0ccfc02fea4d57cb01e5713ec53d807402df80be1ef"
+  name = "github.com/chzyer/readline"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "2972be24d48e78746da79ba8e24e8b488c9880de"
+
+[[projects]]
+  branch = "master"
   digest = "1:2264da598b4bbb28a8771abaf7104032ff45ec2ead007dea33fd60e29d99b9a6"
   name = "github.com/containers-ai/api"
   packages = [
@@ -289,12 +297,43 @@
   version = "v1.1.5"
 
 [[projects]]
+  branch = "master"
+  digest = "1:e51f40f0c19b39c1825eadd07d5c0a98a2ad5942b166d9fc4f54750ce9a04810"
+  name = "github.com/juju/ansiterm"
+  packages = [
+    ".",
+    "tabwriter",
+  ]
+  pruneopts = "T"
+  revision = "720a0952cc2ac777afc295d9861263e2a4cf96a1"
+
+[[projects]]
+  digest = "1:275b571f5c879111b2087ba49deb11edf2acd4ed8ed1df655a4571a812b30e3b"
+  name = "github.com/lunixbochs/vtclean"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "88cfb0c2efe8ed7b0ccf0af83db39359829027bb"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:53e8c5c79716437e601696140e8b1801aae4204f4ec54a504333702a49572c4f"
   name = "github.com/magiconair/properties"
   packages = ["."]
   pruneopts = "T"
   revision = "c2353362d570a7bfa228149c62842019201cfb71"
   version = "v1.8.0"
+
+[[projects]]
+  digest = "1:e50a957eff44648b2408a7ba1419f673006b0aff7d188d107c0b862820249851"
+  name = "github.com/manifoldco/promptui"
+  packages = [
+    ".",
+    "list",
+    "screenbuf",
+  ]
+  pruneopts = "T"
+  revision = "157c96fb638a14d268b305cf2012582431fcc410"
+  version = "v0.3.1"
 
 [[projects]]
   digest = "1:50656f57259a3c6087d0e8c572d5845e3dee42c77209dd5409b6ab8595f0295e"
@@ -311,6 +350,22 @@
   packages = ["."]
   pruneopts = "T"
   revision = "81af80346b1a01caae0cbc27fd3c1ba5b11e189f"
+
+[[projects]]
+  digest = "1:b64ebd7eda61dcdfdb9282206709b425d93c826690f9680ea67c2e8432c0ffe8"
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "8029fb3788e5a4a9c00e415f586a6d033f5d38b3"
+  version = "v0.1.2"
+
+[[projects]]
+  digest = "1:4179033b21c4a209f2b0325cd63c254e84a619b859f00829f550896ef8ce17b6"
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "e1f7b56ace729e4a73a29a6b4fac6cd5fcda7ab3"
+  version = "v0.0.9"
 
 [[projects]]
   digest = "1:a8e3d14801bed585908d130ebfc3b925ba642208e6f30d879437ddfc7bb9b413"
@@ -1161,6 +1216,7 @@
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/grpc-ecosystem/go-grpc-middleware/retry",
     "github.com/influxdata/influxdb/client/v2",
+    "github.com/manifoldco/promptui",
     "github.com/mattbaird/jsonpatch",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",

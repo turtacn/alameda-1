@@ -2,12 +2,17 @@
 # Image URL to use all building/pushing image targets
 IMG ?= datahub:latest
 
-.PHONY: all test datahub 
-all: test datahub
+.PHONY: all test datahub license-utils
+all: test datahub license-utils
 
 # Run tests
 test: generate fmt vet
 	go test ./pkg/... ./cmd/... -coverprofile cover.out
+
+# Build license-utils binary
+license-utils:
+	cd tools/license-utils; \
+	make
 
 # Build datahub binary
 datahub: generate fmt vet
