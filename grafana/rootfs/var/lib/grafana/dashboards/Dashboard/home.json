@@ -61,131 +61,31 @@
       "type": "text"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "InfluxDB",
-      "format": "dateTimeAsIso",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 7,
         "x": 17,
         "y": 1
       },
-      "id": 70,
-      "interval": null,
+      "id": 72,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "expire_timestamp",
-      "targets": [
-        {
-          "expr": "",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "",
-      "title": "License Expired Time",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "avg"
+      "mode": "html",
+      "title": "License Status",
+      "type": "text"
     },
     {
-      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>",
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = `${lic_expired_time}`;\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == undefined) {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = (date_t.getMonth() + 1) + '-' + date_t.getDate() + '-' + date_t.getFullYear() + ' ' + date_t.getHours() + ':' + date_t.getMinutes() + ':' + date_t.getSeconds();\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 7,
         "x": 17,
         "y": 4
       },
-      "id": 72,
+      "id": 73,
       "links": [],
       "mode": "html",
-      "title": "License Status",
+      "title": "License Expired Time",
       "type": "text"
     },
     {
@@ -1825,6 +1725,11 @@
       },
       {
         "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
         "datasource": "InfluxDB",
         "definition": "select alameda_scaler_name, enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
         "hide": 0,
@@ -1897,8 +1802,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "Not Activated",
-          "value": "Not Activated"
+          "text": "No Keycode",
+          "value": "No Keycode"
         },
         "datasource": "InfluxDB",
         "definition": "select status from alameda_cluster_status..keycode limit 1",
@@ -1907,15 +1812,34 @@
         "label": null,
         "multi": false,
         "name": "lic_status",
-        "options": [
-          {
-            "selected": true,
-            "text": "Not Activated",
-            "value": "Not Activated"
-          }
-        ],
+        "options": [],
         "query": "select status from alameda_cluster_status..keycode limit 1",
-        "refresh": 0,
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "lic_expired_time",
+        "options": [],
+        "query": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
