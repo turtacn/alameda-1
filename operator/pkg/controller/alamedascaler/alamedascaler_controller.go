@@ -655,6 +655,10 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 					int32(datahub_v1alpha1.ResourceName_CPU):    scaler.GetRequestCPUMilliCores(),
 					int32(datahub_v1alpha1.ResourceName_MEMORY): scaler.GetRequestMemoryBytes(),
 				},
+				Limits: map[int32]string{
+					int32(datahub_v1alpha1.ResourceName_CPU):    scaler.GetLimitCPUMilliCores(),
+					int32(datahub_v1alpha1.ResourceName_MEMORY): scaler.GetLimitMemoryBytes(),
+				},
 			},
 		})
 	}

@@ -256,8 +256,44 @@ func (as *AlamedaScaler) GetRequestMemoryBytes() string {
 	if executionStrategy != nil {
 		if executionStrategy.Resources != nil {
 			if executionStrategy.Resources.Requests != nil {
-				if executionStrategy.Resources.Requests.Cpu() != nil {
+				if executionStrategy.Resources.Requests.Memory() != nil {
 					memoryBytes = fmt.Sprintf("%d", executionStrategy.Resources.Requests.Memory().Value())
+				}
+			}
+		}
+	}
+
+	return memoryBytes
+}
+
+func (as *AlamedaScaler) GetLimitCPUMilliCores() string {
+
+	cpuMilliCores := ""
+
+	executionStrategy := as.Spec.ScalingTool.ExecutionStrategy
+	if executionStrategy != nil {
+		if executionStrategy.Resources != nil {
+			if executionStrategy.Resources.Limits != nil {
+				if executionStrategy.Resources.Limits.Cpu() != nil {
+					cpuMilliCores = fmt.Sprintf("%d", executionStrategy.Resources.Limits.Cpu().MilliValue())
+				}
+			}
+		}
+	}
+
+	return cpuMilliCores
+}
+
+func (as *AlamedaScaler) GetLimitMemoryBytes() string {
+
+	memoryBytes := ""
+
+	executionStrategy := as.Spec.ScalingTool.ExecutionStrategy
+	if executionStrategy != nil {
+		if executionStrategy.Resources != nil {
+			if executionStrategy.Resources.Limits != nil {
+				if executionStrategy.Resources.Limits.Memory() != nil {
+					memoryBytes = fmt.Sprintf("%d", executionStrategy.Resources.Limits.Memory().Value())
 				}
 			}
 		}
