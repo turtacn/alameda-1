@@ -911,7 +911,7 @@
         "definition": "label_values(kube_node_labels, label_kubernetes_io_hostname)",
         "hide": 0,
         "includeAll": false,
-        "label": null,
+        "label": "Node",
         "multi": false,
         "name": "node",
         "options": [],
