@@ -254,7 +254,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "TOP CPU Pods",
+      "title": "Top CPU Pods",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -813,7 +813,7 @@
           "unit": "bytes"
         },
         {
-          "alias": "Restart time",
+          "alias": "Restart Time",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -889,7 +889,7 @@
       ],
       "timeFrom": "1M",
       "timeShift": null,
-      "title": "Current running pods",
+      "title": "Current Running pods",
       "transform": "table",
       "transparent": false,
       "type": "table"
