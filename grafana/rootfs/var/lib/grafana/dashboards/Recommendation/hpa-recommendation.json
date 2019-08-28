@@ -203,6 +203,38 @@
           "unit": "short"
         },
         {
+          "alias": "Kind",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "kind",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Controller",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "controller",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -379,7 +411,7 @@
         }
       ],
       "thresholds": "0,0",
-      "title": "Desired replica",
+      "title": "Desired Replica",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -497,7 +529,7 @@
       "thresholds": "",
       "timeFrom": "5m",
       "timeShift": null,
-      "title": "Current replica",
+      "title": "Current Replica",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -613,7 +645,7 @@
       ],
       "thresholds": "",
       "timeFrom": "5m",
-      "title": "Total CPU limit (milicore)",
+      "title": "Total CPU Limit (milicore)",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -729,7 +761,7 @@
       ],
       "thresholds": "",
       "timeFrom": "5m",
-      "title": "Total CPU request (milicore)",
+      "title": "Total CPU Request (milicore)",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -845,7 +877,7 @@
       ],
       "thresholds": "",
       "timeFrom": "5m",
-      "title": "Total memory limit",
+      "title": "Total Memory Limit",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -961,7 +993,7 @@
       ],
       "thresholds": "",
       "timeFrom": "5m",
-      "title": "Total memory request",
+      "title": "Total Memory Request",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
