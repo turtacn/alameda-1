@@ -418,7 +418,7 @@
         }
       ],
       "thresholds": "50, 90",
-      "title": "Node Ready",
+      "title": "Nodes Ready",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -532,7 +532,7 @@
         }
       ],
       "thresholds": "10, 50",
-      "title": "Node Memory Pressure",
+      "title": "Nodes Memory Pressure",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -646,7 +646,7 @@
         }
       ],
       "thresholds": "10, 50",
-      "title": "Node Disk Pressure",
+      "title": "Nodes Disk Pressure",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
