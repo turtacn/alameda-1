@@ -354,7 +354,7 @@
           "pattern": "node_memory_bytes",
           "thresholds": [],
           "type": "number",
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         {
           "alias": "CPU Cores",
