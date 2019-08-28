@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n(alameda_api/v1alpha1/datahub/event.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\".\n\x0b\x45ventSource\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x11\n\tcomponent\x18\x02 \x01(\t\"X\n\x12K8SObjectReference\x12\x0c\n\x04kind\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x13\n\x0b\x61pi_version\x18\x04 \x01(\t\"\xcd\x03\n\x05\x45vent\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\n\n\x02id\x18\x02 \x01(\t\x12\x12\n\ncluster_id\x18\x03 \x01(\t\x12\x43\n\x06source\x18\x04 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.EventSource\x12?\n\x04type\x18\x05 \x01(\x0e\x32\x31.containers_ai.alameda.v1alpha1.datahub.EventType\x12\x45\n\x07version\x18\x06 \x01(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.EventVersion\x12\x41\n\x05level\x18\x07 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.EventLevel\x12K\n\x07subject\x18\x08 \x01(\x0b\x32:.containers_ai.alameda.v1alpha1.datahub.K8SObjectReference\x12\x0f\n\x07message\x18\t \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\n \x01(\t*\xb0\x05\n\tEventType\x12\x18\n\x14\x45VENT_TYPE_UNDEFINED\x10\x00\x12$\n EVENT_TYPE_ALAMEDA_SCALER_CREATE\x10\x01\x12$\n EVENT_TYPE_ALAMEDA_SCALER_DELETE\x10\x02\x12\x1c\n\x18\x45VENT_TYPE_NODE_REGISTER\x10\x03\x12\"\n\x1e\x45VENT_TYPE_DEPLOYMENT_REGISTER\x10\x04\x12)\n%EVENT_TYPE_DEPLOYMENT_CONFIG_REGISTER\x10\x05\x12\x1b\n\x17\x45VENT_TYPE_POD_REGISTER\x10\x06\x12\x1e\n\x1a\x45VENT_TYPE_NODE_DEREGISTER\x10\x07\x12$\n EVENT_TYPE_DEPLOYMENT_DEREGISTER\x10\x08\x12+\n\'EVENT_TYPE_DEPLOYMENT_CONFIG_DEREGISTER\x10\t\x12\x1d\n\x19\x45VENT_TYPE_POD_DEREGISTER\x10\n\x12%\n!EVENT_TYPE_NODE_PREDICTION_CREATE\x10\x0b\x12$\n EVENT_TYPE_POD_PREDICTION_CREATE\x10\x0c\x12(\n$EVENT_TYPE_VPA_RECOMMENDATION_CREATE\x10\r\x12(\n$EVENT_TYPE_HPA_RECOMMENDATION_CREATE\x10\x0e\x12\x18\n\x14\x45VENT_TYPE_POD_EVICT\x10\x0f\x12\x18\n\x14\x45VENT_TYPE_POD_PATCH\x10\x10\x12$\n EVENT_TYPE_ANOMALY_METRIC_DETECT\x10\x11\x12&\n\"EVENT_TYPE_ANOMALY_ANALYSIS_CREATE\x10\x12*A\n\x0c\x45ventVersion\x12\x1b\n\x17\x45VENT_VERSION_UNDEFINED\x10\x00\x12\x14\n\x10\x45VENT_VERSION_V1\x10\x01*\x9b\x01\n\nEventLevel\x12\x19\n\x15\x45VENT_LEVEL_UNDEFINED\x10\x00\x12\x15\n\x11\x45VENT_LEVEL_DEBUG\x10\x01\x12\x14\n\x10\x45VENT_LEVEL_INFO\x10\x02\x12\x17\n\x13\x45VENT_LEVEL_WARNING\x10\x03\x12\x15\n\x11\x45VENT_LEVEL_ERROR\x10\x04\x12\x15\n\x11\x45VENT_LEVEL_FATAL\x10\x05\x62\x06proto3')
+  serialized_pb=_b('\n(alameda_api/v1alpha1/datahub/event.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\".\n\x0b\x45ventSource\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x11\n\tcomponent\x18\x02 \x01(\t\"X\n\x12K8SObjectReference\x12\x0c\n\x04kind\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x13\n\x0b\x61pi_version\x18\x04 \x01(\t\"\xcd\x03\n\x05\x45vent\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\n\n\x02id\x18\x02 \x01(\t\x12\x12\n\ncluster_id\x18\x03 \x01(\t\x12\x43\n\x06source\x18\x04 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.EventSource\x12?\n\x04type\x18\x05 \x01(\x0e\x32\x31.containers_ai.alameda.v1alpha1.datahub.EventType\x12\x45\n\x07version\x18\x06 \x01(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.EventVersion\x12\x41\n\x05level\x18\x07 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.EventLevel\x12K\n\x07subject\x18\x08 \x01(\x0b\x32:.containers_ai.alameda.v1alpha1.datahub.K8SObjectReference\x12\x0f\n\x07message\x18\t \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\n \x01(\t*\xc8\x05\n\tEventType\x12\x18\n\x14\x45VENT_TYPE_UNDEFINED\x10\x00\x12$\n EVENT_TYPE_ALAMEDA_SCALER_CREATE\x10\x01\x12$\n EVENT_TYPE_ALAMEDA_SCALER_DELETE\x10\x02\x12\x1c\n\x18\x45VENT_TYPE_NODE_REGISTER\x10\x03\x12\"\n\x1e\x45VENT_TYPE_DEPLOYMENT_REGISTER\x10\x04\x12)\n%EVENT_TYPE_DEPLOYMENT_CONFIG_REGISTER\x10\x05\x12\x1b\n\x17\x45VENT_TYPE_POD_REGISTER\x10\x06\x12\x1e\n\x1a\x45VENT_TYPE_NODE_DEREGISTER\x10\x07\x12$\n EVENT_TYPE_DEPLOYMENT_DEREGISTER\x10\x08\x12+\n\'EVENT_TYPE_DEPLOYMENT_CONFIG_DEREGISTER\x10\t\x12\x1d\n\x19\x45VENT_TYPE_POD_DEREGISTER\x10\n\x12%\n!EVENT_TYPE_NODE_PREDICTION_CREATE\x10\x0b\x12$\n EVENT_TYPE_POD_PREDICTION_CREATE\x10\x0c\x12(\n$EVENT_TYPE_VPA_RECOMMENDATION_CREATE\x10\r\x12(\n$EVENT_TYPE_HPA_RECOMMENDATION_CREATE\x10\x0e\x12\x18\n\x14\x45VENT_TYPE_POD_EVICT\x10\x0f\x12\x18\n\x14\x45VENT_TYPE_POD_PATCH\x10\x10\x12$\n EVENT_TYPE_ANOMALY_METRIC_DETECT\x10\x11\x12&\n\"EVENT_TYPE_ANOMALY_ANALYSIS_CREATE\x10\x12\x12\x16\n\x12\x45VENT_TYPE_LICENSE\x10\x13*A\n\x0c\x45ventVersion\x12\x1b\n\x17\x45VENT_VERSION_UNDEFINED\x10\x00\x12\x14\n\x10\x45VENT_VERSION_V1\x10\x01*\x9b\x01\n\nEventLevel\x12\x19\n\x15\x45VENT_LEVEL_UNDEFINED\x10\x00\x12\x15\n\x11\x45VENT_LEVEL_DEBUG\x10\x01\x12\x14\n\x10\x45VENT_LEVEL_INFO\x10\x02\x12\x17\n\x13\x45VENT_LEVEL_WARNING\x10\x03\x12\x15\n\x11\x45VENT_LEVEL_ERROR\x10\x04\x12\x15\n\x11\x45VENT_LEVEL_FATAL\x10\x05\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -108,11 +108,15 @@ _EVENTTYPE = _descriptor.EnumDescriptor(
       name='EVENT_TYPE_ANOMALY_ANALYSIS_CREATE', index=18, number=18,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EVENT_TYPE_LICENSE', index=19, number=19,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=720,
-  serialized_end=1408,
+  serialized_end=1432,
 )
 _sym_db.RegisterEnumDescriptor(_EVENTTYPE)
 
@@ -134,8 +138,8 @@ _EVENTVERSION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1410,
-  serialized_end=1475,
+  serialized_start=1434,
+  serialized_end=1499,
 )
 _sym_db.RegisterEnumDescriptor(_EVENTVERSION)
 
@@ -173,8 +177,8 @@ _EVENTLEVEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1478,
-  serialized_end=1633,
+  serialized_start=1502,
+  serialized_end=1657,
 )
 _sym_db.RegisterEnumDescriptor(_EVENTLEVEL)
 
@@ -198,6 +202,7 @@ EVENT_TYPE_POD_EVICT = 15
 EVENT_TYPE_POD_PATCH = 16
 EVENT_TYPE_ANOMALY_METRIC_DETECT = 17
 EVENT_TYPE_ANOMALY_ANALYSIS_CREATE = 18
+EVENT_TYPE_LICENSE = 19
 EVENT_VERSION_UNDEFINED = 0
 EVENT_VERSION_V1 = 1
 EVENT_LEVEL_UNDEFINED = 0

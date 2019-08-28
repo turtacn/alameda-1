@@ -10,6 +10,7 @@ import (
 
 func NewKeycodeEvent(level DatahubV1alpha1.EventLevel, message string) *DatahubV1alpha1.Event {
 	event := &DatahubV1alpha1.Event{
+		Type:    DatahubV1alpha1.EventType_EVENT_TYPE_LICENSE,
 		Time:    &timestamp.Timestamp{Seconds: time.Now().Unix()},
 		Id:      AlamedaUtils.GenerateUUID(),
 		Version: DatahubV1alpha1.EventVersion_EVENT_VERSION_V1,
