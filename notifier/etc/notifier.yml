@@ -28,6 +28,7 @@ eventType:
   16: PodPatch
   17: AnomalyMetricDetect
   18: AnomalyAnalysisCreate
+  19: License
 
 # DO NOT EDIT eventLevel config unless event level definition changed
 eventLevel:
