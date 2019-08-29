@@ -47,7 +47,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = '$116.82/month' || `$${current_cost}/month`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${current_cost}/month`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -61,7 +61,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${current_region}`.toUpperCase();\n  document.getElementById('config_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${current_region}`.toUpperCase();\n  document.getElementById('config_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -179,7 +179,7 @@
           "pattern": "node_memory_bytes",
           "thresholds": [],
           "type": "number",
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         {
           "alias": "Storage Size",
@@ -268,985 +268,6 @@
         "x": 0,
         "y": 5
       },
-      "id": 42,
-      "panels": [],
-      "title": "Cost Analysis for Cloud Services (Monthly)",
-      "type": "row"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "-- Mixed --",
-      "fill": 0,
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 6
-      },
-      "hideTimeOverride": true,
-      "id": 48,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "Prediction: CPU usage",
-          "color": "#5195ce",
-          "dashLength": 5,
-          "dashes": true,
-          "spaceLength": 4
-        },
-        {
-          "alias": "Prediction: memory usage",
-          "color": "#f9d9f9",
-          "dashLength": 5,
-          "dashes": true,
-          "spaceLength": 4
-        },
-        {
-          "alias": "Observation : CPU Usage",
-          "color": "#1f78c1"
-        },
-        {
-          "alias": "Observation: memory usage",
-          "color": "#e5a8e2"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "datasource": "Prometheus",
-          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])) / $current_cpu_total",
-          "format": "time_series",
-          "hide": false,
-          "interval": "86400s",
-          "intervalFactor": 1,
-          "legendFormat": "Observation : CPU Usage",
-          "refId": "C"
-        },
-        {
-          "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])) * 100 / $current_memory_total",
-          "format": "time_series",
-          "hide": false,
-          "intervalFactor": 1,
-          "legendFormat": "Observation: memory usage",
-          "refId": "D"
-        },
-        {
-          "alias": "Prediction: CPU usage",
-          "datasource": "InfluxDB",
-          "expr": "",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select * from (select sum(value)/ $current_cpu_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/  and  time >= now() -20w and time < now() group by time(86400s)), (select sum from (select sum(value)/ $current_cpu_total, count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() and time <= now()+4w group by time(86400s)) where count = $count_pod)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Prediction: memory usage",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select * from (select sum(value)*100/$current_memory_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() -20w and time < now() group by time(86400s)), (select sum from (select sum(value)*100/$current_memory_total , count(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+4w group by time(86400s)) where count = $count_pod)",
-          "rawQuery": true,
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "21w",
-      "timeRegions": [],
-      "timeShift": "0w+4w",
-      "title": "Resource Utilization for Managed Pods",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 0,
-        "y": 15
-      },
-      "id": 75,
-      "links": [],
-      "mode": "html",
-      "title": "Recommended Provider",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$73.92/month' || `$${monthly_aws_cost}/month`;\n  document.getElementById('monthly_aws').innerHTML = price;\n  document.getElementById('monthly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 3,
-        "y": 15
-      },
-      "id": 28,
-      "links": [],
-      "mode": "html",
-      "title": "Estimated Cost",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_aws_region}` || 'ap-northeast-1a';\n  document.getElementById('monthly_aws_region').innerHTML = region;\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 7,
-        "y": 15
-      },
-      "id": 72,
-      "links": [],
-      "mode": "html",
-      "title": "Region",
-      "type": "text"
-    },
-    {
-      "columns": [],
-      "datasource": "InfluxDB",
-      "description": "",
-      "fontSize": "100%",
-      "gridPos": {
-        "h": 4,
-        "w": 13,
-        "x": 11,
-        "y": 15
-      },
-      "id": 90,
-      "links": [],
-      "pageSize": null,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 11,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "Instance Type, vCPU and Memory",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "displayname",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Master(On-demand)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "masterondemandnum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Master(RI)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "masterrinum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Worker(On-demand)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "workerondemandnum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Worker(RI)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "workerrinum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Total Cost",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "totalcost",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "expr": "count(up{job=\"kubernetes-nodes\"})",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost  from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Cluster Configuration",
-      "transform": "table",
-      "transparent": false,
-      "type": "table"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 0,
-        "y": 19
-      },
-      "id": 78,
-      "links": [],
-      "mode": "html",
-      "title": "Recommended Provider",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$188.46/month' || `$${monthly_azure_cost}/month`;\n  document.getElementById('monthly_azure').innerHTML = price;\n  document.getElementById('monthly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 3,
-        "y": 19
-      },
-      "id": 30,
-      "links": [],
-      "mode": "html",
-      "title": "Estimated Cost",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_azure_region}` || 'East Asia';\n  document.getElementById('monthly_azure_region').innerHTML = region;\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 7,
-        "y": 19
-      },
-      "id": 82,
-      "links": [],
-      "mode": "html",
-      "title": "Region",
-      "type": "text"
-    },
-    {
-      "columns": [],
-      "datasource": "InfluxDB",
-      "description": "",
-      "fontSize": "100%",
-      "gridPos": {
-        "h": 4,
-        "w": 13,
-        "x": 11,
-        "y": 19
-      },
-      "id": 91,
-      "links": [],
-      "pageSize": null,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": null,
-        "desc": false
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "Instance Type, vCPU and Memory",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "displayname",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "4.00",
-              "value": "1"
-            }
-          ]
-        },
-        {
-          "alias": "Master(On-demand)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "masterondemandnum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Master(RI)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "masterrinum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Worker(On-demand)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "workerondemandnum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Worker(RI)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "workerrinum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Total Cost",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "totalcost",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "expr": "count(up{job=\"kubernetes-nodes\"})",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Cluster Configuration",
-      "transform": "table",
-      "transparent": false,
-      "type": "table"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  // https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png\n  //document.getElementById('monthly_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 0,
-        "y": 23
-      },
-      "id": 79,
-      "links": [],
-      "mode": "html",
-      "title": "Recommended Provider",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$137.39/month' || `$${monthly_gcp_cost}/month`;\n  document.getElementById('monthly_gcp').innerHTML = price;\n  document.getElementById('monthly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 3,
-        "y": 23
-      },
-      "id": 32,
-      "links": [],
-      "mode": "html",
-      "title": "Estimated Cost",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_gcp_region}` || 'asia-east1';\n  document.getElementById('monthly_gcp_region').innerHTML = region;\n</script>",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 7,
-        "y": 23
-      },
-      "id": 83,
-      "links": [],
-      "mode": "html",
-      "title": "Region",
-      "type": "text"
-    },
-    {
-      "columns": [],
-      "datasource": "InfluxDB",
-      "description": "",
-      "fontSize": "100%",
-      "gridPos": {
-        "h": 4,
-        "w": 13,
-        "x": 11,
-        "y": 23
-      },
-      "id": 92,
-      "links": [],
-      "pageSize": null,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": null,
-        "desc": false
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "Instance Type, vCPU and Memory",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "displayname",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Master(On-demand)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "masterondemandnum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Master(RI)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "masterrinum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Worker(On-demand)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "workerondemandnum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Worker(RI)",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "workerrinum",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
-        },
-        {
-          "alias": "Total Cost",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "totalcost",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "expr": "count(up{job=\"kubernetes-nodes\"})",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Cluster Configuration",
-      "transform": "table",
-      "transparent": false,
-      "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 27
-      },
       "id": 46,
       "panels": [],
       "title": "Cost Analysis for Cloud Services (Daily)",
@@ -1263,7 +284,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 6
       },
       "hideTimeOverride": true,
       "id": 16,
@@ -1287,25 +308,25 @@
       "seriesOverrides": [
         {
           "alias": "Prediction: CPU usage",
-          "color": "#5195ce",
+          "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Prediction: memory usage",
-          "color": "#f9d9f9",
+          "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Observation : CPU Usage",
-          "color": "#1f78c1"
+          "color": "#70dbed"
         },
         {
           "alias": "Observation: memory usage",
-          "color": "#e5a8e2"
+          "color": "#1f78c1"
         }
       ],
       "spaceLength": 10,
@@ -1463,7 +484,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 37
+        "y": 15
       },
       "id": 57,
       "links": [],
@@ -1472,12 +493,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$2.46/day' || `$${daily_aws_cost}/day`;\n  document.getElementById('daily_aws').innerHTML = price;\n  document.getElementById('daily_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$daily_aws_cost.toFixed(2)}/day`;\n  document.getElementById('daily_aws').innerHTML = price;\n  document.getElementById('daily_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 3,
-        "y": 37
+        "y": 15
       },
       "id": 54,
       "links": [],
@@ -1486,12 +507,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${daily_aws_region}`;\n  document.getElementById('daily_aws_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${daily_aws_region}`;\n  document.getElementById('daily_aws_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 7,
-        "y": 37
+        "y": 15
       },
       "id": 58,
       "links": [],
@@ -1508,7 +529,7 @@
         "h": 4,
         "w": 13,
         "x": 11,
-        "y": 37
+        "y": 15
       },
       "id": 84,
       "links": [],
@@ -1557,12 +578,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Master(RI)",
@@ -1579,12 +595,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(On-demand)",
@@ -1601,12 +612,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(RI)",
@@ -1623,12 +629,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Total Cost",
@@ -1642,6 +643,22 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
           "thresholds": [],
           "type": "hidden",
           "unit": "short"
@@ -1683,9 +700,47 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )\n",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and  \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table",
           "select": [
             [
@@ -1715,7 +770,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 41
+        "y": 19
       },
       "id": 60,
       "links": [],
@@ -1724,12 +779,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$4.57/day' || `$${daily_azure_cost}/day`;\n  document.getElementById('daily_azure').innerHTML = price;\n  document.getElementById('daily_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$daily_azure_cost.toFixed(2)}/day`;\n  document.getElementById('daily_azure').innerHTML = price;\n  document.getElementById('daily_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 3,
-        "y": 41
+        "y": 19
       },
       "id": 55,
       "links": [],
@@ -1738,12 +793,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_azure_region}`;\n  document.getElementById('daily_azure_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_azure_region}`;\n  document.getElementById('daily_azure_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 7,
-        "y": 41
+        "y": 19
       },
       "id": 62,
       "links": [],
@@ -1760,7 +815,7 @@
         "h": 4,
         "w": 13,
         "x": 11,
-        "y": 41
+        "y": 19
       },
       "id": 85,
       "links": [],
@@ -1809,12 +864,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Master(RI)",
@@ -1831,12 +881,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(On-demand)",
@@ -1853,12 +898,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(RI)",
@@ -1875,12 +915,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Total Cost",
@@ -1894,6 +929,22 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
           "thresholds": [],
           "type": "hidden",
           "unit": "short"
@@ -1935,9 +986,47 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure' and  \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table",
           "select": [
             [
@@ -1967,7 +1056,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 45
+        "y": 23
       },
       "id": 63,
       "links": [],
@@ -1976,12 +1065,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$6.28/day' || `$${daily_gcp_cost}/day`;\n  document.getElementById('daily_gcp').innerHTML = price;\n  document.getElementById('daily_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$daily_gcp_cost.toFixed(2)}/day`;\n  document.getElementById('daily_gcp').innerHTML = price;\n  document.getElementById('daily_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 3,
-        "y": 45
+        "y": 23
       },
       "id": 56,
       "links": [],
@@ -1990,12 +1079,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_gcp_region}`;\n  document.getElementById('daily_gcp_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_gcp_region}`;\n  document.getElementById('daily_gcp_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 7,
-        "y": 45
+        "y": 23
       },
       "id": 68,
       "links": [],
@@ -2012,7 +1101,7 @@
         "h": 4,
         "w": 13,
         "x": 11,
-        "y": 45
+        "y": 23
       },
       "id": 86,
       "links": [],
@@ -2020,8 +1109,8 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": null,
-        "desc": false
+        "col": 5,
+        "desc": true
       },
       "styles": [
         {
@@ -2065,8 +1154,9 @@
           "mappingType": 1,
           "pattern": "masterondemandnum",
           "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
         },
         {
           "alias": "Master(RI)",
@@ -2081,8 +1171,9 @@
           "mappingType": 1,
           "pattern": "masterrinum",
           "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
         },
         {
           "alias": "Worker(On-demand)",
@@ -2097,8 +1188,9 @@
           "mappingType": 1,
           "pattern": "workerondemandnum",
           "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
         },
         {
           "alias": "Worker(RI)",
@@ -2113,8 +1205,9 @@
           "mappingType": 1,
           "pattern": "workerrinum",
           "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
         },
         {
           "alias": "Total Cost",
@@ -2128,6 +1221,22 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
           "thresholds": [],
           "type": "hidden",
           "unit": "short"
@@ -2169,9 +1278,46 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp' and  \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp' and \"reservedinstances\" = '0' and 'No' = '$purchase_option'  group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table",
           "select": [
             [
@@ -2201,7 +1347,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 49
+        "y": 27
       },
       "id": 44,
       "panels": [],
@@ -2219,7 +1365,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 28
       },
       "hideTimeOverride": true,
       "id": 47,
@@ -2243,25 +1389,25 @@
       "seriesOverrides": [
         {
           "alias": "Prediction: CPU usage",
-          "color": "#5195ce",
+          "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Prediction: memory usage",
-          "color": "#f9d9f9",
+          "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Observation : CPU Usage",
-          "color": "#1f78c1"
+          "color": "#70dbed"
         },
         {
           "alias": "Observation: memory usage",
-          "color": "#e5a8e2"
+          "color": "#1f78c1"
         }
       ],
       "spaceLength": 10,
@@ -2417,7 +1563,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 59
+        "y": 37
       },
       "id": 66,
       "links": [],
@@ -2426,12 +1572,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$18.48/week' || `$${weekly_aws_cost}/week`;\n  document.getElementById('weekly_aws').innerHTML = price;\n  document.getElementById('weekly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$weekly_aws_cost.toFixed(2)}/week`;\n  document.getElementById('weekly_aws').innerHTML = price;\n  document.getElementById('weekly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 3,
-        "y": 59
+        "y": 37
       },
       "id": 50,
       "links": [],
@@ -2440,12 +1586,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_aws_region}` || 'ap-northeast-1a';\n  document.getElementById('weekly_aws_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_aws_region}`;\n  document.getElementById('weekly_aws_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 7,
-        "y": 59
+        "y": 37
       },
       "id": 67,
       "links": [],
@@ -2462,7 +1608,7 @@
         "h": 4,
         "w": 13,
         "x": 11,
-        "y": 59
+        "y": 37
       },
       "id": 87,
       "links": [],
@@ -2517,12 +1663,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Master(RI)",
@@ -2539,12 +1680,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(On-demand)",
@@ -2561,12 +1697,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(RI)",
@@ -2583,12 +1714,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Total Cost",
@@ -2602,6 +1728,22 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
           "thresholds": [],
           "type": "hidden",
           "unit": "short"
@@ -2643,9 +1785,46 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "query": "select last(displayname) as displayname , last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws' and  \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname , last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  and  \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table",
           "select": [
             [
@@ -2675,7 +1854,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 63
+        "y": 41
       },
       "id": 69,
       "links": [],
@@ -2684,12 +1863,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$34.34/week' || `$${weekly_azure_cost}/week`;\n  document.getElementById('weekly_azure').innerHTML = price;\n  document.getElementById('weekly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$weekly_azure_cost.toFixed(2)}/week`;\n  document.getElementById('weekly_azure').innerHTML = price;\n  document.getElementById('weekly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 3,
-        "y": 63
+        "y": 41
       },
       "id": 51,
       "links": [],
@@ -2698,12 +1877,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_azure_region}` || 'East Asia';\n  document.getElementById('weekly_azure_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_azure_region}`;\n  document.getElementById('weekly_azure_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 7,
-        "y": 63
+        "y": 41
       },
       "id": 71,
       "links": [],
@@ -2720,7 +1899,7 @@
         "h": 4,
         "w": 13,
         "x": 11,
-        "y": 63
+        "y": 41
       },
       "id": 88,
       "links": [],
@@ -2769,12 +1948,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Master(RI)",
@@ -2791,12 +1965,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(On-demand)",
@@ -2813,12 +1982,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(RI)",
@@ -2835,12 +1999,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Total Cost",
@@ -2854,6 +2013,22 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
           "thresholds": [],
           "type": "hidden",
           "unit": "short"
@@ -2895,9 +2070,46 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as  totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure' and \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as  totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure' and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table",
           "select": [
             [
@@ -2927,7 +2139,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 67
+        "y": 45
       },
       "id": 74,
       "links": [],
@@ -2936,12 +2148,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = '$47.11/week' || `$${weekly_gcp_cost}/week`;\n  document.getElementById('weekly_gcp').innerHTML = price;\n  document.getElementById('weekly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$weekly_gcp_cost.toFixed(2)}/week`;\n  document.getElementById('weekly_gcp').innerHTML = price;\n  document.getElementById('weekly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 3,
-        "y": 67
+        "y": 45
       },
       "id": 52,
       "links": [],
@@ -2950,12 +2162,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_gcp_region}` || 'asia-east1';\n  document.getElementById('weekly_gcp_region').innerHTML = region;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_gcp_region}`;\n  document.getElementById('weekly_gcp_region').innerHTML = region;\n</script>",
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 7,
-        "y": 67
+        "y": 45
       },
       "id": 77,
       "links": [],
@@ -2972,7 +2184,7 @@
         "h": 4,
         "w": 13,
         "x": 11,
-        "y": 67
+        "y": 45
       },
       "id": 89,
       "links": [],
@@ -3022,12 +2234,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Master(RI)",
@@ -3044,12 +2251,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(On-demand)",
@@ -3066,12 +2268,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Worker(RI)",
@@ -3088,12 +2285,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
-              "text": "-",
-              "value": "0"
-            }
-          ]
+          "valueMaps": []
         },
         {
           "alias": "Total Cost",
@@ -3107,6 +2299,22 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
           "thresholds": [],
           "type": "hidden",
           "unit": "short"
@@ -3148,9 +2356,1124 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'   and ( ( \"reservedinstances\" = '1' and true = $purchase_option)  or ( \"reservedinstances\" = '0' and false = $purchase_option) )",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp' and  \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp' and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "id": 42,
+      "panels": [],
+      "title": "Cost Analysis for Cloud Services (Monthly)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "hideTimeOverride": true,
+      "id": 48,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Prediction: CPU usage",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
+        {
+          "alias": "Prediction: memory usage",
+          "color": "#f9e2d2",
+          "dashLength": 5,
+          "dashes": true,
+          "spaceLength": 4
+        },
+        {
+          "alias": "Observation : CPU Usage",
+          "color": "#70dbed"
+        },
+        {
+          "alias": "Observation: memory usage",
+          "color": "#1f78c1"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])) / $current_cpu_total",
+          "format": "time_series",
+          "hide": false,
+          "interval": "86400s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "C"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])) * 100 / $current_memory_total",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 1,
+          "legendFormat": "Observation: memory usage",
+          "refId": "D"
+        },
+        {
+          "alias": "Prediction: CPU usage",
+          "datasource": "InfluxDB",
+          "expr": "",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select * from (select sum(value)/ $current_cpu_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/  and  time >= now() -20w and time < now() group by time(86400s)), (select sum from (select sum(value)/ $current_cpu_total, count(value) from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and \"namespace\" =~ /^[[h_ns]]$/  and \"pod_name\" =~ /^[[h_pod]]$/ and  time >= now() and time <= now()+4w group by time(86400s)) where count = $count_pod)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Prediction: memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select * from (select sum(value)*100/$current_memory_total from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() -20w and time < now() group by time(86400s)), (select sum from (select sum(value)*100/$current_memory_total , count(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+4w group by time(86400s)) where count = $count_pod)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "21w",
+      "timeRegions": [],
+      "timeShift": "0w+4w",
+      "title": "Resource Utilization for Managed Pods",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 59
+      },
+      "id": 75,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$monthly_aws_cost.toFixed(2)}/month`;\n  document.getElementById('monthly_aws').innerHTML = price;\n  document.getElementById('monthly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 59
+      },
+      "id": 28,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_aws_region}`;\n  document.getElementById('monthly_aws_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 59
+      },
+      "id": 72,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 59
+      },
+      "id": 90,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 11,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost  from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost  from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 63
+      },
+      "id": 78,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$monthly_azure_cost.toFixed(2)}/month`;\n  document.getElementById('monthly_azure').innerHTML = price;\n  document.getElementById('monthly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 63
+      },
+      "id": 30,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_azure_region}`;\n  document.getElementById('monthly_azure_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 63
+      },
+      "id": 82,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 63
+      },
+      "id": 91,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "4.00",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' and \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'   and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Cluster Configuration",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  // https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png\n  //document.getElementById('monthly_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 67
+      },
+      "id": 79,
+      "links": [],
+      "mode": "html",
+      "title": "Recommended Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$monthly_gcp_cost.toFixed(2)}/month`;\n  document.getElementById('monthly_gcp').innerHTML = price;\n  document.getElementById('monthly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 3,
+        "y": 67
+      },
+      "id": 32,
+      "links": [],
+      "mode": "html",
+      "title": "Estimated Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_gcp_region}`;\n  document.getElementById('monthly_gcp_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 7,
+        "y": 67
+      },
+      "id": 83,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 13,
+        "x": 11,
+        "y": 67
+      },
+      "id": 92,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Instance Type, vCPU and Memory",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "displayname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Master(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Master(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "masterrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Worker(On-demand)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerondemandnum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Worker(RI)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workerrinum",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": []
+        },
+        {
+          "alias": "Total Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "totalcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "instancetype",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(masterrinum) as masterrinum, last(workerondemandnum) as workerondemandnum, last(workerrinum) as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and  \"reservedinstances\" = '1' and 'Yes' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select last(displayname) as displayname, last(masterondemandnum) as masterondemandnum, last(\"\") as masterrinum, last(workerondemandnum) as workerondemandnum, last(\"\") as workerrinum, last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and \"reservedinstances\" = '0' and 'No' = '$purchase_option' group by instancetype",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "table",
           "select": [
             [
@@ -3184,23 +3507,23 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "Namespace",
-          "value": "Namespace"
+          "selected": true,
+          "text": "Cluster",
+          "value": "Cluster"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": "Scope",
         "multi": false,
         "name": "resource",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "Cluster",
             "value": "Cluster"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "Namespace",
             "value": "Namespace"
           }
@@ -3217,7 +3540,7 @@
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"alameda_scaler_namespace\" where 'Cluster' != '$resource'",
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": "Namespace",
         "multi": false,
@@ -3237,8 +3560,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "true",
-          "value": "true"
+          "selected": true,
+          "text": "Yes",
+          "value": "Yes"
         },
         "hide": 0,
         "includeAll": false,
@@ -3248,16 +3572,16 @@
         "options": [
           {
             "selected": true,
-            "text": "true",
-            "value": "true"
+            "text": "Yes",
+            "value": "Yes"
           },
           {
             "selected": false,
-            "text": "false",
-            "value": "false"
+            "text": "No",
+            "value": "No"
           }
         ],
-        "query": "true, false",
+        "query": "Yes, No",
         "skipUrlSync": false,
         "type": "custom"
       },
@@ -3573,14 +3897,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "daily_aws_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3599,14 +3923,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "daily_azure_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3625,14 +3949,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "daily_gcp_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3651,14 +3975,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "daily_aws_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3677,14 +4001,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') )  group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "daily_azure_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') )  group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3703,14 +4027,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') )  group by instancetype) ",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "daily_gcp_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') )  group by instancetype) ",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3729,14 +4053,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "weekly_aws_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3755,14 +4079,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "weekly_azure_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3781,14 +4105,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "weekly_gcp_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3807,14 +4131,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  group by provider",
+        "definition": "select sum(totalcost) from(select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') )  group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "weekly_aws_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  group by provider",
+        "query": "select sum(totalcost) from(select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') )  group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3833,14 +4157,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as  totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "weekly_azure_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as  totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3859,14 +4183,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "weekly_gcp_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3884,14 +4208,14 @@
           "value": "6.16178"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as totalcost  from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "monthly_aws_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as totalcost  from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3909,14 +4233,14 @@
           "value": "12.274242"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  group by provider",
+        "definition": "select sum(totalcost) from (select  last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "monthly_azure_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  group by provider",
+        "query": "select sum(totalcost) from (select  last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'   and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3934,14 +4258,14 @@
           "value": "11.591622"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  group by provider",
+        "definition": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "monthly_gcp_cost",
         "options": [],
-        "query": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  group by provider",
+        "query": "select sum(totalcost) from (select last(totalcost) as totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) group by instancetype)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3959,14 +4283,14 @@
           "value": "US West (Oregon)"
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "monthly_aws_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3984,14 +4308,14 @@
           "value": "West US 2"
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "monthly_azure_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4009,14 +4333,14 @@
           "value": "US West 1b"
         },
         "datasource": "InfluxDB",
-        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' order by time desc limit 1",
+        "definition": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "monthly_gcp_region",
         "options": [],
-        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' order by time desc limit 1",
+        "query": "select region from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
