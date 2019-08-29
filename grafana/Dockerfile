@@ -19,7 +19,7 @@ RUN set -x \
 RUN set -x \
     ## Build
     && (if [ "${image_tag}" = "" ]; then /bin/echo -e "\n\nError. Please run with '--build-arg image_tag=<tag_name>'\n\n"; exit 1; fi) \
-    && sed -i -e "s/__DEV_VERSION__/${image_tag}/g" /tmp/src/rootfs/var/lib/grafana/dashboards/Dashboard/home.json \
+    && sed -i -e "s/__DEV_VERSION__/${image_tag}/g" /tmp/src/rootfs/var/lib/grafana/dashboards/Home/home.json \
     ## Install
     && mkdir -p ${APPHOME} \
     && mkdir -p /usr/share/grafana/public/dashboards /var/lib/grafana/dashboards/alameda \
@@ -27,7 +27,7 @@ RUN set -x \
     && chmod -R 777 /tmp/src/rootfs/var/lib/grafana/ /tmp/src/rootfs/etc/grafana/ \
     && (cd /tmp/src/rootfs; tar czvf ${APPHOME}/alameda-dashboard.tgz .; cd -) \
     && (cd /; tar xzvf ${APPHOME}/alameda-dashboard.tgz; cd -) \
-    && ln -sfv /var/lib/grafana/dashboards/Dashboard/home.json /usr/share/grafana/public/dashboards/home.json \
+    && ln -sfv /var/lib/grafana/dashboards/Home/home.json /usr/share/grafana/public/dashboards/home.json \
     ## OS
     && cp /tmp/src/tini /sbin/tini && chmod 755 /sbin/tini \
     && cp /tmp/src/init.sh /init.sh && chmod 755 /init.sh \
