@@ -15,6 +15,7 @@ _sym_db = _symbol_database.Default()
 
 from common import common_pb2 as common_dot_common__pb2
 from alameda_api.v1alpha1.datahub import event_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_event__pb2
+from alameda_api.v1alpha1.datahub import license_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_license__pb2
 from alameda_api.v1alpha1.datahub import metadata_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2
 from alameda_api.v1alpha1.datahub import metric_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2
 from alameda_api.v1alpha1.datahub import planning_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_planning__pb2
@@ -31,9 +32,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/server.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x13\x63ommon/common.proto\x1a(alameda_api/v1alpha1/datahub/event.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\x1a)alameda_api/v1alpha1/datahub/metric.proto\x1a+alameda_api/v1alpha1/datahub/planning.proto\x1a*alameda_api/v1alpha1/datahub/predict.proto\x1a\x31\x61lameda_api/v1alpha1/datahub/recommendation.proto\x1a+alameda_api/v1alpha1/datahub/resource.proto\x1a(alameda_api/v1alpha1/datahub/score.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17google/rpc/status.proto\"\xcf\x01\n\x0eQueryCondition\x12\x45\n\ntime_range\x18\x01 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.TimeRange\x12K\n\x05order\x18\x02 \x01(\x0e\x32<.containers_ai.alameda.v1alpha1.datahub.QueryCondition.Order\x12\r\n\x05limit\x18\x03 \x01(\x04\"\x1a\n\x05Order\x12\x07\n\x03\x41SC\x10\x00\x12\x08\n\x04\x44\x45SC\x10\x01\"\xcd\x01\n\x15ListPodMetricsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12\x12\n\nrate_range\x18\x03 \x01(\x04\"\x84\x01\n\x16ListPodMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x46\n\x0bpod_metrics\x18\x02 \x03(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.PodMetric\"}\n\x16ListNodeMetricsRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"\x87\x01\n\x17ListNodeMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12H\n\x0cnode_metrics\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.NodeMetric\"q\n\x10ListPodsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x39\n\x04pods\x18\x02 \x03(\x0b\x32+.containers_ai.alameda.v1alpha1.datahub.Pod\"\xec\x01\n\x16ListAlamedaPodsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12:\n\x04kind\x18\x02 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x45\n\ntime_range\x18\x03 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.TimeRange\"`\n\x17ListAlamedaNodesRequest\x12\x45\n\ntime_range\x18\x01 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.TimeRange\"&\n\x10ListNodesRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\"t\n\x11ListNodesResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12;\n\x05nodes\x18\x02 \x03(\x0b\x32,.containers_ai.alameda.v1alpha1.datahub.Node\"\xba\x01\n\x16ListControllersRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"\x86\x01\n\x17ListControllersResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12G\n\x0b\x63ontrollers\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.Controller\"\xe5\x01\n\x19ListPodPredictionsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12\x11\n\tfill_days\x18\x04 \x01(\x03\"\x90\x01\n\x1aListPodPredictionsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12N\n\x0fpod_predictions\x18\x02 \x03(\x0b\x32\x35.containers_ai.alameda.v1alpha1.datahub.PodPrediction\"\x96\x01\n\x1aListNodePredictionsRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\"\x93\x01\n\x1bListNodePredictionsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12P\n\x10node_predictions\x18\x02 \x03(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NodePrediction\"\x92\x02\n\x1dListPodRecommendationsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12:\n\x04kind\x18\x03 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\"\x9c\x01\n\x1eListPodRecommendationsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12V\n\x13pod_recommendations\x18\x02 \x03(\x0b\x32\x39.containers_ai.alameda.v1alpha1.datahub.PodRecommendation\"\xa5\x02\n$ListControllerRecommendationsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12[\n\x10recommended_type\x18\x03 \x01(\x0e\x32\x41.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedType\"\xb1\x01\n%ListControllerRecommendationsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x64\n\x1a\x63ontroller_recommendations\x18\x02 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendation\"\xd9\x02\n\x17ListPodPlanningsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12:\n\x04kind\x18\x03 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\x12K\n\rplanning_type\x18\x05 \x01(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.PlanningType\"\x8a\x01\n\x18ListPodPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12J\n\rpod_plannings\x18\x02 \x03(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.PodPlanning\"\xea\x02\n\x1eListControllerPlanningsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12Y\n\x11\x63tl_planning_type\x18\x03 \x01(\x0e\x32>.containers_ai.alameda.v1alpha1.datahub.ControllerPlanningType\x12K\n\rplanning_type\x18\x04 \x01(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.PlanningType\"\x9f\x01\n\x1fListControllerPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12X\n\x14\x63ontroller_plannings\x18\x02 \x03(\x0b\x32:.containers_ai.alameda.v1alpha1.datahub.ControllerPlanning\"0\n\x1aListPodsByNodeNamesRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\"w\n$ListSimulatedSchedulingScoresRequest\x12O\n\x0fquery_condition\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"\x9d\x01\n%ListSimulatedSchedulingScoresResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12P\n\x06scores\x18\x02 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.SimulatedSchedulingScore\"m\n\x1b\x43reatePodPredictionsRequest\x12N\n\x0fpod_predictions\x18\x01 \x03(\x0b\x32\x35.containers_ai.alameda.v1alpha1.datahub.PodPrediction\"p\n\x1c\x43reateNodePredictionsRequest\x12P\n\x10node_predictions\x18\x01 \x03(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NodePrediction\"\x8e\x01\n\x1f\x43reatePodRecommendationsRequest\x12V\n\x13pod_recommendations\x18\x01 \x03(\x0b\x32\x39.containers_ai.alameda.v1alpha1.datahub.PodRecommendation\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x8e\x01\n&CreateControllerRecommendationsRequest\x12\x64\n\x1a\x63ontroller_recommendations\x18\x01 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendation\"|\n\x19\x43reatePodPlanningsRequest\x12J\n\rpod_plannings\x18\x01 \x03(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.PodPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"|\n CreateControllerPlanningsRequest\x12X\n\x14\x63ontroller_plannings\x18\x01 \x03(\x0b\x32:.containers_ai.alameda.v1alpha1.datahub.ControllerPlanning\"N\n\x11\x43reatePodsRequest\x12\x39\n\x04pods\x18\x01 \x03(\x0b\x32+.containers_ai.alameda.v1alpha1.datahub.Pod\"c\n\x18\x43reateControllersRequest\x12G\n\x0b\x63ontrollers\x18\x01 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.Controller\"`\n\x19\x43reateAlamedaNodesRequest\x12\x43\n\ralameda_nodes\x18\x01 \x03(\x0b\x32,.containers_ai.alameda.v1alpha1.datahub.Node\"z\n&CreateSimulatedSchedulingScoresRequest\x12P\n\x06scores\x18\x01 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.SimulatedSchedulingScore\"N\n\x11\x44\x65letePodsRequest\x12\x39\n\x04pods\x18\x01 \x03(\x0b\x32+.containers_ai.alameda.v1alpha1.datahub.Pod\"c\n\x18\x44\x65leteControllersRequest\x12G\n\x0b\x63ontrollers\x18\x01 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.Controller\"`\n\x19\x44\x65leteAlamedaNodesRequest\x12\x43\n\ralameda_nodes\x18\x01 \x03(\x0b\x32,.containers_ai.alameda.v1alpha1.datahub.Node\"-\n\x1aListWeaveScopeHostsRequest\x12\x0f\n\x07host_id\x18\x01 \x01(\t\"+\n\x19ListWeaveScopePodsRequest\x12\x0e\n\x06pod_id\x18\x01 \x01(\t\"7\n\x1fListWeaveScopeContainersRequest\x12\x14\n\x0c\x63ontainer_id\x18\x01 \x01(\t\"I\n\x12WeaveScopeResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x0f\n\x07rawdata\x18\x02 \x01(\t\"{\n\x12ReadRawdataRequest\x12\x38\n\rdatabase_type\x18\x01 \x01(\x0e\x32!.containersai.common.DatabaseType\x12+\n\x07queries\x18\x02 \x03(\x0b\x32\x1a.containersai.common.Query\"l\n\x13ReadRawdataResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x31\n\x07rawdata\x18\x02 \x03(\x0b\x32 .containersai.common.ReadRawdata\"\x83\x01\n\x13WriteRawdataRequest\x12\x38\n\rdatabase_type\x18\x01 \x01(\x0e\x32!.containersai.common.DatabaseType\x12\x32\n\x07rawdata\x18\x02 \x03(\x0b\x32!.containersai.common.WriteRawdata\"\xcf\x02\n\x11ListEventsRequest\x12\n\n\x02id\x18\x01 \x03(\t\x12\x12\n\ncluster_id\x18\x02 \x03(\t\x12?\n\x04type\x18\x03 \x03(\x0e\x32\x31.containers_ai.alameda.v1alpha1.datahub.EventType\x12\x45\n\x07version\x18\x04 \x03(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.EventVersion\x12\x41\n\x05level\x18\x05 \x03(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.EventLevel\x12O\n\x0fquery_condition\x18\x06 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"w\n\x12ListEventsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12=\n\x06\x65vents\x18\x02 \x03(\x0b\x32-.containers_ai.alameda.v1alpha1.datahub.Event\"T\n\x13\x43reateEventsRequest\x12=\n\x06\x65vents\x18\x01 \x03(\x0b\x32-.containers_ai.alameda.v1alpha1.datahub.Event2\xfc,\n\x0e\x44\x61tahubService\x12\x91\x01\n\x0eListPodMetrics\x12=.containers_ai.alameda.v1alpha1.datahub.ListPodMetricsRequest\x1a>.containers_ai.alameda.v1alpha1.datahub.ListPodMetricsResponse\"\x00\x12\x94\x01\n\x0fListNodeMetrics\x12>.containers_ai.alameda.v1alpha1.datahub.ListNodeMetricsRequest\x1a?.containers_ai.alameda.v1alpha1.datahub.ListNodeMetricsResponse\"\x00\x12\x8d\x01\n\x0fListAlamedaPods\x12>.containers_ai.alameda.v1alpha1.datahub.ListAlamedaPodsRequest\x1a\x38.containers_ai.alameda.v1alpha1.datahub.ListPodsResponse\"\x00\x12\x90\x01\n\x10ListAlamedaNodes\x12?.containers_ai.alameda.v1alpha1.datahub.ListAlamedaNodesRequest\x1a\x39.containers_ai.alameda.v1alpha1.datahub.ListNodesResponse\"\x00\x12\x82\x01\n\tListNodes\x12\x38.containers_ai.alameda.v1alpha1.datahub.ListNodesRequest\x1a\x39.containers_ai.alameda.v1alpha1.datahub.ListNodesResponse\"\x00\x12\x94\x01\n\x0fListControllers\x12>.containers_ai.alameda.v1alpha1.datahub.ListControllersRequest\x1a?.containers_ai.alameda.v1alpha1.datahub.ListControllersResponse\"\x00\x12\x9d\x01\n\x12ListPodPredictions\x12\x41.containers_ai.alameda.v1alpha1.datahub.ListPodPredictionsRequest\x1a\x42.containers_ai.alameda.v1alpha1.datahub.ListPodPredictionsResponse\"\x00\x12\xa0\x01\n\x13ListNodePredictions\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListNodePredictionsRequest\x1a\x43.containers_ai.alameda.v1alpha1.datahub.ListNodePredictionsResponse\"\x00\x12\xa9\x01\n\x16ListPodRecommendations\x12\x45.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsRequest\x1a\x46.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsResponse\"\x00\x12\xb2\x01\n\x1fListAvailablePodRecommendations\x12\x45.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsRequest\x1a\x46.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsResponse\"\x00\x12\xbe\x01\n\x1dListControllerRecommendations\x12L.containers_ai.alameda.v1alpha1.datahub.ListControllerRecommendationsRequest\x1aM.containers_ai.alameda.v1alpha1.datahub.ListControllerRecommendationsResponse\"\x00\x12\x97\x01\n\x10ListPodPlannings\x12?.containers_ai.alameda.v1alpha1.datahub.ListPodPlanningsRequest\x1a@.containers_ai.alameda.v1alpha1.datahub.ListPodPlanningsResponse\"\x00\x12\xac\x01\n\x17ListControllerPlannings\x12\x46.containers_ai.alameda.v1alpha1.datahub.ListControllerPlanningsRequest\x1aG.containers_ai.alameda.v1alpha1.datahub.ListControllerPlanningsResponse\"\x00\x12\x94\x01\n\x12ListPodsByNodeName\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListPodsByNodeNamesRequest\x1a\x38.containers_ai.alameda.v1alpha1.datahub.ListPodsResponse\"\x00\x12\xbe\x01\n\x1dListSimulatedSchedulingScores\x12L.containers_ai.alameda.v1alpha1.datahub.ListSimulatedSchedulingScoresRequest\x1aM.containers_ai.alameda.v1alpha1.datahub.ListSimulatedSchedulingScoresResponse\"\x00\x12]\n\nCreatePods\x12\x39.containers_ai.alameda.v1alpha1.datahub.CreatePodsRequest\x1a\x12.google.rpc.Status\"\x00\x12k\n\x11\x43reateControllers\x12@.containers_ai.alameda.v1alpha1.datahub.CreateControllersRequest\x1a\x12.google.rpc.Status\"\x00\x12m\n\x12\x43reateAlamedaNodes\x12\x41.containers_ai.alameda.v1alpha1.datahub.CreateAlamedaNodesRequest\x1a\x12.google.rpc.Status\"\x00\x12q\n\x14\x43reatePodPredictions\x12\x43.containers_ai.alameda.v1alpha1.datahub.CreatePodPredictionsRequest\x1a\x12.google.rpc.Status\"\x00\x12s\n\x15\x43reateNodePredictions\x12\x44.containers_ai.alameda.v1alpha1.datahub.CreateNodePredictionsRequest\x1a\x12.google.rpc.Status\"\x00\x12y\n\x18\x43reatePodRecommendations\x12G.containers_ai.alameda.v1alpha1.datahub.CreatePodRecommendationsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x87\x01\n\x1f\x43reateControllerRecommendations\x12N.containers_ai.alameda.v1alpha1.datahub.CreateControllerRecommendationsRequest\x1a\x12.google.rpc.Status\"\x00\x12m\n\x12\x43reatePodPlannings\x12\x41.containers_ai.alameda.v1alpha1.datahub.CreatePodPlanningsRequest\x1a\x12.google.rpc.Status\"\x00\x12{\n\x19\x43reateControllerPlannings\x12H.containers_ai.alameda.v1alpha1.datahub.CreateControllerPlanningsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x87\x01\n\x1f\x43reateSimulatedSchedulingScores\x12N.containers_ai.alameda.v1alpha1.datahub.CreateSimulatedSchedulingScoresRequest\x1a\x12.google.rpc.Status\"\x00\x12]\n\nDeletePods\x12\x39.containers_ai.alameda.v1alpha1.datahub.DeletePodsRequest\x1a\x12.google.rpc.Status\"\x00\x12k\n\x11\x44\x65leteControllers\x12@.containers_ai.alameda.v1alpha1.datahub.DeleteControllersRequest\x1a\x12.google.rpc.Status\"\x00\x12m\n\x12\x44\x65leteAlamedaNodes\x12\x41.containers_ai.alameda.v1alpha1.datahub.DeleteAlamedaNodesRequest\x1a\x12.google.rpc.Status\"\x00\x12\x88\x01\n\x0bReadRawdata\x12:.containers_ai.alameda.v1alpha1.datahub.ReadRawdataRequest\x1a;.containers_ai.alameda.v1alpha1.datahub.ReadRawdataResponse\"\x00\x12\x61\n\x0cWriteRawdata\x12;.containers_ai.alameda.v1alpha1.datahub.WriteRawdataRequest\x1a\x12.google.rpc.Status\"\x00\x12\x34\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x12.google.rpc.Status\"\x00\x12\x97\x01\n\x13ListWeaveScopeHosts\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeHostsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x9c\x01\n\x18GetWeaveScopeHostDetails\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeHostsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x95\x01\n\x12ListWeaveScopePods\x12\x41.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopePodsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x9a\x01\n\x17GetWeaveScopePodDetails\x12\x41.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopePodsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xa1\x01\n\x18ListWeaveScopeContainers\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xab\x01\n\"ListWeaveScopeContainersByHostname\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xa8\x01\n\x1fListWeaveScopeContainersByImage\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xa6\x01\n\x1dGetWeaveScopeContainerDetails\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x61\n\x0c\x43reateEvents\x12;.containers_ai.alameda.v1alpha1.datahub.CreateEventsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x85\x01\n\nListEvents\x12\x39.containers_ai.alameda.v1alpha1.datahub.ListEventsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.ListEventsResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/server.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x13\x63ommon/common.proto\x1a(alameda_api/v1alpha1/datahub/event.proto\x1a*alameda_api/v1alpha1/datahub/license.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\x1a)alameda_api/v1alpha1/datahub/metric.proto\x1a+alameda_api/v1alpha1/datahub/planning.proto\x1a*alameda_api/v1alpha1/datahub/predict.proto\x1a\x31\x61lameda_api/v1alpha1/datahub/recommendation.proto\x1a+alameda_api/v1alpha1/datahub/resource.proto\x1a(alameda_api/v1alpha1/datahub/score.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17google/rpc/status.proto\"\xcf\x01\n\x0eQueryCondition\x12\x45\n\ntime_range\x18\x01 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.TimeRange\x12K\n\x05order\x18\x02 \x01(\x0e\x32<.containers_ai.alameda.v1alpha1.datahub.QueryCondition.Order\x12\r\n\x05limit\x18\x03 \x01(\x04\"\x1a\n\x05Order\x12\x07\n\x03\x41SC\x10\x00\x12\x08\n\x04\x44\x45SC\x10\x01\"\xcd\x01\n\x15ListPodMetricsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12\x12\n\nrate_range\x18\x03 \x01(\x04\"\x84\x01\n\x16ListPodMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x46\n\x0bpod_metrics\x18\x02 \x03(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.PodMetric\"}\n\x16ListNodeMetricsRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"\x87\x01\n\x17ListNodeMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12H\n\x0cnode_metrics\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.NodeMetric\"q\n\x10ListPodsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x39\n\x04pods\x18\x02 \x03(\x0b\x32+.containers_ai.alameda.v1alpha1.datahub.Pod\"\xec\x01\n\x16ListAlamedaPodsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12:\n\x04kind\x18\x02 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x45\n\ntime_range\x18\x03 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.TimeRange\"`\n\x17ListAlamedaNodesRequest\x12\x45\n\ntime_range\x18\x01 \x01(\x0b\x32\x31.containers_ai.alameda.v1alpha1.datahub.TimeRange\"&\n\x10ListNodesRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\"t\n\x11ListNodesResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12;\n\x05nodes\x18\x02 \x03(\x0b\x32,.containers_ai.alameda.v1alpha1.datahub.Node\"\xba\x01\n\x16ListControllersRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"\x86\x01\n\x17ListControllersResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12G\n\x0b\x63ontrollers\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.Controller\"\xe5\x01\n\x19ListPodPredictionsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12\x11\n\tfill_days\x18\x04 \x01(\x03\"\x90\x01\n\x1aListPodPredictionsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12N\n\x0fpod_predictions\x18\x02 \x03(\x0b\x32\x35.containers_ai.alameda.v1alpha1.datahub.PodPrediction\"\x96\x01\n\x1aListNodePredictionsRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\"\x93\x01\n\x1bListNodePredictionsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12P\n\x10node_predictions\x18\x02 \x03(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NodePrediction\"\x92\x02\n\x1dListPodRecommendationsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12:\n\x04kind\x18\x03 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\"\x9c\x01\n\x1eListPodRecommendationsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12V\n\x13pod_recommendations\x18\x02 \x03(\x0b\x32\x39.containers_ai.alameda.v1alpha1.datahub.PodRecommendation\"\xa5\x02\n$ListControllerRecommendationsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12[\n\x10recommended_type\x18\x03 \x01(\x0e\x32\x41.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendedType\"\xb1\x01\n%ListControllerRecommendationsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x64\n\x1a\x63ontroller_recommendations\x18\x02 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendation\"\xd9\x02\n\x17ListPodPlanningsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12:\n\x04kind\x18\x03 \x01(\x0e\x32,.containers_ai.alameda.v1alpha1.datahub.Kind\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\x12K\n\rplanning_type\x18\x05 \x01(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.PlanningType\"\x8a\x01\n\x18ListPodPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12J\n\rpod_plannings\x18\x02 \x03(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.PodPlanning\"\xea\x02\n\x1eListControllerPlanningsRequest\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12O\n\x0fquery_condition\x18\x02 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\x12Y\n\x11\x63tl_planning_type\x18\x03 \x01(\x0e\x32>.containers_ai.alameda.v1alpha1.datahub.ControllerPlanningType\x12K\n\rplanning_type\x18\x04 \x01(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.PlanningType\"\x9f\x01\n\x1fListControllerPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12X\n\x14\x63ontroller_plannings\x18\x02 \x03(\x0b\x32:.containers_ai.alameda.v1alpha1.datahub.ControllerPlanning\"0\n\x1aListPodsByNodeNamesRequest\x12\x12\n\nnode_names\x18\x01 \x03(\t\"w\n$ListSimulatedSchedulingScoresRequest\x12O\n\x0fquery_condition\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"\x9d\x01\n%ListSimulatedSchedulingScoresResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12P\n\x06scores\x18\x02 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.SimulatedSchedulingScore\"m\n\x1b\x43reatePodPredictionsRequest\x12N\n\x0fpod_predictions\x18\x01 \x03(\x0b\x32\x35.containers_ai.alameda.v1alpha1.datahub.PodPrediction\"p\n\x1c\x43reateNodePredictionsRequest\x12P\n\x10node_predictions\x18\x01 \x03(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NodePrediction\"\x8e\x01\n\x1f\x43reatePodRecommendationsRequest\x12V\n\x13pod_recommendations\x18\x01 \x03(\x0b\x32\x39.containers_ai.alameda.v1alpha1.datahub.PodRecommendation\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x8e\x01\n&CreateControllerRecommendationsRequest\x12\x64\n\x1a\x63ontroller_recommendations\x18\x01 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.ControllerRecommendation\"|\n\x19\x43reatePodPlanningsRequest\x12J\n\rpod_plannings\x18\x01 \x03(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.PodPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"|\n CreateControllerPlanningsRequest\x12X\n\x14\x63ontroller_plannings\x18\x01 \x03(\x0b\x32:.containers_ai.alameda.v1alpha1.datahub.ControllerPlanning\"N\n\x11\x43reatePodsRequest\x12\x39\n\x04pods\x18\x01 \x03(\x0b\x32+.containers_ai.alameda.v1alpha1.datahub.Pod\"c\n\x18\x43reateControllersRequest\x12G\n\x0b\x63ontrollers\x18\x01 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.Controller\"`\n\x19\x43reateAlamedaNodesRequest\x12\x43\n\ralameda_nodes\x18\x01 \x03(\x0b\x32,.containers_ai.alameda.v1alpha1.datahub.Node\"z\n&CreateSimulatedSchedulingScoresRequest\x12P\n\x06scores\x18\x01 \x03(\x0b\x32@.containers_ai.alameda.v1alpha1.datahub.SimulatedSchedulingScore\"N\n\x11\x44\x65letePodsRequest\x12\x39\n\x04pods\x18\x01 \x03(\x0b\x32+.containers_ai.alameda.v1alpha1.datahub.Pod\"c\n\x18\x44\x65leteControllersRequest\x12G\n\x0b\x63ontrollers\x18\x01 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.Controller\"`\n\x19\x44\x65leteAlamedaNodesRequest\x12\x43\n\ralameda_nodes\x18\x01 \x03(\x0b\x32,.containers_ai.alameda.v1alpha1.datahub.Node\"-\n\x1aListWeaveScopeHostsRequest\x12\x0f\n\x07host_id\x18\x01 \x01(\t\"+\n\x19ListWeaveScopePodsRequest\x12\x0e\n\x06pod_id\x18\x01 \x01(\t\"7\n\x1fListWeaveScopeContainersRequest\x12\x14\n\x0c\x63ontainer_id\x18\x01 \x01(\t\"I\n\x12WeaveScopeResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x0f\n\x07rawdata\x18\x02 \x01(\t\"{\n\x12ReadRawdataRequest\x12\x38\n\rdatabase_type\x18\x01 \x01(\x0e\x32!.containersai.common.DatabaseType\x12+\n\x07queries\x18\x02 \x03(\x0b\x32\x1a.containersai.common.Query\"l\n\x13ReadRawdataResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x31\n\x07rawdata\x18\x02 \x03(\x0b\x32 .containersai.common.ReadRawdata\"\x83\x01\n\x13WriteRawdataRequest\x12\x38\n\rdatabase_type\x18\x01 \x01(\x0e\x32!.containersai.common.DatabaseType\x12\x32\n\x07rawdata\x18\x02 \x03(\x0b\x32!.containersai.common.WriteRawdata\"\xcf\x02\n\x11ListEventsRequest\x12\n\n\x02id\x18\x01 \x03(\t\x12\x12\n\ncluster_id\x18\x02 \x03(\t\x12?\n\x04type\x18\x03 \x03(\x0e\x32\x31.containers_ai.alameda.v1alpha1.datahub.EventType\x12\x45\n\x07version\x18\x04 \x03(\x0e\x32\x34.containers_ai.alameda.v1alpha1.datahub.EventVersion\x12\x41\n\x05level\x18\x05 \x03(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.EventLevel\x12O\n\x0fquery_condition\x18\x06 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.QueryCondition\"w\n\x12ListEventsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12=\n\x06\x65vents\x18\x02 \x03(\x0b\x32-.containers_ai.alameda.v1alpha1.datahub.Event\"T\n\x13\x43reateEventsRequest\x12=\n\x06\x65vents\x18\x01 \x03(\x0b\x32-.containers_ai.alameda.v1alpha1.datahub.Event\"z\n\x12GetLicenseResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12@\n\x07license\x18\x02 \x01(\x0b\x32/.containers_ai.alameda.v1alpha1.datahub.License2\xe0-\n\x0e\x44\x61tahubService\x12\x91\x01\n\x0eListPodMetrics\x12=.containers_ai.alameda.v1alpha1.datahub.ListPodMetricsRequest\x1a>.containers_ai.alameda.v1alpha1.datahub.ListPodMetricsResponse\"\x00\x12\x94\x01\n\x0fListNodeMetrics\x12>.containers_ai.alameda.v1alpha1.datahub.ListNodeMetricsRequest\x1a?.containers_ai.alameda.v1alpha1.datahub.ListNodeMetricsResponse\"\x00\x12\x8d\x01\n\x0fListAlamedaPods\x12>.containers_ai.alameda.v1alpha1.datahub.ListAlamedaPodsRequest\x1a\x38.containers_ai.alameda.v1alpha1.datahub.ListPodsResponse\"\x00\x12\x90\x01\n\x10ListAlamedaNodes\x12?.containers_ai.alameda.v1alpha1.datahub.ListAlamedaNodesRequest\x1a\x39.containers_ai.alameda.v1alpha1.datahub.ListNodesResponse\"\x00\x12\x82\x01\n\tListNodes\x12\x38.containers_ai.alameda.v1alpha1.datahub.ListNodesRequest\x1a\x39.containers_ai.alameda.v1alpha1.datahub.ListNodesResponse\"\x00\x12\x94\x01\n\x0fListControllers\x12>.containers_ai.alameda.v1alpha1.datahub.ListControllersRequest\x1a?.containers_ai.alameda.v1alpha1.datahub.ListControllersResponse\"\x00\x12\x9d\x01\n\x12ListPodPredictions\x12\x41.containers_ai.alameda.v1alpha1.datahub.ListPodPredictionsRequest\x1a\x42.containers_ai.alameda.v1alpha1.datahub.ListPodPredictionsResponse\"\x00\x12\xa0\x01\n\x13ListNodePredictions\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListNodePredictionsRequest\x1a\x43.containers_ai.alameda.v1alpha1.datahub.ListNodePredictionsResponse\"\x00\x12\xa9\x01\n\x16ListPodRecommendations\x12\x45.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsRequest\x1a\x46.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsResponse\"\x00\x12\xb2\x01\n\x1fListAvailablePodRecommendations\x12\x45.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsRequest\x1a\x46.containers_ai.alameda.v1alpha1.datahub.ListPodRecommendationsResponse\"\x00\x12\xbe\x01\n\x1dListControllerRecommendations\x12L.containers_ai.alameda.v1alpha1.datahub.ListControllerRecommendationsRequest\x1aM.containers_ai.alameda.v1alpha1.datahub.ListControllerRecommendationsResponse\"\x00\x12\x97\x01\n\x10ListPodPlannings\x12?.containers_ai.alameda.v1alpha1.datahub.ListPodPlanningsRequest\x1a@.containers_ai.alameda.v1alpha1.datahub.ListPodPlanningsResponse\"\x00\x12\xac\x01\n\x17ListControllerPlannings\x12\x46.containers_ai.alameda.v1alpha1.datahub.ListControllerPlanningsRequest\x1aG.containers_ai.alameda.v1alpha1.datahub.ListControllerPlanningsResponse\"\x00\x12\x94\x01\n\x12ListPodsByNodeName\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListPodsByNodeNamesRequest\x1a\x38.containers_ai.alameda.v1alpha1.datahub.ListPodsResponse\"\x00\x12\xbe\x01\n\x1dListSimulatedSchedulingScores\x12L.containers_ai.alameda.v1alpha1.datahub.ListSimulatedSchedulingScoresRequest\x1aM.containers_ai.alameda.v1alpha1.datahub.ListSimulatedSchedulingScoresResponse\"\x00\x12]\n\nCreatePods\x12\x39.containers_ai.alameda.v1alpha1.datahub.CreatePodsRequest\x1a\x12.google.rpc.Status\"\x00\x12k\n\x11\x43reateControllers\x12@.containers_ai.alameda.v1alpha1.datahub.CreateControllersRequest\x1a\x12.google.rpc.Status\"\x00\x12m\n\x12\x43reateAlamedaNodes\x12\x41.containers_ai.alameda.v1alpha1.datahub.CreateAlamedaNodesRequest\x1a\x12.google.rpc.Status\"\x00\x12q\n\x14\x43reatePodPredictions\x12\x43.containers_ai.alameda.v1alpha1.datahub.CreatePodPredictionsRequest\x1a\x12.google.rpc.Status\"\x00\x12s\n\x15\x43reateNodePredictions\x12\x44.containers_ai.alameda.v1alpha1.datahub.CreateNodePredictionsRequest\x1a\x12.google.rpc.Status\"\x00\x12y\n\x18\x43reatePodRecommendations\x12G.containers_ai.alameda.v1alpha1.datahub.CreatePodRecommendationsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x87\x01\n\x1f\x43reateControllerRecommendations\x12N.containers_ai.alameda.v1alpha1.datahub.CreateControllerRecommendationsRequest\x1a\x12.google.rpc.Status\"\x00\x12m\n\x12\x43reatePodPlannings\x12\x41.containers_ai.alameda.v1alpha1.datahub.CreatePodPlanningsRequest\x1a\x12.google.rpc.Status\"\x00\x12{\n\x19\x43reateControllerPlannings\x12H.containers_ai.alameda.v1alpha1.datahub.CreateControllerPlanningsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x87\x01\n\x1f\x43reateSimulatedSchedulingScores\x12N.containers_ai.alameda.v1alpha1.datahub.CreateSimulatedSchedulingScoresRequest\x1a\x12.google.rpc.Status\"\x00\x12]\n\nDeletePods\x12\x39.containers_ai.alameda.v1alpha1.datahub.DeletePodsRequest\x1a\x12.google.rpc.Status\"\x00\x12k\n\x11\x44\x65leteControllers\x12@.containers_ai.alameda.v1alpha1.datahub.DeleteControllersRequest\x1a\x12.google.rpc.Status\"\x00\x12m\n\x12\x44\x65leteAlamedaNodes\x12\x41.containers_ai.alameda.v1alpha1.datahub.DeleteAlamedaNodesRequest\x1a\x12.google.rpc.Status\"\x00\x12\x88\x01\n\x0bReadRawdata\x12:.containers_ai.alameda.v1alpha1.datahub.ReadRawdataRequest\x1a;.containers_ai.alameda.v1alpha1.datahub.ReadRawdataResponse\"\x00\x12\x61\n\x0cWriteRawdata\x12;.containers_ai.alameda.v1alpha1.datahub.WriteRawdataRequest\x1a\x12.google.rpc.Status\"\x00\x12\x34\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x12.google.rpc.Status\"\x00\x12\x97\x01\n\x13ListWeaveScopeHosts\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeHostsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x9c\x01\n\x18GetWeaveScopeHostDetails\x12\x42.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeHostsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x95\x01\n\x12ListWeaveScopePods\x12\x41.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopePodsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x9a\x01\n\x17GetWeaveScopePodDetails\x12\x41.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopePodsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xa1\x01\n\x18ListWeaveScopeContainers\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xab\x01\n\"ListWeaveScopeContainersByHostname\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xa8\x01\n\x1fListWeaveScopeContainersByImage\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\xa6\x01\n\x1dGetWeaveScopeContainerDetails\x12G.containers_ai.alameda.v1alpha1.datahub.ListWeaveScopeContainersRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.WeaveScopeResponse\"\x00\x12\x61\n\x0c\x43reateEvents\x12;.containers_ai.alameda.v1alpha1.datahub.CreateEventsRequest\x1a\x12.google.rpc.Status\"\x00\x12\x85\x01\n\nListEvents\x12\x39.containers_ai.alameda.v1alpha1.datahub.ListEventsRequest\x1a:.containers_ai.alameda.v1alpha1.datahub.ListEventsResponse\"\x00\x12\x62\n\nGetLicense\x12\x16.google.protobuf.Empty\x1a:.containers_ai.alameda.v1alpha1.datahub.GetLicenseResponse\"\x00\x62\x06proto3')
   ,
-  dependencies=[common_dot_common__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_event__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_planning__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_predict__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_recommendation__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resource__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_score__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
+  dependencies=[common_dot_common__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_event__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_license__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_planning__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_predict__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_recommendation__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resource__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_score__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
 
 
@@ -54,8 +55,8 @@ _QUERYCONDITION_ORDER = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=699,
-  serialized_end=725,
+  serialized_start=743,
+  serialized_end=769,
 )
 _sym_db.RegisterEnumDescriptor(_QUERYCONDITION_ORDER)
 
@@ -101,8 +102,8 @@ _QUERYCONDITION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=518,
-  serialized_end=725,
+  serialized_start=562,
+  serialized_end=769,
 )
 
 
@@ -146,8 +147,8 @@ _LISTPODMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=728,
-  serialized_end=933,
+  serialized_start=772,
+  serialized_end=977,
 )
 
 
@@ -184,8 +185,8 @@ _LISTPODMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=936,
-  serialized_end=1068,
+  serialized_start=980,
+  serialized_end=1112,
 )
 
 
@@ -222,8 +223,8 @@ _LISTNODEMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1070,
-  serialized_end=1195,
+  serialized_start=1114,
+  serialized_end=1239,
 )
 
 
@@ -260,8 +261,8 @@ _LISTNODEMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1198,
-  serialized_end=1333,
+  serialized_start=1242,
+  serialized_end=1377,
 )
 
 
@@ -298,8 +299,8 @@ _LISTPODSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1335,
-  serialized_end=1448,
+  serialized_start=1379,
+  serialized_end=1492,
 )
 
 
@@ -343,8 +344,8 @@ _LISTALAMEDAPODSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1451,
-  serialized_end=1687,
+  serialized_start=1495,
+  serialized_end=1731,
 )
 
 
@@ -374,8 +375,8 @@ _LISTALAMEDANODESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1689,
-  serialized_end=1785,
+  serialized_start=1733,
+  serialized_end=1829,
 )
 
 
@@ -405,8 +406,8 @@ _LISTNODESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1787,
-  serialized_end=1825,
+  serialized_start=1831,
+  serialized_end=1869,
 )
 
 
@@ -443,8 +444,8 @@ _LISTNODESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1827,
-  serialized_end=1943,
+  serialized_start=1871,
+  serialized_end=1987,
 )
 
 
@@ -481,8 +482,8 @@ _LISTCONTROLLERSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1946,
-  serialized_end=2132,
+  serialized_start=1990,
+  serialized_end=2176,
 )
 
 
@@ -519,8 +520,8 @@ _LISTCONTROLLERSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2135,
-  serialized_end=2269,
+  serialized_start=2179,
+  serialized_end=2313,
 )
 
 
@@ -571,8 +572,8 @@ _LISTPODPREDICTIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2272,
-  serialized_end=2501,
+  serialized_start=2316,
+  serialized_end=2545,
 )
 
 
@@ -609,8 +610,8 @@ _LISTPODPREDICTIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2504,
-  serialized_end=2648,
+  serialized_start=2548,
+  serialized_end=2692,
 )
 
 
@@ -654,8 +655,8 @@ _LISTNODEPREDICTIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2651,
-  serialized_end=2801,
+  serialized_start=2695,
+  serialized_end=2845,
 )
 
 
@@ -692,8 +693,8 @@ _LISTNODEPREDICTIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2804,
-  serialized_end=2951,
+  serialized_start=2848,
+  serialized_end=2995,
 )
 
 
@@ -744,8 +745,8 @@ _LISTPODRECOMMENDATIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2954,
-  serialized_end=3228,
+  serialized_start=2998,
+  serialized_end=3272,
 )
 
 
@@ -782,8 +783,8 @@ _LISTPODRECOMMENDATIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3231,
-  serialized_end=3387,
+  serialized_start=3275,
+  serialized_end=3431,
 )
 
 
@@ -827,8 +828,8 @@ _LISTCONTROLLERRECOMMENDATIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3390,
-  serialized_end=3683,
+  serialized_start=3434,
+  serialized_end=3727,
 )
 
 
@@ -865,8 +866,8 @@ _LISTCONTROLLERRECOMMENDATIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3686,
-  serialized_end=3863,
+  serialized_start=3730,
+  serialized_end=3907,
 )
 
 
@@ -924,8 +925,8 @@ _LISTPODPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3866,
-  serialized_end=4211,
+  serialized_start=3910,
+  serialized_end=4255,
 )
 
 
@@ -962,8 +963,8 @@ _LISTPODPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4214,
-  serialized_end=4352,
+  serialized_start=4258,
+  serialized_end=4396,
 )
 
 
@@ -1014,8 +1015,8 @@ _LISTCONTROLLERPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4355,
-  serialized_end=4717,
+  serialized_start=4399,
+  serialized_end=4761,
 )
 
 
@@ -1052,8 +1053,8 @@ _LISTCONTROLLERPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4720,
-  serialized_end=4879,
+  serialized_start=4764,
+  serialized_end=4923,
 )
 
 
@@ -1083,8 +1084,8 @@ _LISTPODSBYNODENAMESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4881,
-  serialized_end=4929,
+  serialized_start=4925,
+  serialized_end=4973,
 )
 
 
@@ -1114,8 +1115,8 @@ _LISTSIMULATEDSCHEDULINGSCORESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4931,
-  serialized_end=5050,
+  serialized_start=4975,
+  serialized_end=5094,
 )
 
 
@@ -1152,8 +1153,8 @@ _LISTSIMULATEDSCHEDULINGSCORESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5053,
-  serialized_end=5210,
+  serialized_start=5097,
+  serialized_end=5254,
 )
 
 
@@ -1183,8 +1184,8 @@ _CREATEPODPREDICTIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5212,
-  serialized_end=5321,
+  serialized_start=5256,
+  serialized_end=5365,
 )
 
 
@@ -1214,8 +1215,8 @@ _CREATENODEPREDICTIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5323,
-  serialized_end=5435,
+  serialized_start=5367,
+  serialized_end=5479,
 )
 
 
@@ -1252,8 +1253,8 @@ _CREATEPODRECOMMENDATIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5438,
-  serialized_end=5580,
+  serialized_start=5482,
+  serialized_end=5624,
 )
 
 
@@ -1283,8 +1284,8 @@ _CREATECONTROLLERRECOMMENDATIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5583,
-  serialized_end=5725,
+  serialized_start=5627,
+  serialized_end=5769,
 )
 
 
@@ -1321,8 +1322,8 @@ _CREATEPODPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5727,
-  serialized_end=5851,
+  serialized_start=5771,
+  serialized_end=5895,
 )
 
 
@@ -1352,8 +1353,8 @@ _CREATECONTROLLERPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5853,
-  serialized_end=5977,
+  serialized_start=5897,
+  serialized_end=6021,
 )
 
 
@@ -1383,8 +1384,8 @@ _CREATEPODSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5979,
-  serialized_end=6057,
+  serialized_start=6023,
+  serialized_end=6101,
 )
 
 
@@ -1414,8 +1415,8 @@ _CREATECONTROLLERSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6059,
-  serialized_end=6158,
+  serialized_start=6103,
+  serialized_end=6202,
 )
 
 
@@ -1445,8 +1446,8 @@ _CREATEALAMEDANODESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6160,
-  serialized_end=6256,
+  serialized_start=6204,
+  serialized_end=6300,
 )
 
 
@@ -1476,8 +1477,8 @@ _CREATESIMULATEDSCHEDULINGSCORESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6258,
-  serialized_end=6380,
+  serialized_start=6302,
+  serialized_end=6424,
 )
 
 
@@ -1507,8 +1508,8 @@ _DELETEPODSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6382,
-  serialized_end=6460,
+  serialized_start=6426,
+  serialized_end=6504,
 )
 
 
@@ -1538,8 +1539,8 @@ _DELETECONTROLLERSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6462,
-  serialized_end=6561,
+  serialized_start=6506,
+  serialized_end=6605,
 )
 
 
@@ -1569,8 +1570,8 @@ _DELETEALAMEDANODESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6563,
-  serialized_end=6659,
+  serialized_start=6607,
+  serialized_end=6703,
 )
 
 
@@ -1600,8 +1601,8 @@ _LISTWEAVESCOPEHOSTSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6661,
-  serialized_end=6706,
+  serialized_start=6705,
+  serialized_end=6750,
 )
 
 
@@ -1631,8 +1632,8 @@ _LISTWEAVESCOPEPODSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6708,
-  serialized_end=6751,
+  serialized_start=6752,
+  serialized_end=6795,
 )
 
 
@@ -1662,8 +1663,8 @@ _LISTWEAVESCOPECONTAINERSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6753,
-  serialized_end=6808,
+  serialized_start=6797,
+  serialized_end=6852,
 )
 
 
@@ -1700,8 +1701,8 @@ _WEAVESCOPERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6810,
-  serialized_end=6883,
+  serialized_start=6854,
+  serialized_end=6927,
 )
 
 
@@ -1738,8 +1739,8 @@ _READRAWDATAREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=6885,
-  serialized_end=7008,
+  serialized_start=6929,
+  serialized_end=7052,
 )
 
 
@@ -1776,8 +1777,8 @@ _READRAWDATARESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=7010,
-  serialized_end=7118,
+  serialized_start=7054,
+  serialized_end=7162,
 )
 
 
@@ -1814,8 +1815,8 @@ _WRITERAWDATAREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=7121,
-  serialized_end=7252,
+  serialized_start=7165,
+  serialized_end=7296,
 )
 
 
@@ -1880,8 +1881,8 @@ _LISTEVENTSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=7255,
-  serialized_end=7590,
+  serialized_start=7299,
+  serialized_end=7634,
 )
 
 
@@ -1918,8 +1919,8 @@ _LISTEVENTSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=7592,
-  serialized_end=7711,
+  serialized_start=7636,
+  serialized_end=7755,
 )
 
 
@@ -1949,8 +1950,46 @@ _CREATEEVENTSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=7713,
-  serialized_end=7797,
+  serialized_start=7757,
+  serialized_end=7841,
+)
+
+
+_GETLICENSERESPONSE = _descriptor.Descriptor(
+  name='GetLicenseResponse',
+  full_name='containers_ai.alameda.v1alpha1.datahub.GetLicenseResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='containers_ai.alameda.v1alpha1.datahub.GetLicenseResponse.status', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='license', full_name='containers_ai.alameda.v1alpha1.datahub.GetLicenseResponse.license', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=7843,
+  serialized_end=7965,
 )
 
 _QUERYCONDITION.fields_by_name['time_range'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._TIMERANGE
@@ -2034,6 +2073,8 @@ _LISTEVENTSREQUEST.fields_by_name['query_condition'].message_type = _QUERYCONDIT
 _LISTEVENTSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTEVENTSRESPONSE.fields_by_name['events'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_event__pb2._EVENT
 _CREATEEVENTSREQUEST.fields_by_name['events'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_event__pb2._EVENT
+_GETLICENSERESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
+_GETLICENSERESPONSE.fields_by_name['license'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_license__pb2._LICENSE
 DESCRIPTOR.message_types_by_name['QueryCondition'] = _QUERYCONDITION
 DESCRIPTOR.message_types_by_name['ListPodMetricsRequest'] = _LISTPODMETRICSREQUEST
 DESCRIPTOR.message_types_by_name['ListPodMetricsResponse'] = _LISTPODMETRICSRESPONSE
@@ -2084,6 +2125,7 @@ DESCRIPTOR.message_types_by_name['WriteRawdataRequest'] = _WRITERAWDATAREQUEST
 DESCRIPTOR.message_types_by_name['ListEventsRequest'] = _LISTEVENTSREQUEST
 DESCRIPTOR.message_types_by_name['ListEventsResponse'] = _LISTEVENTSRESPONSE
 DESCRIPTOR.message_types_by_name['CreateEventsRequest'] = _CREATEEVENTSREQUEST
+DESCRIPTOR.message_types_by_name['GetLicenseResponse'] = _GETLICENSERESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 QueryCondition = _reflection.GeneratedProtocolMessageType('QueryCondition', (_message.Message,), {
@@ -2436,6 +2478,13 @@ CreateEventsRequest = _reflection.GeneratedProtocolMessageType('CreateEventsRequ
   })
 _sym_db.RegisterMessage(CreateEventsRequest)
 
+GetLicenseResponse = _reflection.GeneratedProtocolMessageType('GetLicenseResponse', (_message.Message,), {
+  'DESCRIPTOR' : _GETLICENSERESPONSE,
+  '__module__' : 'alameda_api.v1alpha1.datahub.server_pb2'
+  # @@protoc_insertion_point(class_scope:containers_ai.alameda.v1alpha1.datahub.GetLicenseResponse)
+  })
+_sym_db.RegisterMessage(GetLicenseResponse)
+
 
 
 _DATAHUBSERVICE = _descriptor.ServiceDescriptor(
@@ -2444,8 +2493,8 @@ _DATAHUBSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=7800,
-  serialized_end=13556,
+  serialized_start=7968,
+  serialized_end=13824,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListPodMetrics',
@@ -2814,6 +2863,15 @@ _DATAHUBSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_LISTEVENTSREQUEST,
     output_type=_LISTEVENTSRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetLicense',
+    full_name='containers_ai.alameda.v1alpha1.datahub.DatahubService.GetLicense',
+    index=41,
+    containing_service=None,
+    input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    output_type=_GETLICENSERESPONSE,
     serialized_options=None,
   ),
 ])

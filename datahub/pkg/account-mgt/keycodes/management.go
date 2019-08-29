@@ -181,7 +181,7 @@ func (c *KeycodeMgt) Refresh(force bool) error {
 		if refreshed == true {
 			scope.Infof("keycode cache data refreshed, keycode: %s", keycode)
 		} else {
-			scope.Infof("cached keycode (@ %s): %s", KeycodeTM.Format(time.RFC3339), keycode)
+			scope.Debugf("cached keycode (@ %s): %s", KeycodeTM.Format(time.RFC3339), keycode)
 		}
 	} else {
 		scope.Infof("keycode cache data refreshed for CUD OP, keycode: %s", keycode)
@@ -225,6 +225,32 @@ func (c *KeycodeMgt) Refresh(force bool) error {
 
 func (c *KeycodeMgt) GetStatus() string {
 	return c.Status.GetStatus()
+}
+
+func (c *KeycodeMgt) IsValid() bool {
+	err := c.Refresh(false)
+
+	if err != nil {
+		scope.Errorf("failed to check if keycode is valid: %s", err.Error())
+		return false
+	}
+
+	switch c.GetStatus() {
+	case KeycodeStatusNoKeycode:
+		return false
+	case KeycodeStatusInvalid:
+		return false
+	case KeycodeStatusExpired:
+		return false
+	case KeycodeStatusNotActivated:
+		return true
+	case KeycodeStatusValid:
+		return true
+	case KeycodeStatusUnknown:
+		return false
+	default:
+		return false
+	}
 }
 
 func (c *KeycodeMgt) IsExpired() bool {

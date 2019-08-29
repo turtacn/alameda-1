@@ -5,6 +5,7 @@ package containers_ai.alameda.v1alpha1.datahub;
 
 import "common/common.proto";
 import "alameda_api/v1alpha1/datahub/event.proto";
+import "alameda_api/v1alpha1/datahub/license.proto";
 import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
 import "alameda_api/v1alpha1/datahub/planning.proto";
@@ -420,6 +421,11 @@ message CreateEventsRequest {
     repeated Event events = 1;
 }
 
+message GetLicenseResponse {
+    google.rpc.Status status = 1;
+    License license = 2;
+}
+
 /**
  * Service for providing data stored in the backend
  */
@@ -577,4 +583,8 @@ service DatahubService {
 
     rpc ListEvents(ListEventsRequest)
         returns (ListEventsResponse){}
+
+    // Used to get license
+    rpc GetLicense(google.protobuf.Empty)
+        returns (GetLicenseResponse) {}
 }

@@ -222,6 +222,11 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsResponse.FromString,
         )
+    self.GetLicense = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/GetLicense',
+        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetLicenseResponse.FromString,
+        )
 
 
 class DatahubServiceServicer(object):
@@ -516,6 +521,13 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def GetLicense(self, request, context):
+    """Used to get license
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_DatahubServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -723,6 +735,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           servicer.ListEvents,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsResponse.SerializeToString,
+      ),
+      'GetLicense': grpc.unary_unary_rpc_method_handler(
+          servicer.GetLicense,
+          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.GetLicenseResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

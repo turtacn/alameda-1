@@ -52,6 +52,7 @@ message K8SObjectReference {
     string name        = 3;
     string api_version = 4;
 }
+
 message Event {
     google.protobuf.Timestamp time       = 1;
     string                    id         = 2;
