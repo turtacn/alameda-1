@@ -75,7 +75,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = `${lic_expired_time}`;\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == undefined) {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = (date_t.getMonth() + 1) + '-' + date_t.getDate() + '-' + date_t.getFullYear() + ' ' + date_t.getHours() + ':' + date_t.getMinutes() + ':' + date_t.getSeconds();\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = `${lic_expired_time}`;\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == undefined) {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = date_t.getFullYear() + '-' + (date_t.getMonth() + 1) + '-' + date_t.getDate() + ' ' + date_t.getHours() + ':' + date_t.getMinutes() + ':' + date_t.getSeconds();\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 7,
@@ -1688,6 +1688,262 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 75,
+      "panels": [],
+      "title": "Events",
+      "type": "row"
+    },
+    {
+      "columns": [],
+      "datasource": "-- Mixed --",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 76,
+      "links": [],
+      "pageSize": 10,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "Level",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "level",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "Undefined",
+              "value": "EVENT_LEVEL_UNDEFINED"
+            },
+            {
+              "text": "Debug",
+              "value": "EVENT_LEVEL_DEBUG"
+            },
+            {
+              "text": "Info",
+              "value": "EVENT_LEVEL_INFO"
+            },
+            {
+              "text": "Warning",
+              "value": "EVENT_LEVEL_WARNING"
+            },
+            {
+              "text": "Error",
+              "value": "EVENT_LEVEL_ERROR"
+            },
+            {
+              "text": "Fatal",
+              "value": "EVENT_LEVEL_FATAL"
+            }
+          ]
+        },
+        {
+          "alias": "Message",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "message",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Type",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "type",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "text": "Undeinfed",
+              "value": "EVENT_TYPE_UNDEFINED"
+            },
+            {
+              "text": "Alameda scaler create",
+              "value": "EVENT_TYPE_ALAMEDA_SCALER_CREATE"
+            },
+            {
+              "text": "Alameda scaler delete",
+              "value": "EVENT_TYPE_ALAMEDA_SCALER_DELETE"
+            },
+            {
+              "text": "Node register",
+              "value": "EVENT_TYPE_NODE_REGISTER"
+            },
+            {
+              "text": "Deployment  register",
+              "value": "EVENT_TYPE_DEPLOYMENT_REGISTER"
+            },
+            {
+              "text": "Deploymenet config register",
+              "value": "EVENT_TYPE_DEPLOYMENT_CONFIG_REGISTER"
+            },
+            {
+              "text": "Pod register",
+              "value": "EVENT_TYPE_POD_REGISTER"
+            },
+            {
+              "text": "Node deregister",
+              "value": "EVENT_TYPE_NODE_DEREGISTER"
+            },
+            {
+              "text": "Deployment deregister",
+              "value": "EVENT_TYPE_DEPLOYMENT_DEREGISTER"
+            },
+            {
+              "text": "Deployment config deregister",
+              "value": "EVENT_TYPE_DEPLOYMENT_CONFIG_DEREGISTER"
+            },
+            {
+              "text": "Pod deregister",
+              "value": "EVENT_TYPE_POD_DEREGISTER"
+            },
+            {
+              "text": "Node prediction create",
+              "value": "EVENT_TYPE_NODE_PREDICTION_CREATE"
+            },
+            {
+              "text": "Pod prediction create",
+              "value": "EVENT_TYPE_POD_PREDICTION_CREATE"
+            },
+            {
+              "text": "VPA recommendation create",
+              "value": "EVENT_TYPE_VPA_RECOMMENDATION_CREATE"
+            },
+            {
+              "text": "HPA  recommendation create",
+              "value": "EVENT_TYPE_HPA_RECOMMENDATION_CREATE"
+            },
+            {
+              "text": "Pod evict",
+              "value": "EVENT_TYPE_POD_EVICT"
+            },
+            {
+              "text": "Pod patch",
+              "value": "EVENT_TYPE_POD_PATCH"
+            },
+            {
+              "text": "Anomaly metric detect",
+              "value": "EVENT_TYPE_ANOMALY_METRIC_DETECT"
+            },
+            {
+              "text": "Anomaly analysis create",
+              "value": "EVENT_TYPE_ANOMALY_ANALYSIS_CREATE"
+            },
+            {
+              "text": "License",
+              "value": "EVENT_TYPE_LICENSE"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select level,message,type from alameda_event..event order by time desc",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Events",
+      "transform": "table",
+      "type": "table"
     }
   ],
   "refresh": false,
