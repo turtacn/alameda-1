@@ -1803,7 +1803,7 @@
           "unit": "short",
           "valueMaps": [
             {
-              "text": "Undeinfed",
+              "text": "Undefined",
               "value": "EVENT_TYPE_UNDEFINED"
             },
             {
