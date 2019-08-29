@@ -14,7 +14,7 @@ func (s *ServiceV1alpha1) GetLicense(ctx context.Context, in *empty.Empty) (*Dat
 	scope.Debug("Request received from GetLicense grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	keycodeMgt := KeycodeMgt.NewKeycodeMgt()
-	license    := &DatahubV1alpha1.License{Valid: keycodeMgt.IsValid()}
+	license := &DatahubV1alpha1.License{Valid: keycodeMgt.IsValid()}
 
 	response := &DatahubV1alpha1.GetLicenseResponse{
 		Status: &status.Status{
