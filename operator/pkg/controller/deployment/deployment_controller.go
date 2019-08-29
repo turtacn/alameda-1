@@ -20,8 +20,10 @@ import (
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	controllerutil "github.com/containers-ai/alameda/operator/pkg/controller/util"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
+
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	appsv1 "k8s.io/api/apps/v1"
@@ -119,18 +121,43 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 		return reconcile.Result{}, nil
 	} else {
 		alamedaScaler, err := getResource.GetObservingAlamedaScalerOfController(autoscalingv1alpha1.DeploymentController, request.Namespace, request.Name)
-		if err != nil {
-			scope.Errorf("Get observing AlamedaScaler of deployment failed: %s", err.Error())
+		if err != nil && !k8sErrors.IsNotFound(err) {
+			scope.Errorf("Get observing AlamedaScaler of Deployment failed: %s", err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 		} else if alamedaScaler == nil {
-			scope.Warnf("Get observing AlamedaScaler of deployment %s/%s not found", request.Namespace, request.Name)
-			return reconcile.Result{}, nil
+			scope.Warnf("Get observing AlamedaScaler of Deployment %s/%s not found", request.Namespace, request.Name)
 		}
 
-		alamedaScaler.SetCustomResourceVersion(alamedaScaler.GenCustomResourceVersion())
-		err = updateResource.UpdateAlamedaScaler(alamedaScaler)
+		var currentMonitorAlamedaScalerName = ""
+		if alamedaScaler != nil {
+			if err := controllerutil.TriggerAlamedaScaler(updateResource, alamedaScaler); err != nil {
+				scope.Errorf("Trigger current monitoring AlamedaScaler to update falied: %s", err.Error())
+				return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+			}
+			currentMonitorAlamedaScalerName = alamedaScaler.Name
+		}
+
+		lastMonitorAlamedaScalerName := controllerutil.GetLastMonitorAlamedaScaler(&deployment)
+		// Do not trigger the update process twice if last and current AlamedaScaler are the same
+		if lastMonitorAlamedaScalerName != "" && currentMonitorAlamedaScalerName != lastMonitorAlamedaScalerName {
+			lastMonitorAlamedaScaler, err := getResource.GetAlamedaScaler(request.Namespace, lastMonitorAlamedaScalerName)
+			if err != nil && !k8sErrors.IsNotFound(err) {
+				scope.Errorf("Get last monitoring AlamedaScaler falied: %s", err.Error())
+				return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+			}
+			if lastMonitorAlamedaScaler != nil {
+				err := controllerutil.TriggerAlamedaScaler(updateResource, lastMonitorAlamedaScaler)
+				if err != nil {
+					scope.Errorf("Trigger last monitoring AlamedaScaler to update falied: %s", err.Error())
+					return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+				}
+			}
+		}
+
+		controllerutil.SetLastMonitorAlamedaScaler(&deployment, currentMonitorAlamedaScalerName)
+		err = updateResource.UpdateResource(&deployment)
 		if err != nil {
-			scope.Errorf("Update AlamedaScaler falied: %s", err.Error())
+			scope.Errorf("Update Deployment falied: %s", err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 		}
 	}
