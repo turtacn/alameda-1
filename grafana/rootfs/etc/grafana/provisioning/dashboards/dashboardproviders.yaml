@@ -2,10 +2,10 @@ apiVersion: 1
 providers:
 - disableDeletion: false
   editable: true
-  folder: Dashboard
-  name: Dashboard
+  folder: Home
+  name: Home
   options:
-    path: /var/lib/grafana/dashboards/Dashboard
+    path: /var/lib/grafana/dashboards/Home
   orgId: 1
   type: file
 - disableDeletion: false
