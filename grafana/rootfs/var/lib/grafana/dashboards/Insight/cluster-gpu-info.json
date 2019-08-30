@@ -1,16 +1,68 @@
 {
+  "__inputs": [{
+      "name": "Prometheus-GPU",
+      "label": "Prometheus-GPU",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    },
+    {
+      "name": "InfluxDB-GPU",
+      "label": "InfluxDB-GPU",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "influxdb",
+      "pluginName": "InfluxDB"
+    }
+  ],
+  "__requires": [{
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "5.4.3"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph",
+      "version": "5.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "version": "5.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "5.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "singlestat",
+      "name": "Singlestat",
+      "version": "5.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": "5.0.0"
+    }
+  ],
   "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
+    "list": [{
+      "builtIn": 1,
+      "datasource": "-- Grafana --",
+      "enable": true,
+      "hide": true,
+      "iconColor": "rgba(0, 211, 255, 1)",
+      "name": "Annotations & Alerts",
+      "type": "dashboard"
+    }]
   },
   "editable": true,
   "gnetId": null,
@@ -18,8 +70,7 @@
   "id": 16,
   "iteration": 1563864481565,
   "links": [],
-  "panels": [
-    {
+  "panels": [{
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -43,7 +94,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "decimals": null,
       "format": "locale",
       "gauge": {
@@ -55,7 +106,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 1
       },
@@ -63,8 +114,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -81,13 +131,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -95,28 +143,24 @@
         "show": true
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "sum(nvidia_gpu_num_devices)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "sum(nvidia_gpu_num_devices)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "",
       "timeFrom": null,
       "timeShift": null,
       "title": "Total GPU Count",
       "type": "singlestat",
       "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -130,297 +174,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
-      "format": "short",
-      "gauge": {
-        "maxValue": 252,
-        "minValue": 0,
-        "show": true,
-        "thresholdLabels": true,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 9,
-        "x": 6,
-        "y": 1
-      },
-      "id": 28,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
-      },
-      "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "count(nvidia_gpu_num_devices)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
-      "thresholds": "90,180",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Enabled GPU Nodes",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "InfluxDB-GPU",
-      "description": "Number of GPU that are deployed with pods",
-      "format": "short",
-      "gauge": {
-        "maxValue": 1664,
-        "minValue": 0,
-        "show": true,
-        "thresholdLabels": true,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 9,
-        "x": 15,
-        "y": 1
-      },
-      "id": 2,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
-      },
-      "tableColumn": "Value",
-      "targets": [
-        {
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"k8s\" WHERE $timeFilter GROUP BY time(5m), \"NodeName\"  FILL(none) ORDER BY time DESC  LIMIT 1",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "90,180",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Number of Used GPU",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus-GPU",
-      "decimals": null,
-      "format": "decbytes",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 0,
-        "y": 4
-      },
-      "id": 3,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
-      },
-      "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "sum(nvidia_gpu_memory_total_bytes)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Total GPU Memory",
-      "type": "singlestat",
-      "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "decimals": 2,
       "format": "percent",
       "gauge": {
@@ -432,16 +186,15 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 7
+        "w": 7,
+        "x": 5,
+        "y": 1
       },
       "id": 5,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -458,13 +211,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": true,
@@ -472,28 +223,24 @@
         "show": true
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "avg(nvidia_gpu_duty_cycle)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "avg(nvidia_gpu_duty_cycle)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "50,90",
       "timeFrom": null,
       "timeShift": null,
       "title": "Overall GPU Cycle Utilization",
       "type": "singlestat",
       "valueFontSize": "70%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -507,7 +254,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "decimals": 2,
       "format": "percentunit",
       "gauge": {
@@ -519,16 +266,15 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 12,
+        "w": 7,
         "x": 12,
-        "y": 7
+        "y": 1
       },
       "id": 6,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -545,13 +291,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": true,
@@ -559,28 +303,104 @@
         "show": true
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "sum(nvidia_gpu_memory_used_bytes) / sum(nvidia_gpu_memory_total_bytes)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "sum(nvidia_gpu_memory_used_bytes) / sum(nvidia_gpu_memory_total_bytes)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "50,90",
       "timeFrom": null,
       "timeShift": null,
       "title": "Overall GPU Memory Utilization",
       "type": "singlestat",
       "valueFontSize": "70%",
-      "valueMaps": [
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": false,
+      "colorPrefix": false,
+      "colorValue": true,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "${Prometheus-GPU}",
+      "decimals": null,
+      "format": "decbytes",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 0,
+        "y": 4
+      },
+      "id": 3,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [{
+          "name": "value to text",
+          "value": 1
+        },
         {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
+          "name": "range to text",
+          "value": 2
         }
       ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": true
+      },
+      "tableColumn": "Value",
+      "targets": [{
+        "expr": "sum(nvidia_gpu_memory_total_bytes)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total GPU Memory",
+      "type": "singlestat",
+      "valueFontSize": "70%",
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -589,7 +409,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 7
       },
       "id": 16,
       "panels": [],
@@ -608,7 +428,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "description": "The count of nodes that used less than $memory_utilization  of memory",
       "format": "short",
       "gauge": {
@@ -620,16 +440,15 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 5,
         "x": 0,
-        "y": 14
+        "y": 8
       },
       "id": 19,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -646,53 +465,48 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": true,
         "lineColor": "rgb(31, 120, 193)",
-        "show": true
+        "show": false
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
       "title": "Nodes of Low GPU Memory Utilization (<$memory_utilization)",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
       "columns": [],
+      "datasource": "${Prometheus-GPU}",
       "description": "Low GPU memory utilization smaller than (<$memory_utilization)",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 14
+        "w": 7,
+        "x": 5,
+        "y": 8
       },
       "id": 12,
       "links": [],
@@ -704,8 +518,7 @@
         "col": 2,
         "desc": true
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "link": false,
@@ -743,30 +556,104 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
-          "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "legendFormat": "",
-          "refId": "A"
-        },
-        {
-          "expr": "avg(nvidia_gpu_duty_cycle) by (host) <= 0.1",
-          "format": "table",
-          "hide": true,
-          "instant": true,
-          "intervalFactor": 1,
-          "refId": "B"
-        }
-      ],
+      "targets": [{
+        "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization",
+        "format": "table",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 1,
+        "legendFormat": "",
+        "refId": "A"
+      }],
       "timeFrom": null,
       "timeShift": null,
       "title": "Low GPU Memory Utilization (<$memory_utilization)",
       "transform": "table",
       "type": "table"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${Prometheus-GPU}",
+      "fill": 1,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 29,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [{
+        "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Number of nodes",
+        "refId": "A"
+      }],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Number of Nodes with Low GPU Memory Utilization (<$memory_utilization)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 0,
+          "format": "none",
+          "label": "Number of nodes",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "cacheTimeout": null,
@@ -779,7 +666,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "description": "The count of nodes that used less than $gpu_utilization of GPU cycles",
       "format": "short",
       "gauge": {
@@ -791,16 +678,15 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 5,
         "x": 0,
-        "y": 21
+        "y": 15
       },
       "id": 9,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -817,53 +703,48 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": true,
         "lineColor": "rgb(31, 120, 193)",
-        "show": true
+        "show": false
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "count(avg(nvidia_gpu_duty_cycle) by (host) <= $gpu_utilization)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(avg(nvidia_gpu_duty_cycle) by (host) <= $gpu_utilization)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
       "title": "Nodes of Low GPU Cycle Utilization (<$gpu_utilization)",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
       "columns": [],
+      "datasource": "${Prometheus-GPU}",
       "description": "",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 21
+        "w": 7,
+        "x": 5,
+        "y": 15
       },
       "id": 26,
       "links": [],
@@ -875,8 +756,7 @@
         "col": 2,
         "desc": true
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "link": false,
@@ -914,16 +794,14 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
-          "expr": "avg(nvidia_gpu_duty_cycle / 100) by (host) < $gpu_utilization",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "avg(nvidia_gpu_duty_cycle / 100) by (host) < $gpu_utilization",
+        "format": "table",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "timeFrom": null,
       "timeShift": null,
       "title": "Low GPU Cycle Utilization (< $gpu_utilization)",
@@ -931,12 +809,96 @@
       "type": "table"
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${Prometheus-GPU}",
+      "fill": 1,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "id": 30,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [{
+        "expr": "count(avg(nvidia_gpu_duty_cycle) by (host) <= $gpu_utilization)",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Number of nodes",
+        "refId": "A"
+      }],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Number of Nodes with Low GPU Cycle Utilization (<$memory_utilization)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 0,
+          "format": "none",
+          "label": "Number of nodes",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 22
       },
       "id": 18,
       "panels": [],
@@ -954,7 +916,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "description": "The count of nodes that used more than $high_memory_utilization  of memory",
       "format": "short",
       "gauge": {
@@ -966,16 +928,15 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 5,
         "x": 0,
-        "y": 29
+        "y": 23
       },
       "id": 10,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -992,53 +953,48 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": true,
         "lineColor": "rgb(31, 120, 193)",
-        "show": true
+        "show": false
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
       "title": "Nodes of High GPU Memory Utilization (>$high_memory_utilization)",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
       "columns": [],
+      "datasource": "${Prometheus-GPU}",
       "description": "High GPU memory utilization larger than (>$high_memory_utilization)",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 29
+        "w": 7,
+        "x": 5,
+        "y": 23
       },
       "id": 21,
       "links": [],
@@ -1050,8 +1006,7 @@
         "col": 1,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "link": false,
@@ -1105,8 +1060,7 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
+      "targets": [{
           "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization",
           "format": "table",
           "hide": false,
@@ -1130,6 +1084,90 @@
       "type": "table"
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${Prometheus-GPU}",
+      "fill": 1,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "id": 31,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [{
+        "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Number of nodes",
+        "refId": "A"
+      }],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Number of Nodes with High GPU Memory Utilization (>$high_memory_utilization)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 0,
+          "format": "none",
+          "label": "Number of nodes",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "cacheTimeout": null,
       "colorBackground": false,
       "colorPostfix": false,
@@ -1140,7 +1178,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus-GPU",
+      "datasource": "${Prometheus-GPU}",
       "description": "The count of node that used over $high_gpu_utilization GPU Utilization",
       "format": "short",
       "gauge": {
@@ -1152,16 +1190,15 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 5,
         "x": 0,
-        "y": 36
+        "y": 30
       },
       "id": 20,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -1178,53 +1215,48 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": true,
         "lineColor": "rgb(31, 120, 193)",
-        "show": true
+        "show": false
       },
       "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "count(avg(nvidia_gpu_duty_cycle / 100) by (host) >= $high_gpu_utilization)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(avg(nvidia_gpu_duty_cycle / 100) by (host) >= $high_gpu_utilization)",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
       "title": "Nodes of High GPU Cycle Utilization (>$high_gpu_utilization)",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
       "columns": [],
+      "datasource": "${Prometheus-GPU}",
       "description": "High GPU cycle utilization larger than (>$high_gpu_utilization)",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 36
+        "w": 7,
+        "x": 5,
+        "y": 30
       },
       "id": 27,
       "links": [],
@@ -1236,8 +1268,7 @@
         "col": 1,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "link": false,
@@ -1291,16 +1322,14 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
-          "expr": "avg(nvidia_gpu_duty_cycle / 100) by (host) > $high_gpu_utilization",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "avg(nvidia_gpu_duty_cycle / 100) by (host) > $high_gpu_utilization",
+        "format": "table",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 1,
+        "refId": "A"
+      }],
       "timeFrom": null,
       "timeShift": null,
       "title": "High GPU Cycle Utilization (>$high_gpu_utilization)",
@@ -1308,12 +1337,96 @@
       "type": "table"
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${Prometheus-GPU}",
+      "fill": 1,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 32,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [{
+        "expr": "count(avg(nvidia_gpu_duty_cycle / 100) by (host) >= $high_gpu_utilization)",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Number of nodes",
+        "refId": "A"
+      }],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Number of Nodes with High GPU Cycle Utilization (>$high_memory_utilization)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 0,
+          "format": "none",
+          "label": "Number of nodes",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 37
       },
       "id": 23,
       "panels": [],
@@ -1322,13 +1435,13 @@
     },
     {
       "columns": [],
-      "datasource": "InfluxDB-GPU",
+      "datasource": "${InfluxDB-GPU}",
       "fontSize": "100%",
       "gridPos": {
-        "h": 6,
-        "w": 24,
+        "h": 11,
+        "w": 11,
         "x": 0,
-        "y": 44
+        "y": 38
       },
       "id": 25,
       "interval": "",
@@ -1341,35 +1454,30 @@
         "col": 1,
         "desc": false
       },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "link": false,
-          "pattern": "Time",
-          "type": "date"
-        },
-        {
-          "alias": "Sum",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "sum",
-          "thresholds": [],
-          "type": "number",
-          "unit": "none"
-        }
-      ],
-      "targets": [
-        {
-          "groupBy": [
-            {
+      "styles": [{
+        "alias": "Time",
+        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+        "link": false,
+        "pattern": "Time",
+        "type": "date"
+      }, {
+        "alias": "Sum",
+        "colorMode": null,
+        "colors": [
+          "rgba(245, 54, 54, 0.9)",
+          "rgba(237, 129, 40, 0.89)",
+          "rgba(50, 172, 45, 0.97)"
+        ],
+        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+        "decimals": 2,
+        "mappingType": 1,
+        "pattern": "sum",
+        "thresholds": [],
+        "type": "number",
+        "unit": "none"
+      }],
+      "targets": [{
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1390,8 +1498,7 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1406,8 +1513,7 @@
           "tags": []
         },
         {
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1428,8 +1534,7 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1455,8 +1560,7 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
+    "list": [{
         "current": {
           "text": "0.5",
           "value": "0.5"
@@ -1464,12 +1568,10 @@
         "hide": 0,
         "label": "Low Memory Utilization Threshold",
         "name": "memory_utilization",
-        "options": [
-          {
-            "text": "0.3",
-            "value": "0.3"
-          }
-        ],
+        "options": [{
+          "text": "0.3",
+          "value": "0.3"
+        }],
         "query": "0.3",
         "skipUrlSync": false,
         "type": "textbox"
@@ -1480,14 +1582,12 @@
           "value": "0.5"
         },
         "hide": 0,
-        "label": "High GPU Utilization Threshold",
+        "label": "Low GPU Utilization Threshold",
         "name": "gpu_utilization",
-        "options": [
-          {
-            "text": "0.3",
-            "value": "0.3"
-          }
-        ],
+        "options": [{
+          "text": "0.3",
+          "value": "0.3"
+        }],
         "query": "0.3",
         "skipUrlSync": false,
         "type": "textbox"
@@ -1500,12 +1600,11 @@
         "hide": 0,
         "label": "High Memory Utilization Threshold",
         "name": "high_memory_utilization",
-        "options": [
-          {
-            "text": "0.7",
-            "value": "0.7"
-          }
-        ],
+        "options": [{
+          "selected": false,
+          "text": "0.7",
+          "value": "0.7"
+        }],
         "query": "0.8",
         "skipUrlSync": false,
         "type": "textbox"
@@ -1518,12 +1617,11 @@
         "hide": 0,
         "label": "High GPU Cycle Utilization Threshold",
         "name": "high_gpu_utilization",
-        "options": [
-          {
-            "text": "0.8",
-            "value": "0.8"
-          }
-        ],
+        "options": [{
+          "selected": true,
+          "text": "0.8",
+          "value": "0.8"
+        }],
         "query": "0.8",
         "skipUrlSync": false,
         "type": "textbox"
