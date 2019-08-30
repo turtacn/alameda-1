@@ -60,6 +60,25 @@ func GetRunningNamespace() string {
 	return strings.TrimSpace(ns)
 }
 
+func GetPodName() string {
+	ns := ""
+	nsFile, err := os.Open("/etc/hostname")
+	if err != nil {
+		scope.Errorf(err.Error())
+	}
+	defer nsFile.Close()
+
+	scanner := bufio.NewScanner(nsFile)
+	for scanner.Scan() {
+		ns = ns + scanner.Text()
+	}
+
+	if err := scanner.Err(); err != nil {
+		scope.Errorf(err.Error())
+	}
+	return strings.TrimSpace(ns)
+}
+
 // NewOwnerReference provides ownerReference reference to input object
 func NewOwnerReference(objType metav1.TypeMeta, objMeta metav1.ObjectMeta, isController bool) metav1.OwnerReference {
 	return metav1.OwnerReference{

@@ -1,20 +1,38 @@
 package keycodes
 
 import (
+	"fmt"
 	EventMgt "github.com/containers-ai/alameda/internal/pkg/event-mgt"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
+	K8SUtils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"time"
 )
 
 func NewKeycodeEvent(level DatahubV1alpha1.EventLevel, message string) *DatahubV1alpha1.Event {
+	namespace := K8SUtils.GetRunningNamespace()
+
+	source := &DatahubV1alpha1.EventSource{
+		Host:      "",
+		Component: fmt.Sprintf("%s-datahub", namespace),
+	}
+
+	subject := &DatahubV1alpha1.K8SObjectReference{
+		Kind:       "Pod",
+		Namespace:  namespace,
+		Name:       "Federator.ai",
+		ApiVersion: "v1",
+	}
+
 	event := &DatahubV1alpha1.Event{
-		Type:    DatahubV1alpha1.EventType_EVENT_TYPE_LICENSE,
 		Time:    &timestamp.Timestamp{Seconds: time.Now().Unix()},
 		Id:      AlamedaUtils.GenerateUUID(),
+		Source:  source,
+		Type:    DatahubV1alpha1.EventType_EVENT_TYPE_LICENSE,
 		Version: DatahubV1alpha1.EventVersion_EVENT_VERSION_V1,
 		Level:   level,
+		Subject: subject,
 		Message: message,
 	}
 	return event
