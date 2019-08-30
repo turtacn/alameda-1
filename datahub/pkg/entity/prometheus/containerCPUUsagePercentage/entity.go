@@ -6,7 +6,6 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	"math"
 	"strconv"
 )
 
