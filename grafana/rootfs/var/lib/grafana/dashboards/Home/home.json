@@ -1,16 +1,14 @@
 {
   "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
+    "list": [{
+      "builtIn": 1,
+      "datasource": "-- Grafana --",
+      "enable": true,
+      "hide": true,
+      "iconColor": "rgba(0, 211, 255, 1)",
+      "name": "Annotations & Alerts",
+      "type": "dashboard"
+    }]
   },
   "editable": true,
   "gnetId": null,
@@ -18,8 +16,7 @@
   "id": 10,
   "iteration": 1565241809539,
   "links": [],
-  "panels": [
-    {
+  "panels": [{
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -35,7 +32,7 @@
     {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div style=\"text-align:center;\">\n        <img style=\"vertical-align:middle;\" src=\"https://i1.wp.com/www.prophetstor.com/wp-content/uploads/2017/05/prophetstor_white_logo.png?fit=143%2C62&ssl=1\">\n        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \n        <span style=\"vertical-align:middle; font-size:30px;\">Federator.ai</span>\n      </div>\n    </td>\n  </tr>\n</table>\n",
       "gridPos": {
-        "h": 6,
+        "h": 4,
         "w": 9,
         "x": 0,
         "y": 1
@@ -49,7 +46,7 @@
     {
       "content": "<h1 style=\"position: relative; text-align: center; vertical-align:middle; font-size:30px; top: 30%;\">__DEV_VERSION__</h1>",
       "gridPos": {
-        "h": 6,
+        "h": 4,
         "w": 8,
         "x": 9,
         "y": 1
@@ -63,7 +60,7 @@
     {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>",
       "gridPos": {
-        "h": 3,
+        "h": 2,
         "w": 7,
         "x": 17,
         "y": 1
@@ -77,10 +74,10 @@
     {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = parseInt(`${lic_expired_time}`);\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == '') {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = date_t.getFullYear() + '-' + (\"0\" + (date_t.getMonth() + 1)).slice(-2) + '-' + (\"0\" + date_t.getDate()).slice(-2) + ' ' + (\"0\" + date_t.getHours()).slice(-2) + ':' + (\"0\" + date_t.getMinutes()).slice(-2) + ':' + (\"0\" + date_t.getSeconds()).slice(-2);\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
       "gridPos": {
-        "h": 3,
+        "h": 2,
         "w": 7,
         "x": 17,
-        "y": 4
+        "y": 3
       },
       "id": 73,
       "links": [],
@@ -94,7 +91,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 5
       },
       "id": 18,
       "panels": [],
@@ -120,17 +117,16 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 4,
         "x": 0,
-        "y": 8
+        "y": 6
       },
       "id": 30,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -146,13 +142,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -160,26 +154,22 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
-          "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
+        "format": "time_series",
+        "instant": true,
+        "intervalFactor": 2,
+        "refId": "A"
+      }],
       "thresholds": "",
       "title": "Total Nodes",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -202,17 +192,16 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 4,
         "x": 4,
-        "y": 8
+        "y": 6
       },
       "id": 28,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -228,13 +217,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -242,27 +229,23 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "count(increase(kube_pod_container_status_restarts_total[1h]) > 5)",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 2,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(increase(kube_pod_container_status_restarts_total[1h]) > 5)",
+        "format": "time_series",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 2,
+        "refId": "A"
+      }],
       "thresholds": "1, 3",
       "title": "Crashing Pods",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "0",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "0",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -284,17 +267,16 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 4,
         "x": 8,
-        "y": 8
+        "y": 6
       },
       "id": 34,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -310,13 +292,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -324,27 +304,23 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"})) * 100",
-          "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"})) * 100",
+        "format": "time_series",
+        "instant": true,
+        "intervalFactor": 2,
+        "refId": "A"
+      }],
       "thresholds": "50, 90",
       "title": "Nodes UP",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "min"
     },
     {
@@ -366,17 +342,16 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 4,
         "x": 12,
-        "y": 8
+        "y": 6
       },
       "id": 32,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -392,13 +367,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -406,29 +379,25 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"}) * 100",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"}) * 100",
+        "format": "time_series",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 2,
+        "legendFormat": "",
+        "refId": "A"
+      }],
       "thresholds": "50, 90",
       "title": "Nodes Ready",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "min"
     },
     {
@@ -450,17 +419,16 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 4,
         "x": 16,
-        "y": 8
+        "y": 6
       },
       "id": 62,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -476,13 +444,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -490,59 +456,53 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"MemoryPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"MemoryPressure\"}) * 100",
-          "format": "time_series",
-          "groupBy": [
-            {
+      "targets": [{
+        "expr": "sum(kube_node_status_condition{condition=\"MemoryPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"MemoryPressure\"}) * 100",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "instant": true,
+        "intervalFactor": 2,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "instant": true,
-          "intervalFactor": 2,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "thresholds": "10, 50",
       "title": "Nodes Memory Pressure",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "max"
     },
     {
@@ -564,17 +524,16 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
+        "h": 4,
         "w": 4,
         "x": 20,
-        "y": 8
+        "y": 6
       },
       "id": 64,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -590,13 +549,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -604,59 +561,53 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"DiskPressure\"}) * 100",
-          "format": "time_series",
-          "groupBy": [
-            {
+      "targets": [{
+        "expr": "sum(kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"DiskPressure\"}) * 100",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "instant": true,
+        "intervalFactor": 2,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "instant": true,
-          "intervalFactor": 2,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "thresholds": "10, 50",
       "title": "Nodes Disk Pressure",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "max"
     },
     {
@@ -667,7 +618,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 10
       },
       "id": 48,
       "links": [],
@@ -678,8 +629,7 @@
         "col": null,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -765,8 +715,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
+          "valueMaps": [{
               "text": "Up",
               "value": "true"
             },
@@ -807,8 +756,7 @@
           "unit": "decbytes"
         }
       ],
-      "targets": [
-        {
+      "targets": [{
           "datasource": "Prometheus",
           "expr": "kube_node_status_condition{condition=\"Ready\"} == 1",
           "format": "table",
@@ -851,7 +799,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 15
       },
       "id": 16,
       "panels": [],
@@ -866,7 +814,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 16
       },
       "id": 50,
       "links": [],
@@ -877,8 +825,7 @@
         "col": null,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -1011,12 +958,10 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
+      "targets": [{
           "alias": "",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1037,8 +982,7 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1054,8 +998,7 @@
         },
         {
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1076,8 +1019,7 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1102,7 +1044,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 20
       },
       "id": 20,
       "panels": [],
@@ -1132,14 +1074,13 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 21
       },
       "id": 68,
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -1155,13 +1096,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -1169,56 +1108,50 @@
         "show": false
       },
       "tableColumn": "alameda_scaler_name",
-      "targets": [
-        {
-          "groupBy": [
-            {
+      "targets": [{
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "thresholds": "",
       "title": "Application Name",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "avg"
     },
     {
@@ -1232,7 +1165,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1253,8 +1186,7 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
+      "seriesOverrides": [{
           "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
@@ -1284,8 +1216,7 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [
-        {
+      "targets": [{
           "datasource": "Prometheus",
           "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
@@ -1298,8 +1229,7 @@
         {
           "alias": "Prediction: CPU usage",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1320,8 +1250,7 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1338,8 +1267,7 @@
         {
           "alias": "Prediction: CPU usage upperbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1360,8 +1288,7 @@
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1378,8 +1305,7 @@
         {
           "alias": "Prediction: CPU usage lowerbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1400,8 +1326,7 @@
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1434,8 +1359,7 @@
         "show": true,
         "values": []
       },
-      "yaxes": [
-        {
+      "yaxes": [{
           "decimals": 3,
           "format": "none",
           "label": null,
@@ -1469,7 +1393,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1490,8 +1414,7 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
+      "seriesOverrides": [{
           "alias": "Observation: memory usage",
           "color": "#5195ce"
         },
@@ -1516,8 +1439,7 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [
-        {
+      "targets": [{
           "datasource": "Prometheus",
           "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
@@ -1530,8 +1452,7 @@
         {
           "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1552,8 +1473,7 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1570,8 +1490,7 @@
         {
           "alias": "Prediction: memory usage upperbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1592,8 +1511,7 @@
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1610,8 +1528,7 @@
         {
           "alias": "Prediction: memory usage lowerbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1632,8 +1549,7 @@
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1666,8 +1582,7 @@
         "show": true,
         "values": []
       },
-      "yaxes": [
-        {
+      "yaxes": [{
           "format": "bytes",
           "label": null,
           "logBase": 1,
@@ -1695,7 +1610,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 32
       },
       "id": 75,
       "panels": [],
@@ -1710,7 +1625,7 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 33
       },
       "id": 76,
       "links": [],
@@ -1721,8 +1636,7 @@
         "col": null,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -1744,8 +1658,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
+          "valueMaps": [{
               "text": "Undefined",
               "value": "EVENT_LEVEL_UNDEFINED"
             },
@@ -1802,8 +1715,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
+          "valueMaps": [{
               "text": "Undefined",
               "value": "EVENT_TYPE_UNDEFINED"
             },
@@ -1948,48 +1860,44 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
-          "alias": "",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
+      "targets": [{
+        "alias": "",
+        "datasource": "InfluxDB",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select level,subject_kind,subject_name,subject_namespace,message,type from alameda_event..event order by time desc",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "hide": false,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select level,subject_kind,subject_name,subject_namespace,message,type from alameda_event..event order by time desc",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "title": "Events",
       "transform": "table",
       "type": "table"
@@ -2000,8 +1908,7 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
+    "list": [{
         "allValue": null,
         "current": {
           "text": "All",
