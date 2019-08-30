@@ -47,10 +47,7 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 	for _, value := range e.Values {
 		v := "0"
 		if s, err := strconv.ParseFloat(value.SampleValue, 64); err == nil {
-			v = fmt.Sprintf("%d", int(math.Ceil(s*1000)))
-			if v == "0" {
-				v = "1"
-			}
+			v = fmt.Sprintf("%f", s*1000)
 		} else {
 			scope.Errorf("containerCPUUsagePercentage.NewEntityFromPrometheusEntity: %s", err.Error())
 		}
