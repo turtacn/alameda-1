@@ -1918,6 +1918,22 @@
           "unit": "short"
         },
         {
+          "alias": "Name",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "subject_name",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -1953,7 +1969,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select level,subject_kind,subject_namespace,message,type from alameda_event..event order by time desc",
+          "query": "select level,subject_kind,subject_name,subject_namespace,message,type from alameda_event..event order by time desc",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
