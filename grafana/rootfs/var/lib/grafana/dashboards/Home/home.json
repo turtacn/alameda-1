@@ -1740,6 +1740,7 @@
           "decimals": 2,
           "mappingType": 1,
           "pattern": "level",
+          "sanitize": true,
           "thresholds": [],
           "type": "string",
           "unit": "short",
@@ -1753,19 +1754,19 @@
               "value": "EVENT_LEVEL_DEBUG"
             },
             {
-              "text": "Info",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/custom-icon-design/flatastic-1/16/information-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"white\">Info</font>",
               "value": "EVENT_LEVEL_INFO"
             },
             {
-              "text": "Warning",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/paomedia/small-n-flat/16/sign-warning-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"yellow\">Warning</font>",
               "value": "EVENT_LEVEL_WARNING"
             },
             {
-              "text": "Error",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/awicons/vista-artistic/16/delete-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"red\">Error</font>",
               "value": "EVENT_LEVEL_ERROR"
             },
             {
-              "text": "Fatal",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/awicons/vista-artistic/16/delete-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"red\">Fatal</font>",
               "value": "EVENT_LEVEL_FATAL"
             }
           ]
