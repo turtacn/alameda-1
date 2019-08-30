@@ -75,7 +75,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = `${lic_expired_time}`;\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == '') {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = (date_t.getMonth() + 1) + '-' + date_t.getDate() + '-' + date_t.getFullYear() + ' ' + date_t.getHours() + ':' + date_t.getMinutes() + ':' + date_t.getSeconds();\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = parseInt(`${lic_expired_time}`);\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == '') {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = date_t.getFullYear() + '-' + (date_t.getMonth() + 1) + '-' + date_t.getDate() + ' ' + date_t.getHours() + ':' + date_t.getMinutes() + ':' + date_t.getSeconds();\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 7,
@@ -1707,7 +1707,7 @@
       "datasource": "-- Mixed --",
       "fontSize": "100%",
       "gridPos": {
-        "h": 4,
+        "h": 11,
         "w": 24,
         "x": 0,
         "y": 36
@@ -1754,19 +1754,19 @@
               "value": "EVENT_LEVEL_DEBUG"
             },
             {
-              "text": "<img src=\"http://icons.iconarchive.com/icons/custom-icon-design/flatastic-1/16/information-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"white\">Info</font>",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/custom-icon-design/flatastic-1/16/information-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"white\"> Info</font>",
               "value": "EVENT_LEVEL_INFO"
             },
             {
-              "text": "<img src=\"http://icons.iconarchive.com/icons/paomedia/small-n-flat/16/sign-warning-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"yellow\">Warning</font>",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/paomedia/small-n-flat/16/sign-warning-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"yellow\"> Warning</font>",
               "value": "EVENT_LEVEL_WARNING"
             },
             {
-              "text": "<img src=\"http://icons.iconarchive.com/icons/awicons/vista-artistic/16/delete-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"red\">Error</font>",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/awicons/vista-artistic/16/delete-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"red\"> Error</font>",
               "value": "EVENT_LEVEL_ERROR"
             },
             {
-              "text": "<img src=\"http://icons.iconarchive.com/icons/awicons/vista-artistic/16/delete-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"red\">Fatal</font>",
+              "text": "<img src=\"http://icons.iconarchive.com/icons/awicons/vista-artistic/16/delete-icon.png\" alt=\"Smiley face\" height=\"12\" width=\"12\"><font color=\"red\"> Fatal</font>",
               "value": "EVENT_LEVEL_FATAL"
             }
           ]
@@ -1784,7 +1784,7 @@
           "mappingType": 1,
           "pattern": "message",
           "thresholds": [],
-          "type": "number",
+          "type": "string",
           "unit": "short"
         },
         {
@@ -1886,6 +1886,38 @@
           ]
         },
         {
+          "alias": "Kind",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "subject_kind",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Namespace",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "subject_namespace",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -1921,7 +1953,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select level,message,type from alameda_event..event order by time desc",
+          "query": "select level,subject_kind,subject_namespace,message,type from alameda_event..event order by time desc",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -2059,8 +2091,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "No Keycode",
-          "value": "No Keycode"
+          "text": "Valid",
+          "value": "Valid"
         },
         "datasource": "InfluxDB",
         "definition": "select status from alameda_cluster_status..keycode limit 1",
