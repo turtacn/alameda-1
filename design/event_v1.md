@@ -47,6 +47,7 @@ To provide user (administrator/developer/application) monitor/analyze occurred e
     - PodPatch
     - AnomalyMetricDetect
     - AnomalyAnalysisCreate
+    - ReplicasUpdate
   - description: Type of this event.
   - constraints:
     - required
@@ -449,5 +450,25 @@ Alameda-Admission-Controller patchs recommendation to the new created pod.
         "apiVersion": "apps/v1"
     },
     "message": "Patch resource recommendation to new created pod under nginx-deployment-7948f76569- replicaset"
+}
+``` 
+Alameda-Executor scales up/down controllers' replicas.
+```
+{
+    "time": "1562295600000000000",
+    "id": "545bf15e-36d0-447f-b79a-e61723c1b854",
+    "source": {
+        "component": "alameda-executor"
+    },
+    "type": "ReplicasUpdate",
+    "version": "v1",
+    "level": "info",
+    "subject": {
+        "kind": "Deployment",
+        "namespace": "webapp",
+        "name": "nginx-deployment",
+        "apiVersion": "apps/v1"
+    },
+    "message": "Update Deployment webapp/nginx-deployment replicas from 2 to 4"
 }
 ``` 
