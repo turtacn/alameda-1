@@ -1605,7 +1605,7 @@
       }
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1618,6 +1618,91 @@
       "type": "row"
     },
     {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"filter\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var filterName = `${event_level}`;\n  document.getElementById('filter').innerHTML = filterName;\n</script>",
+      "description": "Change Filter by the Event-Level selector on the top",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 33
+      },
+      "id": 90,
+      "links": [],
+      "mode": "html",
+      "title": "Filter",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"debug_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${debug_count}`;\n  document.getElementById('debug_count').innerHTML = count;\n</script>\n<style scope>\n .markdown-html td, .markdown-html table, .markdown-html tr {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 33
+      },
+      "id": 82,
+      "links": [],
+      "mode": "html",
+      "title": "Debug",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"info_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${info_count}`;\n  document.getElementById('info_count').innerHTML = count;\n</script>",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 33
+      },
+      "id": 84,
+      "links": [],
+      "mode": "html",
+      "title": "Info",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"warning_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${warning_count}`;\n  document.getElementById('warning_count').innerHTML = count;\n</script>",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 33
+      },
+      "id": 80,
+      "links": [],
+      "mode": "html",
+      "title": "Warning",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"error_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${error_count}`;\n  document.getElementById('error_count').innerHTML = count;\n</script>",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 33
+      },
+      "id": 88,
+      "links": [],
+      "mode": "html",
+      "title": "Error",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"fatal_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${fatal_count}`;\n  document.getElementById('fatal_count').innerHTML = count;\n</script>",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 33
+      },
+      "id": 86,
+      "links": [],
+      "mode": "html",
+      "title": "Fatal",
+      "type": "text"
+    },
+    {
       "columns": [],
       "datasource": "-- Mixed --",
       "fontSize": "100%",
@@ -1625,7 +1710,7 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 36
       },
       "id": 76,
       "links": [],
@@ -2052,6 +2137,310 @@
         "options": [],
         "query": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
         "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "Warning",
+          "value": "Warning"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Event Level",
+        "multi": false,
+        "name": "event_level",
+        "options": [{
+            "selected": false,
+            "text": "Debug",
+            "value": "Debug"
+          },
+          {
+            "selected": false,
+            "text": "Info",
+            "value": "Info"
+          },
+          {
+            "selected": true,
+            "text": "Warning",
+            "value": "Warning"
+          },
+          {
+            "selected": false,
+            "text": "Error",
+            "value": "Error"
+          },
+          {
+            "selected": false,
+            "text": "Fatal",
+            "value": "Fatal"
+          }
+        ],
+        "query": "Debug, Info, Warning, Error, Fatal",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "alameda",
+          "value": "alameda"
+        },
+        "datasource": "InfluxDB",
+        "definition": "show tag values on alameda_event from event with key = \"subject_namespace\"",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Event Namespace",
+        "multi": false,
+        "name": "event_ns",
+        "options": [],
+        "query": "show tag values on alameda_event from event with key = \"subject_namespace\"",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "info",
+        "options": [{
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Debug",
+            "value": "Debug"
+          },
+          {
+            "selected": false,
+            "text": "Info",
+            "value": "Info"
+          }
+        ],
+        "query": "Debug, Info",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "warning",
+        "options": [{
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Debug",
+            "value": "Debug"
+          },
+          {
+            "selected": false,
+            "text": "Info",
+            "value": "Info"
+          },
+          {
+            "selected": false,
+            "text": "Warning",
+            "value": "Warning"
+          }
+        ],
+        "query": "Debug, Info, Warning",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "error",
+        "options": [{
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Debug",
+            "value": "Debug"
+          },
+          {
+            "selected": false,
+            "text": "Info",
+            "value": "Info"
+          },
+          {
+            "selected": false,
+            "text": "Warning",
+            "value": "Warning"
+          },
+          {
+            "selected": false,
+            "text": "Error",
+            "value": "Error"
+          }
+        ],
+        "query": "Debug, Info, Warning, Error",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(*) from (select count + zero  from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_DEBUG' ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "debug_count",
+        "options": [],
+        "query": "select sum(*) from (select count + zero  from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_DEBUG' ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "6",
+          "value": "6"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO' and '$event_level' =~ /^[[info]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "info_count",
+        "options": [],
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO' and '$event_level' =~ /^[[info]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "413",
+          "value": "413"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and '$event_level' =~ /^[[warning]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "warning_count",
+        "options": [],
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and '$event_level' =~ /^[[warning]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "4",
+          "value": "4"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and '$event_level' =~ /^[[error]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "error_count",
+        "options": [],
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and '$event_level' =~ /^[[error]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_FATAL' and '$event_level' =~ /^[[fatal]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "fatal_count",
+        "options": [],
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_FATAL' and '$event_level' =~ /^[[fatal]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
