@@ -21,7 +21,6 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/code"
 	apps_v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -77,6 +76,9 @@ func (evictioner *Evictioner) evictProcess() {
 }
 
 func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecommendation) {
+
+	events := make([]*datahub_v1alpha1.Event, 0, len(recPodList))
+
 	for _, recPod := range recPodList {
 		recPodIns := &corev1.Pod{}
 		err := evictioner.k8sClienit.Get(context.TODO(), types.NamespacedName{
@@ -84,7 +86,7 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecomm
 			Name:      recPod.GetNamespacedName().GetName(),
 		}, recPodIns)
 		if err != nil {
-			if !k8s_errors.IsNotFound(err) {
+			if !k8serrors.IsNotFound(err) {
 				scope.Error(err.Error())
 			}
 			continue
@@ -115,14 +117,24 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecomm
 				err = evictioner.k8sClienit.Delete(context.TODO(), recPodIns)
 				if err != nil {
 					scope.Errorf("Evict pod (%s,%s) failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+				} else {
+					e := newPodEvictEvent(&recPodIns.ObjectMeta, recPodIns.TypeMeta)
+					events = append(events, &e)
 				}
 			}
 		} else {
 			err = evictioner.k8sClienit.Delete(context.TODO(), recPodIns)
 			if err != nil {
 				scope.Errorf("Evict pod (%s,%s) failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+			} else {
+				e := newPodEvictEvent(&recPodIns.ObjectMeta, recPodIns.TypeMeta)
+				events = append(events, &e)
 			}
 		}
+	}
+
+	if err := evictioner.sendEvents(events); err != nil {
+		scope.Warnf("Send events to datahub failed: %s\n", err.Error())
 	}
 }
 
@@ -393,6 +405,27 @@ func (evictioner *Evictioner) getAlamedaScalerInfo(namespace, name string) (*aut
 		}
 	}
 	return scaler, err
+}
+
+func (evictioner *Evictioner) sendEvents(events []*datahub_v1alpha1.Event) error {
+
+	if len(events) == 0 {
+		return nil
+	}
+
+	request := datahub_v1alpha1.CreateEventsRequest{
+		Events: events,
+	}
+	status, err := evictioner.datahubClnt.CreateEvents(context.TODO(), &request)
+	if err != nil {
+		return errors.Errorf("send events to Datahub failed: %s", err.Error())
+	} else if status == nil {
+		return errors.Errorf("send events to Datahub failed: receive nil status")
+	} else if status.Code != int32(code.Code_OK) {
+		return errors.Errorf("send events to Datahub failed: statusCode: %d, message: %s", status.Code, status.Message)
+	}
+
+	return nil
 }
 
 type podRecommendationInfo struct {

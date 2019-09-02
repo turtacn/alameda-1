@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,18 +10,23 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mattbaird/jsonpatch"
+	"github.com/pkg/errors"
+
 	admission_controller_kubernetes "github.com/containers-ai/alameda/admission-controller/pkg/kubernetes"
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
+	datahub_resource_recommendator "github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource/datahub"
 	admission_controller_utils "github.com/containers-ai/alameda/admission-controller/pkg/utils"
 	controller_validator "github.com/containers-ai/alameda/admission-controller/pkg/validator/controller"
+	datahub_controller_validator "github.com/containers-ai/alameda/admission-controller/pkg/validator/controller/datahub"
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 
-	"github.com/mattbaird/jsonpatch"
-	"github.com/pkg/errors"
+	"google.golang.org/genproto/googleapis/rpc/code"
 	admission_v1beta1 "k8s.io/api/admission/v1beta1"
 	core_v1 "k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -51,7 +57,7 @@ var (
 	}
 )
 
-type admitFunc func(*admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, error)
+type admitFunc func(*admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, []*datahub_v1alpha1.Event, error)
 
 type admissionController struct {
 	config *Config
@@ -63,9 +69,11 @@ type admissionController struct {
 	resourceRecommendatorSyncRetryTime    int
 	resourceRecommendatorSyncWaitInterval time.Duration
 
-	sigsK8SClient         client.Client
-	k8sDeserializer       runtime.Decoder
-	ownerReferenceTracer  *metadata_utils.OwnerReferenceTracer
+	sigsK8SClient        client.Client
+	k8sDeserializer      runtime.Decoder
+	ownerReferenceTracer *metadata_utils.OwnerReferenceTracer
+
+	datahubClient         datahub_v1alpha1.DatahubServiceClient
 	resourceRecommendator resource.ResourceRecommendator
 	controllerValidator   controller_validator.Validator
 
@@ -73,12 +81,18 @@ type admissionController struct {
 }
 
 // NewAdmissionControllerWithConfig creates AdmissionController with configuration and dependencies
-func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, resourceRecommendator resource.ResourceRecommendator, controllerValidator controller_validator.Validator, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc) (AdmissionController, error) {
+func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, datahubClient datahub_v1alpha1.DatahubServiceClient, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc) (AdmissionController, error) {
 
 	defaultOwnerReferenceTracer, err := metadata_utils.NewDefaultOwnerReferenceTracer()
 	if err != nil {
 		return nil, errors.Wrap(err, "new AdmissionController failed")
 	}
+
+	resourceRecommendator, err := datahub_resource_recommendator.NewDatahubResourceRecommendator(datahubClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "new AdmissionController failed")
+	}
+	controllerValidator := datahub_controller_validator.NewControllerValidator(datahubClient, sigsK8SClient)
 
 	ac := &admissionController{
 		config: &cfg,
@@ -90,9 +104,11 @@ func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, r
 		resourceRecommendatorSyncRetryTime:    3,
 		resourceRecommendatorSyncWaitInterval: 5 * time.Second,
 
-		sigsK8SClient:         sigsK8SClient,
-		k8sDeserializer:       admission_controller_kubernetes.Codecs.UniversalDecoder(),
-		ownerReferenceTracer:  defaultOwnerReferenceTracer,
+		sigsK8SClient:        sigsK8SClient,
+		k8sDeserializer:      admission_controller_kubernetes.Codecs.UniversalDecoder(),
+		ownerReferenceTracer: defaultOwnerReferenceTracer,
+
+		datahubClient:         datahubClient,
 		resourceRecommendator: resourceRecommendator,
 		controllerValidator:   controllerValidator,
 
@@ -128,7 +144,7 @@ func (ac *admissionController) serve(w http.ResponseWriter, r *http.Request, adm
 		ac.writeDefaultAdmissionReview(w)
 		return
 	}
-	admissionResponse, err := admit(admissionReview)
+	admissionResponse, events, err := admit(admissionReview)
 	if err != nil {
 		scope.Warnf("admit with error: %s, skip serving AdmissionReview: %+v", err.Error(), admissionReview)
 		ac.writeDefaultAdmissionReview(w)
@@ -139,6 +155,10 @@ func (ac *admissionController) serve(w http.ResponseWriter, r *http.Request, adm
 	err = ac.writeAdmissionReview(w, admissionResponse)
 	if err != nil {
 		scope.Warnf("")
+	} else {
+		if err := ac.sendEvents(events); err != nil {
+			scope.Warnf("Send events to datahub failed: %s\n", err.Error())
+		}
 	}
 }
 
@@ -168,50 +188,52 @@ func (ac *admissionController) writeDefaultAdmissionReview(w http.ResponseWriter
 	}
 }
 
-func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, error) {
+func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, []*datahub_v1alpha1.Event, error) {
 
 	admissionResponse := admission_v1beta1.AdmissionResponse{Allowed: true}
+	events := make([]*datahub_v1alpha1.Event, 1)
 
 	podResource := meta_v1.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	if ar.Request.Resource != podResource {
 		err := errors.Errorf("mutating pod failed: expect resource to be %s, get %s, skip mutating pod", podResource.String(), ar.Request.Resource.String())
-		return admissionResponse, err
+		return admissionResponse, events, err
 	}
 
 	raw := ar.Request.Object.Raw
 	pod := core_v1.Pod{}
 	if _, _, err := ac.k8sDeserializer.Decode(raw, nil, &pod); err != nil {
-		return admissionResponse, errors.Errorf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
+		return admissionResponse, events, errors.Errorf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
 	}
 	pod.SetNamespace(ar.Request.Namespace)
 
 	scope.Infof("mutating pod: %+v", pod.ObjectMeta)
 
-	controllerID, err := ac.getControllerIDToQueryPodRecommendations(&pod)
+	ownerRef, err := ac.getTopSupportedOwnerReference(&pod)
 	if err != nil {
-		return admissionResponse, errors.Wrapf(err, "mutating pod failed: get controller information of Pod failed, skip mutating pod: %s", err.Error())
+		return admissionResponse, events, errors.Wrapf(err, "mutating pod failed: get controller information of Pod failed, skip mutating pod: %s", err.Error())
 	}
+	controllerID := ac.getControllerIDFromOwnerReference(pod.Namespace, ownerRef)
 
 	executionEnabeld, err := ac.isControllerExecutionEnabled(controllerID)
 	if err != nil {
-		return admissionResponse, errors.Wrapf(err, "check if pod needs mutating faield, skip mutating pod: Pod: %+v", pod.ObjectMeta)
+		return admissionResponse, events, errors.Wrapf(err, "check if pod needs mutating faield, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	} else if !executionEnabeld {
-		return admissionResponse, errors.Errorf("execution of AlamedaScaler monitoring this pod is not enabled, skip mutating pod: Pod: %+v", pod.ObjectMeta)
+		return admissionResponse, events, errors.Errorf("execution of AlamedaScaler monitoring this pod is not enabled, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
 	recommendation, err := ac.getPodResourceRecommendationByControllerID(controllerID)
 	if err != nil {
-		return admissionResponse, errors.Errorf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod.ObjectMeta, err.Error())
+		return admissionResponse, events, errors.Errorf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod.ObjectMeta, err.Error())
 	} else if recommendation == nil {
-		return admissionResponse, errors.Errorf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod.ObjectMeta)
+		return admissionResponse, events, errors.Errorf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod.ObjectMeta)
 	}
 
 	patches, err := admission_controller_utils.GetPatchesFromPodResourceRecommendation(&pod, recommendation)
 	if err != nil {
-		return admissionResponse, errors.Wrapf(err, "get patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
+		return admissionResponse, events, errors.Wrapf(err, "get patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
 	err = admission_controller_utils.ValidatePatches(patches, ac.podMutatePatchValdationFunction)
 	if err != nil {
-		return admissionResponse, errors.Wrapf(err, "validate patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
+		return admissionResponse, events, errors.Wrapf(err, "validate patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
 	patchString := admission_controller_utils.GetK8SPatchesString(patches)
 	scope.Infof("patch %s to pod %+v ", patchString, pod.ObjectMeta)
@@ -219,7 +241,10 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	admissionResponse.Patch = []byte(patchString)
 	admissionResponse.PatchType = &patchType
 
-	return admissionResponse, nil
+	event := newPodPatchEvent(pod.Namespace, pod.OwnerReferences[0])
+	events[0] = &event
+
+	return admissionResponse, events, nil
 }
 
 func (ac *admissionController) getPodResourceRecommendationByControllerID(controllerID namespaceKindName) (*resource.PodResourceRecommendation, error) {
@@ -364,26 +389,55 @@ func (ac *admissionController) isControllerExecutionEnabled(controllerID namespa
 	return ac.controllerValidator.IsControllerEnabledExecution(controllerID.namespace, controllerID.name, controllerID.kind)
 }
 
-func (ac *admissionController) getControllerIDToQueryPodRecommendations(pod *core_v1.Pod) (namespaceKindName, error) {
+func (ac *admissionController) getTopSupportedOwnerReference(pod *core_v1.Pod) (meta_v1.OwnerReference, error) {
 
-	var controllerID = namespaceKindName{}
+	var ownerRef = meta_v1.OwnerReference{}
 
 	link, err := ac.ownerReferenceTracer.GetControllerOwnerReferenceLink(pod)
 	if err != nil {
-		return controllerID, err
+		return ownerRef, err
 	}
 
 	for i := len(link) - 1; i >= 0; i-- {
-		ownerRef := link[i]
-		if _, exist := autoscalingv1alpha1.K8SKindToAlamedaControllerType[ownerRef.Kind]; exist {
-			controllerID.namespace = pod.Namespace
-			controllerID.name = ownerRef.Name
-			controllerID.kind = ownerRef.Kind
+		if _, exist := autoscalingv1alpha1.K8SKindToAlamedaControllerType[link[i].Kind]; exist {
+			ownerRef = link[i]
 			break
 		}
 	}
 
-	return controllerID, nil
+	return ownerRef, nil
+}
+
+func (ac *admissionController) getControllerIDFromOwnerReference(namespace string, ownerRef meta_v1.OwnerReference) namespaceKindName {
+
+	var controllerID = namespaceKindName{}
+
+	controllerID.namespace = namespace
+	controllerID.name = ownerRef.Name
+	controllerID.kind = ownerRef.Kind
+
+	return controllerID
+}
+
+func (ac *admissionController) sendEvents(events []*datahub_v1alpha1.Event) error {
+
+	if len(events) == 0 {
+		return nil
+	}
+
+	request := datahub_v1alpha1.CreateEventsRequest{
+		Events: events,
+	}
+	status, err := ac.datahubClient.CreateEvents(context.TODO(), &request)
+	if err != nil {
+		return errors.Errorf("send events to Datahub failed: %s", err.Error())
+	} else if status == nil {
+		return errors.Errorf("send events to Datahub failed: receive nil status")
+	} else if status.Code != int32(code.Code_OK) {
+		return errors.Errorf("send events to Datahub failed: statusCode: %d, message: %s", status.Code, status.Message)
+	}
+
+	return nil
 }
 
 func buildPodRecommendationNumberMap(recommendations []*resource.PodResourceRecommendation) map[string]int {
