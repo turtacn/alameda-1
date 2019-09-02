@@ -42,12 +42,11 @@ To provide user (administrator/developer/application) monitor/analyze occurred e
     - NodePredictionCreate
     - PodPredictionCreate
     - VPARecommendationCreate
-    - HPARecommendationCreate
-    - PodEvict
-    - PodPatch
+    - HPARecommendationCreate 
     - AnomalyMetricDetect
     - AnomalyAnalysisCreate
-    - ReplicasUpdate
+    - VPARecommendationExecute
+    - HPARecommendationExecute
   - description: Type of this event.
   - constraints:
     - required
@@ -420,7 +419,7 @@ Alameda-Evictioner decides to evict Pod.
     "source": {
         "component": "alameda-evictioner"
     },
-    "type": "PodEvict",
+    "type": "VPARecommendationExecute",
     "version": "v1",
     "level": "info",
     "subject": {
@@ -440,7 +439,7 @@ Alameda-Admission-Controller patchs recommendation to the new created pod.
     "source": {
         "component": "admission-controller"
     },
-    "type": "PodPatch",
+    "type": "VPARecommendationExecute",
     "version": "v1",
     "level": "info",
     "subject": {
@@ -460,7 +459,7 @@ Alameda-Executor scales up/down controllers' replicas.
     "source": {
         "component": "alameda-executor"
     },
-    "type": "ReplicasUpdate",
+    "type": "HPARecommendationExecute",
     "version": "v1",
     "level": "info",
     "subject": {
