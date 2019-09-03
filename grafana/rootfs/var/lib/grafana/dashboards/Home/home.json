@@ -20,25 +20,12 @@
   "links": [],
   "panels": [
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 12,
-      "panels": [],
-      "title": "ProphetStor Info",
-      "type": "row"
-    },
-    {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div style=\"text-align:center;\">\n        <img style=\"vertical-align:middle;\" src=\"https://i1.wp.com/www.prophetstor.com/wp-content/uploads/2017/05/prophetstor_white_logo.png?fit=143%2C62&ssl=1\">\n        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \n        <span style=\"vertical-align:middle; font-size:30px;\">Federator.ai</span>\n      </div>\n    </td>\n  </tr>\n</table>\n",
       "gridPos": {
         "h": 4,
         "w": 9,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 4,
       "links": [],
@@ -52,7 +39,7 @@
         "h": 4,
         "w": 8,
         "x": 9,
-        "y": 1
+        "y": 0
       },
       "id": 6,
       "links": [],
@@ -61,12 +48,12 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>",
+      "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>\n<style>\ndiv.submenu-controls > div:nth-child(7) .template-variable, div.submenu-controls > div:nth-child(8) .template-variable {\n  color: #56ce84;\n}\ndiv.submenu-controls > div:nth-child(7) {\n  border-left: solid 2px white;\n}\n</style>",
       "gridPos": {
         "h": 2,
         "w": 7,
         "x": 17,
-        "y": 1
+        "y": 0
       },
       "id": 72,
       "links": [],
@@ -80,7 +67,7 @@
         "h": 2,
         "w": 7,
         "x": 17,
-        "y": 3
+        "y": 2
       },
       "id": 73,
       "links": [],
@@ -94,7 +81,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 4
       },
       "id": 18,
       "panels": [],
@@ -123,7 +110,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 6
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 30,
@@ -188,7 +175,11 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": true,
-      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
       "datasource": "Prometheus",
       "description": "Crashing Pods in cluster (include the control plane)",
       "format": "none",
@@ -203,7 +194,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 6
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 28,
@@ -287,7 +278,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 6
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 34,
@@ -371,7 +362,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 6
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 32,
@@ -439,7 +430,11 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": true,
-      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
       "datasource": "Prometheus",
       "format": "percent",
       "gauge": {
@@ -453,7 +448,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 6
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 62,
@@ -497,11 +492,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -514,7 +513,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -545,7 +546,11 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": true,
-      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
       "datasource": "Prometheus",
       "format": "percent",
       "gauge": {
@@ -559,7 +564,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 6
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 64,
@@ -603,11 +608,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -620,7 +629,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -655,7 +666,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 9
       },
       "hideTimeOverride": true,
       "id": 48,
@@ -841,7 +852,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "id": 16,
       "panels": [],
@@ -856,7 +867,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 15
       },
       "id": 50,
       "links": [],
@@ -1007,11 +1018,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1025,7 +1040,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1040,11 +1057,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1058,7 +1079,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1080,7 +1103,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 19
       },
       "id": 20,
       "panels": [],
@@ -1091,7 +1114,11 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": false,
-      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
       "datasource": "InfluxDB",
       "description": "Change Application by the Application selector on the top",
       "format": "none",
@@ -1106,7 +1133,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 20
       },
       "id": 68,
       "interval": null,
@@ -1147,11 +1174,15 @@
         {
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1164,7 +1195,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1200,7 +1233,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1268,11 +1301,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1286,7 +1323,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1302,11 +1341,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1320,7 +1363,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1336,11 +1381,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1354,7 +1403,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1419,7 +1470,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1482,11 +1533,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1500,7 +1555,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1516,11 +1573,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1534,7 +1595,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1550,11 +1613,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1568,7 +1635,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1627,7 +1696,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 31
       },
       "id": 75,
       "panels": [],
@@ -1641,7 +1710,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 33
+        "y": 32
       },
       "id": 90,
       "links": [],
@@ -1655,7 +1724,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 33
+        "y": 32
       },
       "id": 82,
       "links": [],
@@ -1669,7 +1738,7 @@
         "h": 3,
         "w": 4,
         "x": 8,
-        "y": 33
+        "y": 32
       },
       "id": 84,
       "links": [],
@@ -1683,7 +1752,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 33
+        "y": 32
       },
       "id": 80,
       "links": [],
@@ -1697,7 +1766,7 @@
         "h": 3,
         "w": 4,
         "x": 16,
-        "y": 33
+        "y": 32
       },
       "id": 88,
       "links": [],
@@ -1711,7 +1780,7 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 33
+        "y": 32
       },
       "id": 86,
       "links": [],
@@ -1727,7 +1796,7 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 35
       },
       "id": 76,
       "links": [],
@@ -1971,11 +2040,15 @@
           "datasource": "InfluxDB",
           "groupBy": [
             {
-              "params": ["$__interval"],
+              "params": [
+                "$__interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1989,7 +2062,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -2651,7 +2726,17 @@
       "2h",
       "1d"
     ],
-    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
   },
   "timezone": "",
   "title": "Dashboard",
