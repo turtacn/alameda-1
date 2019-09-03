@@ -1,16 +1,14 @@
 {
   "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
+    "list": [{
+      "builtIn": 1,
+      "datasource": "-- Grafana --",
+      "enable": true,
+      "hide": true,
+      "iconColor": "rgba(0, 211, 255, 1)",
+      "name": "Annotations & Alerts",
+      "type": "dashboard"
+    }]
   },
   "editable": true,
   "gnetId": null,
@@ -18,8 +16,7 @@
   "id": 10,
   "iteration": 1565241809539,
   "links": [],
-  "panels": [
-    {
+  "panels": [{
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div style=\"text-align:center;\">\n        <img style=\"vertical-align:middle;\" src=\"https://i1.wp.com/www.prophetstor.com/wp-content/uploads/2017/05/prophetstor_white_logo.png?fit=143%2C62&ssl=1\">\n        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \n        <span style=\"vertical-align:middle; font-size:30px;\">Federator.ai</span>\n      </div>\n    </td>\n  </tr>\n</table>\n",
       "gridPos": {
         "h": 4,
@@ -117,8 +114,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -134,13 +130,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -148,27 +142,23 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
-          "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(kube_node_status_condition{condition=\"Ready\"} == 1)",
+        "format": "time_series",
+        "instant": true,
+        "intervalFactor": 2,
+        "refId": "A"
+      }],
       "thresholds": "",
       "timeFrom": "2d",
       "title": "Total Nodes",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -201,8 +191,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -218,13 +207,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -232,28 +219,24 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "count(increase(kube_pod_container_status_restarts_total[1h]) > 5)",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 2,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "count(increase(kube_pod_container_status_restarts_total[1h]) > 5)",
+        "format": "time_series",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 2,
+        "refId": "A"
+      }],
       "thresholds": "1, 3",
       "timeFrom": "2d",
       "title": "Crashing Pods",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "0",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "0",
+        "value": "null"
+      }],
       "valueName": "current"
     },
     {
@@ -285,8 +268,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -302,13 +284,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -316,28 +296,24 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"})) * 100",
-          "format": "time_series",
-          "instant": true,
-          "intervalFactor": 2,
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "(sum(up{job=\"kubelet\"} == 1) / count(up{job=\"kubelet\"})) * 100",
+        "format": "time_series",
+        "instant": true,
+        "intervalFactor": 2,
+        "refId": "A"
+      }],
       "thresholds": "50, 90",
       "timeFrom": "2d",
       "title": "Nodes UP",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "min"
     },
     {
@@ -369,8 +345,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -386,13 +361,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -400,30 +373,26 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"}) * 100",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
+      "targets": [{
+        "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"Ready\"}) * 100",
+        "format": "time_series",
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 2,
+        "legendFormat": "",
+        "refId": "A"
+      }],
       "thresholds": "50, 90",
       "timeFrom": "2d",
       "title": "Nodes Ready",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "min"
     },
     {
@@ -455,8 +424,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -472,13 +440,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -486,60 +452,54 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"MemoryPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"MemoryPressure\"}) * 100",
-          "format": "time_series",
-          "groupBy": [
-            {
+      "targets": [{
+        "expr": "sum(kube_node_status_condition{condition=\"MemoryPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"MemoryPressure\"}) * 100",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "instant": true,
+        "intervalFactor": 2,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "instant": true,
-          "intervalFactor": 2,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "thresholds": "10, 50",
       "timeFrom": "2d",
       "title": "Nodes Memory Pressure",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "max"
     },
     {
@@ -571,8 +531,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -588,13 +547,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -602,60 +559,54 @@
         "show": false
       },
       "tableColumn": "",
-      "targets": [
-        {
-          "expr": "sum(kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"DiskPressure\"}) * 100",
-          "format": "time_series",
-          "groupBy": [
-            {
+      "targets": [{
+        "expr": "sum(kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}) / sum(kube_node_status_condition{condition=\"DiskPressure\"}) * 100",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "instant": true,
+        "intervalFactor": 2,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "instant": true,
-          "intervalFactor": 2,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "thresholds": "10, 50",
       "timeFrom": "2d",
       "title": "Nodes Disk Pressure",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "max"
     },
     {
@@ -678,8 +629,7 @@
         "col": null,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -765,8 +715,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
+          "valueMaps": [{
               "text": "Up",
               "value": "true"
             },
@@ -807,8 +756,7 @@
           "unit": "decbytes"
         }
       ],
-      "targets": [
-        {
+      "targets": [{
           "datasource": "Prometheus",
           "expr": "kube_node_status_condition{condition=\"Ready\"} == 1",
           "format": "table",
@@ -878,8 +826,7 @@
         "col": null,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -1012,12 +959,10 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
+      "targets": [{
           "alias": "",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1038,8 +983,7 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1055,8 +999,7 @@
         },
         {
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1077,8 +1020,7 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1139,8 +1081,7 @@
       "interval": null,
       "links": [],
       "mappingType": 1,
-      "mappingTypes": [
-        {
+      "mappingTypes": [{
           "name": "value to text",
           "value": 1
         },
@@ -1156,13 +1097,11 @@
       "postfixFontSize": "50%",
       "prefix": "",
       "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
+      "rangeMaps": [{
+        "from": "null",
+        "text": "N/A",
+        "to": "null"
+      }],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
         "full": false,
@@ -1170,56 +1109,50 @@
         "show": false
       },
       "tableColumn": "alameda_scaler_name",
-      "targets": [
-        {
-          "groupBy": [
-            {
+      "targets": [{
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "thresholds": "",
       "title": "Application Name",
       "type": "singlestat",
       "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [{
+        "op": "=",
+        "text": "N/A",
+        "value": "null"
+      }],
       "valueName": "avg"
     },
     {
@@ -1254,8 +1187,7 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
+      "seriesOverrides": [{
           "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
@@ -1285,8 +1217,7 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [
-        {
+      "targets": [{
           "datasource": "Prometheus",
           "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
@@ -1299,8 +1230,7 @@
         {
           "alias": "Prediction: CPU usage",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1321,8 +1251,7 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1339,8 +1268,7 @@
         {
           "alias": "Prediction: CPU usage upperbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1361,8 +1289,7 @@
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1379,8 +1306,7 @@
         {
           "alias": "Prediction: CPU usage lowerbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1401,8 +1327,7 @@
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1435,8 +1360,7 @@
         "show": true,
         "values": []
       },
-      "yaxes": [
-        {
+      "yaxes": [{
           "decimals": 3,
           "format": "none",
           "label": null,
@@ -1491,8 +1415,7 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
+      "seriesOverrides": [{
           "alias": "Observation: memory usage",
           "color": "#5195ce"
         },
@@ -1517,8 +1440,7 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [
-        {
+      "targets": [{
           "datasource": "Prometheus",
           "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
@@ -1531,8 +1453,7 @@
         {
           "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1553,8 +1474,7 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1571,8 +1491,7 @@
         {
           "alias": "Prediction: memory usage upperbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1593,8 +1512,7 @@
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1611,8 +1529,7 @@
         {
           "alias": "Prediction: memory usage lowerbound",
           "datasource": "InfluxDB",
-          "groupBy": [
-            {
+          "groupBy": [{
               "params": [
                 "$__interval"
               ],
@@ -1633,8 +1550,7 @@
           "refId": "D",
           "resultFormat": "time_series",
           "select": [
-            [
-              {
+            [{
                 "params": [
                   "value"
                 ],
@@ -1667,8 +1583,7 @@
         "show": true,
         "values": []
       },
-      "yaxes": [
-        {
+      "yaxes": [{
           "format": "bytes",
           "label": null,
           "logBase": 1,
@@ -1704,11 +1619,11 @@
       "type": "row"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"filter\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var filterName = `${event_level}`;\n  document.getElementById('filter').innerHTML = filterName;\n</script>",
+      "content": "<table class=\"table\">\n  <tr style=\"border-top: 2px solid #171819 !important; border-bottom: 2px solid #171819 !important; padding: unset !important; line-height:0.5\">\n    <th class=\"th\">Event Level</th>\n    <th class=\"th\">Event Namespace</th>\n  </tr>\n  <tr>\n    <td id=\"event_level\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n    <td id=\"event_namespace\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n  </tr>\n</table>\n<script>\n  var event_level = `${event_level}`;\n  var event_namespace = `${event_ns}`;\n  document.getElementById('event_level').innerHTML = event_level;\n  document.getElementById('event_namespace').innerHTML = event_namespace;\n</script>\n<style>\n  .table {\n    border-collapse: collapse;\n    width: 100%;\n    height:95%;\n  }\n  \n  .th {\n    color: #33b5e5;\n    font-size: 12px;\n    text-align: left;\n  }\n  \n  .td {\n    text-align: left;\n    font-size: 16px;\n  }\n</style>",
       "description": "Change Filter by the Event-Level selector on the top",
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 9,
         "x": 0,
         "y": 32
       },
@@ -1719,53 +1634,25 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"debug_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug') {\n    count = `${debug_count}`;\n  }\n  document.getElementById('debug_count').innerHTML = count;\n</script>\n<style scope>\n .markdown-html td, .markdown-html table, .markdown-html tr {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"fatal_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${fatal_count}`;\n  document.getElementById('fatal_count').style.color = 'red';\n  document.getElementById('fatal_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
-        "w": 4,
-        "x": 4,
+        "w": 3,
+        "x": 9,
         "y": 32
       },
-      "id": 82,
+      "id": 86,
       "links": [],
       "mode": "html",
-      "title": "Debug",
+      "title": "Fatal",
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"info_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info') {\n    count = `${info_count}`;\n  }\n  document.getElementById('info_count').innerHTML = count;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"error_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info' || `${event_level}` === 'Warning' || `${event_level}` === 'Error') {\n    count = `${error_count}`;\n  } \n  document.getElementById('error_count').style.color = 'red';\n  document.getElementById('error_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
-        "w": 4,
-        "x": 8,
-        "y": 32
-      },
-      "id": 84,
-      "links": [],
-      "mode": "html",
-      "title": "Info",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"warning_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info' || `${event_level}` === 'Warning') {\n    count = `${warning_count}`;\n  }\n  document.getElementById('warning_count').innerHTML = count;\n</script>",
-      "gridPos": {
-        "h": 3,
-        "w": 4,
+        "w": 3,
         "x": 12,
-        "y": 32
-      },
-      "id": 80,
-      "links": [],
-      "mode": "html",
-      "title": "Warning",
-      "type": "text"
-    },
-    {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"error_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info' || `${event_level}` === 'Warning' || `${event_level}` === 'Error') {\n    count = `${error_count}`;\n  }\n  document.getElementById('error_count').innerHTML = count;\n</script>",
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
         "y": 32
       },
       "id": 88,
@@ -1775,17 +1662,45 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"fatal_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${fatal_count}`;\n  document.getElementById('fatal_count').innerHTML = count;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"warning_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info' || `${event_level}` === 'Warning') {\n    count = `${warning_count}`;\n  } \n  \n  document.getElementById('warning_count').style.color = 'yellow';\n  document.getElementById('warning_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
-        "w": 4,
-        "x": 20,
+        "w": 3,
+        "x": 15,
         "y": 32
       },
-      "id": 86,
+      "id": 80,
       "links": [],
       "mode": "html",
-      "title": "Fatal",
+      "title": "Warning",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"info_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info') {\n    count = `${info_count}`;\n  }\n  document.getElementById('info_count').innerHTML = count;\n</script>",
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 18,
+        "y": 32
+      },
+      "id": 84,
+      "links": [],
+      "mode": "html",
+      "title": "Info",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"debug_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug') {\n    count = `${debug_count}`;\n  }\n  document.getElementById('debug_count').innerHTML = count;\n</script>\n<style scope>\n .markdown-html td, .markdown-html table, .markdown-html tr {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 32
+      },
+      "id": 82,
+      "links": [],
+      "mode": "html",
+      "title": "Debug",
       "type": "text"
     },
     {
@@ -1807,8 +1722,7 @@
         "col": null,
         "desc": false
       },
-      "styles": [
-        {
+      "styles": [{
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -1830,8 +1744,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
+          "valueMaps": [{
               "text": "Undefined",
               "value": "EVENT_LEVEL_UNDEFINED"
             },
@@ -1888,8 +1801,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [
-            {
+          "valueMaps": [{
               "text": "Undefined",
               "value": "EVENT_TYPE_UNDEFINED"
             },
@@ -2034,60 +1946,55 @@
           "unit": "short"
         }
       ],
-      "targets": [
-        {
-          "alias": "",
-          "datasource": "InfluxDB",
-          "groupBy": [
-            {
+      "targets": [{
+        "alias": "",
+        "datasource": "InfluxDB",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select * from(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[debug_condition]]$/ and subject_namespace = '$event_ns' and 'Debug' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[info_condition]]$/ and subject_namespace = '$event_ns' and 'Info' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[warning_condition]]$/ and subject_namespace = '$event_ns' and 'Warning' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[error_condition]]$/ and subject_namespace = '$event_ns' and 'Error' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level = 'EVENT_LEVEL_FATAL'  and subject_namespace = '$event_ns' and 'Fatal' = '$event_level') where $timeFilter order by time desc",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "hide": false,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select * from(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[debug_condition]]$/ and subject_namespace = '$event_ns' and 'Debug' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[info_condition]]$/ and subject_namespace = '$event_ns' and 'Info' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[warning_condition]]$/ and subject_namespace = '$event_ns' and 'Warning' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[error_condition]]$/ and subject_namespace = '$event_ns' and 'Error' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level = 'EVENT_LEVEL_FATAL'  and subject_namespace = '$event_ns' and 'Fatal' = '$event_level') where $timeFilter order by time desc",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }],
       "title": "Events",
       "transform": "table",
       "type": "table"
     }
   ],
-  "refresh": false,
+  "refresh": "30s",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
+    "list": [{
         "allValue": null,
         "current": {
           "text": "All",
@@ -2250,8 +2157,7 @@
         "label": "Event Level",
         "multi": false,
         "name": "event_level",
-        "options": [
-          {
+        "options": [{
             "selected": false,
             "text": "Debug",
             "value": "Debug"
@@ -2318,8 +2224,7 @@
         "label": null,
         "multi": true,
         "name": "debug_condition",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
@@ -2366,8 +2271,7 @@
         "label": null,
         "multi": true,
         "name": "info",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
@@ -2399,8 +2303,7 @@
         "label": null,
         "multi": true,
         "name": "info_condition",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
@@ -2442,8 +2345,7 @@
         "label": null,
         "multi": true,
         "name": "warning",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
@@ -2480,8 +2382,7 @@
         "label": null,
         "multi": true,
         "name": "warning_condition",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
@@ -2518,8 +2419,7 @@
         "label": null,
         "multi": true,
         "name": "error",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
@@ -2561,8 +2461,7 @@
         "label": null,
         "multi": true,
         "name": "error_condition",
-        "options": [
-          {
+        "options": [{
             "selected": true,
             "text": "All",
             "value": "$__all"
