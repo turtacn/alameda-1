@@ -15,14 +15,14 @@ import (
 
 type KeycodeMgt struct {
 	Executor      *KeycodeExecutor
-	Status        *KeycodeStatus
-	KeycodeStatus string
+	Status        *KeycodeStatusObject
+	KeycodeStatus int
 }
 
 func NewKeycodeMgt() *KeycodeMgt {
 	keycodeMgt := KeycodeMgt{}
 	keycodeMgt.Executor = NewKeycodeExecutor()
-	keycodeMgt.Status = NewKeycodeStatus()
+	keycodeMgt.Status = NewKeycodeStatusObject()
 	if KeycodeSummary != nil {
 		keycodeMgt.KeycodeStatus = keycodeMgt.GetStatus()
 	}
@@ -188,42 +188,43 @@ func (c *KeycodeMgt) Refresh(force bool) error {
 	}
 
 	if c.KeycodeStatus != c.GetStatus() {
-		KeycodeLicenseStatus = c.GetStatus()
+		KeycodeStatus = c.GetStatus()
 		c.KeycodeStatus = c.GetStatus()
 
 		// Update InfluxDB and post event
-		switch KeycodeLicenseStatus {
+		switch KeycodeStatus {
 		case KeycodeStatusNoKeycode:
-			c.writeInfluxEntry("N/A", KeycodeStatusNoKeycode)
+			c.writeInfluxEntry("N/A", KeycodeStatusName[KeycodeStatusNoKeycode])
 			c.deleteInfluxEntry("Summary")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusNoKeycode])
 		case KeycodeStatusInvalid:
-			c.writeInfluxEntry("Summary", KeycodeStatusInvalid)
+			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusInvalid])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusInvalid])
 		case KeycodeStatusExpired:
-			c.writeInfluxEntry("Summary", KeycodeStatusExpired)
+			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusExpired])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusExpired])
 		case KeycodeStatusNotActivated:
-			c.writeInfluxEntry("Summary", KeycodeStatusNotActivated)
+			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusNotActivated])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, KeycodeStatusMessage[KeycodeStatusNotActivated])
 		case KeycodeStatusValid:
-			c.writeInfluxEntry("Summary", KeycodeStatusValid)
+			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusValid])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, fmt.Sprintf("Keycode state is %s", KeycodeSummary.LicenseState))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, KeycodeStatusMessage[KeycodeStatusValid])
 		default:
-			c.writeInfluxEntry("Summary", KeycodeStatusUnknown)
+			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusUnknown])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, fmt.Sprintf("Keycode state is %s", KeycodeStatusUnknown))
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusUnknown])
 		}
 	}
 
 	return nil
 }
 
-func (c *KeycodeMgt) GetStatus() string {
+func (c *KeycodeMgt) GetStatus() int {
+	// NOTE: Do Refresh before GetStatus if necessary
 	return c.Status.GetStatus()
 }
 

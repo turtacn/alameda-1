@@ -1,23 +1,41 @@
 package keycodes
 
 const (
-	KeycodeStatusNoKeycode    = "No Keycode"
-	KeycodeStatusInvalid      = "Invalid"
-	KeycodeStatusExpired      = "Expired"
-	KeycodeStatusNotActivated = "Not Activated"
-	KeycodeStatusValid        = "Valid"
-	KeycodeStatusUnknown      = "Unknown"
+	KeycodeStatusUnknown      = 0
+	KeycodeStatusNoKeycode    = 1
+	KeycodeStatusInvalid      = 2
+	KeycodeStatusExpired      = 3
+	KeycodeStatusNotActivated = 4
+	KeycodeStatusValid        = 5
 )
 
-type KeycodeStatus struct {
+var KeycodeStatusName = map[int]string{
+	0: "Unknown",
+	1: "No Keycode",
+	2: "Invalid",
+	3: "Expired",
+	4: "Not Activated",
+	5: "Valid",
 }
 
-func NewKeycodeStatus() *KeycodeStatus {
-	keycodeStatus := KeycodeStatus{}
-	return &keycodeStatus
+var KeycodeStatusMessage = map[int]string{
+	0: "Unknown keycode is detected",
+	1: "No keycode is applied",
+	2: "Invalid keycode is detected",
+	3: "Keycode is expired",
+	4: "Keycode is not activated",
+	5: "A valid keycode is applied",
 }
 
-func (c *KeycodeStatus) GetStatus() string {
+type KeycodeStatusObject struct {
+}
+
+func NewKeycodeStatusObject() *KeycodeStatusObject {
+	keycodeStatusObject := KeycodeStatusObject{}
+	return &keycodeStatusObject
+}
+
+func (c *KeycodeStatusObject) GetStatus() int {
 	if c.isNoKeycode() {
 		return KeycodeStatusNoKeycode
 	}
@@ -36,14 +54,14 @@ func (c *KeycodeStatus) GetStatus() string {
 	return KeycodeStatusUnknown
 }
 
-func (c *KeycodeStatus) isNoKeycode() bool {
+func (c *KeycodeStatusObject) isNoKeycode() bool {
 	if KeycodeList == nil || len(KeycodeList) == 0 {
 		return true
 	}
 	return false
 }
 
-func (c *KeycodeStatus) isInvalid() bool {
+func (c *KeycodeStatusObject) isInvalid() bool {
 	if KeycodeSummary != nil {
 		if KeycodeSummary.LicenseState == "Invalid" {
 			return true
@@ -52,7 +70,7 @@ func (c *KeycodeStatus) isInvalid() bool {
 	return false
 }
 
-func (c *KeycodeStatus) isExpired() bool {
+func (c *KeycodeStatusObject) isExpired() bool {
 	if KeycodeSummary != nil {
 		if KeycodeSummary.LicenseState == "Expired" {
 			return true
@@ -61,7 +79,7 @@ func (c *KeycodeStatus) isExpired() bool {
 	return false
 }
 
-func (c *KeycodeStatus) isNotActivated() bool {
+func (c *KeycodeStatusObject) isNotActivated() bool {
 	if KeycodeSummary != nil {
 		if KeycodeSummary.KeycodeType == "Regular" && KeycodeSummary.LicenseState == "Valid" {
 			if KeycodeSummary.Registered == false {
@@ -72,7 +90,7 @@ func (c *KeycodeStatus) isNotActivated() bool {
 	return false
 }
 
-func (c *KeycodeStatus) isValid() bool {
+func (c *KeycodeStatusObject) isValid() bool {
 	if KeycodeSummary != nil {
 		if KeycodeSummary.LicenseState == "Valid" {
 			return true

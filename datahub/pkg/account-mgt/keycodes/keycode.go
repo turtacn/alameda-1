@@ -9,17 +9,17 @@ import (
 )
 
 var (
-	scope                           = log.RegisterScope("account-mgt", "keycode", 0)
-	KeycodeCliPath                  = defaultCliPath
-	KeycodeDuration      int64      = defaultRefreshInterval
-	KeycodeLicenseStatus            = ""
-	KeycodeAesKey                   = []byte("")
-	KeycodeTimestamp     int64      = 0
-	KeycodeList          []*Keycode = nil
-	KeycodeSummary       *Keycode   = nil
-	KeycodeTM            time.Time
-	InfluxConfig         *InternalInflux.Config
-	LdapConfig           *InternalLdap.Config
+	scope                       = log.RegisterScope("account-mgt", "keycode", 0)
+	KeycodeCliPath              = defaultCliPath
+	KeycodeDuration  int64      = defaultRefreshInterval
+	KeycodeStatus               = KeycodeStatusUnknown
+	KeycodeAesKey               = []byte("")
+	KeycodeTimestamp int64      = 0
+	KeycodeList      []*Keycode = nil
+	KeycodeSummary   *Keycode   = nil
+	KeycodeTM        time.Time
+	InfluxConfig     *InternalInflux.Config
+	LdapConfig       *InternalLdap.Config
 )
 
 type Keycode struct {
