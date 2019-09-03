@@ -24,8 +24,8 @@ eventType:
   12: PodPredictionCreate
   13: VPARecommendationCreate
   14: HPARecommendationCreate
-  15: PodEvict
-  16: PodPatch
+  15: VPARecommendationExecute
+  16: HPARecommendationExecute
   17: AnomalyMetricDetect
   18: AnomalyAnalysisCreate
   19: License
