@@ -32,12 +32,11 @@ type Dispatcher struct {
 	queueConn        *amqp.Connection
 }
 
-func NewDispatcher(datahubGrpcCn *grpc.ClientConn, queueConn *amqp.Connection) *Dispatcher {
+func NewDispatcher(datahubGrpcCn *grpc.ClientConn) *Dispatcher {
 	dispatcher := &Dispatcher{
 		svcGranularities: viper.GetStringSlice("serviceSetting.granularities"),
 		svcPredictUnits:  viper.GetStringSlice("serviceSetting.predictUnits"),
 		datahubGrpcCn:    datahubGrpcCn,
-		queueConn:        queueConn,
 	}
 	dispatcher.validCfg()
 	return dispatcher
@@ -56,8 +55,7 @@ func (dispatcher *Dispatcher) Start() {
 			continue
 		}
 		wg.Add(1)
-		queueSender := queue.NewRabbitMQSender(dispatcher.queueConn)
-		go dispatcher.dispatch(queueSender, int64(granuSec))
+		go dispatcher.dispatch(int64(granuSec))
 	}
 	wg.Wait()
 }
@@ -73,9 +71,16 @@ func (dispatcher *Dispatcher) validCfg() {
 	}
 }
 
-func (dispatcher *Dispatcher) dispatch(queueSender queue.QueueSender, granularity int64) {
+func (dispatcher *Dispatcher) dispatch(granularity int64) {
 	defer wg.Done()
+	queueURL := viper.GetString("queue.url")
+	queueConnRetryItvMS := viper.GetInt64("queue.retry.connectIntervalMs")
+	if queueConnRetryItvMS == 0 {
+		queueConnRetryItvMS = 3000
+	}
 	for {
+		queueConn := getQueueConn(queueURL, queueConnRetryItvMS)
+		queueSender := queue.NewRabbitMQSender(queueConn)
 		for _, pdUnit := range dispatcher.svcPredictUnits {
 
 			pdUnitType := viper.GetString(fmt.Sprintf("predictUnits.%s.type", pdUnit))
@@ -87,6 +92,7 @@ func (dispatcher *Dispatcher) dispatch(queueSender queue.QueueSender, granularit
 			scope.Infof("Start dispatch unit %s with granularity %v seconds", pdUnitType, granularity)
 			dispatcher.getAndPushJobs(queueSender, pdUnit, granularity)
 		}
+		queueConn.Close()
 		time.Sleep(time.Duration(granularity) * time.Second)
 	}
 }
@@ -148,5 +154,17 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender, pdUn
 			}
 		}
 		scope.Infof("Sending %v pod jobs to queue completely with granularity %v seconds.", len(pods), granularity)
+	}
+}
+
+func getQueueConn(queueURL string, retryItvMS int64) *amqp.Connection {
+	for {
+		queueConn, err := amqp.Dial(queueURL)
+		if err != nil {
+			scope.Errorf("Queue connection constructs failed and will retry after %v milliseconds. %s", retryItvMS, err.Error())
+			time.Sleep(time.Duration(retryItvMS) * time.Millisecond)
+			continue
+		}
+		return queueConn
 	}
 }
