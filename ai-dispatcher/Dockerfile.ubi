@@ -30,6 +30,10 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       vendor="ProphetStor Data Services, Inc."
 
+RUN microdnf update -y \
+    && microdnf install -y \
+        tar procps-ng psmisc findutils vim-minimal 
+
 COPY --from=builder /go/src/github.com/containers-ai/alameda/LICENSE /licenses/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/etc/ai-dispatcher.yml /etc/alameda/ai-dispatcher/ai-dispatcher.yml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/ai-dispatcher /usr/local/bin/
