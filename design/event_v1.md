@@ -43,10 +43,11 @@ To provide user (administrator/developer/application) monitor/analyze occurred e
     - PodPredictionCreate
     - VPARecommendationCreate
     - HPARecommendationCreate 
-    - AnomalyMetricDetect
-    - AnomalyAnalysisCreate
     - VPARecommendationExecute
     - HPARecommendationExecute
+    - AnomalyMetricDetect
+    - AnomalyAnalysisCreate
+    - License
   - description: Type of this event.
   - constraints:
     - required
