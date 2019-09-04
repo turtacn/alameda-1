@@ -616,7 +616,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -896,7 +896,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1180,7 +1180,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1672,7 +1672,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1951,7 +1951,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -2231,7 +2231,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -2720,7 +2720,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -3003,7 +3003,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -3282,7 +3282,7 @@
           "valueMaps": []
         },
         {
-          "alias": "Total Cost",
+          "alias": "Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
