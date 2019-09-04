@@ -2,13 +2,13 @@
   "annotations": {
     "list": [
       {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
+      "builtIn": 1,
+      "datasource": "-- Grafana --",
+      "enable": true,
+      "hide": true,
+      "iconColor": "rgba(0, 211, 255, 1)",
+      "name": "Annotations & Alerts",
+      "type": "dashboard"
       }
     ]
   },
@@ -122,25 +122,25 @@
           "measurement": "k8s",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT value, NodeName, PodName, PodImg, ProjCode, ProjCreator, ProjType  FROM \"autogen\".\"k8s\" WHERE (\"NodeName\" =~ /^$nodeName$/) AND $timeFilter ORDER BY time DESC",
+          "query": "SELECT value, NodeName, PodName, PodImg, ProjCode, ProjCreator, ProjType  FROM \"autogen\".\"k8s\" WHERE (\"NodeName\" =~ /^$nodeName$/) AND (\"ProjCreator\" =~ /^$projCreator$/) AND (\"ProjCode\" =~ /^$projCode$/) AND (\"ProjType\" =~ /^$projType$/) AND (\"PodName\" =~ /^$podName$/) AND (\"PodImg\" =~ /^$podImg$/) AND time > now()-1d group by PodName ORDER BY time DESC limit 1\n\n",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
+              "params": [
+                "value"
+              ],
+              "type": "field"
               }
             ]
           ],
           "tags": [
             {
-              "key": "NodeName",
-              "operator": "=~",
-              "value": "/^$nodeName$/"
+            "key": "ProjCreator",
+            "operator": "=~",
+            "value": "/^$projCreator$/"
             }
           ]
         },
@@ -253,6 +253,7 @@
         "x": 0,
         "y": 10
       },
+      "hideTimeOverride": false,
       "id": 10,
       "legend": {
         "avg": false,
@@ -278,12 +279,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "nvidia_gpu_duty_cycle{host=~\"$host\"}",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": " gpu{{minor_number}}",
-          "refId": "A"
+        "expr": "nvidia_gpu_duty_cycle{host=~\"$host\"}",
+        "format": "time_series",
+        "instant": false,
+        "intervalFactor": 1,
+        "legendFormat": " gpu{{minor_number}}",
+        "refId": "A"
         }
       ],
       "thresholds": [],
@@ -366,11 +367,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "nvidia_gpu_memory_used_bytes{host=~\"$host\"}/nvidia_gpu_memory_total_bytes{host=~\"$host\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "gpu{{minor_number}}",
-          "refId": "A"
+        "expr": "nvidia_gpu_memory_used_bytes{host=~\"$host\"}/nvidia_gpu_memory_total_bytes{host=~\"$host\"}",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "gpu{{minor_number}}",
+        "refId": "A"
         }
       ],
       "thresholds": [],
@@ -420,6 +421,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
+      "datasource": "Prometheus-GPU",
       "fill": 0,
       "gridPos": {
         "h": 8,
@@ -454,11 +456,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "nvidia_gpu_temperature_celsius{host=~\"$host\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": " gpu{{minor_number}}",
-          "refId": "A"
+        "expr": "nvidia_gpu_temperature_celsius{host=~\"$host\"}",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": " gpu{{minor_number}}",
+        "refId": "A"
         }
       ],
       "thresholds": [],
@@ -507,6 +509,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
+      "datasource": "Prometheus-GPU",
       "fill": 4,
       "gridPos": {
         "h": 8,
@@ -541,11 +544,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "nvidia_gpu_power_usage_milliwatts{host=~\"$host\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": " gpu{{minor_number}}",
-          "refId": "A"
+        "expr": "nvidia_gpu_power_usage_milliwatts{host=~\"$host\"}",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": " gpu{{minor_number}}",
+        "refId": "A"
         }
       ],
       "thresholds": [],
@@ -598,8 +601,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "gn0505.twcc.ai",
-          "value": "gn0505.twcc.ai"
+          "text": "gn0104.twcc.ai",
+          "value": "gn0104.twcc.ai"
         },
         "datasource": "Prometheus-GPU",
         "definition": "label_values(nvidia_gpu_num_devices, host)",
@@ -648,8 +651,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "GPU-29bc889b-426a-6f39-6033-15e6be2b712b",
-          "value": "GPU-29bc889b-426a-6f39-6033-15e6be2b712b"
+          "text": "GPU-295e095c-9ba9-29bb-1731-b8be7da242f6",
+          "value": "GPU-295e095c-9ba9-29bb-1731-b8be7da242f6"
         },
         "datasource": "Prometheus-GPU",
         "definition": "label_values(nvidia_gpu_duty_cycle{host=~\"$host\"}, uuid)",
@@ -673,8 +676,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "gn0505.twcc.ai",
-          "value": "gn0505.twcc.ai"
+          "text": "gn0104.twcc.ai",
+          "value": "gn0104.twcc.ai"
         },
         "datasource": "InfluxDB-GPU",
         "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"NodeName\" WHERE \"NodeName\" =~ /^$host$/",
@@ -698,180 +701,25 @@
       {
         "allValue": null,
         "current": {
-          "text": "ntunlp2019",
-          "value": "ntunlp2019"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB-GPU",
         "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCreator\" WHERE \"NodeName\" =~ /^$nodeName$/",
-        "hide": 2,
-        "includeAll": false,
+        "hide": 0,
+        "includeAll": true,
         "label": "Proj Creator:",
         "multi": false,
         "name": "projCreator",
         "options": [
           {
-            "selected": false,
-            "text": "asafes45",
-            "value": "asafes45"
-          },
-          {
-            "selected": false,
-            "text": "c00yun00",
-            "value": "c00yun00"
-          },
-          {
-            "selected": false,
-            "text": "chting658",
-            "value": "chting658"
-          },
-          {
-            "selected": false,
-            "text": "ckip1819",
-            "value": "ckip1819"
-          },
-          {
-            "selected": false,
-            "text": "eric84220",
-            "value": "eric84220"
-          },
-          {
-            "selected": false,
-            "text": "mlib2018",
-            "value": "mlib2018"
-          },
-          {
-            "selected": false,
-            "text": "motorona74",
-            "value": "motorona74"
-          },
-          {
             "selected": true,
-            "text": "ntunlp2019",
-            "value": "ntunlp2019"
-          },
-          {
-            "selected": false,
-            "text": "oscartai520",
-            "value": "oscartai520"
-          },
-          {
-            "selected": false,
-            "text": "p00ckp00",
-            "value": "p00ckp00"
-          },
-          {
-            "selected": false,
-            "text": "peggy9464",
-            "value": "peggy9464"
-          },
-          {
-            "selected": false,
-            "text": "robert456123",
-            "value": "robert456123"
-          },
-          {
-            "selected": false,
-            "text": "robert80203",
-            "value": "robert80203"
-          },
-          {
-            "selected": false,
-            "text": "sonyeric101",
-            "value": "sonyeric101"
-          },
-          {
-            "selected": false,
-            "text": "sthost01",
-            "value": "sthost01"
-          },
-          {
-            "selected": false,
-            "text": "sthost06",
-            "value": "sthost06"
-          },
-          {
-            "selected": false,
-            "text": "sthost11",
-            "value": "sthost11"
-          },
-          {
-            "selected": false,
-            "text": "sunny3184",
-            "value": "sunny3184"
-          },
-          {
-            "selected": false,
-            "text": "u00wcl02",
-            "value": "u00wcl02"
-          },
-          {
-            "selected": false,
-            "text": "u1597171",
-            "value": "u1597171"
-          },
-          {
-            "selected": false,
-            "text": "u2882621",
-            "value": "u2882621"
-          },
-          {
-            "selected": false,
-            "text": "u6748622",
-            "value": "u6748622"
-          },
-          {
-            "selected": false,
-            "text": "u6916098",
-            "value": "u6916098"
-          },
-          {
-            "selected": false,
-            "text": "u6982367",
-            "value": "u6982367"
-          },
-          {
-            "selected": false,
-            "text": "u8880716",
-            "value": "u8880716"
-          },
-          {
-            "selected": false,
-            "text": "u9078173",
-            "value": "u9078173"
-          },
-          {
-            "selected": false,
-            "text": "u9485983",
-            "value": "u9485983"
-          },
-          {
-            "selected": false,
-            "text": "u9764578",
-            "value": "u9764578"
-          },
-          {
-            "selected": false,
-            "text": "wesleyc3",
-            "value": "wesleyc3"
-          },
-          {
-            "selected": false,
-            "text": "willchen945",
-            "value": "willchen945"
-          },
-          {
-            "selected": false,
-            "text": "wr4222687777",
-            "value": "wr4222687777"
-          },
-          {
-            "selected": false,
-            "text": "yenserver811",
-            "value": "yenserver811"
+            "text": "All",
+            "value": "$__all"
           }
         ],
         "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCreator\" WHERE \"NodeName\" =~ /^$nodeName$/",
-        "refresh": 0,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -884,19 +732,19 @@
       {
         "allValue": null,
         "current": {
-          "text": "rk_health",
-          "value": "rk_health"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB-GPU",
         "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCode\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
-        "hide": 2,
-        "includeAll": false,
+        "hide": 0,
+        "includeAll": true,
         "label": "Proj Code:",
         "multi": false,
         "name": "projCode",
         "options": [],
         "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjCode\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -909,25 +757,25 @@
       {
         "allValue": null,
         "current": {
-          "text": "RK_",
-          "value": "RK_"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB-GPU",
         "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjType\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
-        "hide": 2,
-        "includeAll": false,
+        "hide": 0,
+        "includeAll": true,
         "label": "Proj Type:",
         "multi": false,
         "name": "projType",
         "options": [
           {
             "selected": true,
-            "text": "RK_",
-            "value": "RK_"
+            "text": "All",
+            "value": "$__all"
           }
         ],
         "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"ProjType\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/",
-        "refresh": 0,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -940,13 +788,13 @@
       {
         "allValue": null,
         "current": {
-          "text": "network_health_p5m9r",
-          "value": "network_health_p5m9r"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB-GPU",
         "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodName\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
-        "hide": 2,
-        "includeAll": false,
+        "hide": 0,
+        "includeAll": true,
         "label": "PodName",
         "multi": false,
         "name": "podName",
@@ -965,25 +813,25 @@
       {
         "allValue": null,
         "current": {
-          "text": "kairen/network_health:v1.1.0",
-          "value": "kairen/network_health:v1.1.0"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB-GPU",
         "definition": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodImg\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
-        "hide": 2,
-        "includeAll": false,
+        "hide": 0,
+        "includeAll": true,
         "label": "Pod Img:",
         "multi": false,
         "name": "podImg",
         "options": [
           {
             "selected": true,
-            "text": "kairen/network_health:v1.1.0",
-            "value": "kairen/network_health:v1.1.0"
+            "text": "All",
+            "value": "$__all"
           }
         ],
         "query": "SHOW TAG VALUES ON \"gpu_counting\" FROM \"k8s\" WITH KEY = \"PodImg\" WHERE \"NodeName\" =~ /^$nodeName$/ AND \"ProjCreator\" =~ /^$projCreator/ AND \"ProjCode\" =~ /^$projCode/",
-        "refresh": 0,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1000,7 +848,7 @@
           "text": "gn0107.twcc.ai",
           "value": "gn0107.twcc.ai"
         },
-        "hide": 2,
+        "hide": 0,
         "includeAll": true,
         "label": "Issue Node:",
         "multi": false,
