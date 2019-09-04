@@ -208,7 +208,7 @@ func (c *KeycodeMgt) Refresh(force bool) error {
 		case KeycodeStatusNotActivated:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusNotActivated])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, KeycodeStatusMessage[KeycodeStatusNotActivated])
+			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_WARNING, KeycodeStatusMessage[KeycodeStatusNotActivated])
 		case KeycodeStatusValid:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusValid])
 			c.deleteInfluxEntry("N/A")
