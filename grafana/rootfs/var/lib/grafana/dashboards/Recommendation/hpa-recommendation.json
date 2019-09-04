@@ -1766,7 +1766,7 @@
   },
   "time": {
     "from": "now-1h",
-    "to": "now+20m"
+    "to": "now+15m"
   },
   "timepicker": {
     "refresh_intervals": [
