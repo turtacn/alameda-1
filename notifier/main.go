@@ -140,8 +140,7 @@ func initConfig() {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	if err := viper.ReadInConfig(); err != nil {
-		scope.Errorf("cannot read config: %s", err.Error())
-		os.Exit(1)
+		panic(err)
 	}
 }
 

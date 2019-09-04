@@ -24,7 +24,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type alamedaEamil struct {
+type AlamedaEmail struct {
 	Server     string `json:"server,"`
 	Port       uint16 `json:"port,"`
 	From       string `json:"from,"`
@@ -38,7 +38,7 @@ type AlamedaNotificationChannelSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	Type  string       `json:"type,"`
-	Email alamedaEamil `json:"email,omitempty"`
+	Email AlamedaEmail `json:"email,omitempty"`
 }
 
 // AlamedaNotificationChannelStatus defines the observed state of AlamedaNotificationChannel
