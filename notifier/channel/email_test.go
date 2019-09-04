@@ -2,7 +2,6 @@ package channel
 
 import (
 	b64 "encoding/base64"
-	"strings"
 	"testing"
 
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
@@ -90,8 +89,6 @@ func Test_SendEmailBySMTP(t *testing.T) {
 			ccs := tt.args.Cc
 			msg := tt.args.Msg
 			attachments := tt.args.Attachments
-			scope.Infof("Start sending email (subject: %s, from: %s, to: %s, cc:%s, body: %s)",
-				subject, from, strings.Join(recipients, ";"), strings.Join(ccs, ";"), msg)
 			emailClient := EmailClient{
 				client: got,
 			}

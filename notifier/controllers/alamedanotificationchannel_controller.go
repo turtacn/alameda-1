@@ -110,7 +110,7 @@ func (r *AlamedaNotificationChannelReconciler) testEmailChannel(alamedaNotificat
 	}
 	subject := "Test Email"
 	recipients := []string{to}
-	msg := "Email test"
+	msg := "This is a test email for Federator.ai email alerting."
 	ccs := []string{}
 	attachments := map[string]string{}
 	err = emailClient.SendEmailBySMTP(subject, from, recipients, msg, ccs, attachments)
