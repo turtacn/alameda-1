@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
-	"github.com/containers-ai/alameda/notifier/event"
+	"github.com/containers-ai/alameda/notifier/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/pkg/errors"
@@ -47,24 +47,23 @@ func NewEmailClient(notificationChannel *notifyingv1alpha1.AlamedaNotificationCh
 }
 
 func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) {
-	typeKeyStr := event.EventTypeIntToYamlKeyMap(int32(evt.GetType()))
-	subject := fmt.Sprintf("Anomaly detection (%s)", typeKeyStr)
+	msg := evt.GetMessage()
+	subject := utils.EventEmailSubject(evt)
 	from := emailClient.notificationChannel.Spec.Email.From
 	recipients := emailClient.emailChannel.To
-	msg := evt.GetMessage()
 	ccs := emailClient.emailChannel.Cc
 	// key/value -> filename/filepath
 	attachments := map[string]string{}
 	scope.Infof("Start sending email (subject: %s, from: %s, to: %s, cc:%s, body: %s)",
 		subject, from, strings.Join(recipients, ";"), strings.Join(ccs, ";"), msg)
-	err := emailClient.SendEmailBySMTP(subject, from, recipients, msg, ccs, attachments)
+	err := emailClient.SendEmailBySMTP(subject, from, recipients, utils.EventHTMLMsg(evt), utils.RemoveEmptyStr(ccs), attachments)
 	if err != nil {
 		scope.Errorf("%s", err.Error())
 	}
 }
 
 func (emailClient *EmailClient) SendEmailBySMTP(subject string, from string,
-	recipients []string, msg string, ccs []string, attachments map[string]string) error {
+	recipients []string, msgHTML string, ccs []string, attachments map[string]string) error {
 
 	if client, ok := emailClient.client.(*smtp.Client); ok {
 		if err := client.Mail(from); err != nil {
@@ -87,7 +86,7 @@ func (emailClient *EmailClient) SendEmailBySMTP(subject string, from string,
 		if err != nil {
 			return errors.Wrap(err, "issue DATA command failed")
 		}
-		sentBody := getBodyString(subject, from, recipients, msg, ccs, attachments)
+		sentBody := getBodyString(subject, from, recipients, msgHTML, ccs, attachments)
 		_, err = fmt.Fprintf(wc, sentBody)
 		if err != nil {
 			return errors.Wrap(err, "email body format failed")
@@ -104,14 +103,14 @@ func (emailClient *EmailClient) SendEmailBySMTP(subject string, from string,
 			return errors.Wrap(err, "send email QUIT command failed")
 		}
 	} else if client, ok := emailClient.client.(*mail.Dialer); ok {
-		mailMsg := getMailMessage(subject, from, recipients, msg, ccs, attachments)
+		mailMsg := getMailMessage(subject, from, recipients, msgHTML, ccs, attachments)
 		client.DialAndSend(mailMsg)
 	}
 	return nil
 }
 
 func getMailMessage(subject string, from string, recipients []string,
-	msg string, ccs []string, attachments map[string]string) *mail.Message {
+	msgHTML string, ccs []string, attachments map[string]string) *mail.Message {
 	mailMsg := mail.NewMessage()
 	mailMsg.SetHeaders(
 		map[string][]string{
@@ -120,7 +119,7 @@ func getMailMessage(subject string, from string, recipients []string,
 			"Cc":      ccs,
 			"Subject": []string{subject},
 		})
-	mailMsg.SetBody("text/html", getBodyHtml(msg))
+	mailMsg.SetBody("text/html", msgHTML)
 	for _, filePath := range attachments {
 		mailMsg.Attach(filePath)
 	}
@@ -128,7 +127,7 @@ func getMailMessage(subject string, from string, recipients []string,
 }
 
 func getBodyString(subject string, from string, recipients []string,
-	msg string, ccs []string, attachments map[string]string) string {
+	msgHTML string, ccs []string, attachments map[string]string) string {
 
 	sentBody := fmt.Sprintf("To: %s\r\n", strings.Join(recipients, ";"))
 	if len(ccs) > 0 {
@@ -145,7 +144,7 @@ func getBodyString(subject string, from string, recipients []string,
 	sentBody = fmt.Sprintf("%sContent-Type: text/html; charset=\"utf-8\"\r\nContent-Transfer-Encoding: 7bit\r\n",
 		sentBody)
 	sentBody = fmt.Sprintf("%s\r\n%s\r\n",
-		sentBody, getBodyHtml(msg))
+		sentBody, msgHTML)
 
 	// attachments
 
@@ -232,8 +231,4 @@ func getSMTPClient(notificationChannel *notifyingv1alpha1.AlamedaNotificationCha
 		}
 		return client, nil
 	}
-}
-
-func getBodyHtml(msg string) string {
-	return fmt.Sprintf("<html><body><div style=\"color:red;\">%s</div></body></html>", msg)
 }

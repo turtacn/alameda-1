@@ -1,0 +1,44 @@
+[rabbitmq]
+url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
+
+[datahub]
+address = "datahub.alameda.svc.cluster.local:50050"
+connRetry = 5
+
+[log]
+setLogcallers = true
+outputLevel = "info" # debug, info, warn, error, fatal, none
+
+[k8sWebhook]
+port = 50443
+
+# DO NOT EDIT eventType config unless event definition changed
+[eventType]
+1 = "AlamedaScalerCreate"
+2 = "AlamedaScalerDelete"
+3 = "NodeRegister"
+4 = "DeploymentRegister"
+5 = "DeploymentConfigRegister"
+6 = "PodRegister"
+7 = "NodeDeregister"
+8 = "DeploymentDeregister"
+9 = "DeploymentConfigDeregister"
+10 = "PodDeregister"
+11 = "NodePredictionCreate"
+12 = "PodPredictionCreate"
+13 = "VPARecommendationCreate"
+14 = "HPARecommendationCreate"
+15 = "VPARecommendationExecute"
+16 = "HPARecommendationExecute"
+17 = "AnomalyMetricDetect"
+18 = "AnomalyAnalysisCreate"
+19 = "License"
+20 = "EmailNotification"
+
+# DO NOT EDIT eventLevel config unless event level definition changed
+[eventLevel]
+1 = "debug"
+2 = "info"
+3 = "warning"
+4 = "error"
+5 = "fatal"

@@ -1968,6 +1968,10 @@
             {
               "text": "License",
               "value": "EVENT_TYPE_LICENSE"
+            },
+            {
+              "text": "Email Notification",
+              "value": "EVENT_TYPE_EMAIL_NOTIFICATION"
             }
           ]
         },

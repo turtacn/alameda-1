@@ -23,6 +23,7 @@ import (
 
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
+	"github.com/containers-ai/alameda/notifier/utils"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	k8sapierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -110,10 +111,12 @@ func (r *AlamedaNotificationChannelReconciler) testEmailChannel(alamedaNotificat
 	}
 	subject := "Test Email"
 	recipients := []string{to}
-	msg := "This is a test email for Federator.ai email alerting."
+	msg := "This is a test email for Federator.ai email notification."
 	ccs := []string{}
 	attachments := map[string]string{}
-	err = emailClient.SendEmailBySMTP(subject, from, recipients, msg, ccs, attachments)
+	err = emailClient.SendEmailBySMTP(subject, from, recipients,
+		fmt.Sprintf("<html><body><div>%s</div></body></html>", msg),
+		utils.RemoveEmptyStr(ccs), attachments)
 	if err != nil {
 		return err
 	}

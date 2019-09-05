@@ -24,3 +24,21 @@ func EventLevelYamlKeyToIntMap(enumKey string) int32 {
 	}
 	return 0
 }
+func IsEventLevelYamlKeySupported(enumKey string) bool {
+	theMap := viper.GetStringMap("eventLevel")
+	for _, val := range theMap {
+		if enumKey == val {
+			return true
+		}
+	}
+	return false
+}
+
+func ListEventLevelYamlKey() []string {
+	keys := []string{}
+	theMap := viper.GetStringMap("eventLevel")
+	for _, val := range theMap {
+		keys = append(keys, val.(string))
+	}
+	return keys
+}

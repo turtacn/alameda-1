@@ -2,24 +2,30 @@ package notifying
 
 import (
 	"context"
+	"os"
 
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
 	"github.com/containers-ai/alameda/notifier/event"
+
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var scope = log.RegisterScope("notifier", "notifier", 0)
 
 type notifier struct {
-	k8sClient client.Client
+	k8sClient     client.Client
+	datahubClient datahub_v1alpha1.DatahubServiceClient
 }
 
-func NewNotifier(k8sClient client.Client) *notifier {
+func NewNotifier(k8sClient client.Client,
+	datahubClient datahub_v1alpha1.DatahubServiceClient) *notifier {
 	return &notifier{
-		k8sClient: k8sClient,
+		k8sClient:     k8sClient,
+		datahubClient: datahubClient,
 	}
 }
 
@@ -98,11 +104,27 @@ func (notifier *notifier) sendEvtByEmails(evt *datahub_v1alpha1.Event, emailChan
 
 	if err != nil {
 		scope.Errorf(err.Error())
+		evtSender := event.NewEventSender(notifier.datahubClient)
+		podName, hostErr := os.Hostname()
+		if hostErr != nil {
+			scope.Errorf(err.Error())
+		}
+		evtSender.SendEvents([]*datahub_v1alpha1.Event{
+			event.GetEmailNotificationEvent(err.Error(), podName),
+		})
 		return
 	}
 	emailNotificationChannel, err := channel.NewEmailClient(alamedaNotificationChannel, emailChannel)
 	if err != nil {
 		scope.Errorf(err.Error())
+		evtSender := event.NewEventSender(notifier.datahubClient)
+		podName, hostErr := os.Hostname()
+		if hostErr != nil {
+			scope.Errorf(err.Error())
+		}
+		evtSender.SendEvents([]*datahub_v1alpha1.Event{
+			event.GetEmailNotificationEvent(err.Error(), podName),
+		})
 		return
 	}
 	emailNotificationChannel.SendEvent(evt)

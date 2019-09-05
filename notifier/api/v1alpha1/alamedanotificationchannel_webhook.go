@@ -18,11 +18,16 @@ package v1alpha1
 
 import (
 	"context"
-
 	b64 "encoding/base64"
+	"fmt"
+	"strings"
 
+	"github.com/containers-ai/alameda/notifier/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -81,7 +86,7 @@ var _ webhook.Validator = &AlamedaNotificationChannel{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *AlamedaNotificationChannel) ValidateCreate() error {
-	return nil
+	return r.validateAlamedaNotificationChannel()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
@@ -91,5 +96,37 @@ func (r *AlamedaNotificationChannel) ValidateDelete() error {
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *AlamedaNotificationChannel) ValidateUpdate(old runtime.Object) error {
-	return nil
+	return r.validateAlamedaNotificationChannel()
+}
+
+func (r *AlamedaNotificationChannel) validateAlamedaNotificationChannel() error {
+	var allErrs field.ErrorList
+	channelType := r.Spec.Type
+
+	if channelType != "" && channelType != "email" {
+		allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("type"),
+			channelType, fmt.Sprintf("channel type %s is not supported, please email instead", channelType)))
+		return apierrors.NewInvalid(
+			schema.GroupKind{Group: "notifying.containers.ai", Kind: "AlamedaNotificationChannel"},
+			r.Name, allErrs)
+	}
+	if channelType == "email" {
+		from := r.Spec.Email.From
+		encryption := strings.ToLower(r.Spec.Email.Encryption)
+		if from != "" && !utils.IsEmailValid(from) {
+			allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("email").Child("from"),
+				from, fmt.Sprintf("format of email channel from %s is incorrect", from)))
+		}
+		if encryption != "" && encryption != "ssl" && encryption != "tls" && encryption != "starttls" {
+			allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("email").Child("encryption"),
+				encryption, fmt.Sprintf("encryption %s is not supported, please use ssl, tls and starttls instead",
+					r.Spec.Email.Encryption)))
+		}
+	}
+	if len(allErrs) == 0 {
+		return nil
+	}
+	return apierrors.NewInvalid(
+		schema.GroupKind{Group: "notifying.containers.ai", Kind: "AlamedaNotificationChannel"},
+		r.Name, allErrs)
 }

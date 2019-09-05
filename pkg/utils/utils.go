@@ -4,9 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	Common "github.com/containers-ai/api/common"
 	"os"
+	"regexp"
 	"time"
+
+	Common "github.com/containers-ai/api/common"
 )
 
 // InterfaceToString encodes interface to string
@@ -40,7 +42,7 @@ func RawdataRead2Write(readRawdata []*Common.ReadRawdata) []*Common.WriteRawdata
 		wRawdata := Common.WriteRawdata{}
 
 		wRawdata.Database = rRawdata.GetQuery().GetDatabase()
-		wRawdata.Table    = rRawdata.GetQuery().GetTable()
+		wRawdata.Table = rRawdata.GetQuery().GetTable()
 		for _, column := range rRawdata.GetColumns() {
 			wRawdata.Columns = append(wRawdata.Columns, column)
 		}
@@ -58,15 +60,20 @@ func RawdataRead2Write(readRawdata []*Common.ReadRawdata) []*Common.WriteRawdata
 
 func GenerateUUID() string {
 	// generate 32 bits timestamp
- 	unix32bits := uint32(time.Now().UTC().Unix())
+	unix32bits := uint32(time.Now().UTC().Unix())
 
- 	buff := make([]byte, 12)
+	buff := make([]byte, 12)
 
- 	numRead, err := rand.Read(buff)
+	numRead, err := rand.Read(buff)
 
- 	if numRead != len(buff) || err != nil {
- 		panic(err)
- 	}
+	if numRead != len(buff) || err != nil {
+		panic(err)
+	}
 
- 	return fmt.Sprintf("%x-%x-%x-%x-%x-%x", unix32bits, buff[0:2], buff[2:4], buff[4:6], buff[6:8], buff[8:])
+	return fmt.Sprintf("%x-%x-%x-%x-%x-%x", unix32bits, buff[0:2], buff[2:4], buff[4:6], buff[6:8], buff[8:])
+}
+
+func IsEmailValid(email string) bool {
+	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	return re.MatchString(email)
 }

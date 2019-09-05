@@ -25,8 +25,10 @@ import (
 	"github.com/containers-ai/alameda/notifier/probe"
 	"github.com/containers-ai/alameda/notifier/queue"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -67,7 +69,7 @@ func main() {
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&configFile, "config", "/etc/alameda/notifier/notifier.yml", "File path to notifier coniguration")
+	flag.StringVar(&configFile, "config", "/etc/alameda/notifier/notifier.toml", "File path to notifier coniguration")
 	flag.StringVar(&logRotateOutputFile, "log-output-file", "/var/log/alameda/alameda-ai-notifier.log", "The path of log file.")
 	flag.BoolVar(&readinessProbeFlag, "readiness-probe", false, "probe for readiness")
 	flag.BoolVar(&livenessProbeFlag, "liveness-probe", false, "probe for liveness")
@@ -119,13 +121,19 @@ func main() {
 		scope.Errorf("unable to create webhook: %s", err.Error())
 		os.Exit(1)
 	}
+
 	if viper.IsSet("k8sWebhook.port") {
 		whSrv := mgr.GetWebhookServer()
 		whSrv.Port = viper.GetInt("k8sWebhook.port")
 	}
 
+	datahubAddr := viper.GetString("datahub.address")
+	datahubConnRetry := viper.GetInt("datahub.connRetry")
+	conn, err := grpc.Dial(datahubAddr, grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
+			grpc_retry.WithMax(uint(datahubConnRetry)))))
 	// +kubebuilder:scaffold:builder
-	go launchQueueConsumer(mgr)
+	go launchQueueConsumer(mgr, conn)
 
 	scope.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
@@ -185,8 +193,8 @@ func setLoggerScopesWithConfig() {
 	}
 }
 
-func launchQueueConsumer(mgr manager.Manager) {
+func launchQueueConsumer(mgr manager.Manager, conn *grpc.ClientConn) {
 	queueURL := viper.GetString("rabbitmq.url")
-	qc := queue.NewRabbitMQClient(mgr, queueURL)
+	qc := queue.NewRabbitMQClient(mgr, queueURL, conn)
 	qc.Start()
 }

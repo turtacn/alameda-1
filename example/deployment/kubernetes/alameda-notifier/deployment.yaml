@@ -25,6 +25,8 @@ spec:
       - name: notifier
         image: quay.io/prophetstor/alameda-notifier-ubi:latest        
         env:
+          - name: ALAMEDA_NOTIFIER_DATAHUB_ADDRESS
+            value: "alameda-datahub.alameda:50050"
           - name: ALAMEDA_NOTIFIER_RABBITMQ_URL 
             value: "amqp://admin:adminpass@alameda-rabbitmq.alameda:5672"
         resources:
