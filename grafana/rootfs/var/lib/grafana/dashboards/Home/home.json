@@ -72,7 +72,7 @@
       "id": 73,
       "links": [],
       "mode": "html",
-      "title": "License Expired Time",
+      "title": "License Expiration Time",
       "type": "text"
     },
     {
@@ -1704,7 +1704,7 @@
       "type": "row"
     },
     {
-      "content": "<table class=\"table\">\n  <tr style=\"border-top: 2px solid #171819 !important; border-bottom: 2px solid #171819 !important; padding: unset !important; line-height:0.5\">\n    <th class=\"th\">Level</th>\n    <th class=\"th\">Namespace</th>\n  </tr>\n  <tr>\n    <td id=\"event_level\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n    <td id=\"event_namespace\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n  </tr>\n</table>\n<script>\n  var event_level = `${event_level}`;\n  var event_namespace = `${event_ns}`;\n  document.getElementById('event_level').innerHTML = event_level;\n  document.getElementById('event_namespace').innerHTML = event_namespace;\n</script>\n<style>\n  .table {\n    border-collapse: collapse;\n    width: 100%;\n    height:95%;\n  }\n  \n  .th {\n    color: #33b5e5;\n    font-size: 13px;\n    text-align: left;\n  }\n  \n  .td {\n    text-align: left;\n    font-size: 13px;\n  }\n</style>",
+      "content": "<table class=\"table\">\n  <tr style=\"border-top: 2px solid #171819 !important; border-bottom: 2px solid #171819 !important; padding: unset !important; line-height:0.5\">\n    <th class=\"th\">Level</th>\n    <th class=\"th\">Namespace</th>\n    <th class=\"th\">Time Range</th>\n  </tr>\n  <tr>\n    <td id=\"event_level\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n    <td id=\"event_namespace\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n    <td id=\"event_tr\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\n  </tr>\n</table>\n<script>\n\n  function getTimeRange() {\n    var tr = $(\"span[ng-bind='ctrl.rangeString'\").text();\n    console.log('aa: ', tr);\n    document.getElementById('event_tr').innerHTML = tr;\n  }\n  getTimeRange();\n  $(\"span[ng-bind='ctrl.rangeString'\").on('DOMSubtreeModified', getTimeRange);\n  var event_level = `${event_level}`;\n  var event_namespace = `${event_ns}`;\n  event_namespace = event_namespace.replace('{','');\n  event_namespace = event_namespace.replace('}','');\n  document.getElementById('event_level').innerHTML = event_level;\n  document.getElementById('event_namespace').innerHTML = event_namespace;\n</script>\n<style>\n  .table {\n    border-collapse: collapse;\n    width: 100%;\n    height:95%;\n  }\n  \n  .th {\n    color: #33b5e5;\n    font-size: 13px;\n    text-align: left;\n  }\n  \n  .td {\n    text-align: left;\n    font-size: 13px;\n  }\n</style>",
       "description": "Change Filter by the Event-Level selector on the top",
       "gridPos": {
         "h": 3,
@@ -1719,7 +1719,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"fatal_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${fatal_count}`;\n  document.getElementById('fatal_count').style.color = 'red';\n  document.getElementById('fatal_count').innerHTML = count;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"fatal_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${fatal_count}` || 0;\n  document.getElementById('fatal_count').style.color = 'red';\n  document.getElementById('fatal_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 3,
@@ -1733,7 +1733,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"error_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info' || `${event_level}` === 'Warning' || `${event_level}` === 'Error') {\n    count = `${error_count}`;\n  } \n  document.getElementById('error_count').style.color = 'red';\n  document.getElementById('error_count').innerHTML = count;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"error_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${error_count}` || 0;\n  document.getElementById('error_count').style.color = 'red';\n  document.getElementById('error_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 3,
@@ -1747,7 +1747,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"warning_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info' || `${event_level}` === 'Warning') {\n    count = `${warning_count}`;\n  } \n  \n  document.getElementById('warning_count').style.color = 'yellow';\n  document.getElementById('warning_count').innerHTML = count;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"warning_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${warning_count}` || 0;\n  document.getElementById('warning_count').style.color = 'yellow';\n  document.getElementById('warning_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 3,
@@ -1761,7 +1761,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"info_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug' || `${event_level}` === 'Info') {\n    count = `${info_count}`;\n  }\n  document.getElementById('info_count').innerHTML = count;\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"info_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${info_count}` || 0;\n  document.getElementById('info_count').innerHTML = count;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 3,
@@ -1775,7 +1775,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"debug_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = 'N/A';\n  if (`${event_level}` === 'Debug') {\n    count = `${debug_count}`;\n  }\n  document.getElementById('debug_count').innerHTML = count;\n</script>\n<style scope>\n .markdown-html td, .markdown-html table, .markdown-html tr {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"debug_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${debug_count}` || 0; \n  document.getElementById('debug_count').innerHTML = count;\n</script>\n<style scope>\n .markdown-html td, .markdown-html table, .markdown-html tr {\n  border: none !important\n}\n</style>",
       "gridPos": {
         "h": 3,
         "w": 3,
@@ -2055,7 +2055,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[debug_condition]]$/ and subject_namespace = '$event_ns' and 'Debug' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[info_condition]]$/ and subject_namespace = '$event_ns' and 'Info' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[warning_condition]]$/ and subject_namespace = '$event_ns' and 'Warning' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[error_condition]]$/ and subject_namespace = '$event_ns' and 'Error' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level = 'EVENT_LEVEL_FATAL'  and subject_namespace = '$event_ns' and 'Fatal' = '$event_level') where $timeFilter order by time desc",
+          "query": "select * from(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[debug_condition]]$/ and subject_namespace =~ /^[[event_ns]]$/ and 'Debug' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[info_condition]]$/ and subject_namespace =~ /^[[event_ns]]$/ and 'Info' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[warning_condition]]$/ and subject_namespace =~ /^[[event_ns]]$/ and 'Warning' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level =~ /^[[error_condition]]$/ and subject_namespace =~ /^[[event_ns]]$/ and 'Error' = '$event_level'),\n(select level, subject_kind, subject_name, subject_namespace, message, type from alameda_event..event where level = 'EVENT_LEVEL_FATAL'  and subject_namespace =~ /^[[event_ns]]$/ and 'Fatal' = '$event_level') where $timeFilter order by time desc",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -2215,8 +2215,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "1570011398000",
-          "value": "1570011398000"
+          "selected": true,
+          "text": "1569751792000",
+          "value": "1569751792000"
         },
         "datasource": "InfluxDB",
         "definition": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
@@ -2283,13 +2284,14 @@
       {
         "allValue": null,
         "current": {
-          "text": "federatorai",
-          "value": "federatorai"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_event from event with key = \"subject_namespace\"",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Event Namespace",
         "multi": false,
         "name": "event_ns",
@@ -2584,18 +2586,67 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
+          "text": "Debug",
+          "value": "Debug"
+        },
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "fatal",
+        "options": [
+          {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": true,
+            "text": "Debug",
+            "value": "Debug"
+          },
+          {
+            "selected": false,
+            "text": "Info",
+            "value": "Info"
+          },
+          {
+            "selected": false,
+            "text": "Warning",
+            "value": "Warning"
+          },
+          {
+            "selected": false,
+            "text": "Error",
+            "value": "Error"
+          },
+          {
+            "selected": false,
+            "text": "Fatal",
+            "value": "Fatal"
+          }
+        ],
+        "query": "Debug, Info, Warning, Error, Fatal",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
           "text": "0",
           "value": "0"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(*) from (select count + zero  from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_DEBUG' and subject_namespace = '$event_ns' and $timeFilter), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "definition": "select sum(*) from (select count + zero  from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_DEBUG' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "debug_count",
         "options": [],
-        "query": "select sum(*) from (select count + zero  from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_DEBUG' and subject_namespace = '$event_ns' and $timeFilter), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "query": "select sum(*) from (select count + zero  from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_DEBUG' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2613,14 +2664,14 @@
           "value": "6"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO' and '$event_level' =~ /^[[info]]$/ and subject_namespace = '$event_ns' and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO'  and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "info_count",
         "options": [],
-        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO' and '$event_level' =~ /^[[info]]$/ and subject_namespace = '$event_ns' and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO'  and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2634,43 +2685,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "413",
-          "value": "413"
+          "text": "262",
+          "value": "262"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace = '$event_ns' and $timeFilter and '$event_level' =~ /^[[warning]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "warning_count",
         "options": [],
-        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace = '$event_ns' and $timeFilter and '$event_level' =~ /^[[warning]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "4",
-          "value": "4"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and $timeFilter and subject_namespace = '$event_ns' and '$event_level' =~ /^[[error]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "error_count",
-        "options": [],
-        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and $timeFilter and subject_namespace = '$event_ns' and '$event_level' =~ /^[[error]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2688,14 +2714,39 @@
           "value": "0"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_FATAL' and $timeFilter and subject_namespace = '$event_ns' and '$event_level' =~ /^[[fatal]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and $timeFilter and subject_namespace =~ /^[[event_ns]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "error_count",
+        "options": [],
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and $timeFilter and subject_namespace =~ /^[[event_ns]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_FATAL' and $timeFilter and subject_namespace =~ /^[[event_ns]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "fatal_count",
         "options": [],
-        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_FATAL' and $timeFilter and subject_namespace = '$event_ns' and '$event_level' =~ /^[[fatal]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
+        "query": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_FATAL' and $timeFilter and subject_namespace =~ /^[[event_ns]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
