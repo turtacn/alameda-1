@@ -64,7 +64,7 @@ message RequestResponse {
 /**
  * Service for creating prediction objects.
  */
-service AlamendaAIService {
+service AlamedaAIService {
     /// Used to create prediction objects
     rpc CreatePredictionObjects(PredictionObjectListCreationRequest)
             returns (RequestResponse) {}

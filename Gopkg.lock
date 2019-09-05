@@ -35,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6ed165438dc5d8cfbb08dc51292c48248921dd70239ff3281956d2446c78b207"
+  digest = "1:3e0af7b96919d79a9987b9814e69515ba59ba1b1292c21101722906af62a1ffa"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -43,7 +43,7 @@
     "datahub/keycodes",
   ]
   pruneopts = "T"
-  revision = "6c9791f08bef6fa3d91bedef2393770a2dd6d644"
+  revision = "7a517b2e4b620b5d7d8c7cf1adb6cb10e373587b"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1257,6 +1257,7 @@
     "k8s.io/apimachinery/pkg/runtime/serializer",
     "k8s.io/apimachinery/pkg/runtime/serializer/json",
     "k8s.io/apimachinery/pkg/types",
+    "k8s.io/apimachinery/pkg/util/uuid",
     "k8s.io/apimachinery/pkg/util/wait",
     "k8s.io/client-go/discovery",
     "k8s.io/client-go/dynamic",

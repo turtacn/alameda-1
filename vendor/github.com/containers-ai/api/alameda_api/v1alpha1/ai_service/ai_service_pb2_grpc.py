@@ -5,7 +5,7 @@ from alameda_api.v1alpha1.ai_service import ai_service_pb2 as alameda__api_dot_v
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-class AlamendaAIServiceStub(object):
+class AlamedaAIServiceStub(object):
   """*
   Service for creating prediction objects.
   """
@@ -17,18 +17,18 @@ class AlamendaAIServiceStub(object):
       channel: A grpc.Channel.
     """
     self.CreatePredictionObjects = channel.unary_unary(
-        '/containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService/CreatePredictionObjects',
+        '/containers_ai.alameda.v1alpha1.ai_service.AlamedaAIService/CreatePredictionObjects',
         request_serializer=alameda__api_dot_v1alpha1_dot_ai__service_dot_ai__service__pb2.PredictionObjectListCreationRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_ai__service_dot_ai__service__pb2.RequestResponse.FromString,
         )
     self.DeletePredictionObjects = channel.unary_unary(
-        '/containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService/DeletePredictionObjects',
+        '/containers_ai.alameda.v1alpha1.ai_service.AlamedaAIService/DeletePredictionObjects',
         request_serializer=alameda__api_dot_v1alpha1_dot_ai__service_dot_ai__service__pb2.PredictionObjectListDeletionRequest.SerializeToString,
         response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
         )
 
 
-class AlamendaAIServiceServicer(object):
+class AlamedaAIServiceServicer(object):
   """*
   Service for creating prediction objects.
   """
@@ -48,7 +48,7 @@ class AlamendaAIServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
 
-def add_AlamendaAIServiceServicer_to_server(servicer, server):
+def add_AlamedaAIServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'CreatePredictionObjects': grpc.unary_unary_rpc_method_handler(
           servicer.CreatePredictionObjects,
@@ -62,5 +62,5 @@ def add_AlamendaAIServiceServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'containers_ai.alameda.v1alpha1.ai_service.AlamendaAIService', rpc_method_handlers)
+      'containers_ai.alameda.v1alpha1.ai_service.AlamedaAIService', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
