@@ -96,6 +96,7 @@
         {
           "expr": "kube_node_status_capacity_cpu_cores{node=\"$node\"}",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 1,
           "refId": "A"
         }
@@ -177,6 +178,7 @@
         {
           "expr": "node:node_cpu_utilisation:avg1m{node=\"$node\"} * 100",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 1,
           "refId": "A"
         }
@@ -355,6 +357,7 @@
         {
           "expr": "kube_node_status_capacity_memory_bytes{node=\"$node\"}",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 1,
           "refId": "A"
         }
@@ -436,6 +439,7 @@
         {
           "expr": "node:node_memory_utilisation:{node=\"$node\"} * 100",
           "format": "time_series",
+          "instant": true,
           "intervalFactor": 1,
           "refId": "A"
         }

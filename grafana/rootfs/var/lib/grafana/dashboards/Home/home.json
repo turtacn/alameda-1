@@ -820,7 +820,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "node:node_cpu_utilisation:avg1m * node:node_num_cpu:sum / scalar(sum(node:node_num_cpu:sum))",
+          "expr": "node:node_cpu_utilisation:avg1m * 1",
           "format": "table",
           "hide": false,
           "instant": true,
