@@ -59,5 +59,7 @@ func (c *ServiceKeycodes) ActivateRegistrationData(ctx context.Context, in *Keyc
 		scope.Error("failed to delete registration file")
 	}
 
+	scope.Info("Successfully to activate keycode")
+
 	return &status.Status{Code: int32(code.Code_OK)}, nil
 }

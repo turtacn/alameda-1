@@ -33,5 +33,7 @@ func (c *ServiceKeycodes) DeleteKeycode(ctx context.Context, in *Keycodes.Delete
 		}, nil
 	}
 
+	scope.Infof("Successfully to delete keycode(%s)", in.GetKeycode())
+
 	return &status.Status{Code: int32(code.Code_OK)}, nil
 }

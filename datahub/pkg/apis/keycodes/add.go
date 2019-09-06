@@ -37,6 +37,8 @@ func (c *ServiceKeycodes) AddKeycode(ctx context.Context, in *Keycodes.AddKeycod
 		}, nil
 	}
 
+	scope.Infof("Successfully to add keycode(%s)", in.GetKeycode())
+
 	keycode, err := keycodeMgt.GetKeycode(in.GetKeycode())
 	return &Keycodes.AddKeycodeResponse{
 		Status: &status.Status{

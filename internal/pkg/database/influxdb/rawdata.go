@@ -36,7 +36,8 @@ func ReadRawdata(config *Config, queries []*Common.Query) ([]*Common.ReadRawdata
 }
 
 func WriteRawdata(config *Config, writeRawdata []*Common.WriteRawdata) error {
-	influxClient := NewClient(config)
+	var influxClient = NewClient(config)
+	var err error
 
 	for _, rawdata := range writeRawdata {
 		points := make([]*Client.Point, 0)
@@ -76,15 +77,14 @@ func WriteRawdata(config *Config, writeRawdata []*Common.WriteRawdata) error {
 			}
 		}
 
-		err := influxClient.WritePoints(points, Client.BatchPointsConfig{Database: rawdata.GetDatabase()})
-		if err != nil {
+		result := influxClient.WritePoints(points, Client.BatchPointsConfig{Database: rawdata.GetDatabase()})
+		if result != nil {
+			err = result
 			scope.Error(err.Error())
 		}
-
-		return err
 	}
 
-	return nil
+	return err
 }
 
 func InfluxResultToReadRawdata(results []Client.Result, query *Common.Query) *Common.ReadRawdata {
