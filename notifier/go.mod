@@ -3,7 +3,7 @@ module github.com/containers-ai/alameda/notifier
 go 1.13
 
 require (
-	github.com/containers-ai/alameda v4.2.274+incompatible
+	github.com/containers-ai/alameda v4.2.275+incompatible
 	github.com/containers-ai/api v0.0.0-20190905124947-c333486576ed
 	github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96 // indirect
 	github.com/elazarl/goproxy v0.0.0-20170405201442-c4fc26588b6e // indirect

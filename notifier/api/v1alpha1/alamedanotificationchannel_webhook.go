@@ -51,8 +51,8 @@ var _ webhook.Defaulter = &AlamedaNotificationChannel{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *AlamedaNotificationChannel) Default() {
-	channelWhScope.Infof("default webhook for channel: %s", r.Name)
 
+	channelWhScope.Debugf("default webhook for channel: %s", r.Name)
 	if r.Spec.Email.Encryption == "" {
 		r.Spec.Email.Encryption = "tls"
 	}
@@ -74,7 +74,7 @@ func (r *AlamedaNotificationChannel) Default() {
 
 	annotations := r.GetAnnotations()
 	testVal, ok := annotations["notifying.containers.ai/test-channel"]
-	if !ok || testVal != "start" {
+	if !ok || testVal == "" {
 		annotations["notifying.containers.ai/test-channel"] = "done"
 		r.SetAnnotations(annotations)
 	}
@@ -103,12 +103,28 @@ func (r *AlamedaNotificationChannel) validateAlamedaNotificationChannel() error 
 	var allErrs field.ErrorList
 	channelType := r.Spec.Type
 
+	annotations := r.GetObjectMeta().GetAnnotations()
+	if testChannel, ok := annotations["notifying.containers.ai/test-channel"]; ok {
+		if strings.ToLower(testChannel) != "start" && strings.ToLower(testChannel) != "done" {
+			allErrs = append(allErrs, field.Invalid(field.NewPath("metadata").Child("annotations").
+				Child("notifying.containers.ai/test-channel"), testChannel,
+				fmt.Sprintf("annotation notifying.containers.ai/test-channel does not support %s, please use start instead",
+					testChannel)))
+		}
+	}
+
+	if testChannelTo, ok := annotations["notifying.containers.ai/test-channel-to"]; ok {
+		if testChannelTo != "" && !utils.IsEmailValid(testChannelTo) {
+			allErrs = append(allErrs, field.Invalid(field.NewPath("metadata").Child("annotations").
+				Child("notifying.containers.ai/test-channel-to"), testChannelTo,
+				fmt.Sprintf("annotation notifying.containers.ai/test-channel-to value %s is not valid email format",
+					testChannelTo)))
+		}
+	}
+
 	if channelType != "" && channelType != "email" {
 		allErrs = append(allErrs, field.Invalid(field.NewPath("spec").Child("type"),
 			channelType, fmt.Sprintf("channel type %s is not supported, please email instead", channelType)))
-		return apierrors.NewInvalid(
-			schema.GroupKind{Group: "notifying.containers.ai", Kind: "AlamedaNotificationChannel"},
-			r.Name, allErrs)
 	}
 	if channelType == "email" {
 		from := r.Spec.Email.From
