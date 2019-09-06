@@ -11,6 +11,6 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/etc/ai-dispatcher.toml /etc/alameda/ai-dispatcher/ai-dispatcher.toml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/etc/ai-dispatcher.yml /etc/alameda/ai-dispatcher/ai-dispatcher.yml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/ai-dispatcher .
 ENTRYPOINT ["./ai-dispatcher"]

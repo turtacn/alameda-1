@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/containers-ai/alameda/notifier/utils"
+	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"

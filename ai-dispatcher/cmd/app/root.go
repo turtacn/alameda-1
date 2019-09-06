@@ -30,7 +30,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.AddCommand(alameda_app.VersionCmd)
 	rootCmd.AddCommand(ProbeCmd)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "/etc/alameda/ai-dispatcher/ai-dispatcher.toml", "The path to ai-dispatcher configuration file.")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "/etc/alameda/ai-dispatcher/ai-dispatcher.yml", "The path to ai-dispatcher configuration file.")
 	rootCmd.PersistentFlags().StringVar(&logRotateOutputFile, "log-output-file", "/var/log/alameda/alameda-ai-dispatcher.log", "The path of log file.")
 }
 
