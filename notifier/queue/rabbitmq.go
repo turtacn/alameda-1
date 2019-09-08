@@ -2,10 +2,13 @@ package queue
 
 import (
 	"encoding/json"
+	"os"
+	"time"
 
 	"github.com/containers-ai/alameda/notifier/notifying"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/spf13/viper"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -20,12 +23,31 @@ type rabbitmqClient struct {
 }
 
 func NewRabbitMQClient(mgr manager.Manager, queueURL string, datahubConn *grpc.ClientConn) *rabbitmqClient {
-	conn, err := amqp.Dial(queueURL)
-	if err != nil {
-		scope.Errorf("failed to connect to queue %s: %s", queueURL, err.Error())
+	retryConn := viper.GetInt("rabbitmq.connRetry")
+	retryConnInterval := viper.GetInt64("rabbitmq.connRetryInterval")
+	for retry := 0; retry < retryConn; retry++ {
+		conn, err := amqp.Dial(queueURL)
+		if err == nil {
+			return &rabbitmqClient{
+				conn:        conn,
+				datahubConn: datahubConn,
+				mgr:         mgr,
+			}
+		}
+		if err != nil {
+			if retry == retryConn-1 {
+				scope.Errorf("failed to connect to queue %s: %s", queueURL, err.Error())
+				os.Exit(1)
+			} else {
+				scope.Errorf("failed to connect to queue %s: %s. Retry after %d seconds",
+					queueURL, err.Error(), retryConnInterval)
+				time.Sleep(time.Duration(retryConnInterval) * time.Second)
+			}
+		}
+
 	}
+
 	return &rabbitmqClient{
-		conn:        conn,
 		datahubConn: datahubConn,
 		mgr:         mgr,
 	}

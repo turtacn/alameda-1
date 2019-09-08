@@ -46,7 +46,7 @@ func NewEmailClient(notificationChannel *notifyingv1alpha1.AlamedaNotificationCh
 	}, nil
 }
 
-func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) {
+func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) error {
 	msg := evt.GetMessage()
 	subject := utils.EventEmailSubject(evt)
 	from := emailClient.notificationChannel.Spec.Email.From
@@ -56,10 +56,12 @@ func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) {
 	attachments := map[string]string{}
 	scope.Infof("Start sending email (subject: %s, from: %s, to: %s, cc:%s, body: %s)",
 		subject, from, strings.Join(recipients, ";"), strings.Join(ccs, ";"), msg)
-	err := emailClient.SendEmailBySMTP(subject, from, recipients, utils.EventHTMLMsg(evt), utils.RemoveEmptyStr(ccs), attachments)
+	err := emailClient.SendEmailBySMTP(subject, from, recipients, utils.EventHTMLMsg(evt),
+		utils.RemoveEmptyStr(ccs), attachments)
 	if err != nil {
-		scope.Errorf("%s", err.Error())
+		return err
 	}
+	return nil
 }
 
 func (emailClient *EmailClient) SendEmailBySMTP(subject string, from string,
@@ -104,7 +106,7 @@ func (emailClient *EmailClient) SendEmailBySMTP(subject string, from string,
 		}
 	} else if client, ok := emailClient.client.(*mail.Dialer); ok {
 		mailMsg := getMailMessage(subject, from, recipients, msgHTML, ccs, attachments)
-		client.DialAndSend(mailMsg)
+		return client.DialAndSend(mailMsg)
 	}
 	return nil
 }

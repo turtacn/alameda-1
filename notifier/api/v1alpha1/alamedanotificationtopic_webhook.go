@@ -47,6 +47,24 @@ var _ webhook.Defaulter = &AlamedaNotificationTopic{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *AlamedaNotificationTopic) Default() {
+	channelConditions := []*AlamedaChannelCondition{}
+	for _, emailChannel := range r.Spec.Channel.Emails {
+		found := false
+		for _, curCondition := range r.Status.ChannelCondictions {
+			if strings.ToLower(curCondition.Type) == "email" {
+				channelConditions = append(channelConditions, curCondition)
+				found = true
+				break
+			}
+		}
+		if !found {
+			channelConditions = append(channelConditions, &AlamedaChannelCondition{
+				Type: "email",
+				Name: emailChannel.Name,
+			})
+		}
+	}
+	r.Status.ChannelCondictions = channelConditions
 }
 
 // +kubebuilder:webhook:path=/validate-notifying-containers-ai-v1alpha1-alamedanotificationtopic,mutating=false,failurePolicy=fail,groups=notifying.containers.ai,resources=alamedanotificationtopics,verbs=create;update,versions=v1alpha1,name=valamedanotificationtopic.containers.ai

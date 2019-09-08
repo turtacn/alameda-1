@@ -60,7 +60,7 @@ func (r *AlamedaNotificationChannelReconciler) Reconcile(req ctrl.Request) (ctrl
 			if err != nil {
 				alamedaNotificationChannel.Status.ChannelTest = &notifyingv1alpha1.AlamedaChannelTest{
 					Success: false,
-					Time:    time.Now().UTC().String(),
+					Time:    time.Now().Format(time.RFC3339),
 					Message: err.Error(),
 				}
 				channelScope.Errorf("test email channel %s failed: %s", req.Name, err.Error())
@@ -70,7 +70,8 @@ func (r *AlamedaNotificationChannelReconciler) Reconcile(req ctrl.Request) (ctrl
 				alamedaNotificationChannel.SetAnnotations(annotations)
 
 				if updateErr := r.Update(ctx, alamedaNotificationChannel); updateErr != nil {
-					channelScope.Errorf("update test annotation and status for email channel %s failed: %s", req.Name, err.Error())
+					channelScope.Errorf("update test annotation and status for email channel %s failed: %s",
+						req.Name, err.Error())
 					return ctrl.Result{}, updateErr
 				}
 				return ctrl.Result{}, err
@@ -82,10 +83,11 @@ func (r *AlamedaNotificationChannelReconciler) Reconcile(req ctrl.Request) (ctrl
 			alamedaNotificationChannel.SetAnnotations(annotations)
 			alamedaNotificationChannel.Status.ChannelTest = &notifyingv1alpha1.AlamedaChannelTest{
 				Success: true,
-				Time:    time.Now().UTC().String(),
+				Time:    time.Now().Format(time.RFC3339),
 			}
 			if updateErr := r.Update(ctx, alamedaNotificationChannel); updateErr != nil {
-				channelScope.Errorf("update test annotation and status for email channel %s failed: %s", req.Name, err.Error())
+				channelScope.Errorf("update test annotation and status for email channel %s failed: %s",
+					req.Name, err.Error())
 				return ctrl.Result{}, updateErr
 			}
 		}
@@ -94,7 +96,8 @@ func (r *AlamedaNotificationChannelReconciler) Reconcile(req ctrl.Request) (ctrl
 	return ctrl.Result{}, nil
 }
 
-func (r *AlamedaNotificationChannelReconciler) testEmailChannel(alamedaNotificationChannel *notifyingv1alpha1.AlamedaNotificationChannel) error {
+func (r *AlamedaNotificationChannelReconciler) testEmailChannel(
+	alamedaNotificationChannel *notifyingv1alpha1.AlamedaNotificationChannel) error {
 	annotations := alamedaNotificationChannel.GetAnnotations()
 	from := alamedaNotificationChannel.Spec.Email.From
 	to, ok := annotations["notifying.containers.ai/test-channel-to"]

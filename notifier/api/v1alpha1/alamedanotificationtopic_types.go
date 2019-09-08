@@ -22,21 +22,21 @@ import (
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-type alamedaSubject struct {
+type AlamedaSubject struct {
 	Kind       string `json:"kind,omitempty"`
 	Namespace  string `json:"namespace,omitempty"`
 	Name       string `json:"name,omitempty"`
 	APIVersion string `json:"apiVersion,omitempty"`
 }
 
-type alamedaTopic struct {
+type AlamedaTopic struct {
 	Type    []string          `json:"type,omitempty"`
-	Subject []*alamedaSubject `json:"subject,omitempty"`
+	Subject []*AlamedaSubject `json:"subject,omitempty"`
 	Level   []string          `json:"level,omitempty"`
-	Source  []*alamedaSource  `json:"source,omitempty"`
+	Source  []*AlamedaSource  `json:"source,omitempty"`
 }
 
-type alamedaSource struct {
+type AlamedaSource struct {
 	Host      string `json:"host,omitempty"`
 	Component string `json:"component,omitempty"`
 }
@@ -56,14 +56,23 @@ type AlamedaNotificationTopicSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	Disabled bool            `json:"disabled,omitempty"`
-	Topics   []*alamedaTopic `json:"topics,"`
+	Topics   []*AlamedaTopic `json:"topics,"`
 	Channel  *AlamedaChannel `json:"channel,"`
+}
+
+type AlamedaChannelCondition struct {
+	Type    string `json:"type,"`
+	Name    string `json:"name,"`
+	Success bool   `json:"success,omitempty"`
+	Time    string `json:"time,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 // AlamedaNotificationTopicStatus defines the observed state of AlamedaNotificationTopic
 type AlamedaNotificationTopicStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	ChannelCondictions []*AlamedaChannelCondition `json:"channelConditions,"`
 }
 
 // +kubebuilder:object:root=true

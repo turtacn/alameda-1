@@ -1,5 +1,9 @@
+topicEventResendTime = 30 #seconds
+
 [rabbitmq]
 url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
+connRetry = 10
+connRetryInterval = 3 #seconds
 
 [datahub]
 address = "datahub.alameda.svc.cluster.local:50050"

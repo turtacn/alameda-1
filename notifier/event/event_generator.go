@@ -3,7 +3,7 @@ package event
 import (
 	"time"
 
-	"github.com/containers-ai/alameda/pkg/utils/kubernetes"
+	"github.com/containers-ai/alameda/pkg/utils"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
 )
@@ -18,7 +18,7 @@ func GetEmailNotificationEvent(msg, podName string) *datahub_v1alpha1.Event {
 		Level:   datahub_v1alpha1.EventLevel_EVENT_LEVEL_WARNING,
 		Subject: &datahub_v1alpha1.K8SObjectReference{
 			Kind:      "Pod",
-			Namespace: kubernetes.GetRunningNamespace(),
+			Namespace: utils.GetRunningNamespace(),
 			Name:      podName,
 		},
 		Message: msg,
