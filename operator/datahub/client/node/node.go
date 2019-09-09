@@ -106,18 +106,7 @@ func newNode(k8sNode corev1.Node) (nodeInfo, error) {
 		return nodeInfo{}, errors.Errorf("cannot convert memory capacity from k8s Node")
 	}
 	node.MemoryBytes = memoryBytes
-
-	labels := k8sNode.GetObjectMeta().GetLabels()
-	if value, ok := labels["label_beta_kubernetes_io_instance_type"]; ok {
-		node.InstanceType = value
-	}
-	if value, ok := labels["label_failure_domain_beta_kubernetes_io_region"]; ok {
-		node.Region = value
-	}
-	if value, ok := labels["label_failure_domain_beta_kubernetes_io_zone"]; ok {
-		node.Zone = value
-	}
-	node.Provider = strings.Split(k8sNode.Spec.ProviderID, ":")[0]
+ 
 
 	return node, nil
 }
@@ -233,8 +222,12 @@ func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*corev1.Node) error
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	if reqRes, err := datahubServiceClnt.CreateAlamedaNodes(context.Background(), &req); err != nil {
-		scope.Error(reqRes.GetMessage())
+		scope.Error(fmt.Sprintf("Create nodes to datahub failed: %s", err.Error()))
 		return err
+	} else if reqRes == nil {
+		return errors.Errorf("Create nodes to datahub failed: receive nil status")
+	} else if reqRes.Code != int32(code.Code_OK) {
+		return errors.Errorf("Create nodes to datahub failed: receive statusCode: %d, message: %s", reqRes.Code, reqRes.Message)
 	}
 	return nil
 }
