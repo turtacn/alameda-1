@@ -79,7 +79,9 @@ func (c *KeycodeMetrics) GenerateCriteria() {
 func (c *KeycodeMetrics) MeetCriteria() bool {
 	currentTimestamp := time.Now().Unix()
 
+	// Refresh keycode cache before getting keycode information
 	c.keycodeMgt.Refresh(true)
+
 	keycodes, summary, err := c.keycodeMgt.GetAllKeycodes()
 	if err != nil {
 		scope.Error("failed to check criteria when validate license")

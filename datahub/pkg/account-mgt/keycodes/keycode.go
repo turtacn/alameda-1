@@ -5,6 +5,7 @@ import (
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalLdap "github.com/containers-ai/alameda/internal/pkg/database/ldap"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,7 @@ var (
 	KeycodeList      []*Keycode = nil
 	KeycodeSummary   *Keycode   = nil
 	KeycodeTM        time.Time
+	KeycodeMutex     sync.Mutex
 	InfluxConfig     *InternalInflux.Config
 	LdapConfig       *InternalLdap.Config
 )
