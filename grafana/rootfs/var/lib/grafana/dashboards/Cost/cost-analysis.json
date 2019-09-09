@@ -3476,8 +3476,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "Yes",
-          "value": "Yes"
+          "text": "No",
+          "value": "No"
         },
         "hide": 0,
         "includeAll": false,
@@ -3485,12 +3485,12 @@
         "multi": false,
         "name": "purchase_option",
         "options": [{
-            "selected": true,
+            "selected": false,
             "text": "Yes",
             "value": "Yes"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "No",
             "value": "No"
           }
