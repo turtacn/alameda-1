@@ -1294,7 +1294,7 @@
       },
       "yaxes": [
         {
-          "decimals": 0,
+          "decimals": 2,
           "format": "none",
           "label": null,
           "logBase": 1,
@@ -1379,7 +1379,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s]))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[30s])))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1486,7 +1486,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select desired_mem_limits from \"alameda_recommendation\"..\"controller\" where \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
+          "query": "select round(desired_mem_limits) from \"alameda_recommendation\"..\"controller\" where \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1607,7 +1607,7 @@
       },
       "yaxes": [
         {
-          "decimals": null,
+          "decimals": 2,
           "format": "bytes",
           "label": null,
           "logBase": 1,

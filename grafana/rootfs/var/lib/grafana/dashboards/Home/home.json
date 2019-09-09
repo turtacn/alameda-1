@@ -1437,7 +1437,7 @@
       },
       "yaxes": [
         {
-          "decimals": 3,
+          "decimals": 2,
           "format": "none",
           "label": null,
           "logBase": 1,
@@ -1520,7 +1520,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1548,7 +1548,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value)  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
+          "query": "select round(sum(value))  from \"alameda_prediction\"..\"container\" where  kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[container]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"namespace\" =~ /^[[ns]]$/ and time >= now() -2d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1669,6 +1669,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "bytes",
           "label": null,
           "logBase": 1,

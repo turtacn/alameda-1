@@ -799,7 +799,7 @@
         "values": []
       },
       "yaxes": [{
-          "decimals": 3,
+          "decimals": 2,
           "format": "none",
           "label": null,
           "logBase": 1,
@@ -899,7 +899,7 @@
       "steppedLine": false,
       "targets": [{
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[3600s]))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -926,7 +926,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() - 5d and time < now() group by time(3600s)), (select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time >= now() and time <= now()+1d group by time(3600s)) where count = $count_pod)",
+          "query": "select round(sum) from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() - 5d and time < now() group by time(3600s)), (select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ AND time >= now() and time <= now()+1d group by time(3600s)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1040,7 +1040,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum from ( select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '3600' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/   and \"planning_type\" = 'PT_RECOMMENDATION' and  time >= now() and time <= now()+1d  group by time(3600s) fill(none)) where count = $count_pod",
+          "query": "select round(sum) from ( select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '3600' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/   and \"planning_type\" = 'PT_RECOMMENDATION' and  time >= now() and time <= now()+1d  group by time(3600s) fill(none)) where count = $count_pod",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1155,6 +1155,7 @@
         "values": []
       },
       "yaxes": [{
+          "decimals": 2,
           "format": "bytes",
           "label": null,
           "logBase": 1,
@@ -1523,7 +1524,7 @@
         "values": []
       },
       "yaxes": [{
-          "decimals": 3,
+          "decimals": 2,
           "format": "none",
           "label": null,
           "logBase": 1,
@@ -1622,7 +1623,7 @@
       "steppedLine": false,
       "targets": [{
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[21600s]))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[21600s])))",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -1648,7 +1649,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() - 5w and time < now() group by time(21600s)), (select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() and time < now() +1w group by time(21600s)) where count = $count_pod)",
+          "query": "select round(sum) from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() - 5w and time < now() group by time(21600s)), (select sum from (select sum(value), count(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() and time < now() +1w group by time(21600s)) where count = $count_pod)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1762,7 +1763,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum from (select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 'PT_RECOMMENDATION' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+1w  group by time(21600s) fill(none)) where count = $count_pod",
+          "query": "select round(sum) from (select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 'PT_RECOMMENDATION' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+1w  group by time(21600s) fill(none)) where count = $count_pod",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1877,6 +1878,7 @@
         "values": []
       },
       "yaxes": [{
+          "decimals": 2,
           "format": "bytes",
           "label": null,
           "logBase": 1,
@@ -2245,7 +2247,7 @@
         "values": []
       },
       "yaxes": [{
-          "decimals": 3,
+          "decimals": 2,
           "format": "none",
           "label": null,
           "logBase": 1,
@@ -2344,7 +2346,7 @@
       "steppedLine": false,
       "targets": [{
           "datasource": "Prometheus",
-          "expr": "sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s]))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2369,7 +2371,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() - 20w and time < now() group by time(86400s)), (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() and time < now()+ 4w group by time(86400s))",
+          "query": "select round(sum) from (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() - 20w and time < now() group by time(86400s)), (select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/  AND time >= now() and time < now()+ 4w group by time(86400s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -2483,7 +2485,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum from (select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'PT_RECOMMENDATION' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+4w  group by time(86400s) fill(none)) where count = $count_pod",
+          "query": "select round(sum) from (select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'PT_RECOMMENDATION' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() and time <= now()+4w  group by time(86400s) fill(none)) where count = $count_pod",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2598,6 +2600,7 @@
         "values": []
       },
       "yaxes": [{
+          "decimals": 2,
           "format": "bytes",
           "label": null,
           "logBase": 1,

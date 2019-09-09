@@ -442,6 +442,7 @@
         "values": []
       },
       "yaxes": [{
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -450,6 +451,7 @@
           "show": true
         },
         {
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -1494,6 +1496,7 @@
         "values": []
       },
       "yaxes": [{
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -1502,6 +1505,7 @@
           "show": true
         },
         {
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -2546,6 +2550,7 @@
         "values": []
       },
       "yaxes": [{
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -2554,6 +2559,7 @@
           "show": true
         },
         {
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,

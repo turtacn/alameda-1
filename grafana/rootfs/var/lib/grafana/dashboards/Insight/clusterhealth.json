@@ -192,6 +192,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "percentunit",
           "logBase": 1,
           "max": "1",
@@ -989,6 +990,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "percentunit",
           "label": null,
           "logBase": 1,
@@ -1107,6 +1109,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "percentunit",
           "label": null,
           "logBase": 1,
@@ -1225,6 +1228,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "percentunit",
           "label": null,
           "logBase": 1,
@@ -1342,6 +1346,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "percentunit",
           "label": null,
           "logBase": 1,

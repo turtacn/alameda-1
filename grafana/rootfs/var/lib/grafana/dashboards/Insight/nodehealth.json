@@ -272,7 +272,7 @@
       },
       "yaxes": [
         {
-          "decimals": null,
+          "decimals": 2,
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -525,7 +525,8 @@
       },
       "yaxes": [
         {
-          "format": "decbytes",
+          "decimals": 2,
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
