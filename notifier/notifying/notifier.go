@@ -11,6 +11,7 @@ import (
 	"github.com/containers-ai/alameda/notifier/event"
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/spf13/viper"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -23,12 +24,14 @@ var scope = log.RegisterScope("notifier", "notifier", 0)
 type notifier struct {
 	k8sClient     client.Client
 	datahubClient datahub_v1alpha1.DatahubServiceClient
+	k8sHost       string
 }
 
-func NewNotifier(k8sClient client.Client,
+func NewNotifier(mgr manager.Manager,
 	datahubClient datahub_v1alpha1.DatahubServiceClient) *notifier {
 	return &notifier{
-		k8sClient:     k8sClient,
+		k8sClient:     mgr.GetClient(),
+		k8sHost:       mgr.GetConfig().Host,
 		datahubClient: datahubClient,
 	}
 }
@@ -147,7 +150,7 @@ func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_v1alpha1.Event,
 		evtSender := event.NewEventSender(notifier.datahubClient)
 		podName := utils.GetRunningPodName()
 		evtSender.SendEvents([]*datahub_v1alpha1.Event{
-			event.GetEmailNotificationEvent(errMsg, podName),
+			event.GetEmailNotificationEvent(errMsg, podName, notifier.k8sHost),
 		})
 	}
 

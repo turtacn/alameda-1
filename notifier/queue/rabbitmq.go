@@ -87,7 +87,7 @@ func (client *rabbitmqClient) Start() {
 	}
 	forever := make(chan bool)
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(client.datahubConn)
-	notifier := notifying.NewNotifier(client.mgr.GetClient(), datahubClient)
+	notifier := notifying.NewNotifier(client.mgr, datahubClient)
 	go func() {
 		for d := range msgs {
 			scope.Infof("Received events: %s", d.Body)

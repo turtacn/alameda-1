@@ -37,6 +37,7 @@ func EventHTMLMsg(evt *datahub_v1alpha1.Event) string {
 			Federator.ai Event Notification<br>
 			###############################################################<br>
 			<table cellspacing="5" cellpadding="0">
+				<tr><td align="left">Cluster Id:</td><td>%s</td></tr>
 				<tr><td align="left">Time:</td><td>%s</td></tr>
 				<tr><td align="left">Level:</td><td>%s</td></tr>
 				<tr><td align="left">Message:</td><td>%s</td></tr>
@@ -47,7 +48,7 @@ func EventHTMLMsg(evt *datahub_v1alpha1.Event) string {
 			</table>
 		</body>
 	</html>
-	`, time.Unix(evt.Time.GetSeconds(), 0).Format(time.RFC3339),
+	`, evt.GetClusterId(), time.Unix(evt.Time.GetSeconds(), 0).Format(time.RFC3339),
 		strings.Title(levelMap[strconv.FormatInt(int64(evt.Level), 10)].(string)), evt.Message,
 		eventMap[strconv.FormatInt(int64(evt.Type), 10)].(string), evt.Subject.Name,
 		evt.Subject.Kind, evt.Subject.Namespace)

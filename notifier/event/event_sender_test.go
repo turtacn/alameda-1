@@ -40,6 +40,7 @@ func Test_eventSender_SendEvents(t *testing.T) {
 						Time: &timestamp.Timestamp{
 							Seconds: time.Now().Unix(),
 						},
+						ClusterId: "cluster id",
 						Source: &datahub_v1alpha1.EventSource{
 							Host:      "email warning host",
 							Component: "email warning component",
