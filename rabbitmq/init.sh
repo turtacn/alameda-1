@@ -8,11 +8,16 @@ MQ_PREDICT_QUEUE_NAME=${MQ_PREDICT_QUEUE_NAME:-predict}
 check_rabbitmq_status()
 {
     out=`rabbitmqctl status`
-    return $?
+    if [ "$?" == "0" ]; then
+        return 0
+    fi
+    return 1
 }
 
 check_queue_dedup()
 {
+echo "Checking queue deduplication"
+
 queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep $MQ_PREDICT_QUEUE_NAME | cut -d '|' -f 3 | awk '{$1=$1;print}'`
 
 if [ "$queue_size" == "" ]; then
@@ -39,10 +44,12 @@ fi
 
 do_crond()
 {
-    sleep_time=3600
+    sleep_time=600
     while :; do
         sleep ${sleep_time}
+        echo "doing crond jobs"
         check_queue_dedup
+        echo "done crond jobs. Sleeing ${sleep_time}"
     done
     exit 0
 }
@@ -51,6 +58,7 @@ echo "Bring up rabbitmq-server"
 rabbitmq-server &
 
 while ! check_rabbitmq_status; do
+    echo "Waiting rabbitmq server ready"
     sleep 10
 done
 rabbitmqadmin declare user name=$MQ_USER password=$MQ_PASSWD tags=administrator
@@ -59,4 +67,5 @@ rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete user name=guest
 
 echo "Running daemon jobs"
 do_crond
+
 
