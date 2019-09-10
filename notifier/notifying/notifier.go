@@ -9,14 +9,14 @@ import (
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
 	"github.com/containers-ai/alameda/notifier/event"
+	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
 	"github.com/containers-ai/alameda/pkg/utils"
-	"github.com/spf13/viper"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	"github.com/spf13/viper"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 var scope = log.RegisterScope("notifier", "notifier", 0)
@@ -24,14 +24,19 @@ var scope = log.RegisterScope("notifier", "notifier", 0)
 type notifier struct {
 	k8sClient     client.Client
 	datahubClient datahub_v1alpha1.DatahubServiceClient
-	k8sHost       string
+	clusterId     string
 }
 
 func NewNotifier(mgr manager.Manager,
 	datahubClient datahub_v1alpha1.DatahubServiceClient) *notifier {
+
+	clusterId, err := notifier_utils.GetClusterUID(mgr.GetClient())
+	if err != nil {
+		scope.Errorf("Get cluster id failed: %s", err.Error())
+	}
 	return &notifier{
 		k8sClient:     mgr.GetClient(),
-		k8sHost:       mgr.GetConfig().Host,
+		clusterId:     clusterId,
 		datahubClient: datahubClient,
 	}
 }
@@ -150,7 +155,7 @@ func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_v1alpha1.Event,
 		evtSender := event.NewEventSender(notifier.datahubClient)
 		podName := utils.GetRunningPodName()
 		evtSender.SendEvents([]*datahub_v1alpha1.Event{
-			event.GetEmailNotificationEvent(errMsg, podName, notifier.k8sHost),
+			event.GetEmailNotificationEvent(errMsg, podName, notifier.clusterId),
 		})
 	}
 

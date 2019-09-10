@@ -8,12 +8,12 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
-func GetEmailNotificationEvent(msg, podName, k8sHost string) *datahub_v1alpha1.Event {
+func GetEmailNotificationEvent(msg, podName, clusterId string) *datahub_v1alpha1.Event {
 	return &datahub_v1alpha1.Event{
 		Time: &timestamp.Timestamp{
 			Seconds: time.Now().Unix(),
 		},
-		ClusterId: k8sHost,
+		ClusterId: clusterId,
 		Type:      datahub_v1alpha1.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
 		Version:   datahub_v1alpha1.EventVersion_EVENT_VERSION_V1,
 		Level:     datahub_v1alpha1.EventLevel_EVENT_LEVEL_WARNING,
