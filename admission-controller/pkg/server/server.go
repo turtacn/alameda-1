@@ -205,8 +205,9 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 		return admissionResponse, events, errors.Errorf("mutating pod failed: deserialize AdmissionRequest.Raw to Pod failed, skip mutating pod: %s", err.Error())
 	}
 	pod.SetNamespace(ar.Request.Namespace)
+	podID := newNamespaceKindName(pod.Namespace, pod.Kind, pod.Name)
 
-	scope.Infof("mutating pod: %+v", pod.ObjectMeta)
+	scope.Infof("Mutating pod: %+v", pod.ObjectMeta)
 
 	ownerRef, err := ac.getTopSupportedOwnerReference(&pod)
 	if err != nil {
@@ -220,13 +221,14 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	} else if !executionEnabeld {
 		return admissionResponse, events, errors.Errorf("execution of AlamedaScaler monitoring this pod is not enabled, skip mutating pod: Pod: %+v", pod.ObjectMeta)
 	}
-	recommendation, err := ac.getPodResourceRecommendationByControllerID(controllerID)
+	recommendation, err := ac.getPodResourceRecommendationByPodNamespaceNameOrByControllerID(podID, controllerID)
 	if err != nil {
 		return admissionResponse, events, errors.Errorf("get pod resource recommendations failed, controllerID: %s, skip mutating pod: Pod: %+v, errMsg: %s", controllerID.String(), pod.ObjectMeta, err.Error())
 	} else if recommendation == nil {
 		return admissionResponse, events, errors.Errorf("fetch empty recommendations of controller, controllerID: %s, skip mutating pod: Pod: %+v", controllerID.String(), pod.ObjectMeta)
 	}
 
+	scope.Debugf("Mutate pod with recommendation: %+v\n", recommendation)
 	patches, err := admission_controller_utils.GetPatchesFromPodResourceRecommendation(&pod, recommendation)
 	if err != nil {
 		return admissionResponse, events, errors.Wrapf(err, "get patches to mutate pod resource failed, skip mutating pod: Pod: %+v", pod.ObjectMeta)
@@ -247,7 +249,7 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	return admissionResponse, events, nil
 }
 
-func (ac *admissionController) getPodResourceRecommendationByControllerID(controllerID namespaceKindName) (*resource.PodResourceRecommendation, error) {
+func (ac *admissionController) getPodResourceRecommendationByPodNamespaceNameOrByControllerID(podID, controllerID namespaceKindName) (*resource.PodResourceRecommendation, error) {
 
 	var recommendation *resource.PodResourceRecommendation
 
@@ -270,6 +272,15 @@ func (ac *admissionController) getPodResourceRecommendationByControllerID(contro
 	if err != nil {
 		return nil, err
 	}
+
+	scope.Debugf("Finding recommendation by pod (%s/%s)", podID.namespace, podID.name)
+	for _, validRecommedation := range validRecommedations {
+		if validRecommedation.Namespace == podID.namespace && validRecommedation.Name == podID.name {
+			scope.Debugf("Found recommendation for pod (%s/%s)", podID.namespace, podID.name)
+			return validRecommedation, nil
+		}
+	}
+
 	controllerRecommendation.setPodRecommendations(validRecommedations)
 	recommendation = controllerRecommendation.dispatchOneValidPodRecommendation(time.Now())
 
