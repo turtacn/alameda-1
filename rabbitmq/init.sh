@@ -61,7 +61,22 @@ while ! check_rabbitmq_status; do
     echo "Waiting rabbitmq server ready"
     sleep 10
 done
-rabbitmqadmin declare user name=$MQ_USER password=$MQ_PASSWD tags=administrator
+
+if ! rabbitmqadmin declare user name=$MQ_USER password=$MQ_PASSWD tags=administrator; then
+    echo "create username/password failed"
+fi
+retry=0
+retryTime=30
+while ! rabbitmqctl authenticate_user $MQ_USER $MQ_PASSWD > /dev/null 2>&1; do
+    if [ $retry -ge $retryTime ];then
+        exit 1
+    fi
+    if ! rabbitmqadmin declare user name=$MQ_USER password=$MQ_PASSWD tags=administrator; then
+        echo "create username/password failed"
+    fi
+    retry=$((retry+1))
+    sleep 5
+done
 rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare permission vhost=/ user=$MQ_USER configure='.*' write='.*' read='.*'
 rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete user name=guest
 
