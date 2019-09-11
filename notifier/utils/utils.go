@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,9 +8,6 @@ import (
 
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/spf13/viper"
-	corev1 "k8s.io/api/core/v1"
-	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func RemoveEmptyStr(strList []string) []string {
@@ -57,28 +52,4 @@ func EventHTMLMsg(evt *datahub_v1alpha1.Event) string {
 		strings.Title(levelMap[strconv.FormatInt(int64(evt.Level), 10)].(string)), evt.Message,
 		eventMap[strconv.FormatInt(int64(evt.Type), 10)].(string), evt.Subject.Name,
 		evt.Subject.Kind, evt.Subject.Namespace)
-}
-
-func GetClusterUID(k8sClient client.Client) (string, error) {
-	possibleNSList := []string{
-		"kube-service-catalog", "kube-public",
-	}
-	var errorList []string
-	clusterId := ""
-	for _, possibleNS := range possibleNSList {
-		clusterInfoCM := &corev1.ConfigMap{}
-		err := k8sClient.Get(context.Background(), client.ObjectKey{
-			Name:      "cluster-info",
-			Namespace: possibleNS,
-		}, clusterInfoCM)
-		if err == nil {
-			return string(clusterInfoCM.GetUID()), nil
-		} else if !k8sErrors.IsNotFound(err) {
-			errorList = append(errorList, err.Error())
-		}
-	}
-	if len(errorList) == 0 {
-		return clusterId, fmt.Errorf("no cluster info found")
-	}
-	return clusterId, errors.New(strings.Join(errorList, ","))
 }

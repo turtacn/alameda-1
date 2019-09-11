@@ -3,7 +3,7 @@ module github.com/containers-ai/alameda/notifier
 go 1.13
 
 require (
-	github.com/containers-ai/alameda v4.2.280+incompatible
+	github.com/containers-ai/alameda v4.2.284-0.20190911125631-de12e2e331f7+incompatible
 	github.com/containers-ai/api v0.0.0-20190905124947-c333486576ed
 	github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96 // indirect
 	github.com/elazarl/goproxy v0.0.0-20170405201442-c4fc26588b6e // indirect
@@ -31,7 +31,6 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
-	k8s.io/api v0.0.0-20190409021203-6e4e0e4f393b
 	k8s.io/apimachinery v0.0.0-20190816221834-a9f1d8a9c101
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	k8s.io/klog v0.4.0 // indirect
