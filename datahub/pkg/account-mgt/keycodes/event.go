@@ -13,6 +13,11 @@ import (
 func NewKeycodeEvent(level DatahubV1alpha1.EventLevel, message string) *DatahubV1alpha1.Event {
 	namespace := K8SUtils.GetRunningNamespace()
 
+	clusterId, err := K8SUtils.GetClusterUID(K8SClient)
+	if err != nil {
+		scope.Errorf("failed to get cluster id: %s", err.Error())
+	}
+
 	source := &DatahubV1alpha1.EventSource{
 		Host:      "",
 		Component: fmt.Sprintf("%s-datahub", namespace),
@@ -26,15 +31,17 @@ func NewKeycodeEvent(level DatahubV1alpha1.EventLevel, message string) *DatahubV
 	}
 
 	event := &DatahubV1alpha1.Event{
-		Time:    &timestamp.Timestamp{Seconds: time.Now().Unix()},
-		Id:      AlamedaUtils.GenerateUUID(),
-		Source:  source,
-		Type:    DatahubV1alpha1.EventType_EVENT_TYPE_LICENSE,
-		Version: DatahubV1alpha1.EventVersion_EVENT_VERSION_V1,
-		Level:   level,
-		Subject: subject,
-		Message: message,
+		Time:      &timestamp.Timestamp{Seconds: time.Now().Unix()},
+		Id:        AlamedaUtils.GenerateUUID(),
+		ClusterId: clusterId,
+		Source:    source,
+		Type:      DatahubV1alpha1.EventType_EVENT_TYPE_LICENSE,
+		Version:   DatahubV1alpha1.EventVersion_EVENT_VERSION_V1,
+		Level:     level,
+		Subject:   subject,
+		Message:   message,
 	}
+
 	return event
 }
 

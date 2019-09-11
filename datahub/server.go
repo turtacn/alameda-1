@@ -7,10 +7,10 @@ import (
 	DatahubConfig "github.com/containers-ai/alameda/datahub/pkg/config"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	OperatorAPIs "github.com/containers-ai/alameda/operator/pkg/apis"
+	K8SUtils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	DatahubKeycodes "github.com/containers-ai/api/datahub/keycodes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -29,15 +29,7 @@ type Server struct {
 }
 
 var (
-	scope         = Log.RegisterScope("gRPC", "gRPC server log", 0)
-	tmpTimestamps = []*timestamp.Timestamp{
-		&timestamp.Timestamp{Seconds: 1545809000},
-		&timestamp.Timestamp{Seconds: 1545809030},
-		&timestamp.Timestamp{Seconds: 1545809060},
-		&timestamp.Timestamp{Seconds: 1545809090},
-		&timestamp.Timestamp{Seconds: 1545809120},
-		&timestamp.Timestamp{Seconds: 1545809150},
-	}
+	scope = Log.RegisterScope("gRPC", "gRPC server log", 0)
 )
 
 func NewServer(cfg DatahubConfig.Config) (*Server, error) {
@@ -48,18 +40,23 @@ func NewServer(cfg DatahubConfig.Config) (*Server, error) {
 		k8sCli client.Client
 	)
 
+	// Validate datahub configuration
 	if err = cfg.Validate(); err != nil {
-		return server, errors.New("Configuration validation failed: " + err.Error())
+		return server, errors.New("Failed to validate datahub configuration: " + err.Error())
 	}
+
+	// Instance kubernetes client
+	if k8sCli, err = K8SUtils.NewK8SClient(); err != nil {
+		return server, err
+	}
+
+	// Get kubernetes configuration
 	k8sClientConfig, err := config.GetConfig()
 	if err != nil {
-		return server, errors.New("Get kubernetes configuration failed: " + err.Error())
+		return server, errors.New("Failed to get kubernetes configuration: " + err.Error())
 	}
 
-	if k8sCli, err = client.New(k8sClientConfig, client.Options{}); err != nil {
-		return server, errors.New("Create kubernetes client failed: " + err.Error())
-	}
-
+	// Add alameda CR
 	mgr, err := manager.New(k8sClientConfig, manager.Options{})
 	if err != nil {
 		scope.Error(err.Error())
@@ -95,7 +92,7 @@ func (s *Server) Run() error {
 	}
 	s.server = server
 
-	s.Register(server)
+	s.register(server)
 	reflection.Register(server)
 
 	if err := server.Serve(ln); err != nil {
@@ -154,7 +151,7 @@ func (s *Server) newGRPCServer() (*grpc.Server, error) {
 	return server, nil
 }
 
-func (s *Server) Register(server *grpc.Server) {
+func (s *Server) register(server *grpc.Server) {
 	v1alpha1Srv := v1alpha1.NewService(&s.Config, s.K8SClient)
 	DatahubV1alpha1.RegisterDatahubServiceServer(server, v1alpha1Srv)
 

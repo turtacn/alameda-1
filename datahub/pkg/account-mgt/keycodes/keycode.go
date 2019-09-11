@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalLdap "github.com/containers-ai/alameda/internal/pkg/database/ldap"
+	K8SUtils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sync"
 	"time"
 )
@@ -22,6 +24,7 @@ var (
 	KeycodeMutex     sync.Mutex
 	InfluxConfig     *InternalInflux.Config
 	LdapConfig       *InternalLdap.Config
+	K8SClient        client.Client
 )
 
 type Keycode struct {
@@ -76,6 +79,12 @@ func KeycodeInit(config *Config) error {
 	KeycodeAesKey = config.AesKey
 	InfluxConfig = config.InfluxDB
 	LdapConfig = config.Ldap
+
+	k8sClient, err := K8SUtils.NewK8SClient()
+	if err != nil {
+		return err
+	}
+	K8SClient = k8sClient
 
 	return nil
 }
