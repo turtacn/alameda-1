@@ -55,6 +55,8 @@ var (
 	sigsK8SClient        sigs_k8s_client.Client
 	datahubServiceClient datahub_v1alpha1.DatahubServiceClient
 
+	clusterID string
+
 	RunCmd = &cobra.Command{
 		Use:              "run",
 		Short:            "start alameda admission-controller server",
@@ -90,7 +92,8 @@ var (
 				},
 				sigsK8SClient,
 				datahubServiceClient,
-				getJSONPatchValidationFunction())
+				getJSONPatchValidationFunction(),
+				clusterID)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -228,6 +231,12 @@ func prepareRequirements() error {
 	if err != nil {
 		return errors.Wrap(err, "prepare requirements failed")
 	}
+
+	err = prepareClusterID()
+	if err != nil {
+		return errors.Wrap(err, "prepare cluster UID failed")
+	}
+
 	return nil
 }
 
@@ -290,6 +299,18 @@ func prepareMutatingWebhookConfigurationInstance() error {
 			},
 		},
 	}
+
+	return nil
+}
+
+func prepareClusterID() error {
+
+	var err error
+	clusterID, err = k8s_utils.GetClusterUID(sigsK8SClient)
+	if err != nil {
+		return errors.Wrap(err, "get cluster uid failed")
+	}
+	scope.Debugf("Cluster UID: %s", clusterID)
 
 	return nil
 }

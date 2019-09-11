@@ -8,6 +8,7 @@ import (
 	"github.com/containers-ai/alameda/cmd/app"
 	"github.com/containers-ai/alameda/evictioner/pkg/eviction"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
+	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	openshift_apps "github.com/openshift/api/apps"
 	"github.com/spf13/cobra"
@@ -75,11 +76,19 @@ func startEvictioner() {
 		scope.Error(err.Error())
 	}
 
+	clusterID, err := k8s_utils.GetClusterUID(k8sCli)
+	if err != nil {
+		scope.Errorf("Get cluster UID failed: %s", err.Error())
+		return
+	}
+	scope.Debugf("Cluster UID: %s", clusterID)
+
 	evictioner := eviction.NewEvictioner(config.Eviction.CheckCycle,
 		datahubServiceClnt,
 		k8sCli,
 		*config.Eviction,
 		config.Eviction.PurgeContainerCPUMemory,
+		clusterID,
 	)
 	evictioner.Start()
 	var wg sync.WaitGroup

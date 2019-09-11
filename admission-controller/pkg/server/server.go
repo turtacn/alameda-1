@@ -78,10 +78,12 @@ type admissionController struct {
 	controllerValidator   controller_validator.Validator
 
 	podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc
+
+	clusterID string
 }
 
 // NewAdmissionControllerWithConfig creates AdmissionController with configuration and dependencies
-func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, datahubClient datahub_v1alpha1.DatahubServiceClient, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc) (AdmissionController, error) {
+func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, datahubClient datahub_v1alpha1.DatahubServiceClient, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc, clusterID string) (AdmissionController, error) {
 
 	defaultOwnerReferenceTracer, err := metadata_utils.NewDefaultOwnerReferenceTracer()
 	if err != nil {
@@ -113,6 +115,8 @@ func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, d
 		controllerValidator:   controllerValidator,
 
 		podMutatePatchValdationFunction: podMutatePatchValdationFunction,
+
+		clusterID: clusterID,
 	}
 
 	return ac, nil
@@ -243,7 +247,7 @@ func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) 
 	admissionResponse.Patch = []byte(patchString)
 	admissionResponse.PatchType = &patchType
 
-	event := newPodPatchEvent(pod.Namespace, pod.OwnerReferences[0])
+	event := newPodPatchEvent(pod.Namespace, ac.clusterID, pod.OwnerReferences[0])
 	events[0] = &event
 
 	return admissionResponse, events, nil

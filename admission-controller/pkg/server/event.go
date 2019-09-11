@@ -12,11 +12,10 @@ const (
 	componentName = "admission-controller"
 )
 
-func newPodPatchEvent(namespace string, ownRef metav1.OwnerReference) datahub_v1alpha1.Event {
+func newPodPatchEvent(namespace, clusterID string, ownRef metav1.OwnerReference) datahub_v1alpha1.Event {
 
 	now := ptypes.TimestampNow()
 	id := uuid.NewUUID()
-	clusterID := ""
 	source := datahub_v1alpha1.EventSource{
 		Host:      "",
 		Component: componentName,

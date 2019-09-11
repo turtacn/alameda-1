@@ -17,7 +17,7 @@ const (
 	defaultPodAPIVersion = "v1"
 )
 
-func newPodEvictEvent(subjectObject metav1.Object, subjectType metav1.TypeMeta) datahub_v1alpha1.Event {
+func newPodEvictEvent(clusterID string, subjectObject metav1.Object, subjectType metav1.TypeMeta) datahub_v1alpha1.Event {
 
 	if subjectType.Kind == "" {
 		subjectType.Kind = defaultPodKind
@@ -28,7 +28,6 @@ func newPodEvictEvent(subjectObject metav1.Object, subjectType metav1.TypeMeta) 
 
 	now := ptypes.TimestampNow()
 	id := uuid.NewUUID()
-	clusterID := ""
 	source := datahub_v1alpha1.EventSource{
 		Host:      "",
 		Component: componentName,

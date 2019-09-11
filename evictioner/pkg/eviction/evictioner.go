@@ -37,6 +37,8 @@ type Evictioner struct {
 	k8sClienit              client.Client
 	evictCfg                Config
 	purgeContainerCPUMemory bool
+
+	clusterID string
 }
 
 // NewEvictioner return Evictioner instance
@@ -44,13 +46,15 @@ func NewEvictioner(checkCycle int64,
 	datahubClnt datahub_v1alpha1.DatahubServiceClient,
 	k8sClienit client.Client,
 	evictCfg Config,
-	purgeContainerCPUMemory bool) *Evictioner {
+	purgeContainerCPUMemory bool,
+	clusterID string) *Evictioner {
 	return &Evictioner{
 		checkCycle:              checkCycle,
 		datahubClnt:             datahubClnt,
 		k8sClienit:              k8sClienit,
 		evictCfg:                evictCfg,
 		purgeContainerCPUMemory: purgeContainerCPUMemory,
+		clusterID:               clusterID,
 	}
 }
 
@@ -118,7 +122,7 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecomm
 				if err != nil {
 					scope.Errorf("Evict pod (%s,%s) failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
 				} else {
-					e := newPodEvictEvent(&recPodIns.ObjectMeta, recPodIns.TypeMeta)
+					e := newPodEvictEvent(evictioner.clusterID, &recPodIns.ObjectMeta, recPodIns.TypeMeta)
 					events = append(events, &e)
 				}
 			}
@@ -127,7 +131,7 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecomm
 			if err != nil {
 				scope.Errorf("Evict pod (%s,%s) failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
 			} else {
-				e := newPodEvictEvent(&recPodIns.ObjectMeta, recPodIns.TypeMeta)
+				e := newPodEvictEvent(evictioner.clusterID, &recPodIns.ObjectMeta, recPodIns.TypeMeta)
 				events = append(events, &e)
 			}
 		}
