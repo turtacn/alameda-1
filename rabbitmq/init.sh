@@ -1,9 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env sh
 #
 
 MQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
 MQ_PASSWD=${RABBITMQ_DEFAULT_PASS:-adminpass}
-MQ_PREDICT_QUEUE_NAME=${MQ_PREDICT_QUEUE_NAME:-predict}
 
 check_rabbitmq_status()
 {
@@ -16,27 +15,27 @@ check_rabbitmq_status()
 
 check_queue_dedup()
 {
-echo "Checking queue deduplication"
-
-queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep $MQ_PREDICT_QUEUE_NAME | cut -d '|' -f 3 | awk '{$1=$1;print}'`
+local queue_name=$1
+echo "Checking queue $queue_name deduplication"
+queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep $queue_name | cut -d '|' -f 3 | awk '{$1=$1;print}'`
 
 if [ "$queue_size" == "" ]; then
     echo "no result"
 	return
 else
     get_queue_count=$((2 * $queue_size))
-	rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD get queue=$MQ_PREDICT_QUEUE_NAME count=$get_queue_count | grep $MQ_PREDICT_QUEUE_NAME | cut -d '|' -f 5 | sort | awk '{$1=$1;print}' > /tmp/content
+	rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD get queue=$queue_name count=$get_queue_count | grep $queue_name | cut -d '|' -f 5 | sort | awk '{$1=$1;print}' > /tmp/content
 	lines=`cat /tmp/content | wc -l`
 	uniq_content=`cat /tmp/content | sort | uniq > /tmp/uniq_content`
 	uniq_lines=`cat /tmp/uniq_content | wc -l`
 	if [ "$lines" != "$uniq_lines" ]; then
 		echo "message duplicated. Try to recreate the queue"
-		rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete queue name=$MQ_PREDICT_QUEUE_NAME
-		rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare queue name=$MQ_PREDICT_QUEUE_NAME arguments='{"x-message-deduplication":true}'
+		rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete queue name=$queue_name
+		rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare queue name=$queue_name arguments='{"x-message-deduplication":true}'
 		while read p; do
 #		    echo "publish $p"
 			message_md5=`echo '$p' | md5sum | cut -f1 -d" "`
-			rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD publish exchange=amq.default routing_key=$MQ_PREDICT_QUEUE_NAME payload='$p' properties='{"headers":{"x-deduplication-header":"$message_md5"}}'
+			rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD publish exchange=amq.default routing_key=$queue_name payload='$p' properties='{"headers":{"x-deduplication-header":"$message_md5"}}'
 		done </tmp/uniq_content
 	fi
 fi
@@ -48,7 +47,9 @@ do_crond()
     while :; do
         sleep ${sleep_time}
         echo "doing crond jobs"
-        check_queue_dedup
+        for qn in predict model; do
+            check_queue_dedup $qn
+        done
         echo "done crond jobs. Sleeing ${sleep_time}"
     done
     exit 0
@@ -82,5 +83,3 @@ rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete user name=guest
 
 echo "Running daemon jobs"
 do_crond
-
-

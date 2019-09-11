@@ -2,6 +2,9 @@ package queue
 
 import (
 	"encoding/json"
+	"time"
+
+	"github.com/streadway/amqp"
 )
 
 type job struct {
@@ -16,7 +19,7 @@ type jobBuilder struct {
 }
 
 func NewJobBuilder(unitType string, granularitySec int64, payloadJSONString string) *jobBuilder {
-	granularity := getGranularityStr(granularitySec)
+	granularity := GetGranularityStr(granularitySec)
 	job := &job{
 		UnitType:          unitType,
 		GranularitySec:    granularitySec,
@@ -34,7 +37,7 @@ func (jobBuilder *jobBuilder) GetJobJSONString() (string, error) {
 	return string(jobJSONBin), err
 }
 
-func getGranularityStr(granularitySec int64) string {
+func GetGranularityStr(granularitySec int64) string {
 	if granularitySec == 30 {
 		return "30s"
 	} else if granularitySec == 3600 {
@@ -45,4 +48,16 @@ func getGranularityStr(granularitySec int64) string {
 		return "24h"
 	}
 	return "30s"
+}
+
+func GetQueueConn(queueURL string, retryItvMS int64) *amqp.Connection {
+	for {
+		queueConn, err := amqp.Dial(queueURL)
+		if err != nil {
+			scope.Errorf("Queue connection constructs failed and will retry after %v milliseconds. %s", retryItvMS, err.Error())
+			time.Sleep(time.Duration(retryItvMS) * time.Millisecond)
+			continue
+		}
+		return queueConn
+	}
 }

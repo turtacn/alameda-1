@@ -1,0 +1,61 @@
+[datahub]
+address = "datahub.alameda.svc.cluster.local:50050"
+connRetry = 5
+
+[queue]
+url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
+  [queue.retry]
+  publishTime = 3
+  publishIntervalMs = 500
+  consumeTime = 3
+  consumeIntervalMs = 500
+  connectIntervalMs = 3000
+  [queue.consumer]
+  reconnectInterval = 30 #seconds
+
+[serviceSetting]
+granularities = ["30s", "1h", "6h", "24h"]
+predictUnits = ["POD", "NODE"]
+
+[granularities]
+
+  [granularities.24h]
+  dataGranularity = "24h"
+  dataGranularitySec = 86400
+  predictionSteps = 30
+  modelThreshold = 10
+
+  [granularities.6h]
+  dataGranularity = "6h"
+  dataGranularitySec = 21600
+  predictionSteps = 30
+  modelThreshold = 10
+
+  [granularities.1h]
+  dataGranularity = "1h"
+  dataGranularitySec = 3600
+  predictionSteps = 30
+  modelThreshold = 10
+
+  [granularities.30s]
+  dataGranularity = "30s"
+  dataGranularitySec = 30
+  predictionSteps = 30
+  modelThreshold = 10
+
+[predictUnits]
+
+  [predictUnits.POD]
+  type = "POD"
+
+  [predictUnits.NODE]
+  type = "NODE"
+
+[log]
+setLogcallers = true
+outputLevel = "info" # debug, info, warn, error, fatal, none
+
+[model]
+enabled = false
+threshold = 10
+timeout = 30

@@ -12,6 +12,8 @@ import (
 type retry struct {
 	publishRetryTime       int
 	publishRetryIntervalMS int64
+	consumeRetryTime       int
+	consumeRetryIntervalMS int64
 }
 
 type RabbitMQSender struct {
@@ -25,6 +27,9 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
 		queueCH, err := sender.conn.Channel()
 
 		if err != nil {
+			if retry == (publishRetryTime - 1) {
+				return err
+			}
 			continue
 		}
 		defer queueCH.Close()
@@ -39,6 +44,9 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
 			}, // arguments
 		)
 		if err != nil {
+			if retry == (publishRetryTime - 1) {
+				return err
+			}
 			continue
 		}
 
@@ -56,16 +64,17 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
 				},
 			})
 
-		if err == nil {
-			break
-		}
-
-		if retry == (publishRetryTime - 1) {
-			return err
+		if err != nil {
+			if retry == (publishRetryTime - 1) {
+				return err
+			}
+			continue
+		} else {
+			return nil
 		}
 		time.Sleep(time.Duration(publishRetryIntervalMS) * time.Millisecond)
 	}
-	return nil
+	return fmt.Errorf("unknown error to send message to queue %s", queueName)
 }
 
 func NewRabbitMQSender(conn *amqp.Connection) *RabbitMQSender {

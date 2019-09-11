@@ -12,4 +12,6 @@ var scope = log.RegisterScope("queue", "job queue", 0)
 const (
 	DEFAULT_PUBLISH_RETRY_TIME              = 3
 	DEFAULT_PUBLISH_RETRY_INTERVAL_MS int64 = 500
+	DEFAULT_CONSUME_RETRY_TIME              = 3
+	DEFAULT_CONSUME_RETRY_INTERVAL_MS int64 = 500
 )

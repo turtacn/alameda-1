@@ -34,11 +34,12 @@ func init() {
 }
 
 func parseProbeFlag() {
-	ProbeCmd.Flags().StringVar(&probeType, "type", PROBE_TYPE_READINESS, "The probe type for ai dispatcher.")
+	ProbeCmd.Flags().StringVar(&probeType, "type", PROBE_TYPE_READINESS,
+		"The probe type for ai dispatcher.")
 }
 
 func startProbing() {
-	datahubAddr := viper.GetString("datahubAddress")
+	datahubAddr := viper.GetString("datahub.address")
 	if probeType == PROBE_TYPE_LIVENESS {
 		probe.LivenessProbe(&probe.LivenessProbeConfig{})
 	} else if probeType == PROBE_TYPE_READINESS {
@@ -47,7 +48,8 @@ func startProbing() {
 			QueueURL:    viper.GetString("queue.url"),
 		})
 	} else {
-		scope.Errorf("Probe type does not supports %s, please try %s or %s.", probeType, PROBE_TYPE_LIVENESS, PROBE_TYPE_READINESS)
+		scope.Errorf("Probe type does not supports %s, please try %s or %s.",
+			probeType, PROBE_TYPE_LIVENESS, PROBE_TYPE_READINESS)
 		os.Exit(1)
 	}
 }
