@@ -131,8 +131,10 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof("Start sending %v node jobs to queue with granularity %v seconds.",
 			len(nodes), granularity)
 		dispatcher.predictJobSender.sendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
-		dispatcher.modelJobSender.sendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
-			predictionStep)
+		if viper.GetBool("queue.enabled") {
+			dispatcher.modelJobSender.sendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
+				predictionStep)
+		}
 		scope.Infof("Sending %v node jobs to queue completely with granularity %v seconds.",
 			len(nodes), granularity)
 
