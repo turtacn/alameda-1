@@ -17,29 +17,19 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var (
-	scope = logUtil.RegisterScope("datahub node repository", "datahub node repository", 0)
+type role = string
+
+const (
+	masterRole role = "master"
 )
 
-// instance-typ --> size
-var nodeLabels = `{      
-	"beta.kubernetes.io/arch": "amd64",
-	"beta.kubernetes.io/instance-type": "c4.xlarge",
-	"beta.kubernetes.io/os": "linux",
-	"failure-domain.beta.kubernetes.io/region": "us-west-2",
-	"failure-domain.beta.kubernetes.io/zone": "us-west-2a",
-	"kubernetes.io/arch": "amd64",
-	"kubernetes.io/hostname": "ip-172-23-1-67.us-west-2.compute.internal",
-	"kubernetes.io/os": "linux",
-	"stackpoint.io/cluster_id": "23391",
-	"stackpoint.io/instance_id": "netatt9dgn-worker-2",
-	"stackpoint.io/node_group": "autoscaling-netatt9dgn-pool-1",
-	"stackpoint.io/node_id": "91192",
-	"stackpoint.io/node_pool": "Default-Worker-Pool",
-	"stackpoint.io/private_ip": "172.23.1.67",
-	"stackpoint.io/role": "worker",
-	"stackpoint.io/size": "c4.xlarge"
-}`
+var (
+	scope = logUtil.RegisterScope("datahub node repository", "datahub node repository", 0)
+
+	roleMap = map[string]role{
+		"node-role.kubernetes.io/master": masterRole,
+	}
+)
 
 // providerID: aws:///us-west-2a/i-0769ec8570198bf4b --> <provider_raw>//<region>//<instance_id>
 
@@ -61,8 +51,8 @@ type nodeInfo struct {
 	MemoryBytes  int64
 }
 
-// newNode creates node from k8s node
-func newNode(k8sNode corev1.Node) (nodeInfo, error) {
+// newNodeInfo creates node from k8s node
+func newNodeInfo(k8sNode corev1.Node) (nodeInfo, error) {
 	node := nodeInfo{Name: k8sNode.Name, Namespace: k8sNode.Namespace, Kind: k8sNode.Kind}
 	rf := reflect.TypeOf(node)
 	rv := reflect.ValueOf(&node).Elem()
@@ -86,6 +76,15 @@ func newNode(k8sNode corev1.Node) (nodeInfo, error) {
 		}
 	}
 
+	if node.Role == "" {
+		for key, role := range roleMap {
+			if _, exist := k8sNode.Labels[key]; exist {
+				node.Role = role
+				break
+			}
+		}
+	}
+
 	if len(k8sNode.Spec.ProviderID) > 0 {
 		provider, _, instanceID := parseProviderID(k8sNode.Spec.ProviderID)
 		node.Provider = provider
@@ -106,7 +105,6 @@ func newNode(k8sNode corev1.Node) (nodeInfo, error) {
 		return nodeInfo{}, errors.Errorf("cannot convert memory capacity from k8s Node")
 	}
 	node.MemoryBytes = memoryBytes
- 
 
 	return node, nil
 }
@@ -201,7 +199,7 @@ func (repo *AlamedaNodeRepository) CreateAlamedaNode(nodes []*corev1.Node) error
 func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*corev1.Node) error {
 	alamedaNodes := []*datahub_v1alpha1.Node{}
 	for _, node := range nodes {
-		n, err := newNode(*node)
+		n, err := newNodeInfo(*node)
 		if err != nil {
 			scope.Errorf("Create nodeInfo failed, skip creating node (%s) to Datahub, error message: %s", node.GetName(), err.Error())
 			continue

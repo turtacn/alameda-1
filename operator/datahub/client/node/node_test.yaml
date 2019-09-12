@@ -1,0 +1,307 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"46:ff:9d:7a:85:aa"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.112
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-08-15T09:42:38Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: t2.medium
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-112.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/master: ""
+      stackpoint.io/cluster_id: "23391"
+      stackpoint.io/instance_id: netatt9dgn-master-1
+      stackpoint.io/node_group: ""
+      stackpoint.io/node_id: "91190"
+      stackpoint.io/node_pool: ""
+      stackpoint.io/private_ip: 172.23.1.112
+      stackpoint.io/role: master
+      stackpoint.io/size: t2.medium
+    name: ip-172-23-1-112.us-west-2.compute.internal
+    resourceVersion: "673755"
+    selfLink: /api/v1/nodes/ip-172-23-1-112.us-west-2.compute.internal
+    uid: ffc8c3f2-f9f6-4303-aa72-2b72fe816e2b
+  spec:
+    podCIDR: 10.2.0.0/24
+    providerID: aws:///us-west-2a/i-0769ec8570198bf4b
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+  status:
+    addresses:
+    - address: 172.23.1.112
+      type: InternalIP
+    - address: 54.218.143.157
+      type: ExternalIP
+    - address: ip-172-23-1-112.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-112.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: "46779129369"
+      hugepages-2Mi: "0"
+      memory: 3935768Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: 50758604Ki
+      hugepages-2Mi: "0"
+      memory: 4038168Ki
+      pods: "110" 
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250 
+    nodeInfo:
+      architecture: amd64
+      bootID: 6f24faca-8584-49bf-b9f0-063f6dabbe67
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1044-aws
+      kubeProxyVersion: v1.15.2
+      kubeletVersion: v1.15.2
+      machineID: 8b15f85de03d4f368c07e675e4c32b1e
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.2 LTS
+      systemUUID: EC212DED-1F55-4526-F115-CCACEB7315E0
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"02:46:55:86:87:da"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.63
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-08-15T09:43:36Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: c4.xlarge
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-63.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      stackpoint.io/cluster_id: "23391"
+      stackpoint.io/instance_id: netatt9dgn-worker-1
+      stackpoint.io/node_group: autoscaling-netatt9dgn-pool-1
+      stackpoint.io/node_id: "91191"
+      stackpoint.io/node_pool: Default-Worker-Pool
+      stackpoint.io/private_ip: 172.23.1.63
+      stackpoint.io/role: worker
+      stackpoint.io/size: c4.xlarge
+    name: ip-172-23-1-63.us-west-2.compute.internal
+    resourceVersion: "673764"
+    selfLink: /api/v1/nodes/ip-172-23-1-63.us-west-2.compute.internal
+    uid: 385e1a95-9b74-4385-b706-1cd3cfc43a42
+  spec:
+    podCIDR: 10.2.1.0/24
+    providerID: aws:///us-west-2a/i-0364d9b65e9d1f973
+  status:
+    addresses:
+    - address: 172.23.1.63
+      type: InternalIP
+    - address: 54.71.208.125
+      type: ExternalIP
+    - address: ip-172-23-1-63.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-63.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: "46779129369"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7548444Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: 50758604Ki
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7650844Ki
+      pods: "110"
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    nodeInfo:
+      architecture: amd64
+      bootID: 50e02a2a-1e1f-4382-802c-5d4fb5bd9c1c
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1044-aws
+      kubeProxyVersion: v1.15.2
+      kubeletVersion: v1.15.2
+      machineID: 1b421c05cd0641b7a9f7eb7e38832371
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.2 LTS
+      systemUUID: EC2FC1C2-2205-205E-A7B4-622D5CC2CB59
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"62:4c:b5:93:c1:2c"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.67
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-08-15T09:43:37Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: c4.xlarge
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-67.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      stackpoint.io/cluster_id: "23391"
+      stackpoint.io/instance_id: netatt9dgn-worker-2
+      stackpoint.io/node_group: autoscaling-netatt9dgn-pool-1
+      stackpoint.io/node_id: "91192"
+      stackpoint.io/node_pool: Default-Worker-Pool
+      stackpoint.io/private_ip: 172.23.1.67
+      stackpoint.io/role: worker
+      stackpoint.io/size: c4.xlarge
+    name: ip-172-23-1-67.us-west-2.compute.internal
+    resourceVersion: "673821"
+    selfLink: /api/v1/nodes/ip-172-23-1-67.us-west-2.compute.internal
+    uid: 95f2784d-eab7-4717-ad23-9e32c3c8df20
+  spec:
+    podCIDR: 10.2.2.0/24
+    providerID: aws:///us-west-2a/i-01a08072ceabff4ab
+  status:
+    addresses:
+    - address: 172.23.1.67
+      type: InternalIP
+    - address: 34.217.93.248
+      type: ExternalIP
+    - address: ip-172-23-1-67.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-67.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: "46779129369"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7548444Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: 50758604Ki
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7650844Ki
+      pods: "110"
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    nodeInfo:
+      architecture: amd64
+      bootID: 70891b93-bf5e-4e37-bcc1-ef2183d51059
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1044-aws
+      kubeProxyVersion: v1.15.2
+      kubeletVersion: v1.15.2
+      machineID: ffaf132f702647dda8c94f6c85d77c6c
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.2 LTS
+      systemUUID: EC24EC15-9A20-B6AF-2E7E-85A1C48DFC77
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"6e:85:9a:97:d6:62"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.41
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-09-11T02:09:45Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: t2.medium
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-41.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/master: ""
+      stackpoint.io/private_ip: 172.23.1.41
+    name: ip-172-23-1-41.us-west-2.compute.internal
+    resourceVersion: "259928"
+    selfLink: /api/v1/nodes/ip-172-23-1-41.us-west-2.compute.internal
+    uid: c74635ee-3ab3-4c37-a1ec-5d8b017704d1
+  spec:
+    podCIDR: 10.2.0.0/24
+    providerID: aws:///us-west-2a/i-00111fe27b416d50c
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+  status:
+    addresses:
+    - address: 172.23.1.41
+      type: InternalIP
+    - address: 52.12.215.53
+      type: ExternalIP
+    - address: ip-172-23-1-41.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-41.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: "46779129369"
+      hugepages-2Mi: "0"
+      memory: 3935768Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: 50758604Ki
+      hugepages-2Mi: "0"
+      memory: 4038168Ki
+      pods: "110"
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    nodeInfo:
+      architecture: amd64
+      bootID: 7d7e68b1-4058-40db-96d7-b66dead8a309
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1045-aws
+      kubeProxyVersion: v1.15.3
+      kubeletVersion: v1.15.3
+      machineID: 1b3f4be90ffd472884a3653640fa58ad
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.3 LTS
+      systemUUID: EC21B18B-C857-9045-9AAB-241E4ABFC920
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
