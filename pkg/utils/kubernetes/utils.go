@@ -63,7 +63,7 @@ func IsOKDCluster() (bool, error) {
 }
 
 func GetClusterUID(k8sClient client.Client) (string, error) {
-	possibleNSList := []string{"kube-service-catalog", "kube-public"}
+	possibleNSList := []string{"default"}
 	errorList := make([]string, 0)
 	clusterId := ""
 
