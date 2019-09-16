@@ -1,58 +1,4 @@
 {
-  "__inputs": [{
-      "name": "Prometheus-GPU",
-      "label": "Prometheus-GPU",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    },
-    {
-      "name": "InfluxDB-GPU",
-      "label": "InfluxDB-GPU",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    }
-  ],
-  "__requires": [{
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.4.3"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "singlestat",
-      "name": "Singlestat",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [{
       "builtIn": 1,
@@ -94,7 +40,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "decimals": null,
       "format": "locale",
       "gauge": {
@@ -111,7 +57,7 @@
         "y": 1
       },
       "id": 4,
-      "interval": null,
+      "interval": "15s",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [{
@@ -142,13 +88,46 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": true
       },
-      "tableColumn": "Value",
+      "tableColumn": "sum",
       "targets": [{
         "expr": "sum(nvidia_gpu_num_devices)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "SELECT sum(value) FROM \"alameda_gpu\"..\"nvidia_gpu_num_devices\" where $timeFilter group by time($interval) fill(none) order by time desc limit 1",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "",
       "timeFrom": null,
@@ -174,7 +153,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "decimals": 2,
       "format": "percent",
       "gauge": {
@@ -191,7 +170,7 @@
         "y": 1
       },
       "id": 5,
-      "interval": null,
+      "interval": "15s",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [{
@@ -222,13 +201,46 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": true
       },
-      "tableColumn": "Value",
+      "tableColumn": "mean",
       "targets": [{
         "expr": "avg(nvidia_gpu_duty_cycle)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "SELECT mean(value) FROM \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter and host = 'gn0808.twcc.ai' group by time($interval) fill(none) order by time desc /*limit 1*/",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "50,90",
       "timeFrom": null,
@@ -254,9 +266,9 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "-- Mixed --",
       "decimals": 2,
-      "format": "percentunit",
+      "format": "percent",
       "gauge": {
         "maxValue": 100,
         "minValue": 0,
@@ -271,7 +283,7 @@
         "y": 1
       },
       "id": 6,
-      "interval": null,
+      "interval": "",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [{
@@ -302,13 +314,47 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": true
       },
-      "tableColumn": "Value",
+      "tableColumn": "value",
       "targets": [{
+        "datasource": "InfluxDB",
         "expr": "sum(nvidia_gpu_memory_used_bytes) / sum(nvidia_gpu_memory_total_bytes)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select value * 100 from alameda_gpu..overall_gpu_memory_utilizatin where $timeFilter order by time desc limit 1",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "50,90",
       "timeFrom": null,
@@ -334,7 +380,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "decimals": null,
       "format": "decbytes",
       "gauge": {
@@ -351,7 +397,7 @@
         "y": 4
       },
       "id": 3,
-      "interval": null,
+      "interval": "15s",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [{
@@ -382,13 +428,46 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": true
       },
-      "tableColumn": "Value",
+      "tableColumn": "sum",
       "targets": [{
         "expr": "sum(nvidia_gpu_memory_total_bytes)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "SELECT sum(value) FROM \"alameda_gpu\"..\"nvidia_gpu_memory_total_bytes\" where $timeFilter group by time($interval) fill(none) order by time desc limit 1",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "",
       "timeFrom": null,
@@ -428,7 +507,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "The count of nodes that used less than $memory_utilization  of memory",
       "format": "short",
       "gauge": {
@@ -480,9 +559,42 @@
       "targets": [{
         "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select count(host) from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value <= $memory_utilization",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "90,180",
       "timeFrom": null,
@@ -499,7 +611,7 @@
     },
     {
       "columns": [],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "Low GPU memory utilization smaller than (<$memory_utilization)",
       "fontSize": "100%",
       "gridPos": {
@@ -534,7 +646,7 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "Value",
+          "pattern": "value",
           "thresholds": [],
           "type": "number",
           "unit": "percentunit"
@@ -559,11 +671,43 @@
       "targets": [{
         "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization",
         "format": "table",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
         "hide": false,
         "instant": true,
         "intervalFactor": 1,
         "legendFormat": "",
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select host, value from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value <= $memory_utilization",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "timeFrom": null,
       "timeShift": null,
@@ -576,8 +720,8 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${Prometheus-GPU}",
-      "fill": 1,
+      "datasource": "InfluxDB",
+      "fill": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -595,7 +739,7 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
       "options": {},
@@ -603,16 +747,53 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "Number of Nodes",
+        "color": "#5195ce"
+      }],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [{
+        "alias": "Number of Nodes",
         "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "intervalFactor": 1,
         "legendFormat": "Number of nodes",
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select * from (select count(host) from (select mean(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host, time(30s)) where value <= $memory_utilization group by time(30s))",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": [],
       "timeFrom": null,
@@ -666,7 +847,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "The count of nodes that used less than $gpu_utilization of GPU cycles",
       "format": "short",
       "gauge": {
@@ -683,7 +864,7 @@
         "y": 15
       },
       "id": 9,
-      "interval": null,
+      "interval": "15s",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [{
@@ -718,9 +899,42 @@
       "targets": [{
         "expr": "count(avg(nvidia_gpu_duty_cycle) by (host) <= $gpu_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select count from (select count(avg) from (select mean(value) as avg from \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by host, time($interval) fill(none)) where avg <= $gpu_utilization group by time($interval) ) ",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "90,180",
       "timeFrom": null,
@@ -737,7 +951,7 @@
     },
     {
       "columns": [],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "",
       "fontSize": "100%",
       "gridPos": {
@@ -747,6 +961,7 @@
         "y": 15
       },
       "id": 26,
+      "interval": "15s",
       "links": [],
       "options": {},
       "pageSize": null,
@@ -772,7 +987,7 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "Value",
+          "pattern": "avg",
           "thresholds": [],
           "type": "number",
           "unit": "percentunit"
@@ -795,12 +1010,45 @@
         }
       ],
       "targets": [{
+        "alias": "$tag_host",
         "expr": "avg(nvidia_gpu_duty_cycle / 100) by (host) < $gpu_utilization",
         "format": "table",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
         "hide": false,
         "instant": true,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select host, avg from (select last(avg) as avg from (select mean(value)/100 as avg from \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by host, time($interval) fill(-1)) where avg <> -0.01 group by host) where avg < $gpu_utilization",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "timeFrom": null,
       "timeShift": null,
@@ -813,8 +1061,8 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${Prometheus-GPU}",
-      "fill": 1,
+      "datasource": "InfluxDB",
+      "fill": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -822,6 +1070,7 @@
         "y": 15
       },
       "id": 30,
+      "interval": "15s",
       "legend": {
         "avg": false,
         "current": false,
@@ -832,7 +1081,7 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
       "options": {},
@@ -840,16 +1089,53 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "Number of Nodes",
+        "color": "#5195ce"
+      }],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [{
+        "alias": "Number of Nodes",
         "expr": "count(avg(nvidia_gpu_duty_cycle) by (host) <= $gpu_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "intervalFactor": 1,
         "legendFormat": "Number of nodes",
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select count from (select count(avg) from (select mean(value) as avg from \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by host, time($interval) fill(none)) where avg <= $gpu_utilization group by time($interval) ) ",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": [],
       "timeFrom": null,
@@ -871,7 +1157,7 @@
       },
       "yaxes": [{
           "decimals": 0,
-          "format": "none",
+          "format": "short",
           "label": "Number of nodes",
           "logBase": 1,
           "max": null,
@@ -884,7 +1170,7 @@
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -916,7 +1202,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "The count of nodes that used more than $high_memory_utilization  of memory",
       "format": "short",
       "gauge": {
@@ -968,9 +1254,42 @@
       "targets": [{
         "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select count(host) from(select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value >= $high_memory_utilization",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "90,180",
       "timeFrom": null,
@@ -980,14 +1299,14 @@
       "valueFontSize": "80%",
       "valueMaps": [{
         "op": "=",
-        "text": "N/A",
+        "text": "0",
         "value": "null"
       }],
       "valueName": "current"
     },
     {
       "columns": [],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "High GPU memory utilization larger than (>$high_memory_utilization)",
       "fontSize": "100%",
       "gridPos": {
@@ -1003,8 +1322,8 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 1,
-        "desc": false
+        "col": 2,
+        "desc": true
       },
       "styles": [{
           "alias": "Time",
@@ -1022,7 +1341,7 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "Value",
+          "pattern": "value",
           "thresholds": [],
           "type": "number",
           "unit": "percentunit"
@@ -1061,22 +1380,45 @@
         }
       ],
       "targets": [{
-          "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "refId": "A"
-        },
-        {
-          "expr": "avg(nvidia_gpu_duty_cycle) by (host) >= 90",
-          "format": "table",
-          "hide": true,
-          "instant": true,
-          "intervalFactor": 1,
-          "refId": "B"
-        }
-      ],
+        "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization",
+        "format": "table",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
+        "instant": true,
+        "intervalFactor": 1,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select host, value from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value >= $high_memory_utilization",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
+      }],
       "timeFrom": null,
       "timeShift": null,
       "title": "High GPU Memory Utilization (>$high_memory_utilization)",
@@ -1088,8 +1430,8 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${Prometheus-GPU}",
-      "fill": 1,
+      "datasource": "InfluxDB",
+      "fill": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -1107,7 +1449,7 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
       "options": {},
@@ -1115,16 +1457,52 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "Number of Nodes",
+        "color": "#5195ce"
+      }],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [{
+        "alias": "Number of Nodes",
         "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
         "intervalFactor": 1,
         "legendFormat": "Number of nodes",
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select * from (select count(host) from (select mean(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host, time(30s)) where value >= $high_memory_utilization group by time(30s))",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": [],
       "timeFrom": null,
@@ -1178,7 +1556,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "The count of node that used over $high_gpu_utilization GPU Utilization",
       "format": "short",
       "gauge": {
@@ -1195,7 +1573,7 @@
         "y": 30
       },
       "id": 20,
-      "interval": null,
+      "interval": "15s",
       "links": [],
       "mappingType": 1,
       "mappingTypes": [{
@@ -1230,9 +1608,42 @@
       "targets": [{
         "expr": "count(avg(nvidia_gpu_duty_cycle / 100) by (host) >= $high_gpu_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
         "instant": false,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select count from (select count(avg) from (select mean(value)/100 as avg from \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by host, time($interval) fill(none)) where avg >= $high_gpu_utilization group by time($interval) ) ",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": "90,180",
       "timeFrom": null,
@@ -1249,7 +1660,7 @@
     },
     {
       "columns": [],
-      "datasource": "${Prometheus-GPU}",
+      "datasource": "InfluxDB",
       "description": "High GPU cycle utilization larger than (>$high_gpu_utilization)",
       "fontSize": "100%",
       "gridPos": {
@@ -1259,6 +1670,7 @@
         "y": 30
       },
       "id": 27,
+      "interval": "15s",
       "links": [],
       "options": {},
       "pageSize": null,
@@ -1284,7 +1696,7 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "Value",
+          "pattern": "avg",
           "thresholds": [],
           "type": "number",
           "unit": "percentunit"
@@ -1304,31 +1716,48 @@
           "thresholds": [],
           "type": "string",
           "unit": "short"
-        },
-        {
-          "alias": "GPU",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "Value #B",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
         }
       ],
       "targets": [{
+        "alias": "$tag_host",
         "expr": "avg(nvidia_gpu_duty_cycle / 100) by (host) > $high_gpu_utilization",
         "format": "table",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
         "hide": false,
         "instant": true,
         "intervalFactor": 1,
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select last(avg) as avg from (select mean(value)/100 as avg from \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by host, time($interval)) where avg > $high_gpu_utilization group by host",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "timeFrom": null,
       "timeShift": null,
@@ -1341,8 +1770,8 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${Prometheus-GPU}",
-      "fill": 1,
+      "datasource": "InfluxDB",
+      "fill": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -1350,6 +1779,7 @@
         "y": 30
       },
       "id": 32,
+      "interval": "15s",
       "legend": {
         "avg": false,
         "current": false,
@@ -1360,7 +1790,7 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
       "options": {},
@@ -1368,16 +1798,52 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "Number of Nodes",
+        "color": "#5195ce"
+      }],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [{
+        "alias": "Number of Nodes",
         "expr": "count(avg(nvidia_gpu_duty_cycle / 100) by (host) >= $high_gpu_utilization)",
         "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
         "intervalFactor": 1,
         "legendFormat": "Number of nodes",
-        "refId": "A"
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select count from (select count(avg) from (select mean(value)/100 as avg from \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by host, time($interval) fill(none)) where avg >= $high_gpu_utilization group by time($interval) ) ",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
       }],
       "thresholds": [],
       "timeFrom": null,
@@ -1435,7 +1901,7 @@
     },
     {
       "columns": [],
-      "datasource": "${InfluxDB-GPU}",
+      "datasource": "InfluxDB",
       "fontSize": "100%",
       "gridPos": {
         "h": 11,
@@ -1451,104 +1917,69 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 1,
-        "desc": false
+        "col": 2,
+        "desc": true
       },
       "styles": [{
-        "alias": "Time",
-        "dateFormat": "YYYY-MM-DD HH:mm:ss",
-        "link": false,
-        "pattern": "Time",
-        "type": "date"
-      }, {
-        "alias": "Sum",
-        "colorMode": null,
-        "colors": [
-          "rgba(245, 54, 54, 0.9)",
-          "rgba(237, 129, 40, 0.89)",
-          "rgba(50, 172, 45, 0.97)"
-        ],
-        "dateFormat": "YYYY-MM-DD HH:mm:ss",
-        "decimals": 2,
-        "mappingType": 1,
-        "pattern": "sum",
-        "thresholds": [],
-        "type": "number",
-        "unit": "none"
-      }],
-      "targets": [{
-          "groupBy": [{
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"k8s\" WHERE $timeFilter GROUP BY time(5m), \"NodeName\"  FILL(none) ORDER BY time DESC  LIMIT 1",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [{
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "link": false,
+          "pattern": "Time",
+          "type": "date"
         },
         {
-          "groupBy": [{
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
+          "alias": "Sum",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
           ],
-          "hide": true,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT sum(\"value\") FROM \"k8s\" WHERE $timeFilter GROUP BY time(5m), \"NodeName\"  FILL(none) ",
-          "rawQuery": true,
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [{
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "sum",
+          "thresholds": [],
+          "type": "number",
+          "unit": "none"
         }
       ],
+      "targets": [{
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "hide": false,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select sum(\"value\") from alameda_gpu..gpu_counting_k8s where $timeFilter group by time(5m), \"NodeName\"  fill(none) order by time desc limit 1",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
+      }],
       "timeFrom": null,
       "timeShift": null,
       "title": "GPU Used for Pod in Node",
@@ -1556,6 +1987,7 @@
       "type": "table"
     }
   ],
+  "refresh": "30s",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
@@ -1569,10 +2001,11 @@
         "label": "Low Memory Utilization Threshold",
         "name": "memory_utilization",
         "options": [{
-          "text": "0.3",
-          "value": "0.3"
+          "selected": true,
+          "text": "0.5",
+          "value": "0.5"
         }],
-        "query": "0.3",
+        "query": "0.5",
         "skipUrlSync": false,
         "type": "textbox"
       },
@@ -1585,10 +2018,11 @@
         "label": "Low GPU Utilization Threshold",
         "name": "gpu_utilization",
         "options": [{
-          "text": "0.3",
-          "value": "0.3"
+          "selected": true,
+          "text": "0.5",
+          "value": "0.5"
         }],
-        "query": "0.3",
+        "query": "0.5",
         "skipUrlSync": false,
         "type": "textbox"
       },
@@ -1601,9 +2035,9 @@
         "label": "High Memory Utilization Threshold",
         "name": "high_memory_utilization",
         "options": [{
-          "selected": false,
-          "text": "0.7",
-          "value": "0.7"
+          "selected": true,
+          "text": "0.8",
+          "value": "0.8"
         }],
         "query": "0.8",
         "skipUrlSync": false,
@@ -1629,7 +2063,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
