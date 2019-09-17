@@ -74,7 +74,7 @@ var rootCmd = &cobra.Command{
 		granularities := viper.GetStringSlice("serviceSetting.granularities")
 		predictUnits := viper.GetStringSlice("serviceSetting.predictUnits")
 		modelMapper := dispatcher.NewModelMapper(predictUnits, granularities)
-		if viper.GetBool("queue.enabled") {
+		if viper.GetBool("model.enabled") {
 			go modelCompleteNotification(modelMapper)
 		}
 		dp := dispatcher.NewDispatcher(conn, granularities, predictUnits, modelMapper)

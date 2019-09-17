@@ -131,7 +131,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof("Start sending %v node jobs to queue with granularity %v seconds.",
 			len(nodes), granularity)
 		dispatcher.predictJobSender.sendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
-		if viper.GetBool("queue.enabled") {
+		if viper.GetBool("model.enabled") {
 			dispatcher.modelJobSender.sendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
@@ -151,7 +151,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof("Start sending %v pod jobs to queue with granularity %v seconds.",
 			len(pods), granularity)
 		dispatcher.predictJobSender.sendPodPredictJobs(pods, queueSender, pdUnit, granularity)
-		if viper.GetBool("queue.enabled") {
+		if viper.GetBool("model.enabled") {
 			dispatcher.modelJobSender.sendPodModelJobs(pods, queueSender, pdUnit, granularity,
 				predictionStep)
 		}

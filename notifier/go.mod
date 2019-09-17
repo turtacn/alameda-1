@@ -3,19 +3,19 @@ module github.com/containers-ai/alameda/notifier
 go 1.13
 
 require (
-	github.com/containers-ai/alameda v4.2.284+incompatible
-	github.com/containers-ai/api v0.0.0-20190905124947-c333486576ed
+	github.com/containers-ai/alameda v4.2.293+incompatible
+	github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/gofuzz v1.0.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/cobra v0.0.5 // indirect
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
-	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b // indirect
-	google.golang.org/genproto v0.0.0-20190911173649-1774047e7e51
+	golang.org/x/net v0.0.0-20190916140828-c8589233b77d // indirect
+	google.golang.org/genproto v0.0.0-20190916214212-f660b8655731
 	google.golang.org/grpc v1.23.1
 	gopkg.in/mail.v2 v2.3.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
