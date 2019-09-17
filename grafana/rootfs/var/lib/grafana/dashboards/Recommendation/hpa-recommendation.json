@@ -603,7 +603,7 @@
       "tableColumn": "current_cpu_limits",
       "targets": [
         {
-          "expr": "1000 * sum(sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
+          "expr": "1000 * sum(sum(kube_pod_container_resource_limits_cpu_cores{namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -719,7 +719,7 @@
       "tableColumn": "current_cpu_requests",
       "targets": [
         {
-          "expr": "1000 * sum(sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
+          "expr": "1000 * sum(sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -835,7 +835,7 @@
       "tableColumn": "current_mem_limits",
       "targets": [
         {
-          "expr": "sum(sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
+          "expr": "sum(sum(kube_pod_container_resource_limits_memory_bytes{namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
@@ -951,7 +951,7 @@
       "tableColumn": "current_mem_requests",
       "targets": [
         {
-          "expr": "sum(sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$controller.*\"}) by (namespace, pod))",
+          "expr": "sum(sum(kube_pod_container_resource_requests_memory_bytes{namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod) * sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$ns\", pod=~\"$pod\"}) by (namespace, pod))",
           "format": "time_series",
           "groupBy": [
             {
