@@ -340,6 +340,28 @@ func buildContainerEntitiesFromDatahubPod(pod *datahub_v1alpha1.Pod) ([]*EntityI
 
 		name = &datahubContainer.Name
 
+		resourceLimitCPU = nil
+		resourceLimitMemory = nil
+		resourceRequestCPU = nil
+		resourceRequestMemory = nil
+		statusWaitingReason = nil
+		statusWaitingMessage = nil
+		statusRunningStartedAt = nil
+		statusTerminatedExitCode = nil
+		statusTerminatedReason = nil
+		statusTerminatedMessage = nil
+		statusTerminatedStartedAt = nil
+		statusTerminatedFinishedAt = nil
+		lastTerminationStatusWaitingReason = nil
+		lastTerminationStatusWaitingMessage = nil
+		lastTerminationStatusRunningStartedAt = nil
+		lastTerminationStatusTerminatedExitCode = nil
+		lastTerminationStatusTerminatedReason = nil
+		lastTerminationStatusTerminatedMessage = nil
+		lastTerminationStatusTerminatedStartedAt = nil
+		lastTerminationStatusTerminatedFinishedAt = nil
+		restartCount = nil
+
 		for _, metricData := range datahubContainer.GetLimitResource() {
 			if data := metricData.GetData(); len(data) == 1 {
 				switch metricData.GetMetricType() {
@@ -709,10 +731,6 @@ func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatu
 		lastTerminationStatusTerminatedStartedAt  int64
 		lastTerminationStatusTerminatedFinishedAt int64
 		restartCount                              int32
-		resourceLimitCPU                          float64
-		resourceLimitMemory                       int64
-		resourceRequestCPU                        float64
-		resourceRequestMemory                     int64
 	)
 
 	if containerEntity.StatusWaitingReason != nil {
@@ -766,93 +784,94 @@ func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatu
 	if containerEntity.RestartCount != nil {
 		restartCount = *containerEntity.RestartCount
 	}
+
+	// Pack container
+	container := &datahub_v1alpha1.Container{}
+	container.Name = *containerEntity.Name
+	container.LimitResource = make([]*datahub_v1alpha1.MetricData, 0)
 	if containerEntity.ResourceLimitCPU != nil {
-		resourceLimitCPU = *containerEntity.ResourceLimitCPU
+		metricData := &datahub_v1alpha1.MetricData{
+			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+			Data: []*datahub_v1alpha1.Sample{
+				{
+					NumValue: strconv.FormatFloat(*containerEntity.ResourceLimitCPU, 'f', -1, 64),
+				},
+			},
+		}
+		container.LimitResource = append(container.LimitResource, metricData)
 	}
 	if containerEntity.ResourceLimitMemory != nil {
-		resourceLimitMemory = *containerEntity.ResourceLimitMemory
+		metricData := &datahub_v1alpha1.MetricData{
+			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+			Data: []*datahub_v1alpha1.Sample{
+				{
+					NumValue: strconv.FormatInt(*containerEntity.ResourceLimitMemory, 10),
+				},
+			},
+		}
+		container.LimitResource = append(container.LimitResource, metricData)
 	}
+	container.RequestResource = make([]*datahub_v1alpha1.MetricData, 0)
 	if containerEntity.ResourceRequestCPU != nil {
-		resourceRequestCPU = *containerEntity.ResourceRequestCPU
+		metricData := &datahub_v1alpha1.MetricData{
+			MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+			Data: []*datahub_v1alpha1.Sample{
+				{
+					NumValue: strconv.FormatFloat(*containerEntity.ResourceRequestCPU, 'f', -1, 64),
+				},
+			},
+		}
+		container.RequestResource = append(container.RequestResource, metricData)
 	}
 	if containerEntity.ResourceRequestMemory != nil {
-		resourceRequestMemory = *containerEntity.ResourceRequestMemory
+		metricData := &datahub_v1alpha1.MetricData{
+			MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+			Data: []*datahub_v1alpha1.Sample{
+				{
+					NumValue: strconv.FormatInt(*containerEntity.ResourceRequestMemory, 10),
+				},
+			},
+		}
+		container.RequestResource = append(container.RequestResource, metricData)
 	}
+	containerStatus := &datahub_v1alpha1.ContainerStatus{
+		State: &datahub_v1alpha1.ContainerState{
+			Waiting: &datahub_v1alpha1.ContainerStateWaiting{
+				Reason:  statusWaitingReason,
+				Message: statusWaitingMessage,
+			},
+			Running: &datahub_v1alpha1.ContainerStateRunning{
+				StartedAt: &timestamp.Timestamp{Seconds: statusRunningStartedAt},
+			},
+			Terminated: &datahub_v1alpha1.ContainerStateTerminated{
+				ExitCode:   statusTerminatedExitCode,
+				Reason:     statusTerminatedReason,
+				Message:    statusTerminatedMessage,
+				StartedAt:  &timestamp.Timestamp{Seconds: statusTerminatedStartedAt},
+				FinishedAt: &timestamp.Timestamp{Seconds: statusTerminatedFinishedAt},
+			},
+		},
+		LastTerminationState: &datahub_v1alpha1.ContainerState{
+			Waiting: &datahub_v1alpha1.ContainerStateWaiting{
+				Reason:  lastTerminationStatusWaitingReason,
+				Message: lastTerminationStatusWaitingMessage,
+			},
+			Running: &datahub_v1alpha1.ContainerStateRunning{
+				StartedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusRunningStartedAt},
+			},
+			Terminated: &datahub_v1alpha1.ContainerStateTerminated{
+				ExitCode:   lastTerminationStatusTerminatedExitCode,
+				Reason:     lastTerminationStatusTerminatedReason,
+				Message:    lastTerminationStatusTerminatedMessage,
+				StartedAt:  &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedStartedAt},
+				FinishedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedFinishedAt},
+			},
+		},
+		RestartCount: restartCount,
+	}
+	container.Status = containerStatus
 
-	return &datahub_v1alpha1.Container{
-		Name: *containerEntity.Name,
-		LimitResource: []*datahub_v1alpha1.MetricData{
-			&datahub_v1alpha1.MetricData{
-				MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-				Data: []*datahub_v1alpha1.Sample{
-					&datahub_v1alpha1.Sample{
-						NumValue: strconv.FormatFloat(resourceLimitCPU, 'f', -1, 64),
-					},
-				},
-			},
-			&datahub_v1alpha1.MetricData{
-				MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-				Data: []*datahub_v1alpha1.Sample{
-					&datahub_v1alpha1.Sample{
-						NumValue: strconv.FormatInt(resourceLimitMemory, 10),
-					},
-				},
-			},
-		},
-		RequestResource: []*datahub_v1alpha1.MetricData{
-			&datahub_v1alpha1.MetricData{
-				MetricType: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-				Data: []*datahub_v1alpha1.Sample{
-					&datahub_v1alpha1.Sample{
-						NumValue: strconv.FormatFloat(resourceRequestCPU, 'f', -1, 64),
-					},
-				},
-			},
-			&datahub_v1alpha1.MetricData{
-				MetricType: datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-				Data: []*datahub_v1alpha1.Sample{
-					&datahub_v1alpha1.Sample{
-						NumValue: strconv.FormatInt(resourceRequestMemory, 10),
-					},
-				},
-			},
-		},
-		Status: &datahub_v1alpha1.ContainerStatus{
-			State: &datahub_v1alpha1.ContainerState{
-				Waiting: &datahub_v1alpha1.ContainerStateWaiting{
-					Reason:  statusWaitingReason,
-					Message: statusWaitingMessage,
-				},
-				Running: &datahub_v1alpha1.ContainerStateRunning{
-					StartedAt: &timestamp.Timestamp{Seconds: statusRunningStartedAt},
-				},
-				Terminated: &datahub_v1alpha1.ContainerStateTerminated{
-					ExitCode:   statusTerminatedExitCode,
-					Reason:     statusTerminatedReason,
-					Message:    statusTerminatedMessage,
-					StartedAt:  &timestamp.Timestamp{Seconds: statusTerminatedStartedAt},
-					FinishedAt: &timestamp.Timestamp{Seconds: statusTerminatedFinishedAt},
-				},
-			},
-			LastTerminationState: &datahub_v1alpha1.ContainerState{
-				Waiting: &datahub_v1alpha1.ContainerStateWaiting{
-					Reason:  lastTerminationStatusWaitingReason,
-					Message: lastTerminationStatusWaitingMessage,
-				},
-				Running: &datahub_v1alpha1.ContainerStateRunning{
-					StartedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusRunningStartedAt},
-				},
-				Terminated: &datahub_v1alpha1.ContainerStateTerminated{
-					ExitCode:   lastTerminationStatusTerminatedExitCode,
-					Reason:     lastTerminationStatusTerminatedReason,
-					Message:    lastTerminationStatusTerminatedMessage,
-					StartedAt:  &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedStartedAt},
-					FinishedAt: &timestamp.Timestamp{Seconds: lastTerminationStatusTerminatedFinishedAt},
-				},
-			},
-			RestartCount: restartCount,
-		},
-	}
+	return container
 }
 
 func getDatahubPodIDString(containerEntity *EntityInfluxClusterStatus.ContainerEntity) string {
