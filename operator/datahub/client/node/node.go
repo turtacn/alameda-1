@@ -106,6 +106,12 @@ func newNodeInfo(k8sNode corev1.Node) (nodeInfo, error) {
 	}
 	node.MemoryBytes = memoryBytes
 
+	if regionMap, exist := providerRegionMap[node.Provider]; exist {
+		if region, exist := regionMap[node.Region]; exist {
+			node.Region = region
+		}
+	}
+
 	return node, nil
 }
 
