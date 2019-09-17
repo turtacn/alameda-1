@@ -283,20 +283,28 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 		entity.RestartCount = &value
 	}
 	if resourceRequestCPU, exist := data[ContainerResourceRequestCPU]; exist {
-		value, _ := strconv.ParseFloat(resourceRequestCPU, 64)
-		entity.ResourceRequestCPU = &value
+		if data[ContainerResourceRequestCPU] != "" {
+			value, _ := strconv.ParseFloat(resourceRequestCPU, 64)
+			entity.ResourceRequestCPU = &value
+		}
 	}
 	if resourceRequestMemory, exist := data[ContainerResourceRequestMemory]; exist {
-		value, _ := strconv.ParseInt(resourceRequestMemory, 10, 64)
-		entity.ResourceRequestMemory = &value
+		if data[ContainerResourceRequestMemory] != "" {
+			value, _ := strconv.ParseInt(resourceRequestMemory, 10, 64)
+			entity.ResourceRequestMemory = &value
+		}
 	}
 	if resourceLimitCPU, exist := data[ContainerResourceLimitCPU]; exist {
-		value, _ := strconv.ParseFloat(resourceLimitCPU, 64)
-		entity.ResourceLimitCPU = &value
+		if data[ContainerResourceLimitCPU] != "" {
+			value, _ := strconv.ParseFloat(resourceLimitCPU, 64)
+			entity.ResourceLimitCPU = &value
+		}
 	}
 	if resourceLimitMemory, exist := data[ContainerResourceLimitMemory]; exist {
-		value, _ := strconv.ParseInt(resourceLimitMemory, 10, 64)
-		entity.ResourceLimitMemory = &value
+		if data[ContainerResourceLimitMemory] != "" {
+			value, _ := strconv.ParseInt(resourceLimitMemory, 10, 64)
+			entity.ResourceLimitMemory = &value
+		}
 	}
 	if policy, exist := data[ContainerPolicy]; exist {
 		entity.Policy = &policy
