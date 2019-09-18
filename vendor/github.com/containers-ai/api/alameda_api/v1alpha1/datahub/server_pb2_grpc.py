@@ -222,6 +222,26 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsRequest.SerializeToString,
         response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsResponse.FromString,
         )
+    self.ListGpus = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListGpus',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpusRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpusResponse.FromString,
+        )
+    self.ListGpuMetrics = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListGpuMetrics',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuMetricsRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuMetricsResponse.FromString,
+        )
+    self.CreateGpuPredictions = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateGpuPredictions',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateGpuPredictionsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
+    self.ListGpuPredictions = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListGpuPredictions',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuPredictionsRequest.SerializeToString,
+        response_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuPredictionsResponse.FromString,
+        )
     self.GetLicense = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/GetLicense',
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -508,7 +528,7 @@ class DatahubServiceServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def CreateEvents(self, request, context):
-    """events
+    """Events
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -521,8 +541,36 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def ListGpus(self, request, context):
+    """GPU
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def ListGpuMetrics(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CreateGpuPredictions(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def ListGpuPredictions(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def GetLicense(self, request, context):
-    """Used to get license
+    """Licenses
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -735,6 +783,26 @@ def add_DatahubServiceServicer_to_server(servicer, server):
           servicer.ListEvents,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsRequest.FromString,
           response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListEventsResponse.SerializeToString,
+      ),
+      'ListGpus': grpc.unary_unary_rpc_method_handler(
+          servicer.ListGpus,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpusRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpusResponse.SerializeToString,
+      ),
+      'ListGpuMetrics': grpc.unary_unary_rpc_method_handler(
+          servicer.ListGpuMetrics,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuMetricsRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuMetricsResponse.SerializeToString,
+      ),
+      'CreateGpuPredictions': grpc.unary_unary_rpc_method_handler(
+          servicer.CreateGpuPredictions,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateGpuPredictionsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'ListGpuPredictions': grpc.unary_unary_rpc_method_handler(
+          servicer.ListGpuPredictions,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuPredictionsRequest.FromString,
+          response_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListGpuPredictionsResponse.SerializeToString,
       ),
       'GetLicense': grpc.unary_unary_rpc_method_handler(
           servicer.GetLicense,

@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia"
 	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
@@ -35,7 +36,6 @@ func (r datahubCreatePodPredictionsRequestExtended) validate() error {
 }
 
 func (r datahubCreatePodPredictionsRequestExtended) daoContainerPredictions() []*DaoPrediction.ContainerPrediction {
-
 	var (
 		containerPredictions []*DaoPrediction.ContainerPrediction
 	)
@@ -116,7 +116,6 @@ func (r datahubCreateNodePredictionsRequestExtended) validate() error {
 }
 
 func (r datahubCreateNodePredictionsRequestExtended) daoNodePredictions() []*DaoPrediction.NodePrediction {
-
 	var (
 		NodePredictions []*DaoPrediction.NodePrediction
 	)
@@ -168,7 +167,6 @@ type datahubListPodPredictionsRequestExtended struct {
 }
 
 func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest() DaoPrediction.ListPodPredictionsRequest {
-
 	var (
 		namespace      string
 		podName        string
@@ -203,7 +201,6 @@ type datahubListNodePredictionsRequestExtended struct {
 }
 
 func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest() DaoPrediction.ListNodePredictionsRequest {
-
 	var (
 		nodeNames      []string
 		queryCondition DBCommon.QueryCondition
@@ -235,7 +232,6 @@ type datahubListSimulatedSchedulingScoresRequestExtended struct {
 }
 
 func (r datahubListSimulatedSchedulingScoresRequestExtended) daoLisRequest() DaoScore.ListRequest {
-
 	var (
 		queryCondition DBCommon.QueryCondition
 	)
@@ -260,7 +256,6 @@ type datahubQueryConditionExtend struct {
 }
 
 func (d datahubQueryConditionExtend) daoQueryCondition() DBCommon.QueryCondition {
-
 	var (
 		queryStartTime      *time.Time
 		queryEndTime        *time.Time
@@ -317,4 +312,61 @@ func (d datahubQueryConditionExtend) daoQueryCondition() DBCommon.QueryCondition
 		AggregateOverTimeFunction: aggregateFunc,
 	}
 	return queryCondition
+}
+
+type CreateGpuPredictionsRequestExtended struct {
+	DatahubV1alpha1.CreateGpuPredictionsRequest
+}
+
+func (r CreateGpuPredictionsRequestExtended) validate() error {
+	return nil
+}
+
+func (r CreateGpuPredictionsRequestExtended) GpuPredictions() DaoGpu.GpuPredictionMap {
+	gpuPredictionMap := make(map[Metric.GpuMetricType][]*DaoGpu.GpuPrediction)
+
+	metricTypeMap := map[DatahubV1alpha1.MetricType]Metric.GpuMetricType{
+		DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES:  Metric.TypeGpuMemoryUsedBytes,
+		DatahubV1alpha1.MetricType_POWER_USAGE_WATTS:   Metric.TypeGpuPowerUsageMilliWatts,
+		DatahubV1alpha1.MetricType_TEMPERATURE_CELSIUS: Metric.TypeGpuTemperatureCelsius,
+		DatahubV1alpha1.MetricType_DUTY_CYCLE:          Metric.TypeGpuDutyCycle,
+	}
+
+	for _, predictions := range r.GetGpuPredictions() {
+		gpu := DaoGpu.Gpu{}
+		gpu.Name = predictions.GetName()
+		gpu.Uuid = predictions.GetUuid()
+		gpu.Metadata.Host = predictions.GetMetadata().GetHost()
+		gpu.Metadata.Instance = predictions.GetMetadata().GetInstance()
+		gpu.Metadata.Job = predictions.GetMetadata().GetJob()
+		gpu.Metadata.MinorNumber = predictions.GetMetadata().GetMinorNumber()
+
+		for _, rawData := range predictions.GetPredictedRawData() {
+			metricType := metricTypeMap[rawData.GetMetricType()]
+
+			gpuPrediction := DaoGpu.GpuPrediction{}
+			gpuPrediction.Gpu = gpu
+			gpuPrediction.Granularity = rawData.GetGranularity()
+
+			if _, exist := gpuPredictionMap[metricType]; !exist {
+				gpuPredictionMap[metricType] = make([]*DaoGpu.GpuPrediction, 0)
+			}
+
+			for _, sample := range rawData.GetData() {
+				timestamp, err := ptypes.Timestamp(sample.GetTime())
+				if err != nil {
+					scope.Error(" failed: " + err.Error())
+				}
+				sample := Metric.Sample{
+					Timestamp: timestamp,
+					Value:     sample.GetNumValue(),
+				}
+				gpuPrediction.Metrics = append(gpuPrediction.Metrics, sample)
+			}
+
+			gpuPredictionMap[metricType] = append(gpuPredictionMap[metricType], &gpuPrediction)
+		}
+	}
+
+	return gpuPredictionMap
 }

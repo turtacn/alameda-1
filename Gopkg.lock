@@ -35,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3240aeb96f477c8bb831e805fd29f5c04a67757191de9c7037e16d44ff5edce8"
+  digest = "1:dde36dd5f7a4ce5d99353c56a436053e440610dee478d54bdb9075ef4a3a9ef5"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -43,7 +43,7 @@
     "datahub/keycodes",
   ]
   pruneopts = "T"
-  revision = "c333486576eded865a7ba2e1e19baf993cd00fdb"
+  revision = "69e055f04886a3b0e19b5323b781dc1950c6b8f1"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1209,13 +1209,16 @@
     "github.com/containers-ai/api/common",
     "github.com/containers-ai/api/datahub/keycodes",
     "github.com/emicklei/go-restful",
+    "github.com/ghodss/yaml",
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/duration",
     "github.com/golang/protobuf/ptypes/empty",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/grpc-ecosystem/go-grpc-middleware/retry",
     "github.com/influxdata/influxdb/client/v2",
+    "github.com/influxdata/influxdb/models",
     "github.com/manifoldco/promptui",
     "github.com/mattbaird/jsonpatch",
     "github.com/onsi/ginkgo",

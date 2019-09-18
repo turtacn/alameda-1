@@ -28,4 +28,10 @@ const (
 
 	// Event is score database
 	Event influxdb.Database = "alameda_event"
+
+	// Gpu is gpu database
+	Gpu influxdb.Database = "alameda_gpu"
+
+	// GpuPrediction is gpu prediction database
+	GpuPrediction influxdb.Database = "alameda_gpu_prediction"
 )

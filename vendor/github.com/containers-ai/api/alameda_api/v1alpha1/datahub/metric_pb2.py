@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/metric.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\"h\n\x0f\x43ontainerMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xb0\x01\n\tPodMetric\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12R\n\x11\x63ontainer_metrics\x18\x02 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.ContainerMetric\"c\n\nNodeMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"s\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tnum_value\x18\x03 \x01(\t\"\xca\x02\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12^\n\x11\x61ggregateFunction\x18\x04 \x01(\x0e\x32\x43.containers_ai.alameda.v1alpha1.datahub.TimeRange.AggregateFunction\x12.\n\napply_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"&\n\x11\x41ggregateFunction\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03MAX\x10\x01\"\xa8\x01\n\nMetricData\x12G\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricType\x12<\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32..containers_ai.alameda.v1alpha1.datahub.Sample\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\"\xae\x02\n\x14ResourceRequirements\x12X\n\x06limits\x18\x01 \x03(\x0b\x32H.containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry\x12\\\n\x08requests\x18\x02 \x03(\x0b\x32J.containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry\x1a-\n\x0bLimitsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rRequestsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*U\n\nMetricType\x12\r\n\tUNDEFINED\x10\x00\x12 \n\x1c\x43PU_USAGE_SECONDS_PERCENTAGE\x10\x01\x12\x16\n\x12MEMORY_USAGE_BYTES\x10\x02*@\n\x0cResourceName\x12\x1b\n\x17RESOURCE_NAME_UNDEFINED\x10\x00\x12\x07\n\x03\x43PU\x10\x01\x12\n\n\x06MEMORY\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n)alameda_api/v1alpha1/datahub/metric.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a+alameda_api/v1alpha1/datahub/metadata.proto\"h\n\x0f\x43ontainerMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xb0\x01\n\tPodMetric\x12O\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32\x36.containers_ai.alameda.v1alpha1.datahub.NamespacedName\x12R\n\x11\x63ontainer_metrics\x18\x02 \x03(\x0b\x32\x37.containers_ai.alameda.v1alpha1.datahub.ContainerMetric\"c\n\nNodeMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0bmetric_data\x18\x02 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"s\n\x06Sample\x12(\n\x04time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x11\n\tnum_value\x18\x03 \x01(\t\"\xca\x02\n\tTimeRange\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\'\n\x04step\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12^\n\x11\x61ggregateFunction\x18\x04 \x01(\x0e\x32\x43.containers_ai.alameda.v1alpha1.datahub.TimeRange.AggregateFunction\x12.\n\napply_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"&\n\x11\x41ggregateFunction\x12\x08\n\x04NONE\x10\x00\x12\x07\n\x03MAX\x10\x01\"\xa8\x01\n\nMetricData\x12G\n\x0bmetric_type\x18\x01 \x01(\x0e\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricType\x12<\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32..containers_ai.alameda.v1alpha1.datahub.Sample\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\"\xae\x02\n\x14ResourceRequirements\x12X\n\x06limits\x18\x01 \x03(\x0b\x32H.containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.LimitsEntry\x12\\\n\x08requests\x18\x02 \x03(\x0b\x32J.containers_ai.alameda.v1alpha1.datahub.ResourceRequirements.RequestsEntry\x1a-\n\x0bLimitsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rRequestsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x95\x01\n\nMetricType\x12\r\n\tUNDEFINED\x10\x00\x12 \n\x1c\x43PU_USAGE_SECONDS_PERCENTAGE\x10\x01\x12\x16\n\x12MEMORY_USAGE_BYTES\x10\x02\x12\x15\n\x11POWER_USAGE_WATTS\x10\x03\x12\x17\n\x13TEMPERATURE_CELSIUS\x10\x04\x12\x0e\n\nDUTY_CYCLE\x10\x05*@\n\x0cResourceName\x12\x1b\n\x17RESOURCE_NAME_UNDEFINED\x10\x00\x12\x07\n\x03\x43PU\x10\x01\x12\n\n\x06MEMORY\x10\x02\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metadata__pb2.DESCRIPTOR,])
 
@@ -46,11 +46,23 @@ _METRICTYPE = _descriptor.EnumDescriptor(
       name='MEMORY_USAGE_BYTES', index=2, number=2,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='POWER_USAGE_WATTS', index=3, number=3,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='TEMPERATURE_CELSIUS', index=4, number=4,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='DUTY_CYCLE', index=5, number=5,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1507,
-  serialized_end=1592,
+  serialized_start=1508,
+  serialized_end=1657,
 )
 _sym_db.RegisterEnumDescriptor(_METRICTYPE)
 
@@ -76,8 +88,8 @@ _RESOURCENAME = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1594,
-  serialized_end=1658,
+  serialized_start=1659,
+  serialized_end=1723,
 )
 _sym_db.RegisterEnumDescriptor(_RESOURCENAME)
 
@@ -85,6 +97,9 @@ ResourceName = enum_type_wrapper.EnumTypeWrapper(_RESOURCENAME)
 UNDEFINED = 0
 CPU_USAGE_SECONDS_PERCENTAGE = 1
 MEMORY_USAGE_BYTES = 2
+POWER_USAGE_WATTS = 3
+TEMPERATURE_CELSIUS = 4
+DUTY_CYCLE = 5
 RESOURCE_NAME_UNDEFINED = 0
 CPU = 1
 MEMORY = 2

@@ -11,9 +11,12 @@ import "alameda_api/v1alpha1/datahub/metadata.proto";
  * Metric type. A metric may be either CPU or memory.
  */
 enum MetricType {
-    UNDEFINED = 0;
+    UNDEFINED                    = 0;
     CPU_USAGE_SECONDS_PERCENTAGE = 1;
-    MEMORY_USAGE_BYTES = 2;
+    MEMORY_USAGE_BYTES           = 2;
+    POWER_USAGE_WATTS            = 3;
+    TEMPERATURE_CELSIUS          = 4;
+    DUTY_CYCLE                   = 5;
 }
 
 enum ResourceName {

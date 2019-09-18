@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia"
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
 	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/prediction"
 	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
@@ -13,7 +14,6 @@ type daoPodMetricExtended struct {
 }
 
 func (p daoPodMetricExtended) datahubPodMetric() *DatahubV1alpha1.PodMetric {
-
 	var (
 		datahubPodMetric DatahubV1alpha1.PodMetric
 	)
@@ -39,7 +39,6 @@ type daoContainerMetricExtended struct {
 }
 
 func (c daoContainerMetricExtended) datahubContainerMetric() *DatahubV1alpha1.ContainerMetric {
-
 	var (
 		metricDataChan  = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutines = 0
@@ -71,7 +70,6 @@ type daoNodeMetricExtended struct {
 }
 
 func (n daoNodeMetricExtended) datahubNodeMetric() *DatahubV1alpha1.NodeMetric {
-
 	var (
 		metricDataChan  = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutines = 0
@@ -103,7 +101,6 @@ type daoPtrPodPredictionExtended struct {
 }
 
 func (p daoPtrPodPredictionExtended) datahubPodPrediction() *DatahubV1alpha1.PodPrediction {
-
 	var (
 		datahubPodPrediction DatahubV1alpha1.PodPrediction
 	)
@@ -129,7 +126,6 @@ type daoContainerPredictionExtended struct {
 }
 
 func (c daoContainerPredictionExtended) datahubContainerPrediction() *DatahubV1alpha1.ContainerPrediction {
-
 	var (
 		metricDataChan = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutine = 0
@@ -161,7 +157,6 @@ type daoPtrNodePredictionExtended struct {
 }
 
 func (d daoPtrNodePredictionExtended) datahubNodePrediction() *DatahubV1alpha1.NodePrediction {
-
 	var (
 		metricDataChan = make(chan DatahubV1alpha1.MetricData)
 		numOfGoroutine = 0
@@ -194,7 +189,6 @@ type daoPtrNodesPredictionMapExtended struct {
 }
 
 func (d daoPtrNodesPredictionMapExtended) datahubNodePredictions() []*DatahubV1alpha1.NodePrediction {
-
 	var (
 		datahubNodePredictions = make([]*DatahubV1alpha1.NodePrediction, 0)
 	)
@@ -219,8 +213,48 @@ func (d daoPtrNodesPredictionMapExtended) datahubNodePredictions() []*DatahubV1a
 	return datahubNodePredictions
 }
 
-func produceDatahubMetricDataFromSamples(metricType DatahubV1alpha1.MetricType, samples []Metric.Sample, MetricDataChan chan<- DatahubV1alpha1.MetricData) {
+type daoGpuMetricExtended struct {
+	*DaoGpu.GpuMetric
+}
 
+func (n daoGpuMetricExtended) datahubGpuMetric() *DatahubV1alpha1.GpuMetric {
+	var (
+		metricDataChan  = make(chan DatahubV1alpha1.MetricData)
+		numOfGoroutines = 0
+
+		datahubGpuMetadata DatahubV1alpha1.GpuMetadata
+		datahubGpuMetric   DatahubV1alpha1.GpuMetric
+	)
+
+	datahubGpuMetadata = DatahubV1alpha1.GpuMetadata{
+		Host:        n.Metadata.Host,
+		Instance:    n.Metadata.Instance,
+		Job:         n.Metadata.Job,
+		MinorNumber: n.Metadata.MinorNumber,
+	}
+
+	datahubGpuMetric = DatahubV1alpha1.GpuMetric{
+		Name:     n.Name,
+		Uuid:     n.Uuid,
+		Metadata: &datahubGpuMetadata,
+	}
+
+	for metricType, samples := range n.Metrics {
+		if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {
+			numOfGoroutines++
+			go produceDatahubMetricDataFromSamples(datahubMetricType, samples, metricDataChan)
+		}
+	}
+
+	for i := 0; i < numOfGoroutines; i++ {
+		receivedMetricData := <-metricDataChan
+		datahubGpuMetric.MetricData = append(datahubGpuMetric.MetricData, &receivedMetricData)
+	}
+
+	return &datahubGpuMetric
+}
+
+func produceDatahubMetricDataFromSamples(metricType DatahubV1alpha1.MetricType, samples []Metric.Sample, MetricDataChan chan<- DatahubV1alpha1.MetricData) {
 	var (
 		datahubMetricData DatahubV1alpha1.MetricData
 	)

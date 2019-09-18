@@ -5,6 +5,7 @@ package containers_ai.alameda.v1alpha1.datahub;
 
 import "common/common.proto";
 import "alameda_api/v1alpha1/datahub/event.proto";
+import "alameda_api/v1alpha1/datahub/gpu.proto";
 import "alameda_api/v1alpha1/datahub/license.proto";
 import "alameda_api/v1alpha1/datahub/metadata.proto";
 import "alameda_api/v1alpha1/datahub/metric.proto";
@@ -421,6 +422,44 @@ message CreateEventsRequest {
     repeated Event events = 1;
 }
 
+message ListGpusRequest {
+    string host = 1;
+    string minor_number = 2;
+    QueryCondition query_condition = 3;
+}
+
+message ListGpusResponse {
+    google.rpc.Status status = 1;
+    repeated Gpu gpus = 2;
+}
+
+message ListGpuMetricsRequest {
+    string host = 1;
+    string minor_number = 2;
+    QueryCondition query_condition = 3;
+}
+
+message ListGpuMetricsResponse {
+    google.rpc.Status status = 1;
+    repeated GpuMetric gpu_metrics = 2;
+}
+
+message CreateGpuPredictionsRequest {
+    repeated GpuPrediction gpu_predictions = 1;
+}
+
+message ListGpuPredictionsRequest {
+    string host = 1;
+    string minor_number = 2;
+    QueryCondition query_condition = 3;
+    int64 granularity = 4;
+}
+
+message ListGpuPredictionsResponse {
+    google.rpc.Status status = 1;
+    repeated GpuPrediction gpu_predictions = 2;
+}
+
 message GetLicenseResponse {
     google.rpc.Status status = 1;
     License license = 2;
@@ -577,14 +616,27 @@ service DatahubService {
     rpc GetWeaveScopeContainerDetails(ListWeaveScopeContainersRequest)
         returns (WeaveScopeResponse){}
 
-    // events
+    // Events
     rpc CreateEvents(CreateEventsRequest)
         returns (google.rpc.Status){}
 
     rpc ListEvents(ListEventsRequest)
         returns (ListEventsResponse){}
 
-    // Used to get license
+    // GPU
+    rpc ListGpus(ListGpusRequest)
+        returns (ListGpusResponse){}
+
+    rpc ListGpuMetrics(ListGpuMetricsRequest)
+        returns (ListGpuMetricsResponse){}
+
+    rpc CreateGpuPredictions(CreateGpuPredictionsRequest)
+        returns (google.rpc.Status){}
+
+    rpc ListGpuPredictions(ListGpuPredictionsRequest)
+        returns (ListGpuPredictionsResponse){}
+
+    // Licenses
     rpc GetLicense(google.protobuf.Empty)
         returns (GetLicenseResponse) {}
 }

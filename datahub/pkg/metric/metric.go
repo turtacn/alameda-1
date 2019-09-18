@@ -6,31 +6,34 @@ import (
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 )
 
-// ContainerMetricType Type alias
+// ContainerMetric Type/Kind alias
 type ContainerMetricType = string
-
-// ContainerMetricKind Kind alias
 type ContainerMetricKind = string
 
-// NodeMetricType Type alias
+// NodeMetric Type/Kind alias
 type NodeMetricType = string
-
 type NodeMetricKind = string
 
-const (
-	// TypeContainerCPUUsageSecondsPercentage Metric type of container cpu usage
-	TypeContainerCPUUsageSecondsPercentage ContainerMetricType = "cpu_usage_seconds_percentage"
-	// TypeContainerMemoryUsageBytes Metric type of container memory usage
-	TypeContainerMemoryUsageBytes ContainerMetricType = "memory_usage_bytes"
+// GpuMetric Type/Kind alias
+type GpuMetricType = string
+type GpuMetricKind = string
 
-	// TypeNodeCPUUsageSecondsPercentage Metric type of cpu usage
+const (
+	// Container metric type definition
+	TypeContainerCPUUsageSecondsPercentage ContainerMetricType = "cpu_usage_seconds_percentage"
+	TypeContainerMemoryUsageBytes          ContainerMetricType = "memory_usage_bytes"
+
+	// Node metric type definition
 	TypeNodeCPUUsageSecondsPercentage NodeMetricType = "node_cpu_usage_seconds_percentage"
-	// TypeNodeMemoryTotalBytes Metric type of memory total
-	TypeNodeMemoryTotalBytes NodeMetricType = "node_memory_total_bytes"
-	// TypeNodeMemoryAvailableBytes Metric type of memory available
-	TypeNodeMemoryAvailableBytes NodeMetricType = "node_memory_available_bytes"
-	// TypeNodeMemoryUsageBytes Metric type of memory usage
-	TypeNodeMemoryUsageBytes NodeMetricType = "node_memory_usage_bytes"
+	TypeNodeMemoryTotalBytes          NodeMetricType = "node_memory_total_bytes"
+	TypeNodeMemoryAvailableBytes      NodeMetricType = "node_memory_available_bytes"
+	TypeNodeMemoryUsageBytes          NodeMetricType = "node_memory_usage_bytes"
+
+	// GPU metric type definition
+	TypeGpuDutyCycle            GpuMetricType = "gpu_duty_cycle"
+	TypeGpuMemoryUsedBytes      GpuMetricType = "gpu_memory_used_bytes"
+	TypeGpuPowerUsageMilliWatts GpuMetricType = "gpu_power_usage_milli_watts"
+	TypeGpuTemperatureCelsius   GpuMetricType = "gpu_temperature_celsius"
 )
 
 const (
@@ -48,8 +51,14 @@ var (
 	TypeToDatahubMetricType = map[string]datahub_v1alpha1.MetricType{
 		TypeContainerCPUUsageSecondsPercentage: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 		TypeContainerMemoryUsageBytes:          datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-		TypeNodeCPUUsageSecondsPercentage:      datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-		TypeNodeMemoryUsageBytes:               datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+
+		TypeNodeCPUUsageSecondsPercentage: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		TypeNodeMemoryUsageBytes:          datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+
+		TypeGpuDutyCycle:            datahub_v1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuMemoryUsedBytes:      datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuPowerUsageMilliWatts: datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuTemperatureCelsius:   datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
 	}
 )
 

@@ -1,0 +1,38 @@
+/// This file has messages related to predictions of gpus
+syntax = "proto3";
+
+package containers_ai.alameda.v1alpha1.datahub;
+
+import "alameda_api/v1alpha1/datahub/metric.proto";
+
+message Gpu {
+    string name          = 1;
+    string uuid          = 2;
+    GpuMetadata metadata = 3;
+    GpuSpec spec         = 4;
+}
+
+message GpuMetric {
+    string name                     = 1;
+    string uuid                     = 2;
+    GpuMetadata metadata            = 3;
+    repeated MetricData metric_data = 4;
+}
+
+message GpuPrediction {
+    string name                            = 1;
+    string uuid                            = 2;
+    GpuMetadata metadata                   = 3;
+    repeated MetricData predicted_raw_data = 4;
+}
+
+message GpuMetadata {
+    string host         = 1;
+    string instance     = 2;
+    string job          = 3;
+    string minor_number = 4;
+}
+
+message GpuSpec {
+    float memory_total = 1; // Total memory in bytes
+}
