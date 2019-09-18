@@ -21,6 +21,7 @@ type role = string
 
 const (
 	masterRole role = "master"
+	workerRole role = "worker"
 )
 
 var (
@@ -77,12 +78,7 @@ func newNodeInfo(k8sNode corev1.Node) (nodeInfo, error) {
 	}
 
 	if node.Role == "" {
-		for key, role := range roleMap {
-			if _, exist := k8sNode.Labels[key]; exist {
-				node.Role = role
-				break
-			}
-		}
+		node.patchRoleByK8SLabels(k8sNode.Labels)
 	}
 
 	if len(k8sNode.Spec.ProviderID) > 0 {
@@ -113,6 +109,20 @@ func newNodeInfo(k8sNode corev1.Node) (nodeInfo, error) {
 	}
 
 	return node, nil
+}
+
+func (n *nodeInfo) patchRoleByK8SLabels(labels map[string]string) {
+	found := false
+	for key, role := range roleMap {
+		if _, exist := labels[key]; exist {
+			found = true
+			n.Role = role
+			break
+		}
+	}
+	if !found {
+		n.Role = workerRole
+	}
 }
 
 func (n nodeInfo) alamedaNode() datahub_v1alpha1.Node {
