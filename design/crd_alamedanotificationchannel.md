@@ -57,6 +57,9 @@ Here is an example _alamedanotificationchannel_ CR:
 - Field: port
   - type: int
   - description: the port of mail server
+- Field: from
+  - type: string
+  - description: the email sender
 - Field: username
   - type: string
   - description: username used to login mail server
