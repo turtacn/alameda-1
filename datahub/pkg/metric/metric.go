@@ -30,10 +30,18 @@ const (
 	TypeNodeMemoryUsageBytes          NodeMetricType = "node_memory_usage_bytes"
 
 	// GPU metric type definition
-	TypeGpuDutyCycle            GpuMetricType = "gpu_duty_cycle"
-	TypeGpuMemoryUsedBytes      GpuMetricType = "gpu_memory_used_bytes"
-	TypeGpuPowerUsageMilliWatts GpuMetricType = "gpu_power_usage_milli_watts"
-	TypeGpuTemperatureCelsius   GpuMetricType = "gpu_temperature_celsius"
+	TypeGpuDutyCycle                      GpuMetricType = "gpu_duty_cycle"
+	TypeGpuDutyCycleLowerBound            GpuMetricType = "gpu_duty_cycle_lower_bound"
+	TypeGpuDutyCycleUpperBound            GpuMetricType = "gpu_duty_cycle_upper_bound"
+	TypeGpuMemoryUsedBytes                GpuMetricType = "gpu_memory_used_bytes"
+	TypeGpuMemoryUsedBytesLowerBound      GpuMetricType = "gpu_memory_used_bytes_lower_bound"
+	TypeGpuMemoryUsedBytesUpperBound      GpuMetricType = "gpu_memory_used_bytes_upper_bound"
+	TypeGpuPowerUsageMilliWatts           GpuMetricType = "gpu_power_usage_milli_watts"
+	TypeGpuPowerUsageMilliWattsLowerBound GpuMetricType = "gpu_power_usage_milli_watts_lower_bound"
+	TypeGpuPowerUsageMilliWattsUpperBound GpuMetricType = "gpu_power_usage_milli_watts_upper_bound"
+	TypeGpuTemperatureCelsius             GpuMetricType = "gpu_temperature_celsius"
+	TypeGpuTemperatureCelsiusLowerBound   GpuMetricType = "gpu_temperature_celsius_lower_bound"
+	TypeGpuTemperatureCelsiusUpperBound   GpuMetricType = "gpu_temperature_celsius_upper_bound"
 )
 
 const (

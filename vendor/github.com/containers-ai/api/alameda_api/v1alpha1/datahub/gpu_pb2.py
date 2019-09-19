@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containers_ai.alameda.v1alpha1.datahub',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n&alameda_api/v1alpha1/datahub/gpu.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a)alameda_api/v1alpha1/datahub/metric.proto\"\xa7\x01\n\x03Gpu\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x45\n\x08metadata\x18\x03 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.GpuMetadata\x12=\n\x04spec\x18\x04 \x01(\x0b\x32/.containers_ai.alameda.v1alpha1.datahub.GpuSpec\"\xb7\x01\n\tGpuMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x45\n\x08metadata\x18\x03 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.GpuMetadata\x12G\n\x0bmetric_data\x18\x04 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xc2\x01\n\rGpuPrediction\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x45\n\x08metadata\x18\x03 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.GpuMetadata\x12N\n\x12predicted_raw_data\x18\x04 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"P\n\x0bGpuMetadata\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x10\n\x08instance\x18\x02 \x01(\t\x12\x0b\n\x03job\x18\x03 \x01(\t\x12\x14\n\x0cminor_number\x18\x04 \x01(\t\"\x1f\n\x07GpuSpec\x12\x14\n\x0cmemory_total\x18\x01 \x01(\x02\x62\x06proto3')
+  serialized_pb=_b('\n&alameda_api/v1alpha1/datahub/gpu.proto\x12&containers_ai.alameda.v1alpha1.datahub\x1a)alameda_api/v1alpha1/datahub/metric.proto\"\xa7\x01\n\x03Gpu\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x45\n\x08metadata\x18\x03 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.GpuMetadata\x12=\n\x04spec\x18\x04 \x01(\x0b\x32/.containers_ai.alameda.v1alpha1.datahub.GpuSpec\"\xb7\x01\n\tGpuMetric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x45\n\x08metadata\x18\x03 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.GpuMetadata\x12G\n\x0bmetric_data\x18\x04 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"\xf0\x02\n\rGpuPrediction\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x45\n\x08metadata\x18\x03 \x01(\x0b\x32\x33.containers_ai.alameda.v1alpha1.datahub.GpuMetadata\x12N\n\x12predicted_raw_data\x18\x04 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12U\n\x19predicted_upperbound_data\x18\x05 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\x12U\n\x19predicted_lowerbound_data\x18\x06 \x03(\x0b\x32\x32.containers_ai.alameda.v1alpha1.datahub.MetricData\"P\n\x0bGpuMetadata\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x10\n\x08instance\x18\x02 \x01(\t\x12\x0b\n\x03job\x18\x03 \x01(\t\x12\x14\n\x0cminor_number\x18\x04 \x01(\t\"\x1f\n\x07GpuSpec\x12\x14\n\x0cmemory_total\x18\x01 \x01(\x02\x62\x06proto3')
   ,
   dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2.DESCRIPTOR,])
 
@@ -167,6 +167,20 @@ _GPUPREDICTION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='predicted_upperbound_data', full_name='containers_ai.alameda.v1alpha1.datahub.GpuPrediction.predicted_upperbound_data', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='predicted_lowerbound_data', full_name='containers_ai.alameda.v1alpha1.datahub.GpuPrediction.predicted_lowerbound_data', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -180,7 +194,7 @@ _GPUPREDICTION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=482,
-  serialized_end=676,
+  serialized_end=850,
 )
 
 
@@ -231,8 +245,8 @@ _GPUMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=678,
-  serialized_end=758,
+  serialized_start=852,
+  serialized_end=932,
 )
 
 
@@ -262,8 +276,8 @@ _GPUSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=760,
-  serialized_end=791,
+  serialized_start=934,
+  serialized_end=965,
 )
 
 _GPU.fields_by_name['metadata'].message_type = _GPUMETADATA
@@ -272,6 +286,8 @@ _GPUMETRIC.fields_by_name['metadata'].message_type = _GPUMETADATA
 _GPUMETRIC.fields_by_name['metric_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
 _GPUPREDICTION.fields_by_name['metadata'].message_type = _GPUMETADATA
 _GPUPREDICTION.fields_by_name['predicted_raw_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
+_GPUPREDICTION.fields_by_name['predicted_upperbound_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
+_GPUPREDICTION.fields_by_name['predicted_lowerbound_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metric__pb2._METRICDATA
 DESCRIPTOR.message_types_by_name['Gpu'] = _GPU
 DESCRIPTOR.message_types_by_name['GpuMetric'] = _GPUMETRIC
 DESCRIPTOR.message_types_by_name['GpuPrediction'] = _GPUPREDICTION

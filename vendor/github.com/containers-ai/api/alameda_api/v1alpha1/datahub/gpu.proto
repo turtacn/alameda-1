@@ -24,6 +24,8 @@ message GpuPrediction {
     string uuid                            = 2;
     GpuMetadata metadata                   = 3;
     repeated MetricData predicted_raw_data = 4;
+    repeated MetricData predicted_upperbound_data = 5;
+    repeated MetricData predicted_lowerbound_data = 6;
 }
 
 message GpuMetadata {

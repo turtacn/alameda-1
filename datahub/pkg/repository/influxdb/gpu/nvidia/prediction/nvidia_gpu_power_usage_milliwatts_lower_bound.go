@@ -11,17 +11,17 @@ import (
 	"strconv"
 )
 
-type DutyCycleRepository struct {
+type PowerUsageMilliWattsLowerBoundRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-func NewDutyCycleRepositoryWithConfig(cfg InternalInflux.Config) *DutyCycleRepository {
-	return &DutyCycleRepository{
+func NewPowerUsageMilliWattsLowerBoundRepositoryWithConfig(cfg InternalInflux.Config) *PowerUsageMilliWattsLowerBoundRepository {
+	return &PowerUsageMilliWattsLowerBoundRepository{
 		influxDB: InternalInflux.NewClient(&cfg),
 	}
 }
 
-func (r *DutyCycleRepository) CreatePredictions(predictions []*DaoGpu.GpuPrediction) error {
+func (r *PowerUsageMilliWattsLowerBoundRepository) CreatePredictions(predictions []*DaoGpu.GpuPrediction) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, prediction := range predictions {
@@ -39,20 +39,20 @@ func (r *DutyCycleRepository) CreatePredictions(predictions []*DaoGpu.GpuPredict
 
 			// Pack influx tags
 			tags := map[string]string{
-				EntityInfluxGpuPrediction.DutyCycleHost:        prediction.Metadata.Host,
-				EntityInfluxGpuPrediction.DutyCycleName:        prediction.Name,
-				EntityInfluxGpuPrediction.DutyCycleUuid:        prediction.Uuid,
-				EntityInfluxGpuPrediction.DutyCycleGranularity: strconv.FormatInt(granularity, 10),
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsHost:        prediction.Metadata.Host,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsName:        prediction.Name,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsUuid:        prediction.Uuid,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsGranularity: strconv.FormatInt(granularity, 10),
 			}
 
 			// Pack influx fields
 			fields := map[string]interface{}{
-				EntityInfluxGpuPrediction.DutyCycleMinorNumber: prediction.Metadata.MinorNumber,
-				EntityInfluxGpuPrediction.DutyCycleValue:       valueInFloat64,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber: prediction.Metadata.MinorNumber,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsValue:       valueInFloat64,
 			}
 
 			// Add to influx point list
-			point, err := InfluxClient.NewPoint(string(DutyCycle), tags, fields, metric.Timestamp)
+			point, err := InfluxClient.NewPoint(string(PowerUsageMilliWattsLowerBound), tags, fields, metric.Timestamp)
 			if err != nil {
 				return errors.Wrap(err, "failed to instance influxdb data point")
 			}

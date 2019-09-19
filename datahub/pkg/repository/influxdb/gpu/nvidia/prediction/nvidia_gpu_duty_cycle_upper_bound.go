@@ -11,17 +11,17 @@ import (
 	"strconv"
 )
 
-type DutyCycleRepository struct {
+type DutyCycleUpperBoundRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-func NewDutyCycleRepositoryWithConfig(cfg InternalInflux.Config) *DutyCycleRepository {
-	return &DutyCycleRepository{
+func NewDutyCycleUpperBoundRepositoryWithConfig(cfg InternalInflux.Config) *DutyCycleUpperBoundRepository {
+	return &DutyCycleUpperBoundRepository{
 		influxDB: InternalInflux.NewClient(&cfg),
 	}
 }
 
-func (r *DutyCycleRepository) CreatePredictions(predictions []*DaoGpu.GpuPrediction) error {
+func (r *DutyCycleUpperBoundRepository) CreatePredictions(predictions []*DaoGpu.GpuPrediction) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, prediction := range predictions {
@@ -52,7 +52,7 @@ func (r *DutyCycleRepository) CreatePredictions(predictions []*DaoGpu.GpuPredict
 			}
 
 			// Add to influx point list
-			point, err := InfluxClient.NewPoint(string(DutyCycle), tags, fields, metric.Timestamp)
+			point, err := InfluxClient.NewPoint(string(DutyCycleUpperBound), tags, fields, metric.Timestamp)
 			if err != nil {
 				return errors.Wrap(err, "failed to instance influxdb data point")
 			}
