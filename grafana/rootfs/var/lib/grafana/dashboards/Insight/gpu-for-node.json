@@ -29,7 +29,7 @@
       },
       "id": 2,
       "panels": [],
-      "title": "GPU Apply",
+      "title": "GPU Allocation",
       "type": "row"
     },
     {
@@ -223,7 +223,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "GPU Apply",
+      "title": "GPU Allocation",
       "transform": "table",
       "type": "table"
     },
