@@ -21,79 +21,87 @@ func (p Metric) ListMetrics(host, minorNumber string, condition *DBCommon.QueryC
 	gpuMetricMap := DaoGpu.NewGpuMetricMap()
 
 	// Pack duty cycle metrics
-	dutyCycleRepo := RepoInfluxGpuMetric.NewDutyCycleRepositoryWithConfig(p.InfluxDBConfig)
-	dutyCycleMetrics, err := dutyCycleRepo.ListMetrics(host, minorNumber, condition)
-	if err != nil {
-		return DaoGpu.NewGpuMetricMap(), err
-	}
-	for _, metrics := range dutyCycleMetrics {
-		sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
-		gpu := DaoGpu.NewGpu()
-		gpu.Name = *metrics.Name
-		gpu.Uuid = *metrics.Uuid
-		gpu.Metadata.Host = *metrics.Host
-		gpu.Metadata.Instance = *metrics.Instance
-		gpu.Metadata.Job = *metrics.Job
-		gpu.Metadata.MinorNumber = *metrics.MinorNumber
+	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuDutyCycle] {
+		dutyCycleRepo := RepoInfluxGpuMetric.NewDutyCycleRepositoryWithConfig(p.InfluxDBConfig)
+		dutyCycleMetrics, err := dutyCycleRepo.ListMetrics(host, minorNumber, condition)
+		if err != nil {
+			return DaoGpu.NewGpuMetricMap(), err
+		}
+		for _, metrics := range dutyCycleMetrics {
+			sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
+			gpu := DaoGpu.NewGpu()
+			gpu.Name = *metrics.Name
+			gpu.Uuid = *metrics.Uuid
+			gpu.Metadata.Host = *metrics.Host
+			gpu.Metadata.Instance = *metrics.Instance
+			gpu.Metadata.Job = *metrics.Job
+			gpu.Metadata.MinorNumber = *metrics.MinorNumber
 
-		gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuDutyCycle, sample)
+			gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuDutyCycle, sample)
+		}
 	}
 
 	// Pack memory used bytes metrics
-	memoryUsedRepo := RepoInfluxGpuMetric.NewMemoryUsedBytesRepositoryWithConfig(p.InfluxDBConfig)
-	memoryUsedMetrics, err := memoryUsedRepo.ListMetrics(host, minorNumber, condition)
-	if err != nil {
-		return DaoGpu.NewGpuMetricMap(), err
-	}
-	for _, metrics := range memoryUsedMetrics {
-		sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
-		gpu := DaoGpu.NewGpu()
-		gpu.Name = *metrics.Name
-		gpu.Uuid = *metrics.Uuid
-		gpu.Metadata.Host = *metrics.Host
-		gpu.Metadata.Instance = *metrics.Instance
-		gpu.Metadata.Job = *metrics.Job
-		gpu.Metadata.MinorNumber = *metrics.MinorNumber
+	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuMemoryUsedBytes] {
+		memoryUsedRepo := RepoInfluxGpuMetric.NewMemoryUsedBytesRepositoryWithConfig(p.InfluxDBConfig)
+		memoryUsedMetrics, err := memoryUsedRepo.ListMetrics(host, minorNumber, condition)
+		if err != nil {
+			return DaoGpu.NewGpuMetricMap(), err
+		}
+		for _, metrics := range memoryUsedMetrics {
+			sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
+			gpu := DaoGpu.NewGpu()
+			gpu.Name = *metrics.Name
+			gpu.Uuid = *metrics.Uuid
+			gpu.Metadata.Host = *metrics.Host
+			gpu.Metadata.Instance = *metrics.Instance
+			gpu.Metadata.Job = *metrics.Job
+			gpu.Metadata.MinorNumber = *metrics.MinorNumber
 
-		gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuMemoryUsedBytes, sample)
+			gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuMemoryUsedBytes, sample)
+		}
 	}
 
 	// Pack power usage milli watts metrics
-	powerUsageRepo := RepoInfluxGpuMetric.NewPowerUsageMilliWattsRepositoryWithConfig(p.InfluxDBConfig)
-	powerUsageMetrics, err := powerUsageRepo.ListMetrics(host, minorNumber, condition)
-	if err != nil {
-		return DaoGpu.NewGpuMetricMap(), err
-	}
-	for _, metrics := range powerUsageMetrics {
-		sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
-		gpu := DaoGpu.NewGpu()
-		gpu.Name = *metrics.Name
-		gpu.Uuid = *metrics.Uuid
-		gpu.Metadata.Host = *metrics.Host
-		gpu.Metadata.Instance = *metrics.Instance
-		gpu.Metadata.Job = *metrics.Job
-		gpu.Metadata.MinorNumber = *metrics.MinorNumber
+	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuPowerUsageMilliWatts] {
+		powerUsageRepo := RepoInfluxGpuMetric.NewPowerUsageMilliWattsRepositoryWithConfig(p.InfluxDBConfig)
+		powerUsageMetrics, err := powerUsageRepo.ListMetrics(host, minorNumber, condition)
+		if err != nil {
+			return DaoGpu.NewGpuMetricMap(), err
+		}
+		for _, metrics := range powerUsageMetrics {
+			sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
+			gpu := DaoGpu.NewGpu()
+			gpu.Name = *metrics.Name
+			gpu.Uuid = *metrics.Uuid
+			gpu.Metadata.Host = *metrics.Host
+			gpu.Metadata.Instance = *metrics.Instance
+			gpu.Metadata.Job = *metrics.Job
+			gpu.Metadata.MinorNumber = *metrics.MinorNumber
 
-		gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuPowerUsageMilliWatts, sample)
+			gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuPowerUsageMilliWatts, sample)
+		}
 	}
 
 	// Pack temperature celsius metrics
-	temperatureRepo := RepoInfluxGpuMetric.NewTemperatureCelsiusRepositoryWithConfig(p.InfluxDBConfig)
-	temperatureMetrics, err := temperatureRepo.ListMetrics(host, minorNumber, condition)
-	if err != nil {
-		return DaoGpu.NewGpuMetricMap(), err
-	}
-	for _, metrics := range temperatureMetrics {
-		sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
-		gpu := DaoGpu.NewGpu()
-		gpu.Name = *metrics.Name
-		gpu.Uuid = *metrics.Uuid
-		gpu.Metadata.Host = *metrics.Host
-		gpu.Metadata.Instance = *metrics.Instance
-		gpu.Metadata.Job = *metrics.Job
-		gpu.Metadata.MinorNumber = *metrics.MinorNumber
+	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuTemperatureCelsius] {
+		temperatureRepo := RepoInfluxGpuMetric.NewTemperatureCelsiusRepositoryWithConfig(p.InfluxDBConfig)
+		temperatureMetrics, err := temperatureRepo.ListMetrics(host, minorNumber, condition)
+		if err != nil {
+			return DaoGpu.NewGpuMetricMap(), err
+		}
+		for _, metrics := range temperatureMetrics {
+			sample := DatahubMetric.Sample{Timestamp: metrics.Time, Value: strconv.FormatFloat(*metrics.Value, 'f', -1, 64)}
+			gpu := DaoGpu.NewGpu()
+			gpu.Name = *metrics.Name
+			gpu.Uuid = *metrics.Uuid
+			gpu.Metadata.Host = *metrics.Host
+			gpu.Metadata.Instance = *metrics.Instance
+			gpu.Metadata.Job = *metrics.Job
+			gpu.Metadata.MinorNumber = *metrics.MinorNumber
 
-		gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuTemperatureCelsius, sample)
+			gpuMetricMap.AddGpuMetric(gpu, DatahubMetric.TypeGpuTemperatureCelsius, sample)
+		}
 	}
 
 	return gpuMetricMap, nil

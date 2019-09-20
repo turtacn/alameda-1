@@ -1,8 +1,11 @@
 package nvidia
 
 import (
+	DatahubMetric "github.com/containers-ai/alameda/datahub/pkg/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 )
+
+var GpuMetricUsedMap = map[DatahubMetric.GpuMetricType]bool{}
 
 type Gpu struct {
 	Name     string
@@ -29,4 +32,11 @@ type GpuDAO interface {
 func NewGpu() *Gpu {
 	gpu := &Gpu{}
 	return gpu
+}
+
+func init() {
+	GpuMetricUsedMap[DatahubMetric.TypeGpuDutyCycle] = true
+	GpuMetricUsedMap[DatahubMetric.TypeGpuMemoryUsedBytes] = true
+	GpuMetricUsedMap[DatahubMetric.TypeGpuPowerUsageMilliWatts] = false
+	GpuMetricUsedMap[DatahubMetric.TypeGpuTemperatureCelsius] = false
 }
