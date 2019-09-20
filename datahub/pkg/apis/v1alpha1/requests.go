@@ -410,7 +410,7 @@ func (r CreateGpuPredictionsRequestExtended) GpuPredictions() DaoGpu.GpuPredicti
 		}
 
 		// Prepare predicted upper bound data
-		for _, data := range predictions.GetPredictedLowerboundData() {
+		for _, data := range predictions.GetPredictedUpperboundData() {
 			metricType := upperBoundTypeMap[data.GetMetricType()]
 
 			gpuPrediction := DaoGpu.GpuPrediction{}

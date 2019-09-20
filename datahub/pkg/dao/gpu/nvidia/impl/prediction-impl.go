@@ -4,7 +4,9 @@ import (
 	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia"
 	DatahubMetric "github.com/containers-ai/alameda/datahub/pkg/metric"
 	RepoInfluxGpuPrediction "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/gpu/nvidia/prediction"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	"strconv"
 )
 
 type Prediction struct {
@@ -113,4 +115,181 @@ func (p Prediction) CreatePredictions(predictions DaoGpu.GpuPredictionMap) error
 	}
 
 	return nil
+}
+
+func (p Prediction) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) (DaoGpu.GpuPredictionMap, error) {
+	gpuPredictionMap := DaoGpu.NewGpuPredictionMap()
+
+	granularityValue, _ := strconv.ParseInt(granularity, 10, 64)
+
+	// Pack duty cycle predictions
+	dutyCycleRepo := RepoInfluxGpuPrediction.NewDutyCycleRepositoryWithConfig(p.InfluxDBConfig)
+	dutyCyclePredictions, err := dutyCycleRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range dutyCyclePredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuDutyCycle, sample)
+	}
+
+	// Pack duty cycle lower bound predictions
+	dutyCycleLowerBoundRepo := RepoInfluxGpuPrediction.NewDutyCycleLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
+	dutyCyclePredictions, err = dutyCycleLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range dutyCyclePredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuDutyCycleLowerBound, sample)
+	}
+
+	// Pack duty cycle upper bound predictions
+	dutyCycleUpperBoundRepo := RepoInfluxGpuPrediction.NewDutyCycleUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
+	dutyCyclePredictions, err = dutyCycleUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range dutyCyclePredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuDutyCycleUpperBound, sample)
+	}
+
+	// Pack memory used bytes predictions
+	memoryUsedRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesRepositoryWithConfig(p.InfluxDBConfig)
+	memoryUsedPredictions, err := memoryUsedRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range memoryUsedPredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuMemoryUsedBytes, sample)
+	}
+
+	// Pack memory used bytes lower bound predictions
+	memoryUsedLowerBoundRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
+	memoryUsedPredictions, err = memoryUsedLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range memoryUsedPredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuMemoryUsedBytesLowerBound, sample)
+	}
+
+	// Pack memory used bytes upper bound predictions
+	memoryUsedUpperBoundRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
+	memoryUsedPredictions, err = memoryUsedUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range memoryUsedPredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuMemoryUsedBytesUpperBound, sample)
+	}
+
+	// Pack power usage milli watts predictions
+	powerUsageRepo := RepoInfluxGpuPrediction.NewPowerUsageMilliWattsRepositoryWithConfig(p.InfluxDBConfig)
+	poserUsagePredictions, err := powerUsageRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range poserUsagePredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuPowerUsageMilliWatts, sample)
+	}
+
+	// Pack power usage milli watts lower bound predictions
+	powerUsageLowerBoundRepo := RepoInfluxGpuPrediction.NewPowerUsageMilliWattsLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
+	poserUsagePredictions, err = powerUsageLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range poserUsagePredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuPowerUsageMilliWattsLowerBound, sample)
+	}
+
+	// Pack power usage milli watts upper bound predictions
+	powerUsageUpperBoundRepo := RepoInfluxGpuPrediction.NewPowerUsageMilliWattsUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
+	poserUsagePredictions, err = powerUsageUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range poserUsagePredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuPowerUsageMilliWattsUpperBound, sample)
+	}
+
+	// Pack temperature celsius predictions
+	temperatureCelsiusRepo := RepoInfluxGpuPrediction.NewTemperatureCelsiusRepositoryWithConfig(p.InfluxDBConfig)
+	temperatureCelsiusPredictions, err := temperatureCelsiusRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range temperatureCelsiusPredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuTemperatureCelsius, sample)
+	}
+
+	// Pack temperature celsius lower bound predictions
+	temperatureCelsiusLowerBoundRepo := RepoInfluxGpuPrediction.NewTemperatureCelsiusLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
+	temperatureCelsiusPredictions, err = temperatureCelsiusLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range temperatureCelsiusPredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuTemperatureCelsiusLowerBound, sample)
+	}
+
+	// Pack temperature celsius upper bound predictions
+	temperatureCelsiusUpperBoundRepo := RepoInfluxGpuPrediction.NewTemperatureCelsiusUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
+	temperatureCelsiusPredictions, err = temperatureCelsiusUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+	if err != nil {
+		return DaoGpu.NewGpuPredictionMap(), err
+	}
+	for _, predictions := range temperatureCelsiusPredictions {
+		sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
+		gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
+		gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuTemperatureCelsiusUpperBound, sample)
+	}
+
+	return gpuPredictionMap, nil
+}
+
+func buildGpu(name, uuid, host, instance, job, minorNumber *string) *DaoGpu.Gpu {
+	gpu := DaoGpu.NewGpu()
+
+	if name != nil {
+		gpu.Name = *name
+	}
+	if uuid != nil {
+		gpu.Uuid = *uuid
+	}
+	if host != nil {
+		gpu.Metadata.Host = *host
+	}
+	if instance != nil {
+		gpu.Metadata.Instance = *instance
+	}
+	if job != nil {
+		gpu.Metadata.Job = *job
+	}
+	if minorNumber != nil {
+		gpu.Metadata.MinorNumber = *minorNumber
+	}
+
+	return gpu
 }

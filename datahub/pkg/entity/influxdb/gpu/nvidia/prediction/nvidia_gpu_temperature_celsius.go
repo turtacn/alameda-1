@@ -1,6 +1,8 @@
 package prediction
 
 import (
+	"github.com/containers-ai/alameda/datahub/pkg/utils"
+	"strconv"
 	"time"
 )
 
@@ -31,4 +33,43 @@ type TemperatureCelsiusEntity struct {
 
 	MinorNumber *string
 	Value       *float64
+}
+
+func NewTemperatureCelsiusEntityFromMap(data map[string]string) TemperatureCelsiusEntity {
+	tempTimestamp, _ := utils.ParseTime(data[TemperatureCelsiusTime])
+
+	entity := TemperatureCelsiusEntity{
+		Time: tempTimestamp,
+	}
+
+	// InfluxDB tags
+	if valueStr, exist := data[TemperatureCelsiusHost]; exist {
+		entity.Host = &valueStr
+	}
+	if valueStr, exist := data[TemperatureCelsiusInstance]; exist {
+		entity.Instance = &valueStr
+	}
+	if valueStr, exist := data[TemperatureCelsiusJob]; exist {
+		entity.Job = &valueStr
+	}
+	if valueStr, exist := data[TemperatureCelsiusName]; exist {
+		entity.Name = &valueStr
+	}
+	if valueStr, exist := data[TemperatureCelsiusUuid]; exist {
+		entity.Uuid = &valueStr
+	}
+	if valueStr, exist := data[TemperatureCelsiusGranularity]; exist {
+		entity.Granularity = &valueStr
+	}
+
+	// InfluxDB fields
+	if valueStr, exist := data[TemperatureCelsiusMinorNumber]; exist {
+		entity.MinorNumber = &valueStr
+	}
+	if valueFloat, exist := data[TemperatureCelsiusValue]; exist {
+		value, _ := strconv.ParseFloat(valueFloat, 64)
+		entity.Value = &value
+	}
+
+	return entity
 }

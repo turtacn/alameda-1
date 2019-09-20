@@ -5,7 +5,9 @@ import (
 	EntityInfluxGpuPrediction "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/gpu/nvidia/prediction"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strconv"
@@ -69,4 +71,40 @@ func (r *PowerUsageMilliWattsLowerBoundRepository) CreatePredictions(predictions
 	}
 
 	return nil
+}
+
+func (r *PowerUsageMilliWattsLowerBoundRepository) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.PowerUsageMilliWattsEntity, error) {
+	entities := make([]*EntityInfluxGpuPrediction.PowerUsageMilliWattsEntity, 0)
+
+	influxdbStatement := InternalInflux.Statement{
+		QueryCondition: condition,
+		Measurement:    PowerUsageMilliWattsLowerBound,
+		GroupByTags:    []string{"host", "uuid"},
+	}
+
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsHost, "=", host)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsGranularity, "=", granularity)
+	influxdbStatement.SetOrderClauseFromQueryCondition()
+	influxdbStatement.SetLimitClauseFromQueryCondition()
+	cmd := influxdbStatement.BuildQueryCmd()
+
+	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.GpuPrediction))
+	if err != nil {
+		return entities, errors.Wrap(err, "failed to list nvidia gpu power usage milli watts lower bound predictions")
+	}
+
+	results := InternalInfluxModels.NewInfluxResults(response)
+	for _, result := range results {
+		for i := 0; i < result.GetGroupNum(); i++ {
+			group := result.GetGroup(i)
+			for j := 0; j < group.GetRowNum(); j++ {
+				entity := EntityInfluxGpuPrediction.NewPowerUsageMilliWattsEntityFromMap(group.GetRow(j))
+				entities = append(entities, &entity)
+			}
+		}
+	}
+
+	return entities, nil
 }

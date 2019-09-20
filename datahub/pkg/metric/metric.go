@@ -63,10 +63,18 @@ var (
 		TypeNodeCPUUsageSecondsPercentage: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 		TypeNodeMemoryUsageBytes:          datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 
-		TypeGpuDutyCycle:            datahub_v1alpha1.MetricType_DUTY_CYCLE,
-		TypeGpuMemoryUsedBytes:      datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-		TypeGpuPowerUsageMilliWatts: datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
-		TypeGpuTemperatureCelsius:   datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
+		TypeGpuDutyCycle:                      datahub_v1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuDutyCycleLowerBound:            datahub_v1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuDutyCycleUpperBound:            datahub_v1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuMemoryUsedBytes:                datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuMemoryUsedBytesLowerBound:      datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuMemoryUsedBytesUpperBound:      datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuPowerUsageMilliWatts:           datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuPowerUsageMilliWattsLowerBound: datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuPowerUsageMilliWattsUpperBound: datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuTemperatureCelsius:             datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
+		TypeGpuTemperatureCelsiusLowerBound:   datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
+		TypeGpuTemperatureCelsiusUpperBound:   datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
 	}
 )
 

@@ -5,16 +5,16 @@ import (
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 )
 
-type MetricsDAO interface {
-	ListMetrics(host, minorNumber string, condition *DBCommon.QueryCondition) (GpuMetricMap, error)
-}
+type GpuMetricMap map[string]*GpuMetric
 
 type GpuMetric struct {
 	Gpu
 	Metrics map[DatahubMetric.GpuMetricType][]DatahubMetric.Sample
 }
 
-type GpuMetricMap map[string]*GpuMetric
+type MetricsDAO interface {
+	ListMetrics(host, minorNumber string, condition *DBCommon.QueryCondition) (GpuMetricMap, error)
+}
 
 func NewGpuMetric() *GpuMetric {
 	gpuMetric := &GpuMetric{}

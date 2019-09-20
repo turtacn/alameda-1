@@ -1,7 +1,6 @@
 package nvidia
 
 import (
-	//"github.com/containers-ai/alameda/datahub/pkg/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 )
 

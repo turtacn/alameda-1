@@ -254,6 +254,80 @@ func (n daoGpuMetricExtended) datahubGpuMetric() *DatahubV1alpha1.GpuMetric {
 	return &datahubGpuMetric
 }
 
+type daoGpuPredictionExtended struct {
+	*DaoGpu.GpuPrediction
+}
+
+func (n daoGpuPredictionExtended) datahubGpuPrediction(metricType Metric.GpuMetricType) *DatahubV1alpha1.GpuPrediction {
+	var (
+		metricDataChan = make(chan DatahubV1alpha1.MetricData)
+
+		datahubGpuMetadata   DatahubV1alpha1.GpuMetadata
+		datahubGpuPrediction DatahubV1alpha1.GpuPrediction
+	)
+
+	datahubGpuMetadata = DatahubV1alpha1.GpuMetadata{
+		Host:        n.Metadata.Host,
+		Instance:    n.Metadata.Instance,
+		Job:         n.Metadata.Job,
+		MinorNumber: n.Metadata.MinorNumber,
+	}
+
+	datahubGpuPrediction = DatahubV1alpha1.GpuPrediction{
+		Name:     n.Name,
+		Uuid:     n.Uuid,
+		Metadata: &datahubGpuMetadata,
+	}
+
+	if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {
+		go produceDatahubMetricDataFromSamples(datahubMetricType, n.Metrics, metricDataChan)
+	}
+
+	receivedMetricData := <-metricDataChan
+	receivedMetricData.Granularity = n.Granularity
+	switch metricType {
+	case Metric.TypeGpuDutyCycle:
+
+		datahubGpuPrediction.PredictedRawData = append(datahubGpuPrediction.PredictedRawData, &receivedMetricData)
+		break
+	case Metric.TypeGpuDutyCycleLowerBound:
+		datahubGpuPrediction.PredictedLowerboundData = append(datahubGpuPrediction.PredictedLowerboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuDutyCycleUpperBound:
+		datahubGpuPrediction.PredictedUpperboundData = append(datahubGpuPrediction.PredictedUpperboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuMemoryUsedBytes:
+		datahubGpuPrediction.PredictedRawData = append(datahubGpuPrediction.PredictedRawData, &receivedMetricData)
+		break
+	case Metric.TypeGpuMemoryUsedBytesLowerBound:
+		datahubGpuPrediction.PredictedLowerboundData = append(datahubGpuPrediction.PredictedLowerboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuMemoryUsedBytesUpperBound:
+		datahubGpuPrediction.PredictedUpperboundData = append(datahubGpuPrediction.PredictedUpperboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuPowerUsageMilliWatts:
+		datahubGpuPrediction.PredictedRawData = append(datahubGpuPrediction.PredictedRawData, &receivedMetricData)
+		break
+	case Metric.TypeGpuPowerUsageMilliWattsLowerBound:
+		datahubGpuPrediction.PredictedLowerboundData = append(datahubGpuPrediction.PredictedLowerboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuPowerUsageMilliWattsUpperBound:
+		datahubGpuPrediction.PredictedUpperboundData = append(datahubGpuPrediction.PredictedUpperboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuTemperatureCelsius:
+		datahubGpuPrediction.PredictedRawData = append(datahubGpuPrediction.PredictedRawData, &receivedMetricData)
+		break
+	case Metric.TypeGpuTemperatureCelsiusLowerBound:
+		datahubGpuPrediction.PredictedLowerboundData = append(datahubGpuPrediction.PredictedLowerboundData, &receivedMetricData)
+		break
+	case Metric.TypeGpuTemperatureCelsiusUpperBound:
+		datahubGpuPrediction.PredictedUpperboundData = append(datahubGpuPrediction.PredictedUpperboundData, &receivedMetricData)
+		break
+	}
+
+	return &datahubGpuPrediction
+}
+
 func produceDatahubMetricDataFromSamples(metricType DatahubV1alpha1.MetricType, samples []Metric.Sample, MetricDataChan chan<- DatahubV1alpha1.MetricData) {
 	var (
 		datahubMetricData DatahubV1alpha1.MetricData

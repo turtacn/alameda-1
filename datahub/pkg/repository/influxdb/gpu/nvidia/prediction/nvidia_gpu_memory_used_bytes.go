@@ -5,7 +5,9 @@ import (
 	EntityInfluxGpuPrediction "github.com/containers-ai/alameda/datahub/pkg/entity/influxdb/gpu/nvidia/prediction"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strconv"
@@ -39,10 +41,10 @@ func (r *MemoryUsedBytesRepository) CreatePredictions(predictions []*DaoGpu.GpuP
 
 			// Pack influx tags
 			tags := map[string]string{
-				EntityInfluxGpuPrediction.MemoryUsedBytesHost:   prediction.Metadata.Host,
-				EntityInfluxGpuPrediction.MemoryUsedBytesName:   prediction.Name,
-				EntityInfluxGpuPrediction.MemoryUsedBytesUuid:   prediction.Uuid,
-				EntityInfluxGpuPrediction.MemoryUsedGranularity: strconv.FormatInt(granularity, 10),
+				EntityInfluxGpuPrediction.MemoryUsedBytesHost:        prediction.Metadata.Host,
+				EntityInfluxGpuPrediction.MemoryUsedBytesName:        prediction.Name,
+				EntityInfluxGpuPrediction.MemoryUsedBytesUuid:        prediction.Uuid,
+				EntityInfluxGpuPrediction.MemoryUsedBytesGranularity: strconv.FormatInt(granularity, 10),
 			}
 
 			// Pack influx fields
@@ -69,4 +71,40 @@ func (r *MemoryUsedBytesRepository) CreatePredictions(predictions []*DaoGpu.GpuP
 	}
 
 	return nil
+}
+
+func (r *MemoryUsedBytesRepository) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.MemoryUsedBytesEntity, error) {
+	entities := make([]*EntityInfluxGpuPrediction.MemoryUsedBytesEntity, 0)
+
+	influxdbStatement := InternalInflux.Statement{
+		QueryCondition: condition,
+		Measurement:    MemoryUsedBytes,
+		GroupByTags:    []string{"host", "uuid"},
+	}
+
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesHost, "=", host)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesGranularity, "=", granularity)
+	influxdbStatement.SetOrderClauseFromQueryCondition()
+	influxdbStatement.SetLimitClauseFromQueryCondition()
+	cmd := influxdbStatement.BuildQueryCmd()
+
+	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.GpuPrediction))
+	if err != nil {
+		return entities, errors.Wrap(err, "failed to list nvidia gpu memory used bytes predictions")
+	}
+
+	results := InternalInfluxModels.NewInfluxResults(response)
+	for _, result := range results {
+		for i := 0; i < result.GetGroupNum(); i++ {
+			group := result.GetGroup(i)
+			for j := 0; j < group.GetRowNum(); j++ {
+				entity := EntityInfluxGpuPrediction.NewMemoryUsedBytesEntityFromMap(group.GetRow(j))
+				entities = append(entities, &entity)
+			}
+		}
+	}
+
+	return entities, nil
 }

@@ -2,12 +2,14 @@ package v1alpha1
 
 import (
 	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia/impl"
+	DatahubMetric "github.com/containers-ai/alameda/datahub/pkg/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
+	"strconv"
 )
 
 func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.ListGpusRequest) (*DatahubV1alpha1.ListGpusResponse, error) {
@@ -88,7 +90,94 @@ func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *DatahubV1alpha
 }
 
 func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1alpha1.ListGpuPredictionsRequest) (*DatahubV1alpha1.ListGpuPredictionsResponse, error) {
-	return &DatahubV1alpha1.ListGpuPredictionsResponse{}, nil
+	scope.Debug("Request received from ListGpuPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	granularity := "30"
+	if in.GetGranularity() != 0 {
+		granularity = strconv.FormatInt(in.GetGranularity(), 10)
+	}
+
+	predictionDAO := DaoGpu.NewPredictionWithConfig(*s.Config.InfluxDB)
+	predictionsMap, err := predictionDAO.ListPredictions(in.GetHost(), in.GetMinorNumber(), granularity, DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
+	if err != nil {
+		scope.Errorf("failed to ListGpuPredictions: %+v", err)
+		return &DatahubV1alpha1.ListGpuPredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			},
+		}, nil
+	}
+
+	gpuPredictions := make([]*DatahubV1alpha1.GpuPrediction, 0)
+	for metricType, predictions := range predictionsMap {
+		for _, prediction := range predictions {
+			gpu := &DatahubV1alpha1.GpuPrediction{}
+			gpuPredictionExtended := daoGpuPredictionExtended{prediction}
+			gpuPrediction := gpuPredictionExtended.datahubGpuPrediction(metricType)
+			found := false
+
+			// Look up if gpu is found
+			for _, gpu = range gpuPredictions {
+				if gpu.Uuid == gpuPrediction.Uuid {
+					found = true
+					break
+				}
+			}
+
+			if found == false {
+				gpuPredictions = append(gpuPredictions, gpuPrediction)
+			} else {
+				switch metricType {
+				case DatahubMetric.TypeGpuDutyCycle:
+					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
+					break
+				case DatahubMetric.TypeGpuDutyCycleLowerBound:
+					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
+					break
+				case DatahubMetric.TypeGpuDutyCycleUpperBound:
+					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
+					break
+				case DatahubMetric.TypeGpuMemoryUsedBytes:
+					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
+					break
+				case DatahubMetric.TypeGpuMemoryUsedBytesLowerBound:
+					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
+					break
+				case DatahubMetric.TypeGpuMemoryUsedBytesUpperBound:
+					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
+					break
+				case DatahubMetric.TypeGpuPowerUsageMilliWatts:
+					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
+					break
+				case DatahubMetric.TypeGpuPowerUsageMilliWattsLowerBound:
+					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
+					break
+				case DatahubMetric.TypeGpuPowerUsageMilliWattsUpperBound:
+					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
+					break
+				case DatahubMetric.TypeGpuTemperatureCelsius:
+					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
+					break
+				case DatahubMetric.TypeGpuTemperatureCelsiusLowerBound:
+					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
+					break
+				case DatahubMetric.TypeGpuTemperatureCelsiusUpperBound:
+					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
+					break
+				}
+			}
+		}
+	}
+
+	response := &DatahubV1alpha1.ListGpuPredictionsResponse{
+		Status: &status.Status{
+			Code: int32(code.Code_OK),
+		},
+		GpuPredictions: gpuPredictions,
+	}
+
+	return response, nil
 }
 
 func (s *ServiceV1alpha1) CreateGpuPredictions(ctx context.Context, in *DatahubV1alpha1.CreateGpuPredictionsRequest) (*status.Status, error) {
