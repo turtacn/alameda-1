@@ -1141,7 +1141,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Number of Nodes with Low GPU Cycle Utilization (<$memory_utilization)",
+      "title": "Number of Nodes with Low GPU Cycle Utilization (<$gpu_utilization)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1849,7 +1849,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Number of Nodes with High GPU Cycle Utilization (>$high_memory_utilization)",
+      "title": "Number of Nodes with High GPU Cycle Utilization (>$high_gpu_utilization)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1994,35 +1994,35 @@
   "templating": {
     "list": [{
         "current": {
-          "text": "0.5",
-          "value": "0.5"
+          "text": "0.3",
+          "value": "0.3"
         },
         "hide": 0,
         "label": "Low Memory Utilization Threshold",
         "name": "memory_utilization",
         "options": [{
           "selected": true,
-          "text": "0.5",
-          "value": "0.5"
+          "text": "0.3",
+          "value": "0.3"
         }],
-        "query": "0.5",
+        "query": "0.3",
         "skipUrlSync": false,
         "type": "textbox"
       },
       {
         "current": {
-          "text": "0.5",
-          "value": "0.5"
+          "text": "0.3",
+          "value": "0.3"
         },
         "hide": 0,
         "label": "Low GPU Utilization Threshold",
         "name": "gpu_utilization",
         "options": [{
           "selected": true,
-          "text": "0.5",
-          "value": "0.5"
+          "text": "0.3",
+          "value": "0.3"
         }],
-        "query": "0.5",
+        "query": "0.3",
         "skipUrlSync": false,
         "type": "textbox"
       },
