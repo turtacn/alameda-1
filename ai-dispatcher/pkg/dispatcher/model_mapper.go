@@ -31,10 +31,12 @@ func NewModelMapper(predictUnitTypes []string, granularities []string) *ModelMap
 }
 
 type modelInfo struct {
-	*podModel  `json:",inline"`
-	*nodeModel `json:",inline"`
+	podModel  `json:",inline"`
+	nodeModel `json:",inline"`
+	gpuModel  `json:",inline"`
 
-	Timestamp int64 `json:"timestamp"`
+	ModelMetrics []datahub_v1alpha1.MetricType `json:"modelMetrics,omitempty"`
+	Timestamp    int64                         `json:"timestamp"`
 }
 
 type namespacedName struct {
@@ -52,8 +54,11 @@ type podModel struct {
 }
 
 type nodeModel struct {
-	Name         string                        `json:"name,omitempty"`
-	ModelMetrics []datahub_v1alpha1.MetricType `json:"modelMetrics,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+type gpuModel struct {
+	Host        string `json:"host,omitempty"`
+	MinorNumber string `json:"minor_number,omitempty"`
 }
 
 func (mm *ModelMapper) AddModelInfo(predictUnitType string,
@@ -68,7 +73,7 @@ func (mm *ModelMapper) AddModelInfo(predictUnitType string,
 	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
 		mm.modelMap[predictUnitType][granularity] = map[string]*modelInfo{}
 	}
-	mm.modelMap[predictUnitType][granularity][mm.getNamespacedNameOrName(predictUnitType, mInfo)] = mInfo
+	mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
 	scope.Debugf("after (AddModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 }
@@ -106,7 +111,7 @@ func (mm *ModelMapper) IsModelTimeout(predictUnitType string,
 	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
 		isTimeout = true
 	}
-	idName := mm.getNamespacedNameOrName(predictUnitType, mInfo)
+	idName := mm.getUniqueName(predictUnitType, mInfo)
 	if oldMInfo, ok := mm.modelMap[predictUnitType][granularity][idName]; ok {
 		isTimeout = time.Now().Unix()-oldMInfo.Timestamp > mm.modelTimeout
 	} else {
@@ -127,7 +132,7 @@ func (mm *ModelMapper) IsModeling(predictUnitType string,
 	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
 		isModeling = false
 	}
-	idName := mm.getNamespacedNameOrName(predictUnitType, mInfo)
+	idName := mm.getUniqueName(predictUnitType, mInfo)
 	_, ok := mm.modelMap[predictUnitType][granularity][idName]
 	isModeling = ok
 	scope.Debugf("is model check from mapper (unit type: %s, granularity: %s) is %t: %s",
@@ -135,13 +140,16 @@ func (mm *ModelMapper) IsModeling(predictUnitType string,
 	return isModeling
 }
 
-func (mm *ModelMapper) getNamespacedNameOrName(predictUnitType string,
+func (mm *ModelMapper) getUniqueName(predictUnitType string,
 	modelInfo *modelInfo) string {
 	if predictUnitType == UnitTypeNode {
 		return modelInfo.Name
 	} else if predictUnitType == UnitTypePod {
 		return fmt.Sprintf("%s/%s",
 			modelInfo.NamespacedName.Namespace, modelInfo.NamespacedName.Name)
+	} else if predictUnitType == UnitTypeGPU {
+		return fmt.Sprintf("%s/%s",
+			modelInfo.Host, modelInfo.MinorNumber)
 	}
 	return ""
 }

@@ -17,7 +17,7 @@ func NewPredictJobSender(datahubGrpcCn *grpc.ClientConn) *predictJobSender {
 	}
 }
 
-func (dispatcher *predictJobSender) sendNodePredictJobs(nodes []*datahub_v1alpha1.Node,
+func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_v1alpha1.Node,
 	queueSender queue.QueueSender, pdUnit string, granularity int64) {
 	marshaler := jsonpb.Marshaler{}
 	for _, node := range nodes {
@@ -42,7 +42,7 @@ func (dispatcher *predictJobSender) sendNodePredictJobs(nodes []*datahub_v1alpha
 	}
 }
 
-func (dispatcher *predictJobSender) sendPodPredictJobs(pods []*datahub_v1alpha1.Pod,
+func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_v1alpha1.Pod,
 	queueSender queue.QueueSender, pdUnit string, granularity int64) {
 	marshaler := jsonpb.Marshaler{}
 	for _, pod := range pods {
@@ -64,6 +64,33 @@ func (dispatcher *predictJobSender) sendPodPredictJobs(pods []*datahub_v1alpha1.
 		if err != nil {
 			scope.Errorf("Send job for pod %s/%s failed with granularity %v seconds. %s",
 				podNSN.GetNamespace(), podNSN.GetName(), granularity, err.Error())
+		}
+	}
+}
+
+func (dispatcher *predictJobSender) SendGPUPredictJobs(gpus []*datahub_v1alpha1.Gpu,
+	queueSender queue.QueueSender, pdUnit string, granularity int64) {
+	marshaler := jsonpb.Marshaler{}
+	for _, gpu := range gpus {
+		gpuHost := gpu.GetMetadata().GetHost()
+		gpuMinorNumber := gpu.GetMetadata().GetMinorNumber()
+		gpuStr, err := marshaler.MarshalToString(gpu)
+		if err != nil {
+			scope.Errorf("Encode pb message failed for gpu host: %s, minor number: %s with granularity %v seconds. %s",
+				gpuHost, gpuMinorNumber, granularity, err.Error())
+			continue
+		}
+		jb := queue.NewJobBuilder(pdUnit, granularity, gpuStr)
+		jobJSONStr, err := jb.GetJobJSONString()
+		if err != nil {
+			scope.Errorf("Prepare job payload failed for gpu host: %s, minor number: %s with granularity %v seconds. %s",
+				gpuHost, gpuMinorNumber, granularity, err.Error())
+			continue
+		}
+		err = queueSender.SendJsonString(queueName, jobJSONStr)
+		if err != nil {
+			scope.Errorf("Send job for gpu host: %s, minor number: %s failed with granularity %v seconds. %s",
+				gpuHost, gpuMinorNumber, granularity, err.Error())
 		}
 	}
 }

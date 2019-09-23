@@ -15,7 +15,7 @@ url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
 
 [serviceSetting]
 granularities = ["30s", "1h", "6h", "24h"]
-predictUnits = ["POD", "NODE"]
+predictUnits = ["POD", "NODE", "GPU"]
 
 [granularities]
 
@@ -24,24 +24,28 @@ predictUnits = ["POD", "NODE"]
   dataGranularitySec = 86400
   predictionSteps = 30
   modelThreshold = 10
+  queueJobSendIntervalSec = 86400
 
   [granularities.6h]
   dataGranularity = "6h"
   dataGranularitySec = 21600
   predictionSteps = 30
   modelThreshold = 10
+  queueJobSendIntervalSec = 21600
 
   [granularities.1h]
   dataGranularity = "1h"
   dataGranularitySec = 3600
   predictionSteps = 30
   modelThreshold = 10
+  queueJobSendIntervalSec = 3600
 
   [granularities.30s]
   dataGranularity = "30s"
   dataGranularitySec = 30
   predictionSteps = 30
   modelThreshold = 10
+  queueJobSendIntervalSec = 30
 
 [predictUnits]
 
@@ -50,6 +54,9 @@ predictUnits = ["POD", "NODE"]
 
   [predictUnits.NODE]
   type = "NODE"
+
+  [predictUnits.GPU]
+  type = "GPU"
 
 [log]
 setLogcallers = true

@@ -50,6 +50,19 @@ func GetGranularityStr(granularitySec int64) string {
 	return "30s"
 }
 
+func GetGranularitySec(granularityStr string) int64 {
+	if granularityStr == "30s" {
+		return 30
+	} else if granularityStr == "1h" {
+		return 3600
+	} else if granularityStr == "6h" {
+		return 21600
+	} else if granularityStr == "24h" {
+		return 86400
+	}
+	return 30
+}
+
 func GetQueueConn(queueURL string, retryItvMS int64) *amqp.Connection {
 	for {
 		queueConn, err := amqp.Dial(queueURL)

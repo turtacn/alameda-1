@@ -18,6 +18,7 @@ import (
 const (
 	UnitTypeNode = "NODE"
 	UnitTypePod  = "POD"
+	UnitTypeGPU  = "GPU"
 )
 const queueName = "predict"
 const modelQueueName = "model"
@@ -56,8 +57,10 @@ func (dispatcher *Dispatcher) Start() {
 	// each sender use distinct channel which is not thread safe.
 	// all jobs are published to the same queue.
 	for _, granularity := range dispatcher.svcGranularities {
-		granuSec := viper.GetInt(fmt.Sprintf("granularities.%s.dataGranularitySec",
-			granularity))
+		granuSec := viper.GetInt(
+			fmt.Sprintf("granularities.%s.dataGranularitySec", granularity))
+		queueJobSendIntervalSec := viper.GetInt(
+			fmt.Sprintf("granularities.%s.queueJobSendIntervalSec", granularity))
 		if granuSec == 0 {
 			scope.Warnf("Granularity %v is not defined or set incorrect.", granularity)
 			continue
@@ -70,7 +73,8 @@ func (dispatcher *Dispatcher) Start() {
 			continue
 		}
 		wg.Add(1)
-		go dispatcher.dispatch(int64(granuSec), int64(predictionStep))
+		go dispatcher.dispatch(int64(granuSec), int64(predictionStep),
+			int64(queueJobSendIntervalSec))
 	}
 	wg.Wait()
 }
@@ -86,7 +90,8 @@ func (dispatcher *Dispatcher) validCfg() {
 	}
 }
 
-func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64) {
+func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64,
+	queueJobSendIntervalSec int64) {
 	defer wg.Done()
 	queueURL := viper.GetString("queue.url")
 	queueConnRetryItvMS := viper.GetInt64("queue.retry.connectIntervalMs")
@@ -109,7 +114,7 @@ func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64) 
 			dispatcher.getAndPushJobs(queueSender, pdUnit, granularity, predictionStep)
 		}
 		queueConn.Close()
-		time.Sleep(time.Duration(granularity) * time.Second)
+		time.Sleep(time.Duration(queueJobSendIntervalSec) * time.Second)
 	}
 }
 
@@ -122,7 +127,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		res, err := datahubServiceClnt.ListAlamedaNodes(context.Background(),
 			&datahub_v1alpha1.ListAlamedaNodesRequest{})
 		if err != nil {
-			scope.Errorf("List predict job for nodes failed with granularity %v seconds. %s",
+			scope.Errorf("List nodes for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
 			return
 		}
@@ -130,7 +135,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		// send predict jobs
 		scope.Infof("Start sending %v node jobs to queue with granularity %v seconds.",
 			len(nodes), granularity)
-		dispatcher.predictJobSender.sendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
+		dispatcher.predictJobSender.SendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
 		if viper.GetBool("model.enabled") {
 			dispatcher.modelJobSender.sendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
 				predictionStep)
@@ -142,7 +147,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
 			&datahub_v1alpha1.ListAlamedaPodsRequest{})
 		if err != nil {
-			scope.Errorf("List predict job for pods failed with granularity %v seconds. %s",
+			scope.Errorf("List pods for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
 			return
 		}
@@ -150,12 +155,31 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		// send predict jobs
 		scope.Infof("Start sending %v pod jobs to queue with granularity %v seconds.",
 			len(pods), granularity)
-		dispatcher.predictJobSender.sendPodPredictJobs(pods, queueSender, pdUnit, granularity)
+		dispatcher.predictJobSender.SendPodPredictJobs(pods, queueSender, pdUnit, granularity)
 		if viper.GetBool("model.enabled") {
 			dispatcher.modelJobSender.sendPodModelJobs(pods, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
 		scope.Infof("Sending %v pod jobs to queue completely with granularity %v seconds.",
 			len(pods), granularity)
+	} else if pdUnit == UnitTypeGPU && granularity == 3600 {
+		res, err := datahubServiceClnt.ListGpus(context.Background(),
+			&datahub_v1alpha1.ListGpusRequest{})
+		if err != nil {
+			scope.Errorf("List gpus for model/predict job failed with granularity %v seconds. %s",
+				granularity, err.Error())
+			return
+		}
+		gpus := res.GetGpus()
+		// send predict jobs
+		scope.Infof("Start sending %v gpu jobs to queue with granularity %v seconds.",
+			len(gpus), granularity)
+		dispatcher.predictJobSender.SendGPUPredictJobs(gpus, queueSender, pdUnit, granularity)
+		if viper.GetBool("model.enabled") {
+			dispatcher.modelJobSender.sendGPUModelJobs(gpus, queueSender, pdUnit, granularity,
+				predictionStep)
+		}
+		scope.Infof("Sending %v gpu jobs to queue completely with granularity %v seconds.",
+			len(gpus), granularity)
 	}
 }

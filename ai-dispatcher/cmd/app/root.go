@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	alameda_app "github.com/containers-ai/alameda/cmd/app"
 	"github.com/containers-ai/alameda/pkg/utils/log"
+	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -50,6 +52,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		initLogger()
 		setLoggerScopesWithConfig()
+
 		datahubAddr := viper.GetString("datahub.address")
 		if datahubAddr == "" {
 			scope.Errorf("No configuration of datahub address.")
@@ -75,7 +78,7 @@ var rootCmd = &cobra.Command{
 		predictUnits := viper.GetStringSlice("serviceSetting.predictUnits")
 		modelMapper := dispatcher.NewModelMapper(predictUnits, granularities)
 		if viper.GetBool("model.enabled") {
-			go modelCompleteNotification(modelMapper)
+			go modelCompleteNotification(modelMapper, conn)
 		}
 		dp := dispatcher.NewDispatcher(conn, granularities, predictUnits, modelMapper)
 		dp.Start()
@@ -146,14 +149,19 @@ func setLoggerScopesWithConfig() {
 	}
 }
 
-func modelCompleteNotification(modelMapper *dispatcher.ModelMapper) {
+func modelCompleteNotification(modelMapper *dispatcher.ModelMapper, datahubGrpcCn *grpc.ClientConn) {
+
+	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(datahubGrpcCn)
+	predictJobSender := dispatcher.NewPredictJobSender(datahubGrpcCn)
 	reconnectInterval := viper.GetInt64("queue.consumer.reconnectInterval")
 	queueConnRetryItvMS := viper.GetInt64("queue.retry.connectIntervalMs")
+
 	modelCompleteQueue := "model_complete"
 	queueURL := viper.GetString("queue.url")
 	for {
 		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
 		queueConsumer := queue.NewRabbitMQConsumer(queueConn)
+		queueSender := queue.NewRabbitMQSender(queueConn)
 		for {
 			msg, ok, err := queueConsumer.ReceiveJsonString(modelCompleteQueue)
 			if err != nil {
@@ -171,7 +179,7 @@ func modelCompleteNotification(modelMapper *dispatcher.ModelMapper) {
 			msgByte := []byte(msg)
 			if err := json.Unmarshal(msgByte, &msgMap); err != nil {
 				scope.Errorf("decode model complete job from queue failed: %s", err.Error())
-				continue
+				break
 			}
 
 			unit := msgMap["unit"].(map[string]interface{})
@@ -180,13 +188,65 @@ func modelCompleteNotification(modelMapper *dispatcher.ModelMapper) {
 			if unitType == dispatcher.UnitTypeNode {
 				nodeName := unit["name"].(string)
 				modelMapper.RemoveModelInfo(unitType, dataGranularity, nodeName)
+
+				res, err := datahubServiceClnt.ListNodes(context.Background(),
+					&datahub_v1alpha1.ListNodesRequest{
+						NodeNames: []string{nodeName},
+					})
+				if err == nil {
+					nodes := res.GetNodes()
+					if len(nodes) > 0 {
+						scope.Infof("node %s model job completed and send predict job for granularity %s",
+							nodeName, dataGranularity)
+						predictJobSender.SendNodePredictJobs(nodes, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
 			} else if unitType == dispatcher.UnitTypePod {
 				podNamespacedName := unit["namespaced_name"].(map[string]interface{})
 				podNS := podNamespacedName["namespace"].(string)
 				podName := podNamespacedName["name"].(string)
 				modelMapper.RemoveModelInfo(unitType, dataGranularity,
 					fmt.Sprintf("%s/%s", podNS, podName))
+
+				res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
+					&datahub_v1alpha1.ListAlamedaPodsRequest{
+						NamespacedName: &datahub_v1alpha1.NamespacedName{
+							Namespace: podNS,
+							Name:      podName,
+						},
+					})
+				if err == nil {
+					pods := res.GetPods()
+					if len(pods) > 0 {
+						scope.Infof("pod %s/%s model job completed and send predict job for granularity %s",
+							podNS, podName, dataGranularity)
+						predictJobSender.SendPodPredictJobs(pods, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
+			} else if unitType == dispatcher.UnitTypeGPU {
+				gpuHost := unit["host"].(string)
+				gpuMinorNumber := unit["minor_number"].(string)
+				modelMapper.RemoveModelInfo(unitType, dataGranularity,
+					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
+
+				res, err := datahubServiceClnt.ListGpus(context.Background(),
+					&datahub_v1alpha1.ListGpusRequest{
+						Host:        gpuHost,
+						MinorNumber: gpuMinorNumber,
+					})
+				if err == nil {
+					gpus := res.GetGpus()
+					if len(gpus) > 0 {
+						scope.Infof("gpu (host: %s, minor number: %s) model job completed and send predict job for granularity %s",
+							gpuHost, gpuMinorNumber, dataGranularity)
+						predictJobSender.SendGPUPredictJobs(gpus, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
 			}
 		}
+		queueConn.Close()
 	}
 }
