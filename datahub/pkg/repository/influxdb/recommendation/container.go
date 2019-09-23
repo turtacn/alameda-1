@@ -438,9 +438,21 @@ func (c *ContainerRepository) queryRecommendation(cmd string, granularity int64)
 			containerRecommendation.InitialRequestRecommendations[0].Data[0].NumValue = data[EntityInfluxRecommend.ContainerInitialResourceRequestCPU]
 			containerRecommendation.InitialRequestRecommendations[1].Data[0].NumValue = data[EntityInfluxRecommend.ContainerInitialResourceRequestMemory]
 
-			podRecommendation.ContainerRecommendations = append(podRecommendation.ContainerRecommendations, containerRecommendation)
+			isPodInList := false
+			for index := range podRecommendations {
+				if podRecommendations[index].NamespacedName.Name == data[EntityInfluxRecommend.ContainerPodName] && podRecommendations[index].NamespacedName.Namespace == data[EntityInfluxRecommend.ContainerNamespace] {
+					if podRecommendations[index].StartTime.Seconds == startTime && podRecommendations[index].EndTime.Seconds == endTime {
+						podRecommendations[index].ContainerRecommendations = append(podRecommendations[index].ContainerRecommendations, containerRecommendation)
+						isPodInList = true
+						break
+					}
+				}
+			}
 
-			podRecommendations = append(podRecommendations, podRecommendation)
+			if isPodInList == false {
+				podRecommendation.ContainerRecommendations = append(podRecommendation.ContainerRecommendations, containerRecommendation)
+				podRecommendations = append(podRecommendations, podRecommendation)
+			}
 		}
 	}
 
