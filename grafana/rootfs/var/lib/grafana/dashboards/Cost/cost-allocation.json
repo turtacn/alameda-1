@@ -1,0 +1,1665 @@
+{
+  "annotations": {
+    "list": [{
+      "builtIn": 1,
+      "datasource": "-- Grafana --",
+      "enable": true,
+      "hide": true,
+      "iconColor": "rgba(0, 211, 255, 1)",
+      "name": "Annotations & Alerts",
+      "type": "dashboard"
+    }]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 23,
+  "iteration": 1569234314365,
+  "links": [],
+  "panels": [{
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "panels": [],
+      "title": "Current Cluster Configuration",
+      "type": "row"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"config_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\">\n    </td>\n  </tr>\n</table>\n<script>\n  var currentProvider = `${current_provider}`.toLowerCase();\n  if (currentProvider === 'aws') {\n    document.getElementById('config_provider').src = 'https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG';\n    document.getElementById('config_provider').style.height = '41%';\n  } else if ( currentProvider === 'azure') {\n    document.getElementById('config_provider').src = 'https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png';\n    document.getElementById('config_provider').style.height = '50%';\n    document.getElementById('config_provider').style.width = '50%';\n  } else if ( currentProvider === 'gcp') {\n    document.getElementById('config_provider').src = 'https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png';\n    document.getElementById('config_provider').style.height = '40%';\n  }\n  //document.getElementById('config_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'black'\n</script>\n<style>\n.pieLabel > div {\n  color: white !important;\n}\n</style>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 4,
+      "links": [],
+      "mode": "html",
+      "title": "Current Provider",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${current_cost}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 6,
+      "links": [],
+      "mode": "html",
+      "title": "Current Cost",
+      "type": "text"
+    },
+    {
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${current_region}`.toUpperCase();\n  document.getElementById('config_region').innerHTML = region;\n</script>",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 18,
+      "links": [],
+      "mode": "html",
+      "title": "Region",
+      "type": "text"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 20,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [{
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Role",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "io_role",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [{
+            "text": "Worker",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "Instance Type",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "io_instance_type",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [{
+            "text": "m5.xlarge",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "vCPU",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "node_cpu_cores",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Memory Size",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "node_memory_bytes",
+          "thresholds": [],
+          "type": "number",
+          "unit": "bytes"
+        },
+        {
+          "alias": "Storage Size",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "io_storage_size",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes",
+          "valueMaps": [{
+            "text": "43.57 GiB",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [{
+        "expr": "",
+        "format": "table",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "intervalFactor": 1,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select  \"name\", in_cluster as io_role, in_cluster as io_instance_type, node_cpu_cores, node_memory_bytes, in_cluster as io_storage_size from alameda_cluster_status..node",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
+      }],
+      "title": "Current Cluster Configuration",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Table",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": ""
+      },
+      "datasource": "-- Mixed --",
+      "decimals": null,
+      "fontSize": "100%",
+      "format": "none",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 6
+      },
+      "id": 8,
+      "interval": null,
+      "legend": {
+        "header": "",
+        "percentage": true,
+        "show": true,
+        "values": false
+      },
+      "legendType": "On graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "strokeWidth": "1",
+      "targets": [{
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "expr": "",
+          "format": "time_series",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select top(costpercentage, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -1h  group by time(3600s), namespacename",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Others",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select 100 - sum(top) from (select top(costpercentage, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -1h  group by time(3600s), namespacename)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Others",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select 100 - sum(top) from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname)",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Percentage",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "columns": [],
+      "datasource": "-- Mixed --",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 6
+      },
+      "id": 12,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 3,
+        "desc": true
+      },
+      "styles": [{
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Name",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "name",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "CPU Utilization",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "cpuutilization",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [{
+            "text": "398",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "Memory Utilization",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "memoryutilization",
+          "thresholds": [],
+          "type": "string",
+          "unit": "bytes",
+          "valueMaps": [{
+            "text": "24 MiB",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "PodCount",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "podCount",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "Estimated Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "estimatedcost",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [{
+            "text": "48.25",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "Percentage",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "percentage",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "valueMaps": [{
+            "text": "33.33%",
+            "value": "1"
+          }]
+        },
+        {
+          "alias": "Provider",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "provider",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Cost Percentage",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "costpercentage",
+          "thresholds": [],
+          "type": "number",
+          "unit": "percent"
+        },
+        {
+          "alias": "Workload Cost",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "workloadcost",
+          "thresholds": [],
+          "type": "number",
+          "unit": "percentunit"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [{
+          "datasource": "InfluxDB",
+          "expr": "",
+          "format": "table",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now()-1h group by namespacename) ",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select appname as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from (select * from alameda_fedemeter..history_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now()-1h group by appname)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "table",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "$scope",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 16,
+      "panels": [],
+      "title": "Cost Usage(Daily)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "hideTimeOverride": true,
+      "id": 14,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [{
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now()-5d and time <= now() group by time(3600s), namespacename",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now()-5d and time <= now() group by time(3600s), appname",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now() and time <= now() +1d group by time(3600s), namespacename",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now() and time <= now() +1d group by time(3600s), appname",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "6d",
+      "timeRegions": [],
+      "timeShift": "0d+1d",
+      "title": "Cost: Observation, and Prediction",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 2,
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 24,
+      "panels": [],
+      "title": "Cost Usage(Weekly)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "hideTimeOverride": true,
+      "id": 27,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [{
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage)  from alameda_fedemeter..history_cost_namespace where granularity = '21600'  and 'Namespace' = '$scope' and time >= now()-5w and time <= now() group by time(21600s), namespacename",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '21600'  and 'Application' = '$scope' and time >= now()-5w and time <= now() group by time(21600s), appname",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '21600'  and 'Namespace' = '$scope' and time >= now() and time <= now() +1w group by time(21600s), namespacename",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '21600'  and 'Application' = '$scope' and time >= now() and time <= now() +1w group by time(21600s), appname",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "6w",
+      "timeRegions": [],
+      "timeShift": "0d+1w",
+      "title": "Cost: Observation, and Prediction",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 2,
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 26,
+      "panels": [],
+      "title": "Cost Usage(Monthly)",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "-- Mixed --",
+      "fill": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "hideTimeOverride": true,
+      "id": 28,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [{
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '86400'  and 'Namespace' = '$scope' and time >= now()-20w and time <= now() group by time(86400s), namespacename",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '86400'  and 'Application' = '$scope' and time >= now()-20w and time <= now() group by time(86400s), appname",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_namespacename",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '86400'  and 'Namespace' = '$scope' and time >= now() and time <= now() +4w group by time(86400s), namespacename",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "$tag_appname",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '86400'  and 'Application' = '$scope' and time >= now() and time <= now() +4w group by time(86400s), appname",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "6d",
+      "timeRegions": [],
+      "timeShift": "0d+1d",
+      "title": "Cost: Observation, and Prediction",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "decimals": 2,
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [{
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "Namespace",
+          "value": "Namespace"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Scope",
+        "multi": false,
+        "name": "scope",
+        "options": [{
+            "selected": true,
+            "text": "Namespace",
+            "value": "Namespace"
+          },
+          {
+            "selected": false,
+            "text": "Application",
+            "value": "Application"
+          }
+        ],
+        "query": "Namespace, Application",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select io_provider from alameda_cluster_status..node order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_provider",
+        "options": [],
+        "query": "select io_provider from alameda_cluster_status..node order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(last) from(select last(totalcost) from alameda_fedemeter..calculate_instance group by nodename)",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_cost",
+        "options": [],
+        "query": "select sum(last) from(select last(totalcost) from alameda_fedemeter..calculate_instance group by nodename)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select io_region from alameda_cluster_status..node order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "current_region",
+        "options": [],
+        "query": "select io_region from alameda_cluster_status..node order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "4.55",
+          "value": "4.55"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -2h  group by time(3600s), namespacename ",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "ns_cost",
+        "options": [],
+        "query": "select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -2h  group by time(3600s), namespacename ",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select sum(top5) from (select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname fill(0))",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "app_cost",
+        "options": [],
+        "query": "select sum(top5) from (select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname fill(0))",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now+15m"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "Cost Allocation",
+  "uid": "WLJFE_FWk",
+  "version": 33
+}
