@@ -17,7 +17,7 @@ check_queue_dedup()
 {
 local queue_name=$1
 echo "Checking queue $queue_name deduplication"
-queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep $queue_name | cut -d '|' -f 3 | awk '{$1=$1;print}'`
+queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep " $queue_name " | cut -d '|' -f 3 | awk '{$1=$1;print}'`
 
 if [ "$queue_size" == "" ]; then
     echo "no result"

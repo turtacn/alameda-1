@@ -1,4 +1,4 @@
-FROM docker.io/rabbitmq:3.7.17-management-alpine
+FROM docker.io/rabbitmq:3.7.18-management-alpine
 
 COPY plugins/ plugins/
 COPY init.sh /init.sh
