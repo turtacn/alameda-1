@@ -345,7 +345,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(value) as value from alameda_gpu..nvidia_gpu_duty_cycle  where host =~ /^[[host]]$/ and time >= now() - 5d and time <= now() + 1d and uuid =~ /^[[uuid]]$/ group by host, uuid, time(3600s) fill(none)",
+          "query": "select mean(value) as value from alameda_gpu_prediction..nvidia_gpu_duty_cycle  where host =~ /^[[host]]$/ and time >= now() - 5d and time <= now() + 1d and uuid =~ /^[[uuid]]$/ group by host, uuid, time(3600s) fill(none)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -387,7 +387,7 @@
       },
       "yaxes": [
         {
-          "format": "percent",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -511,7 +511,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(value) from alameda_gpu..uuid_of_gpu_memory_utilization  where host =~ /^[[host]]$/ and time >= now() - 5d and time <= now() + 1d and uuid =~ /^[[uuid]]$/  group by host, uuid , time(3600s) fill(none)",
+          "query": "select mean(value) from alameda_gpu_prediction..nvidia_gpu_memory_usage_percentage  where host =~ /^[[host]]$/ and time >= now() - 5d and time <= now() + 1d and uuid =~ /^[[uuid]]$/  group by host, uuid , time(3600s) fill(none)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -586,8 +586,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "gn0109.twcc.ai",
-          "value": "gn0109.twcc.ai"
+          "text": "gn0101.twcc.ai",
+          "value": "gn0101.twcc.ai"
         },
         "datasource": "InfluxDB",
         "definition": "select host, value from alameda_gpu..nvidia_gpu_num_devices where $timeFilter group by host limit 1",
@@ -664,8 +664,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "gn0109.twcc.ai",
-          "value": "gn0109.twcc.ai"
+          "text": "gn0101.twcc.ai",
+          "value": "gn0101.twcc.ai"
         },
         "datasource": "InfluxDB",
         "definition": "SHOW TAG VALUES ON \"alameda_gpu\" FROM \"gpu_counting_k8s\" WITH KEY = \"NodeName\" WHERE \"NodeName\" =~ /^[[host]]$/",
@@ -677,8 +677,8 @@
         "options": [
           {
             "selected": true,
-            "text": "gn0109.twcc.ai",
-            "value": "gn0109.twcc.ai"
+            "text": "gn0101.twcc.ai",
+            "value": "gn0101.twcc.ai"
           }
         ],
         "query": "SHOW TAG VALUES ON \"alameda_gpu\" FROM \"gpu_counting_k8s\" WITH KEY = \"NodeName\" WHERE \"NodeName\" =~ /^[[host]]$/",
@@ -695,7 +695,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-5d",
     "to": "now"
   },
   "timepicker": {
