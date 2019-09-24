@@ -21,6 +21,7 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -52,6 +53,7 @@ var _ webhook.Defaulter = &AlamedaNotificationChannel{}
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *AlamedaNotificationChannel) Default() {
 
+	needUpdateAnnotation := false
 	channelWhScope.Debugf("default webhook for channel: %s", r.Name)
 	if r.Spec.Email.Encryption == "" {
 		r.Spec.Email.Encryption = "tls"
@@ -76,6 +78,16 @@ func (r *AlamedaNotificationChannel) Default() {
 	testVal, ok := annotations["notifying.containers.ai/test-channel"]
 	if !ok || testVal == "" {
 		annotations["notifying.containers.ai/test-channel"] = "done"
+		needUpdateAnnotation = true
+	}
+	_, ok = annotations["notifying.containers.ai/webhook-mutation"]
+	if !ok {
+		annotations["notifying.containers.ai/webhook-mutation"] = "ok"
+		needUpdateAnnotation = true
+		channelWhScope.Infof("Add annotation \"webhook-mutation\" for AlamedaNotificationChannel CR(%s)",
+			r.GetName())
+	}
+	if needUpdateAnnotation {
 		r.SetAnnotations(annotations)
 	}
 }
@@ -86,7 +98,7 @@ var _ webhook.Validator = &AlamedaNotificationChannel{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *AlamedaNotificationChannel) ValidateCreate() error {
-	return r.validateAlamedaNotificationChannel()
+	return r.validateAlamedaNotificationChannel("create")
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
@@ -96,14 +108,38 @@ func (r *AlamedaNotificationChannel) ValidateDelete() error {
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *AlamedaNotificationChannel) ValidateUpdate(old runtime.Object) error {
-	return r.validateAlamedaNotificationChannel()
+	return r.validateAlamedaNotificationChannel("update")
 }
 
-func (r *AlamedaNotificationChannel) validateAlamedaNotificationChannel() error {
+func (r *AlamedaNotificationChannel) validateAlamedaNotificationChannel(op string) error {
 	var allErrs field.ErrorList
 	channelType := r.Spec.Type
+	crName := r.GetName()
 
-	annotations := r.GetObjectMeta().GetAnnotations()
+	channelWhScope.Debugf("validateAlamedaNotificationChannel enter, op=%s", op)
+	//annotations := r.GetObjectMeta().GetAnnotations()
+	annotations := r.GetAnnotations()
+
+	if op != "create" {
+		// do not update annotation when CR creation due to something in CR data may not ready yet
+		// update CR may get error "resource name may not be empty"
+		val, ok := annotations["notifying.containers.ai/webhook-validation"]
+		channelWhScope.Debugf("validateAlamedaNotificationChannel, webhook-validation: %v, val:[%v]", ok, val)
+		if !ok {
+			channelWhScope.Infof("Add annotation \"webhook-validation\" for AlamedaNotificationChannel CR(%s)",
+				crName)
+			annotations["notifying.containers.ai/webhook-validation"] = "ok"
+			r.SetAnnotations(annotations)
+			err := r.updateAnnotationToCR()
+			if err != nil {
+				channelWhScope.Errorf("validateAlamedaNotificationChannel: failed to update CR(%s) annotations: %s",
+					crName, err.Error())
+			}
+		} else {
+			channelWhScope.Debugf("validateAlamedaNotificationChannel, webhook-validation is existing")
+		}
+	}
+
 	if testChannel, ok := annotations["notifying.containers.ai/test-channel"]; ok {
 		if strings.ToLower(testChannel) != "start" && strings.ToLower(testChannel) != "done" {
 			allErrs = append(allErrs, field.Invalid(field.NewPath("metadata").Child("annotations").
@@ -142,7 +178,41 @@ func (r *AlamedaNotificationChannel) validateAlamedaNotificationChannel() error 
 	if len(allErrs) == 0 {
 		return nil
 	}
+	channelWhScope.Debugf("validateAlamedaNotificationChannel error end: %v", allErrs)
 	return apierrors.NewInvalid(
 		schema.GroupKind{Group: "notifying.containers.ai", Kind: "AlamedaNotificationChannel"},
 		r.Name, allErrs)
+}
+
+func (r *AlamedaNotificationChannel) updateAnnotationToCR() error {
+	var err error
+	retry := int(10)
+	crName := r.GetName()
+	crNamespace := r.GetNamespace()
+	k8sclnt := r.mgr.GetClient()
+	channelWhScope.Debugf("UpdateAnnotationToCR, CR values: %#v", r)
+	for i:=0; i < retry; i++ {
+		channelWhScope.Debugf("  =>update CR(%s) %d", crName, i)
+		currChannel := &AlamedaNotificationChannel{}
+		k8sclnt.Get(context.TODO(), client.ObjectKey{
+			Namespace: crNamespace,
+			Name:      crName,
+		}, currChannel)
+		// update modified annotation to CR
+		currChannel.Annotations = r.GetAnnotations()
+		err = k8sclnt.Update(context.TODO(), currChannel)
+		if err == nil {
+			break
+		}
+		channelWhScope.Debugf("Failed to update AlamedaNotificationChannel CR(%s) annotation (retry: %d): %s",
+			crName, i, err.Error())
+		time.Sleep(100 * time.Millisecond)
+	}
+	if err == nil {
+		channelWhScope.Infof("Update AlamedaNotificationChannel CR(%s) annotation successfully", crName)
+	} else {
+		channelWhScope.Errorf("Failed to update AlamedaNotificationChannel CR(%s) annotation: %s",
+			crName, err.Error())
+	}
+	return err
 }
