@@ -312,7 +312,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select top(costpercentage, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -1h  group by time(3600s), namespacename",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and namespacename =~ /^[[ns_top_5]]$/ and time >= now() -100m group by time(3600s), namespacename fill(previous)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -350,7 +350,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and appname =~ /^[[app_top_5]]$/ and time >= now() -100m and namespacename = '$ns' group by time(3600s), appname fill(previous)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -387,7 +387,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select 100 - sum(top) from (select top(costpercentage, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -1h  group by time(3600s), namespacename)",
+          "query": "select 100 - sum(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and namespacename =~ /^[[ns_top_5]]$/ and time >= now() -100m group by time(3600s)",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -424,7 +424,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select 100 - sum(top) from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname)",
+          "query": "select 100 - sum(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and appname =~ /^[[app_top_5]]$/ and time >= now() -100m  and namespacename = '$ns' group by time(3600s)",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -446,7 +446,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Percentage",
+      "title": "Top 5 $scope Cost Percentage",
       "type": "grafana-piechart-panel",
       "valueName": "current"
     },
@@ -466,7 +466,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 3,
+        "col": 4,
         "desc": true
       },
       "styles": [{
@@ -490,102 +490,6 @@
           "thresholds": [],
           "type": "string",
           "unit": "short"
-        },
-        {
-          "alias": "CPU Utilization",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "cpuutilization",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [{
-            "text": "398",
-            "value": "1"
-          }]
-        },
-        {
-          "alias": "Memory Utilization",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "memoryutilization",
-          "thresholds": [],
-          "type": "string",
-          "unit": "bytes",
-          "valueMaps": [{
-            "text": "24 MiB",
-            "value": "1"
-          }]
-        },
-        {
-          "alias": "PodCount",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "podCount",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        },
-        {
-          "alias": "Estimated Cost",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "estimatedcost",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [{
-            "text": "48.25",
-            "value": "1"
-          }]
-        },
-        {
-          "alias": "Percentage",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "percentage",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "valueMaps": [{
-            "text": "33.33%",
-            "value": "1"
-          }]
         },
         {
           "alias": "Provider",
@@ -643,6 +547,38 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "namespacename",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "appname",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
           "decimals": 2,
           "pattern": "/.*/",
           "thresholds": [],
@@ -671,7 +607,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now()-1h group by namespacename) ",
+          "query": "select last(\"name\") as \"name\", last(\"provider\") as \"provider\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from (select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now()-100m group by namespacename)) group by namespacename",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -708,7 +644,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select appname as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from (select * from alameda_fedemeter..history_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now()-1h group by appname)",
+          "query": "select last(\"name\") as \"name\", last(\"provider\") as \"provider\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from ( select \"name\", provider, costpercentage, workloadcost from (select appname as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from alameda_fedemeter..history_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now()-100m and namespacename = '$ns' group by appname)) group by appname",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -751,7 +687,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "-- Mixed --",
-      "fill": 0,
+      "fill": 2,
       "gridPos": {
         "h": 10,
         "w": 24,
@@ -779,7 +715,7 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [{
           "alias": "$tag_namespacename",
@@ -838,7 +774,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now()-5d and time <= now() group by time(3600s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now()-5d and time <= now() and namespacename = '$ns' group by time(3600s), appname",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -914,7 +850,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now() and time <= now() +1d group by time(3600s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now() and time <= now() +1d and namespacename = '$ns' group by time(3600s), appname",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -994,7 +930,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "-- Mixed --",
-      "fill": 0,
+      "fill": 2,
       "gridPos": {
         "h": 10,
         "w": 24,
@@ -1081,7 +1017,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '21600'  and 'Application' = '$scope' and time >= now()-5w and time <= now() group by time(21600s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '21600'  and 'Application' = '$scope' and time >= now()-5w and time <= now() and namespacename = '$ns' group by time(21600s), appname",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1157,7 +1093,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '21600'  and 'Application' = '$scope' and time >= now() and time <= now() +1w group by time(21600s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '21600'  and 'Application' = '$scope' and time >= now() and time <= now() +1w and namespacename = '$ns' group by time(21600s), appname",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -1237,7 +1173,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "-- Mixed --",
-      "fill": 0,
+      "fill": 2,
       "gridPos": {
         "h": 10,
         "w": 24,
@@ -1324,7 +1260,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '86400'  and 'Application' = '$scope' and time >= now()-20w and time <= now() group by time(86400s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '86400'  and 'Application' = '$scope' and time >= now()-20w and time <= now() and namespacename = '$ns' group by time(86400s), appname",
           "rawQuery": true,
           "refId": "D",
           "resultFormat": "time_series",
@@ -1400,7 +1336,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '86400'  and 'Application' = '$scope' and time >= now() and time <= now() +4w group by time(86400s), appname",
+          "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_app where granularity = '86400'  and 'Application' = '$scope' and time >= now() and time <= now() +4w and namespacename = '$ns' group by time(86400s), appname",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -1421,9 +1357,9 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": "6d",
+      "timeFrom": "21w",
       "timeRegions": [],
-      "timeShift": "0d+1d",
+      "timeShift": "0w+4w",
       "title": "Cost: Observation, and Prediction",
       "tooltip": {
         "shared": true,
@@ -1462,7 +1398,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "30s",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
@@ -1503,6 +1439,32 @@
           "value": ""
         },
         "datasource": "InfluxDB",
+        "definition": "show tag values on alameda_fedemeter from history_cost_app with key = \"namespacename\" where granularity = '3600' and 'Application' = '$scope' and time >= now()-100m",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Namespace",
+        "multi": false,
+        "name": "ns",
+        "options": [],
+        "query": "show tag values on alameda_fedemeter from history_cost_app with key = \"namespacename\" where granularity = '3600' and 'Application' = '$scope' and time >= now()-100m",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "aws",
+          "value": "aws"
+        },
+        "datasource": "InfluxDB",
         "definition": "select io_provider from alameda_cluster_status..node order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
@@ -1530,14 +1492,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(last) from(select last(totalcost) from alameda_fedemeter..calculate_instance group by nodename)",
+        "definition": "select sum(totalcost) as totalcost from alameda_fedemeter..calculate_instance where time >= now() -60m group by time(1s) fill(none) order by time desc limit 1",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "current_cost",
         "options": [],
-        "query": "select sum(last) from(select last(totalcost) from alameda_fedemeter..calculate_instance group by nodename)",
+        "query": "select sum(totalcost) as totalcost from alameda_fedemeter..calculate_instance where time >= now() -60m group by time(1s) fill(none) order by time desc limit 1",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1578,18 +1540,19 @@
       {
         "allValue": null,
         "current": {
-          "text": "4.55",
-          "value": "4.55"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -2h  group by time(3600s), namespacename ",
+        "definition": "select namespacename from (select top(costpercentage, namespacename, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now() -100m  group by time(3600s))",
         "hide": 2,
-        "includeAll": false,
+        "includeAll": true,
         "label": null,
         "multi": false,
-        "name": "ns_cost",
+        "name": "ns_top_5",
         "options": [],
-        "query": "select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_namespace where granularity = '3600' and 'Namespace' = '$scope' and time >= now() -2h  group by time(3600s), namespacename ",
+        "query": "select namespacename from (select top(costpercentage, namespacename, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now() -100m  group by time(3600s))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1603,20 +1566,19 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
           "selected": true,
-          "text": "None",
-          "value": ""
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select sum(top5) from (select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname fill(0))",
+        "definition": "select appname from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and time >= now() -100m  group by time(3600s))",
         "hide": 2,
-        "includeAll": false,
+        "includeAll": true,
         "label": null,
         "multi": false,
-        "name": "app_cost",
+        "name": "app_top_5",
         "options": [],
-        "query": "select sum(top5) from (select top(costpercentage, 5) as top5 from alameda_fedemeter..history_cost_app where granularity = '3600' and 'Application' = '$scope' and time >= now() -1h  group by time(3600s), appname fill(0))",
+        "query": "select appname from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and time >= now() -100m  group by time(3600s))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
