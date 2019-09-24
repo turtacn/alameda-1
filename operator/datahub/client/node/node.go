@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	operatorutils "github.com/containers-ai/alameda/operator/pkg/utils"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -15,6 +16,7 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 type role = string
@@ -22,6 +24,8 @@ type role = string
 const (
 	masterRole role = "master"
 	workerRole role = "worker"
+
+	defaultNodeStorageSize = "100Gi"
 )
 
 var (
@@ -108,6 +112,8 @@ func newNodeInfo(k8sNode corev1.Node) (nodeInfo, error) {
 		}
 	}
 
+	node.setDefaultValue()
+
 	return node, nil
 }
 
@@ -122,6 +128,18 @@ func (n *nodeInfo) patchRoleByK8SLabels(labels map[string]string) {
 	}
 	if !found {
 		n.Role = workerRole
+	}
+}
+
+func (n *nodeInfo) setDefaultValue() {
+
+	storageSize := operatorutils.GetNodeInfoDefaultStorageSizeBytes()
+	if storageSize == "" {
+		storageSize = defaultNodeStorageSize
+	}
+	defaultNodeStorageQuantity := resource.MustParse(storageSize)
+	if n.StorageSize == 0 {
+		n.StorageSize = defaultNodeStorageQuantity.Value()
 	}
 }
 
