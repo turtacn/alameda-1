@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -40,6 +41,10 @@ func ParseResourceLinkForTopController(resourceLink string) (*datahub_v1alpha1.T
 		}, nil
 	}
 	return &datahub_v1alpha1.TopController{}, fmt.Errorf("resource link format is not correct")
+}
+
+func GetNodeInfoDefaultStorageSizeBytes() string {
+	return os.Getenv("ALAMEDA_OPERATOR_DEFAULT_NODEINFO_STORAGESIZE_BYTES")
 }
 
 var (
