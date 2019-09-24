@@ -3,6 +3,7 @@ package impl
 import (
 	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia"
 	DatahubMetric "github.com/containers-ai/alameda/datahub/pkg/metric"
+	RepoInfluxGpuMetric "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/gpu/nvidia/metric"
 	RepoInfluxGpuPrediction "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb/gpu/nvidia/prediction"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
@@ -44,8 +45,15 @@ func (p Prediction) CreatePredictions(predictions DaoGpu.GpuPredictionMap) error
 				break
 			}
 		case DatahubMetric.TypeGpuMemoryUsedBytes:
-			predictionRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesRepositoryWithConfig(p.InfluxDBConfig)
-			err = predictionRepo.CreatePredictions(predictions[DatahubMetric.TypeGpuMemoryUsedBytes])
+			memoryUsageRepo := RepoInfluxGpuPrediction.NewMemoryUsagePercentageRepositoryWithConfig(p.InfluxDBConfig)
+			err = memoryUsageRepo.CreatePredictions(p.buildMemoryUsagePrediction(predictions[DatahubMetric.TypeGpuMemoryUsedBytes]))
+			if err != nil {
+				scope.Error(err.Error())
+				break
+			}
+
+			memoryUsedRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesRepositoryWithConfig(p.InfluxDBConfig)
+			err = memoryUsedRepo.CreatePredictions(predictions[DatahubMetric.TypeGpuMemoryUsedBytes])
 			if err != nil {
 				scope.Error(err.Error())
 				break
@@ -275,6 +283,46 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 	}
 
 	return gpuPredictionMap, nil
+}
+
+func (p Prediction) buildMemoryUsagePrediction(memoryUsedBytesPredictions []*DaoGpu.GpuPrediction) []*DaoGpu.GpuPrediction {
+	predictions := make([]*DaoGpu.GpuPrediction, 0)
+
+	memoryTotalRepo := RepoInfluxGpuMetric.NewMemoryTotalBytesRepositoryWithConfig(p.InfluxDBConfig)
+	memoryTotalMetrics, err := memoryTotalRepo.ListMemoryTotalBytes("", "", DBCommon.NewQueryCondition(0, 1, 0, 30))
+	if err != nil {
+		scope.Error(err.Error())
+		scope.Error("failed to list memory total bytes when build memory usage percentage list")
+		return make([]*DaoGpu.GpuPrediction, 0)
+	}
+
+	for _, memoryUsedBytes := range memoryUsedBytesPredictions {
+		for _, memoryTotal := range memoryTotalMetrics {
+			if memoryUsedBytes.Uuid == *memoryTotal.Uuid {
+				gpuPrediction := DaoGpu.NewGpuPrediction()
+				gpuPrediction.Name = memoryUsedBytes.Name
+				gpuPrediction.Uuid = memoryUsedBytes.Uuid
+				gpuPrediction.Metadata.Host = memoryUsedBytes.Metadata.Host
+				gpuPrediction.Metadata.Instance = memoryUsedBytes.Metadata.Instance
+				gpuPrediction.Metadata.Job = memoryUsedBytes.Metadata.Job
+				gpuPrediction.Metadata.MinorNumber = memoryUsedBytes.Metadata.MinorNumber
+				gpuPrediction.Granularity = memoryUsedBytes.Granularity
+
+				for _, metric := range memoryUsedBytes.Metrics {
+					usedBytes, _ := strconv.ParseFloat(metric.Value, 64)
+					percentage := usedBytes / *memoryTotal.Value
+					sample := DatahubMetric.Sample{Timestamp: metric.Timestamp, Value: strconv.FormatFloat(percentage, 'f', -1, 64)}
+
+					gpuPrediction.Metrics = append(gpuPrediction.Metrics, sample)
+				}
+				predictions = append(predictions, gpuPrediction)
+
+				break
+			}
+		}
+	}
+
+	return predictions
 }
 
 func buildGpu(name, uuid, host, instance, job, minorNumber *string) *DaoGpu.Gpu {

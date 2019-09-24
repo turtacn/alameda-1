@@ -1,11 +1,9 @@
 package common
 
 import (
-	//"fmt"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
-	//"github.com/pkg/errors"
 	"time"
 )
 
@@ -18,6 +16,24 @@ type QueryCondition struct {
 	TimestampOrder            Order
 	Limit                     int
 	AggregateOverTimeFunction AggregateFunction
+}
+
+func NewQueryCondition(days, hours, seconds, steps int) *QueryCondition {
+	totalSeconds := (days * 24 * 60 * 60) + (hours * 60) + seconds
+	endTime      := time.Now()
+	startTime    := endTime.Add(time.Duration(-totalSeconds) * time.Second)
+	duration     := time.Duration(steps) * time.Second
+
+	queryCondition := &QueryCondition{
+		StartTime:                 &startTime,
+		EndTime:                   &endTime,
+		StepTime:                  &duration,
+		TimestampOrder:            Desc,
+		Limit:                     1,
+		AggregateOverTimeFunction: None,
+	}
+
+	return queryCondition
 }
 
 func BuildQueryCondition(condition *Common.QueryCondition) QueryCondition {

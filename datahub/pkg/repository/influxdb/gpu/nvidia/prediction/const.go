@@ -8,6 +8,7 @@ const (
 	DutyCycle                      InternalInflux.Measurement = "nvidia_gpu_duty_cycle"
 	DutyCycleLowerBound            InternalInflux.Measurement = "nvidia_gpu_duty_cycle_lower_bound"
 	DutyCycleUpperBound            InternalInflux.Measurement = "nvidia_gpu_duty_cycle_upper_bound"
+	MemoryUsagePercentage          InternalInflux.Measurement = "nvidia_gpu_memory_usage_percentage"
 	MemoryUsedBytes                InternalInflux.Measurement = "nvidia_gpu_memory_used_bytes"
 	MemoryUsedBytesLowerBound      InternalInflux.Measurement = "nvidia_gpu_memory_used_bytes_lower_bound"
 	MemoryUsedBytesUpperBound      InternalInflux.Measurement = "nvidia_gpu_memory_used_bytes_upper_bound"
