@@ -1,18 +1,16 @@
 package app
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
+	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/dispatcher"
-	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
+	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	alameda_app "github.com/containers-ai/alameda/cmd/app"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -25,6 +23,11 @@ var (
 
 	scope *log.Scope
 )
+
+func launchMetricServer() {
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(":9091", nil)
+}
 
 const (
 	envVarPrefix = "ALAMEDA_AI_DISPATCHER"
@@ -74,13 +77,16 @@ var rootCmd = &cobra.Command{
 		}
 
 		defer conn.Close()
+		metricExporter := metrics.NewExporter()
+		go launchMetricServer()
 		granularities := viper.GetStringSlice("serviceSetting.granularities")
 		predictUnits := viper.GetStringSlice("serviceSetting.predictUnits")
 		modelMapper := dispatcher.NewModelMapper(predictUnits, granularities)
 		if viper.GetBool("model.enabled") {
-			go modelCompleteNotification(modelMapper, conn)
+			go dispatcher.ModelCompleteNotification(modelMapper, conn, metricExporter)
 		}
-		dp := dispatcher.NewDispatcher(conn, granularities, predictUnits, modelMapper)
+		dp := dispatcher.NewDispatcher(conn, granularities, predictUnits,
+			modelMapper, metricExporter)
 		dp.Start()
 	},
 }
@@ -146,107 +152,5 @@ func setLoggerScopesWithConfig() {
 		if stacktraceLevel, ok := log.StringToLevel(stackTraceLvl); ok {
 			scope.SetStackTraceLevel(stacktraceLevel)
 		}
-	}
-}
-
-func modelCompleteNotification(modelMapper *dispatcher.ModelMapper, datahubGrpcCn *grpc.ClientConn) {
-
-	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(datahubGrpcCn)
-	predictJobSender := dispatcher.NewPredictJobSender(datahubGrpcCn)
-	reconnectInterval := viper.GetInt64("queue.consumer.reconnectInterval")
-	queueConnRetryItvMS := viper.GetInt64("queue.retry.connectIntervalMs")
-
-	modelCompleteQueue := "model_complete"
-	queueURL := viper.GetString("queue.url")
-	for {
-		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
-		queueConsumer := queue.NewRabbitMQConsumer(queueConn)
-		queueSender := queue.NewRabbitMQSender(queueConn)
-		for {
-			msg, ok, err := queueConsumer.ReceiveJsonString(modelCompleteQueue)
-			if err != nil {
-				scope.Errorf("Get message from model complete queue error: %s", err.Error())
-				break
-			}
-			if !ok {
-				scope.Infof("No jobs found in queue %s, retry to get jobs next %v seconds",
-					modelCompleteQueue, reconnectInterval)
-				time.Sleep(time.Duration(reconnectInterval) * time.Second)
-				break
-			}
-
-			var msgMap map[string]interface{}
-			msgByte := []byte(msg)
-			if err := json.Unmarshal(msgByte, &msgMap); err != nil {
-				scope.Errorf("decode model complete job from queue failed: %s", err.Error())
-				break
-			}
-
-			unit := msgMap["unit"].(map[string]interface{})
-			unitType := msgMap["unit_type"].(string)
-			dataGranularity := msgMap["data_granularity"].(string)
-			if unitType == dispatcher.UnitTypeNode {
-				nodeName := unit["name"].(string)
-				modelMapper.RemoveModelInfo(unitType, dataGranularity, nodeName)
-
-				res, err := datahubServiceClnt.ListNodes(context.Background(),
-					&datahub_v1alpha1.ListNodesRequest{
-						NodeNames: []string{nodeName},
-					})
-				if err == nil {
-					nodes := res.GetNodes()
-					if len(nodes) > 0 {
-						scope.Infof("node %s model job completed and send predict job for granularity %s",
-							nodeName, dataGranularity)
-						predictJobSender.SendNodePredictJobs(nodes, queueSender,
-							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
-					}
-				}
-			} else if unitType == dispatcher.UnitTypePod {
-				podNamespacedName := unit["namespaced_name"].(map[string]interface{})
-				podNS := podNamespacedName["namespace"].(string)
-				podName := podNamespacedName["name"].(string)
-				modelMapper.RemoveModelInfo(unitType, dataGranularity,
-					fmt.Sprintf("%s/%s", podNS, podName))
-
-				res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
-					&datahub_v1alpha1.ListAlamedaPodsRequest{
-						NamespacedName: &datahub_v1alpha1.NamespacedName{
-							Namespace: podNS,
-							Name:      podName,
-						},
-					})
-				if err == nil {
-					pods := res.GetPods()
-					if len(pods) > 0 {
-						scope.Infof("pod %s/%s model job completed and send predict job for granularity %s",
-							podNS, podName, dataGranularity)
-						predictJobSender.SendPodPredictJobs(pods, queueSender,
-							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
-					}
-				}
-			} else if unitType == dispatcher.UnitTypeGPU {
-				gpuHost := unit["host"].(string)
-				gpuMinorNumber := unit["minor_number"].(string)
-				modelMapper.RemoveModelInfo(unitType, dataGranularity,
-					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
-
-				res, err := datahubServiceClnt.ListGpus(context.Background(),
-					&datahub_v1alpha1.ListGpusRequest{
-						Host:        gpuHost,
-						MinorNumber: gpuMinorNumber,
-					})
-				if err == nil {
-					gpus := res.GetGpus()
-					if len(gpus) > 0 {
-						scope.Infof("gpu (host: %s, minor number: %s) model job completed and send predict job for granularity %s",
-							gpuHost, gpuMinorNumber, dataGranularity)
-						predictJobSender.SendGPUPredictJobs(gpus, queueSender,
-							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
-					}
-				}
-			}
-		}
-		queueConn.Close()
 	}
 }

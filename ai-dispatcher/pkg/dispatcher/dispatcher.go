@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -36,8 +37,8 @@ type Dispatcher struct {
 }
 
 func NewDispatcher(datahubGrpcCn *grpc.ClientConn, granularities []string,
-	predictUnits []string, modelMapper *ModelMapper) *Dispatcher {
-	modelJobSender := NewModelJobSender(datahubGrpcCn, modelMapper)
+	predictUnits []string, modelMapper *ModelMapper, metricExporter *metrics.Exporter) *Dispatcher {
+	modelJobSender := NewModelJobSender(datahubGrpcCn, modelMapper, metricExporter)
 	predictJobSender := NewPredictJobSender(datahubGrpcCn)
 	dispatcher := &Dispatcher{
 		svcGranularities: granularities,
@@ -102,6 +103,10 @@ func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64,
 		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
 		queueSender := queue.NewRabbitMQSender(queueConn)
 		for _, pdUnit := range dispatcher.svcPredictUnits {
+			if pdUnit != UnitTypeNode && pdUnit != UnitTypePod &&
+				(pdUnit != UnitTypeGPU || granularity != 3600) {
+				continue
+			}
 
 			pdUnitType := viper.GetString(fmt.Sprintf("predictUnits.%s.type", pdUnit))
 
@@ -162,7 +167,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		}
 		scope.Infof("Sending %v pod jobs to queue completely with granularity %v seconds.",
 			len(pods), granularity)
-	} else if pdUnit == UnitTypeGPU && granularity == 3600 {
+	} else if pdUnit == UnitTypeGPU {
 		res, err := datahubServiceClnt.ListGpus(context.Background(),
 			&datahub_v1alpha1.ListGpusRequest{})
 		if err != nil {

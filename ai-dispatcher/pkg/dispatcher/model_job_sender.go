@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -18,13 +19,16 @@ type modelJobSender struct {
 	datahubGrpcCn  *grpc.ClientConn
 	modelThreshold float64
 	modelMapper    *ModelMapper
+	metricExporter *metrics.Exporter
 }
 
-func NewModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapper) *modelJobSender {
+func NewModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapper,
+	metricExporter *metrics.Exporter) *modelJobSender {
 	return &modelJobSender{
 		datahubGrpcCn:  datahubGrpcCn,
 		modelThreshold: viper.GetFloat64("model.threshold"),
 		modelMapper:    modelMapper,
+		metricExporter: metricExporter,
 	}
 }
 
@@ -85,7 +89,15 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 						nodeName, granularity, err.Error())
 					continue
 				}
+
+				scope.Infof("export node %s drift counter with granularity %s",
+					nodeName, dataGranularity)
+				dispatcher.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
 				err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
+				if err != nil {
+					scope.Errorf("Send model job payload failed for node %s with granularity seconds %v. %s",
+						nodeName, granularity, err.Error())
+				}
 			}
 			continue
 		}
@@ -102,8 +114,8 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 					NodeNames:      []string{nodePrediction.GetName()},
 				})
 			if err != nil {
-				scope.Errorf("List nodes metric with granularity %v for sending model job failed: %s",
-					granularity, err.Error())
+				scope.Errorf("List nodes %s metric with granularity %v for sending model job failed: %s",
+					nodeName, granularity, err.Error())
 				continue
 			}
 
@@ -121,12 +133,18 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 							scope.Infof("start MAPE calculation for node %s metric %v with granularity %v",
 								nodeName, metricType, granularity)
 							measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-							mape, err := stats.MAPE(measurementDataSet)
-							if err != nil {
+							mape, mapeErr := stats.MAPE(measurementDataSet)
+							if mapeErr == nil {
+								scope.Infof("export MAPE value %v for node %s metric %v with granularity %v", mape,
+									nodeName, metricType, granularity)
+								dispatcher.metricExporter.SetNodeMetricMAPE(nodeName,
+									queue.GetMetricLabel(metricDatum.GetMetricType()), queue.GetGranularityStr(granularity), mape)
+							}
+							if mapeErr != nil {
 								nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricType)
 								scope.Infof(
 									"model job for node %s metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
-									nodeName, metricType, granularity, err.Error())
+									nodeName, metricType, granularity, mapeErr.Error())
 							} else if mape > dispatcher.modelThreshold {
 								nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricType)
 								scope.Infof("model job node %s metric %v with granularity %v should be sent due to MAPE %v > %v",
@@ -158,6 +176,10 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 							nodeName, granularity, err.Error())
 						continue
 					}
+
+					scope.Infof("export node %s drift counter with granularity %s",
+						nodeName, dataGranularity)
+					dispatcher.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
 					err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 					if err == nil {
 						dispatcher.modelMapper.AddModelInfo(pdUnit, dataGranularity, nodeInfo)
@@ -240,7 +262,16 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 						podNS, podName, granularity, err.Error())
 					continue
 				}
+
+				scope.Infof("export pod %s/%s drift counter with granularity %s",
+					podNS, podName, dataGranularity)
+				dispatcher.metricExporter.AddPodMetricDrift(podNS, podName,
+					queue.GetGranularityStr(granularity), 1.0)
 				err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
+				if err != nil {
+					scope.Errorf("Send model job payload for pod (%s/%s) with granularity %v failed: %s",
+						podNS, podName, granularity, err.Error())
+				}
 			}
 			continue
 		}
@@ -260,8 +291,8 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 					NamespacedName: podPrediction.GetNamespacedName(),
 				})
 			if err != nil {
-				scope.Errorf("List pods metric with granularity %v for sending model job failed: %s",
-					granularity, err.Error())
+				scope.Errorf("List pods (%s/%s) metric with granularity %v for sending model job failed: %s",
+					podNS, podName, granularity, err.Error())
 				continue
 			}
 			podMetrics := podMetricsRes.GetPodMetrics()
@@ -283,12 +314,19 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 									scope.Infof("start MAPE calculation for pod %s/%s container %s metric %v with granularity %v",
 										podNS, podName, containerName, metricType, granularity)
 									measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-									mape, err := stats.MAPE(measurementDataSet)
-									if err != nil {
+									mape, mapeErr := stats.MAPE(measurementDataSet)
+									if mapeErr == nil {
+										scope.Infof("export MAPE value %v for pod %s/%s container %s metric %v with granularity %v", mape,
+											podNS, podName, containerName, metricType, granularity)
+										dispatcher.metricExporter.SetContainerMetricMAPE(podNS, podName, containerName,
+											queue.GetMetricLabel(metricDatum.GetMetricType()), queue.GetGranularityStr(granularity), mape)
+									}
+
+									if mapeErr != nil {
 										modelMetrics = append(modelMetrics, metricType)
 										scope.Infof(
 											"model job for pod %s/%s container %s metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
-											podNS, podName, containerName, metricType, granularity, err.Error())
+											podNS, podName, containerName, metricType, granularity, mapeErr.Error())
 									} else if mape > dispatcher.modelThreshold {
 										modelMetrics = append(modelMetrics, metricType)
 										scope.Infof("pod %s/%s container %s metric %v with granularity %v should be sent due to MAPE %v > %v",
@@ -326,6 +364,11 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 						scope.Errorf("Prepare model job payload failed for pod %s/%s with granularity %v seconds. %s",
 							podNS, podName, granularity, err.Error())
 					}
+
+					scope.Infof("export pod %s/%s drift counter with granularity %s",
+						podNS, podName, dataGranularity)
+					dispatcher.metricExporter.AddPodMetricDrift(podNS, podName,
+						queue.GetGranularityStr(granularity), 1.0)
 					err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 					if err == nil {
 						dispatcher.modelMapper.AddModelInfo(pdUnit, dataGranularity, podInfo)
@@ -367,13 +410,13 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 				QueryCondition: queryCondition,
 			})
 		if err != nil {
-			scope.Errorf("Get gpu host: %s minor number %s Prediction with granularity %v for sending model job failed: %s",
+			scope.Errorf("Get (gpu host: %s minor number: %s) Prediction with granularity %v for sending model job failed: %s",
 				gpuHost, gpuMinorNumber, granularity, err.Error())
 			continue
 		}
 		gpuPredictions := gpuPredictRes.GetGpuPredictions()
 		if len(gpuPredictions) == 0 {
-			scope.Infof("No predict found for gpu host: %s minor number %s with granularity %v, send model job to queue.",
+			scope.Infof("No predict found for (gpu host: %s minor number: %s) with granularity %v, send model job to queue.",
 				gpuHost, gpuMinorNumber, granularity)
 			gpuInfo := new(modelInfo)
 			gpuInfo.Host = gpuHost
@@ -387,7 +430,7 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 			gpuStr, err := marshaler.MarshalToString(gpu)
 			//gpuStr, err := marshaler.MarshalToString(gpuInfo)
 			if err != nil {
-				scope.Errorf("Encode pb message failed for gpu host: %s minor number %s with granularity seconds %v. %s",
+				scope.Errorf("Encode pb message failed for (gpu host: %s minor number: %s) with granularity seconds %v. %s",
 					gpuHost, gpuMinorNumber, granularity, err.Error())
 				continue
 			}
@@ -395,11 +438,20 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 				jb := queue.NewJobBuilder(pdUnit, granularity, gpuStr)
 				jobJSONStr, err := jb.GetJobJSONString()
 				if err != nil {
-					scope.Errorf("Prepare model job payload failed for gpu host: %s minor number %s with granularity seconds %v. %s",
+					scope.Errorf("Prepare model job payload failed for (gpu host: %s minor number: %s) with granularity seconds %v. %s",
 						gpuHost, gpuMinorNumber, granularity, err.Error())
 					continue
 				}
+
+				scope.Infof("export (gpu host: %s minor number: %s) drift counter with granularity %s",
+					gpuHost, gpuMinorNumber, dataGranularity)
+				dispatcher.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
+					queue.GetGranularityStr(granularity), 1.0)
 				err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
+				if err != nil {
+					scope.Errorf("Send model job payload failed for (gpu host: %s minor number: %s) with granularity seconds %v. %s",
+						gpuHost, gpuMinorNumber, granularity, err.Error())
+				}
 			}
 			continue
 		}
@@ -418,8 +470,8 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 					MinorNumber:    gpuMinorNumber,
 				})
 			if err != nil {
-				scope.Errorf("List gpu metric with granularity %v for sending model job failed: %s",
-					granularity, err.Error())
+				scope.Errorf("List gpu (gpu host: %s minor number: %s) metric with granularity %v for sending model job failed: %s",
+					gpuHost, gpuMinorNumber, granularity, err.Error())
 				continue
 			}
 
@@ -434,21 +486,27 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 						mData := metricDatum.GetData()
 						if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
 							metricType := predictRawDatum.GetMetricType()
-							scope.Infof("start MAPE calculation for gpu host: %s minor number %s metric %v with granularity %v",
+							scope.Infof("start MAPE calculation for (gpu host: %s minor number: %s) metric %v with granularity %v",
 								gpuHost, gpuMinorNumber, metricType, granularity)
 							measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-							mape, err := stats.MAPE(measurementDataSet)
+							mape, mapeErr := stats.MAPE(measurementDataSet)
+							if mapeErr == nil {
+								scope.Infof("export MAPE value %v for (gpu host: %s minor number: %s) metric %v with granularity %v", mape,
+									gpuHost, gpuMinorNumber, metricType, granularity)
+								dispatcher.metricExporter.SetGPUMetricMAPE(gpuHost, gpuMinorNumber,
+									queue.GetMetricLabel(metricDatum.GetMetricType()), queue.GetGranularityStr(granularity), mape)
+							}
 							if err != nil {
 								gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricType)
 								scope.Infof(
-									"model job for gpu host: %s minor number %s metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
-									gpuHost, gpuMinorNumber, metricType, granularity, err.Error())
+									"model job for (gpu host: %s minor number: %s) metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
+									gpuHost, gpuMinorNumber, metricType, granularity, mapeErr.Error())
 							} else if mape > dispatcher.modelThreshold {
 								gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricType)
-								scope.Infof("model job gpu host: %s minor number %s metric %v with granularity %v should be sent due to MAPE %v > %v",
+								scope.Infof("model job (gpu host: %s minor number: %s) metric %v with granularity %v should be sent due to MAPE %v > %v",
 									gpuHost, gpuMinorNumber, metricType, granularity, mape, dispatcher.modelThreshold)
 							} else {
-								scope.Infof("gpu host: %s minor number %s metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
+								scope.Infof("(gpu host: %s minor number: %s) metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
 									gpuHost, gpuMinorNumber, metricType, granularity, mape, dispatcher.modelThreshold)
 							}
 						}
@@ -461,7 +519,7 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 				gpuStr, err := marshaler.MarshalToString(gpu)
 				//gpuStr, err := marshaler.MarshalToString(gpuInfo)
 				if err != nil {
-					scope.Errorf("Encode pb message failed for gpu host: %s minor number %s with granularity seconds %v. %s",
+					scope.Errorf("Encode pb message failed for (gpu host: %s minor number: %s) with granularity seconds %v. %s",
 						gpuHost, gpuMinorNumber, granularity, err.Error())
 					continue
 				}
@@ -470,16 +528,21 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 					jobJSONStr, err := jb.GetJobJSONString()
 					if err != nil {
 						scope.Errorf(
-							"Prepare model job payload failed for gpu host: %s minor number %s with granularity seconds %v. %s",
+							"Prepare model job payload failed for (gpu host: %s, minor number: %s) with granularity seconds %v. %s",
 							gpuHost, gpuMinorNumber, granularity, err.Error())
 						continue
 					}
+
+					scope.Infof("export (gpu host: %s minor number: %s) drift counter with granularity %s",
+						gpuHost, gpuMinorNumber, dataGranularity)
+					dispatcher.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
+						queue.GetGranularityStr(granularity), 1.0)
 					err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 					if err == nil {
 						dispatcher.modelMapper.AddModelInfo(pdUnit, dataGranularity, gpuInfo)
 					} else {
 						scope.Errorf(
-							"Send model job payload failed for gpu host: %s minor number %s with granularity seconds %v. %s",
+							"Send model job payload failed for (gpu host: %s minor number: %s) with granularity seconds %v. %s",
 							gpuHost, gpuMinorNumber, granularity, err.Error())
 					}
 				}

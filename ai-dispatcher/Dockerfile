@@ -13,4 +13,5 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/etc/ai-dispatcher.toml /etc/alameda/ai-dispatcher/ai-dispatcher.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/ai-dispatcher .
+EXPOSE 9091
 ENTRYPOINT ["./ai-dispatcher"]

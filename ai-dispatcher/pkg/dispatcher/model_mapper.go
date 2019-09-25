@@ -101,6 +101,18 @@ func (mm *ModelMapper) RemoveModelInfo(predictUnitType string,
 		utils.InterfaceToString(mm.modelMap))
 }
 
+func (mm *ModelMapper) GetModelInfo(predictUnitType string,
+	granularity string, modelId string) *modelInfo {
+	if _, ok := mm.modelMap[predictUnitType]; !ok {
+		return nil
+	}
+	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
+		return nil
+	}
+	val, _ := mm.modelMap[predictUnitType][granularity][modelId]
+	return val
+}
+
 func (mm *ModelMapper) IsModelTimeout(predictUnitType string,
 	granularity string, mInfo *modelInfo) bool {
 	scope.Debugf("current mapper status: %s", utils.InterfaceToString(mm.modelMap))
