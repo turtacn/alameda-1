@@ -72,7 +72,8 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 				datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 				datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			}
-			nodeInfo.Timestamp = time.Now().Unix()
+			nodeInfo.SetTimeStamp(time.Now().Unix())
+			nodeInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			nodeStr, err := marshaler.MarshalToString(node)
 			//nodeStr, err := marshaler.MarshalToString(nodeInfo)
@@ -106,7 +107,8 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 			nodeInfo := new(modelInfo)
 			nodeInfo.Name = nodeName
 			nodeInfo.ModelMetrics = []datahub_v1alpha1.MetricType{}
-			nodeInfo.Timestamp = time.Now().Unix()
+			nodeInfo.SetTimeStamp(time.Now().Unix())
+			nodeInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			nodeMetricsRes, err := datahubServiceClnt.ListNodeMetrics(context.Background(),
 				&datahub_v1alpha1.ListNodeMetricsRequest{
@@ -245,7 +247,8 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 				Name:      podName,
 			}
 			podInfo.Containers = containers
-			podInfo.Timestamp = time.Now().Unix()
+			podInfo.SetTimeStamp(time.Now().Unix())
+			podInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			podStr, err := marshaler.MarshalToString(pod)
 			//podStr, err := marshaler.MarshalToString(podInfo)
@@ -283,7 +286,8 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 				Name:      podName,
 			}
 			podInfo.Containers = []*container{}
-			podInfo.Timestamp = time.Now().Unix()
+			podInfo.SetTimeStamp(time.Now().Unix())
+			podInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			podMetricsRes, err := datahubServiceClnt.ListPodMetrics(context.Background(),
 				&datahub_v1alpha1.ListPodMetricsRequest{
@@ -425,7 +429,8 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 				datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 				datahub_v1alpha1.MetricType_DUTY_CYCLE,
 			}
-			gpuInfo.Timestamp = time.Now().Unix()
+			gpuInfo.SetTimeStamp(time.Now().Unix())
+			gpuInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			gpuStr, err := marshaler.MarshalToString(gpu)
 			//gpuStr, err := marshaler.MarshalToString(gpuInfo)
@@ -461,7 +466,8 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 			gpuInfo.Name = gpuHost
 			gpuInfo.MinorNumber = gpuMinorNumber
 			gpuInfo.ModelMetrics = []datahub_v1alpha1.MetricType{}
-			gpuInfo.Timestamp = time.Now().Unix()
+			gpuInfo.SetTimeStamp(time.Now().Unix())
+			gpuInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			gpuMetricsRes, err := datahubServiceClnt.ListGpuMetrics(context.Background(),
 				&datahub_v1alpha1.ListGpuMetricsRequest{

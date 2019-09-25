@@ -30,15 +30,6 @@ func NewModelMapper(predictUnitTypes []string, granularities []string) *ModelMap
 	}
 }
 
-type modelInfo struct {
-	podModel  `json:",inline"`
-	nodeModel `json:",inline"`
-	gpuModel  `json:",inline"`
-
-	ModelMetrics []datahub_v1alpha1.MetricType `json:"modelMetrics,omitempty"`
-	Timestamp    int64                         `json:"timestamp"`
-}
-
 type namespacedName struct {
 	Namespace string `json:"namespace"`
 	Name      string `json:"name"`
@@ -73,7 +64,13 @@ func (mm *ModelMapper) AddModelInfo(predictUnitType string,
 	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
 		mm.modelMap[predictUnitType][granularity] = map[string]*modelInfo{}
 	}
-	mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
+	oldMInfo, ok := mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)]
+	if !ok {
+		mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
+	} else {
+		mInfo.SetCreateTimeStamp(oldMInfo.GetCreateTimeStamp())
+		mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
+	}
 	scope.Debugf("after (AddModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 }
@@ -125,7 +122,7 @@ func (mm *ModelMapper) IsModelTimeout(predictUnitType string,
 	}
 	idName := mm.getUniqueName(predictUnitType, mInfo)
 	if oldMInfo, ok := mm.modelMap[predictUnitType][granularity][idName]; ok {
-		isTimeout = time.Now().Unix()-oldMInfo.Timestamp > mm.modelTimeout
+		isTimeout = time.Now().Unix()-oldMInfo.GetTimeStamp() > mm.modelTimeout
 	} else {
 		isTimeout = true
 	}
