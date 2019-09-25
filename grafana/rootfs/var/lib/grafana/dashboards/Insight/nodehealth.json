@@ -844,7 +844,7 @@
           "refId": "C"
         },
         {
-          "expr": "sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
+          "expr": "sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0 > 0\n) by (pod_name)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -852,7 +852,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_limits_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
+          "expr": "sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_limits_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0 > 0\n) by (pod_name)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -868,7 +868,7 @@
           "refId": "D"
         },
         {
-          "expr": "sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
+          "expr": "sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0 > 0\n) by (pod_name)\n",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -876,7 +876,7 @@
           "refId": "E"
         },
         {
-          "expr": "sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_limits_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
+          "expr": "sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_limits_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[10m])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0 > 0\n) by (pod_name)\n",
           "format": "table",
           "hide": false,
           "instant": true,
