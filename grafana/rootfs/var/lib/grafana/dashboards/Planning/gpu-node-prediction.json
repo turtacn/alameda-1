@@ -370,7 +370,7 @@
       "timeFrom": "6d",
       "timeRegions": [],
       "timeShift": "0d+1d",
-      "title": "CPU: Observation, and Prediction",
+      "title": "GPU: Observation, and Prediction",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -724,7 +724,7 @@
     ]
   },
   "timezone": "",
-  "title": "Node GPU Prediction",
+  "title": "GPU Prediction",
   "uid": "QB498s7Zz111",
   "version": 5
 }
