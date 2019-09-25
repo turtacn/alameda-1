@@ -387,6 +387,7 @@
       },
       "yaxes": [
         {
+          "decimals": 2,
           "format": "percent",
           "label": null,
           "logBase": 1,
