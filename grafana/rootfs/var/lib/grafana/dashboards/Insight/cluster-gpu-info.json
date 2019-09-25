@@ -223,7 +223,7 @@
         "intervalFactor": 1,
         "orderByTime": "ASC",
         "policy": "default",
-        "query": "SELECT mean(value) FROM \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter and host = 'gn0808.twcc.ai' group by time($interval) fill(none) order by time desc /*limit 1*/",
+        "query": "SELECT mean(value) FROM \"alameda_gpu\"..\"nvidia_gpu_duty_cycle\" where $timeFilter group by time($interval) fill(none) order by time desc /*limit 1*/",
         "rawQuery": true,
         "refId": "A",
         "resultFormat": "table",
@@ -2063,7 +2063,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
