@@ -49,8 +49,10 @@ func (r *DutyCycleUpperBoundRepository) CreatePredictions(predictions []*DaoGpu.
 
 			// Pack influx fields
 			fields := map[string]interface{}{
-				EntityInfluxGpuPrediction.DutyCycleMinorNumber: prediction.Metadata.MinorNumber,
-				EntityInfluxGpuPrediction.DutyCycleValue:       valueInFloat64,
+				EntityInfluxGpuPrediction.DutyCycleModelId:      prediction.ModelId,
+				EntityInfluxGpuPrediction.DutyCyclePredictionId: prediction.PredictionId,
+				EntityInfluxGpuPrediction.DutyCycleMinorNumber:  prediction.Metadata.MinorNumber,
+				EntityInfluxGpuPrediction.DutyCycleValue:        valueInFloat64,
 			}
 
 			// Add to influx point list

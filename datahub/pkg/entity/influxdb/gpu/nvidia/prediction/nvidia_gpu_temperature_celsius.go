@@ -18,8 +18,10 @@ const (
 	TemperatureCelsiusUuid        temperatureCelsiusTag = "uuid"
 	TemperatureCelsiusGranularity temperatureCelsiusTag = "granularity"
 
-	TemperatureCelsiusMinorNumber temperatureCelsiusField = "minor_number"
-	TemperatureCelsiusValue       temperatureCelsiusField = "value"
+	TemperatureCelsiusModelId      temperatureCelsiusField = "model_id"
+	TemperatureCelsiusPredictionId temperatureCelsiusField = "prediction_id"
+	TemperatureCelsiusMinorNumber  temperatureCelsiusField = "minor_number"
+	TemperatureCelsiusValue        temperatureCelsiusField = "value"
 )
 
 type TemperatureCelsiusEntity struct {
@@ -31,8 +33,10 @@ type TemperatureCelsiusEntity struct {
 	Uuid        *string
 	Granularity *string
 
-	MinorNumber *string
-	Value       *float64
+	ModelId      *string
+	PredictionId *string
+	MinorNumber  *string
+	Value        *float64
 }
 
 func NewTemperatureCelsiusEntityFromMap(data map[string]string) TemperatureCelsiusEntity {
@@ -63,6 +67,12 @@ func NewTemperatureCelsiusEntityFromMap(data map[string]string) TemperatureCelsi
 	}
 
 	// InfluxDB fields
+	if valueStr, exist := data[TemperatureCelsiusModelId]; exist {
+		entity.ModelId = &valueStr
+	}
+	if valueStr, exist := data[TemperatureCelsiusPredictionId]; exist {
+		entity.PredictionId = &valueStr
+	}
 	if valueStr, exist := data[TemperatureCelsiusMinorNumber]; exist {
 		entity.MinorNumber = &valueStr
 	}

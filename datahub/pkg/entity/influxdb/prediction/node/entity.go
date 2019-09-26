@@ -21,14 +21,16 @@ const (
 	Granularity Tag = "granularity"
 	Kind        Tag = "kind"
 
-	Value Field = "value"
+	ModelId      Field = "model_id"
+	PredictionId Field = "prediction_id"
+	Value        Field = "value"
 )
 
 var (
 	// Tags Tags' name in influxdb
 	Tags = []Tag{Name, Metric, IsScheduled, Granularity, Kind}
 	// Fields Fields' name in influxdb
-	Fields = []Field{Value}
+	Fields = []Field{ModelId, PredictionId, Value}
 	// MetricTypeCPUUsage Enum of tag "metric"
 	MetricTypeCPUUsage MetricType = "cpu_usage_seconds_percentage"
 	// MetricTypeMemoryUsage Enum of tag "metric"
@@ -49,17 +51,18 @@ var (
 
 // Entity Container prediction entity in influxDB
 type Entity struct {
-	Timestamp time.Time
-
+	Timestamp   time.Time
 	Name        *string
 	Metric      *MetricType
-	Value       *string
 	IsScheduled *string
+
+	ModelId      *string
+	PredictionId *string
+	Value        *string
 }
 
 // NewEntityFromMap Build entity from map
 func NewEntityFromMap(data map[string]string) Entity {
-
 	// TODO: log error
 	tempTimestamp, _ := utils.ParseTime(data[Time])
 
@@ -67,20 +70,26 @@ func NewEntityFromMap(data map[string]string) Entity {
 		Timestamp: tempTimestamp,
 	}
 
+	// InfluxDB tags
 	if name, exist := data[Name]; exist {
 		entity.Name = &name
 	}
-
-	if metric, exist := data[Metric]; exist {
-		entity.Metric = &metric
+	if metricData, exist := data[Metric]; exist {
+		entity.Metric = &metricData
 	}
-
-	if value, exist := data[Value]; exist {
-		entity.Value = &value
-	}
-
 	if isScheduled, exist := data[IsScheduled]; exist {
 		entity.IsScheduled = &isScheduled
+	}
+
+	// InfluxDB fields
+	if value, exist := data[ModelId]; exist {
+		entity.ModelId = &value
+	}
+	if value, exist := data[PredictionId]; exist {
+		entity.PredictionId = &value
+	}
+	if value, exist := data[Value]; exist {
+		entity.Value = &value
 	}
 
 	return entity
@@ -88,7 +97,6 @@ func NewEntityFromMap(data map[string]string) Entity {
 
 // NodePrediction Create container prediction base on entity
 func (e Entity) NodePrediction() prediction.NodePrediction {
-
 	var (
 		isScheduled    bool
 		samples        []metric.Sample

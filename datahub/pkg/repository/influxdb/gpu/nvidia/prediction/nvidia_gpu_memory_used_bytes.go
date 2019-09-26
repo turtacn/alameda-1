@@ -49,8 +49,10 @@ func (r *MemoryUsedBytesRepository) CreatePredictions(predictions []*DaoGpu.GpuP
 
 			// Pack influx fields
 			fields := map[string]interface{}{
-				EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber: prediction.Metadata.MinorNumber,
-				EntityInfluxGpuPrediction.MemoryUsedBytesValue:       valueInFloat64,
+				EntityInfluxGpuPrediction.MemoryUsedBytesModelId:      prediction.ModelId,
+				EntityInfluxGpuPrediction.MemoryUsedBytesPredictionId: prediction.PredictionId,
+				EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber:  prediction.Metadata.MinorNumber,
+				EntityInfluxGpuPrediction.MemoryUsedBytesValue:        valueInFloat64,
 			}
 
 			// Add to influx point list

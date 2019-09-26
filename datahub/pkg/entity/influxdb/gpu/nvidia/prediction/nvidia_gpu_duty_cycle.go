@@ -18,8 +18,10 @@ const (
 	DutyCycleUuid        dutyCycleTag = "uuid"
 	DutyCycleGranularity dutyCycleTag = "granularity"
 
-	DutyCycleMinorNumber dutyCycleField = "minor_number"
-	DutyCycleValue       dutyCycleField = "value"
+	DutyCycleModelId      dutyCycleField = "model_id"
+	DutyCyclePredictionId dutyCycleField = "prediction_id"
+	DutyCycleMinorNumber  dutyCycleField = "minor_number"
+	DutyCycleValue        dutyCycleField = "value"
 )
 
 type DutyCycleEntity struct {
@@ -31,8 +33,10 @@ type DutyCycleEntity struct {
 	Uuid        *string
 	Granularity *string
 
-	MinorNumber *string
-	Value       *float64
+	ModelId      *string
+	PredictionId *string
+	MinorNumber  *string
+	Value        *float64
 }
 
 func NewDutyCycleEntityFromMap(data map[string]string) DutyCycleEntity {
@@ -63,6 +67,12 @@ func NewDutyCycleEntityFromMap(data map[string]string) DutyCycleEntity {
 	}
 
 	// InfluxDB fields
+	if valueStr, exist := data[DutyCycleModelId]; exist {
+		entity.ModelId = &valueStr
+	}
+	if valueStr, exist := data[DutyCyclePredictionId]; exist {
+		entity.PredictionId = &valueStr
+	}
 	if valueStr, exist := data[DutyCycleMinorNumber]; exist {
 		entity.MinorNumber = &valueStr
 	}

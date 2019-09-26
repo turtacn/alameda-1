@@ -18,8 +18,10 @@ const (
 	MemoryUsageUuid        memoryUsageTag = "uuid"
 	MemoryUsageGranularity memoryUsageTag = "granularity"
 
-	MemoryUsageMinorNumber memoryUsageField = "minor_number"
-	MemoryUsageValue       memoryUsageField = "value"
+	MemoryUsageModelId      memoryUsageField = "model_id"
+	MemoryUsagePredictionId memoryUsageField = "prediction_id"
+	MemoryUsageMinorNumber  memoryUsageField = "minor_number"
+	MemoryUsageValue        memoryUsageField = "value"
 )
 
 type MemoryUsageEntity struct {
@@ -31,8 +33,10 @@ type MemoryUsageEntity struct {
 	Uuid        *string
 	Granularity *string
 
-	MinorNumber *string
-	Value       *float64
+	ModelId      *string
+	PredictionId *string
+	MinorNumber  *string
+	Value        *float64
 }
 
 func NewMemoryUsageEntityFromMap(data map[string]string) MemoryUsageEntity {
@@ -63,6 +67,12 @@ func NewMemoryUsageEntityFromMap(data map[string]string) MemoryUsageEntity {
 	}
 
 	// InfluxDB fields
+	if valueStr, exist := data[MemoryUsageModelId]; exist {
+		entity.ModelId = &valueStr
+	}
+	if valueStr, exist := data[MemoryUsagePredictionId]; exist {
+		entity.PredictionId = &valueStr
+	}
 	if valueStr, exist := data[MemoryUsageMinorNumber]; exist {
 		entity.MinorNumber = &valueStr
 	}

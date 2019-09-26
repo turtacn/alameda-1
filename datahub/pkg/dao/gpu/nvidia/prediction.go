@@ -9,8 +9,10 @@ type GpuPredictionMap map[DatahubMetric.GpuMetricType][]*GpuPrediction
 
 type GpuPrediction struct {
 	Gpu
-	Granularity int64
-	Metrics     []DatahubMetric.Sample
+	Granularity  int64
+	ModelId      string
+	PredictionId string
+	Metrics      []DatahubMetric.Sample
 }
 
 type PredictionsDAO interface {
@@ -28,7 +30,7 @@ func NewGpuPredictionMap() GpuPredictionMap {
 	return GpuPredictionMap{}
 }
 
-func (p *GpuPredictionMap) AddGpuPrediction(gpu *Gpu, granularity int64, metricType DatahubMetric.GpuMetricType, sample DatahubMetric.Sample) {
+func (p *GpuPredictionMap) AddGpuPrediction(gpu *Gpu, granularity int64, modelId, predictionId string, metricType DatahubMetric.GpuMetricType, sample DatahubMetric.Sample) {
 	if _, exist := (*p)[metricType]; !exist {
 		(*p)[metricType] = make([]*GpuPrediction, 0)
 	}
@@ -37,8 +39,10 @@ func (p *GpuPredictionMap) AddGpuPrediction(gpu *Gpu, granularity int64, metricT
 	found := false
 	for _, gpuPrediction = range (*p)[metricType] {
 		if gpuPrediction.Uuid == gpu.Uuid {
-			found = true
-			break
+			if gpuPrediction.ModelId == modelId && gpuPrediction.PredictionId == predictionId {
+				found = true
+				break
+			}
 		}
 	}
 
@@ -51,6 +55,8 @@ func (p *GpuPredictionMap) AddGpuPrediction(gpu *Gpu, granularity int64, metricT
 		gpuPrediction.Metadata.Job = gpu.Metadata.Job
 		gpuPrediction.Metadata.MinorNumber = gpu.Metadata.MinorNumber
 		gpuPrediction.Granularity = granularity
+		gpuPrediction.ModelId = modelId
+		gpuPrediction.PredictionId = predictionId
 
 		(*p)[metricType] = append((*p)[metricType], gpuPrediction)
 	}

@@ -49,8 +49,10 @@ func (r *PowerUsageMilliWattsRepository) CreatePredictions(predictions []*DaoGpu
 
 			// Pack influx fields
 			fields := map[string]interface{}{
-				EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber: prediction.Metadata.MinorNumber,
-				EntityInfluxGpuPrediction.PowerUsageMilliWattsValue:       valueInFloat64,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsModelId:      prediction.ModelId,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsPredictionId: prediction.PredictionId,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber:  prediction.Metadata.MinorNumber,
+				EntityInfluxGpuPrediction.PowerUsageMilliWattsValue:        valueInFloat64,
 			}
 
 			// Add to influx point list

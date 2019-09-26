@@ -120,8 +120,10 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 			// Look up if gpu is found
 			for _, gpu = range gpuPredictions {
 				if gpu.Uuid == gpuPrediction.Uuid {
-					found = true
-					break
+					if gpu.ModelId == gpuPrediction.ModelId && gpu.PredictionId == gpuPrediction.PredictionId {
+						found = true
+						break
+					}
 				}
 			}
 

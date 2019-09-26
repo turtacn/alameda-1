@@ -49,8 +49,10 @@ func (r *TemperatureCelsiusRepository) CreatePredictions(predictions []*DaoGpu.G
 
 			// Pack influx fields
 			fields := map[string]interface{}{
-				EntityInfluxGpuPrediction.TemperatureCelsiusMinorNumber: prediction.Metadata.MinorNumber,
-				EntityInfluxGpuPrediction.TemperatureCelsiusValue:       valueInFloat64,
+				EntityInfluxGpuPrediction.TemperatureCelsiusModelId:      prediction.ModelId,
+				EntityInfluxGpuPrediction.TemperatureCelsiusPredictionId: prediction.PredictionId,
+				EntityInfluxGpuPrediction.TemperatureCelsiusMinorNumber:  prediction.Metadata.MinorNumber,
+				EntityInfluxGpuPrediction.TemperatureCelsiusValue:        valueInFloat64,
 			}
 
 			// Add to influx point list

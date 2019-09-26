@@ -140,7 +140,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range dutyCyclePredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuDutyCycle, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuDutyCycle, sample)
 		}
 
 		// Pack duty cycle lower bound predictions
@@ -152,7 +152,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range dutyCyclePredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuDutyCycleLowerBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuDutyCycleLowerBound, sample)
 		}
 
 		// Pack duty cycle upper bound predictions
@@ -164,7 +164,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range dutyCyclePredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuDutyCycleUpperBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuDutyCycleUpperBound, sample)
 		}
 	}
 
@@ -178,7 +178,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range memoryUsedPredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuMemoryUsedBytes, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuMemoryUsedBytes, sample)
 		}
 
 		// Pack memory used bytes lower bound predictions
@@ -190,7 +190,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range memoryUsedPredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuMemoryUsedBytesLowerBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuMemoryUsedBytesLowerBound, sample)
 		}
 
 		// Pack memory used bytes upper bound predictions
@@ -202,7 +202,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range memoryUsedPredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuMemoryUsedBytesUpperBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuMemoryUsedBytesUpperBound, sample)
 		}
 	}
 
@@ -216,7 +216,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range poserUsagePredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuPowerUsageMilliWatts, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuPowerUsageMilliWatts, sample)
 		}
 
 		// Pack power usage milli watts lower bound predictions
@@ -228,7 +228,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range poserUsagePredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuPowerUsageMilliWattsLowerBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuPowerUsageMilliWattsLowerBound, sample)
 		}
 
 		// Pack power usage milli watts upper bound predictions
@@ -240,7 +240,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range poserUsagePredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuPowerUsageMilliWattsUpperBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuPowerUsageMilliWattsUpperBound, sample)
 		}
 	}
 
@@ -254,7 +254,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range temperatureCelsiusPredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuTemperatureCelsius, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuTemperatureCelsius, sample)
 		}
 
 		// Pack temperature celsius lower bound predictions
@@ -266,7 +266,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range temperatureCelsiusPredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuTemperatureCelsiusLowerBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuTemperatureCelsiusLowerBound, sample)
 		}
 
 		// Pack temperature celsius upper bound predictions
@@ -278,7 +278,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 		for _, predictions := range temperatureCelsiusPredictions {
 			sample := DatahubMetric.Sample{Timestamp: predictions.Time, Value: strconv.FormatFloat(*predictions.Value, 'f', -1, 64)}
 			gpu := buildGpu(predictions.Name, predictions.Uuid, predictions.Host, predictions.Instance, predictions.Job, predictions.MinorNumber)
-			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, DatahubMetric.TypeGpuTemperatureCelsiusUpperBound, sample)
+			gpuPredictionMap.AddGpuPrediction(gpu, granularityValue, *predictions.ModelId, *predictions.PredictionId, DatahubMetric.TypeGpuTemperatureCelsiusUpperBound, sample)
 		}
 	}
 

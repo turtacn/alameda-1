@@ -39,10 +39,12 @@ func (r *NodeRepository) CreateNodePrediction(in *datahub_v1alpha1.CreateNodePre
 	for _, nodePrediction := range in.GetNodePredictions() {
 		nodeName := nodePrediction.GetName()
 		isScheduled := nodePrediction.GetIsScheduled()
+		modelId := nodePrediction.GetModelId()
+		predictionId := nodePrediction.GetPredictionId()
 
-		r.appendMetricDataToPoints(Metric.NodeMetricKindRaw, nodePrediction.GetPredictedRawData(), &points, nodeName, isScheduled)
-		r.appendMetricDataToPoints(Metric.NodeMetricKindUpperbound, nodePrediction.GetPredictedUpperboundData(), &points, nodeName, isScheduled)
-		r.appendMetricDataToPoints(Metric.NodeMetricKindLowerbound, nodePrediction.GetPredictedLowerboundData(), &points, nodeName, isScheduled)
+		r.appendMetricDataToPoints(Metric.NodeMetricKindRaw, nodePrediction.GetPredictedRawData(), &points, nodeName, isScheduled, modelId, predictionId)
+		r.appendMetricDataToPoints(Metric.NodeMetricKindUpperbound, nodePrediction.GetPredictedUpperboundData(), &points, nodeName, isScheduled, modelId, predictionId)
+		r.appendMetricDataToPoints(Metric.NodeMetricKindLowerbound, nodePrediction.GetPredictedLowerboundData(), &points, nodeName, isScheduled, modelId, predictionId)
 	}
 
 	err := r.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
@@ -55,7 +57,7 @@ func (r *NodeRepository) CreateNodePrediction(in *datahub_v1alpha1.CreateNodePre
 	return nil
 }
 
-func (r *NodeRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*InfluxClient.Point, nodeName string, isScheduled bool) error {
+func (r *NodeRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*InfluxClient.Point, nodeName string, isScheduled bool, modelId, predictionId string) error {
 	for _, metricData := range metricDataList {
 		metricType := ""
 		switch metricData.GetMetricType() {
@@ -90,7 +92,9 @@ func (r *NodeRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKin
 				EntityInfluxPredictionNode.Granularity: strconv.FormatInt(granularity, 10),
 			}
 			fields := map[string]interface{}{
-				EntityInfluxPredictionNode.Value: valueInFloat64,
+				EntityInfluxPredictionNode.ModelId:      modelId,
+				EntityInfluxPredictionNode.PredictionId: predictionId,
+				EntityInfluxPredictionNode.Value:        valueInFloat64,
 			}
 			point, err := InfluxClient.NewPoint(string(Node), tags, fields, time.Unix(tempTimeSeconds, 0))
 			if err != nil {
@@ -170,17 +174,22 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*InternalInflux
 			}
 		}
 
-		nodeKey := name + "|" + isScheduled
-		nodeMap[nodeKey] = &datahub_v1alpha1.NodePrediction{}
-		nodeMap[nodeKey].Name = name
-		nodeMap[nodeKey].IsScheduled, _ = strconv.ParseBool(isScheduled)
-
-		metricKey := nodeKey + "|" + kind + "|" + metricType
-		nodeMetricKindMap[metricKey] = &datahub_v1alpha1.MetricData{}
-		nodeMetricKindMap[metricKey].MetricType = metricValue
-		nodeMetricKindMap[metricKey].Granularity = granularity
-
 		for _, data := range row.Data {
+			modelId := data[EntityInfluxPredictionNode.ModelId]
+			predictionId := data[EntityInfluxPredictionNode.PredictionId]
+
+			nodeKey := name + "|" + isScheduled + "|" + modelId + "|" + predictionId
+			nodeMap[nodeKey] = &datahub_v1alpha1.NodePrediction{}
+			nodeMap[nodeKey].Name = name
+			nodeMap[nodeKey].IsScheduled, _ = strconv.ParseBool(isScheduled)
+			nodeMap[nodeKey].ModelId = modelId
+			nodeMap[nodeKey].PredictionId = predictionId
+
+			metricKey := nodeKey + "|" + kind + "|" + metricType
+			nodeMetricKindMap[metricKey] = &datahub_v1alpha1.MetricData{}
+			nodeMetricKindMap[metricKey].MetricType = metricValue
+			nodeMetricKindMap[metricKey].Granularity = granularity
+
 			t, _ := time.Parse(time.RFC3339, data[EntityInfluxPredictionNode.Time])
 			value := data[EntityInfluxPredictionNode.Value]
 
@@ -197,10 +206,12 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*InternalInflux
 	for k := range nodeMetricKindSampleMap {
 		name := strings.Split(k, "|")[0]
 		isScheduled := strings.Split(k, "|")[1]
-		kind := strings.Split(k, "|")[2]
-		metricType := strings.Split(k, "|")[3]
+		modelId := strings.Split(k, "|")[2]
+		predictionId := strings.Split(k, "|")[3]
+		kind := strings.Split(k, "|")[4]
+		metricType := strings.Split(k, "|")[5]
 
-		nodeKey := name + "|" + isScheduled
+		nodeKey := name + "|" + isScheduled + "|" + modelId + "|" + predictionId
 		metricKey := nodeKey + "|" + kind + "|" + metricType
 
 		nodeMetricKindMap[metricKey].Data = nodeMetricKindSampleMap[metricKey]

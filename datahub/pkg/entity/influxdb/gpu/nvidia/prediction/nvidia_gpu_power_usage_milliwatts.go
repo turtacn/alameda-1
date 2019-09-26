@@ -18,8 +18,10 @@ const (
 	PowerUsageMilliWattsUuid        powerUsageMilliWattsTag = "uuid"
 	PowerUsageMilliWattsGranularity powerUsageMilliWattsTag = "granularity"
 
-	PowerUsageMilliWattsMinorNumber powerUsageMilliWattsField = "minor_number"
-	PowerUsageMilliWattsValue       powerUsageMilliWattsField = "value"
+	PowerUsageMilliWattsModelId      powerUsageMilliWattsField = "model_id"
+	PowerUsageMilliWattsPredictionId powerUsageMilliWattsField = "prediction_id"
+	PowerUsageMilliWattsMinorNumber  powerUsageMilliWattsField = "minor_number"
+	PowerUsageMilliWattsValue        powerUsageMilliWattsField = "value"
 )
 
 type PowerUsageMilliWattsEntity struct {
@@ -31,8 +33,10 @@ type PowerUsageMilliWattsEntity struct {
 	Uuid        *string
 	Granularity *string
 
-	MinorNumber *string
-	Value       *float64
+	ModelId      *string
+	PredictionId *string
+	MinorNumber  *string
+	Value        *float64
 }
 
 func NewPowerUsageMilliWattsEntityFromMap(data map[string]string) PowerUsageMilliWattsEntity {
@@ -63,6 +67,12 @@ func NewPowerUsageMilliWattsEntityFromMap(data map[string]string) PowerUsageMill
 	}
 
 	// InfluxDB fields
+	if valueStr, exist := data[PowerUsageMilliWattsModelId]; exist {
+		entity.ModelId = &valueStr
+	}
+	if valueStr, exist := data[PowerUsageMilliWattsPredictionId]; exist {
+		entity.PredictionId = &valueStr
+	}
 	if valueStr, exist := data[PowerUsageMilliWattsMinorNumber]; exist {
 		entity.MinorNumber = &valueStr
 	}

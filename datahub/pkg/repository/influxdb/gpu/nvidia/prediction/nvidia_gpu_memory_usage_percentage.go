@@ -47,8 +47,10 @@ func (r *MemoryUsagePercentageRepository) CreatePredictions(predictions []*DaoGp
 
 			// Pack influx fields
 			fields := map[string]interface{}{
-				EntityInfluxGpuPrediction.MemoryUsageMinorNumber: prediction.Metadata.MinorNumber,
-				EntityInfluxGpuPrediction.MemoryUsageValue:       valueInFloat64,
+				EntityInfluxGpuPrediction.MemoryUsageModelId:      prediction.ModelId,
+				EntityInfluxGpuPrediction.MemoryUsagePredictionId: prediction.PredictionId,
+				EntityInfluxGpuPrediction.MemoryUsageMinorNumber:  prediction.Metadata.MinorNumber,
+				EntityInfluxGpuPrediction.MemoryUsageValue:        valueInFloat64,
 			}
 
 			// Add to influx point list

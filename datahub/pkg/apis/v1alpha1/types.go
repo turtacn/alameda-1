@@ -274,9 +274,11 @@ func (n daoGpuPredictionExtended) datahubGpuPrediction(metricType Metric.GpuMetr
 	}
 
 	datahubGpuPrediction = DatahubV1alpha1.GpuPrediction{
-		Name:     n.Name,
-		Uuid:     n.Uuid,
-		Metadata: &datahubGpuMetadata,
+		Name:         n.Name,
+		Uuid:         n.Uuid,
+		Metadata:     &datahubGpuMetadata,
+		ModelId:      n.ModelId,
+		PredictionId: n.PredictionId,
 	}
 
 	if datahubMetricType, exist := Metric.TypeToDatahubMetricType[metricType]; exist {

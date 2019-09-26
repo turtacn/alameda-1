@@ -362,6 +362,8 @@ func (r CreateGpuPredictionsRequestExtended) GpuPredictions() DaoGpu.GpuPredicti
 			gpuPrediction := DaoGpu.GpuPrediction{}
 			gpuPrediction.Gpu = gpu
 			gpuPrediction.Granularity = data.GetGranularity()
+			gpuPrediction.ModelId = predictions.GetModelId()
+			gpuPrediction.PredictionId = predictions.GetPredictionId()
 
 			if _, exist := gpuPredictionMap[metricType]; !exist {
 				gpuPredictionMap[metricType] = make([]*DaoGpu.GpuPrediction, 0)
@@ -389,6 +391,8 @@ func (r CreateGpuPredictionsRequestExtended) GpuPredictions() DaoGpu.GpuPredicti
 			gpuPrediction := DaoGpu.GpuPrediction{}
 			gpuPrediction.Gpu = gpu
 			gpuPrediction.Granularity = data.GetGranularity()
+			gpuPrediction.ModelId = predictions.GetModelId()
+			gpuPrediction.PredictionId = predictions.GetPredictionId()
 
 			if _, exist := gpuPredictionMap[metricType]; !exist {
 				gpuPredictionMap[metricType] = make([]*DaoGpu.GpuPrediction, 0)
@@ -416,6 +420,8 @@ func (r CreateGpuPredictionsRequestExtended) GpuPredictions() DaoGpu.GpuPredicti
 			gpuPrediction := DaoGpu.GpuPrediction{}
 			gpuPrediction.Gpu = gpu
 			gpuPrediction.Granularity = data.GetGranularity()
+			gpuPrediction.ModelId = predictions.GetModelId()
+			gpuPrediction.PredictionId = predictions.GetPredictionId()
 
 			if _, exist := gpuPredictionMap[metricType]; !exist {
 				gpuPredictionMap[metricType] = make([]*DaoGpu.GpuPrediction, 0)

@@ -20,12 +20,14 @@ message GpuMetric {
 }
 
 message GpuPrediction {
-    string name                            = 1;
-    string uuid                            = 2;
-    GpuMetadata metadata                   = 3;
-    repeated MetricData predicted_raw_data = 4;
-    repeated MetricData predicted_upperbound_data = 5;
-    repeated MetricData predicted_lowerbound_data = 6;
+    string name                                   = 1;
+    string uuid                                   = 2;
+    GpuMetadata metadata                          = 3;
+    string model_id                               = 4;
+    string prediction_id                          = 5;
+    repeated MetricData predicted_raw_data        = 6;
+    repeated MetricData predicted_upperbound_data = 7;
+    repeated MetricData predicted_lowerbound_data = 8;
 }
 
 message GpuMetadata {

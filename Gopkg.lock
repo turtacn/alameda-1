@@ -35,7 +35,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e838c7cdba50e0e2da9477373e3215e9336e649a5519bbb6bb1400b583359736"
+  digest = "1:62d747cffb02404493ddd3ccd777449e5e8d348f48df748c563876129f774daf"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
@@ -43,7 +43,7 @@
     "datahub/keycodes",
   ]
   pruneopts = "T"
-  revision = "7b06936191c27bcb4747d943b9eac5e545ab81a7"
+  revision = "62c7e0562c62fba36e7010b87a9c3381cf3d338b"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -526,6 +526,7 @@
   packages = [
     "prometheus",
     "prometheus/internal",
+    "prometheus/promauto",
     "prometheus/promhttp",
   ]
   pruneopts = "T"
@@ -1227,6 +1228,9 @@
     "github.com/openshift/api/apps/v1",
     "github.com/openshift/client-go/apps/clientset/versioned",
     "github.com/pkg/errors",
+    "github.com/prometheus/client_golang/prometheus",
+    "github.com/prometheus/client_golang/prometheus/promauto",
+    "github.com/prometheus/client_golang/prometheus/promhttp",
     "github.com/robfig/cron",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",

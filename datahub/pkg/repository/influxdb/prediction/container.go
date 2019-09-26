@@ -41,12 +41,15 @@ func (r *ContainerRepository) CreateContainerPrediction(in *datahub_v1alpha1.Cre
 	for _, podPrediction := range in.GetPodPredictions() {
 		podNamespace := podPrediction.GetNamespacedName().GetNamespace()
 		podName := podPrediction.GetNamespacedName().GetName()
+		modelId := podPrediction.GetModelId()
+		predictionId := podPrediction.GetPredictionId()
+
 		for _, containerPrediction := range podPrediction.GetContainerPredictions() {
 			containerName := containerPrediction.GetName()
 
-			r.appendMetricDataToPoints(Metric.ContainerMetricKindRaw, containerPrediction.GetPredictedRawData(), &points, podNamespace, podName, containerName)
-			r.appendMetricDataToPoints(Metric.ContainerMetricKindUpperbound, containerPrediction.GetPredictedUpperboundData(), &points, podNamespace, podName, containerName)
-			r.appendMetricDataToPoints(Metric.ContainerMetricKindLowerbound, containerPrediction.GetPredictedLowerboundData(), &points, podNamespace, podName, containerName)
+			r.appendMetricDataToPoints(Metric.ContainerMetricKindRaw, containerPrediction.GetPredictedRawData(), &points, podNamespace, podName, containerName, modelId, predictionId)
+			r.appendMetricDataToPoints(Metric.ContainerMetricKindUpperbound, containerPrediction.GetPredictedUpperboundData(), &points, podNamespace, podName, containerName, modelId, predictionId)
+			r.appendMetricDataToPoints(Metric.ContainerMetricKindLowerbound, containerPrediction.GetPredictedLowerboundData(), &points, podNamespace, podName, containerName, modelId, predictionId)
 		}
 	}
 
@@ -60,7 +63,7 @@ func (r *ContainerRepository) CreateContainerPrediction(in *datahub_v1alpha1.Cre
 	return nil
 }
 
-func (r *ContainerRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*InfluxClient.Point, podNamespace string, podName string, containerName string) error {
+func (r *ContainerRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKind, metricDataList []*datahub_v1alpha1.MetricData, points *[]*InfluxClient.Point, podNamespace, podName, containerName, modelId, predictionId string) error {
 	for _, metricData := range metricDataList {
 		metricType := ""
 		switch metricData.GetMetricType() {
@@ -96,7 +99,9 @@ func (r *ContainerRepository) appendMetricDataToPoints(kind Metric.ContainerMetr
 				EntityInfluxPredictionContainer.Granularity: strconv.FormatInt(granularity, 10),
 			}
 			fields := map[string]interface{}{
-				EntityInfluxPredictionContainer.Value: valueInFloat64,
+				EntityInfluxPredictionContainer.ModelId:      modelId,
+				EntityInfluxPredictionContainer.PredictionId: predictionId,
+				EntityInfluxPredictionContainer.Value:        valueInFloat64,
 			}
 			point, err := InfluxClient.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
 			if err != nil {
@@ -178,21 +183,28 @@ func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*InternalIn
 			}
 		}
 
-		podMap[namespace+"|"+podName] = &datahub_v1alpha1.PodPrediction{}
-		podMap[namespace+"|"+podName].NamespacedName = &datahub_v1alpha1.NamespacedName{
-			Namespace: namespace,
-			Name:      podName,
-		}
-
-		podContainerMap[namespace+"|"+podName+"|"+name] = &datahub_v1alpha1.ContainerPrediction{}
-		podContainerMap[namespace+"|"+podName+"|"+name].Name = name
-
-		metricKey := namespace + "|" + podName + "|" + name + "|" + kind + "|" + metricType
-		podContainerKindMetricMap[metricKey] = &datahub_v1alpha1.MetricData{}
-		podContainerKindMetricMap[metricKey].MetricType = metricValue
-		podContainerKindMetricMap[metricKey].Granularity = granularity
-
 		for _, data := range row.Data {
+			modelId := data[EntityInfluxPredictionContainer.ModelId]
+			predictionId := data[EntityInfluxPredictionContainer.PredictionId]
+
+			podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
+			podMap[podKey] = &datahub_v1alpha1.PodPrediction{}
+			podMap[podKey].NamespacedName = &datahub_v1alpha1.NamespacedName{
+				Namespace: namespace,
+				Name:      podName,
+			}
+			podMap[namespace+"|"+podName+"|"+modelId+"|"+predictionId].ModelId = modelId
+			podMap[namespace+"|"+podName+"|"+modelId+"|"+predictionId].PredictionId = predictionId
+
+			podContainerKey := podKey + "|" + name
+			podContainerMap[podContainerKey] = &datahub_v1alpha1.ContainerPrediction{}
+			podContainerMap[podContainerKey].Name = name
+
+			metricKey := podContainerKey + "|" + kind + "|" + metricType
+			podContainerKindMetricMap[metricKey] = &datahub_v1alpha1.MetricData{}
+			podContainerKindMetricMap[metricKey].MetricType = metricValue
+			podContainerKindMetricMap[metricKey].Granularity = granularity
+
 			t, _ := time.Parse(time.RFC3339, data[EntityInfluxPredictionContainer.Time])
 			value := data[EntityInfluxPredictionContainer.Value]
 
@@ -209,33 +221,38 @@ func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*InternalIn
 	for k := range podContainerKindMetricMap {
 		namespace := strings.Split(k, "|")[0]
 		podName := strings.Split(k, "|")[1]
-		name := strings.Split(k, "|")[2]
-		kind := strings.Split(k, "|")[3]
-		metricType := strings.Split(k, "|")[4]
+		modelId := strings.Split(k, "|")[2]
+		predictionId := strings.Split(k, "|")[3]
+		name := strings.Split(k, "|")[4]
+		kind := strings.Split(k, "|")[5]
+		metricType := strings.Split(k, "|")[6]
 
-		containerKey := namespace + "|" + podName + "|" + name
-		metricKey := namespace + "|" + podName + "|" + name + "|" + kind + "|" + metricType
+		podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
+		podContainerKey := podKey + "|" + name
+		metricKey := podContainerKey + "|" + kind + "|" + metricType
 
 		podContainerKindMetricMap[metricKey].Data = podContainerKindMetricSampleMap[metricKey]
 
 		if kind == Metric.ContainerMetricKindUpperbound {
-			podContainerMap[containerKey].PredictedUpperboundData = append(podContainerMap[containerKey].PredictedUpperboundData, podContainerKindMetricMap[metricKey])
+			podContainerMap[podContainerKey].PredictedUpperboundData = append(podContainerMap[podContainerKey].PredictedUpperboundData, podContainerKindMetricMap[metricKey])
 		} else if kind == Metric.ContainerMetricKindLowerbound {
-			podContainerMap[containerKey].PredictedLowerboundData = append(podContainerMap[containerKey].PredictedLowerboundData, podContainerKindMetricMap[metricKey])
+			podContainerMap[podContainerKey].PredictedLowerboundData = append(podContainerMap[podContainerKey].PredictedLowerboundData, podContainerKindMetricMap[metricKey])
 		} else {
-			podContainerMap[containerKey].PredictedRawData = append(podContainerMap[containerKey].PredictedRawData, podContainerKindMetricMap[metricKey])
+			podContainerMap[podContainerKey].PredictedRawData = append(podContainerMap[podContainerKey].PredictedRawData, podContainerKindMetricMap[metricKey])
 		}
 	}
 
 	for k := range podContainerMap {
 		namespace := strings.Split(k, "|")[0]
 		podName := strings.Split(k, "|")[1]
-		name := strings.Split(k, "|")[2]
+		modelId := strings.Split(k, "|")[2]
+		predictionId := strings.Split(k, "|")[3]
+		name := strings.Split(k, "|")[4]
 
-		podKey := namespace + "|" + podName
-		containerKey := namespace + "|" + podName + "|" + name
+		podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
+		podContainerKey := podKey + "|" + name
 
-		podMap[podKey].ContainerPredictions = append(podMap[podKey].ContainerPredictions, podContainerMap[containerKey])
+		podMap[podKey].ContainerPredictions = append(podMap[podKey].ContainerPredictions, podContainerMap[podContainerKey])
 	}
 
 	podList := make([]*datahub_v1alpha1.PodPrediction, 0)
