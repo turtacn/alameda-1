@@ -51,16 +51,15 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 			unit := msgMap["unit"].(map[string]interface{})
 			unitType := msgMap["unit_type"].(string)
 			dataGranularity := msgMap["data_granularity"].(string)
+			jobCreateTime := int64(msgMap["job_create_time"].(float64))
 			if unitType == UnitTypeNode {
 				nodeName := unit["name"].(string)
-				modelInfo := modelMapper.GetModelInfo(unitType, dataGranularity, nodeName)
-				if modelInfo != nil {
-					mt := time.Now().Unix() - modelInfo.Timestamp
-					scope.Infof("export node %s model time metric with granularity %s value %v",
-						nodeName, dataGranularity, mt)
-					metricExporter.SetNodeMetricModelTime(nodeName, dataGranularity, float64(mt))
-					modelMapper.RemoveModelInfo(unitType, dataGranularity, nodeName)
-				}
+				modelMapper.RemoveModelInfo(unitType, dataGranularity, nodeName)
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export node %s model time metric with granularity %s value %v",
+					nodeName, dataGranularity, mt)
+				metricExporter.SetNodeMetricModelTime(nodeName, dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListNodes(context.Background(),
 					&datahub_v1alpha1.ListNodesRequest{
@@ -79,15 +78,13 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				podNamespacedName := unit["namespaced_name"].(map[string]interface{})
 				podNS := podNamespacedName["namespace"].(string)
 				podName := podNamespacedName["name"].(string)
-				modelInfo := modelMapper.GetModelInfo(unitType, dataGranularity, fmt.Sprintf("%s/%s", podNS, podName))
-				if modelInfo != nil {
-					mt := time.Now().Unix() - modelInfo.Timestamp
-					scope.Infof("export pod %s model time metric with granularity %s value %v",
-						fmt.Sprintf("%s/%s", podNS, podName), dataGranularity, mt)
-					metricExporter.SetPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
-					modelMapper.RemoveModelInfo(unitType, dataGranularity,
-						fmt.Sprintf("%s/%s", podNS, podName))
-				}
+				modelMapper.RemoveModelInfo(unitType, dataGranularity,
+					fmt.Sprintf("%s/%s", podNS, podName))
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export pod %s model time metric with granularity %s value %v",
+					fmt.Sprintf("%s/%s", podNS, podName), dataGranularity, mt)
+				metricExporter.SetPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
 					&datahub_v1alpha1.ListAlamedaPodsRequest{
@@ -108,16 +105,14 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 			} else if unitType == UnitTypeGPU {
 				gpuHost := unit["host"].(string)
 				gpuMinorNumber := unit["minor_number"].(string)
-				modelInfo := modelMapper.GetModelInfo(unitType, dataGranularity, fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
-				if modelInfo != nil {
-					mt := time.Now().Unix() - modelInfo.Timestamp
-					scope.Infof("export gpu %s model time metric with granularity %s value %v",
-						fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber), dataGranularity, mt)
-					metricExporter.SetGPUMetricModelTime(gpuHost, gpuMinorNumber,
-						dataGranularity, float64(mt))
-					modelMapper.RemoveModelInfo(unitType, dataGranularity,
-						fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
-				}
+				modelMapper.RemoveModelInfo(unitType, dataGranularity,
+					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export gpu %s model time metric with granularity %s value %v",
+					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber), dataGranularity, mt)
+				metricExporter.SetGPUMetricModelTime(gpuHost, gpuMinorNumber,
+					dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListGpus(context.Background(),
 					&datahub_v1alpha1.ListGpusRequest{

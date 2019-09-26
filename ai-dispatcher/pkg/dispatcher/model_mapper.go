@@ -64,13 +64,7 @@ func (mm *ModelMapper) AddModelInfo(predictUnitType string,
 	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
 		mm.modelMap[predictUnitType][granularity] = map[string]*modelInfo{}
 	}
-	oldMInfo, ok := mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)]
-	if !ok {
-		mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
-	} else {
-		mInfo.SetCreateTimeStamp(oldMInfo.GetCreateTimeStamp())
-		mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
-	}
+	mm.modelMap[predictUnitType][granularity][mm.getUniqueName(predictUnitType, mInfo)] = mInfo
 	scope.Debugf("after (AddModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 }

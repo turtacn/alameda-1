@@ -10,7 +10,7 @@ var (
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "pod_model_seconds",
 		Help:      "Target modeling time of pod",
-	}, []string{"pod_namespace", "pod_name", "data_granularity"})
+	}, []string{"namespace", "name", "data_granularity"})
 
 	containerMetricMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
@@ -22,7 +22,7 @@ var (
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "pod_metric_drift_total",
 		Help:      "Total number of pod metric drift",
-	}, []string{"pod_namespace", "pod_name", "data_granularity"})
+	}, []string{"namespace", "name", "data_granularity"})
 )
 
 type podMetric struct{}

@@ -14,6 +14,7 @@ type job struct {
 	Granularity       string `json:"granularity"`
 	GranularitySec    int64  `json:"granularitySec"`
 	PayloadJSONString string `json:"payloadJSONString"`
+	CreateTimeStamp   int64  `json:"createTimestamp"`
 }
 
 type jobBuilder struct {
@@ -27,6 +28,7 @@ func NewJobBuilder(unitType string, granularitySec int64, payloadJSONString stri
 		GranularitySec:    granularitySec,
 		Granularity:       granularity,
 		PayloadJSONString: payloadJSONString,
+		CreateTimeStamp:   time.Now().Unix(),
 	}
 	return &jobBuilder{job: job}
 }

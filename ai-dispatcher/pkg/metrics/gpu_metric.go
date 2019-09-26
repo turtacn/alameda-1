@@ -22,7 +22,7 @@ var (
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "gpu_metric_drift_total",
 		Help:      "Total number of gpu metric drift",
-	}, []string{"name", "minor_number", "data_granularity"})
+	}, []string{"host", "minor_number", "data_granularity"})
 )
 
 type gpuMetric struct{}

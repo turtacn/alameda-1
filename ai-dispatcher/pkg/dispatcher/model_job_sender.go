@@ -73,7 +73,6 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 				datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			}
 			nodeInfo.SetTimeStamp(time.Now().Unix())
-			nodeInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			nodeStr, err := marshaler.MarshalToString(node)
 			//nodeStr, err := marshaler.MarshalToString(nodeInfo)
@@ -94,6 +93,7 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 				scope.Infof("export node %s drift counter with granularity %s",
 					nodeName, dataGranularity)
 				dispatcher.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
+
 				err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 				if err != nil {
 					scope.Errorf("Send model job payload failed for node %s with granularity seconds %v. %s",
@@ -108,7 +108,6 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 			nodeInfo.Name = nodeName
 			nodeInfo.ModelMetrics = []datahub_v1alpha1.MetricType{}
 			nodeInfo.SetTimeStamp(time.Now().Unix())
-			nodeInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			nodeMetricsRes, err := datahubServiceClnt.ListNodeMetrics(context.Background(),
 				&datahub_v1alpha1.ListNodeMetricsRequest{
@@ -182,6 +181,7 @@ func (dispatcher *modelJobSender) sendNodeModelJobs(nodes []*datahub_v1alpha1.No
 					scope.Infof("export node %s drift counter with granularity %s",
 						nodeName, dataGranularity)
 					dispatcher.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
+
 					err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 					if err == nil {
 						dispatcher.modelMapper.AddModelInfo(pdUnit, dataGranularity, nodeInfo)
@@ -248,7 +248,6 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 			}
 			podInfo.Containers = containers
 			podInfo.SetTimeStamp(time.Now().Unix())
-			podInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			podStr, err := marshaler.MarshalToString(pod)
 			//podStr, err := marshaler.MarshalToString(podInfo)
@@ -270,6 +269,7 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 					podNS, podName, dataGranularity)
 				dispatcher.metricExporter.AddPodMetricDrift(podNS, podName,
 					queue.GetGranularityStr(granularity), 1.0)
+
 				err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 				if err != nil {
 					scope.Errorf("Send model job payload for pod (%s/%s) with granularity %v failed: %s",
@@ -287,7 +287,6 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 			}
 			podInfo.Containers = []*container{}
 			podInfo.SetTimeStamp(time.Now().Unix())
-			podInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			podMetricsRes, err := datahubServiceClnt.ListPodMetrics(context.Background(),
 				&datahub_v1alpha1.ListPodMetricsRequest{
@@ -373,6 +372,7 @@ func (dispatcher *modelJobSender) sendPodModelJobs(pods []*datahub_v1alpha1.Pod,
 						podNS, podName, dataGranularity)
 					dispatcher.metricExporter.AddPodMetricDrift(podNS, podName,
 						queue.GetGranularityStr(granularity), 1.0)
+
 					err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 					if err == nil {
 						dispatcher.modelMapper.AddModelInfo(pdUnit, dataGranularity, podInfo)
@@ -430,7 +430,6 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 				datahub_v1alpha1.MetricType_DUTY_CYCLE,
 			}
 			gpuInfo.SetTimeStamp(time.Now().Unix())
-			gpuInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			gpuStr, err := marshaler.MarshalToString(gpu)
 			//gpuStr, err := marshaler.MarshalToString(gpuInfo)
@@ -452,6 +451,7 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 					gpuHost, gpuMinorNumber, dataGranularity)
 				dispatcher.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
 					queue.GetGranularityStr(granularity), 1.0)
+
 				err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 				if err != nil {
 					scope.Errorf("Send model job payload failed for (gpu host: %s minor number: %s) with granularity seconds %v. %s",
@@ -467,7 +467,6 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 			gpuInfo.MinorNumber = gpuMinorNumber
 			gpuInfo.ModelMetrics = []datahub_v1alpha1.MetricType{}
 			gpuInfo.SetTimeStamp(time.Now().Unix())
-			gpuInfo.SetCreateTimeStamp(time.Now().Unix())
 
 			gpuMetricsRes, err := datahubServiceClnt.ListGpuMetrics(context.Background(),
 				&datahub_v1alpha1.ListGpuMetricsRequest{
@@ -543,6 +542,7 @@ func (dispatcher *modelJobSender) sendGPUModelJobs(gpus []*datahub_v1alpha1.Gpu,
 						gpuHost, gpuMinorNumber, dataGranularity)
 					dispatcher.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
 						queue.GetGranularityStr(granularity), 1.0)
+
 					err = queueSender.SendJsonString(modelQueueName, jobJSONStr)
 					if err == nil {
 						dispatcher.modelMapper.AddModelInfo(pdUnit, dataGranularity, gpuInfo)
