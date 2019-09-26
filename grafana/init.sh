@@ -43,11 +43,10 @@ do_start()
     # $0 crond &
 
     ## initialize
-    if [ ! -d /var/lib/grafana/dashboards/alameda ]; then
-        cd /
-        tar xzvf ${APPHOME}/alameda-dashboard.tgz
-        cd -
-    fi
+    rm -rf /var/lib/grafana/*
+    cd /
+    tar xzvf ${APPHOME}/alameda-dashboard.tgz
+    cd -
 
     ## start main service
     sh -x /run.sh run &  # run original startup script
