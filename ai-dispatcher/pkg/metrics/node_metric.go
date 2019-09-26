@@ -10,7 +10,13 @@ var (
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "node_model_seconds",
 		Help:      "Target modeling time of node",
-	}, []string{"name","data_granularity"})
+	}, []string{"name", "data_granularity"})
+
+	nodeModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+		Subsystem: "alameda_ai_dispatcher",
+		Name:      "node_model_seconds_total",
+		Help:      "Total target modeling time of node",
+	}, []string{"name", "data_granularity"})
 
 	nodeMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
@@ -22,7 +28,7 @@ var (
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "node_metric_drift_total",
 		Help:      "Total number of node metric drift",
-	}, []string{"name",  "data_granularity"})
+	}, []string{"name", "data_granularity"})
 )
 
 type nodeMetric struct{}
@@ -34,6 +40,11 @@ func newNodeMetric() *nodeMetric {
 func (nodeMetric *nodeMetric) setNodeMetricModelTime(
 	name, dataGranularity string, val float64) {
 	nodeModelTimeGauge.WithLabelValues(name, dataGranularity).Set(val)
+}
+
+func (nodeMetric *nodeMetric) addNodeMetricModelTimeTotal(
+	name, dataGranularity string, val float64) {
+	nodeModelTimeCounter.WithLabelValues(name, dataGranularity).Add(val)
 }
 
 func (nodeMetric *nodeMetric) setNodeMetricMAPE(

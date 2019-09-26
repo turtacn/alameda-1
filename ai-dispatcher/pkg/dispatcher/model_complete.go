@@ -59,7 +59,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export node %s model time metric with granularity %s value %v",
 					nodeName, dataGranularity, mt)
-				metricExporter.SetNodeMetricModelTime(nodeName, dataGranularity, float64(mt))
+				metricExporter.ExportNodeMetricModelTime(nodeName, dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListNodes(context.Background(),
 					&datahub_v1alpha1.ListNodesRequest{
@@ -84,7 +84,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export pod %s model time metric with granularity %s value %v",
 					fmt.Sprintf("%s/%s", podNS, podName), dataGranularity, mt)
-				metricExporter.SetPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
+				metricExporter.ExportPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
 					&datahub_v1alpha1.ListAlamedaPodsRequest{
@@ -111,7 +111,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export gpu %s model time metric with granularity %s value %v",
 					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber), dataGranularity, mt)
-				metricExporter.SetGPUMetricModelTime(gpuHost, gpuMinorNumber,
+				metricExporter.ExportGPUMetricModelTime(gpuHost, gpuMinorNumber,
 					dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListGpus(context.Background(),

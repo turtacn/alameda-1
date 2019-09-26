@@ -12,6 +12,12 @@ var (
 		Help:      "Target modeling time of pod",
 	}, []string{"namespace", "name", "data_granularity"})
 
+	podModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+		Subsystem: "alameda_ai_dispatcher",
+		Name:      "pod_model_seconds_total",
+		Help:      "Total target modeling time of pod",
+	}, []string{"namespace", "name", "data_granularity"})
+
 	containerMetricMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "container_metric_mape",
@@ -35,6 +41,12 @@ func (podMetric *podMetric) setPodMetricModelTime(
 	podNS, podName, dataGranularity string, val float64) {
 	podModelTimeGauge.WithLabelValues(podNS, podName,
 		dataGranularity).Set(val)
+}
+
+func (podMetric *podMetric) addPodMetricModelTimeTotal(
+	podNS, podName, dataGranularity string, val float64) {
+		podModelTimeCounter.WithLabelValues(podNS, podName,
+		dataGranularity).Add(val)
 }
 
 func (podMetric *podMetric) setContainerMetricMAPE(podNS, podName,

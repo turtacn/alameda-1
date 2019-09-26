@@ -14,11 +14,14 @@ func NewExporter() *Exporter {
 	}
 }
 
-func (exporter *Exporter) SetPodMetricModelTime(
+func (exporter *Exporter) ExportPodMetricModelTime(
 	podNS, podName, dataGranularity string, val float64) {
 	exporter.podMetric.setPodMetricModelTime(podNS,
 		podName, dataGranularity, val)
+	exporter.podMetric.addPodMetricModelTimeTotal(podNS,
+		podName, dataGranularity, val)
 }
+
 func (exporter *Exporter) SetContainerMetricMAPE(
 	podNS, podName, name, metricType, dataGranularity string, val float64) {
 	exporter.podMetric.setContainerMetricMAPE(podNS,
@@ -31,9 +34,11 @@ func (exporter *Exporter) AddPodMetricDrift(
 		podName, dataGranularity, val)
 }
 
-func (exporter *Exporter) SetNodeMetricModelTime(
+func (exporter *Exporter) ExportNodeMetricModelTime(
 	name, dataGranularity string, val float64) {
 	exporter.nodeMetric.setNodeMetricModelTime(name,
+		dataGranularity, val)
+	exporter.nodeMetric.addNodeMetricModelTimeTotal(name,
 		dataGranularity, val)
 }
 
@@ -49,9 +54,11 @@ func (exporter *Exporter) AddNodeMetricDrift(
 		dataGranularity, val)
 }
 
-func (exporter *Exporter) SetGPUMetricModelTime(host, minor_number,
+func (exporter *Exporter) ExportGPUMetricModelTime(host, minor_number,
 	dataGranularity string, val float64) {
 	exporter.gpuMetric.setGPUMetricModelTime(host, minor_number,
+		dataGranularity, val)
+	exporter.gpuMetric.addGPUMetricModelTimeTotal(host, minor_number,
 		dataGranularity, val)
 }
 

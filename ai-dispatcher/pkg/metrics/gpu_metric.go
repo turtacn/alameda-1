@@ -12,6 +12,12 @@ var (
 		Help:      "Target modeling time of gpu",
 	}, []string{"host", "minor_number", "data_granularity"})
 
+	gpuModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+		Subsystem: "alameda_ai_dispatcher",
+		Name:      "gpu_model_seconds_total",
+		Help:      "Total target modeling time of gpu",
+	}, []string{"host", "minor_number", "data_granularity"})
+
 	gpuMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "gpu_metric_mape",
@@ -35,6 +41,12 @@ func (gpuMetric *gpuMetric) setGPUMetricModelTime(
 	host, minor_number, dataGranularity string, val float64) {
 	gpuModelTimeGauge.WithLabelValues(host,
 		minor_number, dataGranularity).Set(val)
+}
+
+func (gpuMetric *gpuMetric) addGPUMetricModelTimeTotal(
+	host, minor_number, dataGranularity string, val float64) {
+	gpuModelTimeCounter.WithLabelValues(host,
+		minor_number, dataGranularity).Add(val)
 }
 
 func (gpuMetric *gpuMetric) setGPUMetricMAPE(
