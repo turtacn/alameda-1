@@ -14,6 +14,9 @@ type Statement struct {
 	Measurement    Measurement
 	SelectedFields []string
 	GroupByTags    []string
+	Function       string
+	Aggregation    string
+	Selector       string
 	WhereClause    string
 	OrderClause    string
 	LimitClause    string
@@ -109,6 +112,19 @@ func (s *Statement) AppendWhereClauseFromTimeCondition() {
 	}
 }
 
+func (s *Statement) SetFunction(function, functionType string) {
+	switch function {
+	case "aggregations":
+		s.Function    = function
+		s.Aggregation = functionType
+	case "selectors":
+		s.Function = function
+		s.Selector = functionType
+	default:
+		s.Function = ""
+	}
+}
+
 func (s *Statement) SetOrderClauseFromQueryCondition() {
 	switch s.QueryCondition.TimestampOrder {
 	case DBCommon.Asc:
@@ -127,7 +143,7 @@ func (s *Statement) SetLimitClauseFromQueryCondition() {
 	}
 }
 
-func (s Statement) BuildQueryCmd() string {
+func (s *Statement) BuildQueryCmd() string {
 	var (
 		cmd        = ""
 		fieldsStr  = "*"
@@ -142,10 +158,23 @@ func (s Statement) BuildQueryCmd() string {
 		fieldsStr = strings.TrimSuffix(fieldsStr, ",")
 	}
 
+	if s.Function != "" {
+		switch s.Function {
+		case "aggregations":
+			fieldsStr = fmt.Sprintf("%s(%s)", s.Aggregation, fieldsStr)
+		case "selectors":
+			fieldsStr = fmt.Sprintf("%s(%s)", s.Selector, fieldsStr)
+		}
+	}
+
 	if len(s.GroupByTags) > 0 {
 		groupByStr = "GROUP BY "
 		for _, field := range s.GroupByTags {
-			groupByStr += fmt.Sprintf(`"%s",`, field)
+			if strings.HasPrefix(field, "time(") {
+				groupByStr += field
+			} else {
+				groupByStr += fmt.Sprintf(`"%s",`, field)
+			}
 		}
 		groupByStr = strings.TrimSuffix(groupByStr, ",")
 	}
@@ -155,4 +184,8 @@ func (s Statement) BuildQueryCmd() string {
 		groupByStr, s.OrderClause, s.LimitClause)
 
 	return cmd
+}
+
+func (s *Statement) Clear() {
+
 }
