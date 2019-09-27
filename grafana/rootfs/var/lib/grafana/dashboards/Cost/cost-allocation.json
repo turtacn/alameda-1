@@ -111,10 +111,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [{
-            "text": "Worker",
-            "value": "1"
-          }]
+          "valueMaps": []
         },
         {
           "alias": "Instance Type",
@@ -131,10 +128,7 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [{
-            "text": "m5.xlarge",
-            "value": "1"
-          }]
+          "valueMaps": []
         },
         {
           "alias": "vCPU",
@@ -181,12 +175,9 @@
           "mappingType": 1,
           "pattern": "io_storage_size",
           "thresholds": [],
-          "type": "string",
+          "type": "number",
           "unit": "bytes",
-          "valueMaps": [{
-            "text": "43.57 GiB",
-            "value": "1"
-          }]
+          "valueMaps": []
         },
         {
           "alias": "",
@@ -222,7 +213,7 @@
         "intervalFactor": 1,
         "orderByTime": "ASC",
         "policy": "default",
-        "query": "select  \"name\", in_cluster as io_role, in_cluster as io_instance_type, node_cpu_cores, node_memory_bytes, in_cluster as io_storage_size from alameda_cluster_status..node",
+        "query": "select  \"name\", io_role, io_instance_type, node_cpu_cores, node_memory_bytes, io_storage_size from alameda_cluster_status..node\n",
         "rawQuery": true,
         "refId": "A",
         "resultFormat": "table",
