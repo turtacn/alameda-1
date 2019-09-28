@@ -20,7 +20,7 @@ type RabbitMQSender struct {
 	conn *amqp.Connection
 }
 
-func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
+func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string) error {
 	publishRetryTime := sender.getRetry().publishRetryTime
 	publishRetryIntervalMS := sender.getRetry().publishRetryIntervalMS
 	for retry := 0; retry < publishRetryTime; retry++ {
@@ -60,7 +60,7 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr string) error {
 				Body:         []byte(jsonStr),
 				DeliveryMode: 2, // 2 means persistent
 				Headers: amqp.Table{
-					"x-deduplication-header": sender.getMessageHash(jsonStr),
+					"x-deduplication-header": sender.getMessageHash(msgID),
 				},
 			})
 

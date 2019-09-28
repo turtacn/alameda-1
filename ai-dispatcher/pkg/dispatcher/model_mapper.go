@@ -70,11 +70,11 @@ func (mm *ModelMapper) AddModelInfo(predictUnitType string,
 }
 
 func (mm *ModelMapper) RemoveModelInfo(predictUnitType string,
-	granularity string, modelId string) {
+	granularity string, modelID string) {
 	scope.Debugf("before (RemoveModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 	scope.Debugf("model removed from mapper (unit type: %s, granularity: %s): %s",
-		predictUnitType, granularity, modelId)
+		predictUnitType, granularity, modelID)
 	if _, ok := mm.modelMap[predictUnitType]; !ok {
 		scope.Debugf("after (RemoveModelInfo) current mapper status: %s",
 			utils.InterfaceToString(mm.modelMap))
@@ -85,22 +85,22 @@ func (mm *ModelMapper) RemoveModelInfo(predictUnitType string,
 			utils.InterfaceToString(mm.modelMap))
 		return
 	}
-	if _, ok := mm.modelMap[predictUnitType][granularity][modelId]; ok {
-		delete(mm.modelMap[predictUnitType][granularity], modelId)
+	if _, ok := mm.modelMap[predictUnitType][granularity][modelID]; ok {
+		delete(mm.modelMap[predictUnitType][granularity], modelID)
 	}
 	scope.Debugf("after (RemoveModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 }
 
 func (mm *ModelMapper) GetModelInfo(predictUnitType string,
-	granularity string, modelId string) *modelInfo {
+	granularity string, modelID string) *modelInfo {
 	if _, ok := mm.modelMap[predictUnitType]; !ok {
 		return nil
 	}
 	if _, ok := mm.modelMap[predictUnitType][granularity]; !ok {
 		return nil
 	}
-	val, _ := mm.modelMap[predictUnitType][granularity][modelId]
+	val, _ := mm.modelMap[predictUnitType][granularity][modelID]
 	return val
 }
 

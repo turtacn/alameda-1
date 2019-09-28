@@ -1,6 +1,8 @@
 package dispatcher
 
 import (
+	"fmt"
+
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/jsonpb"
@@ -34,7 +36,8 @@ func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_v1alpha
 				node.GetName(), granularity, err.Error())
 			continue
 		}
-		err = queueSender.SendJsonString(queueName, jobJSONStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr,
+			fmt.Sprintf("%s", node.GetName()))
 		if err != nil {
 			scope.Errorf("Send job for node %s failed with granularity %v seconds. %s",
 				node.GetName(), granularity, err.Error())
@@ -60,7 +63,8 @@ func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_v1alpha1.
 				podNSN.GetNamespace(), podNSN.GetName(), granularity, err.Error())
 			continue
 		}
-		err = queueSender.SendJsonString(queueName, jobJSONStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr,
+			fmt.Sprintf("%s/%s", podNSN.GetNamespace(), podNSN.GetName()))
 		if err != nil {
 			scope.Errorf("Send job for pod %s/%s failed with granularity %v seconds. %s",
 				podNSN.GetNamespace(), podNSN.GetName(), granularity, err.Error())
@@ -87,7 +91,8 @@ func (dispatcher *predictJobSender) SendGPUPredictJobs(gpus []*datahub_v1alpha1.
 				gpuHost, gpuMinorNumber, granularity, err.Error())
 			continue
 		}
-		err = queueSender.SendJsonString(queueName, jobJSONStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr,
+			fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
 		if err != nil {
 			scope.Errorf("Send job for gpu host: %s, minor number: %s failed with granularity %v seconds. %s",
 				gpuHost, gpuMinorNumber, granularity, err.Error())

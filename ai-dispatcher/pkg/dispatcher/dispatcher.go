@@ -58,14 +58,6 @@ func (dispatcher *Dispatcher) Start() {
 	// each sender use distinct channel which is not thread safe.
 	// all jobs are published to the same queue.
 	for _, granularity := range dispatcher.svcGranularities {
-		granuSec := viper.GetInt(
-			fmt.Sprintf("granularities.%s.dataGranularitySec", granularity))
-		queueJobSendIntervalSec := viper.GetInt(
-			fmt.Sprintf("granularities.%s.queueJobSendIntervalSec", granularity))
-		if granuSec == 0 {
-			scope.Warnf("Granularity %v is not defined or set incorrect.", granularity)
-			continue
-		}
 		predictionStep := viper.GetInt(fmt.Sprintf("granularities.%s.predictionSteps",
 			granularity))
 		if predictionStep == 0 {
@@ -74,8 +66,11 @@ func (dispatcher *Dispatcher) Start() {
 			continue
 		}
 		wg.Add(1)
-		go dispatcher.dispatch(int64(granuSec), int64(predictionStep),
-			int64(queueJobSendIntervalSec))
+		go dispatcher.dispatch(granularity, int64(predictionStep),
+			"predictionJobSendIntervalSec")
+		wg.Add(1)
+		go dispatcher.dispatch(granularity, int64(predictionStep),
+			"modelJobSendIntervalSec")
 	}
 	wg.Wait()
 }
@@ -91,9 +86,17 @@ func (dispatcher *Dispatcher) validCfg() {
 	}
 }
 
-func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64,
-	queueJobSendIntervalSec int64) {
+func (dispatcher *Dispatcher) dispatch(granularity string, predictionStep int64,
+	queueJobType string) {
 	defer wg.Done()
+	granularitySec := int64(viper.GetInt(
+		fmt.Sprintf("granularities.%s.dataGranularitySec", granularity)))
+	if granularitySec == 0 {
+		scope.Warnf("Granularity %v is not defined or set incorrect.", granularitySec)
+		return
+	}
+	queueJobSendIntervalSec := viper.GetInt(
+		fmt.Sprintf("granularities.%s.%s", granularity, queueJobType))
 	queueURL := viper.GetString("queue.url")
 	queueConnRetryItvMS := viper.GetInt64("queue.retry.connectIntervalMs")
 	if queueConnRetryItvMS == 0 {
@@ -104,7 +107,7 @@ func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64,
 		queueSender := queue.NewRabbitMQSender(queueConn)
 		for _, pdUnit := range dispatcher.svcPredictUnits {
 			if pdUnit != UnitTypeNode && pdUnit != UnitTypePod &&
-				(pdUnit != UnitTypeGPU || granularity != 3600) {
+				(pdUnit != UnitTypeGPU || granularitySec != 3600) {
 				continue
 			}
 
@@ -114,9 +117,17 @@ func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64,
 				scope.Warnf("Unit %s is not defined or set incorrect.", pdUnit)
 				continue
 			}
-			scope.Infof("Start dispatch unit %s with granularity %v seconds",
-				pdUnitType, granularity)
-			dispatcher.getAndPushJobs(queueSender, pdUnit, granularity, predictionStep)
+
+			if queueJobType == "predictionJobSendIntervalSec" {
+				scope.Infof("Start dispatching prediction unit %s with granularity %v seconds and cycle %v seconds",
+					pdUnitType, granularitySec, queueJobSendIntervalSec)
+			} else if queueJobType == "modelJobSendIntervalSec" {
+				scope.Infof("Start dispatching model unit %s with granularity %v seconds and cycle %v seconds",
+					pdUnitType, granularitySec, queueJobSendIntervalSec)
+			}
+
+			dispatcher.getAndPushJobs(queueSender, pdUnit, granularitySec,
+				predictionStep, queueJobType)
 		}
 		queueConn.Close()
 		time.Sleep(time.Duration(queueJobSendIntervalSec) * time.Second)
@@ -124,7 +135,7 @@ func (dispatcher *Dispatcher) dispatch(granularity int64, predictionStep int64,
 }
 
 func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
-	pdUnit string, granularity int64, predictionStep int64) {
+	pdUnit string, granularity int64, predictionStep int64, queueJobType string) {
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(dispatcher.datahubGrpcCn)
 
@@ -136,13 +147,17 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 				granularity, err.Error())
 			return
 		}
+
 		nodes := res.GetNodes()
-		// send predict jobs
-		scope.Infof("Start sending %v node jobs to queue with granularity %v seconds.",
-			len(nodes), granularity)
-		dispatcher.predictJobSender.SendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
-		if viper.GetBool("model.enabled") {
-			dispatcher.modelJobSender.sendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof("Start sending %v node prediction jobs to queue with granularity %v seconds.",
+				len(nodes), granularity)
+			dispatcher.predictJobSender.SendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof("Start sending %v node model jobs to queue with granularity %v seconds.",
+				len(nodes), granularity)
+			dispatcher.modelJobSender.SendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
 		scope.Infof("Sending %v node jobs to queue completely with granularity %v seconds.",
@@ -156,13 +171,17 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 				granularity, err.Error())
 			return
 		}
+
 		pods := res.GetPods()
-		// send predict jobs
-		scope.Infof("Start sending %v pod jobs to queue with granularity %v seconds.",
-			len(pods), granularity)
-		dispatcher.predictJobSender.SendPodPredictJobs(pods, queueSender, pdUnit, granularity)
-		if viper.GetBool("model.enabled") {
-			dispatcher.modelJobSender.sendPodModelJobs(pods, queueSender, pdUnit, granularity,
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof("Start sending %v pod prediction jobs to queue with granularity %v seconds.",
+				len(pods), granularity)
+			dispatcher.predictJobSender.SendPodPredictJobs(pods, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof("Start sending %v pod model jobs to queue with granularity %v seconds.",
+				len(pods), granularity)
+			dispatcher.modelJobSender.SendPodModelJobs(pods, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
 		scope.Infof("Sending %v pod jobs to queue completely with granularity %v seconds.",
@@ -176,12 +195,15 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			return
 		}
 		gpus := res.GetGpus()
-		// send predict jobs
-		scope.Infof("Start sending %v gpu jobs to queue with granularity %v seconds.",
-			len(gpus), granularity)
-		dispatcher.predictJobSender.SendGPUPredictJobs(gpus, queueSender, pdUnit, granularity)
-		if viper.GetBool("model.enabled") {
-			dispatcher.modelJobSender.sendGPUModelJobs(gpus, queueSender, pdUnit, granularity,
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof("Start sending %v gpu prediction jobs to queue with granularity %v seconds.",
+				len(gpus), granularity)
+			dispatcher.predictJobSender.SendGPUPredictJobs(gpus, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof("Start sending %v gpu model jobs to queue with granularity %v seconds.",
+				len(gpus), granularity)
+			dispatcher.modelJobSender.SendGPUModelJobs(gpus, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
 		scope.Infof("Sending %v gpu jobs to queue completely with granularity %v seconds.",

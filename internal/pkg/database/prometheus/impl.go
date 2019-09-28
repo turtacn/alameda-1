@@ -2,12 +2,14 @@ package prometheus
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
+
+	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -138,7 +140,7 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 	}
 	if token := p.Config.bearerToken; token != "" {
 		h := http.Header{
-			"Authorization": []string{fmt.Sprintf(" Bearer %s", token)},
+			"Authorization": []string{fmt.Sprintf(" Bearer %s", strings.TrimSpace(token))},
 		}
 		httpRequest.Header = h
 	}
