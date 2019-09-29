@@ -25,19 +25,14 @@ var scope = log.RegisterScope("notifier", "notifier", 0)
 type notifier struct {
 	k8sClient     client.Client
 	datahubClient datahub_v1alpha1.DatahubServiceClient
-	clusterId     string
+	clusterInfo   *k8s_utils.ClusterInfo
 }
 
-func NewNotifier(mgr manager.Manager,
-	datahubClient datahub_v1alpha1.DatahubServiceClient) *notifier {
-
-	clusterId, err := k8s_utils.GetClusterUID(mgr.GetClient())
-	if err != nil {
-		scope.Errorf("Get cluster id failed: %s", err.Error())
-	}
+func NewNotifier(mgr manager.Manager, datahubClient datahub_v1alpha1.DatahubServiceClient,
+                 clusterInfo *k8s_utils.ClusterInfo) *notifier {
 	return &notifier{
 		k8sClient:     mgr.GetClient(),
-		clusterId:     clusterId,
+		clusterInfo:   clusterInfo,
 		datahubClient: datahubClient,
 	}
 }
@@ -156,7 +151,7 @@ func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_v1alpha1.Event,
 		evtSender := event.NewEventSender(notifier.datahubClient)
 		podName := utils.GetRunningPodName()
 		evtSender.SendEvents([]*datahub_v1alpha1.Event{
-			event.GetEmailNotificationEvent(errMsg, podName, notifier.clusterId),
+			event.GetEmailNotificationEvent(errMsg, podName, notifier.clusterInfo.UID),
 		})
 	}
 
@@ -188,7 +183,7 @@ func (notifier *notifier) sendEvtByEmails(evt *datahub_v1alpha1.Event,
 		return err
 	}
 	emailNotificationChannel, err := channel.NewEmailClient(
-		alamedaNotificationChannel, emailChannel)
+		alamedaNotificationChannel, emailChannel, notifier.clusterInfo)
 	if err != nil {
 		return err
 	}

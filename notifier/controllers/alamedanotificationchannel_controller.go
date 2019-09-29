@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
 	"github.com/containers-ai/alameda/notifier/utils"
@@ -107,19 +108,43 @@ func (r *AlamedaNotificationChannelReconciler) testEmailChannel(
 		return fmt.Errorf(errMsg)
 	}
 
+	clusterInfo, err := k8s_utils.GetClusterInfo(r.Client)
+	if err != nil {
+		channelScope.Errorf("unable to send test email due to get cluster info fail: %s", err.Error())
+		return err
+	}
+	uid, err := k8s_utils.GetClusterUID(r.Client)
+	if err != nil {
+		channelScope.Errorf("unable to send test email due to get cluster id fail: %s", err.Error())
+		return err
+	}
+	clusterInfo.UID = uid
+
 	emailChannel := &notifyingv1alpha1.AlamedaEmailChannel{}
-	emailClient, err := channel.NewEmailClient(alamedaNotificationChannel, emailChannel)
+	emailClient, err := channel.NewEmailClient(alamedaNotificationChannel, emailChannel, &clusterInfo)
 	if err != nil {
 		return err
 	}
 	subject := "Test Email"
 	recipients := []string{to}
-	msg := "This is a test email for Federator.ai email notification."
 	ccs := []string{}
 	attachments := map[string]string{}
+	msgHTML := fmt.Sprintf(`
+		<html>
+			<body>
+			This is a test email for Federator.ai email notification.<br>
+			###############################################################<br>
+			<table cellspacing="5" cellpadding="0">
+				<tr><td align="left">Cluster Id:</td><td>%s</td></tr>
+				<tr><td align="left">Master Node Hostname:</td><td>%s</td></tr>
+				<tr><td align="left">Master Node IP:</td><td>%s</td></tr>
+				<tr><td align="left">Time:</td><td>%s</td></tr>
+			</table>
+		</body>
+	</html>
+	`, clusterInfo.UID, clusterInfo.MasterNodeHostname, clusterInfo.MasterNodeIP, time.Now().Format(time.RFC3339))
 	err = emailClient.SendEmailBySMTP(subject, from, recipients,
-		fmt.Sprintf("<html><body><div>%s</div></body></html>", msg),
-		utils.RemoveEmptyStr(ccs), attachments)
+		msgHTML, utils.RemoveEmptyStr(ccs), attachments)
 	if err != nil {
 		return err
 	}

@@ -12,6 +12,9 @@ github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghf
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/containers-ai/alameda v4.2.293+incompatible h1:n+mZSdI/Kj0AFcwvQEUsERZZ2WGRNJxZsvKGO1xombo=
 github.com/containers-ai/alameda v4.2.293+incompatible/go.mod h1:Y80sCayfnVnZ8jbPW0ZY8exCutnodYJJBV1Oi1R9WHc=
+github.com/containers-ai/alameda v4.2.457+incompatible h1:NGbRDputgDB84lUG2UhQg2rBrplhaJt27H6suFYKxWw=
+github.com/containers-ai/alameda v4.2.458-0.20190929122603-2849fd25917c+incompatible h1:VznmditqK7SnYmSK9BLsocV56GaojkUuHPRSR9r04qM=
+github.com/containers-ai/alameda v4.2.458-0.20190929122603-2849fd25917c+incompatible/go.mod h1:Y80sCayfnVnZ8jbPW0ZY8exCutnodYJJBV1Oi1R9WHc=
 github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f h1:Oh9NptCfImY51lyXi9kbVLOFztDcDaJfcDOQ7THJEkQ=
 github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f/go.mod h1:4lntUeoAjUdYzGVcVgb/N15po7roqVAgGWqeH1Twe04=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
