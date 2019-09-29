@@ -19,6 +19,25 @@ import (
 	"strings"
 )
 
+type NodeInfo struct {
+	UID           string
+	Name          string
+	RoleMaster    bool
+	RoleCompute   bool
+	RoleInfra     bool
+	Hostname      string
+	IPInternal    []string
+	IPExternal    []string
+}
+
+type ClusterInfo struct {
+	UID                string
+	Nodes              []NodeInfo
+	MasterNodeHostname string
+	MasterNodeIP       string
+	MasterNodeUID      string
+}
+
 var scope = Log.RegisterScope("kubernetes_utils", "Kubernetes utils.", 0)
 
 func NewK8SClient() (client.Client, error){
@@ -86,6 +105,69 @@ func GetClusterUID(k8sClient client.Client) (string, error) {
 
 	return clusterId, errors.New(strings.Join(errorList, ","))
 }
+
+func GetClusterInfo(k8sClient client.Client) (ClusterInfo, error) {
+	nodeList := &Corev1.NodeList{}
+	errorList := make([]string, 0)
+	cInfo := ClusterInfo{}
+	nodeFound := false
+	err := k8sClient.List(context.Background(), nodeList)
+	if err == nil {
+		for _, node := range nodeList.Items {
+			isMasterNode := false
+			newNode := NodeInfo{}
+			newNode.Name = node.ObjectMeta.Name
+			newNode.UID = string(node.ObjectMeta.GetUID())
+			for label, _ := range node.ObjectMeta.Labels {
+				switch label {
+				case "node-role.kubernetes.io/master":
+					newNode.RoleMaster = true
+					if isMasterNode == false {
+						 isMasterNode = true
+					}
+				case "node-role.kubernetes.io/infra":
+					newNode.RoleInfra = true
+				case "node-role.kubernetes.io/compute":
+					newNode.RoleCompute = true
+				}
+			}
+			addresses := node.Status.Addresses
+			for _, addr := range addresses {
+				switch addr.Type {
+				case Corev1.NodeHostName:
+					newNode.Hostname = addr.Address
+				case Corev1.NodeInternalIP:
+					newNode.IPInternal = append(newNode.IPInternal, addr.Address)
+				case Corev1.NodeExternalIP:
+					newNode.IPExternal = append(newNode.IPExternal, addr.Address)
+				}
+			}
+			if isMasterNode == true && nodeFound == false {
+				cInfo.MasterNodeHostname = newNode.Hostname
+				cInfo.MasterNodeUID = newNode.UID
+				if cInfo.MasterNodeIP == "" {
+					if len(newNode.IPExternal) > 0 {
+						cInfo.MasterNodeIP = newNode.IPExternal[0]
+					} else if len(newNode.IPInternal) > 0 {
+						cInfo.MasterNodeIP = newNode.IPInternal[0]
+					}
+				}
+				nodeFound = true
+			}
+			cInfo.Nodes = append(cInfo.Nodes, newNode)
+		}
+		return cInfo, nil
+	} else if !K8SErrors.IsNotFound(err) {
+			errorList = append(errorList, err.Error())
+	}
+
+	if len(errorList) == 0 {
+		return cInfo, fmt.Errorf("no nodeList info found")
+	}
+
+	return cInfo, errors.New(strings.Join(errorList, ","))
+}
+
 
 func GetRunningNamespace() string {
 	ns := ""
