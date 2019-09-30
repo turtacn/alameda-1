@@ -117,26 +117,38 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 
 // CreateContainers add containers information container measurement
 func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub_v1alpha1.Pod) error {
-	points := []*InfluxClient.Point{}
+	points := make([]*InfluxClient.Point, 0)
+
+	// Do delete containers before creating them
+	err := containerRepository.DeleteContainers(pods)
+	if err != nil {
+		scope.Error("failed to delete container in influxdb when creating containers")
+		return errors.Wrap(err, "failed to create containers to influxdb")
+	}
+
+	// Generate influxdb points
 	for _, pod := range pods {
 		containerEntities, err := buildContainerEntitiesFromDatahubPod(pod)
 		if err != nil {
-			return errors.Wrap(err, "create containers failed")
+			return errors.Wrap(err, "failed to create containers")
 		}
 		for _, containerEntity := range containerEntities {
 			p, err := containerEntity.InfluxDBPoint(string(Container))
 			if err != nil {
-				return errors.Wrap(err, "create containers failed")
+				return errors.Wrap(err, "failed to create containers")
 			}
 			points = append(points, p)
 		}
 	}
-	err := containerRepository.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+
+	// Write points to influxdb
+	err = containerRepository.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
 		Database: string(RepoInflux.ClusterStatus),
 	})
 	if err != nil {
-		return errors.Wrap(err, "create containers to influxdb failed")
+		return errors.Wrap(err, "failed to create containers to influxdb")
 	}
+
 	return nil
 }
 
