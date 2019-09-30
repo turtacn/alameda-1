@@ -1,4 +1,4 @@
-package node
+package nodeinfo
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 
 func TestNewNodeInfo(t *testing.T) {
 	var nodeList v1.NodeList
-	dat, err := ioutil.ReadFile("node_test.yaml")
+	dat, err := ioutil.ReadFile("nodeinfo_test.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +19,7 @@ func TestNewNodeInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, n := range nodeList.Items {
-		nodeInfo, err := newNodeInfo(n)
+		nodeInfo, err := NewNodeInfo(n)
 		if err != nil {
 			t.Fatal(err)
 			continue

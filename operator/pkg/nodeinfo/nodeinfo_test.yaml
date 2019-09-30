@@ -1,0 +1,1213 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"46:ff:9d:7a:85:aa"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.112
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-08-15T09:42:38Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: t2.medium
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-112.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/master: ""
+      stackpoint.io/cluster_id: "23391"
+      stackpoint.io/instance_id: netatt9dgn-master-1
+      stackpoint.io/node_group: ""
+      stackpoint.io/node_id: "91190"
+      stackpoint.io/node_pool: ""
+      stackpoint.io/private_ip: 172.23.1.112
+      stackpoint.io/role: master
+      stackpoint.io/size: t2.medium
+    name: ip-172-23-1-112.us-west-2.compute.internal
+    resourceVersion: "673755"
+    selfLink: /api/v1/nodes/ip-172-23-1-112.us-west-2.compute.internal
+    uid: ffc8c3f2-f9f6-4303-aa72-2b72fe816e2b
+  spec:
+    podCIDR: 10.2.0.0/24
+    providerID: aws:///us-west-2a/i-0769ec8570198bf4b
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+  status:
+    addresses:
+    - address: 172.23.1.112
+      type: InternalIP
+    - address: 54.218.143.157
+      type: ExternalIP
+    - address: ip-172-23-1-112.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-112.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: "46779129369"
+      hugepages-2Mi: "0"
+      memory: 3935768Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: 50758604Ki
+      hugepages-2Mi: "0"
+      memory: 4038168Ki
+      pods: "110" 
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250 
+    nodeInfo:
+      architecture: amd64
+      bootID: 6f24faca-8584-49bf-b9f0-063f6dabbe67
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1044-aws
+      kubeProxyVersion: v1.15.2
+      kubeletVersion: v1.15.2
+      machineID: 8b15f85de03d4f368c07e675e4c32b1e
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.2 LTS
+      systemUUID: EC212DED-1F55-4526-F115-CCACEB7315E0
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"02:46:55:86:87:da"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.63
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-08-15T09:43:36Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: c4.xlarge
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-63.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      stackpoint.io/cluster_id: "23391"
+      stackpoint.io/instance_id: netatt9dgn-worker-1
+      stackpoint.io/node_group: autoscaling-netatt9dgn-pool-1
+      stackpoint.io/node_id: "91191"
+      stackpoint.io/node_pool: Default-Worker-Pool
+      stackpoint.io/private_ip: 172.23.1.63
+      stackpoint.io/role: worker
+      stackpoint.io/size: c4.xlarge
+    name: ip-172-23-1-63.us-west-2.compute.internal
+    resourceVersion: "673764"
+    selfLink: /api/v1/nodes/ip-172-23-1-63.us-west-2.compute.internal
+    uid: 385e1a95-9b74-4385-b706-1cd3cfc43a42
+  spec:
+    podCIDR: 10.2.1.0/24
+    providerID: aws:///us-west-2a/i-0364d9b65e9d1f973
+  status:
+    addresses:
+    - address: 172.23.1.63
+      type: InternalIP
+    - address: 54.71.208.125
+      type: ExternalIP
+    - address: ip-172-23-1-63.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-63.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: "46779129369"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7548444Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: 50758604Ki
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7650844Ki
+      pods: "110"
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    nodeInfo:
+      architecture: amd64
+      bootID: 50e02a2a-1e1f-4382-802c-5d4fb5bd9c1c
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1044-aws
+      kubeProxyVersion: v1.15.2
+      kubeletVersion: v1.15.2
+      machineID: 1b421c05cd0641b7a9f7eb7e38832371
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.2 LTS
+      systemUUID: EC2FC1C2-2205-205E-A7B4-622D5CC2CB59
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"62:4c:b5:93:c1:2c"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.67
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-08-15T09:43:37Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: c4.xlarge
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-67.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      stackpoint.io/cluster_id: "23391"
+      stackpoint.io/instance_id: netatt9dgn-worker-2
+      stackpoint.io/node_group: autoscaling-netatt9dgn-pool-1
+      stackpoint.io/node_id: "91192"
+      stackpoint.io/node_pool: Default-Worker-Pool
+      stackpoint.io/private_ip: 172.23.1.67
+      stackpoint.io/role: worker
+      stackpoint.io/size: c4.xlarge
+    name: ip-172-23-1-67.us-west-2.compute.internal
+    resourceVersion: "673821"
+    selfLink: /api/v1/nodes/ip-172-23-1-67.us-west-2.compute.internal
+    uid: 95f2784d-eab7-4717-ad23-9e32c3c8df20
+  spec:
+    podCIDR: 10.2.2.0/24
+    providerID: aws:///us-west-2a/i-01a08072ceabff4ab
+  status:
+    addresses:
+    - address: 172.23.1.67
+      type: InternalIP
+    - address: 34.217.93.248
+      type: ExternalIP
+    - address: ip-172-23-1-67.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-67.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: "46779129369"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7548444Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "4"
+      ephemeral-storage: 50758604Ki
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 7650844Ki
+      pods: "110"
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    nodeInfo:
+      architecture: amd64
+      bootID: 70891b93-bf5e-4e37-bcc1-ef2183d51059
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1044-aws
+      kubeProxyVersion: v1.15.2
+      kubeletVersion: v1.15.2
+      machineID: ffaf132f702647dda8c94f6c85d77c6c
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.2 LTS
+      systemUUID: EC24EC15-9A20-B6AF-2E7E-85A1C48DFC77
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      flannel.alpha.coreos.com/backend-data: '{"VtepMAC":"6e:85:9a:97:d6:62"}'
+      flannel.alpha.coreos.com/backend-type: vxlan
+      flannel.alpha.coreos.com/kube-subnet-manager: "true"
+      flannel.alpha.coreos.com/public-ip: 172.23.1.41
+      kubeadm.alpha.kubernetes.io/cri-socket: /var/run/dockershim.sock
+      node.alpha.kubernetes.io/ttl: "0"
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: "2019-09-11T02:09:45Z"
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/instance-type: t2.medium
+      beta.kubernetes.io/os: linux
+      failure-domain.beta.kubernetes.io/region: us-west-2
+      failure-domain.beta.kubernetes.io/zone: us-west-2a
+      kubernetes.io/arch: amd64
+      kubernetes.io/hostname: ip-172-23-1-41.us-west-2.compute.internal
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/master: ""
+      stackpoint.io/private_ip: 172.23.1.41
+    name: ip-172-23-1-41.us-west-2.compute.internal
+    resourceVersion: "259928"
+    selfLink: /api/v1/nodes/ip-172-23-1-41.us-west-2.compute.internal
+    uid: c74635ee-3ab3-4c37-a1ec-5d8b017704d1
+  spec:
+    podCIDR: 10.2.0.0/24
+    providerID: aws:///us-west-2a/i-00111fe27b416d50c
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+  status:
+    addresses:
+    - address: 172.23.1.41
+      type: InternalIP
+    - address: 52.12.215.53
+      type: ExternalIP
+    - address: ip-172-23-1-41.us-west-2.compute.internal
+      type: InternalDNS
+    - address: ip-172-23-1-41.us-west-2.compute.internal
+      type: Hostname
+    allocatable:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: "46779129369"
+      hugepages-2Mi: "0"
+      memory: 3935768Ki
+      pods: "110"
+    capacity:
+      attachable-volumes-aws-ebs: "39"
+      cpu: "2"
+      ephemeral-storage: 50758604Ki
+      hugepages-2Mi: "0"
+      memory: 4038168Ki
+      pods: "110"
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    nodeInfo:
+      architecture: amd64
+      bootID: 7d7e68b1-4058-40db-96d7-b66dead8a309
+      containerRuntimeVersion: docker://18.9.4
+      kernelVersion: 4.15.0-1045-aws
+      kubeProxyVersion: v1.15.3
+      kubeletVersion: v1.15.3
+      machineID: 1b3f4be90ffd472884a3653640fa58ad
+      operatingSystem: linux
+      osImage: Ubuntu 18.04.3 LTS
+      systemUUID: EC21B18B-C857-9045-9AAB-241E4ABFC920
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.openshift.io/md5sum: 789a2a0ea69774f0d98fcd6aa4edd3f6
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: 2019-09-23T09:54:49Z
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/hostname: ip-10-77-2-219.ec2.internal
+      node-role.kubernetes.io/infra: "true"
+      node-role.kubernetes.io/master: "true"
+    name: ip-10-77-2-219.ec2.internal
+    namespace: ""
+    resourceVersion: "885698"
+    selfLink: /api/v1/nodes/ip-10-77-2-219.ec2.internal
+    uid: 2e46e11a-dde8-11e9-b76c-16badc7ca980
+  spec: {}
+  status:
+    addresses:
+    - address: 10.77.2.219
+      type: InternalIP
+    - address: ip-10-77-2-219.ec2.internal
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15688984Ki
+      pods: "250"
+    capacity:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15791384Ki
+      pods: "250"
+    conditions:
+    - lastHeartbeatTime: 2019-09-27T08:57:33Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient disk space available
+      reason: KubeletHasSufficientDisk
+      status: "False"
+      type: OutOfDisk
+    - lastHeartbeatTime: 2019-09-27T08:57:33Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:33Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:33Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:33Z
+      lastTransitionTime: 2019-09-23T09:58:47Z
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    images:
+    - names:
+      - docker.io/openshift/origin-node@sha256:6ef4b646e84dcee614e630460e66a24be3a5c9c86c3a02f80f5ce506115c4282
+      - docker.io/openshift/origin-node:v3.11
+      sizeBytes: 1190877141
+    - names:
+      - docker.io/openshift/origin-control-plane@sha256:5be6dba44176b39b09e4bff70eff5a03a2c06b2340b9ff18a6dcf03bb85d24b2
+      - docker.io/openshift/origin-control-plane:v3.11
+      sizeBytes: 831255017
+    - names:
+      - docker.io/openshift/origin-haproxy-router@sha256:3867492075952ad895200567c52d3aa5517fab6c33da51dbd42d34a4ebb48411
+      - docker.io/openshift/origin-haproxy-router:v3.11
+      sizeBytes: 410839769
+    - names:
+      - docker.io/openshift/origin-deployer@sha256:520297e4bb780cc09692a80e70afb404c2e1c978baaa7817e5fd935a17b45d1f
+      - docker.io/openshift/origin-deployer:v3.11.0
+      sizeBytes: 384733150
+    - names:
+      - docker.io/openshift/origin-web-console@sha256:20c14ce54de73b9203f03b7ee19f81769b9f404bb7dd81ed0ee4a1b8baecf6d1
+      - docker.io/openshift/origin-web-console:v3.11
+      sizeBytes: 338566822
+    - names:
+      - docker.io/cockpit/kubernetes@sha256:f38c7b0d2b85989f058bf78c1759bec5b5d633f26651ea74753eac98f9e70c9b
+      - docker.io/cockpit/kubernetes:latest
+      sizeBytes: 335808186
+    - names:
+      - docker.io/openshift/origin-service-catalog@sha256:14c812a2c865fff342e47fc1b3c9f3c3832d5694af35de4ab4cc05200f2b6a7f
+      - docker.io/openshift/origin-service-catalog:v3.11
+      sizeBytes: 330120767
+    - names:
+      - docker.io/openshift/origin-console@sha256:a094da9bc83159998d27e54b90fc68d1e1cd465d1303dd304ee818068c5d0b3f
+      - docker.io/openshift/origin-console:v3.11
+      sizeBytes: 263682159
+    - names:
+      - docker.io/openshift/origin-pod@sha256:9fb8b480fbc9f2f7a8f3aab970b83b559d2392df39cbcdd21e04c32e0400013a
+      - docker.io/openshift/origin-pod:v3.11
+      - docker.io/openshift/origin-pod:v3.11.0
+      sizeBytes: 262555989
+    - names:
+      - docker.io/grafana/grafana@sha256:104f434d47c8830be44560edc012c31114a104301cdb81bad6e8abc52a2304f9
+      - docker.io/grafana/grafana:5.2.1
+      sizeBytes: 245293540
+    - names:
+      - docker.io/openshift/oauth-proxy@sha256:731c1fdad1de4bf68ae9eece5e99519f063fd8d9990da312082b4c995c4e4e33
+      - docker.io/openshift/oauth-proxy:v1.1.0
+      sizeBytes: 234852780
+    - names:
+      - docker.io/openshift/prometheus-alertmanager@sha256:2f87cf1296f5bb411ea0eb677df3f5dda97066c5857dd76a153ad97c448f5e92
+      - docker.io/openshift/prometheus-alertmanager:v0.15.2
+      sizeBytes: 233276981
+    - names:
+      - docker.io/openshift/prometheus-node-exporter@sha256:4fc227cd04eba43fdfd5d9a076566bcebad61801b31fd25ee2b3f6a3780e8e1c
+      - docker.io/openshift/prometheus-node-exporter:v0.16.0
+      sizeBytes: 216339551
+    - names:
+      - quay.io/coreos/kube-rbac-proxy@sha256:a578315f24e6fd01a65e187e4d1979678598a7d800d039ee5cfe4e11b0b1788d
+      - quay.io/coreos/kube-rbac-proxy:v0.3.1
+      sizeBytes: 40160345
+    - names:
+      - quay.io/coreos/etcd@sha256:43fbc8a457aa0cb887da63d74a48659e13947cb74b96a53ba8f47abb6172a948
+      - quay.io/coreos/etcd:v3.2.22
+      sizeBytes: 37269372
+    - names:
+      - quay.io/coreos/configmap-reload@sha256:e2fd60ff0ae4500a75b80ebaa30e0e7deba9ad107833e8ca53f0047c42c5a057
+      - quay.io/coreos/configmap-reload:v0.0.1
+      sizeBytes: 4785056
+    nodeInfo:
+      architecture: amd64
+      bootID: 485c916c-87e6-4356-945e-ac0111a71e18
+      containerRuntimeVersion: docker://1.13.1
+      kernelVersion: 3.10.0-957.1.3.el7.x86_64
+      kubeProxyVersion: v1.11.0+d4cacc0
+      kubeletVersion: v1.11.0+d4cacc0
+      machineID: 05cb8c7b39fe0f70e3ce97e5beab809d
+      operatingSystem: linux
+      osImage: CentOS Linux 7 (Core)
+      systemUUID: EC2F6CE5-6C4C-8F21-3F49-03292821EA88
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.openshift.io/md5sum: 789a2a0ea69774f0d98fcd6aa4edd3f6
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: 2019-09-23T09:54:49Z
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/hostname: aws-okdmaster01
+      node-role.kubernetes.io/infra: "true"
+      node-role.kubernetes.io/master: "true"
+    name: aws-okdmaster01
+    namespace: ""
+    resourceVersion: "885709"
+    selfLink: /api/v1/nodes/aws-okdmaster01
+    uid: 2e57acd0-dde8-11e9-b76c-16badc7ca980
+  spec: {}
+  status:
+    addresses:
+    - address: 10.77.1.150
+      type: InternalIP
+    - address: aws-okdmaster01
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15688968Ki
+      pods: "250"
+    capacity:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15791368Ki
+      pods: "250"
+    conditions:
+    - lastHeartbeatTime: 2019-09-27T08:57:36Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient disk space available
+      reason: KubeletHasSufficientDisk
+      status: "False"
+      type: OutOfDisk
+    - lastHeartbeatTime: 2019-09-27T08:57:36Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:36Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:36Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:36Z
+      lastTransitionTime: 2019-09-23T09:58:47Z
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    images:
+    - names:
+      - docker.io/openshift/origin-node@sha256:6ef4b646e84dcee614e630460e66a24be3a5c9c86c3a02f80f5ce506115c4282
+      - docker.io/openshift/origin-node:v3.11
+      sizeBytes: 1190877141
+    - names:
+      - docker.io/openshift/origin-control-plane@sha256:5be6dba44176b39b09e4bff70eff5a03a2c06b2340b9ff18a6dcf03bb85d24b2
+      - docker.io/openshift/origin-control-plane:v3.11
+      sizeBytes: 831255017
+    - names:
+      - quay.io/coreos/cluster-monitoring-operator@sha256:b41c6a53f8c86cb3e0c7bc72aae2d5d9b84c8daa2bd86497de8fed32ec71bc8f
+      - quay.io/coreos/cluster-monitoring-operator:v0.1.1
+      sizeBytes: 510314639
+    - names:
+      - docker.io/openshift/origin-haproxy-router@sha256:3867492075952ad895200567c52d3aa5517fab6c33da51dbd42d34a4ebb48411
+      - docker.io/openshift/origin-haproxy-router:v3.11
+      sizeBytes: 410839769
+    - names:
+      - docker.io/openshift/origin-deployer@sha256:520297e4bb780cc09692a80e70afb404c2e1c978baaa7817e5fd935a17b45d1f
+      - docker.io/openshift/origin-deployer:v3.11.0
+      sizeBytes: 384733150
+    - names:
+      - docker.io/openshift/origin-web-console@sha256:20c14ce54de73b9203f03b7ee19f81769b9f404bb7dd81ed0ee4a1b8baecf6d1
+      - docker.io/openshift/origin-web-console:v3.11
+      sizeBytes: 338566822
+    - names:
+      - docker.io/cockpit/kubernetes@sha256:f38c7b0d2b85989f058bf78c1759bec5b5d633f26651ea74753eac98f9e70c9b
+      - docker.io/cockpit/kubernetes:latest
+      sizeBytes: 335808186
+    - names:
+      - docker.io/openshift/origin-service-catalog@sha256:14c812a2c865fff342e47fc1b3c9f3c3832d5694af35de4ab4cc05200f2b6a7f
+      - docker.io/openshift/origin-service-catalog:v3.11
+      sizeBytes: 330120767
+    - names:
+      - docker.io/openshift/prometheus@sha256:8faad95225efc7346d149b893fe169d857c5c5b5de477129b60707f06c170bcc
+      - docker.io/openshift/prometheus:v2.3.2
+      sizeBytes: 315878328
+    - names:
+      - docker.io/openshift/origin-console@sha256:a094da9bc83159998d27e54b90fc68d1e1cd465d1303dd304ee818068c5d0b3f
+      - docker.io/openshift/origin-console:v3.11
+      sizeBytes: 263682159
+    - names:
+      - docker.io/openshift/origin-pod@sha256:9fb8b480fbc9f2f7a8f3aab970b83b559d2392df39cbcdd21e04c32e0400013a
+      - docker.io/openshift/origin-pod:v3.11
+      - docker.io/openshift/origin-pod:v3.11.0
+      sizeBytes: 262555989
+    - names:
+      - docker.io/grafana/grafana@sha256:104f434d47c8830be44560edc012c31114a104301cdb81bad6e8abc52a2304f9
+      - docker.io/grafana/grafana:5.2.1
+      sizeBytes: 245293540
+    - names:
+      - docker.io/openshift/oauth-proxy@sha256:731c1fdad1de4bf68ae9eece5e99519f063fd8d9990da312082b4c995c4e4e33
+      - docker.io/openshift/oauth-proxy:v1.1.0
+      sizeBytes: 234852780
+    - names:
+      - docker.io/openshift/prometheus-alertmanager@sha256:2f87cf1296f5bb411ea0eb677df3f5dda97066c5857dd76a153ad97c448f5e92
+      - docker.io/openshift/prometheus-alertmanager:v0.15.2
+      sizeBytes: 233276981
+    - names:
+      - docker.io/openshift/prometheus-node-exporter@sha256:4fc227cd04eba43fdfd5d9a076566bcebad61801b31fd25ee2b3f6a3780e8e1c
+      - docker.io/openshift/prometheus-node-exporter:v0.16.0
+      sizeBytes: 216339551
+    - names:
+      - quay.io/coreos/prometheus-operator@sha256:8211b3eb30cb8591ddf536f1cf62100f5c97659c14d18dd45001acf94dafd713
+      - quay.io/coreos/prometheus-operator:v0.23.2
+      sizeBytes: 47036458
+    - names:
+      - quay.io/coreos/kube-rbac-proxy@sha256:a578315f24e6fd01a65e187e4d1979678598a7d800d039ee5cfe4e11b0b1788d
+      - quay.io/coreos/kube-rbac-proxy:v0.3.1
+      sizeBytes: 40160345
+    - names:
+      - quay.io/coreos/etcd@sha256:43fbc8a457aa0cb887da63d74a48659e13947cb74b96a53ba8f47abb6172a948
+      - quay.io/coreos/etcd:v3.2.22
+      sizeBytes: 37269372
+    - names:
+      - quay.io/coreos/kube-state-metrics@sha256:fa2e6d33183755f924f05744c282386f38e962160f66ad0b6a8a24a36884fb9a
+      - quay.io/coreos/kube-state-metrics:v1.3.1
+      sizeBytes: 22163232
+    - names:
+      - quay.io/coreos/prometheus-config-reloader@sha256:df1453c7c69e4f2ab8a86fc18fe3b890ce2f80fed6d6519dc9d33927451b214d
+      - quay.io/coreos/prometheus-config-reloader:v0.23.2
+      sizeBytes: 12209664
+    - names:
+      - quay.io/coreos/configmap-reload@sha256:e2fd60ff0ae4500a75b80ebaa30e0e7deba9ad107833e8ca53f0047c42c5a057
+      - quay.io/coreos/configmap-reload:v0.0.1
+      sizeBytes: 4785056
+    nodeInfo:
+      architecture: amd64
+      bootID: 9a1e534b-27d7-4c0d-ae1e-36a772ef05f9
+      containerRuntimeVersion: docker://1.13.1
+      kernelVersion: 3.10.0-957.27.2.el7.x86_64
+      kubeProxyVersion: v1.11.0+d4cacc0
+      kubeletVersion: v1.11.0+d4cacc0
+      machineID: 05cb8c7b39fe0f70e3ce97e5beab809d
+      operatingSystem: linux
+      osImage: CentOS Linux 7 (Core)
+      systemUUID: EC228F17-C593-71A7-413E-DCBF833F37C9
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.openshift.io/md5sum: 789a2a0ea69774f0d98fcd6aa4edd3f6
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: 2019-09-23T09:54:48Z
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/hostname: ip-10-77-1-27.ec2.internal
+      node-role.kubernetes.io/infra: "true"
+      node-role.kubernetes.io/master: "true"
+    name: ip-10-77-1-27.ec2.internal
+    namespace: ""
+    resourceVersion: "885703"
+    selfLink: /api/v1/nodes/ip-10-77-1-27.ec2.internal
+    uid: 2e445b62-dde8-11e9-b76c-16badc7ca980
+  spec: {}
+  status:
+    addresses:
+    - address: 10.77.1.27
+      type: InternalIP
+    - address: ip-10-77-1-27.ec2.internal
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15688976Ki
+      pods: "250"
+    capacity:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15791376Ki
+      pods: "250"
+    conditions:
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient disk space available
+      reason: KubeletHasSufficientDisk
+      status: "False"
+      type: OutOfDisk
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:54:40Z
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:47Z
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    images:
+    - names:
+      - quay.io/prophetstor/alameda-ai@sha256:8bd19fcd49e4ee61069cfb3166de626d28e706af5f3ed56de59f857120a28e95
+      - quay.io/prophetstor/alameda-ai:v4.2.155
+      sizeBytes: 1383186451
+    - names:
+      - docker.io/openshift/origin-node@sha256:6ef4b646e84dcee614e630460e66a24be3a5c9c86c3a02f80f5ce506115c4282
+      - docker.io/openshift/origin-node:v3.11
+      sizeBytes: 1190877141
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:b314f04b18983146bddb1171558e5b95aedb121fec91f0f5535719a97f36e030
+      sizeBytes: 915367051
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:d6f408d1d351d6bfdc70448291db471f17a648e54b42c28465340c9c8ec1c59d
+      sizeBytes: 915367051
+    - names:
+      - docker.io/openshift/origin-control-plane@sha256:5be6dba44176b39b09e4bff70eff5a03a2c06b2340b9ff18a6dcf03bb85d24b2
+      - docker.io/openshift/origin-control-plane:v3.11
+      sizeBytes: 831255017
+    - names:
+      - docker-registry.default.svc:5000/nodejs/nodejs-ex@sha256:1cc5ee3efd09d274d84e8dd0515bb9cc8af5c76b2bcb351acf2c0c1d7306e754
+      - docker-registry.default.svc:5000/nodejs/nodejs-ex:latest
+      sizeBytes: 599158610
+    - names:
+      - docker-registry.default.svc:5000/openshift/nodejs@sha256:3cc041334eef8d5853078a0190e46a2998a70ad98320db512968f1de0561705e
+      sizeBytes: 591276885
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:1a8af02a5a934e583545cf7f2fdfe1db841ddd4b31b1ce4545930deb04ff0994
+      sizeBytes: 432858395
+    - names:
+      - docker.io/openshift/origin-haproxy-router@sha256:3867492075952ad895200567c52d3aa5517fab6c33da51dbd42d34a4ebb48411
+      - docker.io/openshift/origin-haproxy-router:v3.11
+      sizeBytes: 410839769
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:9b17ef76c6243ac15878d1dfd04d49408ac04b14c173203926999967e035f547
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm:latest
+      sizeBytes: 347918322
+    - names:
+      - docker.io/openshift/origin-web-console@sha256:20c14ce54de73b9203f03b7ee19f81769b9f404bb7dd81ed0ee4a1b8baecf6d1
+      - docker.io/openshift/origin-web-console:v3.11
+      sizeBytes: 338566822
+    - names:
+      - docker.io/openshift/origin-service-catalog@sha256:14c812a2c865fff342e47fc1b3c9f3c3832d5694af35de4ab4cc05200f2b6a7f
+      - docker.io/openshift/origin-service-catalog:v3.11
+      sizeBytes: 330120767
+    - names:
+      - docker-registry.default.svc:5000/nginx/nginx-example@sha256:7bccfdddbe7cb9effa8a5748ecb1be70bc1cb97e1649d29e2913f8d126d1dcf3
+      - docker-registry.default.svc:5000/nginx/nginx-example:latest
+      sizeBytes: 319679370
+    - names:
+      - docker-registry.default.svc:5000/nginx/nginx-example@sha256:e6b91969d385be36b4cc69309102d770360c39f1b56e9ca594e30081ec6c2624
+      sizeBytes: 319679370
+    - names:
+      - docker-registry.default.svc:5000/openshift/nginx@sha256:8fa63f84807060e03298af082c52c22290031c22489ba31154bb4a28c4c74873
+      sizeBytes: 319511582
+    - names:
+      - docker.io/openshift/prometheus@sha256:8faad95225efc7346d149b893fe169d857c5c5b5de477129b60707f06c170bcc
+      - docker.io/openshift/prometheus:v2.3.2
+      sizeBytes: 315878328
+    - names:
+      - docker.io/openshift/origin-metrics-server@sha256:8c95a92e8dc4db1576a70a3ee3e069979b0e6829856cd715d6153a7f9f95fb47
+      - docker.io/openshift/origin-metrics-server:v3.11
+      sizeBytes: 310618356
+    - names:
+      - docker.io/openshift/origin-docker-registry@sha256:5c2fe22619668face238d1ba8602a95b3102b81e667b54ba2888f1f0ee261ffd
+      - docker.io/openshift/origin-docker-registry:v3.11
+      sizeBytes: 310099860
+    - names:
+      - docker.io/openshift/origin-console@sha256:a094da9bc83159998d27e54b90fc68d1e1cd465d1303dd304ee818068c5d0b3f
+      - docker.io/openshift/origin-console:v3.11
+      sizeBytes: 263682159
+    - names:
+      - docker.io/openshift/origin-pod@sha256:9fb8b480fbc9f2f7a8f3aab970b83b559d2392df39cbcdd21e04c32e0400013a
+      - docker.io/openshift/origin-pod:v3.11
+      - docker.io/openshift/origin-pod:v3.11.0
+      sizeBytes: 262555989
+    - names:
+      - quay.io/prophetstor/alameda-grafana@sha256:b4220ecb0c6d7433081c776e861f7665fc1d9f73cb874709e4d36ee2bc8bfbc6
+      - quay.io/prophetstor/alameda-grafana:v4.2.155
+      sizeBytes: 248316159
+    - names:
+      - docker.io/openshift/oauth-proxy@sha256:731c1fdad1de4bf68ae9eece5e99519f063fd8d9990da312082b4c995c4e4e33
+      - docker.io/openshift/oauth-proxy:v1.1.0
+      sizeBytes: 234852780
+    - names:
+      - docker.io/openshift/prometheus-alertmanager@sha256:2f87cf1296f5bb411ea0eb677df3f5dda97066c5857dd76a153ad97c448f5e92
+      - docker.io/openshift/prometheus-alertmanager:v0.15.2
+      sizeBytes: 233276981
+    - names:
+      - docker.io/openshift/prometheus-node-exporter@sha256:4fc227cd04eba43fdfd5d9a076566bcebad61801b31fd25ee2b3f6a3780e8e1c
+      - docker.io/openshift/prometheus-node-exporter:v0.16.0
+      sizeBytes: 216339551
+    - names:
+      - docker.io/influxdb@sha256:2847716e3b3175d0e0c4af9e6c48599654b9f4fa37961b6b22dc1524d57e4f2b
+      - docker.io/influxdb:1.7-alpine
+      sizeBytes: 136590371
+    - names:
+      - quay.io/prophetstor/federatorai-operator-ubi@sha256:c3299a905c81dc8e057932e9eb46327ef476d15bab579a488d0a6bb1ab9f960f
+      - quay.io/prophetstor/federatorai-operator-ubi:v4.2.155
+      sizeBytes: 127025143
+    - names:
+      - quay.io/prophetstor/alameda-operator-ubi@sha256:39f499dcc95ca30a7334a24ca5e566e0b81fee0314f5e9317620fdf0959110ba
+      - quay.io/prophetstor/alameda-operator-ubi:v4.2.155
+      sizeBytes: 123752554
+    - names:
+      - quay.io/prophetstor/alameda-datahub-ubi@sha256:7d98270c6d6fa60517f824c175d62b15f7e04d76f3d9cb95b511acab2e30ab50
+      - quay.io/prophetstor/alameda-datahub-ubi:v4.2.155
+      sizeBytes: 123017261
+    - names:
+      - quay.io/prophetstor/alameda-evictioner-ubi@sha256:f6133e0eeb68951d5f53c42c7f60facc8580f3ddc92415de6ffe393baca50058
+      - quay.io/prophetstor/alameda-evictioner-ubi:v4.2.155
+      sizeBytes: 121342790
+    - names:
+      - quay.io/prophetstor/alameda-admission-ubi@sha256:a2059704ae25ffc9e2e27829b5a05c7e003d15653077a53b987ac12a9fee98d2
+      - quay.io/prophetstor/alameda-admission-ubi:v4.2.155
+      sizeBytes: 119256928
+    - names:
+      - quay.io/prophetstor/alameda-executor-ubi@sha256:d8e93be63c4946d0833fe228623f6fb24224b30aec41b7f88f1dfb7b7f54e892
+      - quay.io/prophetstor/alameda-executor-ubi:v4.2.155
+      sizeBytes: 118734302
+    - names:
+      - quay.io/prophetstor/alameda-recommender-ubi@sha256:2de2017d69fccb57f1f099fc70f398c62c98d75c568c367617b929aca6a129d4
+      - quay.io/prophetstor/alameda-recommender-ubi:v4.2.155
+      sizeBytes: 92855217
+    - names:
+      - quay.io/coreos/kube-rbac-proxy@sha256:a578315f24e6fd01a65e187e4d1979678598a7d800d039ee5cfe4e11b0b1788d
+      - quay.io/coreos/kube-rbac-proxy:v0.3.1
+      sizeBytes: 40160345
+    - names:
+      - quay.io/coreos/etcd@sha256:43fbc8a457aa0cb887da63d74a48659e13947cb74b96a53ba8f47abb6172a948
+      - quay.io/coreos/etcd:v3.2.22
+      sizeBytes: 37269372
+    - names:
+      - quay.io/coreos/prometheus-config-reloader@sha256:df1453c7c69e4f2ab8a86fc18fe3b890ce2f80fed6d6519dc9d33927451b214d
+      - quay.io/coreos/prometheus-config-reloader:v0.23.2
+      sizeBytes: 12209664
+    - names:
+      - docker.io/alpine@sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb
+      - docker.io/alpine:latest
+      sizeBytes: 5581746
+    - names:
+      - quay.io/coreos/configmap-reload@sha256:e2fd60ff0ae4500a75b80ebaa30e0e7deba9ad107833e8ca53f0047c42c5a057
+      - quay.io/coreos/configmap-reload:v0.0.1
+      sizeBytes: 4785056
+    nodeInfo:
+      architecture: amd64
+      bootID: 1f6c4617-a05e-4bd2-ae4b-71ac87e004bc
+      containerRuntimeVersion: docker://1.13.1
+      kernelVersion: 3.10.0-957.1.3.el7.x86_64
+      kubeProxyVersion: v1.11.0+d4cacc0
+      kubeletVersion: v1.11.0+d4cacc0
+      machineID: 05cb8c7b39fe0f70e3ce97e5beab809d
+      operatingSystem: linux
+      osImage: CentOS Linux 7 (Core)
+      systemUUID: EC2C01F2-89C5-67E0-CBCC-ADE878FB8460
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.openshift.io/md5sum: 2e506a5cedc28d501bb850b866b96edc
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: 2019-09-23T09:58:40Z
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/hostname: ip-10-77-1-52.ec2.internal
+      node-role.kubernetes.io/compute: "true"
+    name: ip-10-77-1-52.ec2.internal
+    namespace: ""
+    resourceVersion: "885706"
+    selfLink: /api/v1/nodes/ip-10-77-1-52.ec2.internal
+    uid: b7f65d41-dde8-11e9-b76c-16badc7ca980
+  spec: {}
+  status:
+    addresses:
+    - address: 10.77.1.52
+      type: InternalIP
+    - address: ip-10-77-1-52.ec2.internal
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15688984Ki
+      pods: "250"
+    capacity:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15791384Ki
+      pods: "250"
+    conditions:
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has sufficient disk space available
+      reason: KubeletHasSufficientDisk
+      status: "False"
+      type: OutOfDisk
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:59:08Z
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    images:
+    - names:
+      - quay.io/prophetstor/alameda-ai@sha256:d60eb7912af622585afc9fb0ccb3d6cefa8dfd2b5e9a141623cec6dda349a38a
+      - quay.io/prophetstor/alameda-ai:v4.2.297
+      sizeBytes: 1380392759
+    - names:
+      - docker.io/openshift/origin-node@sha256:6ef4b646e84dcee614e630460e66a24be3a5c9c86c3a02f80f5ce506115c4282
+      - docker.io/openshift/origin-node:v3.11
+      sizeBytes: 1190877141
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:d6f408d1d351d6bfdc70448291db471f17a648e54b42c28465340c9c8ec1c59d
+      sizeBytes: 915367051
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:bae841fc94fc37d6695499d772ca238f18ad08726f9a40ddfb4a93c8a0b2c44e
+      sizeBytes: 915367006
+    - names:
+      - docker.io/openshift/origin-metrics-hawkular-metrics@sha256:2c4d14130a2876fb79e6ec9e4cc82c709986be2839297cdc24057b37f674bae4
+      - docker.io/openshift/origin-metrics-hawkular-metrics:v3.11
+      sizeBytes: 859704687
+    - names:
+      - quay.io/prophetstor/fedemeter-api-ubi@sha256:9c7b69d7ee48b0fcf51bfcf50b9eefc8dedc0bcffabbbfb1f4097c0546858f6d
+      - quay.io/prophetstor/fedemeter-api-ubi:v4.2.297
+      sizeBytes: 737027328
+    - names:
+      - docker.io/openshift/origin-metrics-heapster@sha256:0921c5d8baa0657cf32bed67d97291c45204775b634241a68f77a58b06a7acf1
+      - docker.io/openshift/origin-metrics-heapster:v3.11
+      sizeBytes: 709701467
+    - names:
+      - docker.io/openshift/origin-metrics-cassandra@sha256:2abe68514e56389fbeef65dadd5347b08e0438c47106b9bf92ea37995e2aa257
+      - docker.io/openshift/origin-metrics-cassandra:v3.11
+      sizeBytes: 590482638
+    - names:
+      - docker.io/openshift/origin-metrics-schema-installer@sha256:f492540eaaee7fd698c8c9d45d1b0e30aee2093ecd2d75c557d7555258f0db53
+      - docker.io/openshift/origin-metrics-schema-installer:v3.11
+      sizeBytes: 551432278
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:1a8af02a5a934e583545cf7f2fdfe1db841ddd4b31b1ce4545930deb04ff0994
+      sizeBytes: 432858395
+    - names:
+      - quay.io/prophetstor/fedemeter-influxdb@sha256:147e0befbcdd1901673763b6e32d889bfdb62927a59ee48eebdc6ac3b3166eb0
+      - quay.io/prophetstor/fedemeter-influxdb:v4.2.297
+      sizeBytes: 366054779
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:0f44016a11977cd9b90b33ba4c77e5a9ae0a342d7576d224f2c6fb5a610a2938
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm:latest
+      sizeBytes: 347920112
+    - names:
+      - docker-registry.default.svc:5000/nginx/nginx-example@sha256:e6b91969d385be36b4cc69309102d770360c39f1b56e9ca594e30081ec6c2624
+      - docker-registry.default.svc:5000/nginx/nginx-example:latest
+      sizeBytes: 319679370
+    - names:
+      - docker-registry.default.svc:5000/nginx/nginx-example@sha256:7bccfdddbe7cb9effa8a5748ecb1be70bc1cb97e1649d29e2913f8d126d1dcf3
+      sizeBytes: 319679370
+    - names:
+      - docker-registry.default.svc:5000/nginx/nginx-container@sha256:4cb4e9183fa61994af91739533376d925d7f47ad26b26c186cad58e6311aecb4
+      - docker-registry.default.svc:5000/nginx/nginx-container:latest
+      sizeBytes: 319517232
+    - names:
+      - docker-registry.default.svc:5000/openshift/nginx@sha256:8fa63f84807060e03298af082c52c22290031c22489ba31154bb4a28c4c74873
+      sizeBytes: 319511582
+    - names:
+      - docker.io/openshift/origin-pod@sha256:9fb8b480fbc9f2f7a8f3aab970b83b559d2392df39cbcdd21e04c32e0400013a
+      - docker.io/openshift/origin-pod:v3.11
+      - docker.io/openshift/origin-pod:v3.11.0
+      sizeBytes: 262555989
+    - names:
+      - quay.io/prophetstor/alameda-grafana@sha256:6c71fcaae84c6a58196a01c8d16fbfa30ba66dd628765b9be750c0a3ab54db5b
+      - quay.io/prophetstor/alameda-grafana:v4.2.297
+      sizeBytes: 248656283
+    - names:
+      - quay.io/prophetstor/alameda-grafana@sha256:b4220ecb0c6d7433081c776e861f7665fc1d9f73cb874709e4d36ee2bc8bfbc6
+      - quay.io/prophetstor/alameda-grafana:v4.2.155
+      sizeBytes: 248316159
+    - names:
+      - quay.io/prophetstor/federatorai-agent-ubi@sha256:e6af5d85966da148ca09207eee2f87c799416577675d6c400bd53f7c801a968d
+      - quay.io/prophetstor/federatorai-agent-ubi:v4.2.297
+      sizeBytes: 241398975
+    - names:
+      - docker.io/openshift/prometheus-node-exporter@sha256:4fc227cd04eba43fdfd5d9a076566bcebad61801b31fd25ee2b3f6a3780e8e1c
+      - docker.io/openshift/prometheus-node-exporter:v0.16.0
+      sizeBytes: 216339551
+    - names:
+      - quay.io/prophetstor/alameda-rabbitmq@sha256:7a34139a8e25f29344255e6aa24b03a03abe50a68b8577abe85b186de6faf0fb
+      - quay.io/prophetstor/alameda-rabbitmq:v4.2.297
+      sizeBytes: 140509127
+    - names:
+      - quay.io/prophetstor/alameda-notifier-ubi@sha256:454c3ff4a09967a1a7a06cce54bf8dc52f9386bf410c1e9b1cabe94b95e0a8b9
+      - quay.io/prophetstor/alameda-notifier-ubi:v4.2.297
+      sizeBytes: 136714621
+    - names:
+      - docker.io/influxdb@sha256:2847716e3b3175d0e0c4af9e6c48599654b9f4fa37961b6b22dc1524d57e4f2b
+      - docker.io/influxdb:1.7-alpine
+      sizeBytes: 136590371
+    - names:
+      - quay.io/prophetstor/alameda-evictioner-ubi@sha256:b4edd730ca94412c4df172067e9705d3c0a7bf18498d334180ac8b4f33fd7f88
+      - quay.io/prophetstor/alameda-evictioner-ubi:v4.2.297
+      sizeBytes: 135761623
+    - names:
+      - quay.io/prophetstor/alameda-admission-ubi@sha256:3362131771244b3a6eeed0062d1e23cc08ab0fb9a5243f28f08e11a4d44a1219
+      - quay.io/prophetstor/alameda-admission-ubi:v4.2.297
+      sizeBytes: 133664400
+    - names:
+      - quay.io/prophetstor/federatorai-operator-ubi@sha256:c3299a905c81dc8e057932e9eb46327ef476d15bab579a488d0a6bb1ab9f960f
+      - quay.io/prophetstor/federatorai-operator-ubi:v4.2.155
+      sizeBytes: 127025143
+    - names:
+      - quay.io/prophetstor/alameda-ai-dispatcher@sha256:05f39c37ca4ce155b50f046fd1614ce6a00ef0de38f0abf2ed87f4b07763686b
+      - quay.io/prophetstor/alameda-ai-dispatcher:v4.2.297
+      sizeBytes: 125339363
+    - names:
+      - quay.io/prophetstor/alameda-datahub-ubi@sha256:7d98270c6d6fa60517f824c175d62b15f7e04d76f3d9cb95b511acab2e30ab50
+      - quay.io/prophetstor/alameda-datahub-ubi:v4.2.155
+      sizeBytes: 123017261
+    - names:
+      - quay.io/prophetstor/alameda-evictioner-ubi@sha256:f6133e0eeb68951d5f53c42c7f60facc8580f3ddc92415de6ffe393baca50058
+      - quay.io/prophetstor/alameda-evictioner-ubi:v4.2.155
+      sizeBytes: 121342790
+    - names:
+      - quay.io/prophetstor/alameda-analyzer-ubi@sha256:482a8afc59258e3e50b28421439199e81dff3924be5cbe6a3dbc67f734cb646d
+      - quay.io/prophetstor/alameda-analyzer-ubi:v4.2.297
+      sizeBytes: 119760920
+    - names:
+      - quay.io/prophetstor/alameda-executor-ubi@sha256:9b098f033b6b9832d0a425fd543c7cab3701db1e56739149c10ffb55ed28223a
+      - quay.io/prophetstor/alameda-executor-ubi:v4.2.297
+      sizeBytes: 119612660
+    - names:
+      - quay.io/prophetstor/alameda-admission-ubi@sha256:a2059704ae25ffc9e2e27829b5a05c7e003d15653077a53b987ac12a9fee98d2
+      - quay.io/prophetstor/alameda-admission-ubi:v4.2.155
+      sizeBytes: 119256928
+    - names:
+      - quay.io/prophetstor/alameda-executor-ubi@sha256:d8e93be63c4946d0833fe228623f6fb24224b30aec41b7f88f1dfb7b7f54e892
+      - quay.io/prophetstor/alameda-executor-ubi:v4.2.155
+      sizeBytes: 118734302
+    - names:
+      - quay.io/prophetstor/alameda-recommender-ubi@sha256:2ffdf34a1b0db4b67fec10f077878d854bdc6b7ea33684146ecd7a85bf0323c1
+      - quay.io/prophetstor/alameda-recommender-ubi:v4.2.297
+      sizeBytes: 93492463
+    - names:
+      - quay.io/prophetstor/alameda-recommender-ubi@sha256:2de2017d69fccb57f1f099fc70f398c62c98d75c568c367617b929aca6a129d4
+      - quay.io/prophetstor/alameda-recommender-ubi:v4.2.155
+      sizeBytes: 92855217
+    - names:
+      - quay.io/coreos/kube-rbac-proxy@sha256:a578315f24e6fd01a65e187e4d1979678598a7d800d039ee5cfe4e11b0b1788d
+      - quay.io/coreos/kube-rbac-proxy:v0.3.1
+      sizeBytes: 40160345
+    - names:
+      - docker.io/alpine@sha256:6a92cd1fcdc8d8cdec60f33dda4db2cb1fcdcacf3410a8e05b3741f44a9b5998
+      sizeBytes: 5581746
+    - names:
+      - docker.io/alpine@sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb
+      - docker.io/alpine:latest
+      sizeBytes: 5581746
+    nodeInfo:
+      architecture: amd64
+      bootID: 5108d8b4-477e-4b37-ad31-58ebafad37e7
+      containerRuntimeVersion: docker://1.13.1
+      kernelVersion: 3.10.0-957.1.3.el7.x86_64
+      kubeProxyVersion: v1.11.0+d4cacc0
+      kubeletVersion: v1.11.0+d4cacc0
+      machineID: 05cb8c7b39fe0f70e3ce97e5beab809d
+      operatingSystem: linux
+      osImage: CentOS Linux 7 (Core)
+      systemUUID: EC22C99F-AC5B-B155-96DB-A7DE0FC69302
+- apiVersion: v1
+  kind: Node
+  metadata:
+    annotations:
+      node.openshift.io/md5sum: 2e506a5cedc28d501bb850b866b96edc
+      volumes.kubernetes.io/controller-managed-attach-detach: "true"
+    creationTimestamp: 2019-09-23T09:58:40Z
+    labels:
+      beta.kubernetes.io/arch: amd64
+      beta.kubernetes.io/os: linux
+      kubernetes.io/hostname: ip-10-77-2-128.ec2.internal
+      node-role.kubernetes.io/compute: "true"
+    name: ip-10-77-2-128.ec2.internal
+    namespace: ""
+    resourceVersion: "885704"
+    selfLink: /api/v1/nodes/ip-10-77-2-128.ec2.internal
+    uid: b80baa9a-dde8-11e9-b76c-16badc7ca980
+  spec: {}
+  status:
+    addresses:
+    - address: 10.77.2.128
+      type: InternalIP
+    - address: ip-10-77-2-128.ec2.internal
+      type: Hostname
+    allocatable:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15688984Ki
+      pods: "250"
+    capacity:
+      cpu: "4"
+      hugepages-1Gi: "0"
+      hugepages-2Mi: "0"
+      memory: 15791384Ki
+      pods: "250"
+    conditions:
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has sufficient disk space available
+      reason: KubeletHasSufficientDisk
+      status: "False"
+      type: OutOfDisk
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:58:40Z
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: 2019-09-27T08:57:35Z
+      lastTransitionTime: 2019-09-23T09:59:08Z
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+    daemonEndpoints:
+      kubeletEndpoint:
+        Port: 10250
+    images:
+    - names:
+      - quay.io/prophetstor/alameda-ai@sha256:d60eb7912af622585afc9fb0ccb3d6cefa8dfd2b5e9a141623cec6dda349a38a
+      - quay.io/prophetstor/alameda-ai:v4.2.297
+      sizeBytes: 1380392759
+    - names:
+      - docker.io/openshift/origin-node@sha256:6ef4b646e84dcee614e630460e66a24be3a5c9c86c3a02f80f5ce506115c4282
+      - docker.io/openshift/origin-node:v3.11
+      sizeBytes: 1190877141
+    - names:
+      - docker.io/openshift/origin-metrics-hawkular-metrics@sha256:2c4d14130a2876fb79e6ec9e4cc82c709986be2839297cdc24057b37f674bae4
+      - docker.io/openshift/origin-metrics-hawkular-metrics:v3.11
+      sizeBytes: 859704687
+    - names:
+      - docker.io/openshift/origin-metrics-heapster@sha256:0921c5d8baa0657cf32bed67d97291c45204775b634241a68f77a58b06a7acf1
+      - docker.io/openshift/origin-metrics-heapster:v3.11
+      sizeBytes: 709701467
+    - names:
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm@sha256:0f44016a11977cd9b90b33ba4c77e5a9ae0a342d7576d224f2c6fb5a610a2938
+      - docker-registry.default.svc:5000/demo-nginx-npm/demo-nginx-npm:latest
+      sizeBytes: 347920112
+    - names:
+      - docker.io/openshift/origin-pod@sha256:9fb8b480fbc9f2f7a8f3aab970b83b559d2392df39cbcdd21e04c32e0400013a
+      - docker.io/openshift/origin-pod:v3.11
+      - docker.io/openshift/origin-pod:v3.11.0
+      sizeBytes: 262555989
+    - names:
+      - docker.io/openshift/prometheus-node-exporter@sha256:4fc227cd04eba43fdfd5d9a076566bcebad61801b31fd25ee2b3f6a3780e8e1c
+      - docker.io/openshift/prometheus-node-exporter:v0.16.0
+      sizeBytes: 216339551
+    - names:
+      - quay.io/prophetstor/alameda-datahub-ubi@sha256:91bc59e9b62e243f9ce71f768982e3ca1d64e0d3f02c1bfa75301da905182c4f
+      - quay.io/prophetstor/alameda-datahub-ubi:v4.2.297
+      sizeBytes: 198828447
+    - names:
+      - quay.io/prophetstor/alameda-operator-ubi@sha256:4d713f33855e2625e172eb64ee1019230c3390bc453b53ad69eef0ed64672a36
+      - quay.io/prophetstor/alameda-operator-ubi:v4.2.297
+      sizeBytes: 138304237
+    - names:
+      - quay.io/prophetstor/federatorai-operator-ubi@sha256:a2a68c5303f24e914b72d3b4fa85dde7ffb4159907bc7a31e2ac90b2c5789606
+      - quay.io/prophetstor/federatorai-operator-ubi:v4.2.297
+      sizeBytes: 129218976
+    - names:
+      - quay.io/prophetstor/alameda-executor-ubi@sha256:9b098f033b6b9832d0a425fd543c7cab3701db1e56739149c10ffb55ed28223a
+      - quay.io/prophetstor/alameda-executor-ubi:v4.2.297
+      sizeBytes: 119612660
+    - names:
+      - quay.io/coreos/kube-rbac-proxy@sha256:a578315f24e6fd01a65e187e4d1979678598a7d800d039ee5cfe4e11b0b1788d
+      - quay.io/coreos/kube-rbac-proxy:v0.3.1
+      sizeBytes: 40160345
+    nodeInfo:
+      architecture: amd64
+      bootID: 24007d1b-269e-4448-9768-77d049c576e2
+      containerRuntimeVersion: docker://1.13.1
+      kernelVersion: 3.10.0-957.1.3.el7.x86_64
+      kubeProxyVersion: v1.11.0+d4cacc0
+      kubeletVersion: v1.11.0+d4cacc0
+      machineID: 05cb8c7b39fe0f70e3ce97e5beab809d
+      operatingSystem: linux
+      osImage: CentOS Linux 7 (Core)
+      systemUUID: EC2EB509-9FDD-9E3A-C67A-6B47F25E2B61
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

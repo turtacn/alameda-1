@@ -717,6 +717,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:2558245b0ba1244c5c24287bdf93da35c64b255fe9a4eaf070f8f65724966f41"
+  name = "golang.org/x/sync"
+  packages = ["errgroup"]
+  pruneopts = "T"
+  revision = "cd5d95a43a6e21273425c7ae415d3df9ea832eeb"
+
+[[projects]]
+  branch = "master"
   digest = "1:54580c2fb6ca39ef8f6b7e75c725a26285294fa56909a1ff9f09460016c8404a"
   name = "golang.org/x/sys"
   packages = [
@@ -1206,6 +1214,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "cloud.google.com/go/compute/metadata",
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
     "github.com/containers-ai/api/common",
     "github.com/containers-ai/api/datahub/keycodes",
@@ -1240,6 +1249,7 @@
     "go.uber.org/zap/zapcore",
     "go.uber.org/zap/zapgrpc",
     "golang.org/x/net/context",
+    "golang.org/x/sync/errgroup",
     "google.golang.org/genproto/googleapis/rpc/code",
     "google.golang.org/genproto/googleapis/rpc/status",
     "google.golang.org/grpc",

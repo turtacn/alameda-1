@@ -17,22 +17,28 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/containers-ai/alameda/operator"
+	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 
+	"github.com/containers-ai/alameda/operator"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
-	"github.com/spf13/viper"
+	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -59,6 +65,11 @@ var livenessProbeFlag bool
 var operatorConf operator.Config
 var k8sConfig *rest.Config
 var scope *logUtil.Scope
+
+var (
+	dathubConn    *grpc.ClientConn
+	datahubClient datahubv1alpha1.DatahubServiceClient
+)
 
 var (
 	// VERSION is sofeware version
@@ -130,6 +141,11 @@ func initServerConfig(mgr *manager.Manager) {
 	}
 }
 
+func initThirdPartyClient() {
+	dathubConn, _ = grpc.Dial(operatorConf.Datahub.Address, grpc.WithInsecure(), grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(uint(3)))))
+	datahubClient = datahubv1alpha1.NewDatahubServiceClient(dathubConn)
+}
+
 func main() {
 	flag.Parse()
 	if showVer {
@@ -177,6 +193,7 @@ func main() {
 	initServerConfig(&mgr)
 	initLogger()
 	printSoftwareInfo()
+	initThirdPartyClient()
 
 	scope.Info("Registering Components.")
 	registerThirdPartyCRD()
@@ -201,25 +218,48 @@ func main() {
 		os.Exit(1)
 	}
 
-	// To use instance from return value of function mgr.GetClient(),
-	// block till the cache is synchronized, or the cache will be empty and get/list nothing.
-	go func() {
-		stopChan := make(chan struct{})
-		ok := mgr.GetCache().WaitForCacheSync(stopChan)
-		if !ok {
-			scope.Error("Wait for cache synchronization failed")
-		} else {
-			go registerNodes(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
-			go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
-			go syncAlamedaResourcesWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
-			go launchWebhook(&mgr, &operatorConf)
-			go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
-		}
-	}()
+	wg, ctx := errgroup.WithContext(context.Background())
 
-	// Start the Cmd
-	scope.Info("Starting the Cmd.")
-	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
+	wg.Go(
+		func() error {
+			// To use instance from return value of function mgr.GetClient(),
+			// block till the cache is synchronized, or the cache will be empty and get/list nothing.
+			ok := mgr.GetCache().WaitForCacheSync(ctx.Done())
+			if !ok {
+				scope.Error("Wait for cache synchronization failed")
+			} else {
+				go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+				go syncAlamedaResourcesWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+				go launchWebhook(&mgr, &operatorConf)
+				go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
+			}
+			return nil
+		})
+
+	wg.Go(
+		func() error {
+			scope.Info("Starting the Cmd.")
+			return mgr.Start(signals.SetupSignalHandler())
+		})
+
+	wg.Go(
+		func() error {
+			for _, f := range controller.GetFirtSynchronizerFuncs {
+				firtSynchronizer := f()
+				if firtSynchronizer == nil {
+					scope.Error("Get firstSynchronizer nil")
+					return errors.New("get firstSynchronizer nil")
+				}
+				if err := firtSynchronizer.FirstSync(); err != nil {
+					scope.Errorf("First synchroniz failed: %s", err.Error())
+					return errors.Wrap(err, "caliing firstSync failed")
+				}
+			}
+			scope.Debugf("All first synchronizer done")
+			return nil
+		})
+
+	if err := wg.Wait(); err != nil {
 		scope.Error(err.Error())
 	}
 }

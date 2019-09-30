@@ -1,11 +1,12 @@
-package node
+package provider
 
 var (
-	providerRegionMap = map[string]map[string]string{
-		aws: awsRegionMap,
+	ProviderRegionMap = map[string]map[string]string{
+		AWS: AWSRegionMap,
+		GCP: GCPRegionMap,
 	}
 
-	awsRegionMap = map[string]string{
+	AWSRegionMap = map[string]string{
 		"ap-south-1":     "Asia Pacific (Mumbai)",
 		"ap-northeast-1": "Asia Pacific (Tokyo)",
 		"ap-northeast-2": "Asia Pacific (Seoul)",
@@ -28,7 +29,7 @@ var (
 		"us-west-2":      "US West (Oregon)",
 	}
 
-	gcpRegionMap = map[string]string{
+	GCPRegionMap = map[string]string{
 		"asia-east1-a":              "Asia East 1a",
 		"asia-east1-b":              "Asia East 1b",
 		"asia-east1-c":              "Asia East 1c",
