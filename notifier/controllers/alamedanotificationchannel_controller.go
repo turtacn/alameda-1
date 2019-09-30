@@ -24,7 +24,7 @@ import (
 	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
-	"github.com/containers-ai/alameda/notifier/utils"
+	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	k8sapierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -108,7 +108,7 @@ func (r *AlamedaNotificationChannelReconciler) testEmailChannel(
 		return fmt.Errorf(errMsg)
 	}
 
-	clusterInfo, err := k8s_utils.GetClusterInfo(r.Client)
+	clusterInfo, err := notifier_utils.GetClusterInfo(r.Client)
 	if err != nil {
 		channelScope.Errorf("unable to send test email due to get cluster info fail: %s", err.Error())
 		return err
@@ -144,7 +144,7 @@ func (r *AlamedaNotificationChannelReconciler) testEmailChannel(
 	</html>
 	`, clusterInfo.UID, clusterInfo.MasterNodeHostname, clusterInfo.MasterNodeIP, time.Now().Format(time.RFC3339))
 	err = emailClient.SendEmailBySMTP(subject, from, recipients,
-		msgHTML, utils.RemoveEmptyStr(ccs), attachments)
+		msgHTML, notifier_utils.RemoveEmptyStr(ccs), attachments)
 	if err != nil {
 		return err
 	}

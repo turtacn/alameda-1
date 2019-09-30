@@ -9,9 +9,9 @@ import (
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
 	"github.com/containers-ai/alameda/notifier/event"
+	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
 
 	"github.com/containers-ai/alameda/pkg/utils"
-	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/spf13/viper"
@@ -25,11 +25,11 @@ var scope = log.RegisterScope("notifier", "notifier", 0)
 type notifier struct {
 	k8sClient     client.Client
 	datahubClient datahub_v1alpha1.DatahubServiceClient
-	clusterInfo   *k8s_utils.ClusterInfo
+	clusterInfo   *notifier_utils.ClusterInfo
 }
 
 func NewNotifier(mgr manager.Manager, datahubClient datahub_v1alpha1.DatahubServiceClient,
-                 clusterInfo *k8s_utils.ClusterInfo) *notifier {
+                 clusterInfo *notifier_utils.ClusterInfo) *notifier {
 	return &notifier{
 		k8sClient:     mgr.GetClient(),
 		clusterInfo:   clusterInfo,

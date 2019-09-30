@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/notifier/notifying"
+	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
@@ -88,17 +89,19 @@ func (client *rabbitmqClient) Start() {
 	}
 	forever := make(chan bool)
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(client.datahubConn)
-	clusterInfo, err := k8s_utils.GetClusterInfo(client.mgr.GetClient())
+	scope.Infof("get cluster info - begin")
+	clusterInfo, err := notifier_utils.GetClusterInfo(client.mgr.GetClient())
 	if err != nil {
 		scope.Errorf("unable to get cluster info: %s", err.Error())
 	}
+	scope.Infof("get cluster info - done")
 	uid, err := k8s_utils.GetClusterUID(client.mgr.GetClient())
 	if err != nil {
 		scope.Errorf("unable to get cluster id: %s", err.Error())
 	} else {
 		clusterInfo.UID = uid
 	}
-	scope.Debugf("clusterInfo: %#v", clusterInfo)
+	scope.Infof("clusterInfo: %#v", clusterInfo)
 	notifier := notifying.NewNotifier(client.mgr, datahubClient, &clusterInfo)
 	go func() {
 		for d := range msgs {

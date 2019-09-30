@@ -3,7 +3,7 @@ module github.com/containers-ai/alameda/notifier
 go 1.13
 
 require (
-	github.com/containers-ai/alameda v4.2.458-0.20190929122603-2849fd25917c+incompatible
+	github.com/containers-ai/alameda v4.2.459-0.20190930041729-c908f2d26598+incompatible
 	github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/protobuf v1.3.2

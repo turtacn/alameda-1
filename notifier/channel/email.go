@@ -10,10 +10,9 @@ import (
 	"strings"
 
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
-	"github.com/containers-ai/alameda/notifier/utils"
+	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	"github.com/pkg/errors"
 	"gopkg.in/mail.v2"
 )
@@ -26,11 +25,11 @@ type EmailClient struct {
 	client              interface{}
 	auth                smtp.Auth
 	mailAddr            string
-	clusterInfo         *k8s_utils.ClusterInfo
+	clusterInfo         *notifier_utils.ClusterInfo
 }
 
 func NewEmailClient(notificationChannel *notifyingv1alpha1.AlamedaNotificationChannel,
-	emailChannel *notifyingv1alpha1.AlamedaEmailChannel, clusterInfo *k8s_utils.ClusterInfo) (*EmailClient, error) {
+	emailChannel *notifyingv1alpha1.AlamedaEmailChannel, clusterInfo *notifier_utils.ClusterInfo) (*EmailClient, error) {
 	host := notificationChannel.Spec.Email.Server
 	port := notificationChannel.Spec.Email.Port
 
@@ -51,7 +50,7 @@ func NewEmailClient(notificationChannel *notifyingv1alpha1.AlamedaNotificationCh
 
 func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) error {
 	msg := evt.GetMessage()
-	subject := utils.EventEmailSubject(evt)
+	subject := notifier_utils.EventEmailSubject(evt)
 	from := emailClient.notificationChannel.Spec.Email.From
 	recipients := emailClient.emailChannel.To
 	ccs := emailClient.emailChannel.Cc
@@ -59,8 +58,8 @@ func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) error {
 	attachments := map[string]string{}
 	scope.Infof("Start sending email (subject: %s, from: %s, to: %s, cc:%s, body: %s)",
 		subject, from, strings.Join(recipients, ";"), strings.Join(ccs, ";"), msg)
-	err := emailClient.SendEmailBySMTP(subject, from, recipients, utils.EventHTMLMsg(evt, emailClient.clusterInfo),
-		utils.RemoveEmptyStr(ccs), attachments)
+	err := emailClient.SendEmailBySMTP(subject, from, recipients, notifier_utils.EventHTMLMsg(evt, emailClient.clusterInfo),
+		notifier_utils.RemoveEmptyStr(ccs), attachments)
 	if err != nil {
 		return err
 	}
