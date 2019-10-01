@@ -250,7 +250,9 @@
       "type": "row"
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "Idleness": "#3f6833"
+      },
       "breakPoint": "50%",
       "cacheTimeout": null,
       "combine": {
