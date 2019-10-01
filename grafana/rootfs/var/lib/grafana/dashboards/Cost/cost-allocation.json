@@ -361,7 +361,7 @@
           "tags": []
         },
         {
-          "alias": "Others",
+          "alias": "Idleness",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -398,7 +398,7 @@
           "tags": []
         },
         {
-          "alias": "Others",
+          "alias": "Idleness",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -457,7 +457,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 4,
+        "col": 3,
         "desc": true
       },
       "styles": [{
@@ -515,7 +515,7 @@
           "unit": "percent"
         },
         {
-          "alias": "Workload Cost",
+          "alias": "Workload Cost(Per Month)",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -528,7 +528,7 @@
           "pattern": "workloadcost",
           "thresholds": [],
           "type": "number",
-          "unit": "percentunit"
+          "unit": "none"
         },
         {
           "alias": "",
@@ -598,7 +598,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select last(\"name\") as \"name\", last(\"provider\") as \"provider\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from (select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now()-100m group by namespacename)) group by namespacename",
+          "query": "select last(\"name\") as \"name\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from (select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost*730 from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and 'Namespace' = '$scope' and time >= now()-100m group by namespacename)) group by namespacename",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -635,7 +635,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select last(\"name\") as \"name\", last(\"provider\") as \"provider\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from ( select \"name\", provider, costpercentage, workloadcost from (select appname as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from alameda_fedemeter..history_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now()-100m and namespacename = '$ns' group by appname)) group by appname",
+          "query": "select last(\"name\") as \"name\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from ( select \"name\", provider, costpercentage, workloadcost *730 from (select appname as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost from alameda_fedemeter..history_cost_app where granularity = '3600'  and 'Application' = '$scope' and time >= now()-100m and namespacename = '$ns' group by appname)) group by appname",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -880,7 +880,7 @@
         "values": []
       },
       "yaxes": [{
-          "decimals": 2,
+          "decimals": null,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -1123,7 +1123,7 @@
         "values": []
       },
       "yaxes": [{
-          "decimals": 2,
+          "decimals": null,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -1366,7 +1366,7 @@
         "values": []
       },
       "yaxes": [{
-          "decimals": 2,
+          "decimals": null,
           "format": "percent",
           "label": null,
           "logBase": 1,
