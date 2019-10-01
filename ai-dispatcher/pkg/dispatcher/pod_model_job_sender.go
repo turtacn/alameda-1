@@ -85,10 +85,11 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_v1alpha1.Pod, que
 				podNS, podName)
 			sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
 		}
-		//TODO: use mid to query
+
 		podPredictRes, err := datahubServiceClnt.ListPodPredictions(context.Background(),
 			&datahub_v1alpha1.ListPodPredictionsRequest{
 				NamespacedName: pod.GetNamespacedName(),
+				ModelId:        lastPrediction.GetModelId(),
 				Granularity:    granularity,
 				QueryCondition: queryCondition,
 			})

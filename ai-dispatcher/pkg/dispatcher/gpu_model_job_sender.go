@@ -80,7 +80,6 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_v1alpha1.Gpu,
 				gpuHost, gpuMinorNumber)
 			sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
 		}
-
 		gpuPredictRes, err := datahubServiceClnt.ListGpuPredictions(context.Background(),
 			&datahub_v1alpha1.ListGpuPredictionsRequest{
 				Host:           gpuHost,

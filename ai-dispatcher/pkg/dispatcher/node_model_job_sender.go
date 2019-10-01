@@ -79,10 +79,11 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_v1alpha1.Node,
 				nodeName)
 			sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
 		}
-		//TODO: use mid to query
+
 		nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 			&datahub_v1alpha1.ListNodePredictionsRequest{
 				NodeNames:      []string{nodeName},
+				ModelId:        lastPrediction.GetModelId(),
 				Granularity:    granularity,
 				QueryCondition: queryCondition,
 			})
