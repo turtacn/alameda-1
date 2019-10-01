@@ -52,15 +52,32 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_v1alpha1.Node,
 	}
 	for _, node := range nodes {
 		nodeName := node.GetName()
-		_, err := sender.getLastPrediction(datahubServiceClnt, node, granularity)
+		shouldDrift := false
+
+		lastPrediction, lastPredictionTime, err := sender.getLastPrediction(datahubServiceClnt, node, granularity)
 		if err != nil {
+			scope.Infof("Get node %s last prediction failed: %s",
+				nodeName, err.Error())
+			continue
+		}
+		if lastPrediction == nil && err == nil {
+			scope.Infof("No prediction found of node %s",
+				nodeName)
+		}
+		nowSeconds := time.Now().Unix()
+		if lastPrediction != nil && lastPredictionTime <= nowSeconds {
+			scope.Infof("node prediction %s is out of date due to last predict time is %v (current: %v)",
+				nodeName, lastPredictionTime, nowSeconds)
+		}
+		if (lastPrediction == nil && err == nil) || (lastPrediction != nil && lastPredictionTime <= nowSeconds) {
 			nodeInfo := sender.genNodeInfo(nodeName)
 			nodeInfo.ModelMetrics = []datahub_v1alpha1.MetricType{
 				datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 				datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 			}
+			scope.Infof("send node %s model job due to no predict found or predict is out of date",
+				nodeName)
 			sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
-			continue
 		}
 		//TODO: use mid to query
 		nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
@@ -137,6 +154,7 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_v1alpha1.Node,
 						nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricType)
 						scope.Infof("model job node %s metric %v with granularity %v should be sent due to MAPE %v > %v",
 							nodeName, metricType, granularity, mape, sender.modelThreshold)
+						shouldDrift = true
 					} else {
 						scope.Infof("node %s metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
 							nodeName, metricType, granularity, mape, sender.modelThreshold)
@@ -148,6 +166,11 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_v1alpha1.Node,
 					sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
 				}
 			}
+		}
+		if shouldDrift {
+			scope.Infof("export node %s drift counter with granularity %s",
+				nodeName, dataGranularity)
+			sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
 		}
 	}
 }
@@ -173,9 +196,6 @@ func (sender *nodeModelJobSender) sendJob(node *datahub_v1alpha1.Node, queueSend
 			return
 		}
 
-		scope.Infof("export node %s drift counter with granularity %s",
-			nodeName, dataGranularity)
-		sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
 			fmt.Sprintf("%s", nodeName))
 		if err == nil {
@@ -197,7 +217,7 @@ func (sender *nodeModelJobSender) genNodeInfo(nodeName string) *modelInfo {
 }
 
 func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
-	node *datahub_v1alpha1.Node, granularity int64) (*datahub_v1alpha1.NodePrediction, error) {
+	node *datahub_v1alpha1.Node, granularity int64) (*datahub_v1alpha1.NodePrediction, int64, error) {
 	nodeName := node.GetName()
 	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 		&datahub_v1alpha1.ListNodePredictionsRequest{
@@ -214,12 +234,17 @@ func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v
 			},
 		})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if len(nodePredictRes.GetNodePredictions()) > 0 {
-		return nodePredictRes.GetNodePredictions()[0], nil
+		lastNodePrediction := nodePredictRes.GetNodePredictions()[0]
+		for _, metricPd := range lastNodePrediction.GetPredictedRawData() {
+			for _, metricPdSample := range metricPd.GetData() {
+				return lastNodePrediction, metricPdSample.GetTime().GetSeconds(), nil
+			}
+		}
 	}
-	return nil, fmt.Errorf("No node %s prediction found", nodeName)
+	return nil, 0, nil
 }
 
 func (sender *nodeModelJobSender) getQueryMetricStartTime(descNodePredictions []*datahub_v1alpha1.NodePrediction) int64 {

@@ -52,26 +52,41 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_v1alpha1.Gpu,
 	for _, gpu := range gpus {
 		gpuHost := gpu.GetMetadata().GetHost()
 		gpuMinorNumber := gpu.GetMetadata().GetMinorNumber()
+		shouldDrift := false
 
-		_, err := sender.getLastPrediction(datahubServiceClnt, gpu, granularity)
+		lastPrediction, lastPredictionTime, err := sender.getLastPrediction(datahubServiceClnt, gpu, granularity)
 		if err != nil {
-			scope.Infof("Get gpu last prediction failed: %s",
-				err.Error())
+			scope.Infof("Get gpu (host: %s, minor number) last prediction failed: %s",
+				gpuHost, gpuMinorNumber, err.Error())
+			continue
+		}
+		if lastPrediction == nil && err == nil {
+			scope.Infof("No prediction found of gpu (host: %s, minor number)",
+				gpuHost, gpuMinorNumber)
+		}
+		nowSeconds := time.Now().Unix()
+		if lastPrediction != nil && lastPredictionTime <= nowSeconds {
+			scope.Infof("gpu prediction (host: %s, minor number: %s) is out of date due to last predict time is %v (current: %v)",
+				gpuHost, gpuMinorNumber, lastPredictionTime, nowSeconds)
+		}
+
+		if (lastPrediction == nil && err == nil) || (lastPrediction != nil && lastPredictionTime <= nowSeconds) {
 			gpuInfo := sender.genGPUInfo(gpuHost, gpuMinorNumber)
 			gpuInfo.ModelMetrics = []datahub_v1alpha1.MetricType{
 				datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
 				datahub_v1alpha1.MetricType_DUTY_CYCLE,
 			}
+			scope.Infof("send gpu (host: %s, minor number: %s) model job due to no predict found or predict is out of date",
+				gpuHost, gpuMinorNumber)
 			sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
-			continue
 		}
 
-		//TODO: use mid to query
 		gpuPredictRes, err := datahubServiceClnt.ListGpuPredictions(context.Background(),
 			&datahub_v1alpha1.ListGpuPredictionsRequest{
 				Host:           gpuHost,
 				MinorNumber:    gpuMinorNumber,
 				Granularity:    granularity,
+				ModelId:        lastPrediction.GetModelId(),
 				QueryCondition: queryCondition,
 			})
 		if err != nil {
@@ -144,6 +159,7 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_v1alpha1.Gpu,
 						gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricType)
 						scope.Infof("model job (gpu host: %s minor number: %s) metric %v with granularity %v should be sent due to MAPE %v > %v",
 							gpuHost, gpuMinorNumber, metricType, granularity, mape, sender.modelThreshold)
+						shouldDrift = true
 					} else {
 						scope.Infof("(gpu host: %s minor number: %s) metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
 							gpuHost, gpuMinorNumber, metricType, granularity, mape, sender.modelThreshold)
@@ -155,6 +171,12 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_v1alpha1.Gpu,
 					sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
 				}
 			}
+		}
+		if shouldDrift {
+			scope.Infof("export (gpu host: %s minor number: %s) drift counter with granularity %s",
+				gpuHost, gpuMinorNumber, dataGranularity)
+			sender.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
+				queue.GetGranularityStr(granularity), 1.0)
 		}
 	}
 }
@@ -181,11 +203,6 @@ func (sender *gpuModelJobSender) sendJob(gpu *datahub_v1alpha1.Gpu, queueSender 
 			return
 		}
 
-		scope.Infof("export (gpu host: %s minor number: %s) drift counter with granularity %s",
-			gpuHost, gpuMinorNumber, dataGranularity)
-		sender.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
-			queue.GetGranularityStr(granularity), 1.0)
-
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
 			fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
 		if err == nil {
@@ -209,7 +226,7 @@ func (sender *gpuModelJobSender) genGPUInfo(gpuHost,
 }
 
 func (sender *gpuModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
-	gpu *datahub_v1alpha1.Gpu, granularity int64) (*datahub_v1alpha1.GpuPrediction, error) {
+	gpu *datahub_v1alpha1.Gpu, granularity int64) (*datahub_v1alpha1.GpuPrediction, int64, error) {
 	gpuHost := gpu.GetMetadata().GetHost()
 	gpuMinorNumber := gpu.GetMetadata().GetMinorNumber()
 	gpuPredictRes, err := datahubServiceClnt.ListGpuPredictions(context.Background(),
@@ -228,13 +245,18 @@ func (sender *gpuModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1
 			},
 		})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
+
 	if len(gpuPredictRes.GetGpuPredictions()) > 0 {
-		return gpuPredictRes.GetGpuPredictions()[0], nil
+		lastGpuPrediction := gpuPredictRes.GetGpuPredictions()[0]
+		for _, metricPd := range lastGpuPrediction.GetPredictedRawData() {
+			for _, metricPdSample := range metricPd.GetData() {
+				return lastGpuPrediction, metricPdSample.GetTime().GetSeconds(), nil
+			}
+		}
 	}
-	return nil, fmt.Errorf("No gpu (host: %s, minor number: %s) prediction found",
-		gpuHost, gpuMinorNumber)
+	return nil, 0, nil
 }
 
 func (sender *gpuModelJobSender) getQueryMetricStartTime(descGpuPredictions []*datahub_v1alpha1.GpuPrediction) int64 {
