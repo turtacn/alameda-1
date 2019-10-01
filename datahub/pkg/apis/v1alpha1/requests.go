@@ -189,6 +189,8 @@ func (r datahubListPodPredictionsRequestExtended) daoListPodPredictionsRequest()
 	listContainerPredictionsRequest := DaoPrediction.ListPodPredictionsRequest{
 		Namespace:      namespace,
 		PodName:        podName,
+		ModelId:        r.request.GetModelId(),
+		PredictionId:   r.request.GetPredictionId(),
 		QueryCondition: queryCondition,
 		Granularity:    granularity,
 	}
@@ -220,8 +222,10 @@ func (r datahubListNodePredictionsRequestExtended) daoListNodePredictionsRequest
 	queryCondition = datahubQueryConditionExtend{r.request.GetQueryCondition()}.daoQueryCondition()
 	listNodePredictionsRequest := DaoPrediction.ListNodePredictionsRequest{
 		NodeNames:      nodeNames,
-		QueryCondition: queryCondition,
+		ModelId:        r.request.GetModelId(),
+		PredictionId:   r.request.GetPredictionId(),
 		Granularity:    granularity,
+		QueryCondition: queryCondition,
 	}
 
 	return listNodePredictionsRequest

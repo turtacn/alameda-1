@@ -134,6 +134,8 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request DaoPredi
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
+	influxdbStatement.AppendWhereClause(EntityInfluxPredictionContainer.ModelId, "=", request.ModelId)
+	influxdbStatement.AppendWhereClause(EntityInfluxPredictionContainer.PredictionId, "=", request.PredictionId)
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

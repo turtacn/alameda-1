@@ -23,16 +23,20 @@ type DAO interface {
 
 // ListPodPredictionsRequest ListPodPredictionsRequest
 type ListPodPredictionsRequest struct {
-	Namespace   string
-	PodName     string
-	Granularity int64
+	Namespace    string
+	PodName      string
+	ModelId      string
+	PredictionId string
+	Granularity  int64
 	DBCommon.QueryCondition
 }
 
 // ListNodePredictionsRequest ListNodePredictionsRequest
 type ListNodePredictionsRequest struct {
-	NodeNames   []string
-	Granularity int64
+	NodeNames    []string
+	ModelId      string
+	PredictionId string
+	Granularity  int64
 	DBCommon.QueryCondition
 }
 

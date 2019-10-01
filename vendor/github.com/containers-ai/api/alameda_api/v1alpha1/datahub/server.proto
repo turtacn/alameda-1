@@ -127,6 +127,8 @@ message ListPodPredictionsRequest {
     QueryCondition query_condition = 2;
     int64 granularity = 3;
     int64 fill_days   = 4;
+    string model_id = 5;
+    string prediction_id = 6;
 }
 
 /**
@@ -146,6 +148,8 @@ message ListNodePredictionsRequest {
     repeated string node_names = 1;
     QueryCondition query_condition = 2;
     int64 granularity = 3;
+    string model_id = 4;
+    string prediction_id = 5;
 }
 
 /**
