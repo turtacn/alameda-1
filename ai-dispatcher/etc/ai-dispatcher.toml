@@ -32,7 +32,7 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularitySec = 21600
   predictionSteps = 30
   modelThreshold = 10
-  predictionJobSendIntervalSec = 21600
+  predictionJobSendIntervalSec = 86400
   modelJobSendIntervalSec = 21600
 
   [granularities.1h]
@@ -40,7 +40,7 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularitySec = 3600
   predictionSteps = 30
   modelThreshold = 10
-  predictionJobSendIntervalSec = 3600
+  predictionJobSendIntervalSec = 28800
   modelJobSendIntervalSec = 3600
 
   [granularities.30s]
@@ -48,7 +48,7 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularitySec = 30
   predictionSteps = 30
   modelThreshold = 10
-  predictionJobSendIntervalSec = 30
+  predictionJobSendIntervalSec = 900
   modelJobSendIntervalSec = 30
 
 [predictUnits]

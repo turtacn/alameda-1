@@ -66,6 +66,7 @@ func NewMeasurementDataSet(metricSamples []*datahub_v1alpha1.Sample,
 func MAPE(measurementDataSet map[int64]*MeasurementData) (float64, error) {
 	nPts := 0.0
 	result := 0.0
+	scope.Debugf("Start MAPE calculation")
 	for _, data := range measurementDataSet {
 		metricValue := data.GetMetricData()
 		if metricValue == 0 {
@@ -74,12 +75,18 @@ func MAPE(measurementDataSet map[int64]*MeasurementData) (float64, error) {
 		}
 		predictValue := data.GetPredictData()
 		nPts = nPts + 1
-		result = result + math.Abs(predictValue-metricValue)/metricValue
+		deltaRatio := math.Abs(predictValue-metricValue) / metricValue
+		result = result + deltaRatio
+		scope.Debugf("(real value: %v, predict value: %v, delta ratio: %v)",
+			metricValue, predictValue, deltaRatio)
 	}
 	if nPts == 0 {
 		return 0, fmt.Errorf("no points in calculation of MAPE")
 	}
-	return 100 * (result / nPts), nil
+	resultPercentage := 100 * (result / nPts)
+	scope.Debugf("MAPE calculation result: %v with sum %v and %v points",
+		resultPercentage, result, nPts)
+	return resultPercentage, nil
 }
 
 func (mData MeasurementData) GetMetricData() float64 {
