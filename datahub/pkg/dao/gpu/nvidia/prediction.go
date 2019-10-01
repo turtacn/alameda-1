@@ -17,7 +17,7 @@ type GpuPrediction struct {
 
 type PredictionsDAO interface {
 	CreatePredictions(GpuPredictionMap) error
-	ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) (GpuPredictionMap, error)
+	ListPredictions(host, minorNumber, modelId, predictionId, granularity string, condition *DBCommon.QueryCondition) (GpuPredictionMap, error)
 }
 
 func NewGpuPrediction() *GpuPrediction {

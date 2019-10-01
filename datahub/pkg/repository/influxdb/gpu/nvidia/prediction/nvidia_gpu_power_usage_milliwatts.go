@@ -75,7 +75,7 @@ func (r *PowerUsageMilliWattsRepository) CreatePredictions(predictions []*DaoGpu
 	return nil
 }
 
-func (r *PowerUsageMilliWattsRepository) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.PowerUsageMilliWattsEntity, error) {
+func (r *PowerUsageMilliWattsRepository) ListPredictions(host, minorNumber, modelId, predictionId, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.PowerUsageMilliWattsEntity, error) {
 	entities := make([]*EntityInfluxGpuPrediction.PowerUsageMilliWattsEntity, 0)
 
 	influxdbStatement := InternalInflux.Statement{
@@ -87,6 +87,8 @@ func (r *PowerUsageMilliWattsRepository) ListPredictions(host, minorNumber, gran
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsHost, "=", host)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsPredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()

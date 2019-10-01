@@ -451,8 +451,10 @@ message CreateGpuPredictionsRequest {
 message ListGpuPredictionsRequest {
     string host = 1;
     string minor_number = 2;
-    QueryCondition query_condition = 3;
-    int64 granularity = 4;
+    string model_id = 3;
+    string prediction_id = 4;
+    int64 granularity = 5;
+    QueryCondition query_condition = 6;
 }
 
 message ListGpuPredictionsResponse {

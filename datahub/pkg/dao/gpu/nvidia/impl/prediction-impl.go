@@ -125,7 +125,7 @@ func (p Prediction) CreatePredictions(predictions DaoGpu.GpuPredictionMap) error
 	return nil
 }
 
-func (p Prediction) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) (DaoGpu.GpuPredictionMap, error) {
+func (p Prediction) ListPredictions(host, minorNumber, modelId, predictionId, granularity string, condition *DBCommon.QueryCondition) (DaoGpu.GpuPredictionMap, error) {
 	gpuPredictionMap := DaoGpu.NewGpuPredictionMap()
 
 	granularityValue, _ := strconv.ParseInt(granularity, 10, 64)
@@ -133,7 +133,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuDutyCycle] {
 		// Pack duty cycle predictions
 		dutyCycleRepo := RepoInfluxGpuPrediction.NewDutyCycleRepositoryWithConfig(p.InfluxDBConfig)
-		dutyCyclePredictions, err := dutyCycleRepo.ListPredictions(host, minorNumber, granularity, condition)
+		dutyCyclePredictions, err := dutyCycleRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -145,7 +145,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack duty cycle lower bound predictions
 		dutyCycleLowerBoundRepo := RepoInfluxGpuPrediction.NewDutyCycleLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
-		dutyCyclePredictions, err = dutyCycleLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		dutyCyclePredictions, err = dutyCycleLowerBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -157,7 +157,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack duty cycle upper bound predictions
 		dutyCycleUpperBoundRepo := RepoInfluxGpuPrediction.NewDutyCycleUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
-		dutyCyclePredictions, err = dutyCycleUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		dutyCyclePredictions, err = dutyCycleUpperBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -171,7 +171,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuMemoryUsedBytes] {
 		// Pack memory used bytes predictions
 		memoryUsedRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesRepositoryWithConfig(p.InfluxDBConfig)
-		memoryUsedPredictions, err := memoryUsedRepo.ListPredictions(host, minorNumber, granularity, condition)
+		memoryUsedPredictions, err := memoryUsedRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -183,7 +183,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack memory used bytes lower bound predictions
 		memoryUsedLowerBoundRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
-		memoryUsedPredictions, err = memoryUsedLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		memoryUsedPredictions, err = memoryUsedLowerBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -195,7 +195,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack memory used bytes upper bound predictions
 		memoryUsedUpperBoundRepo := RepoInfluxGpuPrediction.NewMemoryUsedBytesUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
-		memoryUsedPredictions, err = memoryUsedUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		memoryUsedPredictions, err = memoryUsedUpperBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -209,7 +209,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuPowerUsageMilliWatts] {
 		// Pack power usage milli watts predictions
 		powerUsageRepo := RepoInfluxGpuPrediction.NewPowerUsageMilliWattsRepositoryWithConfig(p.InfluxDBConfig)
-		poserUsagePredictions, err := powerUsageRepo.ListPredictions(host, minorNumber, granularity, condition)
+		poserUsagePredictions, err := powerUsageRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -221,7 +221,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack power usage milli watts lower bound predictions
 		powerUsageLowerBoundRepo := RepoInfluxGpuPrediction.NewPowerUsageMilliWattsLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
-		poserUsagePredictions, err = powerUsageLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		poserUsagePredictions, err = powerUsageLowerBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -233,7 +233,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack power usage milli watts upper bound predictions
 		powerUsageUpperBoundRepo := RepoInfluxGpuPrediction.NewPowerUsageMilliWattsUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
-		poserUsagePredictions, err = powerUsageUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		poserUsagePredictions, err = powerUsageUpperBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -247,7 +247,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 	if DaoGpu.GpuMetricUsedMap[DatahubMetric.TypeGpuTemperatureCelsius] {
 		// Pack temperature celsius predictions
 		temperatureCelsiusRepo := RepoInfluxGpuPrediction.NewTemperatureCelsiusRepositoryWithConfig(p.InfluxDBConfig)
-		temperatureCelsiusPredictions, err := temperatureCelsiusRepo.ListPredictions(host, minorNumber, granularity, condition)
+		temperatureCelsiusPredictions, err := temperatureCelsiusRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -259,7 +259,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack temperature celsius lower bound predictions
 		temperatureCelsiusLowerBoundRepo := RepoInfluxGpuPrediction.NewTemperatureCelsiusLowerBoundRepositoryWithConfig(p.InfluxDBConfig)
-		temperatureCelsiusPredictions, err = temperatureCelsiusLowerBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		temperatureCelsiusPredictions, err = temperatureCelsiusLowerBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}
@@ -271,7 +271,7 @@ func (p Prediction) ListPredictions(host, minorNumber, granularity string, condi
 
 		// Pack temperature celsius upper bound predictions
 		temperatureCelsiusUpperBoundRepo := RepoInfluxGpuPrediction.NewTemperatureCelsiusUpperBoundRepositoryWithConfig(p.InfluxDBConfig)
-		temperatureCelsiusPredictions, err = temperatureCelsiusUpperBoundRepo.ListPredictions(host, minorNumber, granularity, condition)
+		temperatureCelsiusPredictions, err = temperatureCelsiusUpperBoundRepo.ListPredictions(host, minorNumber, modelId, predictionId, granularity, condition)
 		if err != nil {
 			return DaoGpu.NewGpuPredictionMap(), err
 		}

@@ -98,7 +98,7 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 	}
 
 	predictionDAO := DaoGpu.NewPredictionWithConfig(*s.Config.InfluxDB)
-	predictionsMap, err := predictionDAO.ListPredictions(in.GetHost(), in.GetMinorNumber(), granularity, DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
+	predictionsMap, err := predictionDAO.ListPredictions(in.GetHost(), in.GetMinorNumber(), in.GetModelId(), in.GetPredictionId(), granularity, DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
 	if err != nil {
 		scope.Errorf("failed to ListGpuPredictions: %+v", err)
 		return &DatahubV1alpha1.ListGpuPredictionsResponse{

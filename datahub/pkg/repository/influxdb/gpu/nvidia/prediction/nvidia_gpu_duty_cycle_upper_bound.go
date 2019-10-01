@@ -75,7 +75,7 @@ func (r *DutyCycleUpperBoundRepository) CreatePredictions(predictions []*DaoGpu.
 	return nil
 }
 
-func (r *DutyCycleUpperBoundRepository) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.DutyCycleEntity, error) {
+func (r *DutyCycleUpperBoundRepository) ListPredictions(host, minorNumber, modelId, predictionId, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.DutyCycleEntity, error) {
 	entities := make([]*EntityInfluxGpuPrediction.DutyCycleEntity, 0)
 
 	influxdbStatement := InternalInflux.Statement{
@@ -87,6 +87,8 @@ func (r *DutyCycleUpperBoundRepository) ListPredictions(host, minorNumber, granu
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleHost, "=", host)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCyclePredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()

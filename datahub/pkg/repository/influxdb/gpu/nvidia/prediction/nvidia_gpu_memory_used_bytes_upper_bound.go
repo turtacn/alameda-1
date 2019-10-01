@@ -75,7 +75,7 @@ func (r *MemoryUsedBytesUpperBoundRepository) CreatePredictions(predictions []*D
 	return nil
 }
 
-func (r *MemoryUsedBytesUpperBoundRepository) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.MemoryUsedBytesEntity, error) {
+func (r *MemoryUsedBytesUpperBoundRepository) ListPredictions(host, minorNumber, modelId, predictionId, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.MemoryUsedBytesEntity, error) {
 	entities := make([]*EntityInfluxGpuPrediction.MemoryUsedBytesEntity, 0)
 
 	influxdbStatement := InternalInflux.Statement{
@@ -87,6 +87,8 @@ func (r *MemoryUsedBytesUpperBoundRepository) ListPredictions(host, minorNumber,
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesHost, "=", host)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesPredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()

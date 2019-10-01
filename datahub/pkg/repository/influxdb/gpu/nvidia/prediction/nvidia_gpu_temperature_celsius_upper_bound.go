@@ -75,7 +75,7 @@ func (r *TemperatureCelsiusUpperBoundRepository) CreatePredictions(predictions [
 	return nil
 }
 
-func (r *TemperatureCelsiusUpperBoundRepository) ListPredictions(host, minorNumber, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.TemperatureCelsiusEntity, error) {
+func (r *TemperatureCelsiusUpperBoundRepository) ListPredictions(host, minorNumber, modelId, predictionId, granularity string, condition *DBCommon.QueryCondition) ([]*EntityInfluxGpuPrediction.TemperatureCelsiusEntity, error) {
 	entities := make([]*EntityInfluxGpuPrediction.TemperatureCelsiusEntity, 0)
 
 	influxdbStatement := InternalInflux.Statement{
@@ -87,6 +87,8 @@ func (r *TemperatureCelsiusUpperBoundRepository) ListPredictions(host, minorNumb
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusHost, "=", host)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusPredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
