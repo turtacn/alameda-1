@@ -7,18 +7,15 @@ import (
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
-	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 type podModelJobSender struct {
 	datahubGrpcCn  *grpc.ClientConn
-	modelThreshold float64
 	modelMapper    *ModelMapper
 	metricExporter *metrics.Exporter
 }
@@ -27,7 +24,6 @@ func NewPodModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 	metricExporter *metrics.Exporter) *podModelJobSender {
 	return &podModelJobSender{
 		datahubGrpcCn:  datahubGrpcCn,
-		modelThreshold: viper.GetFloat64("model.threshold"),
 		modelMapper:    modelMapper,
 		metricExporter: metricExporter,
 	}
@@ -143,41 +139,16 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_v1alpha1.Pod, que
 							}
 						}
 					}
-
-					if len(pData) > 0 {
-						metricType := metricDatum.GetMetricType()
-						scope.Infof("start MAPE calculation for pod %s/%s container %s metric %v with granularity %v",
-							podNS, podName, containerName, metricType, granularity)
-						measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-						mape, mapeErr := stats.MAPE(measurementDataSet)
-						if mapeErr == nil {
-							scope.Infof("export MAPE value %v for pod %s/%s container %s metric %v with granularity %v", mape,
-								podNS, podName, containerName, metricType, granularity)
-							sender.metricExporter.SetContainerMetricMAPE(podNS, podName, containerName,
-								queue.GetMetricLabel(metricDatum.GetMetricType()), queue.GetGranularityStr(granularity), mape)
-						}
-
-						if mapeErr != nil {
-							modelMetrics = append(modelMetrics, metricType)
-							scope.Infof(
-								"model job for pod %s/%s container %s metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
-								podNS, podName, containerName, metricType, granularity, mapeErr.Error())
-						} else if mape > sender.modelThreshold {
-							shouldDrift = true
-							modelMetrics = append(modelMetrics, metricType)
-							scope.Infof("pod %s/%s container %s metric %v with granularity %v should be sent due to MAPE %v > %v",
-								podNS, podName, containerName, metricType, granularity, mape, sender.modelThreshold)
-						} else {
-							scope.Infof("pod %s/%s container %s metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
-								podNS, podName, containerName, metricType, granularity, mape, sender.modelThreshold)
-						}
-						if len(modelMetrics) > 0 {
-							podInfo.Containers = append(podInfo.Containers, &container{
-								Name:         containerName,
-								ModelMetrics: modelMetrics,
-							})
-						}
+					metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+						"podNS":             podNS,
+						"podName":           podName,
+						"containerName":     containerName,
+						"targetDisplayName": fmt.Sprintf("pod %s/%s container %s", podNS, podName, containerName),
+					}, sender.metricExporter)
+					if drift {
+						shouldDrift = drift
 					}
+					modelMetrics = append(modelMetrics, metricsNeedToModel...)
 					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, podInfo)
 					if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(pdUnit, dataGranularity, podInfo)) {
 						sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
@@ -216,7 +187,7 @@ func (sender *podModelJobSender) sendJob(pod *datahub_v1alpha1.Pod, queueSender 
 		}
 
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%s", podNS, podName))
+			fmt.Sprintf("%s/%s/%v", podNS, podName, granularity))
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, podInfo)
 		} else {

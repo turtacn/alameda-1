@@ -7,18 +7,15 @@ import (
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
-	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 type gpuModelJobSender struct {
 	datahubGrpcCn  *grpc.ClientConn
-	modelThreshold float64
 	modelMapper    *ModelMapper
 	metricExporter *metrics.Exporter
 }
@@ -27,7 +24,6 @@ func NewGPUModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 	metricExporter *metrics.Exporter) *gpuModelJobSender {
 	return &gpuModelJobSender{
 		datahubGrpcCn:  datahubGrpcCn,
-		modelThreshold: viper.GetFloat64("model.threshold"),
 		modelMapper:    modelMapper,
 		metricExporter: metricExporter,
 	}
@@ -137,33 +133,15 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_v1alpha1.Gpu,
 						}
 					}
 				}
-				if len(pData) > 0 {
-					metricType := metricDatum.GetMetricType()
-					scope.Infof("start MAPE calculation for (gpu host: %s minor number: %s) metric %v with granularity %v",
-						gpuHost, gpuMinorNumber, metricType, granularity)
-					measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-					mape, mapeErr := stats.MAPE(measurementDataSet)
-					if mapeErr == nil {
-						scope.Infof("export MAPE value %v for (gpu host: %s minor number: %s) metric %v with granularity %v", mape,
-							gpuHost, gpuMinorNumber, metricType, granularity)
-						sender.metricExporter.SetGPUMetricMAPE(gpuHost, gpuMinorNumber,
-							queue.GetMetricLabel(metricDatum.GetMetricType()), queue.GetGranularityStr(granularity), mape)
-					}
-					if err != nil {
-						gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricType)
-						scope.Infof(
-							"model job for (gpu host: %s minor number: %s) metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
-							gpuHost, gpuMinorNumber, metricType, granularity, mapeErr.Error())
-					} else if mape > sender.modelThreshold {
-						gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricType)
-						scope.Infof("model job (gpu host: %s minor number: %s) metric %v with granularity %v should be sent due to MAPE %v > %v",
-							gpuHost, gpuMinorNumber, metricType, granularity, mape, sender.modelThreshold)
-						shouldDrift = true
-					} else {
-						scope.Infof("(gpu host: %s minor number: %s) metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
-							gpuHost, gpuMinorNumber, metricType, granularity, mape, sender.modelThreshold)
-					}
+				metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+					"gpuHost":           gpuHost,
+					"gpuMinorNumber":    gpuMinorNumber,
+					"targetDisplayName": fmt.Sprintf("gpu host: %s minor number: %s", gpuHost, gpuMinorNumber),
+				}, sender.metricExporter)
+				if drift {
+					shouldDrift = drift
 				}
+				gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricsNeedToModel...)
 				isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, gpuInfo)
 				if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
 					pdUnit, dataGranularity, gpuInfo)) {
@@ -203,7 +181,7 @@ func (sender *gpuModelJobSender) sendJob(gpu *datahub_v1alpha1.Gpu, queueSender 
 		}
 
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
+			fmt.Sprintf("%s/%s/%v", gpuHost, gpuMinorNumber, granularity))
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, gpuInfo)
 		} else {

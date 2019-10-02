@@ -37,7 +37,7 @@ func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_v1alpha
 			continue
 		}
 		err = queueSender.SendJsonString(queueName, jobJSONStr,
-			fmt.Sprintf("%s", node.GetName()))
+			fmt.Sprintf("%s/%v", node.GetName(), granularity))
 		if err != nil {
 			scope.Errorf("Send job for node %s failed with granularity %v seconds. %s",
 				node.GetName(), granularity, err.Error())
@@ -64,7 +64,7 @@ func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_v1alpha1.
 			continue
 		}
 		err = queueSender.SendJsonString(queueName, jobJSONStr,
-			fmt.Sprintf("%s/%s", podNSN.GetNamespace(), podNSN.GetName()))
+			fmt.Sprintf("%s/%s/%v", podNSN.GetNamespace(), podNSN.GetName(), granularity))
 		if err != nil {
 			scope.Errorf("Send job for pod %s/%s failed with granularity %v seconds. %s",
 				podNSN.GetNamespace(), podNSN.GetName(), granularity, err.Error())
@@ -92,7 +92,7 @@ func (dispatcher *predictJobSender) SendGPUPredictJobs(gpus []*datahub_v1alpha1.
 			continue
 		}
 		err = queueSender.SendJsonString(queueName, jobJSONStr,
-			fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
+			fmt.Sprintf("%s/%s/%v", gpuHost, gpuMinorNumber, granularity))
 		if err != nil {
 			scope.Errorf("Send job for gpu host: %s, minor number: %s failed with granularity %v seconds. %s",
 				gpuHost, gpuMinorNumber, granularity, err.Error())

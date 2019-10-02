@@ -24,6 +24,12 @@ var (
 		Help:      "MAPE of container metric",
 	}, []string{"pod_namespace", "pod_name", "name", "metric_type", "data_granularity"})
 
+	containerMetricRMSEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Subsystem: "alameda_ai_dispatcher",
+		Name:      "container_metric_rmse",
+		Help:      "RMSE of container metric",
+	}, []string{"pod_namespace", "pod_name", "name", "metric_type", "data_granularity"})
+
 	podMetricDriftCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "pod_metric_drift_total",
@@ -52,6 +58,12 @@ func (podMetric *podMetric) addPodMetricModelTimeTotal(
 func (podMetric *podMetric) setContainerMetricMAPE(podNS, podName,
 	name, metricType, dataGranularity string, val float64) {
 	containerMetricMAPEGauge.WithLabelValues(podNS, podName,
+		name, metricType, dataGranularity).Set(val)
+}
+
+func (podMetric *podMetric) setContainerMetricRMSE(podNS, podName,
+	name, metricType, dataGranularity string, val float64) {
+	containerMetricRMSEGauge.WithLabelValues(podNS, podName,
 		name, metricType, dataGranularity).Set(val)
 }
 

@@ -23,7 +23,6 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularity = "24h"
   dataGranularitySec = 86400
   predictionSteps = 30
-  modelThreshold = 10
   predictionJobSendIntervalSec = 86400
   modelJobSendIntervalSec = 86400
 
@@ -31,7 +30,6 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularity = "6h"
   dataGranularitySec = 21600
   predictionSteps = 30
-  modelThreshold = 10
   predictionJobSendIntervalSec = 86400
   modelJobSendIntervalSec = 21600
 
@@ -39,7 +37,6 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularity = "1h"
   dataGranularitySec = 3600
   predictionSteps = 30
-  modelThreshold = 10
   predictionJobSendIntervalSec = 28800
   modelJobSendIntervalSec = 3600
 
@@ -47,7 +44,6 @@ predictUnits = ["POD", "NODE", "GPU"]
   dataGranularity = "30s"
   dataGranularitySec = 30
   predictionSteps = 30
-  modelThreshold = 10
   predictionJobSendIntervalSec = 900
   modelJobSendIntervalSec = 30
 
@@ -68,5 +64,15 @@ outputLevel = "info" # debug, info, warn, error, fatal, none
 
 [model]
 enabled = false
-threshold = 10
 timeout = 30
+
+[measurements]
+  current = "mape"
+  [measurements.mape]
+  threshold = 15
+  [measurements.rmse]
+  threshold = 10
+    [measurements.rmse.normalization]
+    cpu = 1 #millicores
+    memory = 1000000 #bytes
+    dutyCycle = 0.2

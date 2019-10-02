@@ -24,6 +24,12 @@ var (
 		Help:      "MAPE of gpu metric",
 	}, []string{"host", "minor_number", "metric_type", "data_granularity"})
 
+	gpuRMSEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Subsystem: "alameda_ai_dispatcher",
+		Name:      "gpu_metric_rmse",
+		Help:      "RMSE of gpu metric",
+	}, []string{"host", "minor_number", "metric_type", "data_granularity"})
+
 	gpuMetricDriftCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "gpu_metric_drift_total",
@@ -52,6 +58,12 @@ func (gpuMetric *gpuMetric) addGPUMetricModelTimeTotal(
 func (gpuMetric *gpuMetric) setGPUMetricMAPE(
 	host, minor_number, metricType, dataGranularity string, val float64) {
 	gpuMAPEGauge.WithLabelValues(host,
+		minor_number, metricType, dataGranularity).Set(val)
+}
+
+func (gpuMetric *gpuMetric) setGPUMetricRMSE(
+	host, minor_number, metricType, dataGranularity string, val float64) {
+	gpuRMSEGauge.WithLabelValues(host,
 		minor_number, metricType, dataGranularity).Set(val)
 }
 

@@ -3,23 +3,20 @@ package dispatcher
 import (
 	"context"
 	"fmt"
-
 	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
-	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
+
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 type nodeModelJobSender struct {
 	datahubGrpcCn  *grpc.ClientConn
-	modelThreshold float64
 	modelMapper    *ModelMapper
 	metricExporter *metrics.Exporter
 }
@@ -28,7 +25,6 @@ func NewNodeModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMap
 	metricExporter *metrics.Exporter) *nodeModelJobSender {
 	return &nodeModelJobSender{
 		datahubGrpcCn:  datahubGrpcCn,
-		modelThreshold: viper.GetFloat64("model.threshold"),
 		modelMapper:    modelMapper,
 		metricExporter: metricExporter,
 	}
@@ -134,33 +130,14 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_v1alpha1.Node,
 						}
 					}
 				}
-				if len(pData) > 0 {
-					metricType := metricDatum.GetMetricType()
-					scope.Infof("start MAPE calculation for node %s metric %v with granularity %v",
-						nodeName, metricType, granularity)
-					measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-					mape, mapeErr := stats.MAPE(measurementDataSet)
-					if mapeErr == nil {
-						scope.Infof("export MAPE value %v for node %s metric %v with granularity %v", mape,
-							nodeName, metricType, granularity)
-						sender.metricExporter.SetNodeMetricMAPE(nodeName,
-							queue.GetMetricLabel(metricDatum.GetMetricType()), queue.GetGranularityStr(granularity), mape)
-					}
-					if mapeErr != nil {
-						nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricType)
-						scope.Infof(
-							"model job for node %s metric %v with granularity %v should be sent due to MAPE calculation failed: %s",
-							nodeName, metricType, granularity, mapeErr.Error())
-					} else if mape > sender.modelThreshold {
-						nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricType)
-						scope.Infof("model job node %s metric %v with granularity %v should be sent due to MAPE %v > %v",
-							nodeName, metricType, granularity, mape, sender.modelThreshold)
-						shouldDrift = true
-					} else {
-						scope.Infof("node %s metric %v with granularity %v MAPE %v <= %v, skip sending this model metric",
-							nodeName, metricType, granularity, mape, sender.modelThreshold)
-					}
+				metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+					"nodeName":          nodeName,
+					"targetDisplayName": fmt.Sprintf("node %s", nodeName),
+				}, sender.metricExporter)
+				if drift {
+					shouldDrift = drift
 				}
+				nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricsNeedToModel...)
 				isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, nodeInfo)
 				if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
 					pdUnit, dataGranularity, nodeInfo)) {
@@ -198,7 +175,7 @@ func (sender *nodeModelJobSender) sendJob(node *datahub_v1alpha1.Node, queueSend
 		}
 
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s", nodeName))
+			fmt.Sprintf("%s/%v", nodeName, granularity))
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, nodeInfo)
 		} else {

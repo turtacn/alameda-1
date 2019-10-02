@@ -4,13 +4,11 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
 type modelJobSender struct {
 	datahubGrpcCn      *grpc.ClientConn
-	modelThreshold     float64
 	modelMapper        *ModelMapper
 	metricExporter     *metrics.Exporter
 	podModelJobSender  *podModelJobSender
@@ -20,9 +18,9 @@ type modelJobSender struct {
 
 func NewModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapper,
 	metricExporter *metrics.Exporter) *modelJobSender {
+
 	return &modelJobSender{
 		datahubGrpcCn:  datahubGrpcCn,
-		modelThreshold: viper.GetFloat64("model.threshold"),
 		modelMapper:    modelMapper,
 		metricExporter: metricExporter,
 		podModelJobSender: NewPodModelJobSender(datahubGrpcCn, modelMapper,
