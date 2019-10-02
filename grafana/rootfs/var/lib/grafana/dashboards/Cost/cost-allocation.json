@@ -305,7 +305,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and time >= now() -100m group by time(3600s), namespacename fill(previous)",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and time >= now() -100m group by time(3600s), namespacename",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -400,45 +400,45 @@
       "pieType": "pie",
       "strokeWidth": 1,
       "targets": [{
-          "alias": "$tag_appname",
-          "expr": "",
-          "format": "time_series",
-          "groupBy": [{
+        "alias": "$tag_appname",
+        "expr": "",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "intervalFactor": 1,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and appname =~ /^[[app_top_5]]$/ and time >= now() -100m and namespacename = '$ns' group by time(3600s), appname",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
               "params": [
-                "$__interval"
+                "value"
               ],
-              "type": "time"
+              "type": "field"
             },
             {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
+              "params": [],
+              "type": "mean"
             }
-          ],
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and appname =~ /^[[app_top_5]]$/ and time >= now() -100m and namespacename = '$ns' group by time(3600s), appname fill(previous)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [{
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+          ]
+        ],
+        "tags": []
+      }
+    ],
       "title": "Application Cost Percentage",
       "type": "grafana-piechart-panel",
       "valueName": "current"
@@ -747,7 +747,13 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "/(prediction)/",
+        "dashLength": 5,
+        "dashes": true,
+        "linewidth": 2,
+        "spaceLength": 4
+      }],
       "spaceLength": 10,
       "stack": true,
       "steppedLine": false,
@@ -770,7 +776,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now()-5d and time <= now() group by time(3600s), namespacename",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now()-5d and time <= now() group by time(3600s, now()), namespacename",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -828,7 +834,7 @@
           "tags": []
         },
         {
-          "alias": "$tag_namespacename",
+          "alias": "$tag_namespacename(prediction)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -990,7 +996,13 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "/(prediction)/",
+        "dashLength": 5,
+        "dashes": true,
+        "linewidth": 2,
+        "spaceLength": 4
+      }],
       "spaceLength": 10,
       "stack": true,
       "steppedLine": false,
@@ -1071,7 +1083,7 @@
           "tags": []
         },
         {
-          "alias": "$tag_namespacename",
+          "alias": "$tag_namespacename(prediction)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1233,7 +1245,13 @@
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [{
+        "alias": "/(prediction)/",
+        "dashLength": 5,
+        "dashes": true,
+        "linewidth": 2,
+        "spaceLength": 4
+      }],
       "spaceLength": 10,
       "stack": true,
       "steppedLine": false,
@@ -1314,7 +1332,7 @@
           "tags": []
         },
         {
-          "alias": "$tag_namespacename",
+          "alias": "$tag_namespacename(prediction)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
