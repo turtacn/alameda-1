@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	DaoScore "github.com/containers-ai/alameda/datahub/pkg/dao/score"
 	DaoScoreImplInflux "github.com/containers-ai/alameda/datahub/pkg/dao/score/impl/influxdb"
+	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
@@ -15,17 +16,10 @@ import (
 func (s *ServiceV1alpha1) CreateSimulatedSchedulingScores(ctx context.Context, in *DatahubV1alpha1.CreateSimulatedSchedulingScoresRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateSimulatedSchedulingScores grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var (
-		err error
+	scoreDAO := DaoScoreImplInflux.NewWithConfig(*s.Config.InfluxDB)
 
-		scoreDAO                            DaoScore.DAO
-		daoSimulatedSchedulingScoreEntities = make([]*DaoScore.SimulatedSchedulingScore, 0)
-	)
-
-	scoreDAO = DaoScoreImplInflux.NewWithConfig(*s.Config.InfluxDB)
-
+	daoSimulatedSchedulingScoreEntities := make([]*DaoScore.SimulatedSchedulingScore, 0)
 	for _, scoreEntity := range in.GetScores() {
-
 		if scoreEntity == nil {
 			continue
 		}
@@ -39,7 +33,7 @@ func (s *ServiceV1alpha1) CreateSimulatedSchedulingScores(ctx context.Context, i
 		daoSimulatedSchedulingScoreEntities = append(daoSimulatedSchedulingScoreEntities, &daoSimulatedSchedulingScoreEntity)
 	}
 
-	err = scoreDAO.CreateSimulatedScheduingScores(daoSimulatedSchedulingScoreEntities)
+	err := scoreDAO.CreateSimulatedScheduingScores(daoSimulatedSchedulingScoreEntities)
 	if err != nil {
 		scope.Errorf("api CreateSimulatedSchedulingScores failed: %+v", err)
 		return &status.Status{
@@ -57,21 +51,11 @@ func (s *ServiceV1alpha1) CreateSimulatedSchedulingScores(ctx context.Context, i
 func (s *ServiceV1alpha1) ListSimulatedSchedulingScores(ctx context.Context, in *DatahubV1alpha1.ListSimulatedSchedulingScoresRequest) (*DatahubV1alpha1.ListSimulatedSchedulingScoresResponse, error) {
 	scope.Debug("Request received from ListSimulatedSchedulingScores grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var (
-		err error
+	scoreDAO := DaoScoreImplInflux.NewWithConfig(*s.Config.InfluxDB)
 
-		scoreDAO                          DaoScore.DAO
-		scoreDAOListRequest               DaoScore.ListRequest
-		scoreDAOSimulatedSchedulingScores = make([]*DaoScore.SimulatedSchedulingScore, 0)
-
-		datahubScores = make([]*DatahubV1alpha1.SimulatedSchedulingScore, 0)
-	)
-
-	scoreDAO = DaoScoreImplInflux.NewWithConfig(*s.Config.InfluxDB)
-
-	datahubListSimulatedSchedulingScoresRequestExtended := datahubListSimulatedSchedulingScoresRequestExtended{in}
-	scoreDAOListRequest = datahubListSimulatedSchedulingScoresRequestExtended.daoLisRequest()
-	scoreDAOSimulatedSchedulingScores, err = scoreDAO.ListSimulatedScheduingScores(scoreDAOListRequest)
+	requestExt := RequestExtend.ListSimulatedSchedulingScoresRequestExtended{Request: in}
+	scoreDAOListRequest := requestExt.ProduceRequest()
+	scoreDAOSimulatedSchedulingScores, err := scoreDAO.ListSimulatedScheduingScores(scoreDAOListRequest)
 	if err != nil {
 		scope.Errorf("api ListSimulatedSchedulingScores failed: %v", err)
 		return &DatahubV1alpha1.ListSimulatedSchedulingScoresResponse{
@@ -79,10 +63,11 @@ func (s *ServiceV1alpha1) ListSimulatedSchedulingScores(ctx context.Context, in 
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
 			},
-			Scores: datahubScores,
+			Scores: make([]*DatahubV1alpha1.SimulatedSchedulingScore, 0),
 		}, nil
 	}
 
+	datahubScores := make([]*DatahubV1alpha1.SimulatedSchedulingScore, 0)
 	for _, daoSimulatedSchedulingScore := range scoreDAOSimulatedSchedulingScores {
 
 		t, err := ptypes.TimestampProto(daoSimulatedSchedulingScore.Timestamp)

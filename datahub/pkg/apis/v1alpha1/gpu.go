@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia/impl"
+	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
+	TypeExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/types"
 	DatahubMetric "github.com/containers-ai/alameda/datahub/pkg/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
@@ -81,8 +83,8 @@ func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *DatahubV1alpha
 
 	gpuMetrics := make([]*DatahubV1alpha1.GpuMetric, 0)
 	for _, metric := range metrics {
-		gpuMetricExtended := daoGpuMetricExtended{metric}
-		datahubGpuMetric := gpuMetricExtended.datahubGpuMetric()
+		gpuMetricExtended := TypeExtend.GpuMetricExtended{GpuMetric: metric}
+		datahubGpuMetric := gpuMetricExtended.ProduceMetrics()
 		gpuMetrics = append(gpuMetrics, datahubGpuMetric)
 	}
 
@@ -120,8 +122,8 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 	for metricType, predictions := range predictionsMap {
 		for _, prediction := range predictions {
 			gpu := &DatahubV1alpha1.GpuPrediction{}
-			gpuPredictionExtended := daoGpuPredictionExtended{prediction}
-			gpuPrediction := gpuPredictionExtended.datahubGpuPrediction(metricType)
+			gpuPredictionExtended := TypeExtend.GpuPredictionExtended{GpuPrediction: prediction}
+			gpuPrediction := gpuPredictionExtended.ProducePredictions(metricType)
 			found := false
 
 			// Look up if gpu is found
@@ -192,15 +194,15 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 func (s *ServiceV1alpha1) CreateGpuPredictions(ctx context.Context, in *DatahubV1alpha1.CreateGpuPredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateGpuPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	requestExtended := CreateGpuPredictionsRequestExtended{*in}
-	if requestExtended.validate() != nil {
+	requestExtended := RequestExtend.CreateGpuPredictionsRequestExtended{CreateGpuPredictionsRequest: *in}
+	if requestExtended.Validate() != nil {
 		return &status.Status{
 			Code: int32(code.Code_INVALID_ARGUMENT),
 		}, nil
 	}
 
 	predictionDAO := DaoGpu.NewPredictionWithConfig(*s.Config.InfluxDB)
-	err := predictionDAO.CreatePredictions(requestExtended.GpuPredictions())
+	err := predictionDAO.CreatePredictions(requestExtended.ProducePredictions())
 	if err != nil {
 		scope.Errorf("failed to create gpu predictions: %+v", err.Error())
 		return &status.Status{

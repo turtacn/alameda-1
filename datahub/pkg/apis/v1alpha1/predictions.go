@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	DaoPredictionImpl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
+	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -57,8 +58,8 @@ func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *DatahubV1
 
 	predictionDAO := DaoPredictionImpl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
 
-	datahubListNodePredictionsRequestExtended := datahubListNodePredictionsRequestExtended{in}
-	listNodePredictionRequest := datahubListNodePredictionsRequestExtended.daoListNodePredictionsRequest()
+	requestExt := RequestExtend.ListNodePredictionsRequestExtended{Request: in}
+	listNodePredictionRequest := requestExt.ProduceRequest()
 	nodePredictions, err := predictionDAO.ListNodePredictions(listNodePredictionRequest)
 	if err != nil {
 		scope.Errorf("ListNodePredictions failed: %+v", err)
@@ -82,17 +83,15 @@ func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *DatahubV1
 func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *DatahubV1alpha1.ListPodPredictionsRequest) (*DatahubV1alpha1.ListPodPredictionsResponse, error) {
 	scope.Debug("Request received from ListPodPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	//--------------------------------------------------------
 	_, err := os.Stat("prediction_cpu.csv")
 	if !os.IsNotExist(err) {
 		return s.ListPodPredictionsDemo(ctx, in)
 	}
 
-	//--------------------------------------------------------
 	predictionDAO := DaoPredictionImpl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
 
-	datahubListPodPredictionsRequestExtended := datahubListPodPredictionsRequestExtended{in}
-	listPodPredictionsRequest := datahubListPodPredictionsRequestExtended.daoListPodPredictionsRequest()
+	requestExt := RequestExtend.ListPodPredictionsRequestExtended{Request: in}
+	listPodPredictionsRequest := requestExt.ProduceRequest()
 
 	podsPredictions, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
 
