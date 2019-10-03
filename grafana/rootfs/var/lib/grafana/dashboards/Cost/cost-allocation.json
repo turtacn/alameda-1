@@ -1450,7 +1450,7 @@
       }
     }
   ],
-  "refresh": "30s",
+  "refresh": "5m",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],

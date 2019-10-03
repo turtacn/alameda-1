@@ -1369,7 +1369,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5m",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
