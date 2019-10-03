@@ -10,7 +10,6 @@ import (
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
-	"github.com/containers-ai/alameda/pkg/consts"
 	"github.com/containers-ai/alameda/pkg/utils"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -66,12 +65,12 @@ func (evictioner *Evictioner) Start() {
 func (evictioner *Evictioner) evictProcess() {
 	for {
 		if !evictioner.evictCfg.Enable {
-			scope.Warn("evictioner is not enabled")
+			scope.Warn("Evictioner is not enabled")
 			return
 		}
 		appliablePodRecList, err := evictioner.listAppliablePodRecommendation()
 		if err != nil {
-			scope.Error(err.Error())
+			scope.Errorf("List appliable PodRecommendation failed: %s", err.Error())
 		}
 		scope.Debugf("Applicable pod recommendation lists: %s", utils.InterfaceToString(appliablePodRecList))
 		evictioner.evictPods(appliablePodRecList)
@@ -91,7 +90,7 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecomm
 		}, recPodIns)
 		if err != nil {
 			if !k8serrors.IsNotFound(err) {
-				scope.Error(err.Error())
+				scope.Errorf("Get Pod(%s/%s) failed: %s", recPod.GetNamespacedName().GetNamespace(), recPod.GetNamespacedName().GetName(), err.Error())
 			}
 			continue
 		}
@@ -314,6 +313,13 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 					pod.GetNamespace(), pod.GetName(), nowTime.Unix(), podRecommendation.GetStartTime().GetSeconds(), podRecommendation.GetEndTime().GetSeconds())
 				continue
 			}
+			// Skip adapting PodRecommendation which pod does not runs longer than 15 minutes,
+			// because PodRecommendation might be created while Pod is still in initialization state.
+			// In that case, limits resources of PodRecommendation might lower than the actual resources that need for Pod to complete the initialization process.
+			if !podRecommendationInfo.podRunsLongerThan(15 * time.Minute) {
+				scope.Infof("Pod (%s/%s) cannot be evicted due to not runs longer than 15 minutes.", pod.GetNamespace(), pod.GetName())
+				continue
+			}
 			if isEvictabel, err := evictionRestriction.IsEvictabel(pod); err != nil {
 				scope.Infof("Pod (%s/%s) cannot be evicted due to eviction restriction checking error: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 				continue
@@ -347,68 +353,6 @@ func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) 
 	scope.Debugf("Request of ListAvailablePodRecommendations is %s.", utils.InterfaceToString(in))
 
 	return evictioner.datahubClnt.ListAvailablePodRecommendations(ctx, in)
-}
-
-func (evictioner *Evictioner) getPodInfo(namespace, name string) (*corev1.Pod, error) {
-	getResource := utilsresource.NewGetResource(evictioner.k8sClienit)
-	pod, err := getResource.GetPod(namespace, name)
-	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			scope.Debugf(err.Error())
-		} else {
-			scope.Errorf(err.Error())
-		}
-	}
-	return pod, err
-}
-
-func (evictioner *Evictioner) getAlamRecommInfo(namespace, name string) (*autoscalingv1alpha1.AlamedaRecommendation, error) {
-	getResource := utilsresource.NewGetResource(evictioner.k8sClienit)
-	alamRecomm, err := getResource.GetAlamedaRecommendation(namespace, name)
-	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			scope.Debugf(err.Error())
-		} else {
-			scope.Errorf(err.Error())
-		}
-	}
-	return alamRecomm, err
-}
-
-func (evictioner *Evictioner) isPodEnableExecution(alamRecomm *autoscalingv1alpha1.AlamedaRecommendation, enableScalerMap map[string]bool) bool {
-
-	for _, or := range alamRecomm.OwnerReferences {
-		if or.Kind != consts.K8S_KIND_ALAMEDASCALER {
-			continue
-		}
-
-		if enabled, ok := enableScalerMap[fmt.Sprintf("%s/%s", alamRecomm.GetNamespace(), or.Name)]; enabled && ok {
-			return true
-		} else if !enabled && ok {
-			return false
-		}
-
-		scaler, err := evictioner.getAlamedaScalerInfo(alamRecomm.GetNamespace(), or.Name)
-		if err == nil {
-			enableScalerMap[fmt.Sprintf("%s/%s", alamRecomm.GetNamespace(), or.Name)] = scaler.IsEnableExecution()
-			return scaler.IsEnableExecution()
-		}
-		return false
-	}
-	return false
-}
-
-func (evictioner *Evictioner) getAlamedaScalerInfo(namespace, name string) (*autoscalingv1alpha1.AlamedaScaler, error) {
-	getResource := utilsresource.NewGetResource(evictioner.k8sClienit)
-	scaler, err := getResource.GetAlamedaScaler(namespace, name)
-	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			scope.Debugf(err.Error())
-		} else {
-			scope.Errorf(err.Error())
-		}
-	}
-	return scaler, err
 }
 
 func (evictioner *Evictioner) sendEvents(events []*datahub_v1alpha1.Event) error {
@@ -451,6 +395,12 @@ func (p *podRecommendationInfo) isApplicableAtTime(t time.Time) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (p *podRecommendationInfo) podRunsLongerThan(d time.Duration) bool {
+	now := time.Now()
+	podCreationTime := p.pod.CreationTimestamp.Time
+	return podCreationTime.Add(d).Before(now)
 }
 
 type controllerRecommendationInfo struct {
@@ -502,6 +452,7 @@ func (c controllerRecommendationInfo) buildTriggerThreshold() (triggerThreshold,
 	return triggerThreshold, nil
 }
 
+// NewControllerRecommendationInfoMap returns
 func NewControllerRecommendationInfoMap(client client.Client, podRecommendations []*datahub_v1alpha1.PodRecommendation) map[string]*controllerRecommendationInfo {
 
 	getResource := utilsresource.NewGetResource(client)
@@ -514,14 +465,14 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		podRecommendation = copyPodRecommendation.(*datahub_v1alpha1.PodRecommendation)
 		recommendationNamespacedName := podRecommendation.NamespacedName
 		if recommendationNamespacedName == nil {
-			scope.Errorf("skip PodRecommendation due to PodRecommendation has empty NamespacedName")
+			scope.Errorf("Skip PodRecommendation due to PodRecommendation has empty NamespacedName")
 			continue
 		}
 
 		// Get AlamedaScaler owns this PodRecommendation and validate the AlamedaScaler is enabled execution.
 		alamedaRecommendation, err := getResource.GetAlamedaRecommendation(podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name)
 		if err != nil {
-			scope.Errorf("skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
 			continue
 		}
 		alamedaScalerNamespace := ""
@@ -537,13 +488,13 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		if !exist {
 			alamedaScaler, err = getResource.GetAlamedaScaler(alamedaScalerNamespace, alamedaScalerName)
 			if err != nil {
-				scope.Errorf("skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
+				scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
 				continue
 			}
 			alamedaScalerMap[fmt.Sprintf("%s/%s", alamedaScalerNamespace, alamedaScalerName)] = alamedaScaler
 		}
 		if !alamedaScaler.IsEnableExecution() {
-			scope.Errorf("skip PodRecommendation (%s/%s) because it's execution is not enabled.", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			scope.Errorf("Skip PodRecommendation (%s/%s) because it's execution is not enabled.", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
 			continue
 		}
 
@@ -552,17 +503,17 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		podName := recommendationNamespacedName.Name
 		pod, err := getResource.GetPod(podNamespace, podName)
 		if err != nil {
-			scope.Errorf("skip PodRecommendation due to get Pod (%s/%s) failed: %s", podNamespace, podName, err.Error())
+			scope.Errorf("Skip PodRecommendation due to get Pod (%s/%s) failed: %s", podNamespace, podName, err.Error())
 			continue
 		}
 
 		// Get topmost controller namespace, name and kind controlling this pod
 		controller := podRecommendation.TopController
 		if controller == nil {
-			scope.Errorf("skip PodRecommendation (%s/%s) due to PodRecommendation has empty topmost controller", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to PodRecommendation has empty topmost controller", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
 			continue
 		} else if controller.NamespacedName == nil {
-			scope.Errorf("skip PodRecommendation (%s/%s) due to topmost controller has empty NamespacedName", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to topmost controller has empty NamespacedName", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
 			continue
 		}
 
