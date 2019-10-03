@@ -15,8 +15,15 @@ import (
 func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.ListGpusRequest) (*DatahubV1alpha1.ListGpusResponse, error) {
 	scope.Debug("Request received from ListGpus grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	queryCondition := &DBCommon.QueryCondition{}
+	if in.GetQueryCondition() == nil {
+		queryCondition = DBCommon.NewQueryCondition(1, 0, 0, 30)
+	} else {
+		queryCondition = DBCommon.BuildQueryConditionV1(in.GetQueryCondition())
+	}
+
 	gpuDAO := DaoGpu.NewGpuWithConfig(*s.Config.InfluxDB)
-	metrics, err := gpuDAO.ListGpus(in.GetHost(), in.GetMinorNumber(), DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
+	metrics, err := gpuDAO.ListGpus(in.GetHost(), in.GetMinorNumber(), queryCondition)
 	if err != nil {
 		scope.Errorf("failed to ListGpus: %+v", err)
 		return &DatahubV1alpha1.ListGpusResponse{
