@@ -313,13 +313,6 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 					pod.GetNamespace(), pod.GetName(), nowTime.Unix(), podRecommendation.GetStartTime().GetSeconds(), podRecommendation.GetEndTime().GetSeconds())
 				continue
 			}
-			// Skip adapting PodRecommendation which pod does not runs longer than 15 minutes,
-			// because PodRecommendation might be created while Pod is still in initialization state.
-			// In that case, limits resources of PodRecommendation might lower than the actual resources that need for Pod to complete the initialization process.
-			if !podRecommendationInfo.podRunsLongerThan(15 * time.Minute) {
-				scope.Infof("Pod (%s/%s) cannot be evicted due to not runs longer than 15 minutes.", pod.GetNamespace(), pod.GetName())
-				continue
-			}
 			if isEvictabel, err := evictionRestriction.IsEvictabel(pod); err != nil {
 				scope.Infof("Pod (%s/%s) cannot be evicted due to eviction restriction checking error: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 				continue
