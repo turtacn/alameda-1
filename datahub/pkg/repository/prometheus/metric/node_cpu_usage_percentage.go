@@ -2,7 +2,7 @@ package metric
 
 import (
 	"fmt"
-	EntityPromthNodeCpu "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
+	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -10,17 +10,17 @@ import (
 )
 
 // NodeCPUUsagePercentageRepository Repository to access metric node:node_cpu_utilisation:avg1m from prometheus
-type NodeCPUUsagePercentageRepository struct {
+type NodeCpuUsagePercentageRepository struct {
 	PrometheusConfig InternalPromth.Config
 }
 
 // NewNodeCPUUsagePercentageRepositoryWithConfig New node cpu usage percentage repository with prometheus configuration
-func NewNodeCPUUsagePercentageRepositoryWithConfig(cfg InternalPromth.Config) NodeCPUUsagePercentageRepository {
-	return NodeCPUUsagePercentageRepository{PrometheusConfig: cfg}
+func NewNodeCpuUsagePercentageRepositoryWithConfig(cfg InternalPromth.Config) NodeCpuUsagePercentageRepository {
+	return NodeCpuUsagePercentageRepository{PrometheusConfig: cfg}
 }
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
+func (n NodeCpuUsagePercentageRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
 
 	var (
 		err error
@@ -48,8 +48,8 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 	}
 
 	//metricName = EntityPromthNodeCpu.MetricName
-	metricNameSum := EntityPromthNodeCpu.MetricNameSum
-	metricNameAvg := EntityPromthNodeCpu.MetricNameAvg
+	metricNameSum := EntityPromthMetric.NodeCpuUsagePercentageMetricNameSum
+	metricNameAvg := EntityPromthMetric.NodeCpuUsagePercentageMetricNameAvg
 
 	queryLabelsString = n.buildQueryLabelsStringByNodeName(nodeName)
 
@@ -88,14 +88,14 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 	return entities, nil
 }
 
-func (n NodeCPUUsagePercentageRepository) buildQueryLabelsStringByNodeName(nodeName string) string {
+func (n NodeCpuUsagePercentageRepository) buildQueryLabelsStringByNodeName(nodeName string) string {
 
 	var (
 		queryLabelsString = ""
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeCpu.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthMetric.NodeCpuUsagePercentageLabelNode, nodeName)
 	}
 
 	return queryLabelsString

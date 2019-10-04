@@ -2,7 +2,7 @@ package metric
 
 import (
 	"fmt"
-	EntityPromthContainerMemUsage "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerMemoryUsageBytes"
+	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -46,7 +46,7 @@ func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(n
 		option(&opt)
 	}
 
-	metricName = EntityPromthContainerMemUsage.MetricName
+	metricName = EntityPromthMetric.ContainerMemoryUsageBytesMetricName
 	queryLabelsString = c.buildQueryLabelsStringByNamespaceAndPodName(namespace, podName)
 
 	if queryLabelsString != "" {
@@ -80,9 +80,9 @@ func (c PodContainerMemoryUsageBytesRepository) buildDefaultQueryLabelsString() 
 
 	var queryLabelsString = ""
 
-	queryLabelsString += fmt.Sprintf(`%s != "" ,`, EntityPromthContainerMemUsage.PodLabelName)
-	queryLabelsString += fmt.Sprintf(`%s != "" ,`, EntityPromthContainerMemUsage.ContainerLabel)
-	queryLabelsString += fmt.Sprintf(`%s != "POD"`, EntityPromthContainerMemUsage.ContainerLabel)
+	queryLabelsString += fmt.Sprintf(`%s != "" ,`, EntityPromthMetric.ContainerMemoryUsageBytesLabelPodName)
+	queryLabelsString += fmt.Sprintf(`%s != "" ,`, EntityPromthMetric.ContainerMemoryUsageBytesLabelContainerName)
+	queryLabelsString += fmt.Sprintf(`%s != "POD"`, EntityPromthMetric.ContainerMemoryUsageBytesLabelContainerName)
 
 	return queryLabelsString
 }
@@ -94,11 +94,11 @@ func (c PodContainerMemoryUsageBytesRepository) buildQueryLabelsStringByNamespac
 	)
 
 	if namespace != "" {
-		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, EntityPromthContainerMemUsage.NamespaceLabel, namespace)
+		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, EntityPromthMetric.ContainerMemoryUsageBytesLabelNamespace, namespace)
 	}
 
 	if podName != "" {
-		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, EntityPromthContainerMemUsage.PodLabelName, podName)
+		queryLabelsString += fmt.Sprintf(`,%s = "%s"`, EntityPromthMetric.ContainerMemoryUsageBytesLabelPodName, podName)
 	}
 
 	return queryLabelsString

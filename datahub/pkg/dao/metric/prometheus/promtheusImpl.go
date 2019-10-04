@@ -2,10 +2,7 @@ package prometheus
 
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerCPUUsagePercentage"
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerMemoryUsageBytes"
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
-	"github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUsageBytes"
+	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/metric"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
@@ -28,7 +25,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	var (
 		err error
 
-		podContainerCPURepo     RepoPromthMetric.PodContainerCPUUsagePercentageRepository
+		podContainerCPURepo     RepoPromthMetric.PodContainerCpuUsagePercentageRepository
 		podContainerMemoryRepo  RepoPromthMetric.PodContainerMemoryUsageBytesRepository
 		containerCPUEntities    []InternalPromth.Entity
 		containerMemoryEntities []InternalPromth.Entity
@@ -44,14 +41,14 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 		DBCommon.AggregateOverTimeFunc(req.AggregateOverTimeFunction),
 	}
 
-	podContainerCPURepo = RepoPromthMetric.NewPodContainerCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
+	podContainerCPURepo = RepoPromthMetric.NewPodContainerCpuUsagePercentageRepositoryWithConfig(p.prometheusConfig)
 	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
 	if err != nil {
 		return podsMetricMap, errors.Wrap(err, "list pod metrics failed")
 	}
 
 	for _, entity := range containerCPUEntities {
-		containerCPUEntity := containerCPUUsagePercentage.NewEntityFromPrometheusEntity(entity)
+		containerCPUEntity := EntityPromthMetric.NewContainerCpuUsagePercentageEntity(entity)
 		containerMetric := containerCPUEntity.ContainerMetric()
 		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
 	}
@@ -63,7 +60,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 	}
 
 	for _, entity := range containerMemoryEntities {
-		containerMemoryEntity := containerMemoryUsageBytes.NewEntityFromPrometheusEntity(entity)
+		containerMemoryEntity := EntityPromthMetric.NewContainerMemoryUsageBytesEntity(entity)
 		containerMetric := containerMemoryEntity.ContainerMetric()
 		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
 	}
@@ -128,15 +125,15 @@ func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricC
 
 	var (
 		err                     error
-		nodeCPUUsageRepo        RepoPromthMetric.NodeCPUUsagePercentageRepository
-		nodeMemoryUsageRepo     RepoPromthMetric.NodeMemoryUsageBytesRepository
+		nodeCPUUsageRepo        RepoPromthMetric.NodeCpuUsagePercentageRepository
+		nodeMemoryUsageRepo     RepoPromthMetric.NodeMemoryBytesUsageRepository
 		nodeCPUUsageEntities    []InternalPromth.Entity
 		nodeMemoryUsageEntities []InternalPromth.Entity
 	)
 
 	defer wg.Done()
 
-	nodeCPUUsageRepo = RepoPromthMetric.NewNodeCPUUsagePercentageRepositoryWithConfig(p.prometheusConfig)
+	nodeCPUUsageRepo = RepoPromthMetric.NewNodeCpuUsagePercentageRepositoryWithConfig(p.prometheusConfig)
 	nodeCPUUsageEntities, err = nodeCPUUsageRepo.ListMetricsByNodeName(nodeName, options...)
 	if err != nil {
 		errChan <- errors.Wrap(err, "list node cpu usage metrics failed")
@@ -144,12 +141,12 @@ func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricC
 	}
 
 	for _, entity := range nodeCPUUsageEntities {
-		nodeCPUUsageEntity := nodeCPUUsagePercentage.NewEntityFromPrometheusEntity(entity)
+		nodeCPUUsageEntity := EntityPromthMetric.NewNodeCpuUsagePercentageEntity(entity)
 		nodeMetric := nodeCPUUsageEntity.NodeMetric()
 		nodeMetricChan <- nodeMetric
 	}
 
-	nodeMemoryUsageRepo = RepoPromthMetric.NewNodeMemoryUsageBytesRepositoryWithConfig(p.prometheusConfig)
+	nodeMemoryUsageRepo = RepoPromthMetric.NewNodeMemoryBytesUsageRepositoryWithConfig(p.prometheusConfig)
 	nodeMemoryUsageEntities, err = nodeMemoryUsageRepo.ListMetricsByNodeName(nodeName, options...)
 	if err != nil {
 		errChan <- errors.Wrap(err, "list node memory usage metrics failed")
@@ -157,7 +154,7 @@ func (p *prometheusMetricDAOImpl) produceNodeMetric(nodeName string, nodeMetricC
 	}
 
 	for _, entity := range nodeMemoryUsageEntities {
-		noodeMemoryUsageEntity := nodeMemoryUsageBytes.NewEntityFromPrometheusEntity(entity)
+		noodeMemoryUsageEntity := EntityPromthMetric.NewNodeMemoryBytesUsageEntity(entity)
 		nodeMetric := noodeMemoryUsageEntity.NodeMetric()
 		nodeMetricChan <- nodeMetric
 	}

@@ -2,7 +2,7 @@ package metric
 
 import (
 	"fmt"
-	EntityPromthNodeMemBytes "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryBytesTotal"
+	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -44,7 +44,7 @@ func (n NodeMemoryBytesTotalRepository) ListMetricsByNodeName(nodeName string, o
 		option(&opt)
 	}
 
-	nodeMemoryBytesTotalMetricName = EntityPromthNodeMemBytes.MetricName
+	nodeMemoryBytesTotalMetricName = EntityPromthMetric.NodeMemoryBytesTotalMetricName
 	nodeMemoryBytesTotalQueryLabelsString = n.buildNodeMemoryBytesTotalQueryLabelsStringByNodeName(nodeName)
 
 	if nodeMemoryBytesTotalQueryLabelsString != "" {
@@ -75,7 +75,7 @@ func (n NodeMemoryBytesTotalRepository) buildNodeMemoryBytesTotalQueryLabelsStri
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemBytes.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthMetric.NodeMemoryBytesTotalLabelNode, nodeName)
 	}
 
 	return queryLabelsString

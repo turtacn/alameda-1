@@ -31,7 +31,7 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 	emr := "exceeded maximum resolution"
 	options := []DBCommon.Option{}
 
-	podContainerCPURepo := RepoPromthMetric.NewPodContainerCPUUsagePercentageRepositoryWithConfig(*prometheusConfig)
+	podContainerCPURepo := RepoPromthMetric.NewPodContainerCpuUsagePercentageRepositoryWithConfig(*prometheusConfig)
 	containerCPUEntities, err := podContainerCPURepo.ListMetricsByPodNamespacedName("", "", options...)
 	if err != nil && !strings.Contains(err.Error(), emr) {
 		return errors.Wrap(err, "list pod metrics failed")
@@ -51,7 +51,7 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 		return fmt.Errorf("no container memory metric found")
 	}
 
-	nodeCPUUsageRepo := RepoPromthMetric.NewNodeCPUUsagePercentageRepositoryWithConfig(*prometheusConfig)
+	nodeCPUUsageRepo := RepoPromthMetric.NewNodeCpuUsagePercentageRepositoryWithConfig(*prometheusConfig)
 	nodeCPUUsageEntities, err := nodeCPUUsageRepo.ListMetricsByNodeName("", options...)
 	if err != nil && !strings.Contains(err.Error(), emr) {
 		return errors.Wrap(err, "list node cpu usage metrics failed")
@@ -61,7 +61,7 @@ func queryPrometheus(prometheusConfig *InternalPromth.Config) error {
 		return fmt.Errorf("no node CPU metric found")
 	}
 
-	nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryUsageBytesRepositoryWithConfig(*prometheusConfig)
+	nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryBytesUsageRepositoryWithConfig(*prometheusConfig)
 	nodeMemoryUsageEntities, err := nodeMemoryUsageRepo.ListMetricsByNodeName("", options...)
 	if err != nil && !strings.Contains(err.Error(), emr) {
 		return errors.Wrap(err, "list node memory usage metrics failed")

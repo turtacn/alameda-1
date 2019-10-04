@@ -1,4 +1,4 @@
-package nodeMemoryUsageBytes
+package metric
 
 import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -7,14 +7,15 @@ import (
 )
 
 const (
-	// MetricName Metric name to query from prometheus
-	MetricName = ""
-	// NodeLabel Node label name in the metric
-	NodeLabel = "node"
+	// Metric name to query from prometheus
+	NodeMemoryBytesUsageMetricName = ""
+
+	// Label name in prometheus metric
+	NodeMemoryBytesUsageLabelNode = "node"
 )
 
 // Entity Node memory usage bytes entity
-type Entity struct {
+type NodeMemoryBytesUsageEntity struct {
 	PrometheusEntity InternalPromth.Entity
 
 	NodeName string
@@ -22,7 +23,7 @@ type Entity struct {
 }
 
 // NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
-func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
+func NewNodeMemoryBytesUsageEntity(e InternalPromth.Entity) NodeMemoryBytesUsageEntity {
 
 	var (
 		samples []metric.Sample
@@ -38,15 +39,15 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 		samples = append(samples, sample)
 	}
 
-	return Entity{
+	return NodeMemoryBytesUsageEntity{
 		PrometheusEntity: e,
-		NodeName:         e.Labels[NodeLabel],
+		NodeName:         e.Labels[NodeMemoryBytesUsageLabelNode],
 		Samples:          samples,
 	}
 }
 
 // NodeMetric Build NodeMetric base on entity properties
-func (e *Entity) NodeMetric() DaoMetric.NodeMetric {
+func (e *NodeMemoryBytesUsageEntity) NodeMetric() DaoMetric.NodeMetric {
 
 	var (
 		nodeMetric DaoMetric.NodeMetric

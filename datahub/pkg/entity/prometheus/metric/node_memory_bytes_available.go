@@ -1,4 +1,4 @@
-package nodeCPUUsagePercentage
+package metric
 
 import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -7,15 +7,15 @@ import (
 )
 
 const (
-	// MetricName Metric name to query from prometheus
-	MetricNameSum = "node:node_num_cpu:sum"
-	MetricNameAvg = "node:node_cpu_utilisation:avg1m"
-	// NodeLabel Node label name in the metric
-	NodeLabel = "node"
+	// Metric name to query from prometheus
+	NodeMemoryBytesAvailableMetricName = "node:node_memory_bytes_available:sum"
+
+	// Label name in prometheus metric
+	NodeMemoryBytesAvailableLabelNode = "node"
 )
 
-// Entity node cpu usage percentage entity
-type Entity struct {
+// Entity Node memory available entity
+type NodeMemoryBytesAvailableEntity struct {
 	PrometheusEntity InternalPromth.Entity
 
 	NodeName string
@@ -23,7 +23,7 @@ type Entity struct {
 }
 
 // NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
-func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
+func NewNodeMemoryBytesAvailableEntity(e InternalPromth.Entity) NodeMemoryBytesAvailableEntity {
 
 	var (
 		samples []metric.Sample
@@ -39,15 +39,15 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 		samples = append(samples, sample)
 	}
 
-	return Entity{
+	return NodeMemoryBytesAvailableEntity{
 		PrometheusEntity: e,
-		NodeName:         e.Labels[NodeLabel],
+		NodeName:         e.Labels[NodeMemoryBytesAvailableLabelNode],
 		Samples:          samples,
 	}
 }
 
 // NodeMetric Build NodeMetric base on entity properties
-func (e *Entity) NodeMetric() DaoMetric.NodeMetric {
+func (e *NodeMemoryBytesAvailableEntity) NodeMetric() DaoMetric.NodeMetric {
 
 	var (
 		nodeMetric DaoMetric.NodeMetric
@@ -56,7 +56,7 @@ func (e *Entity) NodeMetric() DaoMetric.NodeMetric {
 	nodeMetric = DaoMetric.NodeMetric{
 		NodeName: e.NodeName,
 		Metrics: map[metric.NodeMetricType][]metric.Sample{
-			metric.TypeNodeCPUUsageSecondsPercentage: e.Samples,
+			metric.TypeNodeMemoryAvailableBytes: e.Samples,
 		},
 	}
 

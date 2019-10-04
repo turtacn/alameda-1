@@ -1,4 +1,4 @@
-package containerMemoryUsageBytes
+package metric
 
 import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -7,18 +7,17 @@ import (
 )
 
 const (
-	// MetricName Metric name to query from prometheus
-	MetricName = "container_memory_usage_bytes"
-	// NamespaceLabel Namespace label name in the metric
-	NamespaceLabel = "namespace"
-	// PodLabelName pod label name in the metric
-	PodLabelName = "pod_name"
-	// ContainerLabel container label name in the metric
-	ContainerLabel = "container_name"
+	// Metric name to query from prometheus
+	ContainerMemoryUsageBytesMetricName = "container_memory_usage_bytes"
+
+	// Label name in prometheus metric
+	ContainerMemoryUsageBytesLabelNamespace     = "namespace"
+	ContainerMemoryUsageBytesLabelPodName       = "pod_name"
+	ContainerMemoryUsageBytesLabelContainerName = "container_name"
 )
 
 // Entity Container memory usage bytes entity
-type Entity struct {
+type ContainerMemoryUsageBytesEntity struct {
 	PrometheusEntity InternalPromth.Entity
 
 	Namespace     string
@@ -28,7 +27,7 @@ type Entity struct {
 }
 
 // NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
-func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
+func NewContainerMemoryUsageBytesEntity(e InternalPromth.Entity) ContainerMemoryUsageBytesEntity {
 
 	var (
 		samples []metric.Sample
@@ -44,17 +43,17 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 		samples = append(samples, sample)
 	}
 
-	return Entity{
+	return ContainerMemoryUsageBytesEntity{
 		PrometheusEntity: e,
-		Namespace:        e.Labels[NamespaceLabel],
-		PodName:          e.Labels[PodLabelName],
-		ContainerName:    e.Labels[ContainerLabel],
+		Namespace:        e.Labels[ContainerMemoryUsageBytesLabelNamespace],
+		PodName:          e.Labels[ContainerMemoryUsageBytesLabelPodName],
+		ContainerName:    e.Labels[ContainerMemoryUsageBytesLabelContainerName],
 		Samples:          samples,
 	}
 }
 
 // ContainerMetric Build ContainerMetric base on entity properties
-func (e *Entity) ContainerMetric() DaoMetric.ContainerMetric {
+func (e *ContainerMemoryUsageBytesEntity) ContainerMetric() DaoMetric.ContainerMetric {
 
 	var (
 		containerMetric DaoMetric.ContainerMetric

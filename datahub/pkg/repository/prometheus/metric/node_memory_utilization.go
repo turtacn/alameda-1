@@ -2,7 +2,7 @@ package metric
 
 import (
 	"fmt"
-	EntityPromthNodeMemUtilization "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUtilization"
+	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -46,7 +46,7 @@ func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, 
 		option(&opt)
 	}
 
-	nodeMemoryUtilizationMetricName = EntityPromthNodeMemUtilization.MetricName
+	nodeMemoryUtilizationMetricName = EntityPromthMetric.NodeMemoryUtilizationMetricName
 	nodeMemoryUtilizationLabelsString = n.buildNodeMemoryUtilizationQueryLabelsStringByNodeName(nodeName)
 
 	if nodeMemoryUtilizationLabelsString != "" {
@@ -83,7 +83,7 @@ func (n NodeMemoryUtilizationRepository) buildNodeMemoryUtilizationQueryLabelsSt
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemUtilization.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthMetric.NodeMemoryUtilizationLabelNode, nodeName)
 	}
 
 	return queryLabelsString

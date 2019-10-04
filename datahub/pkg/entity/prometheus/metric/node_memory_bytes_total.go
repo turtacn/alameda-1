@@ -1,4 +1,4 @@
-package nodeMemoryUtilization
+package metric
 
 import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
@@ -7,14 +7,15 @@ import (
 )
 
 const (
-	// MetricName Metric name to query from prometheus
-	MetricName = "node:node_memory_utilisation_2:"
-	// NodeLabel Node label name in the metric
-	NodeLabel = "node"
+	// Metric name to query from prometheus
+	NodeMemoryBytesTotalMetricName = "node:node_memory_bytes_total:sum"
+
+	// Label name in prometheus metric
+	NodeMemoryBytesTotalLabelNode = "node"
 )
 
-// Entity Node memory usage bytes entity
-type Entity struct {
+// Entity Node total memory entity
+type NodeMemoryBytesTotalEntity struct {
 	PrometheusEntity InternalPromth.Entity
 
 	NodeName string
@@ -22,7 +23,7 @@ type Entity struct {
 }
 
 // NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
-func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
+func NewNodeMemoryBytesTotalEntity(e InternalPromth.Entity) NodeMemoryBytesTotalEntity {
 
 	var (
 		samples []metric.Sample
@@ -38,15 +39,15 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 		samples = append(samples, sample)
 	}
 
-	return Entity{
+	return NodeMemoryBytesTotalEntity{
 		PrometheusEntity: e,
-		NodeName:         e.Labels[NodeLabel],
+		NodeName:         e.Labels[NodeMemoryBytesTotalLabelNode],
 		Samples:          samples,
 	}
 }
 
 // NodeMetric Build NodeMetric base on entity properties
-func (e *Entity) NodeMetric() DaoMetric.NodeMetric {
+func (e *NodeMemoryBytesTotalEntity) NodeMetric() DaoMetric.NodeMetric {
 
 	var (
 		nodeMetric DaoMetric.NodeMetric
@@ -55,7 +56,7 @@ func (e *Entity) NodeMetric() DaoMetric.NodeMetric {
 	nodeMetric = DaoMetric.NodeMetric{
 		NodeName: e.NodeName,
 		Metrics: map[metric.NodeMetricType][]metric.Sample{
-			metric.TypeNodeMemoryUsageBytes: e.Samples,
+			metric.TypeNodeMemoryTotalBytes: e.Samples,
 		},
 	}
 

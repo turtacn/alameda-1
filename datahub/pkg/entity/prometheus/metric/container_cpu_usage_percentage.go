@@ -1,4 +1,4 @@
-package containerCPUUsagePercentage
+package metric
 
 import (
 	"fmt"
@@ -10,14 +10,13 @@ import (
 )
 
 const (
-	// MetricName Metric name to query from prometheus
-	MetricName = "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate"
-	// NamespaceLabel Namespace label name in the metric
-	NamespaceLabel = "namespace"
-	// PodLabelName pod label name in the metric
-	PodLabelName = "pod_name"
-	// ContainerLabel container label name in the metric
-	ContainerLabel = "container_name"
+	// Metric name to query from prometheus
+	ContainerCpuUsagePercentageMetricName = "namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate"
+
+	// Label name in prometheus metric
+	ContainerCpuUsagePercentageLabelNamespace     = "namespace"
+	ContainerCpuUsagePercentageLabelPodName       = "pod_name"
+	ContainerCpuUsagePercentageLabelContainerName = "container_name"
 )
 
 var (
@@ -25,7 +24,7 @@ var (
 )
 
 // Entity Container cpu usage percentage entity
-type Entity struct {
+type ContainerCpuUsagePercentageEntity struct {
 	PrometheusEntity InternalPromth.Entity
 
 	Namespace     string
@@ -35,7 +34,7 @@ type Entity struct {
 }
 
 // NewEntityFromPrometheusEntity New entity with field value assigned from prometheus entity
-func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
+func NewContainerCpuUsagePercentageEntity(e InternalPromth.Entity) ContainerCpuUsagePercentageEntity {
 
 	var (
 		samples []metric.Sample
@@ -48,7 +47,7 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 		if s, err := strconv.ParseFloat(value.SampleValue, 64); err == nil {
 			v = fmt.Sprintf("%f", s*1000)
 		} else {
-			scope.Errorf("containerCPUUsagePercentage.NewEntityFromPrometheusEntity: %s", err.Error())
+			scope.Errorf("container_cpu_usage_percentage.NewContainerCpuUsagePercentageEntity: %s", err.Error())
 		}
 		sample := metric.Sample{
 			Timestamp: value.UnixTime,
@@ -57,17 +56,17 @@ func NewEntityFromPrometheusEntity(e InternalPromth.Entity) Entity {
 		samples = append(samples, sample)
 	}
 
-	return Entity{
+	return ContainerCpuUsagePercentageEntity{
 		PrometheusEntity: e,
-		Namespace:        e.Labels[NamespaceLabel],
-		PodName:          e.Labels[PodLabelName],
-		ContainerName:    e.Labels[ContainerLabel],
+		Namespace:        e.Labels[ContainerCpuUsagePercentageLabelNamespace],
+		PodName:          e.Labels[ContainerCpuUsagePercentageLabelPodName],
+		ContainerName:    e.Labels[ContainerCpuUsagePercentageLabelContainerName],
 		Samples:          samples,
 	}
 }
 
 // ContainerMetric Build ContainerMetric base on entity properties
-func (e *Entity) ContainerMetric() DaoMetric.ContainerMetric {
+func (e *ContainerCpuUsagePercentageEntity) ContainerMetric() DaoMetric.ContainerMetric {
 
 	var (
 		containerMetric DaoMetric.ContainerMetric

@@ -2,8 +2,7 @@ package metric
 
 import (
 	"fmt"
-	EntityPromthNodeMemBytes "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryBytesTotal"
-	EntityPromthNodeMemUtilization "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUtilization"
+	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -16,17 +15,17 @@ var (
 )
 
 // NodeMemoryUsageBytesRepository Repository to access metric from prometheus
-type NodeMemoryUsageBytesRepository struct {
+type NodeMemoryBytesUsageRepository struct {
 	PrometheusConfig InternalPromth.Config
 }
 
 // NewNodeMemoryUsageBytesRepositoryWithConfig New node cpu usage percentage repository with prometheus configuration
-func NewNodeMemoryUsageBytesRepositoryWithConfig(cfg InternalPromth.Config) NodeMemoryUsageBytesRepository {
-	return NodeMemoryUsageBytesRepository{PrometheusConfig: cfg}
+func NewNodeMemoryBytesUsageRepositoryWithConfig(cfg InternalPromth.Config) NodeMemoryBytesUsageRepository {
+	return NodeMemoryBytesUsageRepository{PrometheusConfig: cfg}
 }
 
 // ListMetricsByNodeName Provide metrics from response of querying request contain namespace, pod_name and default labels
-func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
+func (n NodeMemoryBytesUsageRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
 
 	var (
 		err error
@@ -57,7 +56,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 	}
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 
-	nodeMemoryBytesTotalMetricName = EntityPromthNodeMemBytes.MetricName
+	nodeMemoryBytesTotalMetricName = EntityPromthMetric.NodeMemoryBytesTotalMetricName
 	nodeMemoryBytesTotalQueryLabelsString = n.buildNodeMemoryBytesTotalQueryLabelsStringByNodeName(nodeName)
 	if nodeMemoryBytesTotalQueryLabelsString != "" {
 		nodeMemoryBytesTotalQueryExpression = fmt.Sprintf("%s{%s}", nodeMemoryBytesTotalMetricName, nodeMemoryBytesTotalQueryLabelsString)
@@ -69,7 +68,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 		return entities, errors.Wrap(err, "list node memory usage metrics by node name failed")
 	}
 
-	nodeMemoryUtilizationMetricName = EntityPromthNodeMemUtilization.MetricName
+	nodeMemoryUtilizationMetricName = EntityPromthMetric.NodeMemoryUtilizationMetricName
 	nodeMemoryUtilizationQueryLabelsString = n.buildNodeMemoryUtilizationQueryLabelsStringByNodeName(nodeName)
 	if nodeMemoryUtilizationQueryLabelsString != "" {
 		nodeMemoryUtilizationQueryExpression = fmt.Sprintf("%s{%s}", nodeMemoryUtilizationMetricName, nodeMemoryUtilizationQueryLabelsString)
@@ -98,27 +97,27 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 	return entities, nil
 }
 
-func (n NodeMemoryUsageBytesRepository) buildNodeMemoryBytesTotalQueryLabelsStringByNodeName(nodeName string) string {
+func (n NodeMemoryBytesUsageRepository) buildNodeMemoryBytesTotalQueryLabelsStringByNodeName(nodeName string) string {
 
 	var (
 		queryLabelsString = ""
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemBytes.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthMetric.NodeMemoryBytesTotalLabelNode, nodeName)
 	}
 
 	return queryLabelsString
 }
 
-func (n NodeMemoryUsageBytesRepository) buildNodeMemoryUtilizationQueryLabelsStringByNodeName(nodeName string) string {
+func (n NodeMemoryBytesUsageRepository) buildNodeMemoryUtilizationQueryLabelsStringByNodeName(nodeName string) string {
 
 	var (
 		queryLabelsString = ""
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemUtilization.NodeLabel, nodeName)
+		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthMetric.NodeMemoryUtilizationLabelNode, nodeName)
 	}
 
 	return queryLabelsString
