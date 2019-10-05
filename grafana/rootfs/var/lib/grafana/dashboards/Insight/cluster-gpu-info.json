@@ -586,7 +586,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 8
       },
@@ -692,8 +692,8 @@
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 7,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 8
       },
       "id": 26,
@@ -949,7 +949,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 15
       },
@@ -1055,8 +1055,8 @@
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 7,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 15
       },
       "id": 12,
@@ -1323,7 +1323,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 23
       },
@@ -1425,12 +1425,12 @@
     {
       "columns": [],
       "datasource": "InfluxDB",
-      "description": "High GPU cycle utilization larger than (>$high_gpu_utilization)",
+      "description": "",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 7,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 23
       },
       "id": 27,
@@ -1685,7 +1685,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 30
       },
@@ -1787,12 +1787,12 @@
     {
       "columns": [],
       "datasource": "InfluxDB",
-      "description": "High GPU memory utilization larger than (>$high_memory_utilization)",
+      "description": "",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
-        "w": 7,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 30
       },
       "id": 21,
@@ -2324,5 +2324,5 @@
   "timezone": "",
   "title": "Cluster GPU Insight",
   "uid": "-E6TVh4Zz",
-  "version": 72 
+  "version": 72
 }
