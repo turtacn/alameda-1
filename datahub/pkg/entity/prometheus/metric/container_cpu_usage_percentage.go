@@ -2,7 +2,7 @@ package metric
 
 import (
 	"fmt"
-	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/metric/types"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -66,13 +66,13 @@ func NewContainerCpuUsagePercentageEntity(e InternalPromth.Entity) ContainerCpuU
 }
 
 // ContainerMetric Build ContainerMetric base on entity properties
-func (e *ContainerCpuUsagePercentageEntity) ContainerMetric() DaoMetric.ContainerMetric {
+func (e *ContainerCpuUsagePercentageEntity) ContainerMetric() DaoMetricTypes.ContainerMetric {
 
 	var (
-		containerMetric DaoMetric.ContainerMetric
+		containerMetric DaoMetricTypes.ContainerMetric
 	)
 
-	containerMetric = DaoMetric.ContainerMetric{
+	containerMetric = DaoMetricTypes.ContainerMetric{
 		Namespace:     e.Namespace,
 		PodName:       e.PodName,
 		ContainerName: e.ContainerName,

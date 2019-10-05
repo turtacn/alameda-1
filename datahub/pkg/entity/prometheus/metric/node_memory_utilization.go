@@ -1,7 +1,7 @@
 package metric
 
 import (
-	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/metric/types"
 	"github.com/containers-ai/alameda/datahub/pkg/metric"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 )
@@ -47,13 +47,13 @@ func NewNodeMemoryUtilizationEntity(e InternalPromth.Entity) NodeMemoryUtilizati
 }
 
 // NodeMetric Build NodeMetric base on entity properties
-func (e *NodeMemoryUtilizationEntity) NodeMetric() DaoMetric.NodeMetric {
+func (e *NodeMemoryUtilizationEntity) NodeMetric() DaoMetricTypes.NodeMetric {
 
 	var (
-		nodeMetric DaoMetric.NodeMetric
+		nodeMetric DaoMetricTypes.NodeMetric
 	)
 
-	nodeMetric = DaoMetric.NodeMetric{
+	nodeMetric = DaoMetricTypes.NodeMetric{
 		NodeName: e.NodeName,
 		Metrics: map[metric.NodeMetricType][]metric.Sample{
 			metric.TypeNodeMemoryUsageBytes: e.Samples,

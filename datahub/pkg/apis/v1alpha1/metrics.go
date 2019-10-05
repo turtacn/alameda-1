@@ -2,7 +2,7 @@ package v1alpha1
 
 import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	DaoMetricPromth "github.com/containers-ai/alameda/datahub/pkg/dao/metric/prometheus"
+	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/metric/types"
 	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
 	TypeExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/types"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -30,16 +30,16 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alph
 		}, nil
 	}
 
-	metricDAO := DaoMetricPromth.NewWithConfig(*s.Config.Prometheus)
+	metricDAO := DaoMetric.NewNodeMetricsDAO(*s.Config.Prometheus)
 
 	nodeNames := in.GetNodeNames()
 	queryCondition := RequestExtend.QueryConditionExtend{Condition: in.GetQueryCondition()}.QueryCondition()
-	listNodeMetricsRequest := DaoMetric.ListNodeMetricsRequest{
+	listNodeMetricsRequest := DaoMetricTypes.ListNodeMetricsRequest{
 		NodeNames:      nodeNames,
 		QueryCondition: queryCondition,
 	}
 
-	nodesMetricMap, err := metricDAO.ListNodesMetric(listNodeMetricsRequest)
+	nodesMetricMap, err := metricDAO.ListMetrics(listNodeMetricsRequest)
 	if err != nil {
 		scope.Errorf("ListNodeMetrics failed: %+v", err)
 		return &DatahubV1alpha1.ListNodeMetricsResponse{
@@ -87,20 +87,20 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *DatahubV1alpha
 		}, nil
 	}
 
-	metricDAO := DaoMetricPromth.NewWithConfig(*s.Config.Prometheus)
+	metricDAO := DaoMetric.NewPodMetricsDAO(*s.Config.Prometheus)
 
 	if in.GetNamespacedName() != nil {
 		namespace = in.GetNamespacedName().GetNamespace()
 		podName = in.GetNamespacedName().GetName()
 	}
 	queryCondition := RequestExtend.QueryConditionExtend{Condition: in.GetQueryCondition()}.QueryCondition()
-	listPodMetricsRequest := DaoMetric.ListPodMetricsRequest{
+	listPodMetricsRequest := DaoMetricTypes.ListPodMetricsRequest{
 		Namespace:      namespace,
 		PodName:        podName,
 		QueryCondition: queryCondition,
 	}
 
-	podsMetricMap, err := metricDAO.ListPodMetrics(listPodMetricsRequest)
+	podsMetricMap, err := metricDAO.ListMetrics(listPodMetricsRequest)
 	if err != nil {
 		scope.Errorf("ListPodMetrics failed: %+v", err)
 		return &DatahubV1alpha1.ListPodMetricsResponse{

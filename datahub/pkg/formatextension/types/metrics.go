@@ -1,13 +1,13 @@
 package types
 
 import (
-	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
+	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/metric/types"
 	Metric "github.com/containers-ai/alameda/datahub/pkg/metric"
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 )
 
 type PodMetricExtended struct {
-	*DaoMetric.PodMetric
+	*DaoMetricTypes.PodMetric
 }
 
 func (p *PodMetricExtended) ProduceMetrics() *DatahubV1alpha1.PodMetric {
@@ -32,7 +32,7 @@ func (p *PodMetricExtended) ProduceMetrics() *DatahubV1alpha1.PodMetric {
 }
 
 type ContainerMetricExtended struct {
-	*DaoMetric.ContainerMetric
+	*DaoMetricTypes.ContainerMetric
 }
 
 func (c *ContainerMetricExtended) ProduceMetrics() *DatahubV1alpha1.ContainerMetric {
@@ -63,7 +63,7 @@ func (c *ContainerMetricExtended) ProduceMetrics() *DatahubV1alpha1.ContainerMet
 }
 
 type NodeMetricExtended struct {
-	*DaoMetric.NodeMetric
+	*DaoMetricTypes.NodeMetric
 }
 
 func (n *NodeMetricExtended) ProduceMetrics() *DatahubV1alpha1.NodeMetric {
