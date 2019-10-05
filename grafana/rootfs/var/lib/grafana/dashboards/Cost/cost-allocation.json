@@ -44,7 +44,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${current_cost}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${current_cost}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n  .graph-legend-content {\n  height:20px !important; \n }\n /*#panel-32, #panel-33, #panel-34 {\n   z-index:2;\n   margin-left:-1%;\n}\n  #panel-32 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-32 div.panel-content {\n   left:-5.5%;\n}\n  #panel-33 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-33 div.panel-content {\n   left:-5.5%;\n}\n  #panel-34 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-34 div.panel-content {\n   left:-5.5%;\n}\n */</style>",
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -437,8 +437,7 @@
           ]
         ],
         "tags": []
-      }
-    ],
+      }],
       "title": "Application Cost Percentage",
       "type": "grafana-piechart-panel",
       "valueName": "current"
@@ -723,8 +722,8 @@
       "datasource": "-- Mixed --",
       "fill": 2,
       "gridPos": {
-        "h": 10,
-        "w": 24,
+        "h": 9,
+        "w": 12,
         "x": 0,
         "y": 15
       },
@@ -849,7 +848,7 @@
               "type": "fill"
             }
           ],
-          "hide": false,
+          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '3600' and time >= now() and time <= now() +1d group by time(3600s), namespacename",
@@ -911,15 +910,16 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": "6d",
+      "timeFrom": "5d",
       "timeRegions": [],
-      "timeShift": "0d+1d",
-      "title": "Cost: Observation, and Prediction",
+      "timeShift": null,
+      "title": "Cost: Observation",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -952,12 +952,135 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "InfluxDB",
+      "description": "",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "hideTimeOverride": true,
+      "id": 32,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [{
+        "alias": "/.*/",
+        "dashLength": 5,
+        "dashes": true,
+        "linewidth": 2,
+        "spaceLength": 4
+      }],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [{
+        "alias": "$tag_namespacename(prediction)",
+        "expr": "",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "intervalFactor": 1,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '3600' and time >= now() and time <= now() +1d group by time(3600s), namespacename",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
+      }],
+      "thresholds": [],
+      "timeFrom": "5d",
+      "timeRegions": [],
+      "timeShift": "0d+110h",
+      "title": "Cost: Prediction",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 23
       },
       "id": 24,
       "panels": [],
@@ -972,10 +1095,10 @@
       "datasource": "-- Mixed --",
       "fill": 2,
       "gridPos": {
-        "h": 10,
-        "w": 24,
+        "h": 9,
+        "w": 12,
         "x": 0,
-        "y": 26
+        "y": 24
       },
       "hideTimeOverride": true,
       "id": 27,
@@ -1098,7 +1221,7 @@
               "type": "fill"
             }
           ],
-          "hide": false,
+          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '21600' and time >= now() and time <= now() +1w group by time(21600s), namespacename",
@@ -1160,15 +1283,16 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": "6w",
+      "timeFrom": "5w",
       "timeRegions": [],
-      "timeShift": "0d+1w",
-      "title": "Cost: Observation, and Prediction",
+      "timeShift": null,
+      "title": "Cost: Observation",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -1201,12 +1325,134 @@
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "InfluxDB",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "hideTimeOverride": true,
+      "id": 33,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [{
+        "alias": "/.*/",
+        "dashLength": 5,
+        "dashes": true,
+        "linewidth": 2,
+        "spaceLength": 4
+      }],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [{
+        "alias": "$tag_namespacename(prediction)",
+        "expr": "",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "intervalFactor": 1,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '21600' and time >= now() and time <= now() +1w group by time(21600s), namespacename",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
+      }],
+      "thresholds": [],
+      "timeFrom": "5w",
+      "timeRegions": [],
+      "timeShift": "0d+30d",
+      "title": "Cost: Prediction",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 33
       },
       "id": 26,
       "panels": [],
@@ -1221,10 +1467,10 @@
       "datasource": "-- Mixed --",
       "fill": 2,
       "gridPos": {
-        "h": 10,
-        "w": 24,
+        "h": 9,
+        "w": 12,
         "x": 0,
-        "y": 37
+        "y": 34
       },
       "hideTimeOverride": true,
       "id": 28,
@@ -1347,7 +1593,7 @@
               "type": "fill"
             }
           ],
-          "hide": false,
+          "hide": true,
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '86400' and time >= now() and time <= now() +4w group by time(86400s), namespacename",
@@ -1409,15 +1655,16 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": "21w",
+      "timeFrom": "20w",
       "timeRegions": [],
-      "timeShift": "0w+4w",
-      "title": "Cost: Observation, and Prediction",
+      "timeShift": null,
+      "title": "Cost: Observation",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -1433,6 +1680,128 @@
           "logBase": 1,
           "max": null,
           "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "InfluxDB",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
+      "hideTimeOverride": true,
+      "id": 34,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [{
+        "alias": "/.*/",
+        "dashLength": 5,
+        "dashes": true,
+        "linewidth": 2,
+        "spaceLength": 4
+      }],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [{
+        "alias": "$tag_namespacename(prediction)",
+        "expr": "",
+        "format": "time_series",
+        "groupBy": [{
+            "params": [
+              "$__interval"
+            ],
+            "type": "time"
+          },
+          {
+            "params": [
+              "null"
+            ],
+            "type": "fill"
+          }
+        ],
+        "intervalFactor": 1,
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "select mean(costpercentage) from alameda_fedemeter..prediction_cost_namespace where granularity = '86400' and time >= now() and time <= now() +4w group by time(86400s), namespacename",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "time_series",
+        "select": [
+          [{
+              "params": [
+                "value"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "mean"
+            }
+          ]
+        ],
+        "tags": []
+      }],
+      "thresholds": [],
+      "timeFrom": "20w",
+      "timeRegions": [],
+      "timeShift": "0d+18w",
+      "title": "Cost: Prediction",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [{
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
           "show": true
         },
         {
