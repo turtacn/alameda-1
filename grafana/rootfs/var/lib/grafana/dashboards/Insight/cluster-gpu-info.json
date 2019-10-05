@@ -33,17 +33,17 @@
       "type": "row"
     },
     {
-      "content": "<table style=\"height:80%;width:100%;background:#299c46\">\n  <tr>\n    <td>\n      <div id=\"active\" type=\"text/JavaScript\" style=\"text-align:center;font-size:40px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var active = `${active}`;\n  document.getElementById('active').innerHTML = `${active}`;\n</script>",
+      "content": "<table style=\"height:80%;width:100%;\">\n  <tr>\n    <td>\n      <div id=\"total\" type=\"text/JavaScript\" style=\"text-align:center;font-size:40px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var total = `${total}`;\n  document.getElementById('total').innerHTML = `${total}`;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 5,
         "x": 0,
-        "y": 4
+        "y": 1
       },
-      "id": 34,
+      "id": 35,
       "links": [],
       "mode": "html",
-      "title": "Active Nodes",
+      "title": "Total Node Count",
       "type": "text"
     },
     {
@@ -414,17 +414,17 @@
       "valueName": "current"
     },
     {
-      "content": "<table style=\"height:80%;width:100%;\">\n  <tr>\n    <td>\n      <div id=\"total\" type=\"text/JavaScript\" style=\"text-align:center;font-size:40px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var total = `${total}`;\n  document.getElementById('total').innerHTML = `${total}`;\n</script>",
+      "content": "<table style=\"height:80%;width:100%;background:#299c46\">\n  <tr>\n    <td>\n      <div id=\"active\" type=\"text/JavaScript\" style=\"text-align:center;font-size:40px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var active = `${active}`;\n  document.getElementById('active').innerHTML = `${active}`;\n</script>",
       "gridPos": {
         "h": 3,
         "w": 5,
         "x": 0,
-        "y": 1
+        "y": 4
       },
-      "id": 35,
+      "id": 34,
       "links": [],
       "mode": "html",
-      "title": "Total Nodes",
+      "title": "Active Node Count",
       "type": "text"
     },
     {
@@ -575,7 +575,7 @@
         "#d44a3a"
       ],
       "datasource": "InfluxDB",
-      "description": "The count of nodes that used less than $memory_utilization  of memory",
+      "description": "",
       "format": "short",
       "gauge": {
         "maxValue": 252,
@@ -589,367 +589,6 @@
         "w": 5,
         "x": 0,
         "y": 8
-      },
-      "id": 19,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
-      },
-      "tableColumn": "Value",
-      "targets": [
-        {
-          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select count(host) from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value <= ($memory_utilization/100)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "90,180",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Nodes of Low GPU Memory Utilization (<$memory_utilization%)",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "columns": [],
-      "datasource": "InfluxDB",
-      "description": "Low GPU memory utilization smaller than (<$memory_utilization)",
-      "fontSize": "100%",
-      "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 5,
-        "y": 8
-      },
-      "id": 12,
-      "links": [],
-      "options": {},
-      "pageSize": null,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 2,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "link": false,
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "Utilization",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "value",
-          "thresholds": [],
-          "type": "number",
-          "unit": "percentunit"
-        },
-        {
-          "alias": "Host",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "host",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "legendFormat": "",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select host, value from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value <= ($memory_utilization/100)",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Low GPU Memory Utilization (<$memory_utilization%)",
-      "transform": "table",
-      "type": "table"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "InfluxDB",
-      "fill": 1,
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "id": 29,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "Number of Nodes",
-          "color": "#5195ce"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "Number of Nodes",
-          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "intervalFactor": 1,
-          "legendFormat": "Number of nodes",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select * from (select count(host) from (select mean(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host, time(30s)) where value <= ($memory_utilization/100) group by time(30s))",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Number of Nodes with Low GPU Memory Utilization (<$memory_utilization%)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "none",
-          "label": "Number of nodes",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "InfluxDB",
-      "description": "The count of nodes that used less than $gpu_utilization of GPU cycles",
-      "format": "short",
-      "gauge": {
-        "maxValue": 252,
-        "minValue": 0,
-        "show": true,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 5,
-        "x": 0,
-        "y": 15
       },
       "id": 9,
       "interval": "15s",
@@ -1034,7 +673,7 @@
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Nodes of Low GPU Cycle Utilization (<$gpu_utilization%)",
+      "title": "Number of Nodes with Low GPU Cycle Utilization (<$gpu_utilization%)",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -1055,7 +694,7 @@
         "h": 7,
         "w": 7,
         "x": 5,
-        "y": 15
+        "y": 8
       },
       "id": 26,
       "interval": "15s",
@@ -1077,7 +716,7 @@
           "type": "hidden"
         },
         {
-          "alias": "GPU Cycle",
+          "alias": "Utilization",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1091,7 +730,7 @@
           "unit": "percentunit"
         },
         {
-          "alias": "Host",
+          "alias": "Node",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1169,7 +808,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 8
       },
       "id": 30,
       "interval": "15s",
@@ -1267,7 +906,7 @@
         {
           "decimals": 0,
           "format": "short",
-          "label": "Number of nodes",
+          "label": "Number of Nodes",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -1288,19 +927,6 @@
       }
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "id": 18,
-      "panels": [],
-      "title": "High GPU Utilization",
-      "type": "row"
-    },
-    {
       "cacheTimeout": null,
       "colorBackground": false,
       "colorPostfix": false,
@@ -1312,7 +938,7 @@
         "#d44a3a"
       ],
       "datasource": "InfluxDB",
-      "description": "The count of nodes that used more than $high_memory_utilization  of memory",
+      "description": "",
       "format": "short",
       "gauge": {
         "maxValue": 252,
@@ -1325,9 +951,9 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 23
+        "y": 15
       },
-      "id": 10,
+      "id": 19,
       "interval": null,
       "links": [],
       "mappingType": 1,
@@ -1365,7 +991,7 @@
       "tableColumn": "Value",
       "targets": [
         {
-          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
+          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
           "format": "time_series",
           "groupBy": [
             {
@@ -1386,7 +1012,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select count(host) from(select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value >= ($high_memory_utilization/100)",
+          "query": "select count(host) from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value <= ($memory_utilization/100)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1410,13 +1036,13 @@
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Nodes of High GPU Memory Utilization (>$high_memory_utilization%)",
+      "title": "Number of Nodes with Low GPU Memory Utilization (<$memory_utilization%)",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
         {
           "op": "=",
-          "text": "0",
+          "text": "N/A",
           "value": "null"
         }
       ],
@@ -1425,15 +1051,15 @@
     {
       "columns": [],
       "datasource": "InfluxDB",
-      "description": "High GPU memory utilization larger than (>$high_memory_utilization)",
+      "description": "",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
         "w": 7,
         "x": 5,
-        "y": 23
+        "y": 15
       },
-      "id": 21,
+      "id": 12,
       "links": [],
       "options": {},
       "pageSize": null,
@@ -1466,7 +1092,7 @@
           "unit": "percentunit"
         },
         {
-          "alias": "Host",
+          "alias": "Node",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1480,27 +1106,11 @@
           "thresholds": [],
           "type": "string",
           "unit": "short"
-        },
-        {
-          "alias": "GPU",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "Value #B",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
         }
       ],
       "targets": [
         {
-          "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization",
+          "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization",
           "format": "table",
           "groupBy": [
             {
@@ -1519,9 +1129,10 @@
           "hide": false,
           "instant": true,
           "intervalFactor": 1,
+          "legendFormat": "",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select host, value from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value >= ($high_memory_utilization/100)",
+          "query": "select host, value from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value <= ($memory_utilization/100)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -1544,7 +1155,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "High GPU Memory Utilization (>$high_memory_utilization%)",
+      "title": "Low GPU Memory Utilization (<$memory_utilization%)",
       "transform": "table",
       "type": "table"
     },
@@ -1559,9 +1170,9 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 15
       },
-      "id": 31,
+      "id": 29,
       "legend": {
         "avg": false,
         "current": false,
@@ -1592,7 +1203,7 @@
       "targets": [
         {
           "alias": "Number of Nodes",
-          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
+          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) <= $memory_utilization)",
           "format": "time_series",
           "groupBy": [
             {
@@ -1608,11 +1219,12 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "intervalFactor": 1,
           "legendFormat": "Number of nodes",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from (select count(host) from (select mean(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host, time(30s)) where value >= ($high_memory_utilization/100) group by time(30s))",
+          "query": "select * from (select count(host) from (select mean(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host, time(30s)) where value <= ($memory_utilization/100) group by time(30s))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1637,7 +1249,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Number of Nodes with High GPU Memory Utilization (>$high_memory_utilization%)",
+      "title": "Number of Nodes with Low GPU Memory Utilization (<$memory_utilization%)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1655,7 +1267,7 @@
         {
           "decimals": 0,
           "format": "none",
-          "label": "Number of nodes",
+          "label": "Number of Nodes",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -1676,6 +1288,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 18,
+      "panels": [],
+      "title": "High GPU Utilization",
+      "type": "row"
+    },
+    {
       "cacheTimeout": null,
       "colorBackground": false,
       "colorPostfix": false,
@@ -1687,7 +1312,7 @@
         "#d44a3a"
       ],
       "datasource": "InfluxDB",
-      "description": "The count of node that used over $high_gpu_utilization GPU Utilization",
+      "description": "",
       "format": "short",
       "gauge": {
         "maxValue": 252,
@@ -1700,7 +1325,7 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 30
+        "y": 23
       },
       "id": 20,
       "interval": "15s",
@@ -1785,7 +1410,7 @@
       "thresholds": "90,180",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Nodes of High GPU Cycle Utilization (>$high_gpu_utilization%)",
+      "title": "Number of Nodes with High GPU Cycle Utilization (>$high_gpu_utilization%)",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -1806,7 +1431,7 @@
         "h": 7,
         "w": 7,
         "x": 5,
-        "y": 30
+        "y": 23
       },
       "id": 27,
       "interval": "15s",
@@ -1828,7 +1453,7 @@
           "type": "hidden"
         },
         {
-          "alias": "GPU Cycle",
+          "alias": "Utilization",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1842,7 +1467,7 @@
           "unit": "percentunit"
         },
         {
-          "alias": "Host",
+          "alias": "Node",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -1920,7 +1545,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 23
       },
       "id": 32,
       "interval": "15s",
@@ -2017,7 +1642,382 @@
         {
           "decimals": 0,
           "format": "none",
-          "label": "Number of nodes",
+          "label": "Number of Nodes",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": false,
+      "colorPrefix": false,
+      "colorValue": true,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "InfluxDB",
+      "description": "",
+      "format": "short",
+      "gauge": {
+        "maxValue": 252,
+        "minValue": 0,
+        "show": true,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 0,
+        "y": 30
+      },
+      "id": 10,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "Value",
+      "targets": [
+        {
+          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "instant": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select count(host) from(select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value >= ($high_memory_utilization/100)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": "90,180",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Number of Nodes with High GPU Memory Utilization (>$high_memory_utilization%)",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "0",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "columns": [],
+      "datasource": "InfluxDB",
+      "description": "High GPU memory utilization larger than (>$high_memory_utilization)",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 5,
+        "y": 30
+      },
+      "id": 21,
+      "links": [],
+      "options": {},
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 2,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "link": false,
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Utilization",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "value",
+          "thresholds": [],
+          "type": "number",
+          "unit": "percentunit"
+        },
+        {
+          "alias": "Node",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "host",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "GPU",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Value #B",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "instant": true,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select host, value from (select last(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host) where value >= ($high_memory_utilization/100)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "High GPU Memory Utilization (>$high_memory_utilization%)",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "InfluxDB",
+      "fill": 1,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 31,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Number of Nodes",
+          "color": "#5195ce"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Number of Nodes",
+          "expr": "count(sum(nvidia_gpu_memory_used_bytes) by (host) / sum(nvidia_gpu_memory_total_bytes) by (host) >= $high_memory_utilization)",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "intervalFactor": 1,
+          "legendFormat": "Number of nodes",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select * from (select count(host) from (select mean(value) as value from alameda_gpu..nodes_of_gpu_memory_utilization where $timeFilter group by host, time(30s)) where value >= ($high_memory_utilization/100) group by time(30s))",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Number of Nodes with High GPU Memory Utilization (>$high_memory_utilization%)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "none",
+          "label": "Number of Nodes",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -2047,7 +2047,7 @@
       },
       "id": 23,
       "panels": [],
-      "title": "POD",
+      "title": "GPU Usage",
       "type": "row"
     },
     {
@@ -2094,6 +2094,22 @@
           "thresholds": [],
           "type": "number",
           "unit": "none"
+        },
+        {
+          "alias": "Node",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "NodeName",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
         }
       ],
       "targets": [
@@ -2138,7 +2154,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "GPU Used for Pod in Node",
+      "title": "Number of GPUs allocated per Node",
       "transform": "table",
       "type": "table"
     }
@@ -2149,6 +2165,24 @@
   "tags": [],
   "templating": {
     "list": [
+      {
+        "current": {
+          "text": "30",
+          "value": "30"
+        },
+        "hide": 0,
+        "label": "Low GPU Cycle Utilization Threshold(%)",
+        "name": "gpu_utilization",
+        "options": [
+          {
+            "text": "30",
+            "value": "30"
+          }
+        ],
+        "query": "30",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
       {
         "current": {
           "text": "30",
@@ -2170,31 +2204,12 @@
       },
       {
         "current": {
-          "text": "30",
-          "value": "30"
-        },
-        "hide": 0,
-        "label": "Low GPU Utilization Threshold(%)",
-        "name": "gpu_utilization",
-        "options": [
-          {
-            "selected": true,
-            "text": "30",
-            "value": "30"
-          }
-        ],
-        "query": "30",
-        "skipUrlSync": false,
-        "type": "textbox"
-      },
-      {
-        "current": {
           "text": "80",
           "value": "80"
         },
         "hide": 0,
-        "label": "High Memory Utilization Threshold(%)",
-        "name": "high_memory_utilization",
+        "label": "High GPU Cycle Utilization Threshold(%)",
+        "name": "high_gpu_utilization",
         "options": [
           {
             "selected": true,
@@ -2212,8 +2227,8 @@
           "value": "80"
         },
         "hide": 0,
-        "label": "High GPU Cycle Utilization Threshold(%)",
-        "name": "high_gpu_utilization",
+        "label": "High Memory Utilization Threshold(%)",
+        "name": "high_memory_utilization",
         "options": [
           {
             "selected": true,
@@ -2309,5 +2324,5 @@
   "timezone": "",
   "title": "Cluster GPU Insight",
   "uid": "-E6TVh4Zz",
-  "version": 72
+  "version": 72 
 }
