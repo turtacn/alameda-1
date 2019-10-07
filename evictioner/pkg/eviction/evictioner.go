@@ -151,6 +151,8 @@ func (evictioner *Evictioner) getTopController(namespace string, name string, ki
 		return getResource.GetDeployment(namespace, name)
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
 		return getResource.GetDeploymentConfig(namespace, name)
+	case datahub_v1alpha1.Kind_STATEFULSET:
+		return getResource.GetStatefulSet(namespace, name)
 	default:
 		return nil, errors.Errorf("not supported controller type %s", datahub_v1alpha1.Kind_name[int32(kind)])
 	}
@@ -183,6 +185,27 @@ func (evictioner *Evictioner) needToPurgeTopControllerContainerResources(control
 	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
 		deploymentConfig := controller.(*openshift_apps_v1.DeploymentConfig)
 		for _, container := range deploymentConfig.Spec.Template.Spec.Containers {
+			resourceLimits := container.Resources.Limits
+			if resourceLimits != nil {
+				_, cpuSpecExist := resourceLimits[corev1.ResourceCPU]
+				_, memorySpecExist := resourceLimits[corev1.ResourceMemory]
+				if cpuSpecExist || memorySpecExist {
+					return true, nil
+				}
+			}
+			resourceRequests := container.Resources.Requests
+			if resourceRequests != nil {
+				_, cpuSpecExist := resourceRequests[corev1.ResourceCPU]
+				_, memorySpecExist := resourceRequests[corev1.ResourceMemory]
+				if cpuSpecExist || memorySpecExist {
+					return true, nil
+				}
+			}
+		}
+		return false, nil
+	case datahub_v1alpha1.Kind_STATEFULSET:
+		statefulSet := controller.(*apps_v1.StatefulSet)
+		for _, container := range statefulSet.Spec.Template.Spec.Containers {
 			resourceLimits := container.Resources.Limits
 			if resourceLimits != nil {
 				_, cpuSpecExist := resourceLimits[corev1.ResourceCPU]
@@ -247,6 +270,27 @@ func (evictioner *Evictioner) purgeTopControllerContainerResources(controller in
 		}
 		ctx := context.TODO()
 		err := evictioner.k8sClienit.Update(ctx, deploymentConfigCopy)
+		if err != nil {
+			return errors.Wrapf(err, "purge topController failed: %s", err.Error())
+		}
+		return nil
+	case datahub_v1alpha1.Kind_STATEFULSET:
+		statefulSet := controller.(*apps_v1.StatefulSet)
+		statefulSetCopy := statefulSet.DeepCopy()
+		for _, container := range statefulSetCopy.Spec.Template.Spec.Containers {
+			resourceLimits := container.Resources.Limits
+			if resourceLimits != nil {
+				delete(resourceLimits, corev1.ResourceCPU)
+				delete(resourceLimits, corev1.ResourceMemory)
+			}
+			resourceRequests := container.Resources.Requests
+			if resourceRequests != nil {
+				delete(resourceRequests, corev1.ResourceCPU)
+				delete(resourceRequests, corev1.ResourceMemory)
+			}
+		}
+		ctx := context.TODO()
+		err := evictioner.k8sClienit.Update(ctx, statefulSetCopy)
 		if err != nil {
 			return errors.Wrapf(err, "purge topController failed: %s", err.Error())
 		}
