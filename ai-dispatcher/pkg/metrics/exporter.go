@@ -30,7 +30,7 @@ func (exporter *Exporter) SetContainerMetricMAPE(
 
 func (exporter *Exporter) SetContainerMetricRMSE(
 	podNS, podName, name, metricType, dataGranularity string, val float64) {
-	exporter.podMetric.setContainerMetricMAPE(podNS,
+	exporter.podMetric.setContainerMetricRMSE(podNS,
 		podName, name, metricType, dataGranularity, val)
 }
 
@@ -56,7 +56,7 @@ func (exporter *Exporter) SetNodeMetricMAPE(
 
 func (exporter *Exporter) SetNodeMetricRMSE(
 	name, metricType, dataGranularity string, val float64) {
-	exporter.nodeMetric.setNodeMetricMAPE(name,
+	exporter.nodeMetric.setNodeMetricRMSE(name,
 		metricType, dataGranularity, val)
 }
 
@@ -82,7 +82,7 @@ func (exporter *Exporter) SetGPUMetricMAPE(host, minor_number,
 
 func (exporter *Exporter) SetGPUMetricRMSE(host, minor_number,
 	metricType, dataGranularity string, val float64) {
-	exporter.gpuMetric.setGPUMetricMAPE(host, minor_number,
+	exporter.gpuMetric.setGPUMetricRMSE(host, minor_number,
 		metricType, dataGranularity, val)
 }
 

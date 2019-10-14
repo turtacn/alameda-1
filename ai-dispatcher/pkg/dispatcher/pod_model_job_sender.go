@@ -139,7 +139,7 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_v1alpha1.Pod, que
 							}
 						}
 					}
-					metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+					metricsNeedToModel, drift := DriftEvaluation(UnitTypePod, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
 						"podNS":             podNS,
 						"podName":           podName,
 						"containerName":     containerName,

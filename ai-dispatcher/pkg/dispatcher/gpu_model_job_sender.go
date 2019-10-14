@@ -133,7 +133,7 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_v1alpha1.Gpu,
 						}
 					}
 				}
-				metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+				metricsNeedToModel, drift := DriftEvaluation(UnitTypeGPU, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
 					"gpuHost":           gpuHost,
 					"gpuMinorNumber":    gpuMinorNumber,
 					"targetDisplayName": fmt.Sprintf("gpu host: %s minor number: %s", gpuHost, gpuMinorNumber),
