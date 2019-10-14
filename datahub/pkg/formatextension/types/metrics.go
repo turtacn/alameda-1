@@ -22,7 +22,7 @@ func (p *PodMetricExtended) ProduceMetrics() *DatahubV1alpha1.PodMetric {
 		},
 	}
 
-	for _, containerMetric := range *p.ContainersMetricMap {
+	for _, containerMetric := range p.ContainerMetricMap.MetricMap {
 		containerMetricExtended := ContainerMetricExtended{containerMetric}
 		datahubContainerMetric := containerMetricExtended.ProduceMetrics()
 		datahubPodMetric.ContainerMetrics = append(datahubPodMetric.ContainerMetrics, datahubContainerMetric)

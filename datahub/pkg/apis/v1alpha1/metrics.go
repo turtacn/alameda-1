@@ -2,7 +2,6 @@ package v1alpha1
 
 import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/metric"
-	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/metric/types"
 	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
 	TypeExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/types"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -16,11 +15,60 @@ import (
 	"os"
 )
 
-// ListNodeMetrics list nodes' metrics
+func (s *ServiceV1alpha1) CreateNodeMetrics(ctx context.Context, in *DatahubV1alpha1.CreateNodeMetricsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreateNodeMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	requestExtended := RequestExtend.CreateNodeMetricsRequestExtended{CreateNodeMetricsRequest: *in}
+	if requestExtended.Validate() != nil {
+		return &status.Status{
+			Code: int32(code.Code_INVALID_ARGUMENT),
+		}, nil
+	}
+
+	metricDAO := DaoMetric.NewNodeMetricsDAO(*s.Config)
+	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
+	if err != nil {
+		scope.Errorf("failed to create node metrics: %+v", err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
+func (s *ServiceV1alpha1) CreatePodMetrics(ctx context.Context, in *DatahubV1alpha1.CreatePodMetricsRequest) (*status.Status, error) {
+	scope.Debug("Request received from CreatePodMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	requestExtended := RequestExtend.CreatePodMetricsRequestExtended{CreatePodMetricsRequest: *in}
+	if requestExtended.Validate() != nil {
+		return &status.Status{
+			Code: int32(code.Code_INVALID_ARGUMENT),
+		}, nil
+	}
+
+	metricDAO := DaoMetric.NewPodMetricsDAO(*s.Config)
+	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
+	if err != nil {
+		scope.Errorf("failed to create pod metrics: %+v", err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+
 func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alpha1.ListNodeMetricsRequest) (*DatahubV1alpha1.ListNodeMetricsResponse, error) {
 	scope.Debug("Request received from ListNodeMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	requestExt := RequestExtend.ListNodeMetricsRequestExtended{ListNodeMetricsRequest: *in}
+	requestExt := RequestExtend.ListNodeMetricsRequestExtended{Request: in}
 	if err := requestExt.Validate(); err != nil {
 		return &DatahubV1alpha1.ListNodeMetricsResponse{
 			Status: &status.Status{
@@ -30,16 +78,8 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alph
 		}, nil
 	}
 
-	metricDAO := DaoMetric.NewNodeMetricsDAO(*s.Config.Prometheus)
-
-	nodeNames := in.GetNodeNames()
-	queryCondition := RequestExtend.QueryConditionExtend{Condition: in.GetQueryCondition()}.QueryCondition()
-	listNodeMetricsRequest := DaoMetricTypes.ListNodeMetricsRequest{
-		NodeNames:      nodeNames,
-		QueryCondition: queryCondition,
-	}
-
-	nodesMetricMap, err := metricDAO.ListMetrics(listNodeMetricsRequest)
+	metricDAO := DaoMetric.NewNodeMetricsDAO(*s.Config)
+	nodesMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListNodeMetrics failed: %+v", err)
 		return &DatahubV1alpha1.ListNodeMetricsResponse{
@@ -51,7 +91,7 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alph
 	}
 
 	datahubNodeMetrics := make([]*DatahubV1alpha1.NodeMetric, 0)
-	for _, nodeMetric := range nodesMetricMap {
+	for _, nodeMetric := range nodesMetricMap.MetricMap {
 		nodeMetricExtended := TypeExtend.NodeMetricExtended{NodeMetric: nodeMetric}
 		datahubNodeMetric := nodeMetricExtended.ProduceMetrics()
 		datahubNodeMetrics = append(datahubNodeMetrics, datahubNodeMetric)
@@ -65,19 +105,15 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alph
 	}, nil
 }
 
-// ListPodMetrics list pods' metrics
 func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *DatahubV1alpha1.ListPodMetricsRequest) (*DatahubV1alpha1.ListPodMetricsResponse, error) {
 	scope.Debug("Request received from ListPodMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
-
-	namespace := ""
-	podName := ""
 
 	_, err := os.Stat("metric_cpu.csv")
 	if !os.IsNotExist(err) {
 		return s.ListPodMetricsDemo(ctx, in)
 	}
 
-	requestExt := RequestExtend.ListPodMetricsRequestExtended{ListPodMetricsRequest: *in}
+	requestExt := RequestExtend.ListPodMetricsRequestExtended{Request: in}
 	if err = requestExt.Validate(); err != nil {
 		return &DatahubV1alpha1.ListPodMetricsResponse{
 			Status: &status.Status{
@@ -87,20 +123,8 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *DatahubV1alpha
 		}, nil
 	}
 
-	metricDAO := DaoMetric.NewPodMetricsDAO(*s.Config.Prometheus)
-
-	if in.GetNamespacedName() != nil {
-		namespace = in.GetNamespacedName().GetNamespace()
-		podName = in.GetNamespacedName().GetName()
-	}
-	queryCondition := RequestExtend.QueryConditionExtend{Condition: in.GetQueryCondition()}.QueryCondition()
-	listPodMetricsRequest := DaoMetricTypes.ListPodMetricsRequest{
-		Namespace:      namespace,
-		PodName:        podName,
-		QueryCondition: queryCondition,
-	}
-
-	podsMetricMap, err := metricDAO.ListMetrics(listPodMetricsRequest)
+	metricDAO := DaoMetric.NewPodMetricsDAO(*s.Config)
+	podMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListPodMetrics failed: %+v", err)
 		return &DatahubV1alpha1.ListPodMetricsResponse{
@@ -112,7 +136,7 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *DatahubV1alpha
 	}
 
 	datahubPodMetrics := make([]*DatahubV1alpha1.PodMetric, 0)
-	for _, podMetric := range podsMetricMap {
+	for _, podMetric := range podMetricMap.MetricMap {
 		podMetricExtended := TypeExtend.PodMetricExtended{PodMetric: podMetric}
 		datahubPodMetric := podMetricExtended.ProduceMetrics()
 		datahubPodMetrics = append(datahubPodMetrics, datahubPodMetric)

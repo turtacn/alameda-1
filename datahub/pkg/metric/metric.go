@@ -1,9 +1,8 @@
 package metric
 
 import (
+	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"time"
-
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 )
 
 // ContainerMetric Type/Kind alias
@@ -19,15 +18,15 @@ type GpuMetricType = string
 type GpuMetricKind = string
 
 const (
-	// Container metric type definition
-	TypeContainerCPUUsageSecondsPercentage ContainerMetricType = "cpu_usage_seconds_percentage"
-	TypeContainerMemoryUsageBytes          ContainerMetricType = "memory_usage_bytes"
-
 	// Node metric type definition
 	TypeNodeCPUUsageSecondsPercentage NodeMetricType = "node_cpu_usage_seconds_percentage"
 	TypeNodeMemoryTotalBytes          NodeMetricType = "node_memory_total_bytes"
 	TypeNodeMemoryAvailableBytes      NodeMetricType = "node_memory_available_bytes"
 	TypeNodeMemoryUsageBytes          NodeMetricType = "node_memory_usage_bytes"
+
+	// Container metric type definition
+	TypeContainerCPUUsageSecondsPercentage ContainerMetricType = "cpu_usage_seconds_percentage"
+	TypeContainerMemoryUsageBytes          ContainerMetricType = "memory_usage_bytes"
 
 	// GPU metric type definition
 	TypeGpuDutyCycle                      GpuMetricType = "gpu_duty_cycle"
@@ -56,25 +55,25 @@ const (
 
 var (
 	// TypeToDatahubMetricType Type to datahub metric type
-	TypeToDatahubMetricType = map[string]datahub_v1alpha1.MetricType{
-		TypeContainerCPUUsageSecondsPercentage: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-		TypeContainerMemoryUsageBytes:          datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+	TypeToDatahubMetricType = map[string]DatahubV1alpha1.MetricType{
+		TypeContainerCPUUsageSecondsPercentage: DatahubV1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		TypeContainerMemoryUsageBytes:          DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES,
 
-		TypeNodeCPUUsageSecondsPercentage: datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-		TypeNodeMemoryUsageBytes:          datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeNodeCPUUsageSecondsPercentage: DatahubV1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		TypeNodeMemoryUsageBytes:          DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES,
 
-		TypeGpuDutyCycle:                      datahub_v1alpha1.MetricType_DUTY_CYCLE,
-		TypeGpuDutyCycleLowerBound:            datahub_v1alpha1.MetricType_DUTY_CYCLE,
-		TypeGpuDutyCycleUpperBound:            datahub_v1alpha1.MetricType_DUTY_CYCLE,
-		TypeGpuMemoryUsedBytes:                datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-		TypeGpuMemoryUsedBytesLowerBound:      datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-		TypeGpuMemoryUsedBytesUpperBound:      datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES,
-		TypeGpuPowerUsageMilliWatts:           datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
-		TypeGpuPowerUsageMilliWattsLowerBound: datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
-		TypeGpuPowerUsageMilliWattsUpperBound: datahub_v1alpha1.MetricType_POWER_USAGE_WATTS,
-		TypeGpuTemperatureCelsius:             datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
-		TypeGpuTemperatureCelsiusLowerBound:   datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
-		TypeGpuTemperatureCelsiusUpperBound:   datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS,
+		TypeGpuDutyCycle:                      DatahubV1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuDutyCycleLowerBound:            DatahubV1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuDutyCycleUpperBound:            DatahubV1alpha1.MetricType_DUTY_CYCLE,
+		TypeGpuMemoryUsedBytes:                DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuMemoryUsedBytesLowerBound:      DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuMemoryUsedBytesUpperBound:      DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES,
+		TypeGpuPowerUsageMilliWatts:           DatahubV1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuPowerUsageMilliWattsLowerBound: DatahubV1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuPowerUsageMilliWattsUpperBound: DatahubV1alpha1.MetricType_POWER_USAGE_WATTS,
+		TypeGpuTemperatureCelsius:             DatahubV1alpha1.MetricType_TEMPERATURE_CELSIUS,
+		TypeGpuTemperatureCelsiusLowerBound:   DatahubV1alpha1.MetricType_TEMPERATURE_CELSIUS,
+		TypeGpuTemperatureCelsiusUpperBound:   DatahubV1alpha1.MetricType_TEMPERATURE_CELSIUS,
 	}
 )
 

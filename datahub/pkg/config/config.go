@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	Keycodes "github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes"
+	Apis "github.com/containers-ai/alameda/datahub/pkg/apis"
 	Notifier "github.com/containers-ai/alameda/datahub/pkg/notifier"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalLdap "github.com/containers-ai/alameda/internal/pkg/database/ldap"
@@ -20,6 +21,7 @@ type Config struct {
 	BindAddress string                     `mapstructure:"bindAddress"`
 	Prometheus  *InternalPromth.Config     `mapstructure:"prometheus"`
 	InfluxDB    *InternalInflux.Config     `mapstructure:"influxdb"`
+	Apis        *Apis.Config               `mapstructure:"apis"`
 	Ldap        *InternalLdap.Config       `mapstructure:"ldap"`
 	Keycode     *Keycodes.Config           `mapstructure:"keycode"`
 	Notifier    *Notifier.Config           `mapstructure:"notifier"`
@@ -33,6 +35,7 @@ func NewDefaultConfig() Config {
 		defaultLogConfig        = log.NewDefaultConfig()
 		defaultPrometheusConfig = InternalPromth.NewDefaultConfig()
 		defaultInfluxDBConfig   = InternalInflux.NewDefaultConfig()
+		defaultApisConfig       = Apis.NewDefaultConfig()
 		defaultLdapConfig       = InternalLdap.NewDefaultConfig()
 		defaultKeycodeConfig    = Keycodes.NewDefaultConfig()
 		defaultNotifierConfig   = Notifier.NewDefaultConfig()
@@ -42,6 +45,7 @@ func NewDefaultConfig() Config {
 			BindAddress: defaultBindAddress,
 			Prometheus:  defaultPrometheusConfig,
 			InfluxDB:    defaultInfluxDBConfig,
+			Apis:        defaultApisConfig,
 			Ldap:        defaultLdapConfig,
 			Keycode:     defaultKeycodeConfig,
 			Notifier:    defaultNotifierConfig,

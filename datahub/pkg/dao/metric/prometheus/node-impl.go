@@ -19,9 +19,13 @@ func NewNodeMetricsWithConfig(config InternalPromth.Config) DaoMetricTypes.NodeM
 	return &NodeMetrics{PrometheusConfig: config}
 }
 
-// ListMetrics Method implementation of NodeMetricsDAO
-func (p *NodeMetrics) ListMetrics(req DaoMetricTypes.ListNodeMetricsRequest) (DaoMetricTypes.NodesMetricMap, error) {
+// CreateMetrics Method implementation of NodeMetricsDAO
+func (p *NodeMetrics) CreateMetrics(metrics DaoMetricTypes.NodeMetricMap) error {
+	return errors.New("create metrics to prometheus is not supported")
+}
 
+// ListMetrics Method implementation of NodeMetricsDAO
+func (p *NodeMetrics) ListMetrics(req DaoMetricTypes.ListNodeMetricsRequest) (DaoMetricTypes.NodeMetricMap, error) {
 	var (
 		wg             = sync.WaitGroup{}
 		nodeNames      []string
@@ -29,8 +33,8 @@ func (p *NodeMetrics) ListMetrics(req DaoMetricTypes.ListNodeMetricsRequest) (Da
 		errChan        chan error
 		done           = make(chan bool)
 
-		nodesMetricMap    = DaoMetricTypes.NodesMetricMap{}
-		ptrNodesMetricMap = &nodesMetricMap
+		nodeMetricMap    = DaoMetricTypes.NewNodeMetricMap()
+		ptrNodeMetricMap = &nodeMetricMap
 	)
 
 	if len(req.GetNodeNames()) != 0 {
@@ -52,7 +56,7 @@ func (p *NodeMetrics) ListMetrics(req DaoMetricTypes.ListNodeMetricsRequest) (Da
 		go p.produceNodeMetric(nodeName, nodeMetricChan, errChan, &wg, options...)
 	}
 
-	go addNodeMetricToNodesMetricMap(ptrNodesMetricMap, nodeMetricChan, done)
+	go addNodeMetricToNodesMetricMap(ptrNodeMetricMap, nodeMetricChan, done)
 
 	wg.Wait()
 	close(nodeMetricChan)
@@ -60,17 +64,16 @@ func (p *NodeMetrics) ListMetrics(req DaoMetricTypes.ListNodeMetricsRequest) (Da
 	select {
 	case _ = <-done:
 	case err := <-errChan:
-		return DaoMetricTypes.NodesMetricMap{}, errors.Wrap(err, "list nodes metrics failed")
+		return DaoMetricTypes.NewNodeMetricMap(), errors.Wrap(err, "list nodes metrics failed")
 	}
 
-	ptrNodesMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
-	ptrNodesMetricMap.Limit(req.QueryCondition.Limit)
+	ptrNodeMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
+	ptrNodeMetricMap.Limit(req.QueryCondition.Limit)
 
-	return *ptrNodesMetricMap, nil
+	return *ptrNodeMetricMap, nil
 }
 
 func (p *NodeMetrics) produceNodeMetric(nodeName string, nodeMetricChan chan<- DaoMetricTypes.NodeMetric, errChan chan<- error, wg *sync.WaitGroup, options ...DBCommon.Option) {
-
 	var (
 		err                     error
 		nodeCPUUsageRepo        RepoPromthMetric.NodeCpuUsagePercentageRepository
@@ -108,8 +111,7 @@ func (p *NodeMetrics) produceNodeMetric(nodeName string, nodeMetricChan chan<- D
 	}
 }
 
-func addNodeMetricToNodesMetricMap(nodesMetricMap *DaoMetricTypes.NodesMetricMap, nodeMetricChan <-chan DaoMetricTypes.NodeMetric, done chan<- bool) {
-
+func addNodeMetricToNodesMetricMap(nodesMetricMap *DaoMetricTypes.NodeMetricMap, nodeMetricChan <-chan DaoMetricTypes.NodeMetric, done chan<- bool) {
 	for {
 		nodeMetric, more := <-nodeMetricChan
 		if more {

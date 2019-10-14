@@ -7,8 +7,7 @@ from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 
 class DatahubServiceStub(object):
-  """*
-  Service for providing data stored in the backend
+  """Service for providing data stored in the backend
   """
 
   def __init__(self, channel):
@@ -17,6 +16,16 @@ class DatahubServiceStub(object):
     Args:
       channel: A grpc.Channel.
     """
+    self.CreatePodMetrics = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreatePodMetrics',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodMetricsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
+    self.CreateNodeMetrics = channel.unary_unary(
+        '/containers_ai.alameda.v1alpha1.datahub.DatahubService/CreateNodeMetrics',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateNodeMetricsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
     self.ListPodMetrics = channel.unary_unary(
         '/containers_ai.alameda.v1alpha1.datahub.DatahubService/ListPodMetrics',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodMetricsRequest.SerializeToString,
@@ -250,9 +259,22 @@ class DatahubServiceStub(object):
 
 
 class DatahubServiceServicer(object):
-  """*
-  Service for providing data stored in the backend
+  """Service for providing data stored in the backend
   """
+
+  def CreatePodMetrics(self, request, context):
+    """Used to create metrics data of pods
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def CreateNodeMetrics(self, request, context):
+    """Used to create metrics data of nodes
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
 
   def ListPodMetrics(self, request, context):
     """Used to list pod metric data
@@ -579,6 +601,16 @@ class DatahubServiceServicer(object):
 
 def add_DatahubServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
+      'CreatePodMetrics': grpc.unary_unary_rpc_method_handler(
+          servicer.CreatePodMetrics,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreatePodMetricsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'CreateNodeMetrics': grpc.unary_unary_rpc_method_handler(
+          servicer.CreateNodeMetrics,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.CreateNodeMetricsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
       'ListPodMetrics': grpc.unary_unary_rpc_method_handler(
           servicer.ListPodMetrics,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_server__pb2.ListPodMetricsRequest.FromString,

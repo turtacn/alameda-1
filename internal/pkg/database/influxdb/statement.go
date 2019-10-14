@@ -8,18 +8,30 @@ import (
 	"time"
 )
 
+type FunctionType int
+
+const (
+	NoneFunction FunctionType = iota
+	Aggregate
+	Select
+)
+
 type Statement struct {
 	QueryCondition *DBCommon.QueryCondition
 	Database       Database
 	Measurement    Measurement
 	SelectedFields []string
 	GroupByTags    []string
-	Function       string
-	Aggregation    string
-	Selector       string
+	Function       *Function
 	WhereClause    string
 	OrderClause    string
 	LimitClause    string
+}
+
+type Function struct {
+	FuncType FunctionType
+	FuncName string
+	Target   string
 }
 
 func NewStatement(query *Common.Query) *Statement {
@@ -35,6 +47,7 @@ func NewStatement(query *Common.Query) *Statement {
 		Measurement:    Measurement(query.GetTable()),
 		SelectedFields: query.GetCondition().GetSelects(),
 		GroupByTags:    query.GetCondition().GetGroups(),
+		Function:       nil,
 		WhereClause:    query.GetCondition().GetWhereClause(),
 	}
 
@@ -112,17 +125,11 @@ func (s *Statement) AppendWhereClauseFromTimeCondition() {
 	}
 }
 
-func (s *Statement) SetFunction(function, functionType string) {
-	switch function {
-	case "aggregations":
-		s.Function    = function
-		s.Aggregation = functionType
-	case "selectors":
-		s.Function = function
-		s.Selector = functionType
-	default:
-		s.Function = ""
-	}
+func (s *Statement) SetFunction(funcType FunctionType, funcName, target string) {
+	s.Function = &Function{}
+	s.Function.FuncType = funcType
+	s.Function.FuncName = funcName
+	s.Function.Target   = target
 }
 
 func (s *Statement) SetOrderClauseFromQueryCondition() {
@@ -158,12 +165,15 @@ func (s *Statement) BuildQueryCmd() string {
 		fieldsStr = strings.TrimSuffix(fieldsStr, ",")
 	}
 
-	if s.Function != "" {
-		switch s.Function {
-		case "aggregations":
-			fieldsStr = fmt.Sprintf("%s(%s)", s.Aggregation, fieldsStr)
-		case "selectors":
-			fieldsStr = fmt.Sprintf("%s(%s)", s.Selector, fieldsStr)
+	if s.Function != nil {
+		switch s.Function.FuncType {
+		case Aggregate:
+			fieldsStr = fmt.Sprintf("%s(%s)", s.Function.FuncName, fieldsStr)
+		case Select:
+			fieldsStr = fmt.Sprintf("%s(%s)", s.Function.FuncName, fieldsStr)
+		}
+		if s.Function.Target != "" {
+			fieldsStr = fmt.Sprintf("%s as %s", fieldsStr, s.Function.Target)
 		}
 	}
 

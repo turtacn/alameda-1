@@ -144,7 +144,7 @@ func (r *DutyCycleRepository) max(host, minorNumber string, condition *DBCommon.
 	statement.AppendWhereClause("minor_number", "=", minorNumber)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-	statement.SetFunction("selectors", "MAX")
+	statement.SetFunction(InternalInflux.Select, "MAX", "")
 	cmd := statement.BuildQueryCmd()
 
 	return r.influxDB.QueryDB(cmd, string(RepoInflux.Gpu))

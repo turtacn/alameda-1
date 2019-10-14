@@ -12,8 +12,11 @@ var (
 	ZeroTime = time.Unix(0, 0)
 )
 
-type Database string
+type Database    string
 type Measurement string
+
+type Tag         string
+type Field       string
 
 // InfluxDB client interacts with database
 type InfluxClient struct {

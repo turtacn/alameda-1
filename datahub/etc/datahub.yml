@@ -15,6 +15,10 @@ influxdb:
   retentionDuration: "30d"
   retentionShardDuration: "1d"
 
+apis:
+  metrics:
+    source: "prometheus"
+
 log:
   setLogcallers: true
   outputLevel: "info" # debug, info, warn, error, fatal, none

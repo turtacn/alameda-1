@@ -18,9 +18,13 @@ func NewPodMetricsWithConfig(config InternalPromth.Config) DaoMetricTypes.PodMet
 	return &PodMetrics{PrometheusConfig: config}
 }
 
-// ListMetrics Method implementation of PodMetricsDAO
-func (p *PodMetrics) ListMetrics(req DaoMetricTypes.ListPodMetricsRequest) (DaoMetricTypes.PodsMetricMap, error) {
+// CreateMetrics Method implementation of PodMetricsDAO
+func (p *PodMetrics) CreateMetrics(metrics DaoMetricTypes.PodMetricMap) error {
+	return errors.New("create pod metrics to prometheus is not supported")
+}
 
+// ListMetrics Method implementation of PodMetricsDAO
+func (p *PodMetrics) ListMetrics(req DaoMetricTypes.ListPodMetricsRequest) (DaoMetricTypes.PodMetricMap, error) {
 	var (
 		err error
 
@@ -29,8 +33,8 @@ func (p *PodMetrics) ListMetrics(req DaoMetricTypes.ListPodMetricsRequest) (DaoM
 		containerCPUEntities    []InternalPromth.Entity
 		containerMemoryEntities []InternalPromth.Entity
 
-		podsMetricMap    = DaoMetricTypes.PodsMetricMap{}
-		ptrPodsMetricMap = &podsMetricMap
+		podMetricMap    = DaoMetricTypes.NewPodMetricMap()
+		ptrPodMetricMap = &podMetricMap
 	)
 
 	options := []DBCommon.Option{
@@ -43,29 +47,29 @@ func (p *PodMetrics) ListMetrics(req DaoMetricTypes.ListPodMetricsRequest) (DaoM
 	podContainerCPURepo = RepoPromthMetric.NewPodContainerCpuUsagePercentageRepositoryWithConfig(p.PrometheusConfig)
 	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
 	if err != nil {
-		return podsMetricMap, errors.Wrap(err, "list pod metrics failed")
+		return podMetricMap, errors.Wrap(err, "list pod metrics failed")
 	}
 
 	for _, entity := range containerCPUEntities {
 		containerCPUEntity := EntityPromthMetric.NewContainerCpuUsagePercentageEntity(entity)
 		containerMetric := containerCPUEntity.ContainerMetric()
-		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
+		ptrPodMetricMap.AddContainerMetric(&containerMetric)
 	}
 
 	podContainerMemoryRepo = RepoPromthMetric.NewPodContainerMemoryUsageBytesRepositoryWithConfig(p.PrometheusConfig)
 	containerMemoryEntities, err = podContainerMemoryRepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
 	if err != nil {
-		return podsMetricMap, errors.Wrap(err, "list pod metrics failed")
+		return podMetricMap, errors.Wrap(err, "list pod metrics failed")
 	}
 
 	for _, entity := range containerMemoryEntities {
 		containerMemoryEntity := EntityPromthMetric.NewContainerMemoryUsageBytesEntity(entity)
 		containerMetric := containerMemoryEntity.ContainerMetric()
-		ptrPodsMetricMap.AddContainerMetric(&containerMetric)
+		ptrPodMetricMap.AddContainerMetric(&containerMetric)
 	}
 
-	ptrPodsMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
-	ptrPodsMetricMap.Limit(req.QueryCondition.Limit)
+	ptrPodMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
+	ptrPodMetricMap.Limit(req.QueryCondition.Limit)
 
-	return *ptrPodsMetricMap, nil
+	return *ptrPodMetricMap, nil
 }

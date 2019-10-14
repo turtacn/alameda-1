@@ -27,82 +27,66 @@ message QueryCondition {
     uint64 limit = 3;
 }
 
-/**
- * Represents a request for listing metric data of a pod
- *
- */
+// Represents a request for creating metrics data of pods
+message CreatePodMetricsRequest {
+    repeated PodMetric pod_metrics = 1;
+    uint64 rate_range = 2;
+}
+
+// Represents a request for creating metrics data of nodes
+message CreateNodeMetricsRequest {
+    repeated NodeMetric node_metrics = 1;
+}
+
+// Represents a request for listing metric data of a pod
 message ListPodMetricsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
     uint64 rate_range = 3;
 }
 
-/**
- * Represents a response for a listing pod metric data request
- *
- */
+// Represents a response for a listing pod metric data request
 message ListPodMetricsResponse {
     google.rpc.Status status = 1;
     repeated PodMetric pod_metrics = 2;
 }
 
-/**
- * Represents a request for listing metric data of a node
- *
- */
+// Represents a request for listing metric data of a node
 message ListNodeMetricsRequest {
     repeated string node_names = 1;
     QueryCondition query_condition = 2;
 }
 
-/**
- * Represents a response for a listing node metrics request
- *
- */
+// Represents a response for a listing node metrics request
 message ListNodeMetricsResponse {
     google.rpc.Status status = 1;
     repeated NodeMetric node_metrics = 2;
 }
 
-/**
- * Represents a response for a listing pods request
- *
- */
+// Represents a response for a listing pods request
 message ListPodsResponse {
     google.rpc.Status status = 1;
     repeated Pod pods = 2;
 }
 
-/**
- * Represents a request for listing pods that need to be predicted
- *
- */
+// Represents a request for listing pods that need to be predicted
 message ListAlamedaPodsRequest {
     NamespacedName namespaced_name = 1;
     Kind kind = 2;
     TimeRange time_range = 3;
 }
 
-/**
- * Represents a request for listing nodes that need to be predicted
- *
- */
+// Represents a request for listing nodes that need to be predicted
 message ListAlamedaNodesRequest {
     TimeRange time_range = 1;
 }
 
-/**
- * Represents a request for listing nodes' information
- *
- */
+// Represents a request for listing nodes' information
 message ListNodesRequest {
     repeated string node_names = 1;
 }
 
-/**
- * Represents a response for a listing nodes request
- *
- */
+// Represents a response for a listing nodes request
 message ListNodesResponse {
     google.rpc.Status status = 1;
     repeated Node nodes = 2;
@@ -118,10 +102,7 @@ message ListControllersResponse {
     repeated Controller controllers = 2;
 }
 
-/**
- * Represents a request for listing predictions of pods
- *
- */
+// Represents a request for listing predictions of pods
 message ListPodPredictionsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
@@ -131,19 +112,13 @@ message ListPodPredictionsRequest {
     string prediction_id = 6;
 }
 
-/**
- * Represents a response for a listing predictions of pods request
- *
- */
+// Represents a response for a listing predictions of pods request
 message ListPodPredictionsResponse {
     google.rpc.Status status = 1;
     repeated PodPrediction pod_predictions = 2;
 }
 
-/**
- * Represents a request for listing predictions of nodes
- *
- */
+// Represents a request for listing predictions of nodes
 message ListNodePredictionsRequest {
     repeated string node_names = 1;
     QueryCondition query_condition = 2;
@@ -152,19 +127,13 @@ message ListNodePredictionsRequest {
     string prediction_id = 5;
 }
 
-/**
- * Represents a response for a listing predictions of nodes request
- *
- */
+// Represents a response for a listing predictions of nodes request
 message ListNodePredictionsResponse {
     google.rpc.Status status = 1;
     repeated NodePrediction node_predictions = 2;
 }
 
-/**
- * Represents a request for listing recommendations of pods
- *
- */
+// Represents a request for listing recommendations of pods
 message ListPodRecommendationsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
@@ -172,38 +141,26 @@ message ListPodRecommendationsRequest {
     int64 granularity = 4;
 }
 
-/**
- * Represents a response for listing pod recommendations request
- *
- */
+// Represents a response for listing pod recommendations request
 message ListPodRecommendationsResponse {
     google.rpc.Status status = 1;
     repeated PodRecommendation pod_recommendations = 2;
 }
 
-/**
- * Represents a request for listing recommendations of controllers
- *
- */
+// Represents a request for listing recommendations of controllers
 message ListControllerRecommendationsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
     ControllerRecommendedType recommended_type = 3;
 }
 
-/**
- * Represents a response for listing controller recommendations request
- *
- */
+// Represents a response for listing controller recommendations request
 message ListControllerRecommendationsResponse {
     google.rpc.Status status = 1;
     repeated ControllerRecommendation controller_recommendations = 2;
 }
 
-/**
- * Represents a request for listing plannings of pods
- *
- */
+// Represents a request for listing plannings of pods
 message ListPodPlanningsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
@@ -212,19 +169,13 @@ message ListPodPlanningsRequest {
     PlanningType planning_type = 5;
 }
 
-/**
- * Represents a response for listing pod plannings request
- *
- */
+// Represents a response for listing pod plannings request
 message ListPodPlanningsResponse {
     google.rpc.Status status = 1;
     repeated PodPlanning pod_plannings = 2;
 }
 
-/**
- * Represents a request for listing plannings of controllers
- *
- */
+// Represents a request for listing plannings of controllers
 message ListControllerPlanningsRequest {
     NamespacedName namespaced_name = 1;
     QueryCondition query_condition = 2;
@@ -232,93 +183,61 @@ message ListControllerPlanningsRequest {
     PlanningType planning_type = 4;
 }
 
-/**
- * Represents a response for listing controller plannings request
- *
- */
+// Represents a response for listing controller plannings request
 message ListControllerPlanningsResponse {
     google.rpc.Status status = 1;
     repeated ControllerPlanning controller_plannings = 2;
 }
 
-/**
- * Represents a request for listing pods by nodes' name
- *
- */
+// Represents a request for listing pods by nodes' name
 message ListPodsByNodeNamesRequest {
     repeated string node_names = 1;
 }
 
-/**
- * Represents a request for listing system scores of pod scheduled on node
- *
- */
+// Represents a request for listing system scores of pod scheduled on node
 message ListSimulatedSchedulingScoresRequest {
     QueryCondition query_condition = 1;
 }
 
-/**
- * Represents a response for listing system scores request
- *
- */
+// Represents a response for listing system scores request
 message ListSimulatedSchedulingScoresResponse {
     google.rpc.Status status = 1;
     repeated SimulatedSchedulingScore scores = 2;
 }
 
-/**
- * Represents a request for creating predictions of containers' metric data belonging to a pod
- */
+// Represents a request for creating predictions of containers' metric data belonging to a pod
 message CreatePodPredictionsRequest {
     repeated PodPrediction pod_predictions = 1;
 }
 
-/**
- * Represents a request for creating predictions of a node metric data
- *
- */
+// Represents a request for creating predictions of a node metric data
 message CreateNodePredictionsRequest {
     repeated NodePrediction node_predictions = 1;
 }
 
-/**
- * Represents a request for creating a pod's recommendation
- *
- */
+// Represents a request for creating a pod's recommendation
 message CreatePodRecommendationsRequest {
     repeated PodRecommendation pod_recommendations = 1;
     int64 granularity = 2;
 }
 
-/**
- * Represents a request for creating a controller's recommendation
- *
- */
+// Represents a request for creating a controller's recommendation
 message CreateControllerRecommendationsRequest {
     repeated ControllerRecommendation controller_recommendations = 1;
 }
 
-/**
- * Represents a request for creating a pod's plannings
- *
- */
+// Represents a request for creating a pod's plannings
 message CreatePodPlanningsRequest {
     repeated PodPlanning pod_plannings = 1;
     int64 granularity = 2;
 }
 
-/**
- * Represents a request for creating a controller's plannings
- *
- */
+// Represents a request for creating a controller's plannings
 message CreateControllerPlanningsRequest {
     repeated ControllerPlanning controller_plannings = 1;
 }
 
-/**
- * Represents a request for creating pods
- *
- */
+// Represents a request for creating pods
 message CreatePodsRequest {
     repeated Pod pods = 1;
 }
@@ -327,26 +246,17 @@ message CreateControllersRequest {
     repeated Controller controllers = 1;
 }
 
-/**
- * Represents a request for adding nodes that need to be predicted
- *
- */
+// Represents a request for adding nodes that need to be predicted
 message CreateAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
 
-/**
- * Represents a request for adding scheduling scores produced by ai engine
- *
- */
+// Represents a request for adding scheduling scores produced by ai engine
 message CreateSimulatedSchedulingScoresRequest {
     repeated SimulatedSchedulingScore scores = 1;
 }
 
-/**
- * Represents a request for deleting pods data
- *
- */
+// Represents a request for deleting pods data
 message DeletePodsRequest {
     repeated Pod pods = 1;
 }
@@ -355,10 +265,7 @@ message DeleteControllersRequest {
     repeated Controller controllers = 1;
 }
 
-/**
- * Represents a request for stoping predicting nodes
- *
- */
+// Represents a request for stoping predicting nodes
 message DeleteAlamedaNodesRequest {
     repeated Node alameda_nodes = 1;
 }
@@ -380,28 +287,19 @@ message WeaveScopeResponse {
     string rawdata = 2;
 }
 
-/**
- * Represents a request for reading rawdata from database
- *
- */
+// Represents a request for reading rawdata from database
 message ReadRawdataRequest {
     containersai.common.DatabaseType database_type = 1;
     repeated containersai.common.Query queries = 2;
 }
 
-/**
- * Represents a response for listing rawdata from database
- *
- */
+// Represents a response for listing rawdata from database
 message ReadRawdataResponse {
     google.rpc.Status status = 1;
     repeated containersai.common.ReadRawdata rawdata = 2;
 }
 
-/**
- * Represents a request for writing rawdata to database
- *
- */
+// Represents a request for writing rawdata to database
 message WriteRawdataRequest {
     containersai.common.DatabaseType database_type = 1;
     repeated containersai.common.WriteRawdata rawdata = 2;
@@ -471,10 +369,15 @@ message GetLicenseResponse {
     License license = 2;
 }
 
-/**
- * Service for providing data stored in the backend
- */
+// Service for providing data stored in the backend
 service DatahubService {
+    // Used to create metrics data of pods
+    rpc CreatePodMetrics(CreatePodMetricsRequest)
+        returns (google.rpc.Status) {}
+
+    // Used to create metrics data of nodes
+    rpc CreateNodeMetrics(CreateNodeMetricsRequest)
+        returns (google.rpc.Status) {}
 
     // Used to list pod metric data
     rpc ListPodMetrics(ListPodMetricsRequest)

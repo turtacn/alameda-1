@@ -122,12 +122,13 @@ func (s *Server) InitInfluxdbDatabase() {
 	})
 
 	databaseList := []string{
-		"alameda_prediction",
-		"alameda_recommendation",
-		"alameda_score",
 		"alameda_event",
 		"alameda_gpu",
 		"alameda_gpu_prediction",
+		"alameda_metric",
+		"alameda_prediction",
+		"alameda_recommendation",
+		"alameda_score",
 	}
 
 	for _, db := range databaseList {
