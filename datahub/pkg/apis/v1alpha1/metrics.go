@@ -25,7 +25,7 @@ func (s *ServiceV1alpha1) CreateNodeMetrics(ctx context.Context, in *DatahubV1al
 		}, nil
 	}
 
-	metricDAO := DaoMetric.NewNodeMetricsDAO(*s.Config)
+	metricDAO := DaoMetric.NewCreateNodeMetricsDAO(*s.Config)
 	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
 	if err != nil {
 		scope.Errorf("failed to create node metrics: %+v", err.Error())
@@ -50,7 +50,7 @@ func (s *ServiceV1alpha1) CreatePodMetrics(ctx context.Context, in *DatahubV1alp
 		}, nil
 	}
 
-	metricDAO := DaoMetric.NewPodMetricsDAO(*s.Config)
+	metricDAO := DaoMetric.NewCreatePodMetricsDAO(*s.Config)
 	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
 	if err != nil {
 		scope.Errorf("failed to create pod metrics: %+v", err.Error())
@@ -78,7 +78,7 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *DatahubV1alph
 		}, nil
 	}
 
-	metricDAO := DaoMetric.NewNodeMetricsDAO(*s.Config)
+	metricDAO := DaoMetric.NewListNodeMetricsDAO(*s.Config)
 	nodesMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListNodeMetrics failed: %+v", err)
@@ -123,7 +123,7 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *DatahubV1alpha
 		}, nil
 	}
 
-	metricDAO := DaoMetric.NewPodMetricsDAO(*s.Config)
+	metricDAO := DaoMetric.NewListPodMetricsDAO(*s.Config)
 	podMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListPodMetrics failed: %+v", err)

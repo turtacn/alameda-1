@@ -18,6 +18,7 @@ influxdb:
 apis:
   metrics:
     source: "prometheus"
+    target: "influxdb"
 
 log:
   setLogcallers: true
