@@ -30,7 +30,7 @@
       "type": "row"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"config_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\">\n    </td>\n  </tr>\n</table>\n<script>\n  var currentProvider = `${current_provider}`.toLowerCase();\n  if (currentProvider === 'aws') {\n    document.getElementById('config_provider').src = 'https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG';\n    document.getElementById('config_provider').style.height = '41%';\n  } else if ( currentProvider === 'azure') {\n    document.getElementById('config_provider').src = 'https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png';\n    document.getElementById('config_provider').style.height = '50%';\n    document.getElementById('config_provider').style.width = '50%';\n  } else if ( currentProvider === 'gcp') {\n    document.getElementById('config_provider').src = 'https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png';\n    document.getElementById('config_provider').style.height = '40%';\n  }\n  //document.getElementById('config_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'black'\n</script>\n<style>\n.pieLabel > div {\n  color: white !important;\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"config_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\">\n    </td>\n  </tr>\n</table>\n<script>\n  var currentProvider = `${current_provider}`.toLowerCase();\n  if (currentProvider === 'aws') {\n    document.getElementById('config_provider').src = 'https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG';\n    document.getElementById('config_provider').style.height = '41%';\n  } else if ( currentProvider === 'azure') {\n    document.getElementById('config_provider').src = 'https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png';\n    document.getElementById('config_provider').style.height = '50%';\n    document.getElementById('config_provider').style.width = '50%';\n  } else if ( currentProvider === 'gcp') {\n    document.getElementById('config_provider').src = 'https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png';\n    document.getElementById('config_provider').style.height = '40%';\n  }\n  //document.getElementById('config_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'black'\n</script>\n",
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -44,7 +44,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${$current_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n  .graph-legend-content {\n  height:20px !important; \n }\n /*#panel-32, #panel-33, #panel-34 {\n   z-index:2;\n   margin-left:-1%;\n}\n  #panel-32 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-32 div.panel-content {\n   left:-5.5%;\n}\n  #panel-33 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-33 div.panel-content {\n   left:-5.5%;\n}\n  #panel-34 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-34 div.panel-content {\n   left:-5.5%;\n}\n */</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${$current_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue';\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n </style>",
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -438,7 +438,7 @@
         ],
         "tags": []
       }],
-      "title": "Application Cost Percentage",
+      "title": "Application Cost Percentage - $ns",
       "type": "grafana-piechart-panel",
       "valueName": "current"
     },
@@ -483,7 +483,7 @@
           "type": "string",
           "unit": "short",
           "valueMaps": [{
-            "text": "<font color=\"#3f6833\">Idleness</font>",
+            "text": "Idleness",
             "value": "null"
           }]
         },
@@ -1036,7 +1036,7 @@
       "thresholds": [],
       "timeFrom": "5d",
       "timeRegions": [],
-      "timeShift": "0d+110h",
+      "timeShift": "0d+115h",
       "title": "Cost: Prediction",
       "tooltip": {
         "shared": true,
@@ -1408,7 +1408,7 @@
       "thresholds": [],
       "timeFrom": "5w",
       "timeRegions": [],
-      "timeShift": "0d+30d",
+      "timeShift": "0d+33d",
       "title": "Cost: Prediction",
       "tooltip": {
         "shared": true,
@@ -1780,7 +1780,7 @@
       "thresholds": [],
       "timeFrom": "20w",
       "timeRegions": [],
-      "timeShift": "0d+18w",
+      "timeShift": "0d+19w",
       "title": "Cost: Prediction",
       "tooltip": {
         "shared": true,
@@ -1817,6 +1817,19 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "content": "<script>\n  $('#panel-12 .table-panel-table tbody').on('DOMSubtreeModified', function() {\n    var dataLength = this.children.length;\n    if (dataLength > 0) {\n      for(var i = 0; i < dataLength; i++) {\n        if (this.children[i].innerText.indexOf('Idleness') !== -1) {\n          this.children[i].style.backgroundColor = '#3f6833';\n        }\n      }\n    }\n  });\n</script>\n<style>\n  #panel-36 {\n   display:none\n}\n  .graph-legend-content {\n   height:20px !important; \n}\n  #panel-14, #panel-27, #panel-28 {\n   z-index:2;\n}\n  #panel-32, #panel-33, #panel-34 {\n   margin-left:-1%;\n}\n  #panel-32 div.flot-y-axis, #panel-33 div.flot-y-axis, #panel-34 div.flot-y-axis {\n   display:none !important;\n}\n  #panel-32 div.panel-content {\n   left:-8%;\n}\n  #panel-33 div.panel-content,#panel-34 div.panel-content {\n   left:-7%;\n}\n  .pieLabel > div {\n   color: white !important;\n}\n </style>",
+      "gridPos": {
+        "h": 1,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "id": 36,
+      "mode": "html",
+      "title": "Panel Title",
+      "type": "text"
     }
   ],
   "refresh": "5m",
