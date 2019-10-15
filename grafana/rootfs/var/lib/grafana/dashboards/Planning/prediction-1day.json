@@ -498,26 +498,26 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation : CPU Usage",
+          "alias": "Observation_Loader : CPU Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: CPU usage upperbound",
+          "alias": "Prediction: CPU Usage Upperbound",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: CPU usage lowerbound",
+          "fillBelowTo": "Prediction: CPU Usage Lowerbound",
           "hideTooltip": true,
           "legend": false,
           "lines": false
         },
         {
-          "alias": "Prediction: CPU usage lowerbound",
+          "alias": "Prediction: CPU Usage Lowerbound",
           "color": "#f9e2d2",
           "hideTooltip": true,
           "legend": false,
@@ -529,12 +529,12 @@
           "steppedLine": true
         },
         {
-          "alias": "Planning(previous 5 days)",
+          "alias": "Planning(Previous 5 Days)",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Planning(next 1 day)",
+          "alias": "Planning(Next 1 Day)",
           "color": "#f2c96d",
           "steppedLine": true
         }
@@ -548,11 +548,11 @@
           "format": "time_series",
           "interval": "3600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation : CPU Usage",
+          "legendFormat": "Observation_Loader : CPU Usage",
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -590,7 +590,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage upperbound",
+          "alias": "Prediction: CPU Usage Upperbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -628,7 +628,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage lowerbound",
+          "alias": "Prediction: CPU Usage Lowerbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -704,7 +704,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(previous 5 days)",
+          "alias": "Planning(Previous 5 Days)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -742,7 +742,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(next 1 day)",
+          "alias": "Planning(Next 1 Day)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -855,25 +855,25 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation: memory usage",
+          "alias": "Observation_Loader: Memory Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: memory usage upperbound",
+          "alias": "Prediction: Memory Usage Upperbound",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: memory usage lowerbound",
+          "fillBelowTo": "Prediction: Memory Usage Lowerbound",
           "hideTooltip": true,
           "lines": false
         },
         {
-          "alias": "Prediction: memory usage lowerbound",
+          "alias": "Prediction: Memory Usage Lowerbound",
           "color": "#f9e2d2",
           "hideTooltip": true,
           "lines": false
@@ -884,12 +884,12 @@
           "steppedLine": true
         },
         {
-          "alias": "Planning(previous 5 days)",
+          "alias": "Planning(Previous 5 Days)",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Planning(next 1 day)",
+          "alias": "Planning(Next 1 Day)",
           "color": "#f2c96d",
           "steppedLine": true
         }
@@ -904,11 +904,11 @@
           "hide": false,
           "interval": "3600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation: memory usage",
+          "legendFormat": "Observation_Loader: Memory Usage",
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -946,7 +946,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage upperbound",
+          "alias": "Prediction: Memory Usage Upperbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -984,7 +984,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage lowerbound",
+          "alias": "Prediction: Memory Usage Lowerbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1060,7 +1060,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(previous 5 days)",
+          "alias": "Planning(Previous 5 Days)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1098,7 +1098,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(next 1 day)",
+          "alias": "Planning(Next 1 Day)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1223,26 +1223,26 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation : CPU Usage",
+          "alias": "Observation_Loader : CPU Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: CPU usage upperbound",
+          "alias": "Prediction: CPU Usage Upperbound",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: CPU usage lowerbound",
+          "fillBelowTo": "Prediction: CPU Usage Lowerbound",
           "hideTooltip": true,
           "legend": false,
           "lines": false
         },
         {
-          "alias": "Prediction: CPU usage lowerbound",
+          "alias": "Prediction: CPU Usage Lowerbound",
           "color": "#f9e2d2",
           "hideTooltip": true,
           "legend": false,
@@ -1254,12 +1254,12 @@
           "steppedLine": true
         },
         {
-          "alias": "Planning(previous 5 weeks)",
+          "alias": "Planning(Previous 5 Weeks)",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Planning(next 1 week)",
+          "alias": "Planning(Next 1 Week)",
           "color": "#f2c96d",
           "steppedLine": true
         }
@@ -1274,11 +1274,11 @@
           "hide": false,
           "interval": "21600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation : CPU Usage",
+          "legendFormat": "Observation_Loader : CPU Usage",
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1315,7 +1315,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage upperbound",
+          "alias": "Prediction: CPU Usage Upperbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1353,7 +1353,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage lowerbound",
+          "alias": "Prediction: CPU Usage Lowerbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1429,7 +1429,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(previous 5 weeks)",
+          "alias": "Planning(Previous 5 Weeks)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1467,7 +1467,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(next 1 week)",
+          "alias": "Planning(Next 1 Week)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1580,25 +1580,25 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation: memory usage",
+          "alias": "Observation_Loader: Memory Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: memory usage upperbound",
+          "alias": "Prediction: Memory Usage Upperbound",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: memory usage lowerbound",
+          "fillBelowTo": "Prediction: Memory Usage Lowerbound",
           "hideTooltip": true,
           "lines": false
         },
         {
-          "alias": "Prediction: memory usage lowerbound",
+          "alias": "Prediction: Memory Usage Lowerbound",
           "hideTooltip": true,
           "lines": false
         },
@@ -1608,12 +1608,12 @@
           "steppedLine": true
         },
         {
-          "alias": "Planning(previous 5 weeks)",
+          "alias": "Planning(Previous 5 Weeks)",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Planning(next 1 week)",
+          "alias": "Planning(Next 1 Week)",
           "color": "#f2c96d",
           "steppedLine": true
         }
@@ -1627,11 +1627,11 @@
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation: memory usage",
+          "legendFormat": "Observation_Loader: Memory Usage",
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1669,7 +1669,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage upperbound",
+          "alias": "Prediction: Memory Usage Upperbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1707,7 +1707,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage lowerbound",
+          "alias": "Prediction: Memory Usage Lowerbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1783,7 +1783,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(previous 5 weeks)",
+          "alias": "Planning(Previous 5 Weeks)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1821,7 +1821,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(next 1 week)",
+          "alias": "Planning(Next 1 Week)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -1946,26 +1946,26 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation : CPU Usage",
+          "alias": "Observation_Loader : CPU Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: CPU usage upperbound",
+          "alias": "Prediction: CPU Usage Upperbound",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: CPU usage lowerbound",
+          "fillBelowTo": "Prediction: CPU Usage Lowerbound",
           "hideTooltip": true,
           "legend": false,
           "lines": false
         },
         {
-          "alias": "Prediction: CPU usage lowerbound",
+          "alias": "Prediction: CPU Usage Lowerbound",
           "color": "#f9e2d2",
           "hideTooltip": true,
           "legend": false,
@@ -1977,12 +1977,12 @@
           "steppedLine": true
         },
         {
-          "alias": "Planning(previous 5 months)",
+          "alias": "Planning(Previous 5 Months)",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Planning(next 1 month)",
+          "alias": "Planning(Next 1 Month)",
           "color": "#f2c96d",
           "steppedLine": true
         }
@@ -1996,11 +1996,11 @@
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
-          "legendFormat": "Observation : CPU Usage",
+          "legendFormat": "Observation_Loader : CPU Usage",
           "refId": "A"
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2038,7 +2038,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage upperbound",
+          "alias": "Prediction: CPU Usage Upperbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2076,7 +2076,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage lowerbound",
+          "alias": "Prediction: CPU Usage Lowerbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2152,7 +2152,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(previous 5 months)",
+          "alias": "Planning(Previous 5 Months)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2190,7 +2190,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(next 1 month)",
+          "alias": "Planning(Next 1 Month)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2303,25 +2303,25 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation: memory usage",
+          "alias": "Observation_Loader: Memory Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
-          "alias": "Prediction: memory usage upperbound",
+          "alias": "Prediction: Memory Usage Upperbound",
           "color": "#f9e2d2",
-          "fillBelowTo": "Prediction: memory usage lowerbound",
+          "fillBelowTo": "Prediction: Memory Usage Lowerbound",
           "hideTooltip": true,
           "lines": false
         },
         {
-          "alias": "Prediction: memory usage lowerbound",
+          "alias": "Prediction: Memory Usage Lowerbound",
           "hideTooltip": true,
           "lines": false
         },
@@ -2331,12 +2331,12 @@
           "steppedLine": true
         },
         {
-          "alias": "Planning(previous 5 months)",
+          "alias": "Planning(Previous 5 Months)",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Planning(next 1 month)",
+          "alias": "Planning(Next 1 Month)",
           "color": "#f2c96d",
           "steppedLine": true
         }
@@ -2350,11 +2350,11 @@
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
-          "legendFormat": "Observation: memory usage",
+          "legendFormat": "Observation_Loader: Memory Usage",
           "refId": "A"
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2391,7 +2391,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage upperbound",
+          "alias": "Prediction: Memory Usage Upperbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2429,7 +2429,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage lowerbound",
+          "alias": "Prediction: Memory Usage Lowerbound",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2505,7 +2505,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(previous 5 months)",
+          "alias": "Planning(Previous 5 Months)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
@@ -2543,7 +2543,7 @@
           "tags": []
         },
         {
-          "alias": "Planning(next 1 month)",
+          "alias": "Planning(Next 1 Month)",
           "datasource": "InfluxDB",
           "groupBy": [{
               "params": [
