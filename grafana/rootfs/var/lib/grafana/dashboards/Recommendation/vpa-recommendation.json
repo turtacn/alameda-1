@@ -424,7 +424,7 @@
           "groupBy": [
             {
               "params": [
-                    "$__interval"
+                "$__interval"
               ],
               "type": "time"
             },
@@ -518,17 +518,17 @@
           "color": "#5195ce"
         },
         {
-          "alias": "Recommendation: CPU limit",
+          "alias": "Recommendation: CPU Limit",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Recommendation: CPU request",
+          "alias": "Recommendation: CPU Request",
           "color": "#7eb26d",
           "steppedLine": true
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -548,6 +548,10 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
+        },
+        {
+          "alias": "Observation_Loader: CPU Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -566,7 +570,7 @@
           "refId": "C"
         },
         {
-          "alias": "Recommendation: CPU limit",
+          "alias": "Recommendation: CPU Limit",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -606,7 +610,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation: CPU request",
+          "alias": "Recommendation: CPU Request",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -646,7 +650,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: CPU usage",
+          "alias": "Prediction: CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": false,
@@ -665,7 +669,7 @@
                 ],
                 "type": "field"
               }
-          ]
+            ]
           ],
           "tags": [
             {
@@ -752,6 +756,45 @@
               "value": "cpu"
             }
           ]
+        },
+        {
+          "alias": "Observation_Loader: CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and $timeFilter group by time(30s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -834,21 +877,21 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Observation: memory usage",
+          "alias": "Observation: Memory Usage",
           "color": "#5195ce"
         },
         {
-          "alias": "Recommendation: memory limit",
+          "alias": "Recommendation: Memory Limit",
           "color": "#f2c96d",
           "steppedLine": true
         },
         {
-          "alias": "Recommendation: memory request",
+          "alias": "Recommendation: Memory Request",
           "color": "#7eb26d",
           "steppedLine": true
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "color": "#f9e2d2",
           "dashLength": 5,
           "dashes": true,
@@ -868,6 +911,10 @@
           "hideTooltip": true,
           "legend": false,
           "lines": false
+        },
+        {
+          "alias": "Observatio_Loader: Memory Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -882,11 +929,11 @@
           "instant": false,
           "interval": "30s",
           "intervalFactor": 1,
-          "legendFormat": "Observation: memory usage",
+          "legendFormat": "Observation: Memory Usage",
           "refId": "C"
         },
         {
-          "alias": "Recommendation: memory limit",
+          "alias": "Recommendation: Memory Limit",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -926,7 +973,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation: memory request",
+          "alias": "Recommendation: Memory Request",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -966,7 +1013,7 @@
           "tags": []
         },
         {
-          "alias": "Prediction: memory usage",
+          "alias": "Prediction: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [],
           "hide": false,
@@ -1072,6 +1119,45 @@
               "value": "cpu"
             }
           ]
+        },
+        {
+          "alias": "Observatio_Loader: Memory Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and $timeFilter group by time(30s)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
