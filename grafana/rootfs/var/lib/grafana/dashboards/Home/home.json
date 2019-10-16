@@ -1256,7 +1256,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
         {
@@ -1280,6 +1280,10 @@
           "hideTooltip": false,
           "legend": false,
           "lines": false
+        },
+        {
+          "alias": "Observation_Loader: CPU Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1293,7 +1297,7 @@
           "hide": false,
           "interval": "3600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader : CPU Usage",
+          "legendFormat": "Observation : CPU Usage",
           "refId": "A"
         },
         {
@@ -1415,6 +1419,44 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observation_Loader: CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now() -2d and time <= now() group by time(3600s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -1493,7 +1535,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Observation_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "color": "#5195ce"
         },
         {
@@ -1512,6 +1554,10 @@
         {
           "alias": "Prediction: Memory Usage Lowerbound",
           "lines": false
+        },
+        {
+          "alias": "Observatio_Loader: Memory Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1525,7 +1571,7 @@
           "hide": false,
           "interval": "3600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader: Memory Usage",
+          "legendFormat": "Observation: Memory Usage",
           "refId": "A"
         },
         {
@@ -1635,6 +1681,44 @@
           "select": [
             [
               {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observatio_Loader: Memory Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now()-2d and time <= now() group by time(3600s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [{
                 "params": [
                   "value"
                 ],
