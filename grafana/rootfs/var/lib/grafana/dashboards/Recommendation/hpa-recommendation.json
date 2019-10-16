@@ -1042,7 +1042,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Observation : CPU usage",
+          "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
         {
@@ -1054,9 +1054,13 @@
           "color": "#7eb26d"
         },
         {
-          "alias": "Recommendation: desired CPU limit",
+          "alias": "Recommendation: Desired CPU Limit",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1070,7 +1074,7 @@
           "hide": false,
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "Observation : CPU usage",
+          "legendFormat": "Observation : CPU Usage",
           "refId": "C"
         },
         {
@@ -1154,7 +1158,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation: desired CPU limit",
+          "alias": "Recommendation: Desired CPU Limit",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1272,6 +1276,45 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and $timeFilter group by time(30s)",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -1354,7 +1397,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Observation : memory usage",
+          "alias": "Observation : Memory Usage",
           "color": "#5195ce"
         },
         {
@@ -1368,9 +1411,13 @@
           "steppedLine": true
         },
         {
-          "alias": "Recommendation : desired memory limit",
+          "alias": "Recommendation : Desired Memory Limit",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader : Memory Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1384,7 +1431,7 @@
           "hide": false,
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "Observation : memory usage",
+          "legendFormat": "Observation : Memory Usage",
           "refId": "C"
         },
         {
@@ -1468,7 +1515,7 @@
           "tags": []
         },
         {
-          "alias": "Recommendation : desired memory limit",
+          "alias": "Recommendation : Desired Memory Limit",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1569,6 +1616,45 @@
           "query": "select desired_replicas from \"alameda_recommendation\"..\"controller\" where type = 'CRT_Primitive' and \"name\" = '$controller' and \"namespace\" = '$ns'  AND $timeFilter",
           "rawQuery": true,
           "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation_Loader : Memory Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and $timeFilter group by time(30s)",
+          "rawQuery": true,
+          "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
