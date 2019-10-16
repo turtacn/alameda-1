@@ -498,7 +498,7 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
         {
@@ -537,6 +537,10 @@
           "alias": "Planning(Next 1 Day)",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -548,7 +552,7 @@
           "format": "time_series",
           "interval": "3600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader : CPU Usage",
+          "legendFormat": "Observation : CPU Usage",
           "refId": "A"
         },
         {
@@ -778,6 +782,44 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -5d and time <= now() group by time(3600s)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -855,7 +897,7 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "color": "#5195ce"
         },
         {
@@ -892,6 +934,10 @@
           "alias": "Planning(Next 1 Day)",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader: Memory Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -904,7 +950,7 @@
           "hide": false,
           "interval": "3600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader: Memory Usage",
+          "legendFormat": "Observation: Memory Usage",
           "refId": "A"
         },
         {
@@ -1134,6 +1180,44 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observation_Loader: Memory Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-5d and time <= now() group by time(3600s)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -1223,7 +1307,7 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
         {
@@ -1262,6 +1346,10 @@
           "alias": "Planning(Next 1 Week)",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1274,7 +1362,7 @@
           "hide": false,
           "interval": "21600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader : CPU Usage",
+          "legendFormat": "Observation : CPU Usage",
           "refId": "A"
         },
         {
@@ -1503,6 +1591,44 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -5w and time <= now() group by time(21600s)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -1580,7 +1706,7 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "color": "#5195ce"
         },
         {
@@ -1616,6 +1742,10 @@
           "alias": "Planning(Next 1 Week)",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observatio_Loader: Memory Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1627,7 +1757,7 @@
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader: Memory Usage",
+          "legendFormat": "Observation: Memory Usage",
           "refId": "A"
         },
         {
@@ -1857,6 +1987,44 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observatio_Loader: Memory Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-5w and time <= now() group by time(21600s)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -1946,7 +2114,7 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "color": "#5195ce"
         },
         {
@@ -1985,6 +2153,10 @@
           "alias": "Planning(Next 1 Month)",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -1996,7 +2168,7 @@
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader : CPU Usage",
+          "legendFormat": "Observation : CPU Usage",
           "refId": "A"
         },
         {
@@ -2226,6 +2398,44 @@
             ]
           ],
           "tags": []
+        },
+        {
+          "alias": "Observation_Loader : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -20w and time <= now() group by time(86400s)",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
       "thresholds": [],
@@ -2303,7 +2513,7 @@
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [{
-          "alias": "Observation_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "color": "#5195ce"
         },
         {
@@ -2339,6 +2549,10 @@
           "alias": "Planning(Next 1 Month)",
           "color": "#f2c96d",
           "steppedLine": true
+        },
+        {
+          "alias": "Observation_Loader: Memory Usage",
+          "color": "#0a437c"
         }
       ],
       "spaceLength": 10,
@@ -2350,7 +2564,7 @@
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
-          "legendFormat": "Observation_Loader: Memory Usage",
+          "legendFormat": "Observation: Memory Usage",
           "refId": "A"
         },
         {
@@ -2564,6 +2778,44 @@
           "query": "select sum from (select sum(resource_request_memory), count(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400s' and \"name\" =~ /^[[h_container]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"planning_type\" = 'PT_PLANNING' and \"namespace\" =~ /^[[h_ns]]$/ and  time >= now() -86400s and time <= now()+4w group by time(86400s) fill(none)) where count = $count_pod",
           "rawQuery": true,
           "refId": "I",
+          "resultFormat": "time_series",
+          "select": [
+            [{
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation_Loader: Memory Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [{
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": true,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-20w and time <= now() group by time(86400s)",
+          "rawQuery": true,
+          "refId": "G",
           "resultFormat": "time_series",
           "select": [
             [{
