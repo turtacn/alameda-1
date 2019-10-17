@@ -51,38 +51,72 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 	pods := []*ApiResources.Pod{}
 	whereStr := ""
 
+	conditions := make([]string, 0)
 	relationStatement := ""
 	podCreatePeriodCondition := containerRepository.getPodCreatePeriodCondition(timeRange)
-
 	switch kind {
-	// bypass if Kind is Pod
 	case ApiResources.Kind_POD:
-		// relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s')`,
-		// 	cluster_status_entity.ContainerNamespace, namespace,
-		// 	cluster_status_entity.ContainerPodName, name)
-		if podCreatePeriodCondition != "" {
-			relationStatement = strings.Replace(podCreatePeriodCondition, "AND", "", 1)
+		if namespace != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
 		}
-
+		if name != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerPodName, name))
+		}
+		if podCreatePeriodCondition != "" {
+			conditions = append(conditions, podCreatePeriodCondition)
+		}
 	case ApiResources.Kind_DEPLOYMENT:
-		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' %s)`,
-			EntityInfluxClusterStatus.ContainerNamespace, namespace,
-			EntityInfluxClusterStatus.ContainerTopControllerName, name,
-			EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENT],
-			podCreatePeriodCondition)
+		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENT]))
+		if namespace != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
+		}
+		if name != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
+		}
+		if podCreatePeriodCondition != "" {
+			conditions = append(conditions, podCreatePeriodCondition)
+		}
 	case ApiResources.Kind_DEPLOYMENTCONFIG:
-		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' AND "%s" = '%s' %s)`,
-			EntityInfluxClusterStatus.ContainerNamespace, namespace,
-			EntityInfluxClusterStatus.ContainerTopControllerName, name,
-			EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENTCONFIG],
-			podCreatePeriodCondition)
+		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENTCONFIG]))
+		if namespace != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
+		}
+		if name != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
+		}
+		if podCreatePeriodCondition != "" {
+			conditions = append(conditions, podCreatePeriodCondition)
+		}
 	case ApiResources.Kind_ALAMEDASCALER:
-		relationStatement = fmt.Sprintf(`("%s" = '%s' AND "%s" = '%s' %s)`,
-			EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, namespace,
-			EntityInfluxClusterStatus.ContainerAlamedaScalerName, name,
-			podCreatePeriodCondition)
+		if namespace != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, namespace))
+		}
+		if name != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerAlamedaScalerName, name))
+		}
+		if podCreatePeriodCondition != "" {
+			conditions = append(conditions, podCreatePeriodCondition)
+		}
+	case ApiResources.Kind_STATEFULSET:
+		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_STATEFULSET]))
+		if namespace != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
+		}
+		if name != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
+		}
+		if podCreatePeriodCondition != "" {
+			conditions = append(conditions, podCreatePeriodCondition)
+		}
 	default:
 		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", ApiResources.Kind_name[int32(kind)])
+	}
+	if len(conditions) > 0 {
+		relationStatement = fmt.Sprintf("(%s", conditions[0])
+		for _, condition := range conditions[1:] {
+			relationStatement += fmt.Sprintf(" AND %s", condition)
+		}
+		relationStatement += ")"
 	}
 	if relationStatement != "" {
 		if whereStr != "" {
@@ -245,13 +279,13 @@ func (containerRepository *ContainerRepository) getPodCreatePeriodCondition(time
 	if start == 0 && end == 0 {
 		return ""
 	} else if start == 0 && end != 0 {
-		period := fmt.Sprintf(`AND "pod_create_time" < %d`, end)
+		period := fmt.Sprintf(`"pod_create_time" < %d`, end)
 		return period
 	} else if start != 0 && end == 0 {
-		period := fmt.Sprintf(`AND "pod_create_time" >= %d`, start)
+		period := fmt.Sprintf(`"pod_create_time" >= %d`, start)
 		return period
 	} else if start != 0 && end != 0 {
-		period := fmt.Sprintf(`AND "pod_create_time" >= %d AND "pod_create_time" < %d`, start, end)
+		period := fmt.Sprintf(`"pod_create_time" >= %d AND "pod_create_time" < %d`, start, end)
 		return period
 	}
 
