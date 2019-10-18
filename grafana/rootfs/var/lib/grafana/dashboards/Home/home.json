@@ -1423,7 +1423,8 @@
         {
           "alias": "Observation_Loader: CPU Usage",
           "datasource": "InfluxDB",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1436,7 +1437,7 @@
               "type": "fill"
             }
           ],
-          "hide": true,
+          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now() -2d and time <= now() group by time(3600s)",
@@ -1444,7 +1445,8 @@
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1697,7 +1699,8 @@
         {
           "alias": "Observatio_Loader: Memory Usage",
           "datasource": "InfluxDB",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1710,7 +1713,7 @@
               "type": "fill"
             }
           ],
-          "hide": true,
+          "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now()-2d and time <= now() group by time(3600s)",
@@ -1718,7 +1721,8 @@
           "refId": "E",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
