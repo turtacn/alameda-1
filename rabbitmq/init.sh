@@ -24,7 +24,7 @@ if [ "$queue_size" == "" ]; then
 	return
 else
     get_queue_count=$((2 * $queue_size))
-	rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD get queue=$queue_name count=$get_queue_count | grep $queue_name | cut -d '|' -f 5 | sort | awk '{$1=$1;print}' > /tmp/content
+	rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD get queue=$queue_name count=$get_queue_count | grep $queue_name | cut -d '|' -f 5 | sort | awk '{$1=$1;print}' | sed -r 's/"createTimestamp":[0-9]*//' > /tmp/content
 	lines=`cat /tmp/content | wc -l`
 	uniq_content=`cat /tmp/content | sort | uniq > /tmp/uniq_content`
 	uniq_lines=`cat /tmp/uniq_content | wc -l`
