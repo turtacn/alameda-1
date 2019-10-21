@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/containers-ai/alameda/pkg/utils"
@@ -12,6 +13,7 @@ import (
 type ModelMapper struct {
 	modelMap     map[string]map[string]map[string]*modelInfo
 	modelTimeout int64
+	lock         *sync.Mutex
 }
 
 func NewModelMapper(predictUnitTypes []string, granularities []string) *ModelMapper {
@@ -27,6 +29,7 @@ func NewModelMapper(predictUnitTypes []string, granularities []string) *ModelMap
 	return &ModelMapper{
 		modelMap:     modelMap,
 		modelTimeout: viper.GetInt64("model.timeout"),
+		lock:         &sync.Mutex{},
 	}
 }
 
@@ -54,6 +57,8 @@ type gpuModel struct {
 
 func (mm *ModelMapper) AddModelInfo(predictUnitType string,
 	granularity string, mInfo *modelInfo) {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
 	scope.Debugf("before (AddModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 	scope.Debugf("model added to mapper (unit type: %s, granularity: %s): %s",
@@ -71,6 +76,8 @@ func (mm *ModelMapper) AddModelInfo(predictUnitType string,
 
 func (mm *ModelMapper) RemoveModelInfo(predictUnitType string,
 	granularity string, modelID string) {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
 	scope.Debugf("before (RemoveModelInfo) current mapper status: %s",
 		utils.InterfaceToString(mm.modelMap))
 	scope.Debugf("model removed from mapper (unit type: %s, granularity: %s): %s",
@@ -94,6 +101,8 @@ func (mm *ModelMapper) RemoveModelInfo(predictUnitType string,
 
 func (mm *ModelMapper) GetModelInfo(predictUnitType string,
 	granularity string, modelID string) *modelInfo {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
 	if _, ok := mm.modelMap[predictUnitType]; !ok {
 		return nil
 	}
@@ -106,6 +115,8 @@ func (mm *ModelMapper) GetModelInfo(predictUnitType string,
 
 func (mm *ModelMapper) IsModelTimeout(predictUnitType string,
 	granularity string, mInfo *modelInfo) bool {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
 	scope.Debugf("current mapper status: %s", utils.InterfaceToString(mm.modelMap))
 	isTimeout := true
 	if _, ok := mm.modelMap[predictUnitType]; !ok {
@@ -127,6 +138,8 @@ func (mm *ModelMapper) IsModelTimeout(predictUnitType string,
 
 func (mm *ModelMapper) IsModeling(predictUnitType string,
 	granularity string, mInfo *modelInfo) bool {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
 	scope.Debugf("current mapper status: %s", utils.InterfaceToString(mm.modelMap))
 	isModeling := false
 	if _, ok := mm.modelMap[predictUnitType]; !ok {
