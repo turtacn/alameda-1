@@ -56,6 +56,7 @@ func mapeDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType
 	}
 	if mapeErr != nil {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
+		shouldDrift = true
 		scope.Infof(
 			"MAPE calculation of %s metric %v with granularity %v failed due to: %s",
 			targetDisplayName, metricType, granularity, mapeErr.Error())
@@ -98,6 +99,7 @@ func rmseDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType
 	}
 	if rmseErr != nil {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
+		shouldDrift = true
 		scope.Infof(
 			"RMSE calculation of %s metric %v with granularity %v failed due to : %s",
 			targetDisplayName, metricType, granularity, rmseErr.Error())
