@@ -1296,7 +1296,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and $timeFilter group by time(30s)",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and $timeFilter and 'Yes' = '$preloader' group by time(30s)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1652,7 +1652,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and $timeFilter group by time(30s)",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and $timeFilter and 'Yes' = '$preloader' group by time(30s)",
           "rawQuery": true,
           "refId": "F",
           "resultFormat": "time_series",
@@ -1847,6 +1847,33 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "No",
+          "value": "No"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "Preloader",
+        "multi": false,
+        "name": "preloader",
+        "options": [{
+            "selected": false,
+            "text": "Yes",
+            "value": "Yes"
+          },
+          {
+            "selected": true,
+            "text": "No",
+            "value": "No"
+          }
+        ],
+        "query": "Yes, No",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },

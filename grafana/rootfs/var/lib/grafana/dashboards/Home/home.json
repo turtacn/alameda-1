@@ -1440,7 +1440,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now() -2d and time <= now() group by time(3600s)",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now() -2d and time <= now() and 'Yes' = '$preloader' group by time(3600s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1716,7 +1716,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now()-2d and time <= now() group by time(3600s)",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[ns]]$/ and \"pod_name\" =~ /^[[pod]]$/ and \"name\" =~  /^[[container]]$/ and time >= now()-2d and time <= now() and 'Yes' = '$preloader' group by time(3600s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2849,6 +2849,33 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "No",
+          "value": "No"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "Preloader",
+        "multi": false,
+        "name": "preloader",
+        "options": [{
+            "selected": false,
+            "text": "Yes",
+            "value": "Yes"
+          },
+          {
+            "selected": true,
+            "text": "No",
+            "value": "No"
+          }
+        ],
+        "query": "Yes, No",
+        "skipUrlSync": false,
+        "type": "custom"
       }
     ]
   },

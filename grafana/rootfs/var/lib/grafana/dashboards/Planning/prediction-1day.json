@@ -710,7 +710,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -5d and time <= now() group by time(3600s)",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -5d and time <= now() and 'Yes' = '$preloader' group by time(3600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -1125,7 +1125,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-5d and time <= now() group by time(3600s)",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-5d and time <= now() and 'Yes' = '$preloader' group by time(3600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -1553,7 +1553,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -5w and time <= now() group by time(21600s)",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -5w and time <= now() and 'Yes' = '$preloader' group by time(21600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -1966,7 +1966,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-5w and time <= now() group by time(21600s)",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-5w and time <= now() and 'Yes' = '$preloader' group by time(21600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -2394,7 +2394,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -20w and time <= now() group by time(86400s)",
+          "query": "select max(value) from alameda_metric..container_cpu where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now() -20w and time <= now() and 'Yes' = '$preloader' group by time(86400s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -2806,7 +2806,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-20w and time <= now() group by time(86400s)",
+          "query": "select max(value) from alameda_metric..container_memory where \"pod_namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and \"name\" =~  /^[[h_container]]$/ and time >= now()-20w and time <= now() and 'Yes' = '$preloader' group by time(86400s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -3274,7 +3274,34 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
-      }
+        },
+        {
+          "allValue": null,
+          "current": {
+            "selected": true,
+            "text": "No",
+            "value": "No"
+          },
+          "hide": 2,
+          "includeAll": false,
+          "label": "Preloader",
+          "multi": false,
+          "name": "preloader",
+          "options": [{
+              "selected": false,
+              "text": "Yes",
+              "value": "Yes"
+            },
+            {
+              "selected": true,
+              "text": "No",
+              "value": "No"
+            }
+          ],
+          "query": "Yes, No",
+          "skipUrlSync": false,
+          "type": "custom"
+        }
     ]
   },
   "time": {
