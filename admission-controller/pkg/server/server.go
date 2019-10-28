@@ -24,7 +24,8 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_client "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 
 	"google.golang.org/genproto/googleapis/rpc/code"
 	admission_v1beta1 "k8s.io/api/admission/v1beta1"
@@ -57,7 +58,7 @@ var (
 	}
 )
 
-type admitFunc func(*admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, []*datahub_v1alpha1.Event, error)
+type admitFunc func(*admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, []*datahub_events.Event, error)
 
 type admissionController struct {
 	config *Config
@@ -73,7 +74,7 @@ type admissionController struct {
 	k8sDeserializer      runtime.Decoder
 	ownerReferenceTracer *metadata_utils.OwnerReferenceTracer
 
-	datahubClient         datahub_v1alpha1.DatahubServiceClient
+	datahubClient         datahub_client.DatahubServiceClient
 	resourceRecommendator resource.ResourceRecommendator
 	controllerValidator   controller_validator.Validator
 
@@ -83,7 +84,7 @@ type admissionController struct {
 }
 
 // NewAdmissionControllerWithConfig creates AdmissionController with configuration and dependencies
-func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, datahubClient datahub_v1alpha1.DatahubServiceClient, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc, clusterID string) (AdmissionController, error) {
+func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, datahubClient datahub_client.DatahubServiceClient, podMutatePatchValdationFunction admission_controller_utils.ValidatePatchFunc, clusterID string) (AdmissionController, error) {
 
 	defaultOwnerReferenceTracer, err := metadata_utils.NewDefaultOwnerReferenceTracer()
 	if err != nil {
@@ -192,10 +193,10 @@ func (ac *admissionController) writeDefaultAdmissionReview(w http.ResponseWriter
 	}
 }
 
-func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, []*datahub_v1alpha1.Event, error) {
+func (ac *admissionController) mutatePod(ar *admission_v1beta1.AdmissionReview) (admission_v1beta1.AdmissionResponse, []*datahub_events.Event, error) {
 
 	admissionResponse := admission_v1beta1.AdmissionResponse{Allowed: true}
-	events := make([]*datahub_v1alpha1.Event, 1)
+	events := make([]*datahub_events.Event, 1)
 
 	podResource := meta_v1.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	if ar.Request.Resource != podResource {
@@ -434,13 +435,13 @@ func (ac *admissionController) getControllerIDFromOwnerReference(namespace strin
 	return controllerID
 }
 
-func (ac *admissionController) sendEvents(events []*datahub_v1alpha1.Event) error {
+func (ac *admissionController) sendEvents(events []*datahub_events.Event) error {
 
 	if len(events) == 0 {
 		return nil
 	}
 
-	request := datahub_v1alpha1.CreateEventsRequest{
+	request := datahub_events.CreateEventsRequest{
 		Events: events,
 	}
 	status, err := ac.datahubClient.CreateEvents(context.TODO(), &request)

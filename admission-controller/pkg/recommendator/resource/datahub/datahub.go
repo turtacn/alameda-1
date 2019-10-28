@@ -8,7 +8,10 @@ import (
 	"github.com/containers-ai/alameda/admission-controller/pkg/recommendator/resource"
 	"github.com/containers-ai/alameda/pkg/framework/datahub"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_client "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	datahub_recommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
@@ -18,31 +21,31 @@ import (
 
 var (
 	scope               = log.RegisterScope("resource-recommendator", "Datahub resource recommendator", 0)
-	k8sKind_DatahubKind = map[string]datahub_v1alpha1.Kind{
-		"Pod":              datahub_v1alpha1.Kind_POD,
-		"Deployment":       datahub_v1alpha1.Kind_DEPLOYMENT,
-		"DeploymentConfig": datahub_v1alpha1.Kind_DEPLOYMENTCONFIG,
-		"StatefulSet":      datahub_v1alpha1.Kind_STATEFULSET,
+	k8sKind_DatahubKind = map[string]datahub_resources.Kind{
+		"Pod":              datahub_resources.Kind_POD,
+		"Deployment":       datahub_resources.Kind_DEPLOYMENT,
+		"DeploymentConfig": datahub_resources.Kind_DEPLOYMENTCONFIG,
+		"StatefulSet":      datahub_resources.Kind_STATEFULSET,
 	}
-	datahubKind_K8SKind = map[datahub_v1alpha1.Kind]string{
-		datahub_v1alpha1.Kind_POD:              "Pod",
-		datahub_v1alpha1.Kind_DEPLOYMENT:       "Deployment",
-		datahub_v1alpha1.Kind_DEPLOYMENTCONFIG: "DeploymentConfig",
-		datahub_v1alpha1.Kind_STATEFULSET:      "StatefulSet",
+	datahubKind_K8SKind = map[datahub_resources.Kind]string{
+		datahub_resources.Kind_POD:              "Pod",
+		datahub_resources.Kind_DEPLOYMENT:       "Deployment",
+		datahub_resources.Kind_DEPLOYMENTCONFIG: "DeploymentConfig",
+		datahub_resources.Kind_STATEFULSET:      "StatefulSet",
 	}
-	datahubMetricType_K8SResourceName = map[datahub_v1alpha1.MetricType]core_v1.ResourceName{
-		datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE: core_v1.ResourceCPU,
-		datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES:           core_v1.ResourceMemory,
+	datahubMetricType_K8SResourceName = map[datahub_common.MetricType]core_v1.ResourceName{
+		datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE: core_v1.ResourceCPU,
+		datahub_common.MetricType_MEMORY_USAGE_BYTES:           core_v1.ResourceMemory,
 	}
 )
 
 var _ resource.ResourceRecommendator = &datahubResourceRecommendator{}
 
 type datahubResourceRecommendator struct {
-	datahubServiceClient datahub_v1alpha1.DatahubServiceClient
+	datahubServiceClient datahub_client.DatahubServiceClient
 }
 
-func NewDatahubResourceRecommendator(client datahub_v1alpha1.DatahubServiceClient) (resource.ResourceRecommendator, error) {
+func NewDatahubResourceRecommendator(client datahub_client.DatahubServiceClient) (resource.ResourceRecommendator, error) {
 
 	return &datahubResourceRecommendator{
 		datahubServiceClient: client,
@@ -74,9 +77,9 @@ func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations
 	return recommendations, nil
 }
 
-func buildListAvailablePodRecommendationsRequest(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_v1alpha1.ListPodRecommendationsRequest, error) {
+func buildListAvailablePodRecommendationsRequest(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_recommendations.ListPodRecommendationsRequest, error) {
 
-	var datahubRequest *datahub_v1alpha1.ListPodRecommendationsRequest
+	var datahubRequest *datahub_recommendations.ListPodRecommendationsRequest
 
 	datahubKind, exist := k8sKind_DatahubKind[request.Kind]
 	if !exist {
@@ -92,17 +95,17 @@ func buildListAvailablePodRecommendationsRequest(request resource.ListController
 		}
 	}
 
-	datahubRequest = &datahub_v1alpha1.ListPodRecommendationsRequest{
-		NamespacedName: &datahub_v1alpha1.NamespacedName{
+	datahubRequest = &datahub_recommendations.ListPodRecommendationsRequest{
+		NamespacedName: &datahub_resources.NamespacedName{
 			Namespace: request.Namespace,
 			Name:      request.Name,
 		},
 		Kind: datahubKind,
-		QueryCondition: &datahub_v1alpha1.QueryCondition{
-			TimeRange: &datahub_v1alpha1.TimeRange{
+		QueryCondition: &datahub_common.QueryCondition{
+			TimeRange: &datahub_common.TimeRange{
 				ApplyTime: queryTime,
 			},
-			Order: datahub_v1alpha1.QueryCondition_DESC,
+			Order: datahub_common.QueryCondition_DESC,
 			Limit: 1,
 		},
 	}
@@ -110,7 +113,7 @@ func buildListAvailablePodRecommendationsRequest(request resource.ListController
 }
 
 // TODO assign value of datahub.PodRecommendation.AssignedPodName to resource.Recommendation.AssignedPodName
-func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation *datahub_v1alpha1.PodRecommendation) *resource.PodResourceRecommendation {
+func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation *datahub_recommendations.PodRecommendation) *resource.PodResourceRecommendation {
 
 	namespace := ""
 	name := ""
@@ -148,7 +151,7 @@ func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecomm
 	return podRecommendation
 }
 
-func buildContainerResourceRecommendationFromDatahubContainerRecommendation(datahubContainerRecommendation *datahub_v1alpha1.ContainerRecommendation) *resource.ContainerResourceRecommendation {
+func buildContainerResourceRecommendationFromDatahubContainerRecommendation(datahubContainerRecommendation *datahub_recommendations.ContainerRecommendation) *resource.ContainerResourceRecommendation {
 
 	containerResourceRecommendation := &resource.ContainerResourceRecommendation{
 		Name: datahubContainerRecommendation.Name,
@@ -163,9 +166,9 @@ func buildContainerResourceRecommendationFromDatahubContainerRecommendation(data
 	return containerResourceRecommendation
 }
 
-func datahubMetricDataSliceToMetricTypeValueMap(metricDataSlice []*datahub_v1alpha1.MetricData) map[datahub_v1alpha1.MetricType]string {
+func datahubMetricDataSliceToMetricTypeValueMap(metricDataSlice []*datahub_common.MetricData) map[datahub_common.MetricType]string {
 
-	resourceMap := make(map[datahub_v1alpha1.MetricType]string)
+	resourceMap := make(map[datahub_common.MetricType]string)
 
 	for _, metricData := range metricDataSlice {
 		sample := choseOneSample(metricData.GetData())
@@ -177,7 +180,7 @@ func datahubMetricDataSliceToMetricTypeValueMap(metricDataSlice []*datahub_v1alp
 	return resourceMap
 }
 
-func choseOneSample(samples []*datahub_v1alpha1.Sample) *datahub_v1alpha1.Sample {
+func choseOneSample(samples []*datahub_common.Sample) *datahub_common.Sample {
 
 	if len(samples) > 0 {
 		return samples[0]
@@ -186,14 +189,14 @@ func choseOneSample(samples []*datahub_v1alpha1.Sample) *datahub_v1alpha1.Sample
 	}
 }
 
-func buildK8SReosurceListFromMetricTypeValueMap(metricTypeValueMap map[datahub_v1alpha1.MetricType]string) core_v1.ResourceList {
+func buildK8SReosurceListFromMetricTypeValueMap(metricTypeValueMap map[datahub_common.MetricType]string) core_v1.ResourceList {
 
 	resourceList := make(core_v1.ResourceList)
 
 	for metricType, value := range metricTypeValueMap {
 
 		resourceUnit := ""
-		if metricType == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
+		if metricType == datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
 			cpuMilliCores, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 
@@ -206,7 +209,7 @@ func buildK8SReosurceListFromMetricTypeValueMap(metricTypeValueMap map[datahub_v
 
 		quantity, err := k8s_resource.ParseQuantity(value)
 		if err != nil {
-			scope.Warnf("parse value to k8s resource.Quantity failed, skip this recommendation: metricType:%s, value: %s, errMsg: %s", datahub_v1alpha1.MetricType_name[int32(metricType)], value, err.Error())
+			scope.Warnf("parse value to k8s resource.Quantity failed, skip this recommendation: metricType:%s, value: %s, errMsg: %s", datahub_common.MetricType_name[int32(metricType)], value, err.Error())
 			continue
 		}
 

@@ -1,7 +1,7 @@
 package server
 
 import (
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 
 	"github.com/golang/protobuf/ptypes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,18 +12,18 @@ const (
 	componentName = "admission-controller"
 )
 
-func newPodPatchEvent(namespace, clusterID string, ownRef metav1.OwnerReference) datahub_v1alpha1.Event {
+func newPodPatchEvent(namespace, clusterID string, ownRef metav1.OwnerReference) datahub_events.Event {
 
 	now := ptypes.TimestampNow()
 	id := uuid.NewUUID()
-	source := datahub_v1alpha1.EventSource{
+	source := datahub_events.EventSource{
 		Host:      "",
 		Component: componentName,
 	}
-	eventType := datahub_v1alpha1.EventType_EVENT_TYPE_VPA_RECOMMENDATION_EXECUTE
-	version := datahub_v1alpha1.EventVersion_EVENT_VERSION_V1
-	level := datahub_v1alpha1.EventLevel_EVENT_LEVEL_INFO
-	subject := datahub_v1alpha1.K8SObjectReference{
+	eventType := datahub_events.EventType_EVENT_TYPE_VPA_RECOMMENDATION_EXECUTE
+	version := datahub_events.EventVersion_EVENT_VERSION_V1
+	level := datahub_events.EventLevel_EVENT_LEVEL_INFO
+	subject := datahub_events.K8SObjectReference{
 		Kind:       ownRef.Kind,
 		ApiVersion: ownRef.APIVersion,
 		Namespace:  namespace,
@@ -32,7 +32,7 @@ func newPodPatchEvent(namespace, clusterID string, ownRef metav1.OwnerReference)
 	message := "Patch resource recommendation to new created pod"
 	data := ""
 
-	event := datahub_v1alpha1.Event{
+	event := datahub_events.Event{
 		Time:      now,
 		Id:        string(id),
 		ClusterId: clusterID,

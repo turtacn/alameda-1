@@ -6,7 +6,8 @@ import (
 	"github.com/containers-ai/alameda/admission-controller/pkg/validator/controller"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_client "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/pkg/errors"
 	context "golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
@@ -18,12 +19,12 @@ var (
 )
 
 type validator struct {
-	datahubServiceClient datahub_v1alpha1.DatahubServiceClient
+	datahubServiceClient datahub_client.DatahubServiceClient
 	sigsK8SClient        client.Client
 }
 
 // NewControllerValidator returns controller validator which fetch controller information from containers-ai/alameda Datahub
-func NewControllerValidator(datahubServiceClient datahub_v1alpha1.DatahubServiceClient, sigsK8SClient client.Client) controller.Validator {
+func NewControllerValidator(datahubServiceClient datahub_client.DatahubServiceClient, sigsK8SClient client.Client) controller.Validator {
 	return &validator{
 		datahubServiceClient: datahubServiceClient,
 		sigsK8SClient:        sigsK8SClient,
@@ -32,14 +33,14 @@ func NewControllerValidator(datahubServiceClient datahub_v1alpha1.DatahubService
 
 func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (bool, error) {
 
-	datahubKind, exist := datahub_v1alpha1.Kind_value[strings.ToUpper(kind)]
+	datahubKind, exist := datahub_resources.Kind_value[strings.ToUpper(kind)]
 	if !exist {
 		return false, errors.Errorf("no matched datahub kind for kind: %s", kind)
 	}
 
 	ctx := buildDefaultRequestContext()
-	req := &datahub_v1alpha1.ListControllersRequest{
-		NamespacedName: &datahub_v1alpha1.NamespacedName{
+	req := &datahub_resources.ListControllersRequest{
+		NamespacedName: &datahub_resources.NamespacedName{
 			Namespace: namespace,
 			Name:      name,
 		},
@@ -57,13 +58,13 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 	}
 
 	controllers := resp.Controllers
-	indices := getMatchedControllerIndices(controllers, namespace, name, datahub_v1alpha1.Kind(datahubKind))
+	indices := getMatchedControllerIndices(controllers, namespace, name, datahub_resources.Kind(datahubKind))
 	if len(indices) == 0 {
 		return false, errors.Errorf("cannot find matched controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
 	}
 	controller := controllers[0]
 
-	alamedaScalerIndices := getMatchedResourceIndicesWithKind(controller.OwnerInfo, datahub_v1alpha1.Kind_ALAMEDASCALER)
+	alamedaScalerIndices := getMatchedResourceIndicesWithKind(controller.OwnerInfo, datahub_resources.Kind_ALAMEDASCALER)
 	if len(alamedaScalerIndices) == 0 {
 		return false, errors.Errorf("cannot find matched AlamedaScaler to controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
 	}
@@ -97,9 +98,9 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 	return alamedaScaler.IsEnableExecution(), nil
 }
 
-func getMatchedControllerIndices(controllers []*datahub_v1alpha1.Controller, namespace string, name string, kind datahub_v1alpha1.Kind) []int {
+func getMatchedControllerIndices(controllers []*datahub_resources.Controller, namespace string, name string, kind datahub_resources.Kind) []int {
 
-	controllersInfo := make([]*datahub_v1alpha1.ResourceInfo, len(controllers))
+	controllersInfo := make([]*datahub_resources.ResourceInfo, len(controllers))
 	for i, controller := range controllers {
 		controllersInfo[i] = controller.ControllerInfo
 	}
@@ -107,7 +108,7 @@ func getMatchedControllerIndices(controllers []*datahub_v1alpha1.Controller, nam
 	return getMatchedResourceIndex(controllersInfo, namespace, name, kind)
 }
 
-func getMatchedResourceIndex(resourcesInfo []*datahub_v1alpha1.ResourceInfo, namespace string, name string, kind datahub_v1alpha1.Kind) []int {
+func getMatchedResourceIndex(resourcesInfo []*datahub_resources.ResourceInfo, namespace string, name string, kind datahub_resources.Kind) []int {
 
 	indices := make([]int, 0)
 	for i, resourceInfo := range resourcesInfo {
@@ -123,7 +124,7 @@ func getMatchedResourceIndex(resourcesInfo []*datahub_v1alpha1.ResourceInfo, nam
 	return indices
 }
 
-func getMatchedResourceIndicesWithKind(resourcesInfo []*datahub_v1alpha1.ResourceInfo, kind datahub_v1alpha1.Kind) []int {
+func getMatchedResourceIndicesWithKind(resourcesInfo []*datahub_resources.ResourceInfo, kind datahub_resources.Kind) []int {
 
 	indices := make([]int, 0)
 	for i, resourceInfo := range resourcesInfo {
