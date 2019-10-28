@@ -1,0 +1,67 @@
+// This file has messages related to compute resources
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.resources;
+
+import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources";
+
+/**
+ * Represents kubernetes resource kind
+ *
+ */
+enum Kind {
+    POD              = 0;
+    DEPLOYMENT       = 1;
+    DEPLOYMENTCONFIG = 2;
+    ALAMEDASCALER    = 3;
+    STATEFULSET      = 4;
+}
+
+/**
+ * Represents the capacity of a Kubernetes node
+ *
+ */
+message Capacity {
+    int64 cpu_cores                   = 1;
+    int64 memory_bytes                = 2;
+    int64 netwotk_megabits_per_second = 3;
+}
+
+/**
+ * Represents top controller of the pod
+ *
+ */
+message TopController {
+    NamespacedName namespaced_name = 1;
+    Kind           kind            = 2;
+    int32          Replicas        = 3;
+}
+
+message ResourceInfo {
+    NamespacedName namespaced_name = 1;
+    Kind           kind            = 2;
+}
+
+message Provider {
+    string provider      = 1;
+    string instance_type = 2;
+    string region        = 3;
+    string zone          = 4;
+    string os            = 5;
+    string role          = 6;
+    string instance_id   = 7;
+    int64  storage_size  = 8;
+}
+
+/**
+ * ResourceRequirements describes the compute resource requirements
+ */
+message ResourceRequirements {
+    // limits describes the maximum amount of compute resources allowed
+    map<int32, string> limits = 1;
+    // requests describes the minimum amount of compute resources required
+    map<int32, string> requests = 2;
+}

@@ -1,0 +1,18 @@
+// This file has messages related to gpu info, metrics and predictions
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.gpu;
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu";
+
+message GpuMetadata {
+    string host         = 1;
+    string instance     = 2;
+    string job          = 3;
+    string minor_number = 4;
+}
+
+message GpuSpec {
+    float memory_total = 1; // Total memory in bytes
+}

@@ -12,10 +12,9 @@ type AggregateFunction = int
 
 // Sort order definition
 const (
-	// Represent ascending order
-	Asc Order = 0
-	// Represent descending order
-	Desc Order = 1
+	NoneOrder Order = iota
+	Asc  // Represent ascending order
+	Desc // Represent descending order
 )
 
 // Aggregation function definition

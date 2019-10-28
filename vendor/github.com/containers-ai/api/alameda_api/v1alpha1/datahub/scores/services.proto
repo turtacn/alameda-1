@@ -1,0 +1,27 @@
+// This file has messages and services related to Containers.ai
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.scores;
+
+import "alameda_api/v1alpha1/datahub/common/queries.proto";
+import "alameda_api/v1alpha1/datahub/scores/scores.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/scores";
+
+// Represents a request for listing system scores of pod scheduled on node
+message ListSimulatedSchedulingScoresRequest {
+    common.QueryCondition query_condition = 1;
+}
+
+// Represents a response for listing system scores request
+message ListSimulatedSchedulingScoresResponse {
+    google.rpc.Status                 status = 1;
+    repeated SimulatedSchedulingScore scores = 2;
+}
+
+// Represents a request for adding scheduling scores produced by ai engine
+message CreateSimulatedSchedulingScoresRequest {
+    repeated SimulatedSchedulingScore scores = 1;
+}

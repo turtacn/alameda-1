@@ -1,551 +1,189 @@
-/// This file has messages and services related to Federator.ai
+// This file has messages and services related to Federator.ai
+
 syntax = "proto3";
 
-package containers_ai.alameda.v1alpha1.datahub;
+package containersai.alameda.v1alpha1.datahub;
 
-import "common/common.proto";
-import "alameda_api/v1alpha1/datahub/event.proto";
-import "alameda_api/v1alpha1/datahub/gpu.proto";
-import "alameda_api/v1alpha1/datahub/license.proto";
-import "alameda_api/v1alpha1/datahub/metadata.proto";
-import "alameda_api/v1alpha1/datahub/metric.proto";
-import "alameda_api/v1alpha1/datahub/planning.proto";
-import "alameda_api/v1alpha1/datahub/predict.proto";
-import "alameda_api/v1alpha1/datahub/recommendation.proto";
-import "alameda_api/v1alpha1/datahub/resource.proto";
-import "alameda_api/v1alpha1/datahub/score.proto";
+import "alameda_api/v1alpha1/datahub/events/services.proto";
+import "alameda_api/v1alpha1/datahub/gpu/services.proto";
+import "alameda_api/v1alpha1/datahub/licenses/services.proto";
+import "alameda_api/v1alpha1/datahub/metrics/services.proto";
+import "alameda_api/v1alpha1/datahub/plannings/services.proto";
+import "alameda_api/v1alpha1/datahub/predictions/services.proto";
+import "alameda_api/v1alpha1/datahub/rawdata/services.proto";
+import "alameda_api/v1alpha1/datahub/recommendations/services.proto";
+import "alameda_api/v1alpha1/datahub/resources/services.proto";
+import "alameda_api/v1alpha1/datahub/scores/services.proto";
+import "alameda_api/v1alpha1/datahub/weavescope/services.proto";
 import "google/protobuf/empty.proto";
 import "google/rpc/status.proto";
 
-message QueryCondition {
-    TimeRange time_range = 1;
-    enum Order {
-        ASC = 0;
-        DESC = 1;
-    }
-    Order order = 2;
-    uint64 limit = 3;
-}
-
-// Represents a request for creating metrics data of pods
-message CreatePodMetricsRequest {
-    repeated PodMetric pod_metrics = 1;
-    uint64 rate_range = 2;
-}
-
-// Represents a request for creating metrics data of nodes
-message CreateNodeMetricsRequest {
-    repeated NodeMetric node_metrics = 1;
-}
-
-// Represents a request for listing metric data of a pod
-message ListPodMetricsRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-    uint64 rate_range = 3;
-}
-
-// Represents a response for a listing pod metric data request
-message ListPodMetricsResponse {
-    google.rpc.Status status = 1;
-    repeated PodMetric pod_metrics = 2;
-}
-
-// Represents a request for listing metric data of a node
-message ListNodeMetricsRequest {
-    repeated string node_names = 1;
-    QueryCondition query_condition = 2;
-}
-
-// Represents a response for a listing node metrics request
-message ListNodeMetricsResponse {
-    google.rpc.Status status = 1;
-    repeated NodeMetric node_metrics = 2;
-}
-
-// Represents a response for a listing pods request
-message ListPodsResponse {
-    google.rpc.Status status = 1;
-    repeated Pod pods = 2;
-}
-
-// Represents a request for listing pods that need to be predicted
-message ListAlamedaPodsRequest {
-    NamespacedName namespaced_name = 1;
-    Kind kind = 2;
-    TimeRange time_range = 3;
-}
-
-// Represents a request for listing nodes that need to be predicted
-message ListAlamedaNodesRequest {
-    TimeRange time_range = 1;
-}
-
-// Represents a request for listing nodes' information
-message ListNodesRequest {
-    repeated string node_names = 1;
-}
-
-// Represents a response for a listing nodes request
-message ListNodesResponse {
-    google.rpc.Status status = 1;
-    repeated Node nodes = 2;
-}
-
-message ListControllersRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-}
-
-message ListControllersResponse {
-    google.rpc.Status status = 1;
-    repeated Controller controllers = 2;
-}
-
-// Represents a request for listing predictions of pods
-message ListPodPredictionsRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-    int64 granularity = 3;
-    int64 fill_days   = 4;
-    string model_id = 5;
-    string prediction_id = 6;
-}
-
-// Represents a response for a listing predictions of pods request
-message ListPodPredictionsResponse {
-    google.rpc.Status status = 1;
-    repeated PodPrediction pod_predictions = 2;
-}
-
-// Represents a request for listing predictions of nodes
-message ListNodePredictionsRequest {
-    repeated string node_names = 1;
-    QueryCondition query_condition = 2;
-    int64 granularity = 3;
-    string model_id = 4;
-    string prediction_id = 5;
-}
-
-// Represents a response for a listing predictions of nodes request
-message ListNodePredictionsResponse {
-    google.rpc.Status status = 1;
-    repeated NodePrediction node_predictions = 2;
-}
-
-// Represents a request for listing recommendations of pods
-message ListPodRecommendationsRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-    Kind kind = 3;
-    int64 granularity = 4;
-}
-
-// Represents a response for listing pod recommendations request
-message ListPodRecommendationsResponse {
-    google.rpc.Status status = 1;
-    repeated PodRecommendation pod_recommendations = 2;
-}
-
-// Represents a request for listing recommendations of controllers
-message ListControllerRecommendationsRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-    ControllerRecommendedType recommended_type = 3;
-}
-
-// Represents a response for listing controller recommendations request
-message ListControllerRecommendationsResponse {
-    google.rpc.Status status = 1;
-    repeated ControllerRecommendation controller_recommendations = 2;
-}
-
-// Represents a request for listing plannings of pods
-message ListPodPlanningsRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-    Kind kind = 3;
-    int64 granularity = 4;
-    PlanningType planning_type = 5;
-}
-
-// Represents a response for listing pod plannings request
-message ListPodPlanningsResponse {
-    google.rpc.Status status = 1;
-    repeated PodPlanning pod_plannings = 2;
-}
-
-// Represents a request for listing plannings of controllers
-message ListControllerPlanningsRequest {
-    NamespacedName namespaced_name = 1;
-    QueryCondition query_condition = 2;
-    ControllerPlanningType ctl_planning_type = 3;
-    PlanningType planning_type = 4;
-}
-
-// Represents a response for listing controller plannings request
-message ListControllerPlanningsResponse {
-    google.rpc.Status status = 1;
-    repeated ControllerPlanning controller_plannings = 2;
-}
-
-// Represents a request for listing pods by nodes' name
-message ListPodsByNodeNamesRequest {
-    repeated string node_names = 1;
-}
-
-// Represents a request for listing system scores of pod scheduled on node
-message ListSimulatedSchedulingScoresRequest {
-    QueryCondition query_condition = 1;
-}
-
-// Represents a response for listing system scores request
-message ListSimulatedSchedulingScoresResponse {
-    google.rpc.Status status = 1;
-    repeated SimulatedSchedulingScore scores = 2;
-}
-
-// Represents a request for creating predictions of containers' metric data belonging to a pod
-message CreatePodPredictionsRequest {
-    repeated PodPrediction pod_predictions = 1;
-}
-
-// Represents a request for creating predictions of a node metric data
-message CreateNodePredictionsRequest {
-    repeated NodePrediction node_predictions = 1;
-}
-
-// Represents a request for creating a pod's recommendation
-message CreatePodRecommendationsRequest {
-    repeated PodRecommendation pod_recommendations = 1;
-    int64 granularity = 2;
-}
-
-// Represents a request for creating a controller's recommendation
-message CreateControllerRecommendationsRequest {
-    repeated ControllerRecommendation controller_recommendations = 1;
-}
-
-// Represents a request for creating a pod's plannings
-message CreatePodPlanningsRequest {
-    repeated PodPlanning pod_plannings = 1;
-    int64 granularity = 2;
-}
-
-// Represents a request for creating a controller's plannings
-message CreateControllerPlanningsRequest {
-    repeated ControllerPlanning controller_plannings = 1;
-}
-
-// Represents a request for creating pods
-message CreatePodsRequest {
-    repeated Pod pods = 1;
-}
-
-message CreateControllersRequest {
-    repeated Controller controllers = 1;
-}
-
-// Represents a request for adding nodes that need to be predicted
-message CreateAlamedaNodesRequest {
-    repeated Node alameda_nodes = 1;
-}
-
-// Represents a request for adding scheduling scores produced by ai engine
-message CreateSimulatedSchedulingScoresRequest {
-    repeated SimulatedSchedulingScore scores = 1;
-}
-
-// Represents a request for deleting pods data
-message DeletePodsRequest {
-    repeated Pod pods = 1;
-}
-
-message DeleteControllersRequest {
-    repeated Controller controllers = 1;
-}
-
-// Represents a request for stoping predicting nodes
-message DeleteAlamedaNodesRequest {
-    repeated Node alameda_nodes = 1;
-}
-
-message ListWeaveScopeHostsRequest {
-    string host_id = 1;
-}
-
-message ListWeaveScopePodsRequest {
-    string pod_id = 1;
-}
-
-message ListWeaveScopeContainersRequest {
-    string container_id = 1;
-}
-
-message WeaveScopeResponse {
-    google.rpc.Status status = 1;
-    string rawdata = 2;
-}
-
-// Represents a request for reading rawdata from database
-message ReadRawdataRequest {
-    containersai.common.DatabaseType database_type = 1;
-    repeated containersai.common.Query queries = 2;
-}
-
-// Represents a response for listing rawdata from database
-message ReadRawdataResponse {
-    google.rpc.Status status = 1;
-    repeated containersai.common.ReadRawdata rawdata = 2;
-}
-
-// Represents a request for writing rawdata to database
-message WriteRawdataRequest {
-    containersai.common.DatabaseType database_type = 1;
-    repeated containersai.common.WriteRawdata rawdata = 2;
-}
-
-message ListEventsRequest {
-    repeated string         id         = 1;
-    repeated string         cluster_id = 2;
-    repeated EventType      type       = 3;
-    repeated EventVersion   version    = 4;
-    repeated EventLevel     level      = 5;
-
-    QueryCondition query_condition = 6;
-}
-
-message ListEventsResponse {
-    google.rpc.Status status = 1;
-    repeated Event events = 2;
-}
-
-message CreateEventsRequest {
-    repeated Event events = 1;
-}
-
-message ListGpusRequest {
-    string host = 1;
-    string minor_number = 2;
-    QueryCondition query_condition = 3;
-}
-
-message ListGpusResponse {
-    google.rpc.Status status = 1;
-    repeated Gpu gpus = 2;
-}
-
-message ListGpuMetricsRequest {
-    string host = 1;
-    string minor_number = 2;
-    QueryCondition query_condition = 3;
-}
-
-message ListGpuMetricsResponse {
-    google.rpc.Status status = 1;
-    repeated GpuMetric gpu_metrics = 2;
-}
-
-message CreateGpuPredictionsRequest {
-    repeated GpuPrediction gpu_predictions = 1;
-}
-
-message ListGpuPredictionsRequest {
-    string host = 1;
-    string minor_number = 2;
-    string model_id = 3;
-    string prediction_id = 4;
-    int64 granularity = 5;
-    QueryCondition query_condition = 6;
-}
-
-message ListGpuPredictionsResponse {
-    google.rpc.Status status = 1;
-    repeated GpuPrediction gpu_predictions = 2;
-}
-
-message GetLicenseResponse {
-    google.rpc.Status status = 1;
-    License license = 2;
-}
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub";
 
 // Service for providing data stored in the backend
 service DatahubService {
-    // Used to create metrics data of pods
-    rpc CreatePodMetrics(CreatePodMetricsRequest)
-        returns (google.rpc.Status) {}
-
-    // Used to create metrics data of nodes
-    rpc CreateNodeMetrics(CreateNodeMetricsRequest)
-        returns (google.rpc.Status) {}
-
-    // Used to list pod metric data
-    rpc ListPodMetrics(ListPodMetricsRequest)
-        returns (ListPodMetricsResponse) {}
-
-    // Used to list node metric data
-    rpc ListNodeMetrics(ListNodeMetricsRequest)
-        returns (ListNodeMetricsResponse) {}
-
-    // Used to list pods need to be predicted
-    rpc ListAlamedaPods(ListAlamedaPodsRequest)
-        returns (ListPodsResponse){}
-
-    // Used to list nodes need to be predicted
-    rpc ListAlamedaNodes(ListAlamedaNodesRequest)
-        returns (ListNodesResponse){}
-
-    // Used to list nodes' information
-    rpc ListNodes(ListNodesRequest)
-        returns (ListNodesResponse){}
-
-    rpc ListControllers(ListControllersRequest)
-        returns (ListControllersResponse){}
-
-    // Used to list pod predictions
-    rpc ListPodPredictions(ListPodPredictionsRequest)
-        returns (ListPodPredictionsResponse) {}
-
-    // Used to list node predictions
-    rpc ListNodePredictions(ListNodePredictionsRequest)
-        returns (ListNodePredictionsResponse) {}
-
-    // Used to list pod recommendations
-    rpc ListPodRecommendations(ListPodRecommendationsRequest)
-        returns (ListPodRecommendationsResponse) {}
-
-    // Used to list pod recommendations
-    rpc ListAvailablePodRecommendations(ListPodRecommendationsRequest)
-        returns (ListPodRecommendationsResponse) {}
-
-    // Used to list controller recommendations
-    rpc ListControllerRecommendations(ListControllerRecommendationsRequest)
-        returns (ListControllerRecommendationsResponse) {}
-
-    // Used to list pod plannings
-    rpc ListPodPlannings(ListPodPlanningsRequest)
-        returns (ListPodPlanningsResponse) {}
-
-    // Used to list controller plannings
-    rpc ListControllerPlannings(ListControllerPlanningsRequest)
-        returns (ListControllerPlanningsResponse) {}
-
-    // Used to list pods by a node name
-    rpc ListPodsByNodeName(ListPodsByNodeNamesRequest)
-        returns (ListPodsResponse) {}
-
-    // Used to list system scores
-    rpc ListSimulatedSchedulingScores(ListSimulatedSchedulingScoresRequest)
-        returns (ListSimulatedSchedulingScoresResponse) {}
-
-    // Used to add pods that need to be predicted
-    rpc CreatePods(CreatePodsRequest)
+    // Events --------------------------------------------------
+    rpc CreateEvents(events.CreateEventsRequest)
         returns (google.rpc.Status){}
 
-    rpc CreateControllers(CreateControllersRequest)
+    rpc ListEvents(events.ListEventsRequest)
+        returns (events.ListEventsResponse){}
+
+    // GPU --------------------------------------------------
+    rpc CreateGpuPredictions(gpu.CreateGpuPredictionsRequest)
         returns (google.rpc.Status){}
 
-    // Used to add nodes that need to be predicted
-    rpc CreateAlamedaNodes(CreateAlamedaNodesRequest)
-        returns (google.rpc.Status){}
+    rpc ListGpus(gpu.ListGpusRequest)
+        returns (gpu.ListGpusResponse){}
 
-    // Used to create predictions of pods
-    rpc CreatePodPredictions(CreatePodPredictionsRequest)
+    rpc ListGpuMetrics(gpu.ListGpuMetricsRequest)
+        returns (gpu.ListGpuMetricsResponse){}
+
+    rpc ListGpuPredictions(gpu.ListGpuPredictionsRequest)
+        returns (gpu.ListGpuPredictionsResponse){}
+
+    // Licenses --------------------------------------------------
+    rpc GetLicense(google.protobuf.Empty)
+        returns (licenses.GetLicenseResponse) {}
+
+    // Metrics --------------------------------------------------
+    rpc CreatePodMetrics(metrics.CreatePodMetricsRequest)
         returns (google.rpc.Status) {}
 
-    // Used to create predictions of nodes
-    rpc CreateNodePredictions(CreateNodePredictionsRequest)
+    rpc CreateNodeMetrics(metrics.CreateNodeMetricsRequest)
         returns (google.rpc.Status) {}
 
-    // Used to create recommendations of pods
-    rpc CreatePodRecommendations(CreatePodRecommendationsRequest)
-        returns (google.rpc.Status) {}
+    rpc ListPodMetrics(metrics.ListPodMetricsRequest)
+        returns (metrics.ListPodMetricsResponse) {}
 
-    // Used to create recommendations of controller
-    rpc CreateControllerRecommendations(CreateControllerRecommendationsRequest)
-        returns (google.rpc.Status) {}
+    rpc ListNodeMetrics(metrics.ListNodeMetricsRequest)
+        returns (metrics.ListNodeMetricsResponse) {}
 
-    // Used to create plannings of pods
-    rpc CreatePodPlannings(CreatePodPlanningsRequest)
-        returns (google.rpc.Status) {}
-
-    // Used to create plannings of controller
-    rpc CreateControllerPlannings(CreateControllerPlanningsRequest)
-        returns (google.rpc.Status) {}
-
-    // Used to create scores of system
-    rpc CreateSimulatedSchedulingScores(CreateSimulatedSchedulingScoresRequest)
-        returns (google.rpc.Status) {}
-
-    // Used to delete info of pods
-    rpc DeletePods(DeletePodsRequest)
-        returns (google.rpc.Status){}
-
-    rpc DeleteControllers(DeleteControllersRequest)
-        returns (google.rpc.Status){}
-
-    // Used to stop generating predictions for the nodes
-    rpc DeleteAlamedaNodes(DeleteAlamedaNodesRequest)
-        returns (google.rpc.Status){}
-
-    // Used to read rawdata from database
-    rpc ReadRawdata(ReadRawdataRequest)
-        returns (ReadRawdataResponse) {}
-
-    // Used to write rawdata to database
-    rpc WriteRawdata(WriteRawdataRequest)
-        returns (google.rpc.Status) {}
-
-    // Used to do liveness test
+    // Ping --------------------------------------------------
     rpc Ping(google.protobuf.Empty)
         returns (google.rpc.Status) {}
 
-    // weave scope--------------------------------------------------
-    rpc ListWeaveScopeHosts(ListWeaveScopeHostsRequest)
-        returns (WeaveScopeResponse){}
+    // Plannings --------------------------------------------------
+    rpc CreatePodPlannings(plannings.CreatePodPlanningsRequest)
+        returns (google.rpc.Status) {}
 
-    rpc GetWeaveScopeHostDetails(ListWeaveScopeHostsRequest)
-        returns (WeaveScopeResponse){}
+    rpc CreateControllerPlannings(plannings.CreateControllerPlanningsRequest)
+        returns (google.rpc.Status) {}
 
-    rpc ListWeaveScopePods(ListWeaveScopePodsRequest)
-        returns (WeaveScopeResponse){}
+    rpc ListPodPlannings(plannings.ListPodPlanningsRequest)
+        returns (plannings.ListPodPlanningsResponse) {}
 
-    rpc GetWeaveScopePodDetails(ListWeaveScopePodsRequest)
-        returns (WeaveScopeResponse){}
+    rpc ListControllerPlannings(plannings.ListControllerPlanningsRequest)
+        returns (plannings.ListControllerPlanningsResponse) {}
 
-    rpc ListWeaveScopeContainers(ListWeaveScopeContainersRequest)
-        returns (WeaveScopeResponse){}
+    // Predictions --------------------------------------------------
+    rpc CreateNodePredictions(predictions.CreateNodePredictionsRequest)
+        returns (google.rpc.Status) {}
 
-    rpc ListWeaveScopeContainersByHostname(ListWeaveScopeContainersRequest)
-        returns (WeaveScopeResponse){}
+    rpc CreatePodPredictions(predictions.CreatePodPredictionsRequest)
+        returns (google.rpc.Status) {}
 
-    rpc ListWeaveScopeContainersByImage(ListWeaveScopeContainersRequest)
-        returns (WeaveScopeResponse){}
+    rpc ListNodePredictions(predictions.ListNodePredictionsRequest)
+        returns (predictions.ListNodePredictionsResponse) {}
 
-    rpc GetWeaveScopeContainerDetails(ListWeaveScopeContainersRequest)
-        returns (WeaveScopeResponse){}
+    rpc ListPodPredictions(predictions.ListPodPredictionsRequest)
+        returns (predictions.ListPodPredictionsResponse) {}
 
-    // Events
-    rpc CreateEvents(CreateEventsRequest)
+    // Rawdata --------------------------------------------------
+    rpc ReadRawdata(rawdata.ReadRawdataRequest)
+        returns (rawdata.ReadRawdataResponse) {}
+
+    rpc WriteRawdata(rawdata.WriteRawdataRequest)
+        returns (google.rpc.Status) {}
+
+    // Recommendations --------------------------------------------------
+    rpc CreatePodRecommendations(recommendations.CreatePodRecommendationsRequest)
+        returns (google.rpc.Status) {}
+
+    rpc CreateControllerRecommendations(recommendations.CreateControllerRecommendationsRequest)
+        returns (google.rpc.Status) {}
+
+    rpc ListPodRecommendations(recommendations.ListPodRecommendationsRequest)
+        returns (recommendations.ListPodRecommendationsResponse) {}
+
+    rpc ListAvailablePodRecommendations(recommendations.ListPodRecommendationsRequest)
+        returns (recommendations.ListPodRecommendationsResponse) {}
+
+    rpc ListControllerRecommendations(recommendations.ListControllerRecommendationsRequest)
+        returns (recommendations.ListControllerRecommendationsResponse) {}
+
+    // Resources --------------------------------------------------
+    // Used to list system scores
+    rpc ListSimulatedSchedulingScores(scores.ListSimulatedSchedulingScoresRequest)
+        returns (scores.ListSimulatedSchedulingScoresResponse) {}
+
+    // Used to add pods that need to be predicted
+    rpc CreatePods(resources.CreatePodsRequest)
         returns (google.rpc.Status){}
 
-    rpc ListEvents(ListEventsRequest)
-        returns (ListEventsResponse){}
-
-    // GPU
-    rpc ListGpus(ListGpusRequest)
-        returns (ListGpusResponse){}
-
-    rpc ListGpuMetrics(ListGpuMetricsRequest)
-        returns (ListGpuMetricsResponse){}
-
-    rpc CreateGpuPredictions(CreateGpuPredictionsRequest)
+    rpc CreateControllers(resources.CreateControllersRequest)
         returns (google.rpc.Status){}
 
-    rpc ListGpuPredictions(ListGpuPredictionsRequest)
-        returns (ListGpuPredictionsResponse){}
+    // Used to add nodes that need to be predicted
+    rpc CreateAlamedaNodes(resources.CreateAlamedaNodesRequest)
+        returns (google.rpc.Status){}
 
-    // Licenses
-    rpc GetLicense(google.protobuf.Empty)
-        returns (GetLicenseResponse) {}
+    // Used to list pods need to be predicted
+    rpc ListAlamedaPods(resources.ListAlamedaPodsRequest)
+        returns (resources.ListPodsResponse){}
+
+    // Used to list nodes need to be predicted
+    rpc ListAlamedaNodes(resources.ListAlamedaNodesRequest)
+        returns (resources.ListNodesResponse){}
+
+    // Used to list nodes' information
+    rpc ListNodes(resources.ListNodesRequest)
+        returns (resources.ListNodesResponse){}
+
+    rpc ListControllers(resources.ListControllersRequest)
+        returns (resources.ListControllersResponse){}
+
+    // Used to list pods by a node name
+    rpc ListPodsByNodeName(resources.ListPodsByNodeNamesRequest)
+        returns (resources.ListPodsResponse) {}
+
+    // Used to delete info of pods
+    rpc DeletePods(resources.DeletePodsRequest)
+        returns (google.rpc.Status){}
+
+    rpc DeleteControllers(resources.DeleteControllersRequest)
+        returns (google.rpc.Status){}
+
+    // Used to stop generating predictions for the nodes
+    rpc DeleteAlamedaNodes(resources.DeleteAlamedaNodesRequest)
+        returns (google.rpc.Status){}
+
+    // Scores --------------------------------------------------
+    rpc CreateSimulatedSchedulingScores(scores.CreateSimulatedSchedulingScoresRequest)
+        returns (google.rpc.Status) {}
+
+    // weave scope --------------------------------------------------
+    rpc ListWeaveScopeHosts(weavescope.ListWeaveScopeHostsRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc GetWeaveScopeHostDetails(weavescope.ListWeaveScopeHostsRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc ListWeaveScopePods(weavescope.ListWeaveScopePodsRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc GetWeaveScopePodDetails(weavescope.ListWeaveScopePodsRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc ListWeaveScopeContainers(weavescope.ListWeaveScopeContainersRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc ListWeaveScopeContainersByHostname(weavescope.ListWeaveScopeContainersRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc ListWeaveScopeContainersByImage(weavescope.ListWeaveScopeContainersRequest)
+        returns (weavescope.WeaveScopeResponse){}
+
+    rpc GetWeaveScopeContainerDetails(weavescope.ListWeaveScopeContainersRequest)
+        returns (weavescope.WeaveScopeResponse){}
 }

@@ -1,0 +1,51 @@
+// This file has messages related to gpu info, metrics and predictions
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.gpu;
+
+import "alameda_api/v1alpha1/datahub/common/queries.proto";
+import "alameda_api/v1alpha1/datahub/gpu/gpu.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu";
+
+message ListGpusRequest {
+    common.QueryCondition query_condition = 1;
+    string                host            = 2;
+    string                minor_number    = 3;
+}
+
+message ListGpusResponse {
+    google.rpc.Status status = 1;
+    repeated Gpu      gpus   = 2;
+}
+
+message ListGpuMetricsRequest {
+    common.QueryCondition query_condition = 1;
+    string                host            = 2;
+    string                minor_number    = 3;
+}
+
+message ListGpuMetricsResponse {
+    google.rpc.Status  status      = 1;
+    repeated GpuMetric gpu_metrics = 2;
+}
+
+message CreateGpuPredictionsRequest {
+    repeated GpuPrediction gpu_predictions = 1;
+}
+
+message ListGpuPredictionsRequest {
+    common.QueryCondition query_condition = 1;
+    string                host            = 2;
+    string                minor_number    = 3;
+    int64                 granularity     = 4;
+    string                model_id        = 5;
+    string                prediction_id   = 6;
+}
+
+message ListGpuPredictionsResponse {
+    google.rpc.Status      status          = 1;
+    repeated GpuPrediction gpu_predictions = 2;
+}

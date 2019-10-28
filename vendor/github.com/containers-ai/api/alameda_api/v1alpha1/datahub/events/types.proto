@@ -1,0 +1,57 @@
+// This file has messages related to system events
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.events;
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events";
+
+enum EventType {
+    EVENT_TYPE_UNDEFINED                    = 0;
+    EVENT_TYPE_ALAMEDA_SCALER_CREATE        = 1;
+    EVENT_TYPE_ALAMEDA_SCALER_DELETE        = 2;
+    EVENT_TYPE_NODE_REGISTER                = 3;
+    EVENT_TYPE_DEPLOYMENT_REGISTER          = 4;
+    EVENT_TYPE_DEPLOYMENT_CONFIG_REGISTER   = 5;
+    EVENT_TYPE_POD_REGISTER                 = 6;
+    EVENT_TYPE_NODE_DEREGISTER              = 7;
+    EVENT_TYPE_DEPLOYMENT_DEREGISTER        = 8;
+    EVENT_TYPE_DEPLOYMENT_CONFIG_DEREGISTER = 9;
+    EVENT_TYPE_POD_DEREGISTER               = 10;
+    EVENT_TYPE_NODE_PREDICTION_CREATE       = 11;
+    EVENT_TYPE_POD_PREDICTION_CREATE        = 12;
+    EVENT_TYPE_VPA_RECOMMENDATION_CREATE    = 13;
+    EVENT_TYPE_HPA_RECOMMENDATION_CREATE    = 14;
+    EVENT_TYPE_VPA_RECOMMENDATION_EXECUTE   = 15;
+    EVENT_TYPE_HPA_RECOMMENDATION_EXECUTE   = 16;
+    EVENT_TYPE_ANOMALY_METRIC_DETECT        = 17;
+    EVENT_TYPE_ANOMALY_ANALYSIS_CREATE      = 18;
+    EVENT_TYPE_LICENSE                      = 19;
+    EVENT_TYPE_EMAIL_NOTIFICATION           = 20;
+}
+
+enum EventVersion {
+    EVENT_VERSION_UNDEFINED = 0;
+    EVENT_VERSION_V1        = 1;
+}
+
+enum EventLevel {
+    EVENT_LEVEL_UNDEFINED = 0;
+    EVENT_LEVEL_DEBUG     = 1;
+    EVENT_LEVEL_INFO      = 2;
+    EVENT_LEVEL_WARNING   = 3;
+    EVENT_LEVEL_ERROR     = 4;
+    EVENT_LEVEL_FATAL     = 5;
+}
+
+message EventSource {
+    string host      = 1;
+    string component = 2;
+}
+
+message K8SObjectReference {
+    string kind        = 1;
+    string namespace   = 2;
+    string name        = 3;
+    string api_version = 4;
+}

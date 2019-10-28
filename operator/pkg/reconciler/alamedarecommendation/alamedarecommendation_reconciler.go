@@ -4,7 +4,8 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	ApiRecommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -29,7 +30,7 @@ func NewReconciler(client client.Client, alamedaRecommendation *autoscaling_v1al
 }
 
 // UpdateResourceRecommendation updates resource of AlamedaRecommendation
-func (reconciler *Reconciler) UpdateResourceRecommendation(podRecommendation *datahub_v1alpha1.PodRecommendation) (*autoscaling_v1alpha1.AlamedaRecommendation, error) {
+func (reconciler *Reconciler) UpdateResourceRecommendation(podRecommendation *ApiRecommendations.PodRecommendation) (*autoscaling_v1alpha1.AlamedaRecommendation, error) {
 	for alamedaContainerIdx, alamedaContainer := range reconciler.alamedaRecommendation.Spec.Containers {
 		for _, containerRecommendation := range podRecommendation.ContainerRecommendations {
 			if alamedaContainer.Name == containerRecommendation.Name {
@@ -40,7 +41,7 @@ func (reconciler *Reconciler) UpdateResourceRecommendation(podRecommendation *da
 					alamedaContainer.Resources.Requests = corev1.ResourceList{}
 				}
 				for _, limitRecommendation := range containerRecommendation.LimitRecommendations {
-					if limitRecommendation.MetricType == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
+					if limitRecommendation.MetricType == ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
 						cpuLimitTime := int64(0)
 						for _, data := range limitRecommendation.Data {
 							curNanoSec := utils.TimeStampToNanoSecond(data.Time)
@@ -52,7 +53,7 @@ func (reconciler *Reconciler) UpdateResourceRecommendation(podRecommendation *da
 							}
 						}
 
-					} else if limitRecommendation.MetricType == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES {
+					} else if limitRecommendation.MetricType == ApiCommon.MetricType_MEMORY_USAGE_BYTES {
 						memoryLimitTime := int64(0)
 						for _, data := range limitRecommendation.Data {
 							curNanoSec := utils.TimeStampToNanoSecond(data.Time)
@@ -66,7 +67,7 @@ func (reconciler *Reconciler) UpdateResourceRecommendation(podRecommendation *da
 					}
 				}
 				for _, requestRecommendation := range containerRecommendation.RequestRecommendations {
-					if requestRecommendation.MetricType == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
+					if requestRecommendation.MetricType == ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
 						cpuRequestTime := int64(0)
 						for _, data := range requestRecommendation.Data {
 							curNanoSec := utils.TimeStampToNanoSecond(data.Time)
@@ -78,7 +79,7 @@ func (reconciler *Reconciler) UpdateResourceRecommendation(podRecommendation *da
 							}
 						}
 
-					} else if requestRecommendation.MetricType == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES {
+					} else if requestRecommendation.MetricType == ApiCommon.MetricType_MEMORY_USAGE_BYTES {
 						memoryRequestTime := int64(0)
 						for _, data := range requestRecommendation.Data {
 							curNanoSec := utils.TimeStampToNanoSecond(data.Time)

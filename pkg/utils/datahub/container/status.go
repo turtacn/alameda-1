@@ -1,21 +1,21 @@
 package container
 
 import (
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func NewStatus(containerStatus *corev1.ContainerStatus) *datahub_v1alpha1.ContainerStatus {
-	state := &datahub_v1alpha1.ContainerState{}
+func NewStatus(containerStatus *corev1.ContainerStatus) *ApiResources.ContainerStatus {
+	state := &ApiResources.ContainerState{}
 	if containerStatus.State.Running != nil {
-		state.Running = &datahub_v1alpha1.ContainerStateRunning{
+		state.Running = &ApiResources.ContainerStateRunning{
 			StartedAt: &timestamp.Timestamp{
 				Seconds: containerStatus.State.Running.StartedAt.Unix(),
 			},
 		}
 	} else if containerStatus.State.Terminated != nil {
-		state.Terminated = &datahub_v1alpha1.ContainerStateTerminated{
+		state.Terminated = &ApiResources.ContainerStateTerminated{
 			ExitCode: containerStatus.State.Terminated.ExitCode,
 			Reason:   containerStatus.State.Terminated.Reason,
 			Message:  containerStatus.State.Terminated.Message,
@@ -27,20 +27,20 @@ func NewStatus(containerStatus *corev1.ContainerStatus) *datahub_v1alpha1.Contai
 			},
 		}
 	} else if containerStatus.State.Waiting != nil {
-		state.Waiting = &datahub_v1alpha1.ContainerStateWaiting{
+		state.Waiting = &ApiResources.ContainerStateWaiting{
 			Reason:  containerStatus.State.Waiting.Reason,
 			Message: containerStatus.State.Waiting.Message,
 		}
 	}
-	lastTerminationState := &datahub_v1alpha1.ContainerState{}
+	lastTerminationState := &ApiResources.ContainerState{}
 	if containerStatus.LastTerminationState.Running != nil {
-		lastTerminationState.Running = &datahub_v1alpha1.ContainerStateRunning{
+		lastTerminationState.Running = &ApiResources.ContainerStateRunning{
 			StartedAt: &timestamp.Timestamp{
 				Seconds: containerStatus.LastTerminationState.Running.StartedAt.Unix(),
 			},
 		}
 	} else if containerStatus.LastTerminationState.Terminated != nil {
-		lastTerminationState.Terminated = &datahub_v1alpha1.ContainerStateTerminated{
+		lastTerminationState.Terminated = &ApiResources.ContainerStateTerminated{
 			ExitCode: containerStatus.LastTerminationState.Terminated.ExitCode,
 			Reason:   containerStatus.LastTerminationState.Terminated.Reason,
 			Message:  containerStatus.LastTerminationState.Terminated.Message,
@@ -52,12 +52,12 @@ func NewStatus(containerStatus *corev1.ContainerStatus) *datahub_v1alpha1.Contai
 			},
 		}
 	} else if containerStatus.LastTerminationState.Waiting != nil {
-		lastTerminationState.Waiting = &datahub_v1alpha1.ContainerStateWaiting{
+		lastTerminationState.Waiting = &ApiResources.ContainerStateWaiting{
 			Reason:  containerStatus.LastTerminationState.Waiting.Reason,
 			Message: containerStatus.LastTerminationState.Waiting.Message,
 		}
 	}
-	return &datahub_v1alpha1.ContainerStatus{
+	return &ApiResources.ContainerStatus{
 		RestartCount:         containerStatus.RestartCount,
 		State:                state,
 		LastTerminationState: lastTerminationState,

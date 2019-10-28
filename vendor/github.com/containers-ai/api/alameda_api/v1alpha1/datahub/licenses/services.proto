@@ -1,0 +1,15 @@
+// This file has messages related to license managements
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.licenses;
+
+import "alameda_api/v1alpha1/datahub/licenses/licenses.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/licenses";
+
+message GetLicenseResponse {
+    google.rpc.Status status  = 1;
+    License           license = 2;
+}

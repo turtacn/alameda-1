@@ -1,19 +1,18 @@
 package utils
 
 import (
-	"strconv"
-	"time"
-
 	"encoding/csv"
-	"github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
+	Log "github.com/containers-ai/alameda/pkg/utils/log"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"os"
+	"strconv"
+	"time"
 )
 
 var (
-	utilsScope = logUtil.RegisterScope("utils", "utils", 0)
+	utilsScope = Log.RegisterScope("utils", "utils", 0)
 )
 
 type StringStringMap map[string]string
@@ -43,11 +42,11 @@ func NanoSecondToSecond(nanosecond int64) int64 {
 }
 
 // GetSampleInstance get Sample instance
-func GetSampleInstance(timeObj, endTimeObj *time.Time, numVal string) *datahub_v1alpha1.Sample {
+func GetSampleInstance(timeObj, endTimeObj *time.Time, numVal string) *ApiCommon.Sample {
 	seconds := timeObj.Unix()
 	endSeconds := endTimeObj.Unix()
 	if timeObj != nil && endTimeObj != nil {
-		return &datahub_v1alpha1.Sample{
+		return &ApiCommon.Sample{
 			Time: &timestamp.Timestamp{
 				Seconds: seconds,
 			},
@@ -57,7 +56,7 @@ func GetSampleInstance(timeObj, endTimeObj *time.Time, numVal string) *datahub_v
 			NumValue: numVal,
 		}
 	}
-	return &datahub_v1alpha1.Sample{
+	return &ApiCommon.Sample{
 		NumValue: numVal,
 	}
 }
@@ -65,7 +64,7 @@ func GetSampleInstance(timeObj, endTimeObj *time.Time, numVal string) *datahub_v
 // GetTimeIdxFromColumns get index of time column
 func GetTimeIdxFromColumns(columns []string) int {
 	for idx, column := range columns {
-		if column == influxdb.Time {
+		if column == RepoInflux.Time {
 			return idx
 		}
 	}
@@ -75,7 +74,7 @@ func GetTimeIdxFromColumns(columns []string) int {
 // GetTimeIdxFromColumns get index of end_time column
 func GetEndTimeIdxFromColumns(columns []string) int {
 	for idx, column := range columns {
-		if column == influxdb.EndTime {
+		if column == RepoInflux.EndTime {
 			return idx
 		}
 	}

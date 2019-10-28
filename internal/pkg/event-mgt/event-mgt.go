@@ -3,8 +3,7 @@ package eventmgt
 import (
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalRabbitMQ "github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
-
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiEvents "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 )
 
 var (
@@ -33,12 +32,12 @@ func NewEventMgt(influxDBCfg *InternalInflux.Config, rabbitMQConfig *InternalRab
 	}
 }
 
-func PostEvents(in *datahub_v1alpha1.CreateEventsRequest) error {
+func PostEvents(in *ApiEvents.CreateEventsRequest) error {
 	eventMgt := NewEventMgt(gInfluxDBCfg, gRabbitMQConfig)
 	return eventMgt.PostEvents(in)
 }
 
-func ListEvents(in *datahub_v1alpha1.ListEventsRequest) ([]*datahub_v1alpha1.Event, error) {
+func ListEvents(in *ApiEvents.ListEventsRequest) ([]*ApiEvents.Event, error) {
 	eventMgt := NewEventMgt(gInfluxDBCfg, gRabbitMQConfig)
 	return eventMgt.ListEvents(in)
 }

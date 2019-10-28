@@ -1,0 +1,23 @@
+// This file has messages related to system events
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.events;
+
+import "alameda_api/v1alpha1/datahub/events/types.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events";
+
+message Event {
+    google.protobuf.Timestamp time       = 1;
+    string                    id         = 2;
+    string                    cluster_id = 3;
+    EventSource               source     = 4;
+    EventType                 type       = 5;
+    EventVersion              version    = 6;
+    EventLevel                level      = 7;
+    K8SObjectReference        subject    = 8;
+    string                    message    = 9;
+    string                    data       = 10;
+}

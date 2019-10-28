@@ -1,0 +1,34 @@
+// This file has messages related to gpu info, metrics and predictions
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.gpu;
+
+import "alameda_api/v1alpha1/datahub/common/metrics.proto";
+import "alameda_api/v1alpha1/datahub/gpu/types.proto";
+import "alameda_api/v1alpha1/datahub/predictions/types.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu";
+
+message Gpu {
+    string      name     = 1;
+    string      uuid     = 2;
+    GpuMetadata metadata = 3;
+    GpuSpec     spec     = 4;
+}
+
+message GpuMetric {
+    string                     name        = 1;
+    string                     uuid        = 2;
+    GpuMetadata                metadata    = 3;
+    repeated common.MetricData metric_data = 4;
+}
+
+message GpuPrediction {
+    string                          name                      = 1;
+    string                          uuid                      = 2;
+    GpuMetadata                     metadata                  = 3;
+    repeated predictions.MetricData predicted_raw_data        = 4;
+    repeated predictions.MetricData predicted_upperbound_data = 5;
+    repeated predictions.MetricData predicted_lowerbound_data = 6;
+}

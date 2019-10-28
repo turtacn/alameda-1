@@ -1,12 +1,11 @@
 package v1alpha1
 
 import (
-	DaoRecommendation "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation"
-	DaoRecommendationImpl "github.com/containers-ai/alameda/datahub/pkg/dao/recommendation/impl"
+	DaoRecommendation "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/recommendations"
 	AutoScalingV1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	ReconcilerAlamedaRecommendation "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiRecommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
@@ -15,12 +14,8 @@ import (
 )
 
 // CreatePodRecommendations add pod recommendations information to database
-func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *DatahubV1alpha1.CreatePodRecommendationsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *ApiRecommendations.CreatePodRecommendationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodRecommendations grpc function: " + AlamedaUtils.InterfaceToString(in))
-
-	var containerDAO DaoRecommendation.ContainerOperation = &DaoRecommendationImpl.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
 
 	podRecommendations := in.GetPodRecommendations()
 	for _, podRecommendation := range podRecommendations {
@@ -43,6 +38,7 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *Data
 		}
 	}
 
+	containerDAO := DaoRecommendation.NewContainerRecommendationsDAO(*s.Config)
 	if err := containerDAO.AddPodRecommendations(in); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
@@ -57,14 +53,11 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *Data
 }
 
 // CreatePodRecommendations add controller recommendations information to database
-func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, in *DatahubV1alpha1.CreateControllerRecommendationsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, in *ApiRecommendations.CreateControllerRecommendationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllerRecommendations grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := DaoRecommendationImpl.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
 	controllerRecommendationList := in.GetControllerRecommendations()
+	controllerDAO := DaoRecommendation.NewControllerRecommendationsDAO(*s.Config)
 	err := controllerDAO.AddControllerRecommendations(controllerRecommendationList)
 
 	if err != nil {
@@ -81,17 +74,14 @@ func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, i
 }
 
 // ListPodRecommendations list pod recommendations
-func (s *ServiceV1alpha1) ListPodRecommendations(ctx context.Context, in *DatahubV1alpha1.ListPodRecommendationsRequest) (*DatahubV1alpha1.ListPodRecommendationsResponse, error) {
+func (s *ServiceV1alpha1) ListPodRecommendations(ctx context.Context, in *ApiRecommendations.ListPodRecommendationsRequest) (*ApiRecommendations.ListPodRecommendationsResponse, error) {
 	scope.Debug("Request received from ListPodRecommendations grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoRecommendation.ContainerOperation = &DaoRecommendationImpl.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	containerDAO := DaoRecommendation.NewContainerRecommendationsDAO(*s.Config)
 	podRecommendations, err := containerDAO.ListPodRecommendations(in)
 	if err != nil {
 		scope.Error(err.Error())
-		return &DatahubV1alpha1.ListPodRecommendationsResponse{
+		return &ApiRecommendations.ListPodRecommendationsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -99,7 +89,7 @@ func (s *ServiceV1alpha1) ListPodRecommendations(ctx context.Context, in *Datahu
 		}, nil
 	}
 
-	res := &DatahubV1alpha1.ListPodRecommendationsResponse{
+	res := &ApiRecommendations.ListPodRecommendationsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -110,17 +100,14 @@ func (s *ServiceV1alpha1) ListPodRecommendations(ctx context.Context, in *Datahu
 }
 
 // ListAvailablePodRecommendations list pod recommendations
-func (s *ServiceV1alpha1) ListAvailablePodRecommendations(ctx context.Context, in *DatahubV1alpha1.ListPodRecommendationsRequest) (*DatahubV1alpha1.ListPodRecommendationsResponse, error) {
+func (s *ServiceV1alpha1) ListAvailablePodRecommendations(ctx context.Context, in *ApiRecommendations.ListPodRecommendationsRequest) (*ApiRecommendations.ListPodRecommendationsResponse, error) {
 	scope.Debug("Request received from ListAvailablePodRecommendations grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	containerDAO := &DaoRecommendationImpl.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	containerDAO := DaoRecommendation.NewContainerRecommendationsDAO(*s.Config)
 	podRecommendations, err := containerDAO.ListAvailablePodRecommendations(in)
 	if err != nil {
 		scope.Error(err.Error())
-		return &DatahubV1alpha1.ListPodRecommendationsResponse{
+		return &ApiRecommendations.ListPodRecommendationsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -128,7 +115,7 @@ func (s *ServiceV1alpha1) ListAvailablePodRecommendations(ctx context.Context, i
 		}, nil
 	}
 
-	res := &DatahubV1alpha1.ListPodRecommendationsResponse{
+	res := &ApiRecommendations.ListPodRecommendationsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -139,17 +126,14 @@ func (s *ServiceV1alpha1) ListAvailablePodRecommendations(ctx context.Context, i
 }
 
 // ListControllerRecommendations list controller recommendations
-func (s *ServiceV1alpha1) ListControllerRecommendations(ctx context.Context, in *DatahubV1alpha1.ListControllerRecommendationsRequest) (*DatahubV1alpha1.ListControllerRecommendationsResponse, error) {
+func (s *ServiceV1alpha1) ListControllerRecommendations(ctx context.Context, in *ApiRecommendations.ListControllerRecommendationsRequest) (*ApiRecommendations.ListControllerRecommendationsResponse, error) {
 	scope.Debug("Request received from ListControllerRecommendations grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := &DaoRecommendationImpl.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	controllerDAO := DaoRecommendation.NewControllerRecommendationsDAO(*s.Config)
 	controllerRecommendations, err := controllerDAO.ListControllerRecommendations(in)
 	if err != nil {
 		scope.Errorf("api ListControllerRecommendations failed: %v", err)
-		response := &DatahubV1alpha1.ListControllerRecommendationsResponse{
+		response := &ApiRecommendations.ListControllerRecommendationsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -159,7 +143,7 @@ func (s *ServiceV1alpha1) ListControllerRecommendations(ctx context.Context, in 
 		return response, nil
 	}
 
-	response := &DatahubV1alpha1.ListControllerRecommendationsResponse{
+	response := &ApiRecommendations.ListControllerRecommendationsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},

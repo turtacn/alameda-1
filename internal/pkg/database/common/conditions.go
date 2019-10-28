@@ -1,7 +1,7 @@
 package common
 
 import (
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes"
 	"time"
@@ -107,7 +107,7 @@ func BuildQueryCondition(condition *Common.QueryCondition) QueryCondition {
 	return queryCondition
 }
 
-func BuildQueryConditionV1(condition *DatahubV1alpha1.QueryCondition) *QueryCondition {
+func BuildQueryConditionV1(condition *ApiCommon.QueryCondition) *QueryCondition {
 	startTime, _ := ptypes.Timestamp(condition.GetTimeRange().GetStartTime())
 	endTime, _ := ptypes.Timestamp(condition.GetTimeRange().GetEndTime())
 	stepTime, _ := ptypes.Duration(condition.GetTimeRange().GetStep())

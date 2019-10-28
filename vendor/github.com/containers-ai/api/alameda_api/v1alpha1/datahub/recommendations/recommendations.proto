@@ -1,0 +1,50 @@
+// This file has messages related to recommendations of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.recommendations;
+
+import "alameda_api/v1alpha1/datahub/common/metrics.proto";
+import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+import "alameda_api/v1alpha1/datahub/resources/policies.proto";
+import "alameda_api/v1alpha1/datahub/resources/types.proto";
+import "alameda_api/v1alpha1/datahub/recommendations/types.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations";
+
+/**
+ * Represents a resource configuration recommendation
+ *
+ * It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
+ *
+ */
+message ContainerRecommendation {
+    string                     name                            = 1;
+    repeated common.MetricData limit_recommendations           = 2;
+    repeated common.MetricData request_recommendations         = 3;
+    repeated common.MetricData initial_limit_recommendations   = 4;
+    repeated common.MetricData initial_request_recommendations = 5;
+}
+
+/**
+ * Represents a set of container resource configuration recommendations of a pod
+ *
+ */
+message PodRecommendation {
+    resources.NamespacedName         namespaced_name           = 1;
+    bool                             apply_recommendation_now  = 2;
+    resources.AssignPodPolicy        assign_pod_policy         = 3;
+    repeated ContainerRecommendation container_recommendations = 4;
+    google.protobuf.Timestamp        start_time                = 5;
+    google.protobuf.Timestamp        end_time                  = 6;
+    resources.TopController          top_controller            = 7;
+    string                           recommendation_id         = 8;
+    double                           total_cost                = 9;
+}
+
+message ControllerRecommendation {
+    ControllerRecommendedType    recommended_type     = 1;
+    ControllerRecommendedSpec    recommended_spec     = 2;
+    ControllerRecommendedSpecK8s recommended_spec_k8s = 3;
+}

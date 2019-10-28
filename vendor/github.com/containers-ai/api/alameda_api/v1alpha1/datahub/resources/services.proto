@@ -1,0 +1,85 @@
+// This file has messages related to compute resources
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.resources;
+
+import "alameda_api/v1alpha1/datahub/common/queries.proto";
+import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+import "alameda_api/v1alpha1/datahub/resources/resources.proto";
+import "alameda_api/v1alpha1/datahub/resources/types.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources";
+
+// Represents a request for creating pods
+message CreatePodsRequest {
+    repeated Pod pods = 1;
+}
+
+message CreateControllersRequest {
+    repeated Controller controllers = 1;
+}
+
+// Represents a request for adding nodes that need to be predicted
+message CreateAlamedaNodesRequest {
+    repeated Node alameda_nodes = 1;
+}
+
+// Represents a response for a listing pods request
+message ListPodsResponse {
+    google.rpc.Status status = 1;
+    repeated Pod      pods   = 2;
+}
+
+// Represents a request for listing pods that need to be predicted
+message ListAlamedaPodsRequest {
+    NamespacedName   namespaced_name = 1;
+    Kind             kind            = 2;
+    common.TimeRange time_range      = 3;
+}
+
+// Represents a request for listing nodes that need to be predicted
+message ListAlamedaNodesRequest {
+    common.TimeRange time_range = 1;
+}
+
+// Represents a request for listing nodes' information
+message ListNodesRequest {
+    repeated string node_names = 1;
+}
+
+// Represents a response for a listing nodes request
+message ListNodesResponse {
+    google.rpc.Status status = 1;
+    repeated Node     nodes  = 2;
+}
+
+message ListControllersRequest {
+    common.QueryCondition query_condition = 1;
+    NamespacedName        namespaced_name = 2;
+}
+
+message ListControllersResponse {
+    google.rpc.Status   status      = 1;
+    repeated Controller controllers = 2;
+}
+
+// Represents a request for listing pods by nodes' name
+message ListPodsByNodeNamesRequest {
+    repeated string node_names = 1;
+}
+
+// Represents a request for deleting pods data
+message DeletePodsRequest {
+    repeated Pod pods = 1;
+}
+
+message DeleteControllersRequest {
+    repeated Controller controllers = 1;
+}
+
+// Represents a request for stoping predicting nodes
+message DeleteAlamedaNodesRequest {
+    repeated Node alameda_nodes = 1;
+}

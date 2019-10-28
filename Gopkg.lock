@@ -35,15 +35,27 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b2aa2f68dbb7b7d3480cb1d1b42db0a53ee88459522314a8bc03fce098c5f151"
+  digest = "1:85f9cedd91a285f931ed9c197e2ff239dd2a79900293345a7a91e1fbbb705030"
   name = "github.com/containers-ai/api"
   packages = [
     "alameda_api/v1alpha1/datahub",
+    "alameda_api/v1alpha1/datahub/common",
+    "alameda_api/v1alpha1/datahub/events",
+    "alameda_api/v1alpha1/datahub/gpu",
+    "alameda_api/v1alpha1/datahub/licenses",
+    "alameda_api/v1alpha1/datahub/metrics",
+    "alameda_api/v1alpha1/datahub/plannings",
+    "alameda_api/v1alpha1/datahub/predictions",
+    "alameda_api/v1alpha1/datahub/rawdata",
+    "alameda_api/v1alpha1/datahub/recommendations",
+    "alameda_api/v1alpha1/datahub/resources",
+    "alameda_api/v1alpha1/datahub/scores",
+    "alameda_api/v1alpha1/datahub/weavescope",
     "common",
     "datahub/keycodes",
   ]
   pruneopts = "T"
-  revision = "c6e79eb920b188acb149b59cf2a39f6b8f2d00ac"
+  revision = "6f583bc88cb6132d843b3febb6924789b0107f83"
 
 [[projects]]
   digest = "1:9f42202ac457c462ad8bb9642806d275af9ab4850cf0b1960b9c6f083d4a309a"
@@ -1216,6 +1228,18 @@
   input-imports = [
     "cloud.google.com/go/compute/metadata",
     "github.com/containers-ai/api/alameda_api/v1alpha1/datahub",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/licenses",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/rawdata",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/scores",
+    "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/weavescope",
     "github.com/containers-ai/api/common",
     "github.com/containers-ai/api/datahub/keycodes",
     "github.com/emicklei/go-restful",

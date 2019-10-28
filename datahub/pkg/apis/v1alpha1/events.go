@@ -2,13 +2,13 @@ package v1alpha1
 
 import (
 	EventMgt "github.com/containers-ai/alameda/internal/pkg/event-mgt"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiEvents "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
-func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.CreateEventsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *ApiEvents.CreateEventsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateEvents grpc function")
 
 	err := EventMgt.PostEvents(in)
@@ -25,13 +25,13 @@ func (s *ServiceV1alpha1) CreateEvents(ctx context.Context, in *DatahubV1alpha1.
 	}, nil
 }
 
-func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *DatahubV1alpha1.ListEventsRequest) (*DatahubV1alpha1.ListEventsResponse, error) {
+func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *ApiEvents.ListEventsRequest) (*ApiEvents.ListEventsResponse, error) {
 	scope.Debug("Request received from ListEvents grpc function")
 
 	events, err := EventMgt.ListEvents(in)
 	if err != nil {
 		scope.Error(err.Error())
-		return &DatahubV1alpha1.ListEventsResponse{
+		return &ApiEvents.ListEventsResponse{
 			Status: &status.Status{
 				Code: int32(code.Code_INTERNAL),
 			},
@@ -39,7 +39,7 @@ func (s *ServiceV1alpha1) ListEvents(ctx context.Context, in *DatahubV1alpha1.Li
 		}, nil
 	}
 
-	response := &DatahubV1alpha1.ListEventsResponse{
+	response := &ApiEvents.ListEventsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},

@@ -1,11 +1,14 @@
 package v1alpha1
 
 import (
-	DaoPredictionImpl "github.com/containers-ai/alameda/datahub/pkg/dao/prediction/impl"
-	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
+	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions"
+	FormatRequest "github.com/containers-ai/alameda/datahub/pkg/formatconversion/requests"
+	FormatResponse "github.com/containers-ai/alameda/datahub/pkg/formatconversion/responses"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
+	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -15,13 +18,20 @@ import (
 )
 
 // CreateNodePredictions add node predictions information to database
-func (s *ServiceV1alpha1) CreateNodePredictions(ctx context.Context, in *DatahubV1alpha1.CreateNodePredictionsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreateNodePredictions(ctx context.Context, in *ApiPredictions.CreateNodePredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNodePredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	predictionDAO := DaoPredictionImpl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
-	err := predictionDAO.CreateNodePredictions(in)
+	requestExtended := FormatRequest.CreateNodePredictionsRequestExtended{CreateNodePredictionsRequest: *in}
+	if requestExtended.Validate() != nil {
+		return &status.Status{
+			Code: int32(code.Code_INVALID_ARGUMENT),
+		}, nil
+	}
+
+	predictionDAO := DaoPrediction.NewNodePredictionsDAO(*s.Config)
+	err := predictionDAO.CreatePredictions(requestExtended.ProducePredictions())
 	if err != nil {
-		scope.Errorf("create node predictions failed: %+v", err.Error())
+		scope.Errorf("failed to create node predictions: %+v", err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),
@@ -34,11 +44,18 @@ func (s *ServiceV1alpha1) CreateNodePredictions(ctx context.Context, in *Datahub
 }
 
 // CreatePodPredictions add pod predictions information to database
-func (s *ServiceV1alpha1) CreatePodPredictions(ctx context.Context, in *DatahubV1alpha1.CreatePodPredictionsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreatePodPredictions(ctx context.Context, in *ApiPredictions.CreatePodPredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	predictionDAO := DaoPredictionImpl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
-	err := predictionDAO.CreateContainerPredictions(in)
+	requestExtended := FormatRequest.CreatePodPredictionsRequestExtended{CreatePodPredictionsRequest: *in}
+	if requestExtended.Validate() != nil {
+		return &status.Status{
+			Code: int32(code.Code_INVALID_ARGUMENT),
+		}, nil
+	}
+
+	predictionDAO := DaoPrediction.NewPodPredictionsDAO(*s.Config)
+	err := predictionDAO.CreatePredictions(requestExtended.ProducePredictions())
 	if err != nil {
 		scope.Errorf("create pod predictions failed: %+v", err.Error())
 		return &status.Status{
@@ -53,17 +70,24 @@ func (s *ServiceV1alpha1) CreatePodPredictions(ctx context.Context, in *DatahubV
 }
 
 // ListNodePredictions list nodes' predictions
-func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *DatahubV1alpha1.ListNodePredictionsRequest) (*DatahubV1alpha1.ListNodePredictionsResponse, error) {
+func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *ApiPredictions.ListNodePredictionsRequest) (*ApiPredictions.ListNodePredictionsResponse, error) {
 	scope.Debug("Request received from ListNodePredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	predictionDAO := DaoPredictionImpl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+	requestExt := FormatRequest.ListNodePredictionsRequestExtended{Request: in}
+	if err := requestExt.Validate(); err != nil {
+		return &ApiPredictions.ListNodePredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
 
-	requestExt := RequestExtend.ListNodePredictionsRequestExtended{Request: in}
-	listNodePredictionRequest := requestExt.ProduceRequest()
-	nodePredictions, err := predictionDAO.ListNodePredictions(listNodePredictionRequest)
+	predictionDAO := DaoPrediction.NewNodePredictionsDAO(*s.Config)
+	nodesPredictionMap, err := predictionDAO.ListPredictions(requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListNodePredictions failed: %+v", err)
-		return &DatahubV1alpha1.ListNodePredictionsResponse{
+		return &ApiPredictions.ListNodePredictionsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -71,16 +95,23 @@ func (s *ServiceV1alpha1) ListNodePredictions(ctx context.Context, in *DatahubV1
 		}, nil
 	}
 
-	return &DatahubV1alpha1.ListNodePredictionsResponse{
+	datahubNodePredictions := make([]*ApiPredictions.NodePrediction, 0)
+	for _, nodePrediction := range nodesPredictionMap.MetricMap {
+		nodePredictionExtended := FormatResponse.NodePredictionExtended{NodePrediction: nodePrediction}
+		datahubNodePrediction := nodePredictionExtended.ProducePredictions()
+		datahubNodePredictions = append(datahubNodePredictions, datahubNodePrediction)
+	}
+
+	return &ApiPredictions.ListNodePredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		NodePredictions: nodePredictions,
+		NodePredictions: datahubNodePredictions,
 	}, nil
 }
 
 // ListPodPredictions list pods' predictions
-func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *DatahubV1alpha1.ListPodPredictionsRequest) (*DatahubV1alpha1.ListPodPredictionsResponse, error) {
+func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *ApiPredictions.ListPodPredictionsRequest) (*ApiPredictions.ListPodPredictionsResponse, error) {
 	scope.Debug("Request received from ListPodPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	_, err := os.Stat("prediction_cpu.csv")
@@ -88,16 +119,21 @@ func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *DatahubV1a
 		return s.ListPodPredictionsDemo(ctx, in)
 	}
 
-	predictionDAO := DaoPredictionImpl.NewInfluxDBWithConfig(*s.Config.InfluxDB)
+	requestExt := FormatRequest.ListPodPredictionsRequestExtended{Request: in}
+	if err := requestExt.Validate(); err != nil {
+		return &ApiPredictions.ListPodPredictionsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
+	}
 
-	requestExt := RequestExtend.ListPodPredictionsRequestExtended{Request: in}
-	listPodPredictionsRequest := requestExt.ProduceRequest()
-
-	podsPredictions, err := predictionDAO.ListPodPredictions(listPodPredictionsRequest)
-
+	predictionDAO := DaoPrediction.NewPodPredictionsDAO(*s.Config)
+	podsPredictionMap, err := predictionDAO.ListPredictions(requestExt.ProduceRequest())
 	if err != nil {
-		scope.Errorf("ListPodPrediction failed: %+v", err)
-		return &DatahubV1alpha1.ListPodPredictionsResponse{
+		scope.Errorf("ListPodPredictions failed: %+v", err)
+		return &ApiPredictions.ListPodPredictionsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -105,27 +141,37 @@ func (s *ServiceV1alpha1) ListPodPredictions(ctx context.Context, in *DatahubV1a
 		}, nil
 	}
 
-	if in.GetFillDays() > 0 {
-		predictionDAO.FillPodPredictions(podsPredictions, in.GetFillDays())
+	// TODO: must handle filldays in prediction DAO !!!
+	/*
+		if in.GetFillDays() > 0 {
+			predictionDAO.FillPodPredictions(podsPredictions, in.GetFillDays())
+		}
+	*/
+
+	datahubPodPredictions := make([]*ApiPredictions.PodPrediction, 0)
+	for _, podPrediction := range podsPredictionMap.MetricMap {
+		podPredictionExtended := FormatResponse.PodPredictionExtended{PodPrediction: podPrediction}
+		datahubPodPrediction := podPredictionExtended.ProducePredictions()
+		datahubPodPredictions = append(datahubPodPredictions, datahubPodPrediction)
 	}
 
-	return &DatahubV1alpha1.ListPodPredictionsResponse{
+	return &ApiPredictions.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
-		PodPredictions: podsPredictions,
+		PodPredictions: datahubPodPredictions,
 	}, nil
 }
 
 // ListPodPredictions list pods' predictions for demo
-func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *DatahubV1alpha1.ListPodPredictionsRequest) (*DatahubV1alpha1.ListPodPredictionsResponse, error) {
+func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *ApiPredictions.ListPodPredictionsRequest) (*ApiPredictions.ListPodPredictionsResponse, error) {
 	scope.Debug("Request received from ListPodPredictionsDemo grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	demoPodPredictionList := make([]*DatahubV1alpha1.PodPrediction, 0)
+	demoPodPredictionList := make([]*ApiPredictions.PodPrediction, 0)
 	endTime := in.GetQueryCondition().GetTimeRange().GetEndTime().GetSeconds()
 
 	if endTime == 0 {
-		return &DatahubV1alpha1.ListPodPredictionsResponse{
+		return &ApiPredictions.ListPodPredictionsResponse{
 			Status: &status.Status{
 				Code: int32(code.Code_INVALID_ARGUMENT),
 			},
@@ -144,7 +190,7 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *Datahu
 	}
 
 	if endTime == 0 {
-		return &DatahubV1alpha1.ListPodPredictionsResponse{
+		return &ApiPredictions.ListPodPredictionsResponse{
 			Status: &status.Status{
 				Code: int32(code.Code_INVALID_ARGUMENT),
 			},
@@ -152,26 +198,26 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *Datahu
 		}, errors.Errorf("Invalid EndTime")
 	}
 
-	tempNamespacedName := DatahubV1alpha1.NamespacedName{
+	tempNamespacedName := ApiResources.NamespacedName{
 		Namespace: in.NamespacedName.Namespace,
 		Name:      in.NamespacedName.Name,
 	}
 
-	demoContainerPredictionList := make([]*DatahubV1alpha1.ContainerPrediction, 0)
-	demoContainerPrediction := DatahubV1alpha1.ContainerPrediction{
+	demoContainerPredictionList := make([]*ApiPredictions.ContainerPrediction, 0)
+	demoContainerPrediction := ApiPredictions.ContainerPrediction{
 		Name:             in.NamespacedName.Name,
-		PredictedRawData: make([]*DatahubV1alpha1.MetricData, 0),
+		PredictedRawData: make([]*ApiPredictions.MetricData, 0),
 	}
 	demoContainerPredictionList = append(demoContainerPredictionList, &demoContainerPrediction)
 
-	demoPredictionDataCPU := DatahubV1alpha1.MetricData{
-		MetricType: DatahubV1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-		Data:       make([]*DatahubV1alpha1.Sample, 0),
+	demoPredictionDataCPU := ApiPredictions.MetricData{
+		MetricType: ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		Data:       make([]*ApiPredictions.Sample, 0),
 	}
 
-	demoPredictionDataMem := DatahubV1alpha1.MetricData{
-		MetricType: DatahubV1alpha1.MetricType_MEMORY_USAGE_BYTES,
-		Data:       make([]*DatahubV1alpha1.Sample, 0),
+	demoPredictionDataMem := ApiPredictions.MetricData{
+		MetricType: ApiCommon.MetricType_MEMORY_USAGE_BYTES,
+		Data:       make([]*ApiPredictions.Sample, 0),
 	}
 
 	demoDataMapCPU, _ := DatahubUtils.ReadCSV("prediction_cpu.csv")
@@ -182,7 +228,7 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *Datahu
 
 	for index, value := range demoDataMapCPU[demoKey] {
 		second := startTime + int64(index*step)
-		demoPredictionDataCPU.Data = append(demoPredictionDataCPU.Data, &DatahubV1alpha1.Sample{
+		demoPredictionDataCPU.Data = append(demoPredictionDataCPU.Data, &ApiPredictions.Sample{
 			Time:     &timestamp.Timestamp{Seconds: int64(second)},
 			NumValue: value,
 		})
@@ -190,7 +236,7 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *Datahu
 
 	for index, value := range demoDataMapMem[demoKey] {
 		second := startTime + int64(index*step)
-		demoPredictionDataMem.Data = append(demoPredictionDataMem.Data, &DatahubV1alpha1.Sample{
+		demoPredictionDataMem.Data = append(demoPredictionDataMem.Data, &ApiPredictions.Sample{
 			Time:     &timestamp.Timestamp{Seconds: int64(second)},
 			NumValue: value,
 		})
@@ -199,13 +245,13 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *Datahu
 	demoContainerPrediction.PredictedRawData = append(demoContainerPrediction.PredictedRawData, &demoPredictionDataCPU)
 	demoContainerPrediction.PredictedRawData = append(demoContainerPrediction.PredictedRawData, &demoPredictionDataMem)
 
-	demoPodMetric := DatahubV1alpha1.PodPrediction{
+	demoPodMetric := ApiPredictions.PodPrediction{
 		NamespacedName:       &tempNamespacedName,
 		ContainerPredictions: demoContainerPredictionList,
 	}
 	demoPodPredictionList = append(demoPodPredictionList, &demoPodMetric)
 
-	return &DatahubV1alpha1.ListPodPredictionsResponse{
+	return &ApiPredictions.ListPodPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiRawdata "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/rawdata"
 	Common "github.com/containers-ai/api/common"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -13,7 +13,7 @@ import (
 )
 
 // Read rawdata from database
-func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *DatahubV1alpha1.ReadRawdataRequest) (*DatahubV1alpha1.ReadRawdataResponse, error) {
+func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *ApiRawdata.ReadRawdataRequest) (*ApiRawdata.ReadRawdataResponse, error) {
 	scope.Debug("Request received from ReadRawdata grpc function")
 
 	var (
@@ -32,7 +32,7 @@ func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *DatahubV1alpha1.R
 
 	if err != nil {
 		scope.Errorf("api ReadRawdata failed: %v", err)
-		response := &DatahubV1alpha1.ReadRawdataResponse{
+		response := &ApiRawdata.ReadRawdataResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -42,7 +42,7 @@ func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *DatahubV1alpha1.R
 		return response, err
 	}
 
-	response := &DatahubV1alpha1.ReadRawdataResponse{
+	response := &ApiRawdata.ReadRawdataResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -53,7 +53,7 @@ func (s *ServiceV1alpha1) ReadRawdata(ctx context.Context, in *DatahubV1alpha1.R
 }
 
 // Write rawdata to database
-func (s *ServiceV1alpha1) WriteRawdata(ctx context.Context, in *DatahubV1alpha1.WriteRawdataRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) WriteRawdata(ctx context.Context, in *ApiRawdata.WriteRawdataRequest) (*status.Status, error) {
 	scope.Debug("Request received from WriteRawdata grpc function")
 
 	var (

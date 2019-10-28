@@ -1,0 +1,53 @@
+// This file has messages related to predictions of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.predictions;
+
+import "alameda_api/v1alpha1/datahub/common/queries.proto";
+import "alameda_api/v1alpha1/datahub/predictions/predictions.proto";
+import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions";
+
+// Represents a request for creating predictions of containers' metric data belonging to a pod
+message CreatePodPredictionsRequest {
+    repeated PodPrediction pod_predictions = 1;
+}
+
+// Represents a request for creating predictions of a node metric data
+message CreateNodePredictionsRequest {
+    repeated NodePrediction node_predictions = 1;
+}
+
+// Represents a request for listing predictions of pods
+message ListPodPredictionsRequest {
+    common.QueryCondition    query_condition = 1;
+    resources.NamespacedName namespaced_name = 2;
+    int64                    granularity     = 3;
+    int64                    fill_days       = 4;
+    string                   model_id        = 5;
+    string                   prediction_id   = 6;
+}
+
+// Represents a request for listing predictions of nodes
+message ListNodePredictionsRequest {
+    common.QueryCondition query_condition = 1;
+    repeated string       node_names      = 2;
+    int64                 granularity     = 3;
+    string                model_id        = 4;
+    string                prediction_id   = 5;
+}
+
+// Represents a response for a listing predictions of pods request
+message ListPodPredictionsResponse {
+    google.rpc.Status      status          = 1;
+    repeated PodPrediction pod_predictions = 2;
+}
+
+// Represents a response for a listing predictions of nodes request
+message ListNodePredictionsResponse {
+    google.rpc.Status       status           = 1;
+    repeated NodePrediction node_predictions = 2;
+}

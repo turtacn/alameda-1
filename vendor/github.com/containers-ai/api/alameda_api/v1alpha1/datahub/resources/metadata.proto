@@ -1,0 +1,15 @@
+// This file has messages related to compute resources
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.resources;
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources";
+
+/**
+ * Represents kubernetes resource with namespace and name
+ */
+message NamespacedName {
+    string namespace = 1;
+    string name      = 2;
+}

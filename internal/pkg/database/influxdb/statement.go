@@ -189,7 +189,7 @@ func (s *Statement) BuildQueryCmd() string {
 		groupByStr = strings.TrimSuffix(groupByStr, ",")
 	}
 
-	cmd = fmt.Sprintf("SELECT %s FROM %s %s %s %s %s",
+	cmd = fmt.Sprintf("SELECT %s FROM \"%s\" %s %s %s %s",
 		fieldsStr, s.Measurement, s.WhereClause,
 		groupByStr, s.OrderClause, s.LimitClause)
 

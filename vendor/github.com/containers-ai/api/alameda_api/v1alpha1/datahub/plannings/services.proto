@@ -1,0 +1,54 @@
+// This file has messages related to plannings of containers, pods, and controllers
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.plannings;
+
+import "alameda_api/v1alpha1/datahub/common/queries.proto";
+import "alameda_api/v1alpha1/datahub/plannings/plannings.proto";
+import "alameda_api/v1alpha1/datahub/plannings/types.proto";
+import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+import "alameda_api/v1alpha1/datahub/resources/types.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings";
+
+// Represents a request for creating a pod's plannings
+message CreatePodPlanningsRequest {
+    repeated PodPlanning pod_plannings = 1;
+    int64                granularity   = 2;
+}
+
+// Represents a request for creating a controller's plannings
+message CreateControllerPlanningsRequest {
+    repeated ControllerPlanning controller_plannings = 1;
+}
+
+// Represents a request for listing plannings of pods
+message ListPodPlanningsRequest {
+    common.QueryCondition    query_condition = 1;
+    resources.NamespacedName namespaced_name = 2;
+    resources.Kind           kind            = 3;
+    int64                    granularity     = 4;
+    PlanningType             planning_type   = 5;
+}
+
+// Represents a response for listing pod plannings request
+message ListPodPlanningsResponse {
+    google.rpc.Status    status        = 1;
+    repeated PodPlanning pod_plannings = 2;
+}
+
+// Represents a request for listing plannings of controllers
+message ListControllerPlanningsRequest {
+    common.QueryCondition    query_condition   = 1;
+    resources.NamespacedName namespaced_name   = 2;
+    ControllerPlanningType   ctl_planning_type = 3;
+    PlanningType             planning_type     = 4;
+}
+
+// Represents a response for listing controller plannings request
+message ListControllerPlanningsResponse {
+    google.rpc.Status           status               = 1;
+    repeated ControllerPlanning controller_plannings = 2;
+}

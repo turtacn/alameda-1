@@ -1,20 +1,20 @@
 package v1alpha1
 
 import (
-	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/gpu/nvidia/impl"
-	RequestExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/requests"
-	TypeExtend "github.com/containers-ai/alameda/datahub/pkg/formatextension/types"
-	DatahubMetric "github.com/containers-ai/alameda/datahub/pkg/metric"
+	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/gpu/influxdb/nvidia"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	FormatRequest "github.com/containers-ai/alameda/datahub/pkg/formatconversion/requests"
+	FormatResponse "github.com/containers-ai/alameda/datahub/pkg/formatconversion/responses"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiGpu "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
 	"strconv"
 )
 
-func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.ListGpusRequest) (*DatahubV1alpha1.ListGpusResponse, error) {
+func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *ApiGpu.ListGpusRequest) (*ApiGpu.ListGpusResponse, error) {
 	scope.Debug("Request received from ListGpus grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	queryCondition := &DBCommon.QueryCondition{}
@@ -28,7 +28,7 @@ func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.List
 	metrics, err := gpuDAO.ListGpus(in.GetHost(), in.GetMinorNumber(), queryCondition)
 	if err != nil {
 		scope.Errorf("failed to ListGpus: %+v", err)
-		return &DatahubV1alpha1.ListGpusResponse{
+		return &ApiGpu.ListGpusResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -36,18 +36,18 @@ func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.List
 		}, nil
 	}
 
-	gpus := make([]*DatahubV1alpha1.Gpu, 0)
+	gpus := make([]*ApiGpu.Gpu, 0)
 	for _, metric := range metrics {
-		metadata := &DatahubV1alpha1.GpuMetadata{
+		metadata := &ApiGpu.GpuMetadata{
 			Host:        metric.Metadata.Host,
 			Instance:    metric.Metadata.Instance,
 			Job:         metric.Metadata.Job,
 			MinorNumber: metric.Metadata.MinorNumber,
 		}
-		spec := &DatahubV1alpha1.GpuSpec{
+		spec := &ApiGpu.GpuSpec{
 			MemoryTotal: metric.Spec.MemoryTotal,
 		}
-		gpu := &DatahubV1alpha1.Gpu{
+		gpu := &ApiGpu.Gpu{
 			Name:     metric.Name,
 			Uuid:     metric.Uuid,
 			Metadata: metadata,
@@ -56,7 +56,7 @@ func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.List
 		gpus = append(gpus, gpu)
 	}
 
-	response := &DatahubV1alpha1.ListGpusResponse{
+	response := &ApiGpu.ListGpusResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -66,14 +66,14 @@ func (s *ServiceV1alpha1) ListGpus(ctx context.Context, in *DatahubV1alpha1.List
 	return response, nil
 }
 
-func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *DatahubV1alpha1.ListGpuMetricsRequest) (*DatahubV1alpha1.ListGpuMetricsResponse, error) {
+func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *ApiGpu.ListGpuMetricsRequest) (*ApiGpu.ListGpuMetricsResponse, error) {
 	scope.Debug("Request received from ListGpuMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	metricDAO := DaoGpu.NewMetricWithConfig(*s.Config.InfluxDB)
 	metrics, err := metricDAO.ListMetrics(in.GetHost(), in.GetMinorNumber(), DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
 	if err != nil {
 		scope.Errorf("failed to ListGpuMetrics: %+v", err)
-		return &DatahubV1alpha1.ListGpuMetricsResponse{
+		return &ApiGpu.ListGpuMetricsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -81,14 +81,14 @@ func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *DatahubV1alpha
 		}, nil
 	}
 
-	gpuMetrics := make([]*DatahubV1alpha1.GpuMetric, 0)
+	gpuMetrics := make([]*ApiGpu.GpuMetric, 0)
 	for _, metric := range metrics {
-		gpuMetricExtended := TypeExtend.GpuMetricExtended{GpuMetric: metric}
+		gpuMetricExtended := FormatResponse.GpuMetricExtended{GpuMetric: metric}
 		datahubGpuMetric := gpuMetricExtended.ProduceMetrics()
 		gpuMetrics = append(gpuMetrics, datahubGpuMetric)
 	}
 
-	response := &DatahubV1alpha1.ListGpuMetricsResponse{
+	response := &ApiGpu.ListGpuMetricsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -98,7 +98,7 @@ func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *DatahubV1alpha
 	return response, nil
 }
 
-func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1alpha1.ListGpuPredictionsRequest) (*DatahubV1alpha1.ListGpuPredictionsResponse, error) {
+func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *ApiGpu.ListGpuPredictionsRequest) (*ApiGpu.ListGpuPredictionsResponse, error) {
 	scope.Debug("Request received from ListGpuPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	granularity := "30"
@@ -110,7 +110,7 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 	predictionsMap, err := predictionDAO.ListPredictions(in.GetHost(), in.GetMinorNumber(), in.GetModelId(), in.GetPredictionId(), granularity, DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
 	if err != nil {
 		scope.Errorf("failed to ListGpuPredictions: %+v", err)
-		return &DatahubV1alpha1.ListGpuPredictionsResponse{
+		return &ApiGpu.ListGpuPredictionsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -118,21 +118,19 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 		}, nil
 	}
 
-	gpuPredictions := make([]*DatahubV1alpha1.GpuPrediction, 0)
+	gpuPredictions := make([]*ApiGpu.GpuPrediction, 0)
 	for metricType, predictions := range predictionsMap {
 		for _, prediction := range predictions {
-			gpu := &DatahubV1alpha1.GpuPrediction{}
-			gpuPredictionExtended := TypeExtend.GpuPredictionExtended{GpuPrediction: prediction}
+			gpu := &ApiGpu.GpuPrediction{}
+			gpuPredictionExtended := FormatResponse.GpuPredictionExtended{GpuPrediction: prediction}
 			gpuPrediction := gpuPredictionExtended.ProducePredictions(metricType)
 			found := false
 
 			// Look up if gpu is found
 			for _, gpu = range gpuPredictions {
 				if gpu.Uuid == gpuPrediction.Uuid {
-					if gpu.ModelId == gpuPrediction.ModelId && gpu.PredictionId == gpuPrediction.PredictionId {
-						found = true
-						break
-					}
+					found = true
+					break
 				}
 			}
 
@@ -140,40 +138,40 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 				gpuPredictions = append(gpuPredictions, gpuPrediction)
 			} else {
 				switch metricType {
-				case DatahubMetric.TypeGpuDutyCycle:
+				case FormatEnum.TypeGpuDutyCycle:
 					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
 					break
-				case DatahubMetric.TypeGpuDutyCycleLowerBound:
+				case FormatEnum.TypeGpuDutyCycleLowerBound:
 					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
 					break
-				case DatahubMetric.TypeGpuDutyCycleUpperBound:
+				case FormatEnum.TypeGpuDutyCycleUpperBound:
 					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
 					break
-				case DatahubMetric.TypeGpuMemoryUsedBytes:
+				case FormatEnum.TypeGpuMemoryUsedBytes:
 					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
 					break
-				case DatahubMetric.TypeGpuMemoryUsedBytesLowerBound:
+				case FormatEnum.TypeGpuMemoryUsedBytesLowerBound:
 					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
 					break
-				case DatahubMetric.TypeGpuMemoryUsedBytesUpperBound:
+				case FormatEnum.TypeGpuMemoryUsedBytesUpperBound:
 					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
 					break
-				case DatahubMetric.TypeGpuPowerUsageMilliWatts:
+				case FormatEnum.TypeGpuPowerUsageMilliWatts:
 					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
 					break
-				case DatahubMetric.TypeGpuPowerUsageMilliWattsLowerBound:
+				case FormatEnum.TypeGpuPowerUsageMilliWattsLowerBound:
 					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
 					break
-				case DatahubMetric.TypeGpuPowerUsageMilliWattsUpperBound:
+				case FormatEnum.TypeGpuPowerUsageMilliWattsUpperBound:
 					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
 					break
-				case DatahubMetric.TypeGpuTemperatureCelsius:
+				case FormatEnum.TypeGpuTemperatureCelsius:
 					gpu.PredictedRawData = append(gpu.PredictedRawData, gpuPrediction.PredictedRawData[0])
 					break
-				case DatahubMetric.TypeGpuTemperatureCelsiusLowerBound:
+				case FormatEnum.TypeGpuTemperatureCelsiusLowerBound:
 					gpu.PredictedLowerboundData = append(gpu.PredictedLowerboundData, gpuPrediction.PredictedLowerboundData[0])
 					break
-				case DatahubMetric.TypeGpuTemperatureCelsiusUpperBound:
+				case FormatEnum.TypeGpuTemperatureCelsiusUpperBound:
 					gpu.PredictedUpperboundData = append(gpu.PredictedUpperboundData, gpuPrediction.PredictedUpperboundData[0])
 					break
 				}
@@ -181,7 +179,7 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 		}
 	}
 
-	response := &DatahubV1alpha1.ListGpuPredictionsResponse{
+	response := &ApiGpu.ListGpuPredictionsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -191,10 +189,10 @@ func (s *ServiceV1alpha1) ListGpuPredictions(ctx context.Context, in *DatahubV1a
 	return response, nil
 }
 
-func (s *ServiceV1alpha1) CreateGpuPredictions(ctx context.Context, in *DatahubV1alpha1.CreateGpuPredictionsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreateGpuPredictions(ctx context.Context, in *ApiGpu.CreateGpuPredictionsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateGpuPredictions grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	requestExtended := RequestExtend.CreateGpuPredictionsRequestExtended{CreateGpuPredictionsRequest: *in}
+	requestExtended := FormatRequest.CreateGpuPredictionsRequestExtended{CreateGpuPredictionsRequest: *in}
 	if requestExtended.Validate() != nil {
 		return &status.Status{
 			Code: int32(code.Code_INVALID_ARGUMENT),

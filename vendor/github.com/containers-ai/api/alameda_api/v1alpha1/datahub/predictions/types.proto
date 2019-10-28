@@ -1,0 +1,24 @@
+// This file has messages related to predictions of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.predictions;
+
+import "alameda_api/v1alpha1/datahub/common/metrics.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions";
+
+message Sample {
+    google.protobuf.Timestamp time          = 1;
+    google.protobuf.Timestamp end_time      = 2;
+    string                    model_id      = 3;
+    string                    prediction_id = 4;
+    string                    num_value     = 5;
+}
+
+message MetricData {
+    common.MetricType metric_type = 1;
+    repeated Sample   data        = 2; // data can be time series or non-time series
+    int64             granularity = 3;
+}

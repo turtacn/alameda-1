@@ -1,23 +1,19 @@
 package v1alpha1
 
 import (
-	DaoPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/planning"
-	DaoPlanningImpl "github.com/containers-ai/alameda/datahub/pkg/dao/planning/impl"
+	DaoPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/plannings"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiPlannings "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
 // CreatePodPlannings add pod plannings information to database
-func (s *ServiceV1alpha1) CreatePodPlannings(ctx context.Context, in *DatahubV1alpha1.CreatePodPlanningsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreatePodPlannings(ctx context.Context, in *ApiPlannings.CreatePodPlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePodPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoPlanning.ContainerOperation = &DaoPlanningImpl.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	containerDAO := DaoPlanning.NewContainerPlanningsDAO(*s.Config)
 	if err := containerDAO.AddPodPlannings(in); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
@@ -32,15 +28,11 @@ func (s *ServiceV1alpha1) CreatePodPlannings(ctx context.Context, in *DatahubV1a
 }
 
 // CreateControllerPlannings add controller plannings information to database
-func (s *ServiceV1alpha1) CreateControllerPlannings(ctx context.Context, in *DatahubV1alpha1.CreateControllerPlanningsRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreateControllerPlannings(ctx context.Context, in *ApiPlannings.CreateControllerPlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllerPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := DaoPlanningImpl.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
-	controllerPlanningList := in.GetControllerPlannings()
-	err := controllerDAO.AddControllerPlannings(controllerPlanningList)
+	controllerDAO := DaoPlanning.NewControllerPlanningsDAO(*s.Config)
+	err := controllerDAO.AddControllerPlannings(in.GetControllerPlannings())
 
 	if err != nil {
 		scope.Error(err.Error())
@@ -56,17 +48,14 @@ func (s *ServiceV1alpha1) CreateControllerPlannings(ctx context.Context, in *Dat
 }
 
 // ListPodPlannings list pod plannings
-func (s *ServiceV1alpha1) ListPodPlannings(ctx context.Context, in *DatahubV1alpha1.ListPodPlanningsRequest) (*DatahubV1alpha1.ListPodPlanningsResponse, error) {
+func (s *ServiceV1alpha1) ListPodPlannings(ctx context.Context, in *ApiPlannings.ListPodPlanningsRequest) (*ApiPlannings.ListPodPlanningsResponse, error) {
 	scope.Debug("Request received from ListPodPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoPlanning.ContainerOperation = &DaoPlanningImpl.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	containerDAO := DaoPlanning.NewContainerPlanningsDAO(*s.Config)
 	podPlannings, err := containerDAO.ListPodPlannings(in)
 	if err != nil {
 		scope.Error(err.Error())
-		return &DatahubV1alpha1.ListPodPlanningsResponse{
+		return &ApiPlannings.ListPodPlanningsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -74,7 +63,7 @@ func (s *ServiceV1alpha1) ListPodPlannings(ctx context.Context, in *DatahubV1alp
 		}, nil
 	}
 
-	res := &DatahubV1alpha1.ListPodPlanningsResponse{
+	res := &ApiPlannings.ListPodPlanningsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},
@@ -85,17 +74,14 @@ func (s *ServiceV1alpha1) ListPodPlannings(ctx context.Context, in *DatahubV1alp
 }
 
 // ListControllerPlannings list controller plannings
-func (s *ServiceV1alpha1) ListControllerPlannings(ctx context.Context, in *DatahubV1alpha1.ListControllerPlanningsRequest) (*DatahubV1alpha1.ListControllerPlanningsResponse, error) {
+func (s *ServiceV1alpha1) ListControllerPlannings(ctx context.Context, in *ApiPlannings.ListControllerPlanningsRequest) (*ApiPlannings.ListControllerPlanningsResponse, error) {
 	scope.Debug("Request received from ListControllerPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := &DaoPlanningImpl.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	controllerDAO := DaoPlanning.NewControllerPlanningsDAO(*s.Config)
 	controllerPlannings, err := controllerDAO.ListControllerPlannings(in)
 	if err != nil {
 		scope.Errorf("api ListControllerPlannings failed: %v", err)
-		response := &DatahubV1alpha1.ListControllerPlanningsResponse{
+		response := &ApiPlannings.ListControllerPlanningsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
@@ -105,7 +91,7 @@ func (s *ServiceV1alpha1) ListControllerPlannings(ctx context.Context, in *Datah
 		return response, nil
 	}
 
-	response := &DatahubV1alpha1.ListControllerPlanningsResponse{
+	response := &ApiPlannings.ListControllerPlanningsResponse{
 		Status: &status.Status{
 			Code: int32(code.Code_OK),
 		},

@@ -1,0 +1,45 @@
+// This file has messages related to metric data of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.common;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common";
+
+/**
+ * Metric type. A metric may be either CPU or memory.
+ */
+enum MetricType {
+    METRICS_TYPE_UNDEFINED       = 0;
+    CPU_USAGE_SECONDS_PERCENTAGE = 1;
+    MEMORY_USAGE_BYTES           = 2;
+    POWER_USAGE_WATTS            = 3;
+    TEMPERATURE_CELSIUS          = 4;
+    DUTY_CYCLE                   = 5;
+}
+
+enum ResourceName {
+    RESOURCE_NAME_UNDEFINED = 0;
+    CPU                     = 1;
+    MEMORY                  = 2;
+}
+
+/**
+ * Represents a data point of time-series metric data
+ */
+message Sample {
+    google.protobuf.Timestamp time     = 1;
+    google.protobuf.Timestamp end_time = 2;
+    string num_value                   = 3;
+}
+
+/**
+ * Represents a piece of metreic data
+ */
+message MetricData {
+    MetricType      metric_type = 1;
+    repeated Sample data        = 2; // data can be time series or non-time series
+    int64           granularity = 3;
+}

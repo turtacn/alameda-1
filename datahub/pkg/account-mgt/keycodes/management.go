@@ -6,7 +6,7 @@ import (
 	EntityInflux "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb"
 	EntityInfluxKeycode "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb/cluster_status"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiEvents "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"math"
 	"strings"
@@ -284,27 +284,27 @@ func (c *KeycodeMgt) refresh(force bool) error {
 		case KeycodeStatusNoKeycode:
 			c.writeInfluxEntry("N/A", KeycodeStatusName[KeycodeStatusNoKeycode])
 			c.deleteInfluxEntry("Summary")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusNoKeycode])
+			PostEvent(ApiEvents.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusNoKeycode])
 		case KeycodeStatusInvalid:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusInvalid])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusInvalid])
+			PostEvent(ApiEvents.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusInvalid])
 		case KeycodeStatusExpired:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusExpired])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusExpired])
+			PostEvent(ApiEvents.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusExpired])
 		case KeycodeStatusNotActivated:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusNotActivated])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_WARNING, KeycodeStatusMessage[KeycodeStatusNotActivated])
+			PostEvent(ApiEvents.EventLevel_EVENT_LEVEL_WARNING, KeycodeStatusMessage[KeycodeStatusNotActivated])
 		case KeycodeStatusValid:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusValid])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, KeycodeStatusMessage[KeycodeStatusValid])
+			PostEvent(ApiEvents.EventLevel_EVENT_LEVEL_INFO, KeycodeStatusMessage[KeycodeStatusValid])
 		default:
 			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusUnknown])
 			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusUnknown])
+			PostEvent(ApiEvents.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusUnknown])
 		}
 	}
 

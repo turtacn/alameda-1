@@ -1,25 +1,24 @@
 package eventmgt
 
 import (
-	EntityInflux "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb"
-	EntityInfluxEvent "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb/event"
-	//RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	"encoding/json"
-	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	"github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
-	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	EntityInflux      "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb"
+	EntityInfluxEvent "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb/event"
+	DBCommon          "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux    "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	InternalRabbitmq  "github.com/containers-ai/alameda/internal/pkg/message-queue/rabbitmq"
+	DatahubLog        "github.com/containers-ai/alameda/pkg/utils/log"
+	ApiEvents         "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/golang/protobuf/ptypes"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"time"
 )
 
 var (
-	scope = log.RegisterScope("event_db_measurement", "event DB measurement", 0)
+	scope = DatahubLog.RegisterScope("event_db_measurement", "event DB measurement", 0)
 )
 
-func (e *EventMgt) PostEvents(in *datahub_v1alpha1.CreateEventsRequest) error {
+func (e *EventMgt) PostEvents(in *ApiEvents.CreateEventsRequest) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, event := range in.GetEvents() {
@@ -70,7 +69,7 @@ func (e *EventMgt) PostEvents(in *datahub_v1alpha1.CreateEventsRequest) error {
 	return nil
 }
 
-func (e *EventMgt) ListEvents(in *datahub_v1alpha1.ListEventsRequest) ([]*datahub_v1alpha1.Event, error) {
+func (e *EventMgt) ListEvents(in *ApiEvents.ListEventsRequest) ([]*ApiEvents.Event, error) {
 	idList := in.GetId()
 	clusterIdList := in.GetClusterId()
 
@@ -108,7 +107,7 @@ func (e *EventMgt) ListEvents(in *datahub_v1alpha1.ListEventsRequest) ([]*datahu
 
 	results, err := e.influxDB.QueryDB(cmd, string(EntityInflux.Event))
 	if err != nil {
-		return make([]*datahub_v1alpha1.Event, 0), err
+		return make([]*ApiEvents.Event, 0), err
 	}
 
 	influxdbRows := InternalInflux.PackMap(results)
@@ -117,8 +116,8 @@ func (e *EventMgt) ListEvents(in *datahub_v1alpha1.ListEventsRequest) ([]*datahu
 	return events, nil
 }
 
-func (e *EventMgt) getEventsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*datahub_v1alpha1.Event {
-	events := make([]*datahub_v1alpha1.Event, 0)
+func (e *EventMgt) getEventsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*ApiEvents.Event {
+	events := make([]*ApiEvents.Event, 0)
 
 	for _, influxdbRow := range rows {
 		for _, data := range influxdbRow.Data {
@@ -137,39 +136,39 @@ func (e *EventMgt) getEventsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*
 			message := data[EntityInfluxEvent.EventMessage]
 			eventData := data[EntityInfluxEvent.EventData]
 
-			eventType := datahub_v1alpha1.EventType_EVENT_TYPE_UNDEFINED
+			eventType := ApiEvents.EventType_EVENT_TYPE_UNDEFINED
 			if tempType, exist := data[EntityInfluxEvent.EventType]; exist {
-				if value, ok := datahub_v1alpha1.EventType_value[tempType]; ok {
-					eventType = datahub_v1alpha1.EventType(value)
+				if value, ok := ApiEvents.EventType_value[tempType]; ok {
+					eventType = ApiEvents.EventType(value)
 				}
 			}
 
-			eventVersion := datahub_v1alpha1.EventVersion_EVENT_VERSION_UNDEFINED
+			eventVersion := ApiEvents.EventVersion_EVENT_VERSION_UNDEFINED
 			if tempVersion, exist := data[EntityInfluxEvent.EventVersion]; exist {
-				if value, ok := datahub_v1alpha1.EventVersion_value[tempVersion]; ok {
-					eventVersion = datahub_v1alpha1.EventVersion(value)
+				if value, ok := ApiEvents.EventVersion_value[tempVersion]; ok {
+					eventVersion = ApiEvents.EventVersion(value)
 				}
 			}
 
-			eventLevel := datahub_v1alpha1.EventLevel_EVENT_LEVEL_UNDEFINED
+			eventLevel := ApiEvents.EventLevel_EVENT_LEVEL_UNDEFINED
 			if tempLevel, exist := data[EntityInfluxEvent.EventLevel]; exist {
-				if value, ok := datahub_v1alpha1.EventLevel_value[tempLevel]; ok {
-					eventLevel = datahub_v1alpha1.EventLevel(value)
+				if value, ok := ApiEvents.EventLevel_value[tempLevel]; ok {
+					eventLevel = ApiEvents.EventLevel(value)
 				}
 			}
 
-			event := datahub_v1alpha1.Event{
+			event := ApiEvents.Event{
 				Time:      tempTime,
 				Id:        id,
 				ClusterId: clusterId,
-				Source: &datahub_v1alpha1.EventSource{
+				Source: &ApiEvents.EventSource{
 					Host:      sourceHost,
 					Component: sourceComponent,
 				},
 				Type:    eventType,
 				Version: eventVersion,
 				Level:   eventLevel,
-				Subject: &datahub_v1alpha1.K8SObjectReference{
+				Subject: &ApiEvents.K8SObjectReference{
 					Kind:       subjectKind,
 					Namespace:  subjectNamespace,
 					Name:       subjectName,
@@ -186,8 +185,8 @@ func (e *EventMgt) getEventsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*
 	return events
 }
 
-func (e *EventMgt) sendEventsToMsgQueue(in *datahub_v1alpha1.CreateEventsRequest) error {
-	messageQueue, err := rabbitmq.NewRabbitMQSender(e.RabbitMQConfig)
+func (e *EventMgt) sendEventsToMsgQueue(in *ApiEvents.CreateEventsRequest) error {
+	messageQueue, err := InternalRabbitmq.NewRabbitMQSender(e.RabbitMQConfig)
 	if err != nil {
 		return err
 	}

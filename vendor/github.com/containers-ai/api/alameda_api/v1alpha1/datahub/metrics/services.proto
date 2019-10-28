@@ -1,0 +1,48 @@
+// This file has messages related to metric data of containers, pods, and nodes
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.metrics;
+
+import "alameda_api/v1alpha1/datahub/common/queries.proto";
+import "alameda_api/v1alpha1/datahub/metrics/metrics.proto";
+import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics";
+
+// Represents a request for creating metrics data of pods
+message CreatePodMetricsRequest {
+    repeated PodMetric pod_metrics = 1;
+    uint64             rate_range  = 2;
+}
+
+// Represents a request for creating metrics data of nodes
+message CreateNodeMetricsRequest {
+    repeated NodeMetric node_metrics = 1;
+}
+
+// Represents a request for listing metric data of a pod
+message ListPodMetricsRequest {
+    common.QueryCondition    query_condition = 1;
+    resources.NamespacedName namespaced_name = 2;
+    uint64                   rate_range      = 3;
+}
+
+// Represents a response for a listing pod metric data request
+message ListPodMetricsResponse {
+    google.rpc.Status  status      = 1;
+    repeated PodMetric pod_metrics = 2;
+}
+
+// Represents a request for listing metric data of a node
+message ListNodeMetricsRequest {
+    common.QueryCondition query_condition = 1;
+    repeated string       node_names      = 2;
+}
+
+// Represents a response for a listing node metrics request
+message ListNodeMetricsResponse {
+    google.rpc.Status   status       = 1;
+    repeated NodeMetric node_metrics = 2;
+}

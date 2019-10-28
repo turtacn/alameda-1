@@ -1,0 +1,26 @@
+// This file has messages and services related to Containers.ai
+
+syntax = "proto3";
+
+package containersai.alameda.v1alpha1.datahub.weavescope;
+
+import "google/rpc/status.proto";
+
+option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/weavescope";
+
+message ListWeaveScopeHostsRequest {
+    string host_id = 1;
+}
+
+message ListWeaveScopePodsRequest {
+    string pod_id = 1;
+}
+
+message ListWeaveScopeContainersRequest {
+    string container_id = 1;
+}
+
+message WeaveScopeResponse {
+    google.rpc.Status status = 1;
+    string            rawdata = 2;
+}

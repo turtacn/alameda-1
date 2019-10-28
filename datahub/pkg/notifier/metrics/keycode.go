@@ -3,7 +3,7 @@ package metrics
 import (
 	"fmt"
 	Keycodes "github.com/containers-ai/alameda/datahub/pkg/account-mgt/keycodes"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	ApiEvents "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"math"
 	"strconv"
 	"strings"
@@ -20,7 +20,7 @@ const (
 type KeycodeMetrics struct {
 	AlertMetrics
 
-	eventLevel  map[int]DatahubV1alpha1.EventLevel
+	eventLevel  map[int]ApiEvents.EventLevel
 	eventPosted map[int]bool
 	keycodeMgt  *Keycodes.KeycodeMgt
 	days        int
@@ -31,7 +31,7 @@ func NewKeycodeMetrics(notifier *Notifier) *KeycodeMetrics {
 	keycode := KeycodeMetrics{}
 	keycode.name = "keycode"
 	keycode.notifier = notifier
-	keycode.eventLevel = make(map[int]DatahubV1alpha1.EventLevel, 0)
+	keycode.eventLevel = make(map[int]ApiEvents.EventLevel, 0)
 	keycode.eventPosted = make(map[int]bool, 0)
 	keycode.keycodeMgt = Keycodes.NewKeycodeMgt()
 	keycode.days = 0
@@ -50,18 +50,18 @@ func (c *KeycodeMetrics) Validate() {
 }
 
 func (c *KeycodeMetrics) GenerateCriteria() {
-	eventMap := map[int]DatahubV1alpha1.EventLevel{}
+	eventMap := map[int]ApiEvents.EventLevel{}
 	for _, level := range strings.Split(c.notifier.EventLevel, ",") {
 		day, _ := strconv.Atoi(strings.Split(level, ":")[0])
 		value := strings.Split(level, ":")[1]
 
 		switch value {
 		case "Info":
-			eventMap[day] = DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO
+			eventMap[day] = ApiEvents.EventLevel_EVENT_LEVEL_INFO
 		case "Warn":
-			eventMap[day] = DatahubV1alpha1.EventLevel_EVENT_LEVEL_WARNING
+			eventMap[day] = ApiEvents.EventLevel_EVENT_LEVEL_WARNING
 		case "Error":
-			eventMap[day] = DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR
+			eventMap[day] = ApiEvents.EventLevel_EVENT_LEVEL_ERROR
 		}
 	}
 
