@@ -12,7 +12,11 @@ import (
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/pkg/utils"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_client "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
+	datahub_recommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	openshift_apps_v1 "github.com/openshift/api/apps/v1"
@@ -32,7 +36,7 @@ var (
 // Evictioner deletes pods which need to apply recommendation
 type Evictioner struct {
 	checkCycle              int64
-	datahubClnt             datahub_v1alpha1.DatahubServiceClient
+	datahubClnt             datahub_client.DatahubServiceClient
 	k8sClienit              client.Client
 	evictCfg                Config
 	purgeContainerCPUMemory bool
@@ -42,7 +46,7 @@ type Evictioner struct {
 
 // NewEvictioner return Evictioner instance
 func NewEvictioner(checkCycle int64,
-	datahubClnt datahub_v1alpha1.DatahubServiceClient,
+	datahubClnt datahub_client.DatahubServiceClient,
 	k8sClienit client.Client,
 	evictCfg Config,
 	purgeContainerCPUMemory bool,
@@ -78,9 +82,9 @@ func (evictioner *Evictioner) evictProcess() {
 	}
 }
 
-func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecommendation) {
+func (evictioner *Evictioner) evictPods(recPodList []*datahub_recommendations.PodRecommendation) {
 
-	events := make([]*datahub_v1alpha1.Event, 0, len(recPodList))
+	events := make([]*datahub_events.Event, 0, len(recPodList))
 
 	for _, recPod := range recPodList {
 		recPodIns := &corev1.Pod{}
@@ -141,26 +145,26 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_v1alpha1.PodRecomm
 	}
 }
 
-func (evictioner *Evictioner) getTopController(namespace string, name string, kind datahub_v1alpha1.Kind) (interface{}, error) {
+func (evictioner *Evictioner) getTopController(namespace string, name string, kind datahub_resources.Kind) (interface{}, error) {
 
 	getResource := utilsresource.NewGetResource(evictioner.k8sClienit)
 
 	switch kind {
-	case datahub_v1alpha1.Kind_DEPLOYMENT:
+	case datahub_resources.Kind_DEPLOYMENT:
 		return getResource.GetDeployment(namespace, name)
-	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+	case datahub_resources.Kind_DEPLOYMENTCONFIG:
 		return getResource.GetDeploymentConfig(namespace, name)
-	case datahub_v1alpha1.Kind_STATEFULSET:
+	case datahub_resources.Kind_STATEFULSET:
 		return getResource.GetStatefulSet(namespace, name)
 	default:
-		return nil, errors.Errorf("not supported controller type %s", datahub_v1alpha1.Kind_name[int32(kind)])
+		return nil, errors.Errorf("not supported controller type %s", datahub_resources.Kind_name[int32(kind)])
 	}
 }
 
-func (evictioner *Evictioner) needToPurgeTopControllerContainerResources(controller interface{}, kind datahub_v1alpha1.Kind) (bool, error) {
+func (evictioner *Evictioner) needToPurgeTopControllerContainerResources(controller interface{}, kind datahub_resources.Kind) (bool, error) {
 
 	switch kind {
-	case datahub_v1alpha1.Kind_DEPLOYMENT:
+	case datahub_resources.Kind_DEPLOYMENT:
 		deployment := controller.(*apps_v1.Deployment)
 		for _, container := range deployment.Spec.Template.Spec.Containers {
 			resourceLimits := container.Resources.Limits
@@ -181,7 +185,7 @@ func (evictioner *Evictioner) needToPurgeTopControllerContainerResources(control
 			}
 		}
 		return false, nil
-	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+	case datahub_resources.Kind_DEPLOYMENTCONFIG:
 		deploymentConfig := controller.(*openshift_apps_v1.DeploymentConfig)
 		for _, container := range deploymentConfig.Spec.Template.Spec.Containers {
 			resourceLimits := container.Resources.Limits
@@ -202,7 +206,7 @@ func (evictioner *Evictioner) needToPurgeTopControllerContainerResources(control
 			}
 		}
 		return false, nil
-	case datahub_v1alpha1.Kind_STATEFULSET:
+	case datahub_resources.Kind_STATEFULSET:
 		statefulSet := controller.(*apps_v1.StatefulSet)
 		for _, container := range statefulSet.Spec.Template.Spec.Containers {
 			resourceLimits := container.Resources.Limits
@@ -224,14 +228,14 @@ func (evictioner *Evictioner) needToPurgeTopControllerContainerResources(control
 		}
 		return false, nil
 	default:
-		return false, errors.Errorf("not supported controller type %s", datahub_v1alpha1.Kind_name[int32(kind)])
+		return false, errors.Errorf("not supported controller type %s", datahub_resources.Kind_name[int32(kind)])
 	}
 }
 
-func (evictioner *Evictioner) purgeTopControllerContainerResources(controller interface{}, kind datahub_v1alpha1.Kind) error {
+func (evictioner *Evictioner) purgeTopControllerContainerResources(controller interface{}, kind datahub_resources.Kind) error {
 
 	switch kind {
-	case datahub_v1alpha1.Kind_DEPLOYMENT:
+	case datahub_resources.Kind_DEPLOYMENT:
 		deployment := controller.(*apps_v1.Deployment)
 		deploymentCopy := deployment.DeepCopy()
 		for _, container := range deploymentCopy.Spec.Template.Spec.Containers {
@@ -252,7 +256,7 @@ func (evictioner *Evictioner) purgeTopControllerContainerResources(controller in
 			return errors.Wrapf(err, "purge topController failed: %s", err.Error())
 		}
 		return nil
-	case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+	case datahub_resources.Kind_DEPLOYMENTCONFIG:
 		deploymentConfig := controller.(*openshift_apps_v1.DeploymentConfig)
 		deploymentConfigCopy := deploymentConfig.DeepCopy()
 		for _, container := range deploymentConfigCopy.Spec.Template.Spec.Containers {
@@ -273,7 +277,7 @@ func (evictioner *Evictioner) purgeTopControllerContainerResources(controller in
 			return errors.Wrapf(err, "purge topController failed: %s", err.Error())
 		}
 		return nil
-	case datahub_v1alpha1.Kind_STATEFULSET:
+	case datahub_resources.Kind_STATEFULSET:
 		statefulSet := controller.(*apps_v1.StatefulSet)
 		statefulSetCopy := statefulSet.DeepCopy()
 		for _, container := range statefulSetCopy.Spec.Template.Spec.Containers {
@@ -295,13 +299,13 @@ func (evictioner *Evictioner) purgeTopControllerContainerResources(controller in
 		}
 		return nil
 	default:
-		return errors.Errorf("not supported controller type %s", datahub_v1alpha1.Kind_name[int32(kind)])
+		return errors.Errorf("not supported controller type %s", datahub_resources.Kind_name[int32(kind)])
 	}
 }
 
-func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alpha1.PodRecommendation, error) {
+func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_recommendations.PodRecommendation, error) {
 
-	appliablePodRecList := []*datahub_v1alpha1.PodRecommendation{}
+	appliablePodRecList := []*datahub_recommendations.PodRecommendation{}
 	nowTime := time.Now()
 	nowTimestamp := time.Now().Unix()
 
@@ -334,7 +338,7 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 				controllerRecommendationInfo.namespace, controllerRecommendationInfo.name, controllerRecommendationInfo.kind, err.Error())
 			continue
 		}
-		podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, len(controllerRecommendationInfo.podRecommendationInfos))
+		podRecommendations := make([]*datahub_recommendations.PodRecommendation, len(controllerRecommendationInfo.podRecommendationInfos))
 		for i := range controllerRecommendationInfo.podRecommendationInfos {
 			podRecommendations[i] = controllerRecommendationInfo.podRecommendationInfos[i].recommendation
 		}
@@ -373,17 +377,17 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_v1alp
 	return appliablePodRecList, nil
 }
 
-func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) (*datahub_v1alpha1.ListPodRecommendationsResponse, error) {
+func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) (*datahub_recommendations.ListPodRecommendationsResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	in := &datahub_v1alpha1.ListPodRecommendationsRequest{
-		QueryCondition: &datahub_v1alpha1.QueryCondition{
-			TimeRange: &datahub_v1alpha1.TimeRange{
+	in := &datahub_recommendations.ListPodRecommendationsRequest{
+		QueryCondition: &datahub_common.QueryCondition{
+			TimeRange: &datahub_common.TimeRange{
 				ApplyTime: &timestamp.Timestamp{
 					Seconds: nowTimestamp,
 				},
 			},
-			Order: datahub_v1alpha1.QueryCondition_DESC,
+			Order: datahub_common.QueryCondition_DESC,
 			Limit: 1,
 		},
 	}
@@ -392,13 +396,13 @@ func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) 
 	return evictioner.datahubClnt.ListAvailablePodRecommendations(ctx, in)
 }
 
-func (evictioner *Evictioner) sendEvents(events []*datahub_v1alpha1.Event) error {
+func (evictioner *Evictioner) sendEvents(events []*datahub_events.Event) error {
 
 	if len(events) == 0 {
 		return nil
 	}
 
-	request := datahub_v1alpha1.CreateEventsRequest{
+	request := datahub_events.CreateEventsRequest{
 		Events: events,
 	}
 	status, err := evictioner.datahubClnt.CreateEvents(context.TODO(), &request)
@@ -415,7 +419,7 @@ func (evictioner *Evictioner) sendEvents(events []*datahub_v1alpha1.Event) error
 
 type podRecommendationInfo struct {
 	pod            *corev1.Pod
-	recommendation *datahub_v1alpha1.PodRecommendation
+	recommendation *datahub_recommendations.PodRecommendation
 }
 
 func (p *podRecommendationInfo) isApplicableAtTime(t time.Time) (bool, error) {
@@ -490,7 +494,7 @@ func (c controllerRecommendationInfo) buildTriggerThreshold() (triggerThreshold,
 }
 
 // NewControllerRecommendationInfoMap returns
-func NewControllerRecommendationInfoMap(client client.Client, podRecommendations []*datahub_v1alpha1.PodRecommendation) map[string]*controllerRecommendationInfo {
+func NewControllerRecommendationInfoMap(client client.Client, podRecommendations []*datahub_recommendations.PodRecommendation) map[string]*controllerRecommendationInfo {
 
 	getResource := utilsresource.NewGetResource(client)
 	alamedaScalerMap := make(map[string]*autoscalingv1alpha1.AlamedaScaler)
@@ -499,7 +503,7 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 
 		// Filter out invalid PodRecommendation
 		copyPodRecommendation := proto.Clone(podRecommendation)
-		podRecommendation = copyPodRecommendation.(*datahub_v1alpha1.PodRecommendation)
+		podRecommendation = copyPodRecommendation.(*datahub_recommendations.PodRecommendation)
 		recommendationNamespacedName := podRecommendation.NamespacedName
 		if recommendationNamespacedName == nil {
 			scope.Errorf("Skip PodRecommendation due to PodRecommendation has empty NamespacedName")
@@ -561,7 +565,7 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 			controllerRecommendationInfoMap[controllerID] = &controllerRecommendationInfo{
 				namespace:              controller.NamespacedName.Namespace,
 				name:                   controller.NamespacedName.Name,
-				kind:                   datahub_v1alpha1.Kind_name[int32(controller.Kind)],
+				kind:                   datahub_resources.Kind_name[int32(controller.Kind)],
 				alamedaScaler:          alamedaScaler,
 				podRecommendationInfos: make([]*podRecommendationInfo, 0),
 			}

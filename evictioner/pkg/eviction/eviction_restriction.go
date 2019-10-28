@@ -9,7 +9,9 @@ import (
 	datahubutils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	datahub_recommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
@@ -65,20 +67,20 @@ type evictionRestriction struct {
 
 	alamedaScalerMap map[string]*autoscalingv1alpha1.AlamedaScaler
 
-	podIDToPodRecommendationMap            map[string]*datahub_v1alpha1.PodRecommendation
+	podIDToPodRecommendationMap            map[string]*datahub_recommendations.PodRecommendation
 	podIDToAlamedaResourceIDMap            map[string]string
 	alamedaResourceIDToPodReplicaStatusMap map[string]*podReplicaStatus
 }
 
-func NewEvictionRestriction(client client.Client, maxUnavailable string, triggerThreshold triggerThreshold, podRecommendations []*datahub_v1alpha1.PodRecommendation) EvictionRestriction {
+func NewEvictionRestriction(client client.Client, maxUnavailable string, triggerThreshold triggerThreshold, podRecommendations []*datahub_recommendations.PodRecommendation) EvictionRestriction {
 
-	podIDToPodRecommendationMap := make(map[string]*datahub_v1alpha1.PodRecommendation)
+	podIDToPodRecommendationMap := make(map[string]*datahub_recommendations.PodRecommendation)
 	podIDToAlamedaResourceIDMap := make(map[string]string)
 	alamedaResourceIDToPodReplicaStatusMap := make(map[string]*podReplicaStatus)
 	for _, podRecommendation := range podRecommendations {
 
 		copyPodRecommendation := proto.Clone(podRecommendation)
-		podRecommendation = copyPodRecommendation.(*datahub_v1alpha1.PodRecommendation)
+		podRecommendation = copyPodRecommendation.(*datahub_recommendations.PodRecommendation)
 
 		if podRecommendation.NamespacedName == nil {
 			scope.Warnf("skip PodRecommendation due to get nil NamespacedName")
@@ -108,7 +110,7 @@ func NewEvictionRestriction(client client.Client, maxUnavailable string, trigger
 			getResource := utilsresource.NewGetResource(client)
 			listResource := utilsresource.NewListResources(client)
 
-			controllerKind := datahub_v1alpha1.Kind_name[int32(alamedaResourceKind)]
+			controllerKind := datahub_resources.Kind_name[int32(alamedaResourceKind)]
 			replicasCount, err := getResource.GetReplicasCountByController(alamedaResourceNamespace, alamedaResourceName, strings.ToLower(controllerKind))
 			if err != nil {
 				if err != nil {
@@ -187,7 +189,7 @@ func (e *evictionRestriction) canRollingUpdatePod(podID string) (bool, error) {
 
 }
 
-func (e *evictionRestriction) isPodEvictable(pod *core_v1.Pod, podRecomm *datahub_v1alpha1.PodRecommendation) bool {
+func (e *evictionRestriction) isPodEvictable(pod *core_v1.Pod, podRecomm *datahub_recommendations.PodRecommendation) bool {
 	ctRecomms := podRecomm.GetContainerRecommendations()
 	containers := pod.Spec.Containers
 	for _, container := range containers {
@@ -203,7 +205,7 @@ func (e *evictionRestriction) isPodEvictable(pod *core_v1.Pod, podRecomm *datahu
 	return false
 }
 
-func (e *evictionRestriction) isContainerEvictable(pod *core_v1.Pod, container *core_v1.Container, recContainer *datahub_v1alpha1.ContainerRecommendation) bool {
+func (e *evictionRestriction) isContainerEvictable(pod *core_v1.Pod, container *core_v1.Container, recContainer *datahub_recommendations.ContainerRecommendation) bool {
 	cpuTriggerThreshold := e.triggerThreshold.CPU
 	memoryTriggerThreshold := e.triggerThreshold.Memory
 
@@ -225,7 +227,7 @@ func (e *evictionRestriction) isContainerEvictable(pod *core_v1.Pod, container *
 		}
 
 		for _, limitRec := range recContainer.GetLimitRecommendations() {
-			if resourceType == core_v1.ResourceMemory && limitRec.GetMetricType() == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES && len(limitRec.GetData()) > 0 {
+			if resourceType == core_v1.ResourceMemory && limitRec.GetMetricType() == datahub_common.MetricType_MEMORY_USAGE_BYTES && len(limitRec.GetData()) > 0 {
 				if limitRecVal, err := datahubutils.StringToFloat64(limitRec.GetData()[0].GetNumValue()); err == nil {
 					limitRecVal = math.Ceil(limitRecVal)
 					limitQuan := container.Resources.Limits[resourceType]
@@ -238,7 +240,7 @@ func (e *evictionRestriction) isContainerEvictable(pod *core_v1.Pod, container *
 					}
 				}
 			}
-			if resourceType == core_v1.ResourceCPU && limitRec.GetMetricType() == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE && len(limitRec.GetData()) > 0 {
+			if resourceType == core_v1.ResourceCPU && limitRec.GetMetricType() == datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE && len(limitRec.GetData()) > 0 {
 				if limitRecVal, err := datahubutils.StringToFloat64(limitRec.GetData()[0].GetNumValue()); err == nil {
 					limitRecVal = math.Ceil(limitRecVal)
 					limitQuan := container.Resources.Limits[resourceType]
@@ -260,7 +262,7 @@ func (e *evictionRestriction) isContainerEvictable(pod *core_v1.Pod, container *
 			return true
 		}
 		for _, reqRec := range recContainer.GetRequestRecommendations() {
-			if resourceType == core_v1.ResourceMemory && reqRec.GetMetricType() == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES && len(reqRec.GetData()) > 0 {
+			if resourceType == core_v1.ResourceMemory && reqRec.GetMetricType() == datahub_common.MetricType_MEMORY_USAGE_BYTES && len(reqRec.GetData()) > 0 {
 				if requestRecVal, err := datahubutils.StringToFloat64(reqRec.GetData()[0].GetNumValue()); err == nil {
 					requestRecVal = math.Ceil(requestRecVal)
 					requestQuan := container.Resources.Requests[resourceType]
@@ -273,7 +275,7 @@ func (e *evictionRestriction) isContainerEvictable(pod *core_v1.Pod, container *
 					}
 				}
 			}
-			if resourceType == core_v1.ResourceCPU && reqRec.GetMetricType() == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE && len(reqRec.GetData()) > 0 {
+			if resourceType == core_v1.ResourceCPU && reqRec.GetMetricType() == datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE && len(reqRec.GetData()) > 0 {
 				if requestRecVal, err := datahubutils.StringToFloat64(reqRec.GetData()[0].GetNumValue()); err == nil {
 					requestRecVal = math.Ceil(requestRecVal)
 					requestQuan := container.Resources.Requests[resourceType]

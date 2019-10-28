@@ -3,7 +3,7 @@ package eviction
 import (
 	"fmt"
 
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 
 	"github.com/golang/protobuf/ptypes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,7 +17,7 @@ const (
 	defaultPodAPIVersion = "v1"
 )
 
-func newPodEvictEvent(clusterID string, subjectObject metav1.Object, subjectType metav1.TypeMeta) datahub_v1alpha1.Event {
+func newPodEvictEvent(clusterID string, subjectObject metav1.Object, subjectType metav1.TypeMeta) datahub_events.Event {
 
 	if subjectType.Kind == "" {
 		subjectType.Kind = defaultPodKind
@@ -28,14 +28,14 @@ func newPodEvictEvent(clusterID string, subjectObject metav1.Object, subjectType
 
 	now := ptypes.TimestampNow()
 	id := uuid.NewUUID()
-	source := datahub_v1alpha1.EventSource{
+	source := datahub_events.EventSource{
 		Host:      "",
 		Component: componentName,
 	}
-	eventType := datahub_v1alpha1.EventType_EVENT_TYPE_VPA_RECOMMENDATION_EXECUTE
-	version := datahub_v1alpha1.EventVersion_EVENT_VERSION_V1
-	level := datahub_v1alpha1.EventLevel_EVENT_LEVEL_INFO
-	subject := datahub_v1alpha1.K8SObjectReference{
+	eventType := datahub_events.EventType_EVENT_TYPE_VPA_RECOMMENDATION_EXECUTE
+	version := datahub_events.EventVersion_EVENT_VERSION_V1
+	level := datahub_events.EventLevel_EVENT_LEVEL_INFO
+	subject := datahub_events.K8SObjectReference{
 		Kind:       subjectType.Kind,
 		ApiVersion: subjectType.APIVersion,
 		Namespace:  subjectObject.GetNamespace(),
@@ -44,7 +44,7 @@ func newPodEvictEvent(clusterID string, subjectObject metav1.Object, subjectType
 	message := fmt.Sprintf("Pod %s/%s is evicted", subjectObject.GetNamespace(), subjectObject.GetName())
 	data := ""
 
-	event := datahub_v1alpha1.Event{
+	event := datahub_events.Event{
 		Time:      now,
 		Id:        string(id),
 		ClusterId: clusterID,
