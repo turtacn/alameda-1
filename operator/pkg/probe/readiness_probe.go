@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"google.golang.org/grpc"
 )
 
@@ -22,7 +23,7 @@ func queryDatahub(datahubAddr string) error {
 
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
-	_, err = datahubServiceClnt.ListAlamedaNodes(context.Background(), &datahub_v1alpha1.ListAlamedaNodesRequest{})
+	_, err = datahubServiceClnt.ListAlamedaNodes(context.Background(), &datahub_resources.ListAlamedaNodesRequest{})
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,7 @@ import (
 	datahub_client "github.com/containers-ai/alameda/operator/datahub/client"
 	datahub_pod "github.com/containers-ai/alameda/operator/datahub/client/pod"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -34,7 +34,7 @@ func startSyncingAlamedaPodsWithDatahubSuccess(client client.Client) error {
 	if err != nil {
 		return fmt.Errorf("Sync alameda pod with datahub failed: %s", err.Error())
 	}
-	podsNeedToRm := []*datahub_v1alpha1.Pod{}
+	podsNeedToRm := []*datahub_resources.Pod{}
 	getResource := resources.NewGetResource(client)
 
 	for _, alamedaPod := range alamedaPods {
@@ -89,7 +89,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 		return errors.Wrap(err, "list resources watched by Alameda failed")
 	}
 
-	controllersNeedToRm := []*datahub_v1alpha1.Controller{}
+	controllersNeedToRm := []*datahub_resources.Controller{}
 	getResource := resources.NewGetResource(client)
 	for _, alamedaResource := range alamedaResources {
 
@@ -109,7 +109,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 		// Get controller from k8s, if controller is not existed, append conttoller to the list that needs to delete
 		kind := info.GetKind()
 		switch kind {
-		case datahub_v1alpha1.Kind_DEPLOYMENT:
+		case datahub_resources.Kind_DEPLOYMENT:
 			_, err := getResource.GetDeployment(resourceNamespace, resourceName)
 			if err != nil && k8sErrors.IsNotFound(err) {
 				controllersNeedToRm = append(controllersNeedToRm, alamedaResource)
@@ -117,7 +117,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 			} else if err != nil {
 				return errors.Wrapf(err, "get Deployment (%s/%s) failed", resourceNamespace, resourceName)
 			}
-		case datahub_v1alpha1.Kind_DEPLOYMENTCONFIG:
+		case datahub_resources.Kind_DEPLOYMENTCONFIG:
 			_, err := getResource.GetDeploymentConfig(resourceNamespace, resourceName)
 			if err != nil && k8sErrors.IsNotFound(err) {
 				controllersNeedToRm = append(controllersNeedToRm, alamedaResource)
@@ -125,7 +125,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 			} else if err != nil {
 				return errors.Wrapf(err, "get DeploymentConfig (%s/%s) failed", resourceNamespace, resourceName)
 			}
-		case datahub_v1alpha1.Kind_STATEFULSET:
+		case datahub_resources.Kind_STATEFULSET:
 			_, err := getResource.GetStatefulSet(resourceNamespace, resourceName)
 			if err != nil && k8sErrors.IsNotFound(err) {
 				controllersNeedToRm = append(controllersNeedToRm, alamedaResource)
@@ -144,7 +144,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 			if ownerInfo == nil {
 				continue
 			}
-			if ownerInfo.GetKind() != datahub_v1alpha1.Kind_ALAMEDASCALER {
+			if ownerInfo.GetKind() != datahub_resources.Kind_ALAMEDASCALER {
 				continue
 			}
 			alamedaScalerNamespacedName := ownerInfo.GetNamespacedName()

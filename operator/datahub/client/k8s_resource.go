@@ -7,6 +7,7 @@ import (
 	alamutils "github.com/containers-ai/alameda/pkg/utils"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
@@ -24,7 +25,7 @@ func NewK8SResource() *K8SResource {
 	return &K8SResource{}
 }
 
-func (repo *K8SResource) ListAlamedaWatchedResource(namespacedName *datahub_v1alpha1.NamespacedName) ([]*datahub_v1alpha1.Controller, error) {
+func (repo *K8SResource) ListAlamedaWatchedResource(namespacedName *datahub_resources.NamespacedName) ([]*datahub_resources.Controller, error) {
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	if err != nil {
 		return nil, errors.Errorf("list controllers to datahub failed: %s", err.Error())
@@ -33,11 +34,11 @@ func (repo *K8SResource) ListAlamedaWatchedResource(namespacedName *datahub_v1al
 	defer conn.Close()
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
-	req := datahub_v1alpha1.ListControllersRequest{
+	req := datahub_resources.ListControllersRequest{
 		NamespacedName: namespacedName,
 	}
 
-	controllers := []*datahub_v1alpha1.Controller{}
+	controllers := []*datahub_resources.Controller{}
 	scope.Debugf("List controllers to datahub with request %s.", alamutils.InterfaceToString(req))
 	resp, err := datahubServiceClnt.ListControllers(context.Background(), &req)
 	if err != nil {
@@ -50,7 +51,7 @@ func (repo *K8SResource) ListAlamedaWatchedResource(namespacedName *datahub_v1al
 	return controllers, nil
 }
 
-func (repo *K8SResource) CreateAlamedaWatchedResource(resources []*datahub_v1alpha1.Controller) error {
+func (repo *K8SResource) CreateAlamedaWatchedResource(resources []*datahub_resources.Controller) error {
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	if err != nil {
 		return errors.Errorf("create controllers to datahub failed: %s", err.Error())
@@ -58,7 +59,7 @@ func (repo *K8SResource) CreateAlamedaWatchedResource(resources []*datahub_v1alp
 
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
-	req := datahub_v1alpha1.CreateControllersRequest{
+	req := datahub_resources.CreateControllersRequest{
 		Controllers: resources,
 	}
 	scope.Debugf("Create controllers to datahub with request %s.", alamutils.InterfaceToString(req))
@@ -72,7 +73,7 @@ func (repo *K8SResource) CreateAlamedaWatchedResource(resources []*datahub_v1alp
 	return nil
 }
 
-func (repo *K8SResource) DeleteAlamedaWatchedResource(resources []*datahub_v1alpha1.Controller) error {
+func (repo *K8SResource) DeleteAlamedaWatchedResource(resources []*datahub_resources.Controller) error {
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	if err != nil {
 		return errors.Errorf("delete controllers to datahub failed: %s", err.Error())
@@ -80,7 +81,7 @@ func (repo *K8SResource) DeleteAlamedaWatchedResource(resources []*datahub_v1alp
 
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
-	req := datahub_v1alpha1.DeleteControllersRequest{
+	req := datahub_resources.DeleteControllersRequest{
 		Controllers: resources,
 	}
 	scope.Debugf("Delete controllers to datahub with request %s.", alamutils.InterfaceToString(req))

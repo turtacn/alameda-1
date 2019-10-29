@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
@@ -31,6 +31,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/provider"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 
 	corev1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
@@ -158,7 +159,7 @@ func (r *ReconcileNode) FirstSync() error {
 	if err != nil {
 		return errors.Wrap(err, "list nodes from Datahub failed")
 	}
-	nodesNeedDeleting := make([]*datahubv1alpha1.Node, 0)
+	nodesNeedDeleting := make([]*datahub_resources.Node, 0)
 	for _, n := range nodesFromDatahub {
 		if _, exist := existingNodeMap[n.Name]; exist {
 			continue
@@ -222,7 +223,7 @@ func (r *ReconcileNode) createNodesToDatahub(nodes []*corev1.Node) error {
 		return errors.Wrap(err, "create nodeInfos failed")
 	}
 
-	datahubNodes := make([]*datahubv1alpha1.Node, len(nodes))
+	datahubNodes := make([]*datahub_resources.Node, len(nodes))
 	for i, nodeInfo := range nodeInfos {
 		n := nodeInfo.DatahubNode()
 		datahubNodes[i] = &n
@@ -238,7 +239,7 @@ func (r *ReconcileNode) deleteNodesFromDatahub(nodes []*corev1.Node) error {
 		return errors.Wrap(err, "create nodeInfos failed")
 	}
 
-	datahubNodes := make([]*datahubv1alpha1.Node, len(nodes))
+	datahubNodes := make([]*datahub_resources.Node, len(nodes))
 	for i, nodeInfo := range nodeInfos {
 		n := nodeInfo.DatahubNode()
 		datahubNodes[i] = &n

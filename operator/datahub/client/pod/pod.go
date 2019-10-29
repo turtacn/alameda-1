@@ -6,6 +6,7 @@ import (
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
@@ -23,16 +24,16 @@ func NewPodRepository() *PodRepository {
 	return &PodRepository{}
 }
 
-func (repo *PodRepository) ListAlamedaPods() ([]*datahub_v1alpha1.Pod, error) {
-	alamedaPods := []*datahub_v1alpha1.Pod{}
+func (repo *PodRepository) ListAlamedaPods() ([]*datahub_resources.Pod, error) {
+	alamedaPods := []*datahub_resources.Pod{}
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	defer conn.Close()
 	if err != nil {
 		return nil, errors.Wrapf(err, "list Alameda pods from Datahub failed: %s", err.Error())
 	}
 
-	req := datahub_v1alpha1.ListAlamedaPodsRequest{
-		Kind: datahub_v1alpha1.Kind_POD,
+	req := datahub_resources.ListAlamedaPodsRequest{
+		Kind: datahub_resources.Kind_POD,
 	}
 	aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	if resp, err := aiServiceClnt.ListAlamedaPods(context.Background(), &req); err != nil {
@@ -46,7 +47,7 @@ func (repo *PodRepository) ListAlamedaPods() ([]*datahub_v1alpha1.Pod, error) {
 }
 
 // DeletePods delete pods from datahub
-func (repo *PodRepository) DeletePods(pods []*datahub_v1alpha1.Pod) error {
+func (repo *PodRepository) DeletePods(pods []*datahub_resources.Pod) error {
 
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	defer conn.Close()
@@ -54,7 +55,7 @@ func (repo *PodRepository) DeletePods(pods []*datahub_v1alpha1.Pod) error {
 		return errors.Wrapf(err, "delete pods from Datahub failed: %s", err.Error())
 	}
 
-	req := datahub_v1alpha1.DeletePodsRequest{
+	req := datahub_resources.DeletePodsRequest{
 		Pods: pods,
 	}
 
