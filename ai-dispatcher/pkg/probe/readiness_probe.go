@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 )
@@ -22,7 +23,7 @@ func queryDatahub(datahubAddr string) error {
 
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
-	res, err := datahubServiceClnt.ListAlamedaNodes(context.Background(), &datahub_v1alpha1.ListAlamedaNodesRequest{})
+	res, err := datahubServiceClnt.ListAlamedaNodes(context.Background(), &datahub_resources.ListAlamedaNodesRequest{})
 	if err != nil {
 		return err
 	}

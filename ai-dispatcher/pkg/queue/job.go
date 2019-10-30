@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	"github.com/streadway/amqp"
 )
 
@@ -79,16 +79,16 @@ func GetQueueConn(queueURL string, retryItvMS int64) *amqp.Connection {
 	}
 }
 
-func GetMetricLabel(mt datahub_v1alpha1.MetricType) string {
-	if mt == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
+func GetMetricLabel(mt datahub_common.MetricType) string {
+	if mt == datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
 		return metrics.MetricTypeLabelCPUUsageSecondsPercentage
-	} else if mt == datahub_v1alpha1.MetricType_DUTY_CYCLE {
+	} else if mt == datahub_common.MetricType_DUTY_CYCLE {
 		return metrics.MetricTypeLabelDutyCycle
-	} else if mt == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES {
+	} else if mt == datahub_common.MetricType_MEMORY_USAGE_BYTES {
 		return metrics.MetricTypeLabelMemoryUsageBytes
-	} else if mt == datahub_v1alpha1.MetricType_POWER_USAGE_WATTS {
+	} else if mt == datahub_common.MetricType_POWER_USAGE_WATTS {
 		return metrics.MetricTypeLabelPowerUsageWatts
-	} else if mt == datahub_v1alpha1.MetricType_TEMPERATURE_CELSIUS {
+	} else if mt == datahub_common.MetricType_TEMPERATURE_CELSIUS {
 		return metrics.MetricTypeLabelTemperatureCelsius
 	}
 	return ""

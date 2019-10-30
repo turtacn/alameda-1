@@ -7,7 +7,8 @@ import (
 
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	datahub_predictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
 	"github.com/spf13/viper"
 )
 
@@ -23,8 +24,8 @@ type data struct {
 
 var scope = log.RegisterScope("statistic", "ai-dispatcher statistic", 0)
 
-func NewMeasurementDataSet(metricSamples []*datahub_v1alpha1.Sample,
-	predictSamples []*datahub_v1alpha1.Sample, granularity int64) map[int64]*MeasurementData {
+func NewMeasurementDataSet(metricSamples []*datahub_common.Sample,
+	predictSamples []*datahub_predictions.Sample, granularity int64) map[int64]*MeasurementData {
 	scope.Debugf("NewMeasurementDataSet metric samples: %s", utils.InterfaceToString(metricSamples))
 	scope.Debugf("NewMeasurementDataSet predict samples: %s", utils.InterfaceToString(predictSamples))
 	measurementDataSet := map[int64]*MeasurementData{}
@@ -91,15 +92,15 @@ func MAPE(measurementDataSet map[int64]*MeasurementData) (float64, error) {
 }
 
 func RMSE(measurementDataSet map[int64]*MeasurementData,
-	metricType datahub_v1alpha1.MetricType) (float64, error) {
+	metricType datahub_common.MetricType) (float64, error) {
 	nPts := 0.0
 	result := 0.0
 	normalize := 1.0
-	if metricType == datahub_v1alpha1.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
+	if metricType == datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
 		normalize = viper.GetFloat64("measurements.rmse.normalization.cpu")
-	} else if metricType == datahub_v1alpha1.MetricType_MEMORY_USAGE_BYTES {
+	} else if metricType == datahub_common.MetricType_MEMORY_USAGE_BYTES {
 		normalize = viper.GetFloat64("measurements.rmse.normalization.memory")
-	} else if metricType == datahub_v1alpha1.MetricType_DUTY_CYCLE {
+	} else if metricType == datahub_common.MetricType_DUTY_CYCLE {
 		normalize = viper.GetFloat64("measurements.rmse.normalization.dutyCycle")
 	}
 	scope.Debugf("Start RMSE calculation")

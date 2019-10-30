@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/pkg/utils"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	"github.com/spf13/viper"
 )
 
@@ -39,8 +39,8 @@ type namespacedName struct {
 }
 
 type container struct {
-	Name         string                        `json:"name"`
-	ModelMetrics []datahub_v1alpha1.MetricType `json:"modelMetrics"`
+	Name         string                      `json:"name"`
+	ModelMetrics []datahub_common.MetricType `json:"modelMetrics"`
 }
 type podModel struct {
 	NamespacedName *namespacedName `json:"namespaced_name,omitempty"`

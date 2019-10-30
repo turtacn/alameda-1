@@ -1,7 +1,7 @@
 package dispatcher
 
 import (
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 )
 
 type modelInfo struct {
@@ -9,7 +9,7 @@ type modelInfo struct {
 	nodeModel `json:",inline"`
 	gpuModel  `json:",inline"`
 
-	ModelMetrics []datahub_v1alpha1.MetricType `json:"modelMetrics,omitempty"`
+	ModelMetrics []datahub_common.MetricType `json:"modelMetrics,omitempty"`
 	Timestamp    int64                         `json:"timestamp"`
 }
 

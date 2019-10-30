@@ -11,6 +11,8 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_gpu "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/spf13/viper"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
@@ -141,7 +143,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 
 	if pdUnit == UnitTypeNode {
 		res, err := datahubServiceClnt.ListAlamedaNodes(context.Background(),
-			&datahub_v1alpha1.ListAlamedaNodesRequest{})
+			&datahub_resources.ListAlamedaNodesRequest{})
 		if err != nil {
 			scope.Errorf("List nodes for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
@@ -165,7 +167,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 
 	} else if pdUnit == UnitTypePod {
 		res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
-			&datahub_v1alpha1.ListAlamedaPodsRequest{})
+			&datahub_resources.ListAlamedaPodsRequest{})
 		if err != nil {
 			scope.Errorf("List pods for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
@@ -188,7 +190,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			len(pods), granularity)
 	} else if pdUnit == UnitTypeGPU {
 		res, err := datahubServiceClnt.ListGpus(context.Background(),
-			&datahub_v1alpha1.ListGpusRequest{})
+			&datahub_gpu.ListGpusRequest{})
 		if err != nil {
 			scope.Errorf("List gpus for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())

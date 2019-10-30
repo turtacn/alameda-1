@@ -6,13 +6,14 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	datahub_predictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
 	"github.com/spf13/viper"
 )
 
-func DriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType, granularity int64,
-	mData []*datahub_v1alpha1.Sample, pData []*datahub_v1alpha1.Sample,
-	unitMeta map[string]string, metricExporter *metrics.Exporter) ([]datahub_v1alpha1.MetricType, bool) {
+func DriftEvaluation(unitType string, metricType datahub_common.MetricType, granularity int64,
+	mData []*datahub_common.Sample, pData []*datahub_predictions.Sample,
+	unitMeta map[string]string, metricExporter *metrics.Exporter) ([]datahub_common.MetricType, bool) {
 	currentMeasure := viper.GetString("measurements.current")
 
 	mapeMetrics, mapeDrift := mapeDriftEvaluation(unitType, metricType, granularity, mData, pData, unitMeta, metricExporter)
@@ -26,15 +27,15 @@ func DriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType, gr
 		return rmseMetrics, rmseDrift
 	}
 
-	return []datahub_v1alpha1.MetricType{}, false
+	return []datahub_common.MetricType{}, false
 }
 
-func mapeDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType, granularity int64,
-	mData []*datahub_v1alpha1.Sample, pData []*datahub_v1alpha1.Sample,
-	unitMeta map[string]string, metricExporter *metrics.Exporter) ([]datahub_v1alpha1.MetricType, bool) {
+func mapeDriftEvaluation(unitType string, metricType datahub_common.MetricType, granularity int64,
+	mData []*datahub_common.Sample, pData []*datahub_predictions.Sample,
+	unitMeta map[string]string, metricExporter *metrics.Exporter) ([]datahub_common.MetricType, bool) {
 	shouldDrift := false
 	modelThreshold := viper.GetFloat64("measurements.mape.threshold")
-	metricsNeedToModel := []datahub_v1alpha1.MetricType{}
+	metricsNeedToModel := []datahub_common.MetricType{}
 	targetDisplayName := unitMeta["targetDisplayName"]
 	scope.Infof("start MAPE calculation for %s metric %v with granularity %v",
 		targetDisplayName, metricType, granularity)
@@ -56,15 +57,14 @@ func mapeDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType
 	}
 	if mapeErr != nil {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
-		shouldDrift = true
 		scope.Infof(
 			"MAPE calculation of %s metric %v with granularity %v failed due to: %s",
 			targetDisplayName, metricType, granularity, mapeErr.Error())
 	} else if mape > modelThreshold {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
+		shouldDrift = true
 		scope.Infof("%s metric %v with granularity %v MAPE %v > %v",
 			targetDisplayName, metricType, granularity, mape, modelThreshold)
-		shouldDrift = true
 	} else {
 		scope.Infof("%s metric %v with granularity %v MAPE %v <= %v",
 			targetDisplayName, metricType, granularity, mape, modelThreshold)
@@ -72,12 +72,12 @@ func mapeDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType
 	return metricsNeedToModel, shouldDrift
 }
 
-func rmseDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType, granularity int64,
-	mData []*datahub_v1alpha1.Sample, pData []*datahub_v1alpha1.Sample,
-	unitMeta map[string]string, metricExporter *metrics.Exporter) ([]datahub_v1alpha1.MetricType, bool) {
+func rmseDriftEvaluation(unitType string, metricType datahub_common.MetricType, granularity int64,
+	mData []*datahub_common.Sample, pData []*datahub_predictions.Sample,
+	unitMeta map[string]string, metricExporter *metrics.Exporter) ([]datahub_common.MetricType, bool) {
 	shouldDrift := false
 	modelThreshold := viper.GetFloat64("measurements.rmse.threshold")
-	metricsNeedToModel := []datahub_v1alpha1.MetricType{}
+	metricsNeedToModel := []datahub_common.MetricType{}
 	targetDisplayName := unitMeta["targetDisplayName"]
 	scope.Infof("start RMSE calculation for %s metric %v with granularity %v",
 		targetDisplayName, metricType, granularity)
@@ -99,15 +99,14 @@ func rmseDriftEvaluation(unitType string, metricType datahub_v1alpha1.MetricType
 	}
 	if rmseErr != nil {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
-		shouldDrift = true
 		scope.Infof(
 			"RMSE calculation of %s metric %v with granularity %v failed due to : %s",
 			targetDisplayName, metricType, granularity, rmseErr.Error())
 	} else if rmse > modelThreshold {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
+		shouldDrift = true
 		scope.Infof("%s metric %v with granularity %v RMSE %v > %v",
 			targetDisplayName, metricType, granularity, rmse, modelThreshold)
-		shouldDrift = true
 	} else {
 		scope.Infof("%s metric %v with granularity %v RMSE %v <= %v",
 			targetDisplayName, metricType, granularity, rmse, modelThreshold)

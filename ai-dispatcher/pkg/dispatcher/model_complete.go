@@ -10,6 +10,8 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	datahub_gpu "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
@@ -62,7 +64,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				metricExporter.ExportNodeMetricModelTime(nodeName, dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListNodes(context.Background(),
-					&datahub_v1alpha1.ListNodesRequest{
+					&datahub_resources.ListNodesRequest{
 						NodeNames: []string{nodeName},
 					})
 				if err == nil {
@@ -87,8 +89,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				metricExporter.ExportPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
-					&datahub_v1alpha1.ListAlamedaPodsRequest{
-						NamespacedName: &datahub_v1alpha1.NamespacedName{
+					&datahub_resources.ListAlamedaPodsRequest{
+						NamespacedName: &datahub_resources.NamespacedName{
 							Namespace: podNS,
 							Name:      podName,
 						},
@@ -115,7 +117,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 					dataGranularity, float64(mt))
 
 				res, err := datahubServiceClnt.ListGpus(context.Background(),
-					&datahub_v1alpha1.ListGpusRequest{
+					&datahub_gpu.ListGpusRequest{
 						Host:        gpuHost,
 						MinorNumber: gpuMinorNumber,
 					})

@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	datahub_gpu "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu"
 	"github.com/golang/protobuf/jsonpb"
 	"google.golang.org/grpc"
 )
@@ -19,7 +20,7 @@ func NewPredictJobSender(datahubGrpcCn *grpc.ClientConn) *predictJobSender {
 	}
 }
 
-func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_v1alpha1.Node,
+func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_resources.Node,
 	queueSender queue.QueueSender, pdUnit string, granularity int64) {
 	marshaler := jsonpb.Marshaler{}
 	for _, node := range nodes {
@@ -45,7 +46,7 @@ func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_v1alpha
 	}
 }
 
-func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_v1alpha1.Pod,
+func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_resources.Pod,
 	queueSender queue.QueueSender, pdUnit string, granularity int64) {
 	marshaler := jsonpb.Marshaler{}
 	for _, pod := range pods {
@@ -72,7 +73,7 @@ func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_v1alpha1.
 	}
 }
 
-func (dispatcher *predictJobSender) SendGPUPredictJobs(gpus []*datahub_v1alpha1.Gpu,
+func (dispatcher *predictJobSender) SendGPUPredictJobs(gpus []*datahub_gpu.Gpu,
 	queueSender queue.QueueSender, pdUnit string, granularity int64) {
 	marshaler := jsonpb.Marshaler{}
 	for _, gpu := range gpus {
