@@ -100,7 +100,7 @@ func (sender *podModelJobSender) genPodInfo(podNS,
 
 func (sender *podModelJobSender) genPodInfoWithAllMetrics(podNS,
 	podName string, pod *datahub_resources.Pod) *modelInfo {
-	podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
+	podInfo := sender.genPodInfo(podNS, podName)
 	return podInfo
 }
 
@@ -155,9 +155,6 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 	queryCondition := &datahub_common.QueryCondition{
 		Order: datahub_common.QueryCondition_DESC,
 		TimeRange: &datahub_common.TimeRange{
-			StartTime: &timestamp.Timestamp{
-				Seconds: time.Now().Unix() - predictionStep*granularity,
-			},
 			Step: &duration.Duration{
 				Seconds: granularity,
 			},

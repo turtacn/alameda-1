@@ -145,9 +145,6 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 	queryCondition := &datahub_common.QueryCondition{
 		Order: datahub_common.QueryCondition_DESC,
 		TimeRange: &datahub_common.TimeRange{
-			StartTime: &timestamp.Timestamp{
-				Seconds: time.Now().Unix() - predictionStep*granularity,
-			},
 			Step: &duration.Duration{
 				Seconds: granularity,
 			},
