@@ -553,8 +553,8 @@
           "steppedLine": true
         },
         {
-          "alias": "Observation_Loader : CPU Usage",
-          "color": "#0a437c"
+          "alias": "Observation : CPU Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -563,7 +563,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum (1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum (1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "interval": "3600s",
           "intervalFactor": 1,
@@ -691,7 +691,7 @@
           "tags": []
         },
         {
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -967,8 +967,8 @@
           "steppedLine": true
         },
         {
-          "alias": "Observation_Loader: Memory Usage",
-          "color": "#0a437c"
+          "alias": "Observation: Memory Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -977,7 +977,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[3600s])))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1106,7 +1106,7 @@
           "tags": []
         },
         {
-          "alias": "Observation_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1396,8 +1396,8 @@
           "steppedLine": true
         },
         {
-          "alias": "Observation_Loader : CPU Usage",
-          "color": "#0a437c"
+          "alias": "Observation : CPU Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -1406,7 +1406,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[21600s]))",
+          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[21600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "21600s",
@@ -1534,7 +1534,7 @@
           "tags": []
         },
         {
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1809,8 +1809,8 @@
           "steppedLine": true
         },
         {
-          "alias": "Observatio_Loader: Memory Usage",
-          "color": "#0a437c"
+          "alias": "Observatio: Memory Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -1819,7 +1819,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[21600s])))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[21600s])))",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -1947,7 +1947,7 @@
           "tags": []
         },
         {
-          "alias": "Observatio_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -2237,8 +2237,8 @@
           "steppedLine": true
         },
         {
-          "alias": "Observation_Loader : CPU Usage",
-          "color": "#0a437c"
+          "alias": "Observation : CPU Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -2247,7 +2247,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s]))",
+          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[86400s]))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2375,7 +2375,7 @@
           "tags": []
         },
         {
-          "alias": "Observation_Loader : CPU Usage",
+          "alias": "Observation : CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -2650,8 +2650,8 @@
           "steppedLine": true
         },
         {
-          "alias": "Observation_Loader: Memory Usage",
-          "color": "#0a437c"
+          "alias": "Observation: Memory Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -2660,7 +2660,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[86400s])))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[86400s])))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2787,7 +2787,7 @@
           "tags": []
         },
         {
-          "alias": "Observation_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -3301,6 +3301,32 @@
           "query": "Yes, No",
           "skipUrlSync": false,
           "type": "custom"
+        },
+        {
+          "allValue": null,
+          "current": {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "InfluxDB",
+          "definition": "show tag values on alameda_cluster_status from container with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/ and 'No' = '$preloader'",
+          "hide": 2,
+          "includeAll": true,
+          "label": null,
+          "multi": false,
+          "name": "pre_container",
+          "options": [],
+          "query": "show tag values on alameda_cluster_status from container with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/ and 'No' = '$preloader'",
+          "refresh": 2,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
         }
     ]
   },

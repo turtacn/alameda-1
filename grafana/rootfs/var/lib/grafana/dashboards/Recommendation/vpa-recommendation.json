@@ -550,8 +550,8 @@
           "lines": false
         },
         {
-          "alias": "Observation_Loader: CPU Usage",
-          "color": "#0a437c"
+          "alias": "Observation: CPU Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -560,7 +560,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[30s]))",
+          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[30s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -758,7 +758,7 @@
           ]
         },
         {
-          "alias": "Observation_Loader: CPU Usage",
+          "alias": "Observation: CPU Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -913,8 +913,8 @@
           "lines": false
         },
         {
-          "alias": "Observatio_Loader: Memory Usage",
-          "color": "#0a437c"
+          "alias": "Observation: Memory Usage",
+          "color": "#5195ce"
         }
       ],
       "spaceLength": 10,
@@ -923,7 +923,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$h_container\", container_name!=\"\"}[30s])))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[30s])))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1121,7 +1121,7 @@
           ]
         },
         {
-          "alias": "Observatio_Loader: Memory Usage",
+          "alias": "Observation: Memory Usage",
           "datasource": "InfluxDB",
           "groupBy": [
             {
@@ -1506,7 +1506,8 @@
         "label": "Preloader",
         "multi": false,
         "name": "preloader",
-        "options": [{
+        "options": [
+          {
             "selected": false,
             "text": "Yes",
             "value": "Yes"
@@ -1520,6 +1521,32 @@
         "query": "Yes, No",
         "skipUrlSync": false,
         "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", enable_VPA from ( select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and ('Application' = '$resource' or 'Cluster' = '$resource' or 'Namespace' = '$resource') group by \"name\" order by time desc limit 1), ( select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" = '$pod'  group by \"name\" order by time desc limit 1) where 'No' = '$preloader' order by time desc",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "pre_container",
+        "options": [],
+        "query": "select \"name\", enable_VPA from ( select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and ('Application' = '$resource' or 'Cluster' = '$resource' or 'Namespace' = '$resource') group by \"name\" order by time desc limit 1), ( select \"name\", enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and \"pod_name\" = '$pod'  group by \"name\" order by time desc limit 1) where 'No' = '$preloader' order by time desc",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
