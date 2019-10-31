@@ -305,7 +305,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and time >= now() -1h group by time(3600s), namespacename",
+          "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' group by namespacename",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -343,7 +343,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select 100 - sum(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and time >= now() -1h group by time(3600s)",
+          "query": "select 100 - sum(costpercentage) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime'",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -419,7 +419,7 @@
         "intervalFactor": 1,
         "orderByTime": "ASC",
         "policy": "default",
-        "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and appname =~ /^[[app_top_5]]$/ and time >= now() -1h and namespacename = '$ns' group by time(3600s), appname",
+        "query": "select mean(costpercentage) from alameda_fedemeter..history_cost_app where granularity = '3600' and appname =~ /^[[app_top_5]]$/ and starttime = '$app_starttime' and namespacename = '$ns' group by appname",
         "rawQuery": true,
         "refId": "A",
         "resultFormat": "time_series",
@@ -478,7 +478,7 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
           "mappingType": 1,
-          "pattern": "name",
+          "pattern": "namespacename",
           "thresholds": [],
           "type": "string",
           "unit": "short",
@@ -486,22 +486,6 @@
             "text": "Idleness",
             "value": "null"
           }]
-        },
-        {
-          "alias": "Provider",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "provider",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
         },
         {
           "alias": "Cost Percentage",
@@ -543,38 +527,6 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "namespacename",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "appname",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
           "decimals": 2,
           "pattern": "/.*/",
           "thresholds": [],
@@ -603,7 +555,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select last(\"\") as \"name\", 100  - sum(costpercentage) as costpercentage,  $current_cost - sum(workloadcost) as workloadcost from (select last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from (select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost*730 from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and time >= now()-1h group by namespacename)) group by namespacename)",
+          "query": "select last(\"\") as namespacename, 100 - sum(costpercentage) as costpercentage, $current_cost - sum(workloadcost) * 730 as workloadcost from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' group by time(3600s) ",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -640,7 +592,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select last(\"name\") as \"name\", last(costpercentage) as costpercentage, last(workloadcost) as workloadcost from (select namespacename as \"name\", provider, top(costpercentage, 5) as costpercentage, workloadcost*730 from (select * from alameda_fedemeter..history_cost_namespace where granularity = '3600'  and time >= now()-1h group by namespacename)) group by namespacename",
+          "query": "select namespacename, costpercentage, workloadcost * 730 as workloadcost from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' ",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -933,8 +885,8 @@
           "format": "percent",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "100",
+          "min": "0",
           "show": true
         },
         {
@@ -963,7 +915,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 15
       },
       "hideTimeOverride": true,
       "id": 32,
@@ -1306,8 +1258,8 @@
           "format": "percent",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "100",
+          "min": "0",
           "show": true
         },
         {
@@ -1678,8 +1630,8 @@
           "format": "percent",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "100",
+          "min": "0",
           "show": true
         },
         {
@@ -1945,18 +1897,44 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "All",
-          "value": "$__all"
+          "text": "1572512400",
+          "value": "1572512400"
         },
         "datasource": "InfluxDB",
-        "definition": "select namespacename from (select top(costpercentage, namespacename, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now() -1h )",
+        "definition": "select last(starttime) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now() -2h ",
         "hide": 2,
-        "includeAll": true,
+        "includeAll": false,
         "label": null,
         "multi": false,
-        "name": "ns_top_5",
+        "name": "ns_starttime",
         "options": [],
-        "query": "select namespacename from (select top(costpercentage, namespacename, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now() -1h )",
+        "query": "select last(starttime) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and time >= now() -2h ",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "1572512400",
+          "value": "1572512400"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select last(starttime) from alameda_fedemeter..history_cost_app where granularity = '3600' and time >= now() -2h ",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "app_starttime",
+        "options": [],
+        "query": "select last(starttime) from alameda_fedemeter..history_cost_app where granularity = '3600' and time >= now() -2h ",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1975,14 +1953,40 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select appname from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and time >= now() -1h)",
+        "definition": "select namespacename from (select top(costpercentage, namespacename, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and starttime = '$ns_starttime' )",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "ns_top_5",
+        "options": [],
+        "query": "select namespacename from (select top(costpercentage, namespacename, 5) from alameda_fedemeter..history_cost_namespace where granularity = '3600' and starttime = '$ns_starttime' )",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select appname from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and starttime = '$app_starttime')",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "app_top_5",
         "options": [],
-        "query": "select appname from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and time >= now() -1h)",
+        "query": "select appname from (select top(costpercentage, appname, 5) from alameda_fedemeter..history_cost_app where granularity = '3600' and starttime = '$app_starttime')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
