@@ -61,6 +61,7 @@ func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender
 	podName := pod.GetNamespacedName().GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	podStr, err := marshaler.MarshalToString(pod)
+
 	if err != nil {
 		scope.Errorf("Encode pb message failed for pod %s/%s with granularity %v seconds. %s",
 			podNS, podName, granularity, err.Error())
@@ -101,6 +102,17 @@ func (sender *podModelJobSender) genPodInfo(podNS,
 func (sender *podModelJobSender) genPodInfoWithAllMetrics(podNS,
 	podName string, pod *datahub_resources.Pod) *modelInfo {
 	podInfo := sender.genPodInfo(podNS, podName)
+	containers := []*container{}
+	for _, ct := range pod.GetContainers() {
+		containers = append(containers, &container{
+			Name: ct.GetName(),
+			ModelMetrics: []datahub_common.MetricType{
+				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+				datahub_common.MetricType_MEMORY_USAGE_BYTES,
+			},
+		})
+	}
+	podInfo.Containers = containers
 	return podInfo
 }
 
@@ -166,7 +178,7 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 	if len(lastPredictionContainers) == 0 {
 		podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 		sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-		scope.Infof("No last prediction metric found of pod (%s/%s)",
+		scope.Infof("No last prediction found of pod (%s/%s)",
 			podNS, podName)
 		return
 	}
