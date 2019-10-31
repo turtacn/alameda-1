@@ -9,24 +9,6 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
-// CreatePodPlannings add pod plannings information to database
-func (s *ServiceV1alpha1) CreatePodPlannings(ctx context.Context, in *ApiPlannings.CreatePodPlanningsRequest) (*status.Status, error) {
-	scope.Debug("Request received from CreatePodPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
-
-	containerDAO := DaoPlanning.NewContainerPlanningsDAO(*s.Config)
-	if err := containerDAO.AddPodPlannings(in); err != nil {
-		scope.Error(err.Error())
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, err
-	}
-
-	return &status.Status{
-		Code: int32(code.Code_OK),
-	}, nil
-}
-
 // CreateControllerPlannings add controller plannings information to database
 func (s *ServiceV1alpha1) CreateControllerPlannings(ctx context.Context, in *ApiPlannings.CreateControllerPlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllerPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
@@ -45,32 +27,6 @@ func (s *ServiceV1alpha1) CreateControllerPlannings(ctx context.Context, in *Api
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
-}
-
-// ListPodPlannings list pod plannings
-func (s *ServiceV1alpha1) ListPodPlannings(ctx context.Context, in *ApiPlannings.ListPodPlanningsRequest) (*ApiPlannings.ListPodPlanningsResponse, error) {
-	scope.Debug("Request received from ListPodPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
-
-	containerDAO := DaoPlanning.NewContainerPlanningsDAO(*s.Config)
-	podPlannings, err := containerDAO.ListPodPlannings(in)
-	if err != nil {
-		scope.Error(err.Error())
-		return &ApiPlannings.ListPodPlanningsResponse{
-			Status: &status.Status{
-				Code:    int32(code.Code_INTERNAL),
-				Message: err.Error(),
-			},
-		}, nil
-	}
-
-	res := &ApiPlannings.ListPodPlanningsResponse{
-		Status: &status.Status{
-			Code: int32(code.Code_OK),
-		},
-		PodPlannings: podPlannings,
-	}
-	scope.Debug("Response sent from ListPodPlannings grpc function: " + AlamedaUtils.InterfaceToString(res))
-	return res, nil
 }
 
 // ListControllerPlannings list controller plannings
