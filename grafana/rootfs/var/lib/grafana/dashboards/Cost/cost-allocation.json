@@ -555,7 +555,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select last(\"\") as namespacename, 100 - sum(costpercentage) as costpercentage, $current_cost - sum(workloadcost) * 730 as workloadcost from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' group by time(3600s) ",
+          "query": "select last(\"\") as namespacename, 100 - sum(costpercentage) as costpercentage, $current_cost - sum(workloadcost) * 730 as workloadcost from alameda_fedemeter..history_cost_namespace where granularity = '3600' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' ",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
