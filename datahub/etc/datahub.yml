@@ -12,7 +12,7 @@ influxdb:
   username: "alameda"
   password: "alameda"
   insecureSkipVerify: true
-  retentionDuration: "30d"
+  retentionDuration: "150d"
   retentionShardDuration: "1d"
 
 apis:
