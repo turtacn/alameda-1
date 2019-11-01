@@ -28,7 +28,7 @@ func (s *ServiceV1alpha1) CreatePodMetrics(ctx context.Context, in *ApiMetrics.C
 	}
 
 	metricDAO := DaoMetric.NewPodMetricsWriterDAO(*s.Config)
-	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
+	err := metricDAO.CreateMetrics(ctx, requestExtended.ProduceMetrics())
 	if err != nil {
 		scope.Errorf("failed to create pod metrics: %+v", err.Error())
 		return &status.Status{
@@ -59,9 +59,10 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *ApiMetrics.Lis
 			},
 		}, nil
 	}
+	requestExt.SetDefault()
 
 	metricDAO := DaoMetric.NewPodMetricsReaderDAO(*s.Config)
-	podMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
+	podMetricMap, err := metricDAO.ListMetrics(ctx, requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListPodMetrics failed: %+v", err)
 		return &ApiMetrics.ListPodMetricsResponse{

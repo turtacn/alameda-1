@@ -1,6 +1,7 @@
 package responses
 
 import (
+	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
@@ -44,4 +45,29 @@ func producePredictionMetricDataFromSamples(metricType ApiCommon.MetricType, gra
 	}
 
 	MetricDataChan <- datahubMetricData
+}
+
+func metricMapToDatahubMetricSlice(metricMap map[enumconv.MetricType][]FormatTypes.Sample) []*ApiCommon.MetricData {
+
+	result := make([]*ApiCommon.MetricData, 0, len(metricMap))
+	for metricType, samples := range metricMap {
+
+		m := ApiCommon.MetricData{
+			MetricType: enumconv.TypeToDatahubMetricType[metricType],
+			Data:       make([]*ApiCommon.Sample, len(samples)),
+		}
+		for i, sample := range samples {
+			// TODO: Send error to caller
+			t, err := ptypes.TimestampProto(sample.Timestamp)
+			if err != nil {
+				t = nil
+			}
+			m.Data[i] = &ApiCommon.Sample{
+				Time:     t,
+				NumValue: sample.Value,
+			}
+		}
+		result = append(result, &m)
+	}
+	return result
 }

@@ -1,35 +1,36 @@
 package types
 
 import (
-	"fmt"
+	"sort"
+
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
-	"sort"
 )
 
+type ContainerMeta struct {
+	metadata.ObjectMeta
+	PodName string
+}
+
 type ContainerMetricSample struct {
-	Namespace     metadata.NamespaceName
-	PodName       metadata.PodName
-	ContainerName metadata.ContainerName
-	MetricType    enumconv.MetricType
-	RateRange     int64
-	Metrics       []types.Sample
+	ObjectMeta ContainerMeta
+	MetricType enumconv.MetricType
+	RateRange  int64
+	Metrics    []types.Sample
 }
 
 // ContainerMetric Metric model to represent one container metric
 type ContainerMetric struct {
-	Namespace     metadata.NamespaceName
-	PodName       metadata.PodName
-	ContainerName metadata.ContainerName
-	RateRange     int64
-	Metrics       map[enumconv.MetricType][]types.Sample
+	ObjectMeta ContainerMeta
+	RateRange  int64
+	Metrics    map[enumconv.MetricType][]types.Sample
 }
 
-// ContainersMetricMap Containers metric map
+// ContainerMetricMap Containers metric map
 type ContainerMetricMap struct {
-	MetricMap map[metadata.NamespacePodContainerName]*ContainerMetric
+	MetricMap map[ContainerMeta]*ContainerMetric
 }
 
 func NewContainerMetricSample() *ContainerMetricSample {
@@ -46,15 +47,13 @@ func NewContainerMetric() *ContainerMetric {
 
 func NewContainerMetricMap() ContainerMetricMap {
 	containerMetricMap := ContainerMetricMap{}
-	containerMetricMap.MetricMap = make(map[metadata.NamespacePodContainerName]*ContainerMetric)
+	containerMetricMap.MetricMap = make(map[ContainerMeta]*ContainerMetric)
 	return containerMetricMap
 }
 
 func (c *ContainerMetric) GetSamples(metricType enumconv.MetricType) *ContainerMetricSample {
 	containerSample := NewContainerMetricSample()
-	containerSample.Namespace = c.Namespace
-	containerSample.PodName = c.PodName
-	containerSample.ContainerName = c.ContainerName
+	containerSample.ObjectMeta = c.ObjectMeta
 	containerSample.MetricType = metricType
 	containerSample.RateRange = c.RateRange
 
@@ -86,21 +85,18 @@ func (c *ContainerMetric) Merge(in *ContainerMetric) {
 // BuildPodMetric Build PodMetric consist of the receiver in ContainersMetricMap.
 func (c *ContainerMetric) BuildPodMetric() *PodMetric {
 	containerMetricMap := NewContainerMetricMap()
-	containerMetricMap.MetricMap[c.NamespacePodContainerName()] = c
+	containerMetricMap.MetricMap[c.ObjectMeta] = c
 
 	return &PodMetric{
 		ObjectMeta: metadata.ObjectMeta{
-			Name:      c.PodName,
-			Namespace: c.Namespace,
+			Name:        c.ObjectMeta.PodName,
+			Namespace:   c.ObjectMeta.Namespace,
+			ClusterName: c.ObjectMeta.ClusterName,
+			NodeName:    c.ObjectMeta.NodeName,
 		},
 		RateRange:          c.RateRange,
 		ContainerMetricMap: containerMetricMap,
 	}
-}
-
-// NamespacePodContainerName Return identity of the container metric.
-func (c *ContainerMetric) NamespacePodContainerName() metadata.NamespacePodContainerName {
-	return metadata.NamespacePodContainerName(fmt.Sprintf("%s/%s/%s", c.Namespace, c.PodName, c.ContainerName))
 }
 
 // SortByTimestamp Sort each metric samples by timestamp in input order
@@ -126,11 +122,10 @@ func (c *ContainerMetric) Limit(limit int) {
 }
 
 func (c *ContainerMetricMap) AddContainerMetric(containerMetric *ContainerMetric) {
-	namespaceContainerName := containerMetric.NamespacePodContainerName()
-	if existContainerMetric, exist := c.MetricMap[namespaceContainerName]; exist {
+	if existContainerMetric, exist := c.MetricMap[containerMetric.ObjectMeta]; exist {
 		existContainerMetric.Merge(containerMetric)
 	} else {
-		c.MetricMap[namespaceContainerName] = containerMetric
+		c.MetricMap[containerMetric.ObjectMeta] = containerMetric
 	}
 }
 

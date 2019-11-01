@@ -42,10 +42,11 @@ func (r *ContainerMemoryRepository) CreateMetrics(metrics []*DaoMetricTypes.Cont
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxMetric.ContainerPodNamespace): metricSample.Namespace,
-				string(EntityInfluxMetric.ContainerPodName):      metricSample.PodName,
-				string(EntityInfluxMetric.ContainerName):         metricSample.ContainerName,
+				string(EntityInfluxMetric.ContainerPodNamespace): metricSample.ObjectMeta.Namespace,
+				string(EntityInfluxMetric.ContainerPodName):      metricSample.ObjectMeta.PodName,
+				string(EntityInfluxMetric.ContainerName):         metricSample.ObjectMeta.Name,
 				string(EntityInfluxMetric.ContainerRateRange):    strconv.FormatInt(metricSample.RateRange, 10),
+				string(EntityInfluxMetric.ContainerClusterName):  metricSample.ObjectMeta.ClusterName,
 			}
 
 			// Pack influx fields
@@ -88,12 +89,16 @@ func (r *ContainerMemoryRepository) read(request DaoMetricTypes.ListPodMetricsRe
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    ContainerMemory,
-		GroupByTags:    []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName), string(EntityInfluxMetric.ContainerRateRange)},
+		GroupByTags: []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName), string(EntityInfluxMetric.ContainerRateRange),
+			string(EntityInfluxMetric.ContainerClusterName)},
+	}
+
+	for _, objectMeta := range request.ObjectMetas {
+		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
-	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
 	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
@@ -109,10 +114,11 @@ func (r *ContainerMemoryRepository) read(request DaoMetricTypes.ListPodMetricsRe
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			containerMetric := DaoMetricTypes.NewContainerMetric()
-			containerMetric.Namespace = group.Tags[string(EntityInfluxMetric.ContainerPodNamespace)]
-			containerMetric.PodName = group.Tags[string(EntityInfluxMetric.ContainerPodName)]
-			containerMetric.ContainerName = group.Tags[string(EntityInfluxMetric.ContainerName)]
+			containerMetric.ObjectMeta.Namespace = group.Tags[string(EntityInfluxMetric.ContainerPodNamespace)]
+			containerMetric.ObjectMeta.PodName = group.Tags[string(EntityInfluxMetric.ContainerPodName)]
+			containerMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.ContainerName)]
 			containerMetric.RateRange = request.RateRange
+			containerMetric.ObjectMeta.ClusterName = group.Tags[string(EntityInfluxMetric.ContainerClusterName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -137,12 +143,16 @@ func (r *ContainerMemoryRepository) steps(request DaoMetricTypes.ListPodMetricsR
 		QueryCondition: &request.QueryCondition,
 		Measurement:    ContainerMemory,
 		SelectedFields: []string{string(EntityInfluxMetric.ContainerValue)},
-		GroupByTags:    []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName), groupByTime},
+		GroupByTags: []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName), groupByTime,
+			string(EntityInfluxMetric.ContainerClusterName)},
+	}
+
+	for _, objectMeta := range request.ObjectMetas {
+		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
-	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
 	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
@@ -159,10 +169,11 @@ func (r *ContainerMemoryRepository) steps(request DaoMetricTypes.ListPodMetricsR
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			containerMetric := DaoMetricTypes.NewContainerMetric()
-			containerMetric.Namespace = group.Tags[string(EntityInfluxMetric.ContainerPodNamespace)]
-			containerMetric.PodName = group.Tags[string(EntityInfluxMetric.ContainerPodName)]
-			containerMetric.ContainerName = group.Tags[string(EntityInfluxMetric.ContainerName)]
+			containerMetric.ObjectMeta.Namespace = group.Tags[string(EntityInfluxMetric.ContainerPodNamespace)]
+			containerMetric.ObjectMeta.PodName = group.Tags[string(EntityInfluxMetric.ContainerPodName)]
+			containerMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.ContainerName)]
 			containerMetric.RateRange = request.RateRange
+			containerMetric.ObjectMeta.ClusterName = group.Tags[string(EntityInfluxMetric.ContainerClusterName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {

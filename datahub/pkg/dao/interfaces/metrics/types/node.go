@@ -1,17 +1,19 @@
 package types
 
 import (
+	"context"
+	"sort"
+
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
-	"sort"
 )
 
 // NodeMetricsDAO DAO interface of node metric data.
 type NodeMetricsDAO interface {
-	CreateMetrics(NodeMetricMap) error
-	ListMetrics(ListNodeMetricsRequest) (NodeMetricMap, error)
+	CreateMetrics(context.Context, NodeMetricMap) error
+	ListMetrics(context.Context, ListNodeMetricsRequest) (NodeMetricMap, error)
 }
 
 type NodeMetricSample struct {
@@ -28,13 +30,13 @@ type NodeMetric struct {
 
 // NodesMetricMap Nodes' metric map
 type NodeMetricMap struct {
-	MetricMap map[metadata.NodeName]*NodeMetric
+	MetricMap map[metadata.ObjectMeta]*NodeMetric
 }
 
 // ListNodeMetricsRequest Argument of method ListNodeMetrics
 type ListNodeMetricsRequest struct {
 	common.QueryCondition
-	ObjectMeta []metadata.ObjectMeta
+	ObjectMetas []metadata.ObjectMeta
 }
 
 func NewNodeMetricSample() *NodeMetricSample {
@@ -51,20 +53,20 @@ func NewNodeMetric() *NodeMetric {
 
 func NewNodeMetricMap() NodeMetricMap {
 	nodeMetricMap := NodeMetricMap{}
-	nodeMetricMap.MetricMap = make(map[metadata.NodeName]*NodeMetric)
+	nodeMetricMap.MetricMap = make(map[metadata.ObjectMeta]*NodeMetric)
 	return nodeMetricMap
 }
 
 func NewListNodeMetricsRequest() ListNodeMetricsRequest {
 	request := ListNodeMetricsRequest{}
-	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
+	request.ObjectMetas = make([]metadata.ObjectMeta, 0)
 	return request
 }
 
 // GetNodeNames Return nodes name in request
 func (r ListNodeMetricsRequest) GetNodeNames() []metadata.NodeName {
 	nodeNames := make([]metadata.NodeName, 0)
-	for _, objectMeta := range r.ObjectMeta {
+	for _, objectMeta := range r.ObjectMetas {
 		nodeNames = append(nodeNames, objectMeta.Name)
 	}
 	return nodeNames
@@ -126,11 +128,10 @@ func (n *NodeMetric) Limit(limit int) {
 
 // AddNodeMetric Add node metric into NodesMetricMap
 func (n *NodeMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
-	nodeName := nodeMetric.ObjectMeta.Name
-	if existNodeMetric, exist := n.MetricMap[nodeName]; exist {
+	if existNodeMetric, exist := n.MetricMap[nodeMetric.ObjectMeta]; exist {
 		existNodeMetric.Merge(nodeMetric)
 	} else {
-		n.MetricMap[nodeName] = nodeMetric
+		n.MetricMap[nodeMetric.ObjectMeta] = nodeMetric
 	}
 }
 

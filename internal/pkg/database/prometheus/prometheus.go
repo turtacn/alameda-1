@@ -36,9 +36,11 @@ func NewClient(config *Config) (*Prometheus, error) {
 	// Create http transport
 	tr := &http.Transport{
 		TLSHandshakeTimeout: handShakeTimeout,
-		TLSClientConfig: &tls.Config{
+	}
+	if config.TLSConfig != nil {
+		tr.TLSClientConfig = &tls.Config{
 			InsecureSkipVerify: config.TLSConfig.InsecureSkipVerify,
-		},
+		}
 	}
 
 	// Create http client
