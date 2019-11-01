@@ -119,7 +119,13 @@ func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v
 	}
 	if len(nodePredictRes.GetNodePredictions()) > 0 {
 		lastNodePrediction := nodePredictRes.GetNodePredictions()[0]
-		return lastNodePrediction.GetPredictedRawData(), nil
+		if lastNodePrediction.GetPredictedRawData() != nil {
+			return lastNodePrediction.GetPredictedRawData(), nil
+		} else if lastNodePrediction.GetPredictedLowerboundData() != nil {
+			return lastNodePrediction.GetPredictedLowerboundData(), nil
+		} else if lastNodePrediction.GetPredictedUpperboundData() != nil {
+			return lastNodePrediction.GetPredictedUpperboundData(), nil
+		}
 	}
 	return nil, nil
 }

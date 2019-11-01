@@ -184,14 +184,21 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 	}
 
 	for _, lastPredictionContainer := range lastPredictionContainers {
-		if len(lastPredictionContainer.GetPredictedRawData()) == 0 {
+		lastPredictionMetrics := []*datahub_predictions.MetricData{}
+		if len(lastPredictionContainer.GetPredictedRawData()) > 0 {
+			lastPredictionMetrics = lastPredictionContainer.GetPredictedRawData()
+		}else  if len(lastPredictionContainer.GetPredictedLowerboundData()) > 0 {
+			lastPredictionMetrics = lastPredictionContainer.GetPredictedLowerboundData()
+		}else if len(lastPredictionContainer.GetPredictedUpperboundData()) > 0 {
+			lastPredictionMetrics = lastPredictionContainer.GetPredictedUpperboundData()
+		}else{
 			podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 			sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
 			scope.Infof("No any last container metric prediction %s found of pod (%s/%s)",
 				lastPredictionContainer.GetName(), podNS, podName)
 			continue
 		}
-		for _, lastPredictionMetric := range lastPredictionContainer.GetPredictedRawData() {
+		for _, lastPredictionMetric := range lastPredictionMetrics {
 			if len(lastPredictionMetric.GetData()) == 0 {
 				containers := []*container{}
 				for _, ct := range pod.GetContainers() {

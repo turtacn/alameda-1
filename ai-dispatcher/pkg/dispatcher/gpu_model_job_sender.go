@@ -124,7 +124,13 @@ func (sender *gpuModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1
 
 	if len(gpuPredictRes.GetGpuPredictions()) > 0 {
 		lastGpuPrediction := gpuPredictRes.GetGpuPredictions()[0]
-		return lastGpuPrediction.GetPredictedRawData(), nil
+		if lastGpuPrediction.GetPredictedRawData() != nil {
+			return lastGpuPrediction.GetPredictedRawData(), nil
+		} else if lastGpuPrediction.GetPredictedLowerboundData() != nil {
+			return lastGpuPrediction.GetPredictedLowerboundData(), nil
+		} else if lastGpuPrediction.GetPredictedUpperboundData() != nil {
+			return lastGpuPrediction.GetPredictedUpperboundData(), nil
+		}
 	}
 	return nil, nil
 }
