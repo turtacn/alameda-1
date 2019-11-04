@@ -16,28 +16,35 @@ message CreatePodPredictionsRequest {
     repeated PodPrediction pod_predictions = 1;
 }
 
+message CreateControllerPredictionsRequest {
+    repeated ControllerPrediction controller_predictions = 1;
+}
+
+message CreateApplicationPredictionsRequest {
+    repeated ApplicationPrediction application_predictions = 1;
+}
+
+message CreateNamespacePredictionsRequest {
+    repeated NamespacePrediction namespace_predictions = 1;
+}
+
 // Represents a request for creating predictions of a node metric data
 message CreateNodePredictionsRequest {
     repeated NodePrediction node_predictions = 1;
 }
 
-// Represents a request for listing predictions of pods
-message ListPodPredictionsRequest {
-    common.QueryCondition    query_condition = 1;
-    resources.NamespacedName namespaced_name = 2;
-    int64                    granularity     = 3;
-    int64                    fill_days       = 4;
-    string                   model_id        = 5;
-    string                   prediction_id   = 6;
+message CreateClusterPredictionsRequest {
+    repeated ClusterPrediction cluster_predictions = 1;
 }
 
-// Represents a request for listing predictions of nodes
-message ListNodePredictionsRequest {
-    common.QueryCondition query_condition = 1;
-    repeated string       node_names      = 2;
-    int64                 granularity     = 3;
-    string                model_id        = 4;
-    string                prediction_id   = 5;
+// Represents a request for listing predictions of pods
+message ListPodPredictionsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    int64                         granularity     = 3;
+    int64                         fill_days       = 4;
+    string                        model_id        = 5;
+    string                        prediction_id   = 6;
 }
 
 // Represents a response for a listing predictions of pods request
@@ -46,8 +53,71 @@ message ListPodPredictionsResponse {
     repeated PodPrediction pod_predictions = 2;
 }
 
+message ListControllerPredictionsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    int64                         granularity     = 3;
+    string                        model_id        = 4;
+    string                        prediction_id   = 5;
+}
+
+message ListControllerPredictionsResponse {
+    google.rpc.Status             status                 = 1;
+    repeated ControllerPrediction controller_predictions = 2;
+}
+
+message ListApplicationPredictionsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    int64                         granularity     = 3;
+    string                        model_id        = 4;
+    string                        prediction_id   = 5;
+}
+
+message ListApplicationPredictionsResponse {
+    google.rpc.Status              status                  = 1;
+    repeated ApplicationPrediction application_predictions = 2;
+}
+
+message ListNamespacePredictionsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    int64                         granularity     = 3;
+    string                        model_id        = 4;
+    string                        prediction_id   = 5;
+}
+
+message ListNamespacePredictionsResponse {
+    google.rpc.Status            status                = 1;
+    repeated NamespacePrediction namespace_predictions = 2;
+}
+
+// Represents a request for listing predictions of nodes
+message ListNodePredictionsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    int64                         granularity     = 3;
+    string                        model_id        = 4;
+    string                        prediction_id   = 5;
+}
+
 // Represents a response for a listing predictions of nodes request
 message ListNodePredictionsResponse {
     google.rpc.Status       status           = 1;
     repeated NodePrediction node_predictions = 2;
 }
+
+message ListClusterPredictionsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    int64                         granularity     = 3;
+    string                        model_id        = 4;
+    string                        prediction_id   = 5;
+}
+
+message ListClusterPredictionsResponse {
+    google.rpc.Status          status              = 1;
+    repeated ClusterPrediction cluster_predictions = 2;
+}
+
+

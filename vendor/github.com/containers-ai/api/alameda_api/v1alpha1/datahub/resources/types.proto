@@ -5,44 +5,33 @@ syntax = "proto3";
 package containersai.alameda.v1alpha1.datahub.resources;
 
 import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
+import "alameda_api/v1alpha1/datahub/resources/policies.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources";
 
-/**
- * Represents kubernetes resource kind
- *
- */
-enum Kind {
-    POD              = 0;
-    DEPLOYMENT       = 1;
-    DEPLOYMENTCONFIG = 2;
-    ALAMEDASCALER    = 3;
-    STATEFULSET      = 4;
+message AlamedaPodSpec {
+    ObjectMeta           alameda_scaler           = 1;
+    RecommendationPolicy policy                   = 2;
+    string               used_recommendation_id   = 3;
+    ResourceRequirements alameda_scaler_resources = 4;
+    bool                 enable_VPA               = 5;
+    bool                 enable_HPA               = 6;
 }
 
-/**
- * Represents the capacity of a Kubernetes node
- *
- */
+message AlamedaControllerSpec {
+    RecommendationPolicy policy                          = 1;
+    bool                 enable_recommendation_execution = 2;
+}
+
+message AlamedaNodeSpec {
+    Provider provider = 1;
+}
+
+// Represents the capacity of a Kubernetes node
 message Capacity {
     int64 cpu_cores                   = 1;
     int64 memory_bytes                = 2;
     int64 netwotk_megabits_per_second = 3;
-}
-
-/**
- * Represents top controller of the pod
- *
- */
-message TopController {
-    NamespacedName namespaced_name = 1;
-    Kind           kind            = 2;
-    int32          Replicas        = 3;
-}
-
-message ResourceInfo {
-    NamespacedName namespaced_name = 1;
-    Kind           kind            = 2;
 }
 
 message Provider {
@@ -61,7 +50,9 @@ message Provider {
  */
 message ResourceRequirements {
     // limits describes the maximum amount of compute resources allowed
+    // use enum ResourceName as key of the map which defined in common
     map<int32, string> limits = 1;
     // requests describes the minimum amount of compute resources required
+    // use enum ResourceName as key of the map which defined in common
     map<int32, string> requests = 2;
 }

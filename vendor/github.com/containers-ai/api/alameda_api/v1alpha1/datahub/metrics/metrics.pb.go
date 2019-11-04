@@ -22,7 +22,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-//*
 // Represents metric data of a container
 type ContainerMetric struct {
 	Name                 string               `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -71,14 +70,13 @@ func (m *ContainerMetric) GetMetricData() []*common.MetricData {
 	return nil
 }
 
-//*
 // Represents metric data of a pod
 type PodMetric struct {
-	NamespacedName       *resources.NamespacedName `protobuf:"bytes,1,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
-	ContainerMetrics     []*ContainerMetric        `protobuf:"bytes,2,rep,name=container_metrics,json=containerMetrics,proto3" json:"container_metrics,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
-	XXX_unrecognized     []byte                    `json:"-"`
-	XXX_sizecache        int32                     `json:"-"`
+	ObjectMeta           *resources.ObjectMeta `protobuf:"bytes,1,opt,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	ContainerMetrics     []*ContainerMetric    `protobuf:"bytes,2,rep,name=container_metrics,json=containerMetrics,proto3" json:"container_metrics,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *PodMetric) Reset()         { *m = PodMetric{} }
@@ -106,9 +104,9 @@ func (m *PodMetric) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PodMetric proto.InternalMessageInfo
 
-func (m *PodMetric) GetNamespacedName() *resources.NamespacedName {
+func (m *PodMetric) GetObjectMeta() *resources.ObjectMeta {
 	if m != nil {
-		return m.NamespacedName
+		return m.ObjectMeta
 	}
 	return nil
 }
@@ -120,21 +118,161 @@ func (m *PodMetric) GetContainerMetrics() []*ContainerMetric {
 	return nil
 }
 
-//*
+type ControllerMetric struct {
+	ObjectMeta           *resources.ObjectMeta `protobuf:"bytes,1,opt,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	MetricData           []*common.MetricData  `protobuf:"bytes,2,rep,name=metric_data,json=metricData,proto3" json:"metric_data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
+}
+
+func (m *ControllerMetric) Reset()         { *m = ControllerMetric{} }
+func (m *ControllerMetric) String() string { return proto.CompactTextString(m) }
+func (*ControllerMetric) ProtoMessage()    {}
+func (*ControllerMetric) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2dbb3a291d3897af, []int{2}
+}
+
+func (m *ControllerMetric) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ControllerMetric.Unmarshal(m, b)
+}
+func (m *ControllerMetric) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ControllerMetric.Marshal(b, m, deterministic)
+}
+func (m *ControllerMetric) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ControllerMetric.Merge(m, src)
+}
+func (m *ControllerMetric) XXX_Size() int {
+	return xxx_messageInfo_ControllerMetric.Size(m)
+}
+func (m *ControllerMetric) XXX_DiscardUnknown() {
+	xxx_messageInfo_ControllerMetric.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ControllerMetric proto.InternalMessageInfo
+
+func (m *ControllerMetric) GetObjectMeta() *resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ControllerMetric) GetMetricData() []*common.MetricData {
+	if m != nil {
+		return m.MetricData
+	}
+	return nil
+}
+
+type ApplicationMetric struct {
+	ObjectMeta           *resources.ObjectMeta `protobuf:"bytes,1,opt,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	MetricData           []*common.MetricData  `protobuf:"bytes,2,rep,name=metric_data,json=metricData,proto3" json:"metric_data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
+}
+
+func (m *ApplicationMetric) Reset()         { *m = ApplicationMetric{} }
+func (m *ApplicationMetric) String() string { return proto.CompactTextString(m) }
+func (*ApplicationMetric) ProtoMessage()    {}
+func (*ApplicationMetric) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2dbb3a291d3897af, []int{3}
+}
+
+func (m *ApplicationMetric) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ApplicationMetric.Unmarshal(m, b)
+}
+func (m *ApplicationMetric) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ApplicationMetric.Marshal(b, m, deterministic)
+}
+func (m *ApplicationMetric) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ApplicationMetric.Merge(m, src)
+}
+func (m *ApplicationMetric) XXX_Size() int {
+	return xxx_messageInfo_ApplicationMetric.Size(m)
+}
+func (m *ApplicationMetric) XXX_DiscardUnknown() {
+	xxx_messageInfo_ApplicationMetric.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ApplicationMetric proto.InternalMessageInfo
+
+func (m *ApplicationMetric) GetObjectMeta() *resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ApplicationMetric) GetMetricData() []*common.MetricData {
+	if m != nil {
+		return m.MetricData
+	}
+	return nil
+}
+
+type NamespaceMetric struct {
+	ObjectMeta           *resources.ObjectMeta `protobuf:"bytes,1,opt,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	MetricData           []*common.MetricData  `protobuf:"bytes,2,rep,name=metric_data,json=metricData,proto3" json:"metric_data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
+}
+
+func (m *NamespaceMetric) Reset()         { *m = NamespaceMetric{} }
+func (m *NamespaceMetric) String() string { return proto.CompactTextString(m) }
+func (*NamespaceMetric) ProtoMessage()    {}
+func (*NamespaceMetric) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2dbb3a291d3897af, []int{4}
+}
+
+func (m *NamespaceMetric) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NamespaceMetric.Unmarshal(m, b)
+}
+func (m *NamespaceMetric) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NamespaceMetric.Marshal(b, m, deterministic)
+}
+func (m *NamespaceMetric) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NamespaceMetric.Merge(m, src)
+}
+func (m *NamespaceMetric) XXX_Size() int {
+	return xxx_messageInfo_NamespaceMetric.Size(m)
+}
+func (m *NamespaceMetric) XXX_DiscardUnknown() {
+	xxx_messageInfo_NamespaceMetric.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NamespaceMetric proto.InternalMessageInfo
+
+func (m *NamespaceMetric) GetObjectMeta() *resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *NamespaceMetric) GetMetricData() []*common.MetricData {
+	if m != nil {
+		return m.MetricData
+	}
+	return nil
+}
+
 // Represents metric data of a node
 type NodeMetric struct {
-	Name                 string               `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	MetricData           []*common.MetricData `protobuf:"bytes,2,rep,name=metric_data,json=metricData,proto3" json:"metric_data,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+	ObjectMeta           *resources.ObjectMeta `protobuf:"bytes,1,opt,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	MetricData           []*common.MetricData  `protobuf:"bytes,2,rep,name=metric_data,json=metricData,proto3" json:"metric_data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *NodeMetric) Reset()         { *m = NodeMetric{} }
 func (m *NodeMetric) String() string { return proto.CompactTextString(m) }
 func (*NodeMetric) ProtoMessage()    {}
 func (*NodeMetric) Descriptor() ([]byte, []int) {
-	return fileDescriptor_2dbb3a291d3897af, []int{2}
+	return fileDescriptor_2dbb3a291d3897af, []int{5}
 }
 
 func (m *NodeMetric) XXX_Unmarshal(b []byte) error {
@@ -155,11 +293,11 @@ func (m *NodeMetric) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_NodeMetric proto.InternalMessageInfo
 
-func (m *NodeMetric) GetName() string {
+func (m *NodeMetric) GetObjectMeta() *resources.ObjectMeta {
 	if m != nil {
-		return m.Name
+		return m.ObjectMeta
 	}
-	return ""
+	return nil
 }
 
 func (m *NodeMetric) GetMetricData() []*common.MetricData {
@@ -169,10 +307,61 @@ func (m *NodeMetric) GetMetricData() []*common.MetricData {
 	return nil
 }
 
+type ClusterMetric struct {
+	ObjectMeta           *resources.ObjectMeta `protobuf:"bytes,1,opt,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	MetricData           []*common.MetricData  `protobuf:"bytes,2,rep,name=metric_data,json=metricData,proto3" json:"metric_data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
+}
+
+func (m *ClusterMetric) Reset()         { *m = ClusterMetric{} }
+func (m *ClusterMetric) String() string { return proto.CompactTextString(m) }
+func (*ClusterMetric) ProtoMessage()    {}
+func (*ClusterMetric) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2dbb3a291d3897af, []int{6}
+}
+
+func (m *ClusterMetric) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ClusterMetric.Unmarshal(m, b)
+}
+func (m *ClusterMetric) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ClusterMetric.Marshal(b, m, deterministic)
+}
+func (m *ClusterMetric) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClusterMetric.Merge(m, src)
+}
+func (m *ClusterMetric) XXX_Size() int {
+	return xxx_messageInfo_ClusterMetric.Size(m)
+}
+func (m *ClusterMetric) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClusterMetric.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClusterMetric proto.InternalMessageInfo
+
+func (m *ClusterMetric) GetObjectMeta() *resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ClusterMetric) GetMetricData() []*common.MetricData {
+	if m != nil {
+		return m.MetricData
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*ContainerMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.ContainerMetric")
 	proto.RegisterType((*PodMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.PodMetric")
+	proto.RegisterType((*ControllerMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.ControllerMetric")
+	proto.RegisterType((*ApplicationMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.ApplicationMetric")
+	proto.RegisterType((*NamespaceMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.NamespaceMetric")
 	proto.RegisterType((*NodeMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.NodeMetric")
+	proto.RegisterType((*ClusterMetric)(nil), "containersai.alameda.v1alpha1.datahub.metrics.ClusterMetric")
 }
 
 func init() {
@@ -180,24 +369,27 @@ func init() {
 }
 
 var fileDescriptor_2dbb3a291d3897af = []byte{
-	// 292 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x52, 0xbd, 0x4e, 0xc3, 0x30,
-	0x10, 0x56, 0x00, 0x21, 0xf5, 0x22, 0x51, 0xc8, 0x54, 0x75, 0xaa, 0x32, 0x75, 0xe9, 0x45, 0x09,
-	0x42, 0x62, 0x02, 0x41, 0x59, 0xa9, 0x50, 0x36, 0x58, 0xa2, 0xab, 0x63, 0x11, 0x8b, 0x3a, 0x8e,
-	0x12, 0x97, 0x85, 0x85, 0x67, 0xe5, 0x49, 0x90, 0x13, 0xc7, 0x28, 0x0c, 0x55, 0x98, 0x98, 0x7c,
-	0x3e, 0xf9, 0xfb, 0xb9, 0xf3, 0x07, 0x09, 0xed, 0x48, 0xf2, 0x9c, 0x32, 0xaa, 0x44, 0xf4, 0x1e,
-	0xd3, 0xae, 0x2a, 0x28, 0x8e, 0x72, 0xd2, 0x54, 0xec, 0xb7, 0x91, 0xe4, 0xba, 0x16, 0xac, 0xe9,
-	0x4f, 0xac, 0x6a, 0xa5, 0x55, 0xb0, 0x62, 0xaa, 0xd4, 0x24, 0x4a, 0x5e, 0x37, 0x24, 0xd0, 0x12,
-	0x60, 0x0f, 0x46, 0x0b, 0x46, 0x0b, 0x9a, 0xc7, 0x07, 0x25, 0x98, 0x92, 0x52, 0x95, 0x43, 0x85,
-	0xf9, 0xd5, 0x41, 0x48, 0xcd, 0x1b, 0xb5, 0xaf, 0x19, 0x6f, 0x7d, 0x91, 0xe9, 0x76, 0xb0, 0xf0,
-	0xd3, 0x83, 0xe9, 0xba, 0xf7, 0xf6, 0xd8, 0x32, 0x06, 0x01, 0x9c, 0x94, 0x24, 0xf9, 0xcc, 0x5b,
-	0x78, 0xcb, 0x49, 0xda, 0xd6, 0xc1, 0x33, 0xf8, 0x9d, 0x5e, 0x66, 0xc0, 0xb3, 0xa3, 0xc5, 0xf1,
-	0xd2, 0x4f, 0xae, 0x71, 0xdc, 0x58, 0x9d, 0x61, 0xec, 0xe8, 0x1f, 0x48, 0x53, 0x0a, 0xd2, 0xd5,
-	0xe1, 0x97, 0x07, 0x93, 0x27, 0x95, 0x5b, 0xf1, 0x02, 0xa6, 0x46, 0xb0, 0xa9, 0x88, 0xf1, 0x3c,
-	0x73, 0x3e, 0xfc, 0xe4, 0x76, 0xa4, 0x98, 0x1b, 0x15, 0x37, 0x8e, 0xc7, 0x54, 0xe9, 0x59, 0x39,
-	0xb8, 0x07, 0x6f, 0x70, 0xe1, 0x18, 0x33, 0xbb, 0x4c, 0x3b, 0xd8, 0x0d, 0xfe, 0xe9, 0xbf, 0xf0,
-	0xd7, 0x06, 0xd3, 0x73, 0x36, 0x6c, 0x34, 0xe1, 0x07, 0xc0, 0x46, 0xe5, 0xfc, 0x5f, 0x36, 0x7c,
-	0xbf, 0x7e, 0xb9, 0x7b, 0x15, 0xda, 0xbe, 0x8b, 0x7e, 0x18, 0x57, 0x24, 0x22, 0x13, 0x97, 0x31,
-	0x81, 0xde, 0x9e, 0xb6, 0x81, 0xb9, 0xfc, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x10, 0x47, 0x8a, 0x2e,
-	0xff, 0x02, 0x00, 0x00,
+	// 349 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x55, 0x3f, 0x4b, 0xc3, 0x40,
+	0x14, 0xe7, 0x54, 0x84, 0xbe, 0x20, 0x6d, 0x33, 0x95, 0x4e, 0xa5, 0x53, 0x97, 0x5e, 0x68, 0x45,
+	0x10, 0x04, 0xa1, 0xd6, 0xb5, 0x55, 0xba, 0x29, 0x42, 0x78, 0xbd, 0x1c, 0xf6, 0x34, 0x97, 0x17,
+	0x92, 0xab, 0xb3, 0x5f, 0x4e, 0x10, 0x75, 0xf6, 0xf3, 0x48, 0x92, 0x6b, 0xa4, 0x0e, 0x25, 0x0e,
+	0x1d, 0x32, 0xe5, 0x71, 0xdc, 0xef, 0xdf, 0x7b, 0xe4, 0x1d, 0x8c, 0x31, 0x44, 0x2d, 0x03, 0xf4,
+	0x31, 0x56, 0xde, 0xcb, 0x08, 0xc3, 0x78, 0x85, 0x23, 0x2f, 0x40, 0x83, 0xab, 0xf5, 0xd2, 0xd3,
+	0xd2, 0x24, 0x4a, 0xa4, 0x9b, 0x2f, 0x8f, 0x13, 0x32, 0xe4, 0x0e, 0x05, 0x45, 0x06, 0x55, 0x24,
+	0x93, 0x14, 0x15, 0xb7, 0x04, 0x7c, 0x03, 0xe6, 0x16, 0xcc, 0x2d, 0xa8, 0x3b, 0xda, 0x29, 0x21,
+	0x48, 0x6b, 0x8a, 0xb6, 0x15, 0xba, 0x67, 0x3b, 0x21, 0x89, 0x4c, 0x69, 0x9d, 0x08, 0x99, 0xfb,
+	0xc2, 0xec, 0xb4, 0x80, 0xf5, 0x5f, 0x19, 0x34, 0xa7, 0x1b, 0x6f, 0xb3, 0x9c, 0xd1, 0x75, 0xe1,
+	0x28, 0x42, 0x2d, 0x3b, 0xac, 0xc7, 0x06, 0x8d, 0x45, 0x5e, 0xbb, 0x77, 0xe0, 0x14, 0x7a, 0x7e,
+	0x06, 0xee, 0x1c, 0xf4, 0x0e, 0x07, 0xce, 0xf8, 0x9c, 0x57, 0x8b, 0x55, 0x18, 0xe6, 0x05, 0xfd,
+	0x35, 0x1a, 0x5c, 0x80, 0x2e, 0xeb, 0xfe, 0x37, 0x83, 0xc6, 0x2d, 0x05, 0x56, 0xfc, 0x01, 0x1c,
+	0x5a, 0x3e, 0x49, 0x61, 0xfc, 0xcc, 0x69, 0xee, 0xc1, 0x19, 0x5f, 0x54, 0x14, 0x2a, 0x63, 0xf2,
+	0x9b, 0x9c, 0x63, 0x26, 0x33, 0x2d, 0x2a, 0x6b, 0xf7, 0x19, 0xda, 0x25, 0x93, 0x6f, 0x1b, 0x68,
+	0xc3, 0x5c, 0xf2, 0x7f, 0xcd, 0x88, 0xff, 0xe9, 0xda, 0xa2, 0x25, 0xb6, 0x0f, 0xd2, 0xfe, 0x27,
+	0x83, 0x56, 0x76, 0x2b, 0xa1, 0x30, 0x2c, 0x9b, 0xbb, 0xdf, 0x7c, 0x7b, 0x1c, 0xd3, 0x17, 0x83,
+	0xf6, 0x24, 0x8e, 0x43, 0x25, 0xd0, 0x28, 0x8a, 0xea, 0x1e, 0xe7, 0x83, 0x41, 0x73, 0x8e, 0x5a,
+	0xa6, 0x31, 0x0a, 0x59, 0xf7, 0x30, 0x6f, 0x0c, 0x60, 0x4e, 0x41, 0xed, 0x73, 0xbc, 0x33, 0x38,
+	0x99, 0x86, 0xeb, 0xd4, 0xd4, 0xfe, 0x77, 0xb9, 0x9a, 0xde, 0x4f, 0x1e, 0x95, 0xb1, 0xf7, 0xbc,
+	0x5f, 0xc6, 0x21, 0x2a, 0x2f, 0x5b, 0xd1, 0x55, 0x1e, 0x91, 0xe5, 0x71, 0xbe, 0xa4, 0x4f, 0x7f,
+	0x02, 0x00, 0x00, 0xff, 0xff, 0xad, 0xc3, 0x27, 0xf2, 0x73, 0x06, 0x00, 0x00,
 }

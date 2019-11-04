@@ -8,7 +8,6 @@ import "alameda_api/v1alpha1/datahub/common/queries.proto";
 import "alameda_api/v1alpha1/datahub/recommendations/recommendations.proto";
 import "alameda_api/v1alpha1/datahub/recommendations/types.proto";
 import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
-import "alameda_api/v1alpha1/datahub/resources/types.proto";
 import "google/rpc/status.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations";
@@ -24,12 +23,28 @@ message CreateControllerRecommendationsRequest {
     repeated ControllerRecommendation controller_recommendations = 1;
 }
 
+message CreateApplicationRecommendationsRequest {
+    repeated ApplicationRecommendation application_recommendations = 1;
+}
+
+message CreateNamespaceRecommendationsRequest {
+    repeated NamespaceRecommendation namespace_recommendations = 1;
+}
+
+message CreateNodeRecommendationsRequest {
+    repeated NodeRecommendation node_recommendations = 1;
+}
+
+message CreateClusterRecommendationsRequest {
+    repeated ClusterRecommendation cluster_recommendations = 1;
+}
+
 // Represents a request for listing recommendations of pods
 message ListPodRecommendationsRequest {
-    common.QueryCondition    query_condition = 1;
-    resources.NamespacedName namespaced_name = 2;
-    resources.Kind           kind            = 3;
-    int64                    granularity     = 4;
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    resources.Kind                kind            = 3;
+    int64                         granularity     = 4;
 }
 
 // Represents a response for listing pod recommendations request
@@ -40,13 +55,53 @@ message ListPodRecommendationsResponse {
 
 // Represents a request for listing recommendations of controllers
 message ListControllerRecommendationsRequest {
-    common.QueryCondition     query_condition  = 1;
-    resources.NamespacedName  namespaced_name  = 2;
-    ControllerRecommendedType recommended_type = 3;
+    common.QueryCondition         query_condition  = 1;
+    repeated resources.ObjectMeta object_meta      = 2;
+    ControllerRecommendedType     recommended_type = 3;
 }
 
 // Represents a response for listing controller recommendations request
 message ListControllerRecommendationsResponse {
     google.rpc.Status                 status                     = 1;
     repeated ControllerRecommendation controller_recommendations = 2;
+}
+
+message ListApplicationRecommendationsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListApplicationRecommendationsResponse {
+    google.rpc.Status                  status                      = 1;
+    repeated ApplicationRecommendation application_recommendations = 2;
+}
+
+message ListNamespaceRecommendationsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListNamespaceRecommendationsResponse {
+    google.rpc.Status                status                    = 1;
+    repeated NamespaceRecommendation namespace_recommendations = 2;
+}
+
+message ListNodeRecommendationsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListNodeRecommendationsResponse {
+    google.rpc.Status           status               = 1;
+    repeated NodeRecommendation node_recommendations = 2;
+}
+
+message ListClusterRecommendationsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListClusterRecommendationsResponse {
+    google.rpc.Status              status                  = 1;
+    repeated ClusterRecommendation cluster_recommendations = 2;
 }

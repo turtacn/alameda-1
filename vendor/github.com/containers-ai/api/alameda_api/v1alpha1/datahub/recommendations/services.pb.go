@@ -113,22 +113,180 @@ func (m *CreateControllerRecommendationsRequest) GetControllerRecommendations() 
 	return nil
 }
 
+type CreateApplicationRecommendationsRequest struct {
+	ApplicationRecommendations []*ApplicationRecommendation `protobuf:"bytes,1,rep,name=application_recommendations,json=applicationRecommendations,proto3" json:"application_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral       struct{}                     `json:"-"`
+	XXX_unrecognized           []byte                       `json:"-"`
+	XXX_sizecache              int32                        `json:"-"`
+}
+
+func (m *CreateApplicationRecommendationsRequest) Reset() {
+	*m = CreateApplicationRecommendationsRequest{}
+}
+func (m *CreateApplicationRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateApplicationRecommendationsRequest) ProtoMessage()    {}
+func (*CreateApplicationRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{2}
+}
+
+func (m *CreateApplicationRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateApplicationRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *CreateApplicationRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateApplicationRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateApplicationRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateApplicationRecommendationsRequest.Merge(m, src)
+}
+func (m *CreateApplicationRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateApplicationRecommendationsRequest.Size(m)
+}
+func (m *CreateApplicationRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateApplicationRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateApplicationRecommendationsRequest proto.InternalMessageInfo
+
+func (m *CreateApplicationRecommendationsRequest) GetApplicationRecommendations() []*ApplicationRecommendation {
+	if m != nil {
+		return m.ApplicationRecommendations
+	}
+	return nil
+}
+
+type CreateNamespaceRecommendationsRequest struct {
+	NamespaceRecommendations []*NamespaceRecommendation `protobuf:"bytes,1,rep,name=namespace_recommendations,json=namespaceRecommendations,proto3" json:"namespace_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{}                   `json:"-"`
+	XXX_unrecognized         []byte                     `json:"-"`
+	XXX_sizecache            int32                      `json:"-"`
+}
+
+func (m *CreateNamespaceRecommendationsRequest) Reset()         { *m = CreateNamespaceRecommendationsRequest{} }
+func (m *CreateNamespaceRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateNamespaceRecommendationsRequest) ProtoMessage()    {}
+func (*CreateNamespaceRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{3}
+}
+
+func (m *CreateNamespaceRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateNamespaceRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *CreateNamespaceRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateNamespaceRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateNamespaceRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateNamespaceRecommendationsRequest.Merge(m, src)
+}
+func (m *CreateNamespaceRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateNamespaceRecommendationsRequest.Size(m)
+}
+func (m *CreateNamespaceRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateNamespaceRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateNamespaceRecommendationsRequest proto.InternalMessageInfo
+
+func (m *CreateNamespaceRecommendationsRequest) GetNamespaceRecommendations() []*NamespaceRecommendation {
+	if m != nil {
+		return m.NamespaceRecommendations
+	}
+	return nil
+}
+
+type CreateNodeRecommendationsRequest struct {
+	NodeRecommendations  []*NodeRecommendation `protobuf:"bytes,1,rep,name=node_recommendations,json=nodeRecommendations,proto3" json:"node_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
+}
+
+func (m *CreateNodeRecommendationsRequest) Reset()         { *m = CreateNodeRecommendationsRequest{} }
+func (m *CreateNodeRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateNodeRecommendationsRequest) ProtoMessage()    {}
+func (*CreateNodeRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{4}
+}
+
+func (m *CreateNodeRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateNodeRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *CreateNodeRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateNodeRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateNodeRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateNodeRecommendationsRequest.Merge(m, src)
+}
+func (m *CreateNodeRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateNodeRecommendationsRequest.Size(m)
+}
+func (m *CreateNodeRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateNodeRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateNodeRecommendationsRequest proto.InternalMessageInfo
+
+func (m *CreateNodeRecommendationsRequest) GetNodeRecommendations() []*NodeRecommendation {
+	if m != nil {
+		return m.NodeRecommendations
+	}
+	return nil
+}
+
+type CreateClusterRecommendationsRequest struct {
+	ClusterRecommendations []*ClusterRecommendation `protobuf:"bytes,1,rep,name=cluster_recommendations,json=clusterRecommendations,proto3" json:"cluster_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral   struct{}                 `json:"-"`
+	XXX_unrecognized       []byte                   `json:"-"`
+	XXX_sizecache          int32                    `json:"-"`
+}
+
+func (m *CreateClusterRecommendationsRequest) Reset()         { *m = CreateClusterRecommendationsRequest{} }
+func (m *CreateClusterRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateClusterRecommendationsRequest) ProtoMessage()    {}
+func (*CreateClusterRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{5}
+}
+
+func (m *CreateClusterRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateClusterRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *CreateClusterRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateClusterRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateClusterRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateClusterRecommendationsRequest.Merge(m, src)
+}
+func (m *CreateClusterRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateClusterRecommendationsRequest.Size(m)
+}
+func (m *CreateClusterRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateClusterRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateClusterRecommendationsRequest proto.InternalMessageInfo
+
+func (m *CreateClusterRecommendationsRequest) GetClusterRecommendations() []*ClusterRecommendation {
+	if m != nil {
+		return m.ClusterRecommendations
+	}
+	return nil
+}
+
 // Represents a request for listing recommendations of pods
 type ListPodRecommendationsRequest struct {
-	QueryCondition       *common.QueryCondition    `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
-	NamespacedName       *resources.NamespacedName `protobuf:"bytes,2,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
-	Kind                 resources.Kind            `protobuf:"varint,3,opt,name=kind,proto3,enum=containersai.alameda.v1alpha1.datahub.resources.Kind" json:"kind,omitempty"`
-	Granularity          int64                     `protobuf:"varint,4,opt,name=granularity,proto3" json:"granularity,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
-	XXX_unrecognized     []byte                    `json:"-"`
-	XXX_sizecache        int32                     `json:"-"`
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Kind                 resources.Kind          `protobuf:"varint,3,opt,name=kind,proto3,enum=containersai.alameda.v1alpha1.datahub.resources.Kind" json:"kind,omitempty"`
+	Granularity          int64                   `protobuf:"varint,4,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
 func (m *ListPodRecommendationsRequest) Reset()         { *m = ListPodRecommendationsRequest{} }
 func (m *ListPodRecommendationsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListPodRecommendationsRequest) ProtoMessage()    {}
 func (*ListPodRecommendationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_603987ba119fba8b, []int{2}
+	return fileDescriptor_603987ba119fba8b, []int{6}
 }
 
 func (m *ListPodRecommendationsRequest) XXX_Unmarshal(b []byte) error {
@@ -156,9 +314,9 @@ func (m *ListPodRecommendationsRequest) GetQueryCondition() *common.QueryConditi
 	return nil
 }
 
-func (m *ListPodRecommendationsRequest) GetNamespacedName() *resources.NamespacedName {
+func (m *ListPodRecommendationsRequest) GetObjectMeta() []*resources.ObjectMeta {
 	if m != nil {
-		return m.NamespacedName
+		return m.ObjectMeta
 	}
 	return nil
 }
@@ -190,7 +348,7 @@ func (m *ListPodRecommendationsResponse) Reset()         { *m = ListPodRecommend
 func (m *ListPodRecommendationsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListPodRecommendationsResponse) ProtoMessage()    {}
 func (*ListPodRecommendationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_603987ba119fba8b, []int{3}
+	return fileDescriptor_603987ba119fba8b, []int{7}
 }
 
 func (m *ListPodRecommendationsResponse) XXX_Unmarshal(b []byte) error {
@@ -228,7 +386,7 @@ func (m *ListPodRecommendationsResponse) GetPodRecommendations() []*PodRecommend
 // Represents a request for listing recommendations of controllers
 type ListControllerRecommendationsRequest struct {
 	QueryCondition       *common.QueryCondition    `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
-	NamespacedName       *resources.NamespacedName `protobuf:"bytes,2,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta   `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
 	RecommendedType      ControllerRecommendedType `protobuf:"varint,3,opt,name=recommended_type,json=recommendedType,proto3,enum=containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType" json:"recommended_type,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
 	XXX_unrecognized     []byte                    `json:"-"`
@@ -239,7 +397,7 @@ func (m *ListControllerRecommendationsRequest) Reset()         { *m = ListContro
 func (m *ListControllerRecommendationsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListControllerRecommendationsRequest) ProtoMessage()    {}
 func (*ListControllerRecommendationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_603987ba119fba8b, []int{4}
+	return fileDescriptor_603987ba119fba8b, []int{8}
 }
 
 func (m *ListControllerRecommendationsRequest) XXX_Unmarshal(b []byte) error {
@@ -267,9 +425,9 @@ func (m *ListControllerRecommendationsRequest) GetQueryCondition() *common.Query
 	return nil
 }
 
-func (m *ListControllerRecommendationsRequest) GetNamespacedName() *resources.NamespacedName {
+func (m *ListControllerRecommendationsRequest) GetObjectMeta() []*resources.ObjectMeta {
 	if m != nil {
-		return m.NamespacedName
+		return m.ObjectMeta
 	}
 	return nil
 }
@@ -294,7 +452,7 @@ func (m *ListControllerRecommendationsResponse) Reset()         { *m = ListContr
 func (m *ListControllerRecommendationsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListControllerRecommendationsResponse) ProtoMessage()    {}
 func (*ListControllerRecommendationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_603987ba119fba8b, []int{5}
+	return fileDescriptor_603987ba119fba8b, []int{9}
 }
 
 func (m *ListControllerRecommendationsResponse) XXX_Unmarshal(b []byte) error {
@@ -329,13 +487,403 @@ func (m *ListControllerRecommendationsResponse) GetControllerRecommendations() [
 	return nil
 }
 
+type ListApplicationRecommendationsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListApplicationRecommendationsRequest) Reset()         { *m = ListApplicationRecommendationsRequest{} }
+func (m *ListApplicationRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListApplicationRecommendationsRequest) ProtoMessage()    {}
+func (*ListApplicationRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{10}
+}
+
+func (m *ListApplicationRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListApplicationRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *ListApplicationRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListApplicationRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListApplicationRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListApplicationRecommendationsRequest.Merge(m, src)
+}
+func (m *ListApplicationRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListApplicationRecommendationsRequest.Size(m)
+}
+func (m *ListApplicationRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListApplicationRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListApplicationRecommendationsRequest proto.InternalMessageInfo
+
+func (m *ListApplicationRecommendationsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListApplicationRecommendationsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+type ListApplicationRecommendationsResponse struct {
+	Status                     *status.Status               `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	ApplicationRecommendations []*ApplicationRecommendation `protobuf:"bytes,2,rep,name=application_recommendations,json=applicationRecommendations,proto3" json:"application_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral       struct{}                     `json:"-"`
+	XXX_unrecognized           []byte                       `json:"-"`
+	XXX_sizecache              int32                        `json:"-"`
+}
+
+func (m *ListApplicationRecommendationsResponse) Reset() {
+	*m = ListApplicationRecommendationsResponse{}
+}
+func (m *ListApplicationRecommendationsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListApplicationRecommendationsResponse) ProtoMessage()    {}
+func (*ListApplicationRecommendationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{11}
+}
+
+func (m *ListApplicationRecommendationsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListApplicationRecommendationsResponse.Unmarshal(m, b)
+}
+func (m *ListApplicationRecommendationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListApplicationRecommendationsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListApplicationRecommendationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListApplicationRecommendationsResponse.Merge(m, src)
+}
+func (m *ListApplicationRecommendationsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListApplicationRecommendationsResponse.Size(m)
+}
+func (m *ListApplicationRecommendationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListApplicationRecommendationsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListApplicationRecommendationsResponse proto.InternalMessageInfo
+
+func (m *ListApplicationRecommendationsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListApplicationRecommendationsResponse) GetApplicationRecommendations() []*ApplicationRecommendation {
+	if m != nil {
+		return m.ApplicationRecommendations
+	}
+	return nil
+}
+
+type ListNamespaceRecommendationsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListNamespaceRecommendationsRequest) Reset()         { *m = ListNamespaceRecommendationsRequest{} }
+func (m *ListNamespaceRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListNamespaceRecommendationsRequest) ProtoMessage()    {}
+func (*ListNamespaceRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{12}
+}
+
+func (m *ListNamespaceRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNamespaceRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *ListNamespaceRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNamespaceRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListNamespaceRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNamespaceRecommendationsRequest.Merge(m, src)
+}
+func (m *ListNamespaceRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListNamespaceRecommendationsRequest.Size(m)
+}
+func (m *ListNamespaceRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNamespaceRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNamespaceRecommendationsRequest proto.InternalMessageInfo
+
+func (m *ListNamespaceRecommendationsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListNamespaceRecommendationsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+type ListNamespaceRecommendationsResponse struct {
+	Status                   *status.Status             `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	NamespaceRecommendations []*NamespaceRecommendation `protobuf:"bytes,2,rep,name=namespace_recommendations,json=namespaceRecommendations,proto3" json:"namespace_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{}                   `json:"-"`
+	XXX_unrecognized         []byte                     `json:"-"`
+	XXX_sizecache            int32                      `json:"-"`
+}
+
+func (m *ListNamespaceRecommendationsResponse) Reset()         { *m = ListNamespaceRecommendationsResponse{} }
+func (m *ListNamespaceRecommendationsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListNamespaceRecommendationsResponse) ProtoMessage()    {}
+func (*ListNamespaceRecommendationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{13}
+}
+
+func (m *ListNamespaceRecommendationsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNamespaceRecommendationsResponse.Unmarshal(m, b)
+}
+func (m *ListNamespaceRecommendationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNamespaceRecommendationsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListNamespaceRecommendationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNamespaceRecommendationsResponse.Merge(m, src)
+}
+func (m *ListNamespaceRecommendationsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListNamespaceRecommendationsResponse.Size(m)
+}
+func (m *ListNamespaceRecommendationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNamespaceRecommendationsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNamespaceRecommendationsResponse proto.InternalMessageInfo
+
+func (m *ListNamespaceRecommendationsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListNamespaceRecommendationsResponse) GetNamespaceRecommendations() []*NamespaceRecommendation {
+	if m != nil {
+		return m.NamespaceRecommendations
+	}
+	return nil
+}
+
+type ListNodeRecommendationsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListNodeRecommendationsRequest) Reset()         { *m = ListNodeRecommendationsRequest{} }
+func (m *ListNodeRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListNodeRecommendationsRequest) ProtoMessage()    {}
+func (*ListNodeRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{14}
+}
+
+func (m *ListNodeRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNodeRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *ListNodeRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNodeRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListNodeRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNodeRecommendationsRequest.Merge(m, src)
+}
+func (m *ListNodeRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListNodeRecommendationsRequest.Size(m)
+}
+func (m *ListNodeRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNodeRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNodeRecommendationsRequest proto.InternalMessageInfo
+
+func (m *ListNodeRecommendationsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListNodeRecommendationsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+type ListNodeRecommendationsResponse struct {
+	Status               *status.Status        `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	NodeRecommendations  []*NodeRecommendation `protobuf:"bytes,2,rep,name=node_recommendations,json=nodeRecommendations,proto3" json:"node_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
+}
+
+func (m *ListNodeRecommendationsResponse) Reset()         { *m = ListNodeRecommendationsResponse{} }
+func (m *ListNodeRecommendationsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListNodeRecommendationsResponse) ProtoMessage()    {}
+func (*ListNodeRecommendationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{15}
+}
+
+func (m *ListNodeRecommendationsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNodeRecommendationsResponse.Unmarshal(m, b)
+}
+func (m *ListNodeRecommendationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNodeRecommendationsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListNodeRecommendationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNodeRecommendationsResponse.Merge(m, src)
+}
+func (m *ListNodeRecommendationsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListNodeRecommendationsResponse.Size(m)
+}
+func (m *ListNodeRecommendationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNodeRecommendationsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNodeRecommendationsResponse proto.InternalMessageInfo
+
+func (m *ListNodeRecommendationsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListNodeRecommendationsResponse) GetNodeRecommendations() []*NodeRecommendation {
+	if m != nil {
+		return m.NodeRecommendations
+	}
+	return nil
+}
+
+type ListClusterRecommendationsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListClusterRecommendationsRequest) Reset()         { *m = ListClusterRecommendationsRequest{} }
+func (m *ListClusterRecommendationsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListClusterRecommendationsRequest) ProtoMessage()    {}
+func (*ListClusterRecommendationsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{16}
+}
+
+func (m *ListClusterRecommendationsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListClusterRecommendationsRequest.Unmarshal(m, b)
+}
+func (m *ListClusterRecommendationsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListClusterRecommendationsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListClusterRecommendationsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListClusterRecommendationsRequest.Merge(m, src)
+}
+func (m *ListClusterRecommendationsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListClusterRecommendationsRequest.Size(m)
+}
+func (m *ListClusterRecommendationsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListClusterRecommendationsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListClusterRecommendationsRequest proto.InternalMessageInfo
+
+func (m *ListClusterRecommendationsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListClusterRecommendationsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+type ListClusterRecommendationsResponse struct {
+	Status                 *status.Status           `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	ClusterRecommendations []*ClusterRecommendation `protobuf:"bytes,2,rep,name=cluster_recommendations,json=clusterRecommendations,proto3" json:"cluster_recommendations,omitempty"`
+	XXX_NoUnkeyedLiteral   struct{}                 `json:"-"`
+	XXX_unrecognized       []byte                   `json:"-"`
+	XXX_sizecache          int32                    `json:"-"`
+}
+
+func (m *ListClusterRecommendationsResponse) Reset()         { *m = ListClusterRecommendationsResponse{} }
+func (m *ListClusterRecommendationsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListClusterRecommendationsResponse) ProtoMessage()    {}
+func (*ListClusterRecommendationsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_603987ba119fba8b, []int{17}
+}
+
+func (m *ListClusterRecommendationsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListClusterRecommendationsResponse.Unmarshal(m, b)
+}
+func (m *ListClusterRecommendationsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListClusterRecommendationsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListClusterRecommendationsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListClusterRecommendationsResponse.Merge(m, src)
+}
+func (m *ListClusterRecommendationsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListClusterRecommendationsResponse.Size(m)
+}
+func (m *ListClusterRecommendationsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListClusterRecommendationsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListClusterRecommendationsResponse proto.InternalMessageInfo
+
+func (m *ListClusterRecommendationsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListClusterRecommendationsResponse) GetClusterRecommendations() []*ClusterRecommendation {
+	if m != nil {
+		return m.ClusterRecommendations
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*CreatePodRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.CreatePodRecommendationsRequest")
 	proto.RegisterType((*CreateControllerRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.CreateControllerRecommendationsRequest")
+	proto.RegisterType((*CreateApplicationRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.CreateApplicationRecommendationsRequest")
+	proto.RegisterType((*CreateNamespaceRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.CreateNamespaceRecommendationsRequest")
+	proto.RegisterType((*CreateNodeRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.CreateNodeRecommendationsRequest")
+	proto.RegisterType((*CreateClusterRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.CreateClusterRecommendationsRequest")
 	proto.RegisterType((*ListPodRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListPodRecommendationsRequest")
 	proto.RegisterType((*ListPodRecommendationsResponse)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListPodRecommendationsResponse")
 	proto.RegisterType((*ListControllerRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListControllerRecommendationsRequest")
 	proto.RegisterType((*ListControllerRecommendationsResponse)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListControllerRecommendationsResponse")
+	proto.RegisterType((*ListApplicationRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListApplicationRecommendationsRequest")
+	proto.RegisterType((*ListApplicationRecommendationsResponse)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListApplicationRecommendationsResponse")
+	proto.RegisterType((*ListNamespaceRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListNamespaceRecommendationsRequest")
+	proto.RegisterType((*ListNamespaceRecommendationsResponse)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListNamespaceRecommendationsResponse")
+	proto.RegisterType((*ListNodeRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListNodeRecommendationsRequest")
+	proto.RegisterType((*ListNodeRecommendationsResponse)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListNodeRecommendationsResponse")
+	proto.RegisterType((*ListClusterRecommendationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListClusterRecommendationsRequest")
+	proto.RegisterType((*ListClusterRecommendationsResponse)(nil), "containersai.alameda.v1alpha1.datahub.recommendations.ListClusterRecommendationsResponse")
 }
 
 func init() {
@@ -343,39 +891,54 @@ func init() {
 }
 
 var fileDescriptor_603987ba119fba8b = []byte{
-	// 530 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x55, 0xcd, 0x8a, 0x53, 0x31,
-	0x14, 0xe6, 0xb6, 0xc3, 0x2c, 0x52, 0x68, 0xe5, 0xba, 0xb0, 0x16, 0xd4, 0x52, 0x54, 0x8a, 0x60,
-	0x42, 0x2b, 0x05, 0x41, 0x41, 0x98, 0x6e, 0x1c, 0x46, 0x74, 0x8c, 0xae, 0xdc, 0x94, 0x4c, 0x72,
-	0x68, 0x83, 0xb7, 0x49, 0x9a, 0xe4, 0x0e, 0x14, 0xdf, 0xc1, 0xf7, 0x71, 0xe3, 0xd6, 0xa7, 0x70,
-	0xe7, 0x23, 0xf8, 0x00, 0x92, 0x36, 0xad, 0xd3, 0x96, 0x6b, 0x7f, 0x50, 0x17, 0xb3, 0xcb, 0xef,
-	0xf7, 0x9d, 0xf3, 0xe5, 0x3b, 0x39, 0xe8, 0x19, 0xcb, 0xd8, 0x18, 0x04, 0x1b, 0x30, 0x23, 0xc9,
-	0x65, 0x87, 0x65, 0x66, 0xc4, 0x3a, 0x44, 0x30, 0xcf, 0x46, 0xf9, 0x05, 0xb1, 0xc0, 0xf5, 0x78,
-	0x0c, 0x4a, 0x30, 0x2f, 0xb5, 0x72, 0xc4, 0x81, 0xbd, 0x94, 0x1c, 0x1c, 0x36, 0x56, 0x7b, 0x9d,
-	0xf6, 0xb8, 0x56, 0x9e, 0x49, 0x05, 0xd6, 0x31, 0x89, 0x23, 0x12, 0x5e, 0xa0, 0xe0, 0x88, 0x82,
-	0xd7, 0x50, 0x1a, 0x9d, 0x3f, 0x72, 0x86, 0xb3, 0x5a, 0x91, 0x49, 0x0e, 0x56, 0x2e, 0x98, 0x1a,
-	0x27, 0x7b, 0x85, 0xb9, 0x36, 0x8f, 0x18, 0x4f, 0xf7, 0xc2, 0xf0, 0x53, 0xb3, 0x64, 0xef, 0x6d,
-	0xb9, 0xe9, 0x74, 0x6e, 0x39, 0x38, 0x32, 0x06, 0xcf, 0xc2, 0x6a, 0xbc, 0xd6, 0xdd, 0xf1, 0xda,
-	0x55, 0xaa, 0x5b, 0x43, 0xad, 0x87, 0x19, 0x10, 0x6b, 0x38, 0x71, 0x9e, 0xf9, 0x3c, 0x6e, 0xb4,
-	0xbe, 0x26, 0xe8, 0x5e, 0xdf, 0x02, 0xf3, 0x70, 0xae, 0x05, 0x5d, 0x0d, 0x96, 0xc2, 0x24, 0x07,
-	0xe7, 0xd3, 0x29, 0xba, 0x69, 0xb4, 0x18, 0xac, 0xa5, 0x52, 0x4f, 0x9a, 0xe5, 0x76, 0xa5, 0xfb,
-	0x12, 0x1f, 0xf4, 0x5a, 0x78, 0x83, 0x8e, 0xa6, 0x66, 0x23, 0x82, 0xb4, 0x89, 0x2a, 0x43, 0xcb,
-	0x54, 0x9e, 0x31, 0x2b, 0xfd, 0xb4, 0x5e, 0x6a, 0x26, 0xed, 0x32, 0xbd, 0xba, 0xd4, 0xfa, 0x92,
-	0xa0, 0x87, 0xf3, 0x04, 0xfa, 0x5a, 0x79, 0xab, 0xb3, 0x0c, 0x6c, 0x41, 0x1e, 0x9f, 0x13, 0xd4,
-	0xe0, 0xcb, 0x43, 0x05, 0xf9, 0xbc, 0x39, 0x30, 0x9f, 0x22, 0x76, 0x7a, 0x9b, 0x17, 0xc5, 0xd5,
-	0xfa, 0x5e, 0x42, 0x77, 0x5e, 0x49, 0xe7, 0x8b, 0xa5, 0x07, 0x54, 0x0b, 0x8e, 0x9d, 0x0e, 0xb8,
-	0x56, 0x42, 0x86, 0xad, 0x7a, 0xd2, 0x4c, 0xda, 0x95, 0xee, 0xf3, 0x1d, 0xc3, 0x9c, 0xdb, 0x1e,
-	0xbf, 0x0d, 0x20, 0xfd, 0x05, 0x06, 0xad, 0x4e, 0x56, 0xe6, 0xe9, 0x08, 0xd5, 0x14, 0x1b, 0x83,
-	0x33, 0x8c, 0x83, 0x18, 0x84, 0xe1, 0x4c, 0xea, 0x4a, 0xf7, 0xc5, 0xce, 0x6a, 0x44, 0xd7, 0xe1,
-	0xd7, 0x4b, 0x9c, 0x30, 0xa2, 0x55, 0xb5, 0x32, 0x4f, 0x4f, 0xd1, 0xd1, 0x47, 0xa9, 0x44, 0xbd,
-	0xdc, 0x4c, 0xda, 0xd5, 0x6e, 0x6f, 0x6f, 0xf8, 0x33, 0xa9, 0x04, 0x9d, 0x41, 0xac, 0x7b, 0xe3,
-	0x68, 0xd3, 0x1b, 0xdf, 0x12, 0x74, 0xb7, 0x48, 0x5f, 0x67, 0xb4, 0x72, 0x90, 0x3e, 0x42, 0xc7,
-	0xf3, 0x7a, 0x88, 0xba, 0xa6, 0x78, 0x5e, 0x29, 0xd8, 0x1a, 0x8e, 0xdf, 0xcd, 0x76, 0x68, 0x3c,
-	0x51, 0x54, 0x07, 0xa5, 0x7f, 0x5f, 0x07, 0xad, 0x9f, 0x25, 0x74, 0x3f, 0x64, 0xb2, 0xd5, 0xe3,
-	0xd7, 0xce, 0x30, 0x9f, 0xd0, 0x8d, 0xa5, 0x64, 0x20, 0x06, 0xe1, 0x53, 0x8b, 0xe6, 0x39, 0xff,
-	0x7b, 0x95, 0x0a, 0xe2, 0xfd, 0xd4, 0x00, 0xad, 0xd9, 0xd5, 0x85, 0xd6, 0x8f, 0x04, 0x3d, 0xd8,
-	0x22, 0xfb, 0x01, 0x3e, 0xda, 0xf2, 0x0f, 0x95, 0xfe, 0xf7, 0x3f, 0x74, 0x72, 0xf6, 0xe1, 0x74,
-	0x28, 0x7d, 0x7c, 0x7d, 0xf2, 0x9b, 0xf7, 0x31, 0x93, 0x24, 0x34, 0x99, 0x7d, 0x3a, 0xdc, 0xc5,
-	0xf1, 0xac, 0xb1, 0x3c, 0xf9, 0x15, 0x00, 0x00, 0xff, 0xff, 0x91, 0xbd, 0xf9, 0x55, 0x03, 0x08,
+	// 770 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x58, 0x4f, 0x6b, 0x13, 0x41,
+	0x14, 0x67, 0xb6, 0xa5, 0x87, 0x17, 0x68, 0x65, 0x2b, 0x36, 0x8d, 0x68, 0xe3, 0xd6, 0xd6, 0x20,
+	0xb8, 0x4b, 0x2b, 0x05, 0xa1, 0x5e, 0x6c, 0x2f, 0x96, 0xd6, 0xb6, 0xae, 0x9e, 0x44, 0x08, 0xd3,
+	0xdd, 0x21, 0x1d, 0xdd, 0xcc, 0x4c, 0x67, 0x27, 0x85, 0xa0, 0x57, 0x4f, 0x82, 0xe0, 0x37, 0xf0,
+	0x0b, 0x78, 0xf4, 0xe0, 0x41, 0xaf, 0x1e, 0x3c, 0x79, 0xf3, 0xe8, 0x41, 0xa1, 0x88, 0x1f, 0x42,
+	0x36, 0x3b, 0x49, 0x6d, 0xd2, 0xc9, 0x36, 0x8b, 0x46, 0xc8, 0x6d, 0x77, 0xf6, 0xcd, 0xef, 0xfd,
+	0xde, 0x1f, 0x7e, 0xef, 0xb1, 0xb0, 0x8a, 0x23, 0x5c, 0x27, 0x21, 0xae, 0x62, 0x41, 0xbd, 0xc3,
+	0x25, 0x1c, 0x89, 0x7d, 0xbc, 0xe4, 0x85, 0x58, 0xe1, 0xfd, 0xc6, 0x9e, 0x27, 0x49, 0xc0, 0xeb,
+	0x75, 0xc2, 0x42, 0xac, 0x28, 0x67, 0xb1, 0x17, 0x13, 0x79, 0x48, 0x03, 0x12, 0xbb, 0x42, 0x72,
+	0xc5, 0xed, 0x95, 0x80, 0x33, 0x85, 0x29, 0x23, 0x32, 0xc6, 0xd4, 0xd5, 0x48, 0x6e, 0x1b, 0xc5,
+	0xd5, 0x28, 0x6e, 0x17, 0x4a, 0x69, 0xa9, 0xaf, 0xcf, 0xc4, 0x96, 0x33, 0xef, 0xa0, 0x41, 0x24,
+	0x6d, 0x7b, 0x2a, 0xad, 0x0d, 0x44, 0xb3, 0xeb, 0x5d, 0x63, 0xdc, 0x1a, 0x08, 0x43, 0x35, 0x45,
+	0xc7, 0xfb, 0x4a, 0xc6, 0xcd, 0x98, 0x37, 0x64, 0x40, 0x62, 0xaf, 0x4e, 0x14, 0x4e, 0x4e, 0xf5,
+	0xb5, 0x99, 0x1a, 0xe7, 0xb5, 0x88, 0x78, 0x52, 0x04, 0x5e, 0xac, 0xb0, 0x6a, 0x68, 0x3c, 0xe7,
+	0x23, 0x82, 0xb9, 0x75, 0x49, 0xb0, 0x22, 0xbb, 0x3c, 0xf4, 0x4f, 0x3a, 0xf6, 0xc9, 0x41, 0x83,
+	0xc4, 0xca, 0x6e, 0xc2, 0xb4, 0xe0, 0x61, 0xb5, 0x8b, 0x56, 0x11, 0x95, 0xc7, 0x2a, 0x85, 0xe5,
+	0xbb, 0x6e, 0xae, 0xcc, 0xbb, 0x3d, 0xee, 0x7c, 0x5b, 0xf4, 0x30, 0xb0, 0xcb, 0x50, 0xa8, 0x49,
+	0xcc, 0x1a, 0x11, 0x96, 0x54, 0x35, 0x8b, 0x56, 0x19, 0x55, 0xc6, 0xfc, 0x3f, 0x8f, 0x9c, 0xf7,
+	0x08, 0x16, 0xd3, 0x00, 0xd6, 0x39, 0x53, 0x92, 0x47, 0x11, 0x91, 0x86, 0x38, 0x5e, 0x21, 0x28,
+	0x05, 0x1d, 0x23, 0x43, 0x3c, 0x3b, 0x39, 0xe3, 0x31, 0x79, 0xf7, 0x67, 0x03, 0x13, 0x2f, 0xe7,
+	0x03, 0x82, 0x6b, 0x29, 0xf7, 0x3b, 0x42, 0x44, 0x34, 0x48, 0x2f, 0x9c, 0x4e, 0xfe, 0x35, 0x82,
+	0x8b, 0xf8, 0xd8, 0xca, 0xc0, 0x7e, 0x37, 0x27, 0x7b, 0xa3, 0x7f, 0xbf, 0x84, 0x8d, 0xd4, 0x9c,
+	0x77, 0x08, 0x16, 0x52, 0xfe, 0xdb, 0xb8, 0x4e, 0x62, 0x81, 0x03, 0x62, 0x60, 0xff, 0x12, 0xc1,
+	0x2c, 0x6b, 0xdb, 0x18, 0xb8, 0x6f, 0xe7, 0xe4, 0x6e, 0xf0, 0xed, 0x17, 0x99, 0x81, 0x94, 0xf3,
+	0x06, 0x41, 0x59, 0xf3, 0xe6, 0xa1, 0x89, 0xf2, 0x73, 0x38, 0xcf, 0x78, 0x68, 0x22, 0xbb, 0x91,
+	0x97, 0x6c, 0x8f, 0x43, 0x7f, 0x9a, 0xf5, 0x92, 0x70, 0xde, 0x22, 0x98, 0xd7, 0x6d, 0x1d, 0x35,
+	0x62, 0x65, 0xec, 0xe9, 0x17, 0x08, 0x66, 0x82, 0xd4, 0xc2, 0xc0, 0x74, 0x2b, 0x6f, 0x43, 0x9f,
+	0xe6, 0xd7, 0xbf, 0x10, 0x9c, 0x4a, 0xc7, 0xf9, 0x62, 0xc1, 0xa5, 0x2d, 0x1a, 0x2b, 0xb3, 0x8a,
+	0x10, 0x98, 0x4a, 0x84, 0xb4, 0x59, 0x0d, 0x38, 0x0b, 0x69, 0xf2, 0xa9, 0x88, 0xca, 0xa8, 0x52,
+	0x58, 0xbe, 0x7d, 0x46, 0x82, 0xa9, 0x1a, 0xbb, 0xf7, 0x13, 0x90, 0xf5, 0x36, 0x86, 0x3f, 0x79,
+	0x70, 0xe2, 0xdd, 0x7e, 0x0c, 0x05, 0xbe, 0xf7, 0x84, 0x04, 0xaa, 0x9a, 0x48, 0x60, 0xd1, 0x6a,
+	0xe5, 0x60, 0xf5, 0xcc, 0x39, 0xd0, 0xfa, 0xe9, 0xee, 0xb4, 0x30, 0xee, 0x11, 0x85, 0x7d, 0xe0,
+	0x9d, 0x67, 0x7b, 0x03, 0xc6, 0x9f, 0x52, 0x16, 0x16, 0xc7, 0xca, 0xa8, 0x32, 0xb9, 0xbc, 0x32,
+	0x30, 0xec, 0x26, 0x65, 0xa1, 0xdf, 0x82, 0xe8, 0x96, 0xb6, 0xf1, 0x5e, 0x69, 0xfb, 0x84, 0xe0,
+	0xb2, 0x29, 0xa7, 0xb1, 0xe0, 0x2c, 0x26, 0xf6, 0x75, 0x98, 0x48, 0xe5, 0x5c, 0xe7, 0xd2, 0x76,
+	0x53, 0xa1, 0x77, 0xa5, 0x08, 0xdc, 0x07, 0xad, 0x2f, 0xbe, 0xb6, 0x30, 0xc9, 0xb8, 0xf5, 0xef,
+	0x65, 0xdc, 0x39, 0xb2, 0xe0, 0x6a, 0x12, 0x49, 0xa6, 0x44, 0x8f, 0x44, 0x93, 0x3c, 0x83, 0x73,
+	0x9d, 0x34, 0x91, 0xb0, 0x9a, 0x8c, 0x6f, 0xdd, 0x30, 0xbb, 0x7f, 0x6f, 0xb8, 0x90, 0xf0, 0x61,
+	0x53, 0x10, 0x7f, 0x4a, 0x9e, 0x3c, 0x70, 0xbe, 0x23, 0x58, 0xc8, 0x48, 0x75, 0x8e, 0xde, 0xc9,
+	0x18, 0x9d, 0xd6, 0xd0, 0x47, 0xe7, 0x2f, 0x1d, 0x66, 0xf6, 0xe0, 0x1c, 0x85, 0x96, 0x72, 0x8e,
+	0x10, 0x2c, 0x66, 0x85, 0x9b, 0xa3, 0xac, 0x59, 0x4b, 0x85, 0xf5, 0x1f, 0x96, 0x8a, 0x9f, 0x08,
+	0xe6, 0x93, 0x50, 0xb3, 0x56, 0x8a, 0x91, 0xa8, 0xeb, 0x37, 0x94, 0x0a, 0xa3, 0x39, 0xd8, 0x1c,
+	0x55, 0xed, 0xbf, 0x6c, 0x59, 0x43, 0x5e, 0xb6, 0x7e, 0xe8, 0x29, 0xd6, 0x67, 0xd5, 0x1a, 0x89,
+	0x52, 0x7e, 0x46, 0x30, 0x67, 0x8c, 0x33, 0x47, 0x15, 0x4d, 0xfb, 0xa7, 0x35, 0x94, 0xfd, 0xf3,
+	0x08, 0xc1, 0x95, 0xd6, 0x18, 0xe9, 0xbb, 0x7d, 0x8e, 0x44, 0xe1, 0xbe, 0x22, 0x70, 0xfa, 0x85,
+	0x9a, 0xa3, 0x76, 0xfd, 0xb6, 0x72, 0x6b, 0x78, 0x5b, 0xf9, 0xda, 0xe6, 0xa3, 0x8d, 0x1a, 0x55,
+	0x3a, 0xd1, 0xde, 0xb1, 0xc7, 0x1b, 0x98, 0x7a, 0x58, 0x50, 0x6f, 0x90, 0xdf, 0x10, 0x7b, 0x13,
+	0xad, 0x3f, 0x06, 0x37, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff, 0xba, 0xc3, 0x9b, 0x1a, 0xa8, 0x11,
 	0x00, 0x00,
 }

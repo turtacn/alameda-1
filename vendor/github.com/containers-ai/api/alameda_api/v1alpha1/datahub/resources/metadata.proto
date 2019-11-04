@@ -6,10 +6,24 @@ package containersai.alameda.v1alpha1.datahub.resources;
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources";
 
-/**
- * Represents kubernetes resource with namespace and name
- */
-message NamespacedName {
-    string namespace = 1;
-    string name      = 2;
+// Represents kubernetes resource kind
+enum Kind {
+    POD              = 0;
+    DEPLOYMENT       = 1;
+    DEPLOYMENTCONFIG = 2;
+    ALAMEDASCALER    = 3;
+    STATEFULSET      = 4;
+}
+
+message ObjectMeta {
+    string name         = 1;
+    string namespace    = 2;
+    string node_name    = 3;
+    string cluster_name = 4;
+    string uid          = 5;
+}
+
+message OwnerReference {
+    ObjectMeta object_meta = 1;
+    Kind       kind        = 2;
 }

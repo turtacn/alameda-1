@@ -63,6 +63,123 @@ func (m *CreatePodPredictionsRequest) GetPodPredictions() []*PodPrediction {
 	return nil
 }
 
+type CreateControllerPredictionsRequest struct {
+	ControllerPredictions []*ControllerPrediction `protobuf:"bytes,1,rep,name=controller_predictions,json=controllerPredictions,proto3" json:"controller_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{}                `json:"-"`
+	XXX_unrecognized      []byte                  `json:"-"`
+	XXX_sizecache         int32                   `json:"-"`
+}
+
+func (m *CreateControllerPredictionsRequest) Reset()         { *m = CreateControllerPredictionsRequest{} }
+func (m *CreateControllerPredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateControllerPredictionsRequest) ProtoMessage()    {}
+func (*CreateControllerPredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{1}
+}
+
+func (m *CreateControllerPredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateControllerPredictionsRequest.Unmarshal(m, b)
+}
+func (m *CreateControllerPredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateControllerPredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateControllerPredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateControllerPredictionsRequest.Merge(m, src)
+}
+func (m *CreateControllerPredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateControllerPredictionsRequest.Size(m)
+}
+func (m *CreateControllerPredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateControllerPredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateControllerPredictionsRequest proto.InternalMessageInfo
+
+func (m *CreateControllerPredictionsRequest) GetControllerPredictions() []*ControllerPrediction {
+	if m != nil {
+		return m.ControllerPredictions
+	}
+	return nil
+}
+
+type CreateApplicationPredictionsRequest struct {
+	ApplicationPredictions []*ApplicationPrediction `protobuf:"bytes,1,rep,name=application_predictions,json=applicationPredictions,proto3" json:"application_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral   struct{}                 `json:"-"`
+	XXX_unrecognized       []byte                   `json:"-"`
+	XXX_sizecache          int32                    `json:"-"`
+}
+
+func (m *CreateApplicationPredictionsRequest) Reset()         { *m = CreateApplicationPredictionsRequest{} }
+func (m *CreateApplicationPredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateApplicationPredictionsRequest) ProtoMessage()    {}
+func (*CreateApplicationPredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{2}
+}
+
+func (m *CreateApplicationPredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateApplicationPredictionsRequest.Unmarshal(m, b)
+}
+func (m *CreateApplicationPredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateApplicationPredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateApplicationPredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateApplicationPredictionsRequest.Merge(m, src)
+}
+func (m *CreateApplicationPredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateApplicationPredictionsRequest.Size(m)
+}
+func (m *CreateApplicationPredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateApplicationPredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateApplicationPredictionsRequest proto.InternalMessageInfo
+
+func (m *CreateApplicationPredictionsRequest) GetApplicationPredictions() []*ApplicationPrediction {
+	if m != nil {
+		return m.ApplicationPredictions
+	}
+	return nil
+}
+
+type CreateNamespacePredictionsRequest struct {
+	NamespacePredictions []*NamespacePrediction `protobuf:"bytes,1,rep,name=namespace_predictions,json=namespacePredictions,proto3" json:"namespace_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_unrecognized     []byte                 `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
+}
+
+func (m *CreateNamespacePredictionsRequest) Reset()         { *m = CreateNamespacePredictionsRequest{} }
+func (m *CreateNamespacePredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateNamespacePredictionsRequest) ProtoMessage()    {}
+func (*CreateNamespacePredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{3}
+}
+
+func (m *CreateNamespacePredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateNamespacePredictionsRequest.Unmarshal(m, b)
+}
+func (m *CreateNamespacePredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateNamespacePredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateNamespacePredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateNamespacePredictionsRequest.Merge(m, src)
+}
+func (m *CreateNamespacePredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateNamespacePredictionsRequest.Size(m)
+}
+func (m *CreateNamespacePredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateNamespacePredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateNamespacePredictionsRequest proto.InternalMessageInfo
+
+func (m *CreateNamespacePredictionsRequest) GetNamespacePredictions() []*NamespacePrediction {
+	if m != nil {
+		return m.NamespacePredictions
+	}
+	return nil
+}
+
 // Represents a request for creating predictions of a node metric data
 type CreateNodePredictionsRequest struct {
 	NodePredictions      []*NodePrediction `protobuf:"bytes,1,rep,name=node_predictions,json=nodePredictions,proto3" json:"node_predictions,omitempty"`
@@ -75,7 +192,7 @@ func (m *CreateNodePredictionsRequest) Reset()         { *m = CreateNodePredicti
 func (m *CreateNodePredictionsRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateNodePredictionsRequest) ProtoMessage()    {}
 func (*CreateNodePredictionsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f99ee8b129e06c96, []int{1}
+	return fileDescriptor_f99ee8b129e06c96, []int{4}
 }
 
 func (m *CreateNodePredictionsRequest) XXX_Unmarshal(b []byte) error {
@@ -103,24 +220,63 @@ func (m *CreateNodePredictionsRequest) GetNodePredictions() []*NodePrediction {
 	return nil
 }
 
+type CreateClusterPredictionsRequest struct {
+	ClusterPredictions   []*ClusterPrediction `protobuf:"bytes,1,rep,name=cluster_predictions,json=clusterPredictions,proto3" json:"cluster_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *CreateClusterPredictionsRequest) Reset()         { *m = CreateClusterPredictionsRequest{} }
+func (m *CreateClusterPredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateClusterPredictionsRequest) ProtoMessage()    {}
+func (*CreateClusterPredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{5}
+}
+
+func (m *CreateClusterPredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateClusterPredictionsRequest.Unmarshal(m, b)
+}
+func (m *CreateClusterPredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateClusterPredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateClusterPredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateClusterPredictionsRequest.Merge(m, src)
+}
+func (m *CreateClusterPredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateClusterPredictionsRequest.Size(m)
+}
+func (m *CreateClusterPredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateClusterPredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateClusterPredictionsRequest proto.InternalMessageInfo
+
+func (m *CreateClusterPredictionsRequest) GetClusterPredictions() []*ClusterPrediction {
+	if m != nil {
+		return m.ClusterPredictions
+	}
+	return nil
+}
+
 // Represents a request for listing predictions of pods
 type ListPodPredictionsRequest struct {
-	QueryCondition       *common.QueryCondition    `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
-	NamespacedName       *resources.NamespacedName `protobuf:"bytes,2,opt,name=namespaced_name,json=namespacedName,proto3" json:"namespaced_name,omitempty"`
-	Granularity          int64                     `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
-	FillDays             int64                     `protobuf:"varint,4,opt,name=fill_days,json=fillDays,proto3" json:"fill_days,omitempty"`
-	ModelId              string                    `protobuf:"bytes,5,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
-	PredictionId         string                    `protobuf:"bytes,6,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
-	XXX_unrecognized     []byte                    `json:"-"`
-	XXX_sizecache        int32                     `json:"-"`
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Granularity          int64                   `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	FillDays             int64                   `protobuf:"varint,4,opt,name=fill_days,json=fillDays,proto3" json:"fill_days,omitempty"`
+	ModelId              string                  `protobuf:"bytes,5,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	PredictionId         string                  `protobuf:"bytes,6,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
 func (m *ListPodPredictionsRequest) Reset()         { *m = ListPodPredictionsRequest{} }
 func (m *ListPodPredictionsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListPodPredictionsRequest) ProtoMessage()    {}
 func (*ListPodPredictionsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f99ee8b129e06c96, []int{2}
+	return fileDescriptor_f99ee8b129e06c96, []int{6}
 }
 
 func (m *ListPodPredictionsRequest) XXX_Unmarshal(b []byte) error {
@@ -148,9 +304,9 @@ func (m *ListPodPredictionsRequest) GetQueryCondition() *common.QueryCondition {
 	return nil
 }
 
-func (m *ListPodPredictionsRequest) GetNamespacedName() *resources.NamespacedName {
+func (m *ListPodPredictionsRequest) GetObjectMeta() []*resources.ObjectMeta {
 	if m != nil {
-		return m.NamespacedName
+		return m.ObjectMeta
 	}
 	return nil
 }
@@ -183,78 +339,6 @@ func (m *ListPodPredictionsRequest) GetPredictionId() string {
 	return ""
 }
 
-// Represents a request for listing predictions of nodes
-type ListNodePredictionsRequest struct {
-	QueryCondition       *common.QueryCondition `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
-	NodeNames            []string               `protobuf:"bytes,2,rep,name=node_names,json=nodeNames,proto3" json:"node_names,omitempty"`
-	Granularity          int64                  `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
-	ModelId              string                 `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
-	PredictionId         string                 `protobuf:"bytes,5,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
-}
-
-func (m *ListNodePredictionsRequest) Reset()         { *m = ListNodePredictionsRequest{} }
-func (m *ListNodePredictionsRequest) String() string { return proto.CompactTextString(m) }
-func (*ListNodePredictionsRequest) ProtoMessage()    {}
-func (*ListNodePredictionsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f99ee8b129e06c96, []int{3}
-}
-
-func (m *ListNodePredictionsRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ListNodePredictionsRequest.Unmarshal(m, b)
-}
-func (m *ListNodePredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ListNodePredictionsRequest.Marshal(b, m, deterministic)
-}
-func (m *ListNodePredictionsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListNodePredictionsRequest.Merge(m, src)
-}
-func (m *ListNodePredictionsRequest) XXX_Size() int {
-	return xxx_messageInfo_ListNodePredictionsRequest.Size(m)
-}
-func (m *ListNodePredictionsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListNodePredictionsRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ListNodePredictionsRequest proto.InternalMessageInfo
-
-func (m *ListNodePredictionsRequest) GetQueryCondition() *common.QueryCondition {
-	if m != nil {
-		return m.QueryCondition
-	}
-	return nil
-}
-
-func (m *ListNodePredictionsRequest) GetNodeNames() []string {
-	if m != nil {
-		return m.NodeNames
-	}
-	return nil
-}
-
-func (m *ListNodePredictionsRequest) GetGranularity() int64 {
-	if m != nil {
-		return m.Granularity
-	}
-	return 0
-}
-
-func (m *ListNodePredictionsRequest) GetModelId() string {
-	if m != nil {
-		return m.ModelId
-	}
-	return ""
-}
-
-func (m *ListNodePredictionsRequest) GetPredictionId() string {
-	if m != nil {
-		return m.PredictionId
-	}
-	return ""
-}
-
 // Represents a response for a listing predictions of pods request
 type ListPodPredictionsResponse struct {
 	Status               *status.Status   `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
@@ -268,7 +352,7 @@ func (m *ListPodPredictionsResponse) Reset()         { *m = ListPodPredictionsRe
 func (m *ListPodPredictionsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListPodPredictionsResponse) ProtoMessage()    {}
 func (*ListPodPredictionsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f99ee8b129e06c96, []int{4}
+	return fileDescriptor_f99ee8b129e06c96, []int{7}
 }
 
 func (m *ListPodPredictionsResponse) XXX_Unmarshal(b []byte) error {
@@ -303,6 +387,432 @@ func (m *ListPodPredictionsResponse) GetPodPredictions() []*PodPrediction {
 	return nil
 }
 
+type ListControllerPredictionsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Granularity          int64                   `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	ModelId              string                  `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	PredictionId         string                  `protobuf:"bytes,5,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListControllerPredictionsRequest) Reset()         { *m = ListControllerPredictionsRequest{} }
+func (m *ListControllerPredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListControllerPredictionsRequest) ProtoMessage()    {}
+func (*ListControllerPredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{8}
+}
+
+func (m *ListControllerPredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListControllerPredictionsRequest.Unmarshal(m, b)
+}
+func (m *ListControllerPredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListControllerPredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListControllerPredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListControllerPredictionsRequest.Merge(m, src)
+}
+func (m *ListControllerPredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListControllerPredictionsRequest.Size(m)
+}
+func (m *ListControllerPredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListControllerPredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListControllerPredictionsRequest proto.InternalMessageInfo
+
+func (m *ListControllerPredictionsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListControllerPredictionsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ListControllerPredictionsRequest) GetGranularity() int64 {
+	if m != nil {
+		return m.Granularity
+	}
+	return 0
+}
+
+func (m *ListControllerPredictionsRequest) GetModelId() string {
+	if m != nil {
+		return m.ModelId
+	}
+	return ""
+}
+
+func (m *ListControllerPredictionsRequest) GetPredictionId() string {
+	if m != nil {
+		return m.PredictionId
+	}
+	return ""
+}
+
+type ListControllerPredictionsResponse struct {
+	Status                *status.Status          `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	ControllerPredictions []*ControllerPrediction `protobuf:"bytes,2,rep,name=controller_predictions,json=controllerPredictions,proto3" json:"controller_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{}                `json:"-"`
+	XXX_unrecognized      []byte                  `json:"-"`
+	XXX_sizecache         int32                   `json:"-"`
+}
+
+func (m *ListControllerPredictionsResponse) Reset()         { *m = ListControllerPredictionsResponse{} }
+func (m *ListControllerPredictionsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListControllerPredictionsResponse) ProtoMessage()    {}
+func (*ListControllerPredictionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{9}
+}
+
+func (m *ListControllerPredictionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListControllerPredictionsResponse.Unmarshal(m, b)
+}
+func (m *ListControllerPredictionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListControllerPredictionsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListControllerPredictionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListControllerPredictionsResponse.Merge(m, src)
+}
+func (m *ListControllerPredictionsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListControllerPredictionsResponse.Size(m)
+}
+func (m *ListControllerPredictionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListControllerPredictionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListControllerPredictionsResponse proto.InternalMessageInfo
+
+func (m *ListControllerPredictionsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListControllerPredictionsResponse) GetControllerPredictions() []*ControllerPrediction {
+	if m != nil {
+		return m.ControllerPredictions
+	}
+	return nil
+}
+
+type ListApplicationPredictionsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Granularity          int64                   `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	ModelId              string                  `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	PredictionId         string                  `protobuf:"bytes,5,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListApplicationPredictionsRequest) Reset()         { *m = ListApplicationPredictionsRequest{} }
+func (m *ListApplicationPredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListApplicationPredictionsRequest) ProtoMessage()    {}
+func (*ListApplicationPredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{10}
+}
+
+func (m *ListApplicationPredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListApplicationPredictionsRequest.Unmarshal(m, b)
+}
+func (m *ListApplicationPredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListApplicationPredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListApplicationPredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListApplicationPredictionsRequest.Merge(m, src)
+}
+func (m *ListApplicationPredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListApplicationPredictionsRequest.Size(m)
+}
+func (m *ListApplicationPredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListApplicationPredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListApplicationPredictionsRequest proto.InternalMessageInfo
+
+func (m *ListApplicationPredictionsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListApplicationPredictionsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ListApplicationPredictionsRequest) GetGranularity() int64 {
+	if m != nil {
+		return m.Granularity
+	}
+	return 0
+}
+
+func (m *ListApplicationPredictionsRequest) GetModelId() string {
+	if m != nil {
+		return m.ModelId
+	}
+	return ""
+}
+
+func (m *ListApplicationPredictionsRequest) GetPredictionId() string {
+	if m != nil {
+		return m.PredictionId
+	}
+	return ""
+}
+
+type ListApplicationPredictionsResponse struct {
+	Status                 *status.Status           `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	ApplicationPredictions []*ApplicationPrediction `protobuf:"bytes,2,rep,name=application_predictions,json=applicationPredictions,proto3" json:"application_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral   struct{}                 `json:"-"`
+	XXX_unrecognized       []byte                   `json:"-"`
+	XXX_sizecache          int32                    `json:"-"`
+}
+
+func (m *ListApplicationPredictionsResponse) Reset()         { *m = ListApplicationPredictionsResponse{} }
+func (m *ListApplicationPredictionsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListApplicationPredictionsResponse) ProtoMessage()    {}
+func (*ListApplicationPredictionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{11}
+}
+
+func (m *ListApplicationPredictionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListApplicationPredictionsResponse.Unmarshal(m, b)
+}
+func (m *ListApplicationPredictionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListApplicationPredictionsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListApplicationPredictionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListApplicationPredictionsResponse.Merge(m, src)
+}
+func (m *ListApplicationPredictionsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListApplicationPredictionsResponse.Size(m)
+}
+func (m *ListApplicationPredictionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListApplicationPredictionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListApplicationPredictionsResponse proto.InternalMessageInfo
+
+func (m *ListApplicationPredictionsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListApplicationPredictionsResponse) GetApplicationPredictions() []*ApplicationPrediction {
+	if m != nil {
+		return m.ApplicationPredictions
+	}
+	return nil
+}
+
+type ListNamespacePredictionsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Granularity          int64                   `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	ModelId              string                  `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	PredictionId         string                  `protobuf:"bytes,5,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListNamespacePredictionsRequest) Reset()         { *m = ListNamespacePredictionsRequest{} }
+func (m *ListNamespacePredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListNamespacePredictionsRequest) ProtoMessage()    {}
+func (*ListNamespacePredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{12}
+}
+
+func (m *ListNamespacePredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNamespacePredictionsRequest.Unmarshal(m, b)
+}
+func (m *ListNamespacePredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNamespacePredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListNamespacePredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNamespacePredictionsRequest.Merge(m, src)
+}
+func (m *ListNamespacePredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListNamespacePredictionsRequest.Size(m)
+}
+func (m *ListNamespacePredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNamespacePredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNamespacePredictionsRequest proto.InternalMessageInfo
+
+func (m *ListNamespacePredictionsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListNamespacePredictionsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ListNamespacePredictionsRequest) GetGranularity() int64 {
+	if m != nil {
+		return m.Granularity
+	}
+	return 0
+}
+
+func (m *ListNamespacePredictionsRequest) GetModelId() string {
+	if m != nil {
+		return m.ModelId
+	}
+	return ""
+}
+
+func (m *ListNamespacePredictionsRequest) GetPredictionId() string {
+	if m != nil {
+		return m.PredictionId
+	}
+	return ""
+}
+
+type ListNamespacePredictionsResponse struct {
+	Status               *status.Status         `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	NamespacePredictions []*NamespacePrediction `protobuf:"bytes,2,rep,name=namespace_predictions,json=namespacePredictions,proto3" json:"namespace_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
+	XXX_unrecognized     []byte                 `json:"-"`
+	XXX_sizecache        int32                  `json:"-"`
+}
+
+func (m *ListNamespacePredictionsResponse) Reset()         { *m = ListNamespacePredictionsResponse{} }
+func (m *ListNamespacePredictionsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListNamespacePredictionsResponse) ProtoMessage()    {}
+func (*ListNamespacePredictionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{13}
+}
+
+func (m *ListNamespacePredictionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNamespacePredictionsResponse.Unmarshal(m, b)
+}
+func (m *ListNamespacePredictionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNamespacePredictionsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListNamespacePredictionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNamespacePredictionsResponse.Merge(m, src)
+}
+func (m *ListNamespacePredictionsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListNamespacePredictionsResponse.Size(m)
+}
+func (m *ListNamespacePredictionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNamespacePredictionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNamespacePredictionsResponse proto.InternalMessageInfo
+
+func (m *ListNamespacePredictionsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListNamespacePredictionsResponse) GetNamespacePredictions() []*NamespacePrediction {
+	if m != nil {
+		return m.NamespacePredictions
+	}
+	return nil
+}
+
+// Represents a request for listing predictions of nodes
+type ListNodePredictionsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Granularity          int64                   `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	ModelId              string                  `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	PredictionId         string                  `protobuf:"bytes,5,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListNodePredictionsRequest) Reset()         { *m = ListNodePredictionsRequest{} }
+func (m *ListNodePredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListNodePredictionsRequest) ProtoMessage()    {}
+func (*ListNodePredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{14}
+}
+
+func (m *ListNodePredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListNodePredictionsRequest.Unmarshal(m, b)
+}
+func (m *ListNodePredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListNodePredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListNodePredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListNodePredictionsRequest.Merge(m, src)
+}
+func (m *ListNodePredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListNodePredictionsRequest.Size(m)
+}
+func (m *ListNodePredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListNodePredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListNodePredictionsRequest proto.InternalMessageInfo
+
+func (m *ListNodePredictionsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListNodePredictionsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ListNodePredictionsRequest) GetGranularity() int64 {
+	if m != nil {
+		return m.Granularity
+	}
+	return 0
+}
+
+func (m *ListNodePredictionsRequest) GetModelId() string {
+	if m != nil {
+		return m.ModelId
+	}
+	return ""
+}
+
+func (m *ListNodePredictionsRequest) GetPredictionId() string {
+	if m != nil {
+		return m.PredictionId
+	}
+	return ""
+}
+
 // Represents a response for a listing predictions of nodes request
 type ListNodePredictionsResponse struct {
 	Status               *status.Status    `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
@@ -316,7 +826,7 @@ func (m *ListNodePredictionsResponse) Reset()         { *m = ListNodePredictions
 func (m *ListNodePredictionsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodePredictionsResponse) ProtoMessage()    {}
 func (*ListNodePredictionsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f99ee8b129e06c96, []int{5}
+	return fileDescriptor_f99ee8b129e06c96, []int{15}
 }
 
 func (m *ListNodePredictionsResponse) XXX_Unmarshal(b []byte) error {
@@ -351,13 +861,143 @@ func (m *ListNodePredictionsResponse) GetNodePredictions() []*NodePrediction {
 	return nil
 }
 
+type ListClusterPredictionsRequest struct {
+	QueryCondition       *common.QueryCondition  `protobuf:"bytes,1,opt,name=query_condition,json=queryCondition,proto3" json:"query_condition,omitempty"`
+	ObjectMeta           []*resources.ObjectMeta `protobuf:"bytes,2,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	Granularity          int64                   `protobuf:"varint,3,opt,name=granularity,proto3" json:"granularity,omitempty"`
+	ModelId              string                  `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3" json:"model_id,omitempty"`
+	PredictionId         string                  `protobuf:"bytes,5,opt,name=prediction_id,json=predictionId,proto3" json:"prediction_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *ListClusterPredictionsRequest) Reset()         { *m = ListClusterPredictionsRequest{} }
+func (m *ListClusterPredictionsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListClusterPredictionsRequest) ProtoMessage()    {}
+func (*ListClusterPredictionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{16}
+}
+
+func (m *ListClusterPredictionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListClusterPredictionsRequest.Unmarshal(m, b)
+}
+func (m *ListClusterPredictionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListClusterPredictionsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListClusterPredictionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListClusterPredictionsRequest.Merge(m, src)
+}
+func (m *ListClusterPredictionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListClusterPredictionsRequest.Size(m)
+}
+func (m *ListClusterPredictionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListClusterPredictionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListClusterPredictionsRequest proto.InternalMessageInfo
+
+func (m *ListClusterPredictionsRequest) GetQueryCondition() *common.QueryCondition {
+	if m != nil {
+		return m.QueryCondition
+	}
+	return nil
+}
+
+func (m *ListClusterPredictionsRequest) GetObjectMeta() []*resources.ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
+func (m *ListClusterPredictionsRequest) GetGranularity() int64 {
+	if m != nil {
+		return m.Granularity
+	}
+	return 0
+}
+
+func (m *ListClusterPredictionsRequest) GetModelId() string {
+	if m != nil {
+		return m.ModelId
+	}
+	return ""
+}
+
+func (m *ListClusterPredictionsRequest) GetPredictionId() string {
+	if m != nil {
+		return m.PredictionId
+	}
+	return ""
+}
+
+type ListClusterPredictionsResponse struct {
+	Status               *status.Status       `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	ClusterPredictions   []*ClusterPrediction `protobuf:"bytes,2,rep,name=cluster_predictions,json=clusterPredictions,proto3" json:"cluster_predictions,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *ListClusterPredictionsResponse) Reset()         { *m = ListClusterPredictionsResponse{} }
+func (m *ListClusterPredictionsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListClusterPredictionsResponse) ProtoMessage()    {}
+func (*ListClusterPredictionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f99ee8b129e06c96, []int{17}
+}
+
+func (m *ListClusterPredictionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListClusterPredictionsResponse.Unmarshal(m, b)
+}
+func (m *ListClusterPredictionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListClusterPredictionsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListClusterPredictionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListClusterPredictionsResponse.Merge(m, src)
+}
+func (m *ListClusterPredictionsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListClusterPredictionsResponse.Size(m)
+}
+func (m *ListClusterPredictionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListClusterPredictionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListClusterPredictionsResponse proto.InternalMessageInfo
+
+func (m *ListClusterPredictionsResponse) GetStatus() *status.Status {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListClusterPredictionsResponse) GetClusterPredictions() []*ClusterPrediction {
+	if m != nil {
+		return m.ClusterPredictions
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*CreatePodPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.CreatePodPredictionsRequest")
+	proto.RegisterType((*CreateControllerPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.CreateControllerPredictionsRequest")
+	proto.RegisterType((*CreateApplicationPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.CreateApplicationPredictionsRequest")
+	proto.RegisterType((*CreateNamespacePredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.CreateNamespacePredictionsRequest")
 	proto.RegisterType((*CreateNodePredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.CreateNodePredictionsRequest")
+	proto.RegisterType((*CreateClusterPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.CreateClusterPredictionsRequest")
 	proto.RegisterType((*ListPodPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListPodPredictionsRequest")
-	proto.RegisterType((*ListNodePredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListNodePredictionsRequest")
 	proto.RegisterType((*ListPodPredictionsResponse)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListPodPredictionsResponse")
+	proto.RegisterType((*ListControllerPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListControllerPredictionsRequest")
+	proto.RegisterType((*ListControllerPredictionsResponse)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListControllerPredictionsResponse")
+	proto.RegisterType((*ListApplicationPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListApplicationPredictionsRequest")
+	proto.RegisterType((*ListApplicationPredictionsResponse)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListApplicationPredictionsResponse")
+	proto.RegisterType((*ListNamespacePredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListNamespacePredictionsRequest")
+	proto.RegisterType((*ListNamespacePredictionsResponse)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListNamespacePredictionsResponse")
+	proto.RegisterType((*ListNodePredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListNodePredictionsRequest")
 	proto.RegisterType((*ListNodePredictionsResponse)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListNodePredictionsResponse")
+	proto.RegisterType((*ListClusterPredictionsRequest)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListClusterPredictionsRequest")
+	proto.RegisterType((*ListClusterPredictionsResponse)(nil), "containersai.alameda.v1alpha1.datahub.predictions.ListClusterPredictionsResponse")
 }
 
 func init() {
@@ -365,39 +1005,54 @@ func init() {
 }
 
 var fileDescriptor_f99ee8b129e06c96 = []byte{
-	// 538 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x54, 0x5f, 0x8b, 0xd3, 0x4e,
-	0x14, 0x25, 0xe9, 0x6e, 0x7f, 0xdb, 0xe9, 0xcf, 0x56, 0xf2, 0x62, 0xb6, 0x55, 0x08, 0xf5, 0xa5,
-	0x08, 0x4e, 0xe8, 0x8a, 0x08, 0x22, 0xf8, 0x67, 0x15, 0x59, 0x90, 0x65, 0x8d, 0x6f, 0xbe, 0x84,
-	0xbb, 0x99, 0x6b, 0x3b, 0x90, 0xcc, 0xa4, 0x33, 0x93, 0x85, 0xbe, 0xfb, 0xe0, 0x83, 0xdf, 0xc6,
-	0x07, 0x3f, 0x94, 0x5f, 0x42, 0x26, 0x4d, 0xb7, 0x8d, 0xc4, 0x35, 0x2e, 0xac, 0x6f, 0x33, 0xf7,
-	0x66, 0xce, 0x39, 0x39, 0x73, 0xcf, 0x90, 0x27, 0x90, 0x42, 0x86, 0x0c, 0x62, 0xc8, 0x79, 0x78,
-	0x31, 0x83, 0x34, 0x5f, 0xc0, 0x2c, 0x64, 0x60, 0x60, 0x51, 0x9c, 0x87, 0xb9, 0x42, 0xc6, 0x13,
-	0xc3, 0xa5, 0xd0, 0xa1, 0x46, 0x75, 0xc1, 0x13, 0xd4, 0x34, 0x57, 0xd2, 0x48, 0x6f, 0x96, 0x48,
-	0x61, 0x80, 0x0b, 0x54, 0x1a, 0x38, 0xad, 0x50, 0xe8, 0x06, 0x81, 0x56, 0x08, 0x74, 0x07, 0x61,
-	0x34, 0xbb, 0x92, 0x2b, 0x91, 0x59, 0x26, 0x45, 0xb8, 0x2c, 0x50, 0xf1, 0x0d, 0xcb, 0xe8, 0x69,
-	0x6b, 0x79, 0x3b, 0xeb, 0xea, 0xec, 0xe3, 0x2b, 0xcf, 0x2a, 0xd4, 0xb2, 0x50, 0x09, 0xea, 0x30,
-	0x43, 0x03, 0xb6, 0x5a, 0x1d, 0xbb, 0x33, 0x97, 0x72, 0x9e, 0x62, 0xa8, 0xf2, 0x24, 0xd4, 0x06,
-	0x4c, 0x51, 0xe1, 0x4d, 0xbe, 0x38, 0x64, 0x7c, 0xac, 0x10, 0x0c, 0x9e, 0x49, 0x76, 0xb6, 0xa5,
-	0x8b, 0x70, 0x59, 0xa0, 0x36, 0x1e, 0x27, 0xc3, 0x5c, 0xb2, 0x78, 0x47, 0x88, 0xef, 0x04, 0x9d,
-	0x69, 0xff, 0xe8, 0x05, 0xfd, 0x6b, 0xaf, 0x68, 0x8d, 0x22, 0x1a, 0xe4, 0x35, 0xc6, 0xc9, 0x57,
-	0x87, 0xdc, 0x5d, 0x4b, 0x39, 0x95, 0x0c, 0x1b, 0xb4, 0xa4, 0xe4, 0xb6, 0x90, 0x0c, 0x1b, 0xc4,
-	0xbc, 0xbc, 0x86, 0x98, 0x3a, 0x49, 0x34, 0x14, 0x75, 0xd2, 0xc9, 0x0f, 0x97, 0x1c, 0xbe, 0xe3,
-	0xda, 0x34, 0xfb, 0x82, 0x64, 0x68, 0x2f, 0x75, 0x15, 0x27, 0x52, 0x30, 0x6e, 0x5b, 0xbe, 0x13,
-	0x38, 0xd3, 0xfe, 0xd1, 0xb3, 0x96, 0x52, 0xd6, 0x93, 0x41, 0xdf, 0x5b, 0x90, 0xe3, 0x0d, 0x46,
-	0x34, 0x58, 0xd6, 0xf6, 0xde, 0x82, 0x0c, 0x05, 0x64, 0xa8, 0x73, 0x48, 0x90, 0xc5, 0x76, 0xe9,
-	0xbb, 0x25, 0xcd, 0xf3, 0x96, 0x34, 0x97, 0x13, 0x41, 0x4f, 0x2f, 0x71, 0xec, 0x2a, 0x1a, 0x88,
-	0xda, 0xde, 0x0b, 0x48, 0x7f, 0xae, 0x40, 0x14, 0x29, 0x28, 0x6e, 0x56, 0x7e, 0x27, 0x70, 0xa6,
-	0x9d, 0x68, 0xb7, 0xe4, 0x8d, 0x49, 0xef, 0x13, 0x4f, 0xd3, 0x98, 0xc1, 0x4a, 0xfb, 0x7b, 0x65,
-	0xff, 0xc0, 0x16, 0x5e, 0xc3, 0x4a, 0x7b, 0x87, 0xe4, 0x20, 0x93, 0x0c, 0xd3, 0x98, 0x33, 0x7f,
-	0x3f, 0x70, 0xa6, 0xbd, 0xe8, 0xbf, 0x72, 0x7f, 0xc2, 0xbc, 0xfb, 0xe4, 0xd6, 0xd6, 0x77, 0xdb,
-	0xef, 0x96, 0xfd, 0xff, 0xb7, 0xc5, 0x13, 0x36, 0xf9, 0xec, 0x92, 0x91, 0x75, 0xfb, 0x37, 0x57,
-	0xff, 0x8f, 0xec, 0xbe, 0x47, 0x48, 0x39, 0x61, 0xa5, 0x37, 0xbe, 0x1b, 0x74, 0xa6, 0xbd, 0xa8,
-	0x67, 0x2b, 0xa5, 0x79, 0x2d, 0x3c, 0xda, 0xb5, 0x61, 0xef, 0x0f, 0x36, 0xec, 0x37, 0xd8, 0xf0,
-	0xcd, 0x59, 0xdb, 0xf0, 0xeb, 0xd0, 0xe9, 0x5c, 0x0a, 0x8d, 0xde, 0x03, 0xd2, 0x5d, 0xa7, 0xb7,
-	0xfa, 0x7b, 0x8f, 0xae, 0x73, 0x4d, 0x55, 0x9e, 0xd0, 0x0f, 0x65, 0x27, 0xaa, 0xbe, 0x68, 0x4a,
-	0xae, 0x7b, 0x43, 0xc9, 0xfd, 0xee, 0x90, 0x71, 0xe3, 0xe5, 0x5d, 0x43, 0x76, 0x53, 0xc8, 0xdd,
-	0x9b, 0x0a, 0xf9, 0xab, 0xb7, 0x1f, 0xdf, 0xcc, 0xb9, 0xa9, 0x06, 0x24, 0xdc, 0xe2, 0x3f, 0x04,
-	0x1e, 0xda, 0x17, 0xb6, 0xed, 0x4b, 0x7d, 0xde, 0x2d, 0x9f, 0xd3, 0x47, 0x3f, 0x03, 0x00, 0x00,
-	0xff, 0xff, 0xfd, 0x19, 0xaa, 0x97, 0x7b, 0x06, 0x00, 0x00,
+	// 783 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x98, 0x4d, 0x6f, 0xd3, 0x48,
+	0x18, 0xc7, 0x35, 0xee, 0xcb, 0xb6, 0x4f, 0x76, 0xdb, 0x95, 0x77, 0xdb, 0xa6, 0xed, 0xee, 0x36,
+	0x75, 0x2f, 0xd1, 0x4a, 0xd8, 0x4a, 0x11, 0x42, 0x02, 0x0e, 0x94, 0x16, 0x4a, 0x25, 0x5e, 0x8a,
+	0xb9, 0x21, 0xa4, 0x68, 0x3a, 0x1e, 0xd2, 0x41, 0x8e, 0xc7, 0x9d, 0x19, 0x57, 0x8a, 0x90, 0x90,
+	0xb8, 0x71, 0xe0, 0x03, 0x70, 0xe4, 0xc0, 0x85, 0x33, 0x07, 0x3e, 0x40, 0x25, 0xc4, 0xcb, 0x81,
+	0x0b, 0x77, 0xbe, 0x0a, 0xf2, 0x4b, 0x9a, 0x04, 0x26, 0xc6, 0x58, 0x6a, 0x2f, 0xe4, 0x66, 0xcf,
+	0x63, 0x3f, 0xff, 0x9f, 0x9f, 0xfc, 0xf3, 0xcc, 0x63, 0xc3, 0x79, 0xec, 0xe3, 0x36, 0xf5, 0x70,
+	0x13, 0x87, 0xcc, 0x39, 0x6c, 0x60, 0x3f, 0xdc, 0xc7, 0x0d, 0xc7, 0xc3, 0x0a, 0xef, 0x47, 0x7b,
+	0x4e, 0x28, 0xa8, 0xc7, 0x88, 0x62, 0x3c, 0x90, 0x8e, 0xa4, 0xe2, 0x90, 0x11, 0x2a, 0xed, 0x50,
+	0x70, 0xc5, 0xcd, 0x06, 0xe1, 0x81, 0xc2, 0x2c, 0xa0, 0x42, 0x62, 0x66, 0x67, 0x59, 0xec, 0x6e,
+	0x06, 0x3b, 0xcb, 0x60, 0xf7, 0x65, 0x58, 0x6a, 0xe4, 0x6a, 0x11, 0xde, 0x6e, 0xf3, 0xc0, 0x39,
+	0x88, 0xa8, 0x60, 0x5d, 0x95, 0xa5, 0x0b, 0x85, 0xf1, 0xfa, 0x8e, 0xb3, 0x7b, 0xcf, 0xe5, 0xde,
+	0x2b, 0xa8, 0xe4, 0x91, 0x20, 0x54, 0x3a, 0x6d, 0xaa, 0x70, 0xbc, 0x9a, 0xdd, 0xb6, 0xd0, 0xe2,
+	0xbc, 0xe5, 0x53, 0x47, 0x84, 0xc4, 0x91, 0x0a, 0xab, 0x28, 0xcb, 0x67, 0x3d, 0x45, 0xb0, 0xbc,
+	0x29, 0x28, 0x56, 0x74, 0x97, 0x7b, 0xbb, 0x3d, 0x39, 0x97, 0x1e, 0x44, 0x54, 0x2a, 0x93, 0xc1,
+	0x6c, 0xc8, 0xbd, 0x66, 0x1f, 0x48, 0x15, 0xd5, 0xc6, 0xea, 0x95, 0xf5, 0xcb, 0xf6, 0x4f, 0xd7,
+	0xca, 0x1e, 0x90, 0x70, 0x67, 0xc2, 0x01, 0x45, 0xeb, 0x25, 0x02, 0x2b, 0x45, 0xd9, 0xe4, 0x81,
+	0x12, 0xdc, 0xf7, 0xa9, 0xd0, 0x10, 0x3d, 0x86, 0x79, 0x72, 0x1c, 0xd7, 0x80, 0x6d, 0x97, 0x00,
+	0xd3, 0x09, 0xba, 0x73, 0x44, 0x87, 0x61, 0xbd, 0x42, 0xb0, 0x96, 0x62, 0x6e, 0x84, 0xa1, 0xcf,
+	0x08, 0x8e, 0x97, 0x35, 0x9c, 0x4f, 0x10, 0x2c, 0xe0, 0xde, 0x15, 0x1a, 0xd2, 0xeb, 0x25, 0x48,
+	0xb5, 0x9a, 0xee, 0x3c, 0xd6, 0xa2, 0x58, 0x2f, 0x10, 0xac, 0xa6, 0xac, 0xb7, 0x70, 0x9b, 0xca,
+	0x10, 0x13, 0xaa, 0x21, 0x7d, 0x04, 0x73, 0x41, 0x37, 0xac, 0xc1, 0xbc, 0x56, 0x02, 0x53, 0x23,
+	0xe7, 0xfe, 0x1d, 0x68, 0x18, 0xac, 0x67, 0x08, 0xfe, 0xc9, 0x10, 0xb9, 0xa7, 0xa3, 0xf3, 0xe1,
+	0xcf, 0x80, 0x7b, 0x3a, 0xb0, 0x8d, 0x32, 0x60, 0x03, 0x22, 0xee, 0x6c, 0x30, 0x28, 0x6a, 0x3d,
+	0x47, 0xb0, 0x92, 0x99, 0xd0, 0x8f, 0xa4, 0xd2, 0x3a, 0x30, 0x82, 0xbf, 0x48, 0x1a, 0xd4, 0x40,
+	0x6d, 0x95, 0xb1, 0xdf, 0xb7, 0x52, 0xae, 0x49, 0xbe, 0x53, 0xb7, 0xbe, 0x18, 0xb0, 0x78, 0x83,
+	0x49, 0xa5, 0xff, 0xa3, 0x52, 0x98, 0x8d, 0xbb, 0x4c, 0xa7, 0x49, 0x78, 0xe0, 0xb1, 0x38, 0x54,
+	0x45, 0x35, 0x54, 0xaf, 0xac, 0x5f, 0x2a, 0x08, 0x94, 0xb6, 0x2a, 0xfb, 0x4e, 0x9c, 0x64, 0xb3,
+	0x9b, 0xc3, 0x9d, 0x39, 0x18, 0x38, 0x37, 0xef, 0x43, 0x85, 0xef, 0x3d, 0xa4, 0x44, 0x35, 0xe3,
+	0x0e, 0x53, 0x35, 0x92, 0x67, 0xbe, 0x58, 0x50, 0xe2, 0xb8, 0x3d, 0xd9, 0xb7, 0x93, 0x1c, 0x37,
+	0xa9, 0xc2, 0x2e, 0xf0, 0xe3, 0x63, 0xb3, 0x06, 0x95, 0x96, 0xc0, 0x41, 0xe4, 0x63, 0xc1, 0x54,
+	0xa7, 0x3a, 0x56, 0x43, 0xf5, 0x31, 0xb7, 0x7f, 0xc9, 0x5c, 0x86, 0xe9, 0x07, 0xcc, 0xf7, 0x9b,
+	0x1e, 0xee, 0xc8, 0xea, 0x78, 0x12, 0x9f, 0x8a, 0x17, 0xb6, 0x70, 0x47, 0x9a, 0x8b, 0x30, 0xd5,
+	0xe6, 0x1e, 0xf5, 0x9b, 0xcc, 0xab, 0x4e, 0xd4, 0x50, 0x7d, 0xda, 0xfd, 0x2d, 0x39, 0xdf, 0xf1,
+	0xcc, 0x35, 0xf8, 0xa3, 0x57, 0xf1, 0x38, 0x3e, 0x99, 0xc4, 0x7f, 0xef, 0x2d, 0xee, 0x78, 0xd6,
+	0x6b, 0x04, 0x4b, 0xba, 0x0a, 0xcb, 0x90, 0x07, 0x92, 0x9a, 0xff, 0xc3, 0x64, 0xda, 0x3b, 0xb3,
+	0xca, 0x9a, 0x76, 0xda, 0x55, 0x6d, 0x11, 0x12, 0xfb, 0x6e, 0x12, 0x71, 0xb3, 0x2b, 0x74, 0x7d,
+	0xd3, 0x38, 0xa1, 0xbe, 0xf9, 0xde, 0x80, 0x5a, 0x4c, 0x9d, 0xdb, 0x35, 0x7f, 0x11, 0x7b, 0xf4,
+	0x3b, 0x60, 0xfc, 0x07, 0x0e, 0x98, 0xd0, 0x38, 0xe0, 0x13, 0x82, 0xd5, 0x9c, 0x5a, 0x96, 0x30,
+	0xc2, 0xf0, 0xed, 0xca, 0x38, 0x95, 0xed, 0xea, 0x83, 0x91, 0x3e, 0x51, 0xfe, 0x66, 0x35, 0xb2,
+	0x47, 0x21, 0x7b, 0x7c, 0x46, 0x60, 0xe5, 0x15, 0xb3, 0x84, 0x3f, 0xf2, 0xc6, 0x04, 0xe3, 0x94,
+	0xc6, 0x84, 0x77, 0x06, 0xac, 0xc4, 0x8f, 0x95, 0x37, 0x24, 0x8c, 0x1c, 0x52, 0xc8, 0x21, 0x1f,
+	0x51, 0xda, 0x8c, 0xf5, 0xa5, 0x2c, 0xe1, 0x8f, 0xa1, 0xc3, 0x99, 0x71, 0x0a, 0xc3, 0xd9, 0x91,
+	0x91, 0x6e, 0x88, 0x43, 0x46, 0xb3, 0x91, 0x27, 0x0a, 0x79, 0xe2, 0x0d, 0x82, 0x65, 0x6d, 0x15,
+	0x4b, 0xd8, 0x41, 0x37, 0x0d, 0x1b, 0x27, 0x36, 0x0d, 0xbf, 0x35, 0xe0, 0xdf, 0x64, 0x3b, 0x1c,
+	0x3a, 0x0b, 0x8f, 0x2c, 0x50, 0xc8, 0x02, 0x47, 0x08, 0xfe, 0x1b, 0x56, 0xc8, 0x12, 0x2e, 0x18,
+	0xf2, 0x06, 0x62, 0x9c, 0xec, 0x1b, 0xc8, 0x95, 0xed, 0x7b, 0x57, 0x5b, 0x4c, 0x65, 0xbf, 0x9a,
+	0xd3, 0x53, 0x39, 0x83, 0x99, 0x83, 0x43, 0xe6, 0x14, 0xfd, 0xae, 0xb1, 0x37, 0x99, 0x7c, 0x7c,
+	0x38, 0xfb, 0x35, 0x00, 0x00, 0xff, 0xff, 0x12, 0xf7, 0x01, 0x5a, 0xa9, 0x11, 0x00, 0x00,
 }

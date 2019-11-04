@@ -17,16 +17,32 @@ message CreatePodMetricsRequest {
     uint64             rate_range  = 2;
 }
 
+message CreateControllerMetricsRequest {
+    repeated ControllerMetric controller_metrics = 1;
+}
+
+message CreateApplicationMetricsRequest {
+    repeated ApplicationMetric application_metrics = 1;
+}
+
+message CreateNamespaceMetricsRequest {
+    repeated NamespaceMetric namespace_metrics = 1;
+}
+
 // Represents a request for creating metrics data of nodes
 message CreateNodeMetricsRequest {
     repeated NodeMetric node_metrics = 1;
 }
 
+message CreateClusterMetricsRequest {
+    repeated ClusterMetric cluster_metrics = 1;
+}
+
 // Represents a request for listing metric data of a pod
 message ListPodMetricsRequest {
-    common.QueryCondition    query_condition = 1;
-    resources.NamespacedName namespaced_name = 2;
-    uint64                   rate_range      = 3;
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    uint64                        rate_range      = 3;
 }
 
 // Represents a response for a listing pod metric data request
@@ -35,14 +51,54 @@ message ListPodMetricsResponse {
     repeated PodMetric pod_metrics = 2;
 }
 
+message ListControllerMetricsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListControllerMetricsResponse {
+    google.rpc.Status         status             = 1;
+    repeated ControllerMetric controller_metrics = 2;
+}
+
+message ListApplicationMetricsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListApplicationMetricsResponse {
+    google.rpc.Status          status              = 1;
+    repeated ApplicationMetric application_metrics = 2;
+}
+
+message ListNamespaceMetricsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListNamespaceMetricsResponse {
+    google.rpc.Status        status            = 1;
+    repeated NamespaceMetric namespace_metrics = 2;
+}
+
 // Represents a request for listing metric data of a node
 message ListNodeMetricsRequest {
-    common.QueryCondition query_condition = 1;
-    repeated string       node_names      = 2;
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
 }
 
 // Represents a response for a listing node metrics request
 message ListNodeMetricsResponse {
     google.rpc.Status   status       = 1;
     repeated NodeMetric node_metrics = 2;
+}
+
+message ListClusterMetricsRequest {
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+}
+
+message ListClusterMetricsResponse {
+    google.rpc.Status      status          = 1;
+    repeated ClusterMetric cluster_metrics = 2;
 }
