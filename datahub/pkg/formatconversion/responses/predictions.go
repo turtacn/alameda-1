@@ -4,7 +4,6 @@ import (
 	DaoPredictionTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions/types"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
 type NodePredictionExtended struct {
@@ -22,7 +21,7 @@ func (d *NodePredictionExtended) ProducePredictions() *ApiPredictions.NodePredic
 	)
 
 	datahubNodePrediction = ApiPredictions.NodePrediction{
-		Name:        string(d.NodeName),
+		ObjectMeta:  NewObjectMeta(d.ObjectMeta),
 		IsScheduled: d.IsScheduled,
 	}
 
@@ -74,10 +73,7 @@ type PodPredictionExtended struct {
 
 func (p *PodPredictionExtended) ProducePredictions() *ApiPredictions.PodPrediction {
 	datahubPodPrediction := ApiPredictions.PodPrediction{
-		NamespacedName: &ApiResources.NamespacedName{
-			Namespace: string(p.Namespace),
-			Name:      string(p.PodName),
-		},
+		ObjectMeta: NewObjectMeta(p.ObjectMeta),
 	}
 
 	for _, ptrContainerPrediction := range p.ContainerPredictionMap.MetricMap {

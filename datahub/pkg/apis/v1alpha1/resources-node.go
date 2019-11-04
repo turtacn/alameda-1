@@ -11,13 +11,13 @@ import (
 )
 
 // CreateAlamedaNodes add node information to database
-func (s *ServiceV1alpha1) CreateAlamedaNodes(ctx context.Context, in *ApiResources.CreateAlamedaNodesRequest) (*status.Status, error) {
+func (s *ServiceV1alpha1) CreateNodes(ctx context.Context, in *ApiResources.CreateNodesRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	var nodeDAO DaoClusterStatus.NodeOperation = &DaoClusterStatusInflux.Node{
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
-	if err := nodeDAO.RegisterAlamedaNodes(in.GetAlamedaNodes()); err != nil {
+	if err := nodeDAO.RegisterAlamedaNodes(in.GetNodes()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
@@ -30,6 +30,7 @@ func (s *ServiceV1alpha1) CreateAlamedaNodes(ctx context.Context, in *ApiResourc
 	}, nil
 }
 
+/*
 // ListAlamedaNodes list nodes in cluster
 func (s *ServiceV1alpha1) ListAlamedaNodes(ctx context.Context, in *ApiResources.ListAlamedaNodesRequest) (*ApiResources.ListNodesResponse, error) {
 	scope.Debug("Request received from ListAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
@@ -57,6 +58,7 @@ func (s *ServiceV1alpha1) ListAlamedaNodes(ctx context.Context, in *ApiResources
 		}, nil
 	}
 }
+*/
 
 func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *ApiResources.ListNodesRequest) (*ApiResources.ListNodesResponse, error) {
 	scope.Debug("Request received from ListNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
@@ -65,8 +67,13 @@ func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *ApiResources.ListNo
 		InfluxDBConfig: *s.Config.InfluxDB,
 	}
 
+	nodeNames := make([]string, 0)
+	for _, objectMeta := range in.GetObjectMeta() {
+		nodeNames = append(nodeNames, objectMeta.Name)
+	}
+
 	req := DaoClusterStatus.ListNodesRequest{
-		NodeNames: in.GetNodeNames(),
+		NodeNames: nodeNames,
 		InCluster: true,
 	}
 	if nodes, err := nodeDAO.ListNodes(req); err != nil {
@@ -87,6 +94,7 @@ func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *ApiResources.ListNo
 	}
 }
 
+/*
 // DeleteAlamedaNodes remove node information to database
 func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *ApiResources.DeleteAlamedaNodesRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
@@ -101,6 +109,35 @@ func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *ApiResourc
 		})
 	}
 	if err := nodeDAO.DeregisterAlamedaNodes(alamedaNodeList); err != nil {
+		scope.Error(err.Error())
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}
+*/
+
+// DeleteAlamedaNodes remove node information to database
+func (s *ServiceV1alpha1) DeleteNodes(ctx context.Context, in *ApiResources.DeleteNodesRequest) (*status.Status, error) {
+	scope.Debug("Request received from DeleteAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	var nodeDAO DaoClusterStatus.NodeOperation = &DaoClusterStatusInflux.Node{
+		InfluxDBConfig: *s.Config.InfluxDB,
+	}
+	nodeList := make([]*ApiResources.Node, 0)
+	for _, node := range in.GetNodes() {
+		nodeList = append(nodeList, &ApiResources.Node{
+			ObjectMeta: &ApiResources.ObjectMeta{
+				Name: node.GetObjectMeta().GetName(),
+			},
+		})
+	}
+	if err := nodeDAO.DeregisterAlamedaNodes(nodeList); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

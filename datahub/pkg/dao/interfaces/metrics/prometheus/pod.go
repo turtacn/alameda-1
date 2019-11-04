@@ -45,7 +45,7 @@ func (p *PodMetrics) ListMetrics(req DaoMetricTypes.ListPodMetricsRequest) (DaoM
 	}
 
 	podContainerCPURepo = RepoPromthMetric.NewPodContainerCpuUsagePercentageRepositoryWithConfig(p.PrometheusConfig)
-	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
+	containerCPUEntities, err = podContainerCPURepo.ListMetricsByPodNamespacedName(req.ObjectMeta[0].Namespace, req.ObjectMeta[0].Name, options...)
 	if err != nil {
 		return podMetricMap, errors.Wrap(err, "list pod metrics failed")
 	}
@@ -57,7 +57,7 @@ func (p *PodMetrics) ListMetrics(req DaoMetricTypes.ListPodMetricsRequest) (DaoM
 	}
 
 	podContainerMemoryRepo = RepoPromthMetric.NewPodContainerMemoryUsageBytesRepositoryWithConfig(p.PrometheusConfig)
-	containerMemoryEntities, err = podContainerMemoryRepo.ListMetricsByPodNamespacedName(req.Namespace, req.PodName, options...)
+	containerMemoryEntities, err = podContainerMemoryRepo.ListMetricsByPodNamespacedName(req.ObjectMeta[0].Namespace, req.ObjectMeta[0].Name, options...)
 	if err != nil {
 		return podMetricMap, errors.Wrap(err, "list pod metrics failed")
 	}

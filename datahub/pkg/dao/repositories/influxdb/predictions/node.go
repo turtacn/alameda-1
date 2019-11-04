@@ -8,17 +8,12 @@ import (
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
-	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
-	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
-	"github.com/golang/protobuf/ptypes"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type NodeRepository struct {
@@ -39,7 +34,7 @@ func (r *NodeRepository) CreatePredictions(predictions DaoPredictionTypes.NodePr
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, nodePrediction := range predictions.MetricMap {
-		nodeName := nodePrediction.NodeName
+		nodeName := nodePrediction.ObjectMeta.Name
 		isScheduled := nodePrediction.IsScheduled
 		r.appendPoints(FormatEnum.MetricKindRaw, nodeName, isScheduled, nodePrediction.PredictionRaw, &points)
 		r.appendPoints(FormatEnum.MetricKindUpperBound, nodeName, isScheduled, nodePrediction.PredictionUpperBound, &points)
@@ -96,7 +91,7 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			nodePrediction := DaoPredictionTypes.NewNodePrediction()
-			nodePrediction.NodeName = group.Tags[string(EntityInfluxPrediction.NodeName)]
+			nodePrediction.ObjectMeta.Name = group.Tags[string(EntityInfluxPrediction.NodeName)]
 			nodePrediction.IsScheduled, _ = strconv.ParseBool(group.Tags[string(EntityInfluxPrediction.NodeIsScheduled)])
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
@@ -163,9 +158,10 @@ func (r *NodeRepository) appendPoints(kind FormatEnum.MetricKind, nodeName strin
 	return nil
 }
 
+/*
 func (r *NodeRepository) CreateNodePrediction(in *ApiPredictions.CreateNodePredictionsRequest) error {
 
-	/*points := make([]*InfluxClient.Point, 0)
+	points := make([]*InfluxClient.Point, 0)
 
 	for _, nodePrediction := range in.GetNodePredictions() {
 		nodeName := nodePrediction.GetName()
@@ -183,7 +179,7 @@ func (r *NodeRepository) CreateNodePrediction(in *ApiPredictions.CreateNodePredi
 	})
 	if err != nil {
 		return errors.Wrap(err, "create node prediction failed")
-	}*/
+	}
 
 	return nil
 }
@@ -349,13 +345,13 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*InternalInflux
 
 		nodeMetricKindMap[metricKey].Data = nodeMetricKindSampleMap[metricKey]
 
-		/*if kind == FormatTypes.NodeMetricKindUpperbound {
-			nodeMap[nodeKey].PredictedUpperboundData = append(nodeMap[nodeKey].PredictedUpperboundData, nodeMetricKindMap[metricKey])
-		} else if kind == FormatTypes.NodeMetricKindLowerbound {
-			nodeMap[nodeKey].PredictedLowerboundData = append(nodeMap[nodeKey].PredictedLowerboundData, nodeMetricKindMap[metricKey])
-		} else {
+		//if kind == FormatTypes.NodeMetricKindUpperbound {
+		//	nodeMap[nodeKey].PredictedUpperboundData = append(nodeMap[nodeKey].PredictedUpperboundData, nodeMetricKindMap[metricKey])
+		//} else if kind == FormatTypes.NodeMetricKindLowerbound {
+		//	nodeMap[nodeKey].PredictedLowerboundData = append(nodeMap[nodeKey].PredictedLowerboundData, nodeMetricKindMap[metricKey])
+		//} else {
 			nodeMap[nodeKey].PredictedRawData = append(nodeMap[nodeKey].PredictedRawData, nodeMetricKindMap[metricKey])
-		}*/
+		//}
 	}
 
 	nodeList := make([]*ApiPredictions.NodePrediction, 0)
@@ -365,13 +361,14 @@ func (r *NodeRepository) getNodePredictionsFromInfluxRows(rows []*InternalInflux
 
 	return nodeList
 }
+*/
 
 func (r *NodeRepository) buildWhereClause(request DaoPredictionTypes.ListNodePredictionsRequest) string {
 	whereClause := ""
 	conditions := ""
 
-	for _, nodeName := range request.NodeNames {
-		conditions += fmt.Sprintf(`"%s" = '%s' or `, EntityInfluxPrediction.NodeName, nodeName)
+	for _, objectMeta := range request.ObjectMeta {
+		conditions += fmt.Sprintf(`"%s" = '%s' or `, EntityInfluxPrediction.NodeName, objectMeta.Name)
 	}
 	conditions = strings.TrimSuffix(conditions, "or ")
 

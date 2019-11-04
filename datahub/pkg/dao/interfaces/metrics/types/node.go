@@ -15,15 +15,15 @@ type NodeMetricsDAO interface {
 }
 
 type NodeMetricSample struct {
-	NodeName   metadata.NodeName
+	ObjectMeta metadata.ObjectMeta
 	MetricType enumconv.MetricType
 	Metrics    []types.Sample
 }
 
 // NodeMetric Metric model to represent one node metric
 type NodeMetric struct {
-	NodeName metadata.NodeName
-	Metrics  map[enumconv.MetricType][]types.Sample
+	ObjectMeta metadata.ObjectMeta
+	Metrics    map[enumconv.MetricType][]types.Sample
 }
 
 // NodesMetricMap Nodes' metric map
@@ -34,7 +34,7 @@ type NodeMetricMap struct {
 // ListNodeMetricsRequest Argument of method ListNodeMetrics
 type ListNodeMetricsRequest struct {
 	common.QueryCondition
-	NodeNames []metadata.NodeName
+	ObjectMeta []metadata.ObjectMeta
 }
 
 func NewNodeMetricSample() *NodeMetricSample {
@@ -55,9 +55,19 @@ func NewNodeMetricMap() NodeMetricMap {
 	return nodeMetricMap
 }
 
+func NewListNodeMetricsRequest() ListNodeMetricsRequest {
+	request := ListNodeMetricsRequest{}
+	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
+	return request
+}
+
 // GetNodeNames Return nodes name in request
 func (r ListNodeMetricsRequest) GetNodeNames() []metadata.NodeName {
-	return r.NodeNames
+	nodeNames := make([]metadata.NodeName, 0)
+	for _, objectMeta := range r.ObjectMeta {
+		nodeNames = append(nodeNames, objectMeta.Name)
+	}
+	return nodeNames
 }
 
 // GetEmptyNodeNames Return slice with one empty string element
@@ -67,7 +77,8 @@ func (r ListNodeMetricsRequest) GetEmptyNodeNames() []metadata.NodeName {
 
 func (n *NodeMetric) GetSamples(metricType enumconv.MetricType) *NodeMetricSample {
 	nodeSample := NewNodeMetricSample()
-	nodeSample.NodeName = n.NodeName
+	nodeSample.ObjectMeta.Name = n.ObjectMeta.Name
+	nodeSample.ObjectMeta.ClusterName = n.ObjectMeta.ClusterName
 	nodeSample.MetricType = metricType
 
 	if value, exist := n.Metrics[metricType]; exist {
@@ -115,7 +126,7 @@ func (n *NodeMetric) Limit(limit int) {
 
 // AddNodeMetric Add node metric into NodesMetricMap
 func (n *NodeMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
-	nodeName := nodeMetric.NodeName
+	nodeName := nodeMetric.ObjectMeta.Name
 	if existNodeMetric, exist := n.MetricMap[nodeName]; exist {
 		existNodeMetric.Merge(nodeMetric)
 	} else {

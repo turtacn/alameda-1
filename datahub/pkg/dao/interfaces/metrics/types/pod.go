@@ -14,8 +14,7 @@ type PodMetricsDAO interface {
 
 // PodMetric Metric model to represent one pod's metric
 type PodMetric struct {
-	Namespace          metadata.NamespaceName
-	PodName            metadata.PodName
+	ObjectMeta         metadata.ObjectMeta
 	RateRange          int64
 	ContainerMetricMap ContainerMetricMap
 }
@@ -28,9 +27,8 @@ type PodMetricMap struct {
 // ListPodMetricsRequest Argument of method ListPodMetrics
 type ListPodMetricsRequest struct {
 	common.QueryCondition
-	Namespace metadata.NamespaceName
-	PodName   metadata.PodName
-	RateRange int64
+	ObjectMeta []metadata.ObjectMeta
+	RateRange  int64
 }
 
 func NewPodMetric() *PodMetric {
@@ -45,9 +43,15 @@ func NewPodMetricMap() PodMetricMap {
 	return podMetricMap
 }
 
+func NewListPodMetricsRequest() ListPodMetricsRequest {
+	request := ListPodMetricsRequest{}
+	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
+	return request
+}
+
 // NamespacePodName Return identity of the pod metric
 func (p *PodMetric) NamespacePodName() metadata.NamespacePodName {
-	return metadata.NamespacePodName(fmt.Sprintf("%s/%s", p.Namespace, p.PodName))
+	return metadata.NamespacePodName(fmt.Sprintf("%s/%s", p.ObjectMeta.Namespace, p.ObjectMeta.Name))
 }
 
 // Merge Merge current PodMetric with input PodMetric

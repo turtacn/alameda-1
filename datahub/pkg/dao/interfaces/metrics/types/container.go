@@ -89,8 +89,10 @@ func (c *ContainerMetric) BuildPodMetric() *PodMetric {
 	containerMetricMap.MetricMap[c.NamespacePodContainerName()] = c
 
 	return &PodMetric{
-		Namespace:          c.Namespace,
-		PodName:            c.PodName,
+		ObjectMeta: metadata.ObjectMeta{
+			Name:      c.PodName,
+			Namespace: c.Namespace,
+		},
 		RateRange:          c.RateRange,
 		ContainerMetricMap: containerMetricMap,
 	}

@@ -44,7 +44,7 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*ApiResourc
 		startTime := alamedaNode.StartTime.GetSeconds()
 		entity := EntityInfluxClusterStatus.NodeEntity{
 			Time:        InternalInflux.ZeroTime,
-			Name:        &alamedaNode.Name,
+			Name:        &alamedaNode.ObjectMeta.Name,
 			IsInCluster: &isInCluster,
 			CreatedTime: &startTime,
 		}
@@ -52,7 +52,7 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*ApiResourc
 			entity.CPUCores = &nodeCapacity.CpuCores
 			entity.MemoryBytes = &nodeCapacity.MemoryBytes
 		}
-		if nodeProvider := alamedaNode.GetProvider(); nodeProvider != nil {
+		if nodeProvider := alamedaNode.GetAlamedaNodeSpcec().GetProvider(); nodeProvider != nil {
 			entity.IOProvider = &nodeProvider.Provider
 			entity.IOInstanceType = &nodeProvider.InstanceType
 			entity.IORegion = &nodeProvider.Region
@@ -82,7 +82,7 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*ApiReso
 	errMsg := ""
 	for _, alamedaNode := range alamedaNodes {
 		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s'",
-			string(Node), string(EntityInfluxClusterStatus.NodeName), alamedaNode.Name)
+			string(Node), string(EntityInfluxClusterStatus.NodeName), alamedaNode.ObjectMeta.Name)
 		_, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 		if err != nil {
 			hasErr = true

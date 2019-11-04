@@ -29,20 +29,20 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 func (c *ControllerRepository) CreateControllers(controllers []*ApiResources.Controller) error {
 	points := make([]*InfluxClient.Point, 0)
 	for _, controller := range controllers {
-		controllerNamespace := controller.GetControllerInfo().GetNamespacedName().GetNamespace()
-		controllerName := controller.GetControllerInfo().GetNamespacedName().GetName()
-		controllerKind := controller.GetControllerInfo().GetKind().String()
-		controllerExecution := controller.GetEnableRecommendationExecution()
-		controllerPolicy := controller.GetPolicy().String()
+		controllerNamespace := controller.GetObjectMeta().GetNamespace()
+		controllerName := controller.GetObjectMeta().GetName()
+		controllerKind := controller.GetKind().String()
+		controllerExecution := controller.GetAlamedaControllerSpec().GetEnableRecommendationExecution()
+		controllerPolicy := controller.GetAlamedaControllerSpec().GetPolicy().String()
 
 		ownerNamespace := ""
 		ownerName := ""
 		ownerKind := ""
 
-		if len(controller.GetOwnerInfo()) > 0 {
-			ownerNamespace = controller.GetOwnerInfo()[0].GetNamespacedName().GetNamespace()
-			ownerName = controller.GetOwnerInfo()[0].GetNamespacedName().GetName()
-			ownerKind = controller.GetOwnerInfo()[0].GetKind().String()
+		if len(controller.GetOwnerReferences()) > 0 {
+			ownerNamespace = controller.GetOwnerReferences()[0].GetObjectMeta().GetNamespace()
+			ownerName = controller.GetOwnerReferences()[0].GetObjectMeta().GetName()
+			ownerKind = controller.GetOwnerReferences()[0].GetKind().String()
 		}
 
 		tags := map[string]string{
@@ -80,8 +80,8 @@ func (c *ControllerRepository) CreateControllers(controllers []*ApiResources.Con
 }
 
 func (c *ControllerRepository) ListControllers(in *ApiResources.ListControllersRequest) ([]*ApiResources.Controller, error) {
-	namespace := in.GetNamespacedName().GetNamespace()
-	name := in.GetNamespacedName().GetName()
+	namespace := in.GetObjectMeta()[0].GetNamespace()
+	name := in.GetObjectMeta()[0].GetName()
 
 	whereStr := c.convertQueryCondition(namespace, name)
 
@@ -109,8 +109,8 @@ func (c *ControllerRepository) DeleteControllers(in *ApiResources.DeleteControll
 	whereStr := ""
 
 	for _, controller := range controllers {
-		namespace := controller.GetControllerInfo().GetNamespacedName().GetNamespace()
-		name := controller.GetControllerInfo().GetNamespacedName().GetName()
+		namespace := controller.GetObjectMeta().GetNamespace()
+		name := controller.GetObjectMeta().GetName()
 		whereStr += fmt.Sprintf(" (\"name\"='%s' AND \"namespace\"='%s') OR", name, namespace)
 	}
 
@@ -154,15 +154,15 @@ func (c *ControllerRepository) getControllersFromInfluxRows(rows []*InternalInfl
 		name := row.Tags[EntityInfluxClusterStatus.ControllerName]
 
 		tempController := &ApiResources.Controller{
-			ControllerInfo: &ApiResources.ResourceInfo{
-				NamespacedName: &ApiResources.NamespacedName{
-					Namespace: namespace,
-					Name:      name,
-				},
+			ObjectMeta: &ApiResources.ObjectMeta{
+				Namespace: namespace,
+				Name:      name,
 			},
+			OwnerReferences:       make([]*ApiResources.OwnerReference, 0),
+			AlamedaControllerSpec: &ApiResources.AlamedaControllerSpec{},
 		}
 
-		ownerInfoList := make([]*ApiResources.ResourceInfo, 0)
+		ownerReferences := make([]*ApiResources.OwnerReference, 0)
 		for _, data := range row.Data {
 			ownerNamespace := data[EntityInfluxClusterStatus.ControllerOwnerNamespace]
 			ownerName := data[EntityInfluxClusterStatus.ControllerOwnerName]
@@ -173,15 +173,15 @@ func (c *ControllerRepository) getControllersFromInfluxRows(rows []*InternalInfl
 				ownerKind = ApiResources.Kind(val)
 			}
 
-			tempOwner := &ApiResources.ResourceInfo{
-				NamespacedName: &ApiResources.NamespacedName{
+			tempOwner := &ApiResources.OwnerReference{
+				ObjectMeta: &ApiResources.ObjectMeta{
 					Namespace: ownerNamespace,
 					Name:      ownerName,
 				},
 				Kind: ownerKind,
 			}
 
-			ownerInfoList = append(ownerInfoList, tempOwner)
+			ownerReferences = append(ownerReferences, tempOwner)
 
 			//------
 			tempKind := data[EntityInfluxClusterStatus.ControllerKind]
@@ -189,23 +189,23 @@ func (c *ControllerRepository) getControllersFromInfluxRows(rows []*InternalInfl
 			if val, found := ApiResources.Kind_value[tempKind]; found {
 				kind = ApiResources.Kind(val)
 			}
-			tempController.ControllerInfo.Kind = kind
+			tempController.Kind = kind
 
 			tempReplicas, _ := strconv.ParseInt(data[string(EntityInfluxClusterStatus.ControllerReplicas)], 10, 32)
 			tempController.Replicas = int32(tempReplicas)
 
 			enableExecution, _ := strconv.ParseBool(data[EntityInfluxClusterStatus.ControllerEnableExecution])
-			tempController.EnableRecommendationExecution = enableExecution
+			tempController.AlamedaControllerSpec.EnableRecommendationExecution = enableExecution
 
 			tempPolicy := data[EntityInfluxClusterStatus.ControllerPolicy]
 			var policy ApiResources.RecommendationPolicy
 			if val, found := ApiResources.RecommendationPolicy_value[tempPolicy]; found {
 				policy = ApiResources.RecommendationPolicy(val)
 			}
-			tempController.Policy = policy
+			tempController.AlamedaControllerSpec.Policy = policy
 		}
 
-		tempController.OwnerInfo = ownerInfoList
+		tempController.OwnerReferences = ownerReferences
 		controllerList = append(controllerList, tempController)
 	}
 

@@ -165,14 +165,16 @@ func (e NodeEntity) InfluxDBPoint(measurementName string) (*InfluxClient.Point, 
 }
 
 func (e NodeEntity) BuildDatahubNode() *ApiResources.Node {
-
 	node := &ApiResources.Node{
-		Capacity: &ApiResources.Capacity{},
-		Provider: &ApiResources.Provider{},
+		ObjectMeta: &ApiResources.ObjectMeta{},
+		Capacity:   &ApiResources.Capacity{},
+		AlamedaNodeSpcec: &ApiResources.AlamedaNodeSpec{
+			Provider: &ApiResources.Provider{},
+		},
 	}
 
 	if e.Name != nil {
-		node.Name = *e.Name
+		node.ObjectMeta.Name = *e.Name
 	}
 	if e.CPUCores != nil {
 		node.Capacity.CpuCores = *e.CPUCores
@@ -181,28 +183,28 @@ func (e NodeEntity) BuildDatahubNode() *ApiResources.Node {
 		node.Capacity.MemoryBytes = *e.MemoryBytes
 	}
 	if e.IOProvider != nil {
-		node.Provider.Provider = *e.IOProvider
+		node.AlamedaNodeSpcec.Provider.Provider = *e.IOProvider
 	}
 	if e.IOInstanceType != nil {
-		node.Provider.InstanceType = *e.IOInstanceType
+		node.AlamedaNodeSpcec.Provider.InstanceType = *e.IOInstanceType
 	}
 	if e.IORegion != nil {
-		node.Provider.Region = *e.IORegion
+		node.AlamedaNodeSpcec.Provider.Region = *e.IORegion
 	}
 	if e.IOZone != nil {
-		node.Provider.Zone = *e.IOZone
+		node.AlamedaNodeSpcec.Provider.Zone = *e.IOZone
 	}
 	if e.IOOS != nil {
-		node.Provider.Os = *e.IOOS
+		node.AlamedaNodeSpcec.Provider.Os = *e.IOOS
 	}
 	if e.IORole != nil {
-		node.Provider.Role = *e.IORole
+		node.AlamedaNodeSpcec.Provider.Role = *e.IORole
 	}
 	if e.IOInstanceID != nil {
-		node.Provider.InstanceId = *e.IOInstanceID
+		node.AlamedaNodeSpcec.Provider.InstanceId = *e.IOInstanceID
 	}
 	if e.IOStorageSize != nil {
-		node.Provider.StorageSize = *e.IOStorageSize
+		node.AlamedaNodeSpcec.Provider.StorageSize = *e.IOStorageSize
 	}
 
 	return node

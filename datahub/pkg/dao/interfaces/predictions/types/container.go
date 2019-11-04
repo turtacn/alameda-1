@@ -92,8 +92,10 @@ func (c *ContainerPrediction) BuildPodPrediction() *PodPrediction {
 	containerPredictionMap.MetricMap[c.NamespacePodContainerName()] = c
 
 	return &PodPrediction{
-		Namespace:              c.Namespace,
-		PodName:                c.PodName,
+		ObjectMeta: metadata.ObjectMeta{
+			Name:      c.PodName,
+			Namespace: c.Namespace,
+		},
 		ContainerPredictionMap: containerPredictionMap,
 	}
 }

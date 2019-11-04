@@ -4,11 +4,11 @@ import (
 	DaoPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions"
 	FormatRequest "github.com/containers-ai/alameda/datahub/pkg/formatconversion/requests"
 	FormatResponse "github.com/containers-ai/alameda/datahub/pkg/formatconversion/responses"
+	K8sMetadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -131,14 +131,14 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *ApiPre
 		}, errors.Errorf("Invalid EndTime")
 	}
 
-	tempNamespacedName := ApiResources.NamespacedName{
-		Namespace: in.NamespacedName.Namespace,
-		Name:      in.NamespacedName.Name,
+	tempObjectMeta := K8sMetadata.ObjectMeta{
+		Namespace: in.ObjectMeta[0].Namespace,
+		Name:      in.ObjectMeta[0].Name,
 	}
 
 	demoContainerPredictionList := make([]*ApiPredictions.ContainerPrediction, 0)
 	demoContainerPrediction := ApiPredictions.ContainerPrediction{
-		Name:             in.NamespacedName.Name,
+		Name:             in.ObjectMeta[0].Name,
 		PredictedRawData: make([]*ApiPredictions.MetricData, 0),
 	}
 	demoContainerPredictionList = append(demoContainerPredictionList, &demoContainerPrediction)
@@ -156,7 +156,7 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *ApiPre
 	demoDataMapCPU, _ := DatahubUtils.ReadCSV("prediction_cpu.csv")
 	demoDataMapMem, _ := DatahubUtils.ReadCSV("prediction_memory.csv")
 
-	demoKey := in.NamespacedName.Namespace + "_" + in.NamespacedName.Name
+	demoKey := in.ObjectMeta[0].Namespace + "_" + in.ObjectMeta[0].Name
 	startTime := endTime - int64(step*len(demoDataMapCPU[demoKey]))
 
 	for index, value := range demoDataMapCPU[demoKey] {
@@ -179,7 +179,7 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *ApiPre
 	demoContainerPrediction.PredictedRawData = append(demoContainerPrediction.PredictedRawData, &demoPredictionDataMem)
 
 	demoPodMetric := ApiPredictions.PodPrediction{
-		NamespacedName:       &tempNamespacedName,
+		ObjectMeta:           FormatResponse.NewObjectMeta(tempObjectMeta),
 		ContainerPredictions: demoContainerPredictionList,
 	}
 	demoPodPredictionList = append(demoPodPredictionList, &demoPodMetric)

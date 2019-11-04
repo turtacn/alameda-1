@@ -19,3 +19,11 @@ type NamespacePodName = name
 
 // NamespacePodContainerName Type alias
 type NamespacePodContainerName = name
+
+type ObjectMeta struct {
+	Name        string
+	Namespace   string
+	NodeName    string
+	ClusterName string
+	Uid         string
+}

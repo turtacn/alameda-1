@@ -43,7 +43,7 @@ func (r *NodeMemoryRepository) CreateMetrics(metrics []*DaoMetricTypes.NodeMetri
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxMetric.NodeName): metricSample.NodeName,
+				string(EntityInfluxMetric.NodeName): metricSample.ObjectMeta.Name,
 			}
 
 			// Pack influx fields
@@ -90,8 +90,8 @@ func (r *NodeMemoryRepository) read(request DaoMetricTypes.ListNodeMetricsReques
 	}
 
 	whereClause := ""
-	for _, value := range request.NodeNames {
-		whereClause += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetric.NodeName, value)
+	for _, objectMeta := range request.ObjectMeta {
+		whereClause += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetric.NodeName, objectMeta.Name)
 	}
 	whereClause = strings.TrimSuffix(whereClause, "OR ")
 	whereClause = "(" + whereClause + ")"
@@ -112,7 +112,7 @@ func (r *NodeMemoryRepository) read(request DaoMetricTypes.ListNodeMetricsReques
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			nodeMetric := DaoMetricTypes.NewNodeMetric()
-			nodeMetric.NodeName = group.Tags[string(EntityInfluxMetric.NodeName)]
+			nodeMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.NodeName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -141,8 +141,8 @@ func (r *NodeMemoryRepository) steps(request DaoMetricTypes.ListNodeMetricsReque
 	}
 
 	whereClause := ""
-	for _, value := range request.NodeNames {
-		whereClause += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetric.NodeName, value)
+	for _, objectMeta := range request.ObjectMeta {
+		whereClause += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetric.NodeName, objectMeta.Name)
 	}
 	whereClause = strings.TrimSuffix(whereClause, "OR ")
 	whereClause = "(" + whereClause + ")"
@@ -164,7 +164,7 @@ func (r *NodeMemoryRepository) steps(request DaoMetricTypes.ListNodeMetricsReque
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			nodeMetric := DaoMetricTypes.NewNodeMetric()
-			nodeMetric.NodeName = group.Tags[string(EntityInfluxMetric.NodeName)]
+			nodeMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.NodeName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {

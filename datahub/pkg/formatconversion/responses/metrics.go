@@ -5,7 +5,6 @@ import (
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiMetrics "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
 type PodMetricExtended struct {
@@ -18,10 +17,7 @@ func (p *PodMetricExtended) ProduceMetrics() *ApiMetrics.PodMetric {
 	)
 
 	datahubPodMetric = ApiMetrics.PodMetric{
-		NamespacedName: &ApiResources.NamespacedName{
-			Namespace: string(p.Namespace),
-			Name:      string(p.PodName),
-		},
+		ObjectMeta: NewObjectMeta(p.ObjectMeta),
 	}
 
 	for _, containerMetric := range p.ContainerMetricMap.MetricMap {
@@ -76,9 +72,8 @@ func (n *NodeMetricExtended) ProduceMetrics() *ApiMetrics.NodeMetric {
 		datahubNodeMetric ApiMetrics.NodeMetric
 	)
 
-	datahubNodeMetric = ApiMetrics.NodeMetric{
-		Name: n.NodeName,
-	}
+	datahubNodeMetric = ApiMetrics.NodeMetric{}
+	datahubNodeMetric.ObjectMeta = NewObjectMeta(n.ObjectMeta)
 
 	for metricType, samples := range n.Metrics {
 		if datahubMetricType, exist := FormatEnum.TypeToDatahubMetricType[metricType]; exist {

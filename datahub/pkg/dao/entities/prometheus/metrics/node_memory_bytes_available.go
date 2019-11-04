@@ -4,6 +4,7 @@ import (
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	K8sMetadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 )
 
@@ -55,7 +56,9 @@ func (e *NodeMemoryBytesAvailableEntity) NodeMetric() DaoMetricTypes.NodeMetric 
 	)
 
 	nodeMetric = DaoMetricTypes.NodeMetric{
-		NodeName: e.NodeName,
+		ObjectMeta: K8sMetadata.ObjectMeta{
+			Name: e.NodeName,
+		},
 		Metrics: map[FormatEnum.MetricType][]FormatTypes.Sample{
 			FormatEnum.MetricTypeMemoryAvailableBytes: e.Samples,
 		},

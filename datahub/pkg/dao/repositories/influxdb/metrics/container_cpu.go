@@ -97,8 +97,8 @@ func (r *ContainerCpuRepository) read(request DaoMetricTypes.ListPodMetricsReque
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodNamespace), "=", request.Namespace)
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodName), "=", request.PodName)
+	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
+	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
 	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
@@ -146,8 +146,8 @@ func (r *ContainerCpuRepository) steps(request DaoMetricTypes.ListPodMetricsRequ
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodNamespace), "=", request.Namespace)
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodName), "=", request.PodName)
+	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
+	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
 	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()

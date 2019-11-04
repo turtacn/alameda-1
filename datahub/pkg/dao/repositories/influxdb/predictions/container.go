@@ -8,18 +8,11 @@ import (
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
-	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
-	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/golang/protobuf/ptypes"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strconv"
-	"strings"
-	"time"
 )
 
 // ContainerRepository Repository to access containers' prediction data
@@ -109,8 +102,8 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerNamespace), "=", request.Namespace)
-	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerPodName), "=", request.PodName)
+	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerNamespace), "=", request.ObjectMeta[0].Namespace)
+	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerPodName), "=", request.ObjectMeta[0].Name)
 	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerModelId), "=", request.ModelId)
 	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerPredictionId), "=", request.PredictionId)
 	statement.AppendWhereClauseDirectly(whereClause)
@@ -154,13 +147,14 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 	return containerPredictionList, nil
 }
 
+/*
 func (r *ContainerRepository) CreateContainerPrediction(in *ApiPredictions.CreatePodPredictionsRequest) error {
 
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, podPrediction := range in.GetPodPredictions() {
-		podNamespace := podPrediction.GetNamespacedName().GetNamespace()
-		podName := podPrediction.GetNamespacedName().GetName()
+		podNamespace := podPrediction.GetObjectMeta().GetNamespace()
+		podName := podPrediction.GetObjectMeta().GetName()
 		//modelId := podPrediction.GetModelId()
 		//predictionId := podPrediction.GetPredictionId()
 		modelId := ""
@@ -313,7 +307,7 @@ func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*InternalIn
 
 			podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
 			podMap[podKey] = &ApiPredictions.PodPrediction{}
-			podMap[podKey].NamespacedName = &ApiResources.NamespacedName{
+			podMap[podKey].ObjectMeta = &ApiResources.ObjectMeta{
 				Namespace: namespace,
 				Name:      podName,
 			}
@@ -357,13 +351,13 @@ func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*InternalIn
 
 		podContainerKindMetricMap[metricKey].Data = podContainerKindMetricSampleMap[metricKey]
 
-		/*if kind == Metric.ContainerMetricKindUpperbound {
-			podContainerMap[podContainerKey].PredictedUpperboundData = append(podContainerMap[podContainerKey].PredictedUpperboundData, podContainerKindMetricMap[metricKey])
-		} else if kind == Metric.ContainerMetricKindLowerbound {
-			podContainerMap[podContainerKey].PredictedLowerboundData = append(podContainerMap[podContainerKey].PredictedLowerboundData, podContainerKindMetricMap[metricKey])
-		} else {
-			podContainerMap[podContainerKey].PredictedRawData = append(podContainerMap[podContainerKey].PredictedRawData, podContainerKindMetricMap[metricKey])
-		}*/
+		//if kind == Metric.ContainerMetricKindUpperbound {
+		//	podContainerMap[podContainerKey].PredictedUpperboundData = append(podContainerMap[podContainerKey].PredictedUpperboundData, podContainerKindMetricMap[metricKey])
+		//} else if kind == Metric.ContainerMetricKindLowerbound {
+		//	podContainerMap[podContainerKey].PredictedLowerboundData = append(podContainerMap[podContainerKey].PredictedLowerboundData, podContainerKindMetricMap[metricKey])
+		//} else {
+		//	podContainerMap[podContainerKey].PredictedRawData = append(podContainerMap[podContainerKey].PredictedRawData, podContainerKindMetricMap[metricKey])
+		//}
 	}
 
 	for k := range podContainerMap {
@@ -424,3 +418,4 @@ func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(request DaoPre
 
 	return whereClause
 }
+*/

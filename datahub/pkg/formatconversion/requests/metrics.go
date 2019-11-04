@@ -30,7 +30,7 @@ func (r *CreateNodeMetricsRequestExtended) ProduceMetrics() DaoMetricTypes.NodeM
 
 	for _, node := range r.GetNodeMetrics() {
 		nodeMetric := DaoMetricTypes.NewNodeMetric()
-		nodeMetric.NodeName = node.GetName()
+		nodeMetric.ObjectMeta = NewObjectMeta(node.GetObjectMeta())
 
 		for _, data := range node.GetMetricData() {
 			metricType := MetricTypeNameMap[data.GetMetricType()]
@@ -70,21 +70,15 @@ func (r *CreatePodMetricsRequestExtended) ProduceMetrics() DaoMetricTypes.PodMet
 	}
 
 	for _, pod := range r.GetPodMetrics() {
-		namespace := pod.GetNamespacedName().GetNamespace()
-		podName := pod.GetNamespacedName().GetName()
-
 		podMetric := DaoMetricTypes.NewPodMetric()
-		podMetric.Namespace = namespace
-		podMetric.PodName = podName
+		podMetric.ObjectMeta = NewObjectMeta(pod.GetObjectMeta())
 		podMetric.RateRange = rateRange
 
 		for _, container := range pod.GetContainerMetrics() {
-			containerName := container.GetName()
-
 			containerMetric := DaoMetricTypes.NewContainerMetric()
-			containerMetric.Namespace = namespace
-			containerMetric.PodName = podName
-			containerMetric.ContainerName = containerName
+			containerMetric.Namespace = podMetric.ObjectMeta.Namespace
+			containerMetric.PodName = podMetric.ObjectMeta.Name
+			containerMetric.ContainerName = container.GetName()
 			containerMetric.RateRange = rateRange
 
 			for _, data := range container.GetMetricData() {
@@ -120,15 +114,14 @@ func (r *ListNodeMetricsRequestExtended) Validate() error {
 }
 
 func (r *ListNodeMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListNodeMetricsRequest {
-	nodeNames := r.Request.GetNodeNames()
-
-	queryCondition := QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
-	listNodeMetricsRequest := DaoMetricTypes.ListNodeMetricsRequest{
-		QueryCondition: queryCondition,
-		NodeNames:      nodeNames,
+	request := DaoMetricTypes.NewListNodeMetricsRequest()
+	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
+	if r.Request.GetObjectMeta() != nil {
+		for _, objectMeta := range r.Request.GetObjectMeta() {
+			request.ObjectMeta = append(request.ObjectMeta, NewObjectMeta(objectMeta))
+		}
 	}
-
-	return listNodeMetricsRequest
+	return request
 }
 
 type ListPodMetricsRequestExtended struct {
@@ -140,26 +133,16 @@ func (r *ListPodMetricsRequestExtended) Validate() error {
 }
 
 func (r *ListPodMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListPodMetricsRequest {
-	namespace := ""
-	podName := ""
-	rateRange := int64(5)
-
-	if r.Request.GetNamespacedName() != nil {
-		namespace = r.Request.GetNamespacedName().GetNamespace()
-		podName = r.Request.GetNamespacedName().GetName()
-	}
-
+	request := DaoMetricTypes.NewListPodMetricsRequest()
+	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
+	request.RateRange = 5
 	if r.Request.GetRateRange() != 0 {
-		rateRange = int64(r.Request.GetRateRange())
+		request.RateRange = int64(r.Request.GetRateRange())
 	}
-
-	queryCondition := QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
-	listPodMetricsRequest := DaoMetricTypes.ListPodMetricsRequest{
-		QueryCondition: queryCondition,
-		Namespace:      namespace,
-		PodName:        podName,
-		RateRange:      rateRange,
+	if r.Request.GetObjectMeta() != nil {
+		for _, objectMeta := range r.Request.GetObjectMeta() {
+			request.ObjectMeta = append(request.ObjectMeta, NewObjectMeta(objectMeta))
+		}
 	}
-
-	return listPodMetricsRequest
+	return request
 }

@@ -39,8 +39,8 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 
 			tags := map[string]string{
 				EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
-				EntityInfluxPlanning.ControllerNamespace:    planningSpec.GetNamespacedName().GetNamespace(),
-				EntityInfluxPlanning.ControllerName:         planningSpec.GetNamespacedName().GetName(),
+				EntityInfluxPlanning.ControllerNamespace:    controllerPlanning.GetObjectMeta().GetNamespace(),
+				EntityInfluxPlanning.ControllerName:         controllerPlanning.GetObjectMeta().GetName(),
 				EntityInfluxPlanning.ControllerType:         ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE.String(),
 			}
 
@@ -48,7 +48,7 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 				EntityInfluxPlanning.ControllerCurrentReplicas: planningSpec.GetCurrentReplicas(),
 				EntityInfluxPlanning.ControllerDesiredReplicas: planningSpec.GetDesiredReplicas(),
 				EntityInfluxPlanning.ControllerCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
-				EntityInfluxPlanning.ControllerKind:            planningSpec.GetKind().String(),
+				EntityInfluxPlanning.ControllerKind:            controllerPlanning.GetKind().String(),
 
 				EntityInfluxPlanning.ControllerCurrentCPURequest: planningSpec.GetCurrentCpuRequests(),
 				EntityInfluxPlanning.ControllerCurrentMEMRequest: planningSpec.GetCurrentMemRequests(),
@@ -71,8 +71,8 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 
 			tags := map[string]string{
 				EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
-				EntityInfluxPlanning.ControllerNamespace:    planningSpec.GetNamespacedName().GetNamespace(),
-				EntityInfluxPlanning.ControllerName:         planningSpec.GetNamespacedName().GetName(),
+				EntityInfluxPlanning.ControllerNamespace:    controllerPlanning.GetObjectMeta().GetNamespace(),
+				EntityInfluxPlanning.ControllerName:         controllerPlanning.GetObjectMeta().GetName(),
 				EntityInfluxPlanning.ControllerType:         ApiPlannings.ControllerPlanningType_CPT_K8S.String(),
 			}
 
@@ -80,7 +80,7 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 				EntityInfluxPlanning.ControllerCurrentReplicas: planningSpec.GetCurrentReplicas(),
 				EntityInfluxPlanning.ControllerDesiredReplicas: planningSpec.GetDesiredReplicas(),
 				EntityInfluxPlanning.ControllerCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
-				EntityInfluxPlanning.ControllerKind:            planningSpec.GetKind().String(),
+				EntityInfluxPlanning.ControllerKind:            controllerPlanning.GetKind().String(),
 			}
 
 			pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
@@ -105,8 +105,8 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 }
 
 func (c *ControllerRepository) ListControllerPlannings(in *ApiPlannings.ListControllerPlanningsRequest) ([]*ApiPlannings.ControllerPlanning, error) {
-	namespace := in.GetNamespacedName().GetNamespace()
-	name := in.GetNamespacedName().GetName()
+	namespace := in.GetObjectMeta()[0].GetNamespace()
+	name := in.GetObjectMeta()[0].GetName()
 	ctlPlanningType := in.GetCtlPlanningType()
 
 	influxdbStatement := InternalInflux.Statement{
@@ -173,20 +173,20 @@ func (c *ControllerRepository) getControllersPlanningsFromInfluxRows(rows []*Int
 
 			if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
 				tempPlanning := &ApiPlannings.ControllerPlanning{
+					ObjectMeta: &ApiResources.ObjectMeta{
+						Name:      data[string(EntityInfluxPlanning.ControllerName)],
+						Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
+					},
+					Kind:            planningKind,
 					PlanningType:    ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
 					CtlPlanningType: ctlPlanningType,
 					CtlPlanningSpec: &ApiPlannings.ControllerPlanningSpec{
-						NamespacedName: &ApiResources.NamespacedName{
-							Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
-							Name:      data[string(EntityInfluxPlanning.ControllerName)],
-						},
 						CurrentReplicas: int32(currentReplicas),
 						DesiredReplicas: int32(desiredReplicas),
 						Time:            tempTime,
 						CreateTime: &timestamp.Timestamp{
 							Seconds: createTime,
 						},
-						Kind:               planningKind,
 						CurrentCpuRequests: currentCpuRequests,
 						CurrentMemRequests: currentMemRequests,
 						CurrentCpuLimits:   currentCpuLimits,
@@ -201,20 +201,20 @@ func (c *ControllerRepository) getControllersPlanningsFromInfluxRows(rows []*Int
 
 			} else if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
 				tempPlanning := &ApiPlannings.ControllerPlanning{
+					ObjectMeta: &ApiResources.ObjectMeta{
+						Name:      data[string(EntityInfluxPlanning.ControllerName)],
+						Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
+					},
+					Kind:            planningKind,
 					PlanningType:    ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
 					CtlPlanningType: ctlPlanningType,
 					CtlPlanningSpecK8S: &ApiPlannings.ControllerPlanningSpecK8S{
-						NamespacedName: &ApiResources.NamespacedName{
-							Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
-							Name:      data[string(EntityInfluxPlanning.ControllerName)],
-						},
 						CurrentReplicas: int32(currentReplicas),
 						DesiredReplicas: int32(desiredReplicas),
 						Time:            tempTime,
 						CreateTime: &timestamp.Timestamp{
 							Seconds: createTime,
 						},
-						Kind: planningKind,
 					},
 				}
 

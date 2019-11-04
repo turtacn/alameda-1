@@ -64,8 +64,8 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *ApiRecommendati
 			//TODO
 		}
 
-		podNS := podRecommendation.GetNamespacedName().GetNamespace()
-		podName := podRecommendation.GetNamespacedName().GetName()
+		podNS := podRecommendation.GetObjectMeta().GetNamespace()
+		podName := podRecommendation.GetObjectMeta().GetName()
 		podTotalCost := podRecommendation.GetTotalCost()
 		containerRecommendations := podRecommendation.GetContainerRecommendations()
 		topController := podRecommendation.GetTopController()
@@ -99,7 +99,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *ApiRecommendati
 			fields := map[string]interface{}{
 				//TODO
 				//string(EntityInfluxRecommend.ContainerPolicy):            "",
-				EntityInfluxRecommend.ContainerTopControllerName: topController.GetNamespacedName().GetName(),
+				EntityInfluxRecommend.ContainerTopControllerName: topController.GetObjectMeta().GetName(),
 				EntityInfluxRecommend.ContainerTopControllerKind: FormatConvert.KindDisp[(topController.GetKind())],
 				EntityInfluxRecommend.ContainerPolicy:            podPolicyValue,
 				EntityInfluxRecommend.ContainerPolicyTime:        podRecommendation.GetAssignPodPolicy().GetTime().GetSeconds(),
@@ -251,8 +251,8 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
 	}
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerNamespace, "=", in.GetNamespacedName().GetNamespace())
-	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetNamespacedName().GetName())
+	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
+	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetObjectMeta()[0].GetName())
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 
@@ -307,8 +307,8 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
 	}
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerNamespace, "=", in.GetNamespacedName().GetNamespace())
-	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetNamespacedName().GetName())
+	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
+	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetObjectMeta()[0].GetName())
 
 	if granularity == 0 || granularity == 30 {
 		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", EntityInfluxRecommend.ContainerGranularity, EntityInfluxRecommend.ContainerGranularity)
@@ -351,7 +351,7 @@ func (c *ContainerRepository) queryRecommendation(cmd string, granularity int64)
 	for _, row := range rows {
 		for _, data := range row.Data {
 			podRecommendation := &ApiRecommendations.PodRecommendation{}
-			podRecommendation.NamespacedName = &ApiResources.NamespacedName{
+			podRecommendation.ObjectMeta = &ApiResources.ObjectMeta{
 				Namespace: data[EntityInfluxRecommend.ContainerNamespace],
 				Name:      data[EntityInfluxRecommend.ContainerPodName],
 			}
@@ -362,8 +362,8 @@ func (c *ContainerRepository) queryRecommendation(cmd string, granularity int64)
 				topControllerKind = val
 			}
 
-			podRecommendation.TopController = &ApiResources.TopController{
-				NamespacedName: &ApiResources.NamespacedName{
+			podRecommendation.TopController = &ApiResources.Controller{
+				ObjectMeta: &ApiResources.ObjectMeta{
 					Namespace: data[EntityInfluxRecommend.ContainerNamespace],
 					Name:      data[EntityInfluxRecommend.ContainerTopControllerName],
 				},
@@ -442,7 +442,7 @@ func (c *ContainerRepository) queryRecommendation(cmd string, granularity int64)
 
 			isPodInList := false
 			for index := range podRecommendations {
-				if podRecommendations[index].NamespacedName.Name == data[EntityInfluxRecommend.ContainerPodName] && podRecommendations[index].NamespacedName.Namespace == data[EntityInfluxRecommend.ContainerNamespace] {
+				if podRecommendations[index].ObjectMeta.Name == data[EntityInfluxRecommend.ContainerPodName] && podRecommendations[index].ObjectMeta.Namespace == data[EntityInfluxRecommend.ContainerNamespace] {
 					if podRecommendations[index].StartTime.Seconds == startTime && podRecommendations[index].EndTime.Seconds == endTime {
 						podRecommendations[index].ContainerRecommendations = append(podRecommendations[index].ContainerRecommendations, containerRecommendation)
 						isPodInList = true
