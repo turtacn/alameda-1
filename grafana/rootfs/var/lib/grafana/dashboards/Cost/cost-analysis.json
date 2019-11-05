@@ -3502,9 +3502,8 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
+          "text": "All",
+          "value": "All"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_fedemeter from recommendation_jeri with key = \"country\"",
