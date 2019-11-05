@@ -55,6 +55,7 @@ message ListPodsResponse {
 message ListControllersRequest {
     common.QueryCondition query_condition = 1;
     repeated ObjectMeta   object_meta     = 2;
+    Kind                  kind            = 3;
 }
 
 message ListControllersResponse {
