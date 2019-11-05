@@ -54,6 +54,7 @@ message ListPodMetricsResponse {
 message ListControllerMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
+    resources.Kind                kind            = 3;
 }
 
 message ListControllerMetricsResponse {

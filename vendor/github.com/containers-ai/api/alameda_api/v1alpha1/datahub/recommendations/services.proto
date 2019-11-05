@@ -57,7 +57,8 @@ message ListPodRecommendationsResponse {
 message ListControllerRecommendationsRequest {
     common.QueryCondition         query_condition  = 1;
     repeated resources.ObjectMeta object_meta      = 2;
-    ControllerRecommendedType     recommended_type = 3;
+    resources.Kind                kind             = 3;
+    ControllerRecommendedType     recommended_type = 4;
 }
 
 // Represents a response for listing controller recommendations request

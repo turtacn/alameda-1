@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.metrics',
   syntax='proto3',
   serialized_options=_b('ZAgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics'),
-  serialized_pb=_b('\n3alameda_api/v1alpha1/datahub/metrics/services.proto\x12-containersai.alameda.v1alpha1.datahub.metrics\x1a\x31\x61lameda_api/v1alpha1/datahub/common/queries.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/metrics/metrics.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x17google/rpc/status.proto\"|\n\x17\x43reatePodMetricsRequest\x12M\n\x0bpod_metrics\x18\x01 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.metrics.PodMetric\x12\x12\n\nrate_range\x18\x02 \x01(\x04\"}\n\x1e\x43reateControllerMetricsRequest\x12[\n\x12\x63ontroller_metrics\x18\x01 \x03(\x0b\x32?.containersai.alameda.v1alpha1.datahub.metrics.ControllerMetric\"\x80\x01\n\x1f\x43reateApplicationMetricsRequest\x12]\n\x13\x61pplication_metrics\x18\x01 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.metrics.ApplicationMetric\"z\n\x1d\x43reateNamespaceMetricsRequest\x12Y\n\x11namespace_metrics\x18\x01 \x03(\x0b\x32>.containersai.alameda.v1alpha1.datahub.metrics.NamespaceMetric\"k\n\x18\x43reateNodeMetricsRequest\x12O\n\x0cnode_metrics\x18\x01 \x03(\x0b\x32\x39.containersai.alameda.v1alpha1.datahub.metrics.NodeMetric\"t\n\x1b\x43reateClusterMetricsRequest\x12U\n\x0f\x63luster_metrics\x18\x01 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.metrics.ClusterMetric\"\xd4\x01\n\x15ListPodMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x12\n\nrate_range\x18\x03 \x01(\x04\"\x8b\x01\n\x16ListPodMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12M\n\x0bpod_metrics\x18\x02 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.metrics.PodMetric\"\xc7\x01\n\x1cListControllerMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\xa0\x01\n\x1dListControllerMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12[\n\x12\x63ontroller_metrics\x18\x02 \x03(\x0b\x32?.containersai.alameda.v1alpha1.datahub.metrics.ControllerMetric\"\xc8\x01\n\x1dListApplicationMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\xa3\x01\n\x1eListApplicationMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12]\n\x13\x61pplication_metrics\x18\x02 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.metrics.ApplicationMetric\"\xc6\x01\n\x1bListNamespaceMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\x9d\x01\n\x1cListNamespaceMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12Y\n\x11namespace_metrics\x18\x02 \x03(\x0b\x32>.containersai.alameda.v1alpha1.datahub.metrics.NamespaceMetric\"\xc1\x01\n\x16ListNodeMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\x8e\x01\n\x17ListNodeMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12O\n\x0cnode_metrics\x18\x02 \x03(\x0b\x32\x39.containersai.alameda.v1alpha1.datahub.metrics.NodeMetric\"\xc4\x01\n\x19ListClusterMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\x97\x01\n\x1aListClusterMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12U\n\x0f\x63luster_metrics\x18\x02 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.metrics.ClusterMetricBCZAgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/metricsb\x06proto3')
+  serialized_pb=_b('\n3alameda_api/v1alpha1/datahub/metrics/services.proto\x12-containersai.alameda.v1alpha1.datahub.metrics\x1a\x31\x61lameda_api/v1alpha1/datahub/common/queries.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/metrics/metrics.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x17google/rpc/status.proto\"|\n\x17\x43reatePodMetricsRequest\x12M\n\x0bpod_metrics\x18\x01 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.metrics.PodMetric\x12\x12\n\nrate_range\x18\x02 \x01(\x04\"}\n\x1e\x43reateControllerMetricsRequest\x12[\n\x12\x63ontroller_metrics\x18\x01 \x03(\x0b\x32?.containersai.alameda.v1alpha1.datahub.metrics.ControllerMetric\"\x80\x01\n\x1f\x43reateApplicationMetricsRequest\x12]\n\x13\x61pplication_metrics\x18\x01 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.metrics.ApplicationMetric\"z\n\x1d\x43reateNamespaceMetricsRequest\x12Y\n\x11namespace_metrics\x18\x01 \x03(\x0b\x32>.containersai.alameda.v1alpha1.datahub.metrics.NamespaceMetric\"k\n\x18\x43reateNodeMetricsRequest\x12O\n\x0cnode_metrics\x18\x01 \x03(\x0b\x32\x39.containersai.alameda.v1alpha1.datahub.metrics.NodeMetric\"t\n\x1b\x43reateClusterMetricsRequest\x12U\n\x0f\x63luster_metrics\x18\x01 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.metrics.ClusterMetric\"\xd4\x01\n\x15ListPodMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x12\n\nrate_range\x18\x03 \x01(\x04\"\x8b\x01\n\x16ListPodMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12M\n\x0bpod_metrics\x18\x02 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.metrics.PodMetric\"\x8c\x02\n\x1cListControllerMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\"\xa0\x01\n\x1dListControllerMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12[\n\x12\x63ontroller_metrics\x18\x02 \x03(\x0b\x32?.containersai.alameda.v1alpha1.datahub.metrics.ControllerMetric\"\xc8\x01\n\x1dListApplicationMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\xa3\x01\n\x1eListApplicationMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12]\n\x13\x61pplication_metrics\x18\x02 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.metrics.ApplicationMetric\"\xc6\x01\n\x1bListNamespaceMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\x9d\x01\n\x1cListNamespaceMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12Y\n\x11namespace_metrics\x18\x02 \x03(\x0b\x32>.containersai.alameda.v1alpha1.datahub.metrics.NamespaceMetric\"\xc1\x01\n\x16ListNodeMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\x8e\x01\n\x17ListNodeMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12O\n\x0cnode_metrics\x18\x02 \x03(\x0b\x32\x39.containersai.alameda.v1alpha1.datahub.metrics.NodeMetric\"\xc4\x01\n\x19ListClusterMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\x97\x01\n\x1aListClusterMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12U\n\x0f\x63luster_metrics\x18\x02 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.metrics.ClusterMetricBCZAgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/metricsb\x06proto3')
   ,
   dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_metrics_dot_metrics__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
@@ -328,6 +328,13 @@ _LISTCONTROLLERMETRICSREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.metrics.ListControllerMetricsRequest.kind', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -341,7 +348,7 @@ _LISTCONTROLLERMETRICSREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1378,
-  serialized_end=1577,
+  serialized_end=1646,
 )
 
 
@@ -378,8 +385,8 @@ _LISTCONTROLLERMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1580,
-  serialized_end=1740,
+  serialized_start=1649,
+  serialized_end=1809,
 )
 
 
@@ -416,8 +423,8 @@ _LISTAPPLICATIONMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1743,
-  serialized_end=1943,
+  serialized_start=1812,
+  serialized_end=2012,
 )
 
 
@@ -454,8 +461,8 @@ _LISTAPPLICATIONMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1946,
-  serialized_end=2109,
+  serialized_start=2015,
+  serialized_end=2178,
 )
 
 
@@ -492,8 +499,8 @@ _LISTNAMESPACEMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2112,
-  serialized_end=2310,
+  serialized_start=2181,
+  serialized_end=2379,
 )
 
 
@@ -530,8 +537,8 @@ _LISTNAMESPACEMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2313,
-  serialized_end=2470,
+  serialized_start=2382,
+  serialized_end=2539,
 )
 
 
@@ -568,8 +575,8 @@ _LISTNODEMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2473,
-  serialized_end=2666,
+  serialized_start=2542,
+  serialized_end=2735,
 )
 
 
@@ -606,8 +613,8 @@ _LISTNODEMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2669,
-  serialized_end=2811,
+  serialized_start=2738,
+  serialized_end=2880,
 )
 
 
@@ -644,8 +651,8 @@ _LISTCLUSTERMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2814,
-  serialized_end=3010,
+  serialized_start=2883,
+  serialized_end=3079,
 )
 
 
@@ -682,8 +689,8 @@ _LISTCLUSTERMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3013,
-  serialized_end=3164,
+  serialized_start=3082,
+  serialized_end=3233,
 )
 
 _CREATEPODMETRICSREQUEST.fields_by_name['pod_metrics'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metrics_dot_metrics__pb2._PODMETRIC
@@ -698,6 +705,7 @@ _LISTPODMETRICSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_d
 _LISTPODMETRICSRESPONSE.fields_by_name['pod_metrics'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metrics_dot_metrics__pb2._PODMETRIC
 _LISTCONTROLLERMETRICSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTCONTROLLERMETRICSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_LISTCONTROLLERMETRICSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
 _LISTCONTROLLERMETRICSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTCONTROLLERMETRICSRESPONSE.fields_by_name['controller_metrics'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_metrics_dot_metrics__pb2._CONTROLLERMETRIC
 _LISTAPPLICATIONMETRICSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION

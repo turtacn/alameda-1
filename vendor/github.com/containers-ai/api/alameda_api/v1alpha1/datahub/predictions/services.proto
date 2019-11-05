@@ -56,9 +56,10 @@ message ListPodPredictionsResponse {
 message ListControllerPredictionsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
-    int64                         granularity     = 3;
-    string                        model_id        = 4;
-    string                        prediction_id   = 5;
+    resources.Kind                kind            = 3;
+    int64                         granularity     = 4;
+    string                        model_id        = 5;
+    string                        prediction_id   = 6;
 }
 
 message ListControllerPredictionsResponse {

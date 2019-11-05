@@ -23,7 +23,8 @@ message PodMetric {
 
 message ControllerMetric  {
     resources.ObjectMeta       object_meta = 1;
-    repeated common.MetricData metric_data = 2;
+    resources.Kind             kind        = 2;
+    repeated common.MetricData metric_data = 3;
 }
 
 message ApplicationMetric  {

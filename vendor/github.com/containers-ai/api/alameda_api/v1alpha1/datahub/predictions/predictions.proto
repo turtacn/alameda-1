@@ -25,9 +25,10 @@ message PodPrediction {
 
 message ControllerPrediction  {
     resources.ObjectMeta object_meta               = 1;
-    repeated MetricData  predicted_raw_data        = 2;
-    repeated MetricData  predicted_upperbound_data = 3;
-    repeated MetricData  predicted_lowerbound_data = 4;
+    resources.Kind       kind                      = 2;
+    repeated MetricData  predicted_raw_data        = 3;
+    repeated MetricData  predicted_upperbound_data = 4;
+    repeated MetricData  predicted_lowerbound_data = 5;
 }
 
 message ApplicationPrediction  {

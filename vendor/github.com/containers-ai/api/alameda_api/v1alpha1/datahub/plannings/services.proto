@@ -58,8 +58,9 @@ message ListPodPlanningsResponse {
 message ListControllerPlanningsRequest {
     common.QueryCondition         query_condition   = 1;
     repeated resources.ObjectMeta object_meta       = 2;
-    ControllerPlanningType        ctl_planning_type = 3;
-    PlanningType                  planning_type     = 4;
+    resources.Kind                kind              = 3;
+    ControllerPlanningType        ctl_planning_type = 4;
+    PlanningType                  planning_type     = 5;
 }
 
 // Represents a response for listing controller plannings request

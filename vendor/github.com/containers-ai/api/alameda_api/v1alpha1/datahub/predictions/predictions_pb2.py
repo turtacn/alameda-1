@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.predictions',
   syntax='proto3',
   serialized_options=_b('ZEgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions'),
-  serialized_pb=_b('\n:alameda_api/v1alpha1/datahub/predictions/predictions.proto\x12\x31\x63ontainersai.alameda.v1alpha1.datahub.predictions\x1a\x34\x61lameda_api/v1alpha1/datahub/predictions/types.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\"\xc2\x02\n\x13\x43ontainerPrediction\x12\x0c\n\x04name\x18\x01 \x01(\t\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\xc8\x01\n\rPodPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x65\n\x15\x63ontainer_predictions\x18\x02 \x03(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.predictions.ContainerPrediction\"\x87\x03\n\x14\x43ontrollerPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x88\x03\n\x15\x41pplicationPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x86\x03\n\x13NamespacePrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x97\x03\n\x0eNodePrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x14\n\x0cis_scheduled\x18\x02 \x01(\x08\x12Y\n\x12predicted_raw_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x05 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x84\x03\n\x11\x43lusterPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricDataBGZEgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictionsb\x06proto3')
+  serialized_pb=_b('\n:alameda_api/v1alpha1/datahub/predictions/predictions.proto\x12\x31\x63ontainersai.alameda.v1alpha1.datahub.predictions\x1a\x34\x61lameda_api/v1alpha1/datahub/predictions/types.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\"\xc2\x02\n\x13\x43ontainerPrediction\x12\x0c\n\x04name\x18\x01 \x01(\t\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\xc8\x01\n\rPodPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x65\n\x15\x63ontainer_predictions\x18\x02 \x03(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.predictions.ContainerPrediction\"\xcc\x03\n\x14\x43ontrollerPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12Y\n\x12predicted_raw_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x05 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x88\x03\n\x15\x41pplicationPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x86\x03\n\x13NamespacePrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x97\x03\n\x0eNodePrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x14\n\x0cis_scheduled\x18\x02 \x01(\x08\x12Y\n\x12predicted_raw_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x05 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\"\x84\x03\n\x11\x43lusterPrediction\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12Y\n\x12predicted_raw_data\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_upperbound_data\x18\x03 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricData\x12`\n\x19predicted_lowerbound_data\x18\x04 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.predictions.MetricDataBGZEgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictionsb\x06proto3')
   ,
   dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_predictions_dot_types__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,])
 
@@ -134,22 +134,29 @@ _CONTROLLERPREDICTION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='predicted_raw_data', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.predicted_raw_data', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.kind', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='predicted_upperbound_data', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.predicted_upperbound_data', index=2,
+      name='predicted_raw_data', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.predicted_raw_data', index=2,
       number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='predicted_lowerbound_data', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.predicted_lowerbound_data', index=3,
+      name='predicted_upperbound_data', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.predicted_upperbound_data', index=3,
       number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='predicted_lowerbound_data', full_name='containersai.alameda.v1alpha1.datahub.predictions.ControllerPrediction.predicted_lowerbound_data', index=4,
+      number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -167,7 +174,7 @@ _CONTROLLERPREDICTION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=751,
-  serialized_end=1142,
+  serialized_end=1211,
 )
 
 
@@ -218,8 +225,8 @@ _APPLICATIONPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1145,
-  serialized_end=1537,
+  serialized_start=1214,
+  serialized_end=1606,
 )
 
 
@@ -270,8 +277,8 @@ _NAMESPACEPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1540,
-  serialized_end=1930,
+  serialized_start=1609,
+  serialized_end=1999,
 )
 
 
@@ -329,8 +336,8 @@ _NODEPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1933,
-  serialized_end=2340,
+  serialized_start=2002,
+  serialized_end=2409,
 )
 
 
@@ -381,8 +388,8 @@ _CLUSTERPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2343,
-  serialized_end=2731,
+  serialized_start=2412,
+  serialized_end=2800,
 )
 
 _CONTAINERPREDICTION.fields_by_name['predicted_raw_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_predictions_dot_types__pb2._METRICDATA
@@ -391,6 +398,7 @@ _CONTAINERPREDICTION.fields_by_name['predicted_lowerbound_data'].message_type = 
 _PODPREDICTION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _PODPREDICTION.fields_by_name['container_predictions'].message_type = _CONTAINERPREDICTION
 _CONTROLLERPREDICTION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_CONTROLLERPREDICTION.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
 _CONTROLLERPREDICTION.fields_by_name['predicted_raw_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_predictions_dot_types__pb2._METRICDATA
 _CONTROLLERPREDICTION.fields_by_name['predicted_upperbound_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_predictions_dot_types__pb2._METRICDATA
 _CONTROLLERPREDICTION.fields_by_name['predicted_lowerbound_data'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_predictions_dot_types__pb2._METRICDATA
