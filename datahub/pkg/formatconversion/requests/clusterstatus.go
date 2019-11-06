@@ -17,8 +17,12 @@ func (r *CreateApplicationsRequestExtended) ProduceApplications() []*DaoClusterT
 	applications := make([]*DaoClusterTypes.Application, 0)
 
 	for _, app := range r.GetApplications() {
+		// Normalize request
+		objectMeta := NewObjectMeta(app.GetObjectMeta())
+		objectMeta.NodeName = ""
+
 		application := DaoClusterTypes.NewApplication()
-		application.ObjectMeta = NewObjectMeta(app.GetObjectMeta())
+		application.ObjectMeta = objectMeta
 		applications = append(applications, application)
 	}
 
@@ -37,7 +41,10 @@ func (r *ListApplicationsRequestExtended) ProduceRequest() DaoClusterTypes.ListA
 	request := DaoClusterTypes.NewListApplicationsRequest()
 	if r.GetObjectMeta() != nil {
 		for _, meta := range r.GetObjectMeta() {
+			// Normalize request
 			objectMeta := NewObjectMeta(meta)
+			objectMeta.NodeName = ""
+
 			if objectMeta.IsEmpty() {
 				return DaoClusterTypes.NewListApplicationsRequest()
 			}

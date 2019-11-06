@@ -33,7 +33,6 @@ func (c *ApplicationRepository) CreateApplications(applications []*DaoClusterTyp
 		tags := map[string]string{
 			string(EntityInfluxCluster.ApplicationName):        application.ObjectMeta.Name,
 			string(EntityInfluxCluster.ApplicationNamespace):   application.ObjectMeta.Namespace,
-			string(EntityInfluxCluster.ApplicationNodeName):    application.ObjectMeta.NodeName,
 			string(EntityInfluxCluster.ApplicationClusterName): application.ObjectMeta.ClusterName,
 			string(EntityInfluxCluster.ApplicationUid):         application.ObjectMeta.Uid,
 		}
@@ -70,7 +69,7 @@ func (c *ApplicationRepository) ListApplications(request DaoClusterTypes.ListApp
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Application,
-		GroupByTags:    []string{string(EntityInfluxCluster.ApplicationNodeName), string(EntityInfluxCluster.ApplicationClusterName)},
+		GroupByTags:    []string{string(EntityInfluxCluster.ApplicationClusterName)},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
