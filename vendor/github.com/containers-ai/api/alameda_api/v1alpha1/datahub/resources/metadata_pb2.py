@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.resources',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources'),
-  serialized_pb=_b('\n5alameda_api/v1alpha1/datahub/resources/metadata.proto\x12/containersai.alameda.v1alpha1.datahub.resources\"c\n\nObjectMeta\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tnode_name\x18\x03 \x01(\t\x12\x14\n\x0c\x63luster_name\x18\x04 \x01(\t\x12\x0b\n\x03uid\x18\x05 \x01(\t\"\xa7\x01\n\x0eOwnerReference\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind*Y\n\x04Kind\x12\x07\n\x03POD\x10\x00\x12\x0e\n\nDEPLOYMENT\x10\x01\x12\x14\n\x10\x44\x45PLOYMENTCONFIG\x10\x02\x12\x11\n\rALAMEDASCALER\x10\x03\x12\x0f\n\x0bSTATEFULSET\x10\x04\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
+  serialized_pb=_b('\n5alameda_api/v1alpha1/datahub/resources/metadata.proto\x12/containersai.alameda.v1alpha1.datahub.resources\"c\n\nObjectMeta\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tnode_name\x18\x03 \x01(\t\x12\x14\n\x0c\x63luster_name\x18\x04 \x01(\t\x12\x0b\n\x03uid\x18\x05 \x01(\t\"\xa7\x01\n\x0eOwnerReference\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind*Y\n\x04Kind\x12\x07\n\x03POD\x10\x00\x12\x0e\n\nDEPLOYMENT\x10\x01\x12\x14\n\x10\x44\x45PLOYMENTCONFIG\x10\x02\x12\x11\n\rALAMEDASCALER\x10\x03\x12\x0f\n\x0bSTATEFULSET\x10\x04*l\n\x0bScalingTool\x12\x1a\n\x16SCALING_TOOL_UNDEFINED\x10\x00\x12\x15\n\x11SCALING_TOOL_NONE\x10\x01\x12\x14\n\x10SCALING_TOOL_VPA\x10\x02\x12\x14\n\x10SCALING_TOOL_HPA\x10\x03\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
 )
 
 _KIND = _descriptor.EnumDescriptor(
@@ -59,11 +59,46 @@ _KIND = _descriptor.EnumDescriptor(
 _sym_db.RegisterEnumDescriptor(_KIND)
 
 Kind = enum_type_wrapper.EnumTypeWrapper(_KIND)
+_SCALINGTOOL = _descriptor.EnumDescriptor(
+  name='ScalingTool',
+  full_name='containersai.alameda.v1alpha1.datahub.resources.ScalingTool',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SCALING_TOOL_UNDEFINED', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SCALING_TOOL_NONE', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SCALING_TOOL_VPA', index=2, number=2,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SCALING_TOOL_HPA', index=3, number=3,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=468,
+  serialized_end=576,
+)
+_sym_db.RegisterEnumDescriptor(_SCALINGTOOL)
+
+ScalingTool = enum_type_wrapper.EnumTypeWrapper(_SCALINGTOOL)
 POD = 0
 DEPLOYMENT = 1
 DEPLOYMENTCONFIG = 2
 ALAMEDASCALER = 3
 STATEFULSET = 4
+SCALING_TOOL_UNDEFINED = 0
+SCALING_TOOL_NONE = 1
+SCALING_TOOL_VPA = 2
+SCALING_TOOL_HPA = 3
 
 
 
@@ -168,6 +203,7 @@ _OWNERREFERENCE.fields_by_name['kind'].enum_type = _KIND
 DESCRIPTOR.message_types_by_name['ObjectMeta'] = _OBJECTMETA
 DESCRIPTOR.message_types_by_name['OwnerReference'] = _OWNERREFERENCE
 DESCRIPTOR.enum_types_by_name['Kind'] = _KIND
+DESCRIPTOR.enum_types_by_name['ScalingTool'] = _SCALINGTOOL
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ObjectMeta = _reflection.GeneratedProtocolMessageType('ObjectMeta', (_message.Message,), {

@@ -14,13 +14,13 @@ message AlamedaPodSpec {
     RecommendationPolicy policy                   = 2;
     string               used_recommendation_id   = 3;
     ResourceRequirements alameda_scaler_resources = 4;
-    bool                 enable_VPA               = 5;
-    bool                 enable_HPA               = 6;
+    ScalingTool          scaling_tool             = 5;
 }
 
 message AlamedaControllerSpec {
-    RecommendationPolicy policy                          = 1;
-    bool                 enable_recommendation_execution = 2;
+    ObjectMeta           alameda_scaler                  = 1;
+    RecommendationPolicy policy                          = 2;
+    bool                 enable_recommendation_execution = 3;
 }
 
 message AlamedaNodeSpec {

@@ -39,11 +39,10 @@ message CreateClustersRequest {
 
 // Represents a request for listing pods that need to be predicted
 message ListPodsRequest {
-    common.TimeRange    time_range  = 1;
-    repeated ObjectMeta object_meta = 2;
-    Kind                kind        = 3;
-    bool                enable_VPA  = 4;
-    bool                enable_HPA  = 5;
+    common.TimeRange    time_range   = 1;
+    repeated ObjectMeta object_meta  = 2;
+    Kind                kind         = 3;
+    ScalingTool         scaling_tool = 4;
 }
 
 // Represents a response for a listing pods request
@@ -104,14 +103,23 @@ message ListClustersResponse {
 
 // Represents a request for deleting pods data
 message DeletePodsRequest {
-    repeated Pod pods = 1;
+    repeated ObjectMeta object_meta = 1;
 }
 
 message DeleteControllersRequest {
-    repeated Controller controllers = 1;
+    repeated ObjectMeta object_meta = 1;
+    Kind                kind        = 2;
 }
 
-// Represents a request for stoping predicting nodes
+message DeleteApplicationsRequest {
+    repeated ObjectMeta object_meta = 1;
+}
+
+message DeleteNamespacesRequest {
+    repeated ObjectMeta object_meta = 1;
+}
+
+// Represents a request for stopping predicting nodes
 message DeleteNodesRequest {
-    repeated Node nodes = 1;
+    repeated ObjectMeta object_meta = 1;
 }
