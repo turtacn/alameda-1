@@ -111,14 +111,14 @@ func (c *ControllerRepository) ListControllerRecommendations(in *ApiRecommendati
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ControllerNamespace, "=", namespace)
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ControllerName, "=", name)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ControllerNamespace, "=", namespace)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ControllerName, "=", name)
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 
 	if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_Undefined {
-		influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ControllerType, "=", recommendationType.String())
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ControllerType, "=", recommendationType.String())
 	}
 
 	cmd := influxdbStatement.BuildQueryCmd()

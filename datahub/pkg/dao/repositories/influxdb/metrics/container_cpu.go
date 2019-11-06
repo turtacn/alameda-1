@@ -97,9 +97,9 @@ func (r *ContainerCpuRepository) read(request DaoMetricTypes.ListPodMetricsReque
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
+	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
+	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
+	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -146,9 +146,9 @@ func (r *ContainerCpuRepository) steps(request DaoMetricTypes.ListPodMetricsRequ
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
-	statement.AppendWhereClause(string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
+	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodNamespace), "=", request.ObjectMeta[0].Namespace)
+	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerPodName), "=", request.ObjectMeta[0].Name)
+	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ContainerValue))

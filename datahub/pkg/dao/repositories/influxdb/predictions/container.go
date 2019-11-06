@@ -102,11 +102,11 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerNamespace), "=", request.ObjectMeta[0].Namespace)
-	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerPodName), "=", request.ObjectMeta[0].Name)
-	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerModelId), "=", request.ModelId)
-	statement.AppendWhereClause(string(EntityInfluxPrediction.ContainerPredictionId), "=", request.PredictionId)
-	statement.AppendWhereClauseDirectly(whereClause)
+	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerNamespace), "=", request.ObjectMeta[0].Namespace)
+	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerPodName), "=", request.ObjectMeta[0].Name)
+	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerModelId), "=", request.ModelId)
+	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerPredictionId), "=", request.PredictionId)
+	statement.AppendWhereClauseDirectly("AND", whereClause)
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()

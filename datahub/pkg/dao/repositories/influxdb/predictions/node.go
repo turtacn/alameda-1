@@ -75,8 +75,8 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause(string(EntityInfluxPrediction.NodeModelId), "=", request.ModelId)
-	statement.AppendWhereClause(string(EntityInfluxPrediction.NodePredictionId), "=", request.PredictionId)
+	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NodeModelId), "=", request.ModelId)
+	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NodePredictionId), "=", request.PredictionId)
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()

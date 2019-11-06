@@ -54,15 +54,15 @@ func NewStatement(query *Common.Query) *Statement {
 	return &statement
 }
 
-func (s *Statement) AppendWhereClause(key string, operator string, value string) {
+func (s *Statement) AppendWhereClause(operator, key, op, value string) {
 	if value == "" {
 		return
 	}
 
 	if s.WhereClause == "" {
-		s.WhereClause += fmt.Sprintf("WHERE \"%s\"%s'%s' ", key, operator, value)
+		s.WhereClause += fmt.Sprintf("WHERE \"%s\"%s'%s' ", key, op, value)
 	} else {
-		s.WhereClause += fmt.Sprintf("AND \"%s\"%s'%s' ", key, operator, value)
+		s.WhereClause += fmt.Sprintf("%s \"%s\"%s'%s' ", operator, key, op, value)
 	}
 }
 
@@ -85,7 +85,7 @@ func (s *Statement) AppendWhereClauseByList(key string, operator string, listOpe
 	}
 }
 
-func (s *Statement) AppendWhereClauseDirectly(condition string) {
+func (s *Statement) AppendWhereClauseDirectly(operator, condition string) {
 	if condition == "" {
 		return
 	}
@@ -93,7 +93,7 @@ func (s *Statement) AppendWhereClauseDirectly(condition string) {
 	if s.WhereClause == "" {
 		s.WhereClause += fmt.Sprintf("WHERE %s ", condition)
 	} else {
-		s.WhereClause += fmt.Sprintf("AND %s ", condition)
+		s.WhereClause += fmt.Sprintf("%s %s ", operator, condition)
 	}
 }
 
@@ -148,6 +148,16 @@ func (s *Statement) SetLimitClauseFromQueryCondition() {
 	if limit > 0 {
 		s.LimitClause = fmt.Sprintf("LIMIT %v", limit)
 	}
+}
+
+func (s *Statement) GenerateCondition(keyList, valueList []string, op string) string {
+	condition := ""
+	for i := 0; i < len(keyList); i++ {
+		condition += fmt.Sprintf("\"%s\"='%s' %s ", keyList[i], valueList[i], op)
+	}
+	condition = strings.TrimSuffix(condition, fmt.Sprintf("%s ", op))
+	condition = "(" + condition + ")"
+	return condition
 }
 
 func (s *Statement) BuildQueryCmd() string {

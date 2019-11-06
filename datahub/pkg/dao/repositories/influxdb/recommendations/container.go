@@ -251,21 +251,21 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
 	}
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
-	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetObjectMeta()[0].GetName())
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
+	influxdbStatement.AppendWhereClause("AND", nameCol, "=", in.GetObjectMeta()[0].GetName())
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 
 	if kind != ApiResources.Kind_POD {
 		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerTopControllerKind, FormatConvert.KindDisp[kind])
-		influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerTopControllerKind, "=", kindConditionStr)
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ContainerTopControllerKind, "=", kindConditionStr)
 	}
 
 	if granularity == 0 || granularity == 30 {
 		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", EntityInfluxRecommend.ContainerGranularity, EntityInfluxRecommend.ContainerGranularity)
-		influxdbStatement.AppendWhereClauseDirectly(tempCondition)
+		influxdbStatement.AppendWhereClauseDirectly("AND", tempCondition)
 	} else {
-		influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
 	}
 
 	influxdbStatement.SetOrderClauseFromQueryCondition()
@@ -307,14 +307,14 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 	default:
 		return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
 	}
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
-	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetObjectMeta()[0].GetName())
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
+	influxdbStatement.AppendWhereClause("AND", nameCol, "=", in.GetObjectMeta()[0].GetName())
 
 	if granularity == 0 || granularity == 30 {
 		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", EntityInfluxRecommend.ContainerGranularity, EntityInfluxRecommend.ContainerGranularity)
-		influxdbStatement.AppendWhereClauseDirectly(tempCondition)
+		influxdbStatement.AppendWhereClauseDirectly("AND", tempCondition)
 	} else {
-		influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
 	}
 
 	whereStrTime := ""
@@ -322,7 +322,7 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 	if applyTime > 0 {
 		whereStrTime = fmt.Sprintf(" \"end_time\">=%d AND \"start_time\"<=%d", applyTime, applyTime)
 	}
-	influxdbStatement.AppendWhereClauseDirectly(whereStrTime)
+	influxdbStatement.AppendWhereClauseDirectly("AND", whereStrTime)
 
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()

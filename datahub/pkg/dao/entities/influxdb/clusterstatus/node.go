@@ -168,7 +168,7 @@ func (e NodeEntity) BuildDatahubNode() *ApiResources.Node {
 	node := &ApiResources.Node{
 		ObjectMeta: &ApiResources.ObjectMeta{},
 		Capacity:   &ApiResources.Capacity{},
-		AlamedaNodeSpcec: &ApiResources.AlamedaNodeSpec{
+		AlamedaNodeSpec: &ApiResources.AlamedaNodeSpec{
 			Provider: &ApiResources.Provider{},
 		},
 	}
@@ -183,28 +183,28 @@ func (e NodeEntity) BuildDatahubNode() *ApiResources.Node {
 		node.Capacity.MemoryBytes = *e.MemoryBytes
 	}
 	if e.IOProvider != nil {
-		node.AlamedaNodeSpcec.Provider.Provider = *e.IOProvider
+		node.AlamedaNodeSpec.Provider.Provider = *e.IOProvider
 	}
 	if e.IOInstanceType != nil {
-		node.AlamedaNodeSpcec.Provider.InstanceType = *e.IOInstanceType
+		node.AlamedaNodeSpec.Provider.InstanceType = *e.IOInstanceType
 	}
 	if e.IORegion != nil {
-		node.AlamedaNodeSpcec.Provider.Region = *e.IORegion
+		node.AlamedaNodeSpec.Provider.Region = *e.IORegion
 	}
 	if e.IOZone != nil {
-		node.AlamedaNodeSpcec.Provider.Zone = *e.IOZone
+		node.AlamedaNodeSpec.Provider.Zone = *e.IOZone
 	}
 	if e.IOOS != nil {
-		node.AlamedaNodeSpcec.Provider.Os = *e.IOOS
+		node.AlamedaNodeSpec.Provider.Os = *e.IOOS
 	}
 	if e.IORole != nil {
-		node.AlamedaNodeSpcec.Provider.Role = *e.IORole
+		node.AlamedaNodeSpec.Provider.Role = *e.IORole
 	}
 	if e.IOInstanceID != nil {
-		node.AlamedaNodeSpcec.Provider.InstanceId = *e.IOInstanceID
+		node.AlamedaNodeSpec.Provider.InstanceId = *e.IOInstanceID
 	}
 	if e.IOStorageSize != nil {
-		node.AlamedaNodeSpcec.Provider.StorageSize = *e.IOStorageSize
+		node.AlamedaNodeSpec.Provider.StorageSize = *e.IOStorageSize
 	}
 
 	return node

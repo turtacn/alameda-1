@@ -98,7 +98,7 @@ func (r *NodeCpuRepository) read(request DaoMetricTypes.ListNodeMetricsRequest) 
 	whereClause = "(" + whereClause + ")"
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClauseDirectly(whereClause)
+	statement.AppendWhereClauseDirectly("AND", whereClause)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -150,7 +150,7 @@ func (r *NodeCpuRepository) steps(request DaoMetricTypes.ListNodeMetricsRequest)
 	whereClause = "(" + whereClause + ")"
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClauseDirectly(whereClause)
+	statement.AppendWhereClauseDirectly("AND", whereClause)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.NodeValue))

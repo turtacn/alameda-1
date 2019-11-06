@@ -52,7 +52,7 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*ApiResourc
 			entity.CPUCores = &nodeCapacity.CpuCores
 			entity.MemoryBytes = &nodeCapacity.MemoryBytes
 		}
-		if nodeProvider := alamedaNode.GetAlamedaNodeSpcec().GetProvider(); nodeProvider != nil {
+		if nodeProvider := alamedaNode.GetAlamedaNodeSpec().GetProvider(); nodeProvider != nil {
 			entity.IOProvider = &nodeProvider.Provider
 			entity.IOInstanceType = &nodeProvider.InstanceType
 			entity.IORegion = &nodeProvider.Region

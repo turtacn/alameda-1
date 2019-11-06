@@ -252,21 +252,21 @@ func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPla
 	default:
 		return podPlannings, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
 	}
-	influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
-	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetObjectMeta()[0].GetName())
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ContainerNamespace, "=", in.GetObjectMeta()[0].GetNamespace())
+	influxdbStatement.AppendWhereClause("AND", nameCol, "=", in.GetObjectMeta()[0].GetName())
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 
 	if kind != ApiResources.Kind_POD {
 		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", EntityInfluxPlanning.ContainerTopControllerKind, FormatConvert.KindDisp[kind])
-		influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ContainerTopControllerKind, "=", kindConditionStr)
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ContainerTopControllerKind, "=", kindConditionStr)
 	}
 
 	if granularity == 0 || granularity == 30 {
 		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", EntityInfluxPlanning.ContainerGranularity, EntityInfluxPlanning.ContainerGranularity)
-		influxdbStatement.AppendWhereClauseDirectly(tempCondition)
+		influxdbStatement.AppendWhereClauseDirectly("AND", tempCondition)
 	} else {
-		influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
 	}
 
 	influxdbStatement.SetOrderClauseFromQueryCondition()

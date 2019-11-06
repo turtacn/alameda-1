@@ -114,14 +114,14 @@ func (c *ControllerRepository) ListControllerPlannings(in *ApiPlannings.ListCont
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ControllerNamespace, "=", namespace)
-	influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ControllerName, "=", name)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ControllerNamespace, "=", namespace)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ControllerName, "=", name)
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 
 	if ctlPlanningType != ApiPlannings.ControllerPlanningType_CPT_UNDEFINED {
-		influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ControllerType, "=", ctlPlanningType.String())
+		influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ControllerType, "=", ctlPlanningType.String())
 	}
 
 	cmd := influxdbStatement.BuildQueryCmd()
