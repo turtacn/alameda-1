@@ -379,8 +379,9 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 
 	appName := pod.GetAppName()
 	appPartOf := pod.GetAppPartOf()
-	enableVPA := pod.GetAlamedaPodSpec().GetEnable_VPA()
-	enableHPA := pod.GetAlamedaPodSpec().GetEnable_HPA()
+	// TODO: transform enableVPA and enableHAP to into ScalingTool
+	enableVPA := true
+	enableHPA := false
 
 	containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
 	for _, datahubContainer := range pod.Containers {
@@ -601,26 +602,27 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 		if !exist {
 
 			var (
-				podName                            string
-				podPhase                           string
-				podMessage                         string
-				podReason                          string
-				namespace                          string
-				resourceLink                       string
-				alamedaScalerNamespace             string
-				alamedaScalerName                  string
-				nodeName                           string
-				podCreatedTime                     int64
-				policy                             string
-				topControllerNamespace             string
-				topControllerName                  string
-				topControllerKind                  string
-				topControllerReplicas              int32
-				usedRecommendationID               string
-				appName                            string
-				appPartOf                          string
-				enableHPA                          bool
-				enableVPA                          bool
+				podName                string
+				podPhase               string
+				podMessage             string
+				podReason              string
+				namespace              string
+				resourceLink           string
+				alamedaScalerNamespace string
+				alamedaScalerName      string
+				nodeName               string
+				podCreatedTime         int64
+				policy                 string
+				topControllerNamespace string
+				topControllerName      string
+				topControllerKind      string
+				topControllerReplicas  int32
+				usedRecommendationID   string
+				appName                string
+				appPartOf              string
+				// TODO: add new member scalingTool
+				// enableHPA                          bool
+				// enableVPA                          bool
 				alamedaScalerResourceLimitCPU      string
 				alamedaScalerResourceLimitMemory   string
 				alamedaScalerResourceRequestCPU    string
@@ -682,12 +684,15 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 			if containerEntity.AppPartOf != nil {
 				appPartOf = *containerEntity.AppPartOf
 			}
-			if containerEntity.EnableHPA != nil {
-				enableHPA = *containerEntity.EnableHPA
-			}
-			if containerEntity.EnableVPA != nil {
-				enableVPA = *containerEntity.EnableVPA
-			}
+			// TODO: handle compatibility of enableHPA and enableVPA
+			/*
+				if containerEntity.EnableHPA != nil {
+					enableHPA = *containerEntity.EnableHPA
+				}
+				if containerEntity.EnableVPA != nil {
+					enableVPA = *containerEntity.EnableVPA
+				}
+			*/
 			if containerEntity.AlamedaScalerResourceLimitCPU != nil {
 				alamedaScalerResourceLimitCPU = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceLimitCPU, 'f', -1, 64)
 			}
@@ -745,8 +750,8 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 							int32(ApiCommon.ResourceName_MEMORY): alamedaScalerResourceRequestMemory,
 						},
 					},
-					Enable_HPA: enableHPA,
-					Enable_VPA: enableVPA,
+					// TODO: handle ScalingTool from Enable_VPA and Enable_HPA
+					ScalingTool: ApiResources.ScalingTool_SCALING_TOOL_VPA,
 				},
 			}
 			datahubPodMap[podID] = datahubPod

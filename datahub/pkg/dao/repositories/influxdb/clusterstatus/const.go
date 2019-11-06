@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	Node       influxdb.Measurement = "node"
-	Container  influxdb.Measurement = "container"
-	Controller influxdb.Measurement = "controller"
+	Node        influxdb.Measurement = "node"
+	Container   influxdb.Measurement = "container"
+	Controller  influxdb.Measurement = "controller"
+	Application influxdb.Measurement = "application"
 )

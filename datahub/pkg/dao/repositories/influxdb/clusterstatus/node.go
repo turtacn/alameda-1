@@ -3,7 +3,7 @@ package clusterstatus
 import (
 	"fmt"
 	EntityInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
-	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus"
+	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
@@ -123,7 +123,7 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *ApiCommon.Time
 	return nodeEntities, nil
 }
 
-func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNodesRequest) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
+func (nodeRepository *NodeRepository) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
 
 	nodeEntities := []*EntityInfluxClusterStatus.NodeEntity{}
 
@@ -146,7 +146,7 @@ func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNod
 	return nodeEntities, nil
 }
 
-func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(request DaoClusterStatus.ListNodesRequest) string {
+func (nodeRepository *NodeRepository) buildInfluxQLWhereClauseFromRequest(request DaoClusterTypes.ListNodesRequest) string {
 
 	var (
 		whereClause string

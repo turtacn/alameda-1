@@ -1,19 +1,11 @@
 package clusterstatus
 
 import (
-	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	"github.com/containers-ai/alameda/datahub/pkg/config"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/influxdb"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 )
 
-// Node provides node measurement operations
-type NodeOperation interface {
-	RegisterAlamedaNodes([]*ApiResources.Node) error
-	DeregisterAlamedaNodes([]*ApiResources.Node) error
-	ListAlamedaNodes(timeRange *ApiCommon.TimeRange) ([]*ApiResources.Node, error)
-	ListNodes(ListNodesRequest) ([]*ApiResources.Node, error)
-}
-
-type ListNodesRequest struct {
-	NodeNames []string
-	InCluster bool
+func NewNodeDAO(config config.Config) types.NodeDAO {
+	return influxdb.NewNodeWithConfig(*config.InfluxDB)
 }

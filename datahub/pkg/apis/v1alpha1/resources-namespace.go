@@ -25,3 +25,11 @@ func (s *ServiceV1alpha1) ListNamespaces(ctx context.Context, in *ApiResources.L
 		},
 	}, nil
 }
+
+func (s *ServiceV1alpha1) DeleteNamespaces(ctx context.Context, in *ApiResources.DeleteNamespacesRequest) (*status.Status, error) {
+	scope.Debug("Request received from DeleteNamespaces grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}

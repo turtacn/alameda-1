@@ -91,6 +91,7 @@ const (
 	ContainerTpoControllerReplicas containerField = "top_controller_replicas"
 	// ContainerUsedRecommendationID is the recommendation id that the pod applied
 	ContainerUsedRecommendationID containerField = "used_recommendation_id"
+	ContainerScalingTool          containerField = "scaling_tool"
 	ContainerEnableVPA            containerField = "enable_VPA"
 	ContainerEnableHPA            containerField = "enable_HPA"
 	// ContainerAlamedaScalerResourceLimitCPU is maximum amount of CPU resource allowed

@@ -105,12 +105,11 @@ func (c *ControllerRepository) ListControllers(in *ApiResources.ListControllersR
 }
 
 func (c *ControllerRepository) DeleteControllers(in *ApiResources.DeleteControllersRequest) error {
-	controllers := in.GetControllers()
 	whereStr := ""
 
-	for _, controller := range controllers {
-		namespace := controller.GetObjectMeta().GetNamespace()
-		name := controller.GetObjectMeta().GetName()
+	for _, objectMeta := range in.GetObjectMeta() {
+		namespace := objectMeta.GetNamespace()
+		name := objectMeta.GetName()
 		whereStr += fmt.Sprintf(" (\"name\"='%s' AND \"namespace\"='%s') OR", name, namespace)
 	}
 

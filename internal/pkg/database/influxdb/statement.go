@@ -153,10 +153,14 @@ func (s *Statement) SetLimitClauseFromQueryCondition() {
 func (s *Statement) GenerateCondition(keyList, valueList []string, op string) string {
 	condition := ""
 	for i := 0; i < len(keyList); i++ {
-		condition += fmt.Sprintf("\"%s\"='%s' %s ", keyList[i], valueList[i], op)
+		if valueList[i] != "" {
+			condition += fmt.Sprintf("\"%s\"='%s' %s ", keyList[i], valueList[i], op)
+		}
 	}
 	condition = strings.TrimSuffix(condition, fmt.Sprintf("%s ", op))
-	condition = "(" + condition + ")"
+	if condition != "" {
+		condition = "(" + condition + ")"
+	}
 	return condition
 }
 

@@ -1,8 +1,7 @@
 package v1alpha1
 
 import (
-	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus"
-	DaoClusterStatusInflux "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/influxdb"
+	DaoCluster "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"golang.org/x/net/context"
@@ -14,10 +13,7 @@ import (
 func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *ApiResources.CreatePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoClusterStatus.ContainerOperation = &DaoClusterStatusInflux.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	containerDAO := DaoCluster.NewContainerDAO(*s.Config)
 	if err := containerDAO.AddPods(in.GetPods()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
@@ -84,10 +80,6 @@ func (s *ServiceV1alpha1) ListPodsByNodeName(ctx context.Context, in *ApiResourc
 func (s *ServiceV1alpha1) ListPods(ctx context.Context, in *ApiResources.ListPodsRequest) (*ApiResources.ListPodsResponse, error) {
 	scope.Debug("Request received from ListAlamedaPods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoClusterStatus.ContainerOperation = &DaoClusterStatusInflux.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
 	namespace, name := "", ""
 	if objectMeta := in.GetObjectMeta(); objectMeta != nil {
 		namespace = objectMeta[0].GetNamespace()
@@ -96,6 +88,7 @@ func (s *ServiceV1alpha1) ListPods(ctx context.Context, in *ApiResources.ListPod
 	kind := in.GetKind()
 	timeRange := in.GetTimeRange()
 
+	containerDAO := DaoCluster.NewContainerDAO(*s.Config)
 	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, kind, timeRange); err != nil {
 		scope.Error(err.Error())
 		return &ApiResources.ListPodsResponse{
@@ -120,10 +113,20 @@ func (s *ServiceV1alpha1) ListPods(ctx context.Context, in *ApiResources.ListPod
 func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *ApiResources.DeletePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeletePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoClusterStatus.ContainerOperation = &DaoClusterStatusInflux.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
+	podList := make([]*ApiResources.Pod, 0)
+	for _, objectMeta := range in.GetObjectMeta() {
+		podList = append(podList, &ApiResources.Pod{
+			ObjectMeta: &ApiResources.ObjectMeta{
+				Name:        objectMeta.GetName(),
+				Namespace:   objectMeta.GetNamespace(),
+				NodeName:    objectMeta.GetNodeName(),
+				ClusterName: objectMeta.GetClusterName(),
+			},
+		})
 	}
-	if err := containerDAO.DeletePods(in.GetPods()); err != nil {
+
+	containerDAO := DaoCluster.NewContainerDAO(*s.Config)
+	if err := containerDAO.DeletePods(podList); err != nil {
 		scope.Errorf("DeletePods failed: %+v", err)
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

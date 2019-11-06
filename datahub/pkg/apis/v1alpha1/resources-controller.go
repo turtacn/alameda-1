@@ -1,7 +1,7 @@
 package v1alpha1
 
 import (
-	DaoClusterStatusInflux "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/influxdb"
+	DaoCluster "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"golang.org/x/net/context"
@@ -12,10 +12,7 @@ import (
 func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *ApiResources.CreateControllersRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllers grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := &DaoClusterStatusInflux.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	controllerDAO := DaoCluster.NewControllerDAO(*s.Config)
 	err := controllerDAO.CreateControllers(in.GetControllers())
 	if err != nil {
 		scope.Error(err.Error())
@@ -33,10 +30,7 @@ func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *ApiResource
 func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *ApiResources.ListControllersRequest) (*ApiResources.ListControllersResponse, error) {
 	scope.Debug("Request received from ListControllers grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := &DaoClusterStatusInflux.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	controllerDAO := DaoCluster.NewControllerDAO(*s.Config)
 	controllers, err := controllerDAO.ListControllers(in)
 	if err != nil {
 		scope.Error(err.Error())
@@ -60,10 +54,7 @@ func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *ApiResources.
 func (s *ServiceV1alpha1) DeleteControllers(ctx context.Context, in *ApiResources.DeleteControllersRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteControllers grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	controllerDAO := &DaoClusterStatusInflux.Controller{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-
+	controllerDAO := DaoCluster.NewControllerDAO(*s.Config)
 	err := controllerDAO.DeleteControllers(in)
 	if err != nil {
 		scope.Error(err.Error())
