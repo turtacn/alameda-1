@@ -39,7 +39,7 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *ApiR
 	}
 
 	containerDAO := DaoRecommendation.NewContainerRecommendationsDAO(*s.Config)
-	if err := containerDAO.AddPodRecommendations(in); err != nil {
+	if err := containerDAO.CreatePodRecommendations(in); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
