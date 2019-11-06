@@ -259,6 +259,12 @@ service DatahubService {
     rpc DeleteControllers(resources.DeleteControllersRequest)
         returns (google.rpc.Status){}
 
+    rpc DeleteApplications(resources.DeleteApplicationsRequest)
+        returns (google.rpc.Status){}
+
+    rpc DeleteNamespaces(resources.DeleteNamespacesRequest)
+        returns (google.rpc.Status){}
+
     // Used to stop generating predictions for the nodes
     rpc DeleteNodes(resources.DeleteNodesRequest)
         returns (google.rpc.Status){}

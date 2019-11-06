@@ -391,6 +391,16 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteControllersRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
+    self.DeleteApplications = channel.unary_unary(
+        '/containersai.alameda.v1alpha1.datahub.DatahubService/DeleteApplications',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteApplicationsRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
+    self.DeleteNamespaces = channel.unary_unary(
+        '/containersai.alameda.v1alpha1.datahub.DatahubService/DeleteNamespaces',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteNamespacesRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
     self.DeleteNodes = channel.unary_unary(
         '/containersai.alameda.v1alpha1.datahub.DatahubService/DeleteNodes',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteNodesRequest.SerializeToString,
@@ -964,6 +974,20 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def DeleteApplications(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def DeleteNamespaces(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def DeleteNodes(self, request, context):
     """Used to stop generating predictions for the nodes
     """
@@ -1407,6 +1431,16 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'DeleteControllers': grpc.unary_unary_rpc_method_handler(
           servicer.DeleteControllers,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteControllersRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'DeleteApplications': grpc.unary_unary_rpc_method_handler(
+          servicer.DeleteApplications,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteApplicationsRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'DeleteNamespaces': grpc.unary_unary_rpc_method_handler(
+          servicer.DeleteNamespaces,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteNamespacesRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'DeleteNodes': grpc.unary_unary_rpc_method_handler(
