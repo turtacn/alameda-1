@@ -29,8 +29,8 @@ import (
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	datahub_recommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"google.golang.org/grpc"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -128,9 +128,11 @@ func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (r
 			defer conn.Close()
 			aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 			req := datahub_recommendations.ListPodRecommendationsRequest{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: alamedaRecommendation.GetNamespace(),
-					Name:      alamedaRecommendation.GetName(),
+				ObjectMeta: []*datahub_resources.ObjectMeta{
+					&datahub_resources.ObjectMeta{
+						Namespace: alamedaRecommendation.GetNamespace(),
+						Name:      alamedaRecommendation.GetName(),
+					},
 				},
 			}
 			if podRecommendationsRes, err := aiServiceClnt.ListPodRecommendations(context.Background(), &req); err == nil && len(podRecommendationsRes.GetPodRecommendations()) == 1 {

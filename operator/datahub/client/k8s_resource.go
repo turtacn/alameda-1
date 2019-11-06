@@ -25,7 +25,7 @@ func NewK8SResource() *K8SResource {
 	return &K8SResource{}
 }
 
-func (repo *K8SResource) ListAlamedaWatchedResource(namespacedName *datahub_resources.NamespacedName) ([]*datahub_resources.Controller, error) {
+func (repo *K8SResource) ListAlamedaWatchedResource(namespace, name string) ([]*datahub_resources.Controller, error) {
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	if err != nil {
 		return nil, errors.Errorf("list controllers to datahub failed: %s", err.Error())
@@ -35,7 +35,12 @@ func (repo *K8SResource) ListAlamedaWatchedResource(namespacedName *datahub_reso
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	req := datahub_resources.ListControllersRequest{
-		NamespacedName: namespacedName,
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+		},
 	}
 
 	controllers := []*datahub_resources.Controller{}

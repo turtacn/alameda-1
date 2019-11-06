@@ -161,10 +161,10 @@ func (r *ReconcileNode) FirstSync() error {
 	}
 	nodesNeedDeleting := make([]*datahub_resources.Node, 0)
 	for _, n := range nodesFromDatahub {
-		if _, exist := existingNodeMap[n.Name]; exist {
+		if _, exist := existingNodeMap[n.ObjectMeta.GetName()];exist {
 			continue
 		}
-		nodeInfo, err := r.createNodeInfo(&corev1.Node{ObjectMeta: metav1.ObjectMeta{Name: n.Name}})
+		nodeInfo, err := r.createNodeInfo(&corev1.Node{ObjectMeta: metav1.ObjectMeta{Name: n.ObjectMeta.GetName()}})
 		if err != nil {
 			return errors.Wrap(err, "create nodeInfo failed")
 		}
