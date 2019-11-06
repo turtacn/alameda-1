@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	Node        influxdb.Measurement = "node"
 	Container   influxdb.Measurement = "container"
 	Controller  influxdb.Measurement = "controller"
 	Application influxdb.Measurement = "application"
+	Namespace   influxdb.Measurement = "namespace"
+	Node        influxdb.Measurement = "node"
 )

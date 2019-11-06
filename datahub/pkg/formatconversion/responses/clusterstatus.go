@@ -15,3 +15,14 @@ func (n *ApplicationExtended) ProduceApplication() *ApiResources.Application {
 	}
 	return application
 }
+
+type NamespaceExtended struct {
+	*DaoClusterTypes.Namespace
+}
+
+func (n *NamespaceExtended) ProduceNamespace() *ApiResources.Namespace {
+	namespace := &ApiResources.Namespace{
+		ObjectMeta: NewObjectMeta(n.ObjectMeta),
+	}
+	return namespace
+}
