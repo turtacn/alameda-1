@@ -10,4 +10,5 @@ const (
 	Application influxdb.Measurement = "application"
 	Namespace   influxdb.Measurement = "namespace"
 	Node        influxdb.Measurement = "node"
+	Cluster     influxdb.Measurement = "cluster"
 )
