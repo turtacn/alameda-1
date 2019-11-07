@@ -43,12 +43,14 @@ var _ resource.ResourceRecommendator = &datahubResourceRecommendator{}
 
 type datahubResourceRecommendator struct {
 	datahubServiceClient datahub_client.DatahubServiceClient
+	clusterName          string
 }
 
-func NewDatahubResourceRecommendator(client datahub_client.DatahubServiceClient) (resource.ResourceRecommendator, error) {
+func NewDatahubResourceRecommendator(client datahub_client.DatahubServiceClient, clusterName string) (resource.ResourceRecommendator, error) {
 
 	return &datahubResourceRecommendator{
 		datahubServiceClient: client,
+		clusterName:          clusterName,
 	}, nil
 }
 
@@ -56,7 +58,7 @@ func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations
 
 	recommendations := make([]*resource.PodResourceRecommendation, 0)
 
-	datahubRequest, err := buildListAvailablePodRecommendationsRequest(req)
+	datahubRequest, err := dr.buildListAvailablePodRecommendationsRequest(req)
 	if err != nil {
 		return recommendations, errors.Wrap(err, "list controller pod resource recommendations failed")
 	}
@@ -77,7 +79,7 @@ func (dr *datahubResourceRecommendator) ListControllerPodResourceRecommendations
 	return recommendations, nil
 }
 
-func buildListAvailablePodRecommendationsRequest(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_recommendations.ListPodRecommendationsRequest, error) {
+func (dr *datahubResourceRecommendator) buildListAvailablePodRecommendationsRequest(request resource.ListControllerPodResourceRecommendationsRequest) (*datahub_recommendations.ListPodRecommendationsRequest, error) {
 
 	var datahubRequest *datahub_recommendations.ListPodRecommendationsRequest
 
@@ -98,8 +100,9 @@ func buildListAvailablePodRecommendationsRequest(request resource.ListController
 	datahubRequest = &datahub_recommendations.ListPodRecommendationsRequest{
 		ObjectMeta: []*datahub_resources.ObjectMeta{
 			&datahub_resources.ObjectMeta{
-				Namespace: request.Namespace,
-				Name:      request.Name,
+				ClusterName: dr.clusterName,
+				Namespace:   request.Namespace,
+				Name:        request.Name,
 			},
 		},
 		Kind: datahubKind,
@@ -114,11 +117,14 @@ func buildListAvailablePodRecommendationsRequest(request resource.ListController
 	return datahubRequest, nil
 }
 
-// TODO assign value of datahub.PodRecommendation.AssignedPodName to resource.Recommendation.AssignedPodName
 func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation *datahub_recommendations.PodRecommendation) *resource.PodResourceRecommendation {
 
-	namespace := datahubPodRecommendation.ObjectMeta.GetNamespace()
-	name := datahubPodRecommendation.ObjectMeta.GetName()
+	namespace := ""
+	name := ""
+	if objectMeta := datahubPodRecommendation.ObjectMeta; objectMeta != nil {
+		namespace = objectMeta.Namespace
+		name = objectMeta.Name
+	}
 
 	startTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetStartTime())
 	endTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetEndTime())
@@ -127,7 +133,9 @@ func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecomm
 	topControllerName := ""
 	if datahubPodRecommendation.TopController != nil {
 		topControllerKind = datahubKind_K8SKind[datahubPodRecommendation.TopController.Kind]
-		topControllerName = datahubPodRecommendation.TopController.ObjectMeta.GetName()
+		if datahubPodRecommendation.TopController.ObjectMeta != nil {
+			topControllerName = datahubPodRecommendation.TopController.ObjectMeta.Name
+		}
 	}
 
 	podRecommendation := &resource.PodResourceRecommendation{
