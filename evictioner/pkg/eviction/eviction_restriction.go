@@ -82,29 +82,27 @@ func NewEvictionRestriction(client client.Client, maxUnavailable string, trigger
 		copyPodRecommendation := proto.Clone(podRecommendation)
 		podRecommendation = copyPodRecommendation.(*datahub_recommendations.PodRecommendation)
 
-		podNamespace := podRecommendation.ObjectMeta.GetNamespace()
-		podName := podRecommendation.ObjectMeta.GetName()
-		if podNamespace == "" && podName == "" {
-			scope.Warnf("skip PodRecommendation due to get no namespace and name")
+		if podRecommendation.ObjectMeta == nil {
+			scope.Warnf("skip PodRecommendation due to get nil ObjectMeta")
 			continue
 		}
 
+		podRecommendationNamespace := podRecommendation.ObjectMeta.Namespace
+		podRecommendationName := podRecommendation.ObjectMeta.Name
+		podNamespace := podRecommendationNamespace
+		podName := podRecommendationName
 		podID := fmt.Sprintf("%s/%s", podNamespace, podName)
 		podIDToPodRecommendationMap[podID] = podRecommendation
 
 		topController := podRecommendation.TopController
-		alamedaResourceNamespace := topController.ObjectMeta.GetNamespace()
-		alamedaResourceName := topController.ObjectMeta.GetName()
-		if topController == nil ||
-			(alamedaResourceNamespace == "" && alamedaResourceName == "") {
-			scope.Warnf("skip PodRecommendation (%s/%s) due to get empty topController",
-				podNamespace, podName)
+		if topController == nil || topController.ObjectMeta == nil {
+			scope.Warnf("skip PodRecommendation (%s/%s) due to get empty topController", podRecommendationNamespace, podRecommendationName)
 			continue
 		}
-
+		alamedaResourceNamespace := topController.ObjectMeta.Namespace
+		alamedaResourceName := topController.ObjectMeta.Name
 		alamedaResourceKind := topController.Kind
-		alamedaResourceID := fmt.Sprintf("%s.%s.%s",
-			alamedaResourceNamespace, alamedaResourceName, alamedaResourceKind)
+		alamedaResourceID := fmt.Sprintf("%s.%s.%s", alamedaResourceNamespace, alamedaResourceName, alamedaResourceKind)
 		podIDToAlamedaResourceIDMap[podID] = alamedaResourceID
 
 		if _, exist := alamedaResourceIDToPodReplicaStatusMap[alamedaResourceID]; !exist {
@@ -113,26 +111,21 @@ func NewEvictionRestriction(client client.Client, maxUnavailable string, trigger
 			listResource := utilsresource.NewListResources(client)
 
 			controllerKind := datahub_resources.Kind_name[int32(alamedaResourceKind)]
-			replicasCount, err := getResource.GetReplicasCountByController(
-				alamedaResourceNamespace, alamedaResourceName, strings.ToLower(controllerKind))
+			replicasCount, err := getResource.GetReplicasCountByController(alamedaResourceNamespace, alamedaResourceName, strings.ToLower(controllerKind))
 			if err != nil {
 				if err != nil {
-					scope.Warnf(
-						"skip PodRecommendation (%s/%s) due to get replicas count by controller failed: %s", 
-						podNamespace, podName, err.Error())
+					scope.Warnf("skip PodRecommendation (%s/%s) due to get replicas count by controller failed: %s", podRecommendationNamespace, podRecommendationName, err.Error())
 					continue
 				}
 			}
 			pods, err := listResource.ListPodsByController(alamedaResourceNamespace, alamedaResourceName, strings.ToLower(controllerKind))
 			if err != nil {
-				scope.Warnf("skip PodRecommendation (%s/%s) due to list pods by controller failed: %s", 
-				podNamespace, podName, err.Error())
+				scope.Warnf("skip PodRecommendation (%s/%s) due to list pods by controller failed: %s", podRecommendationNamespace, podRecommendationName, err.Error())
 				continue
 			}
 			podReplicaStatus, err := NewPodReplicaStatus(pods, replicasCount, maxUnavailable)
 			if err != nil {
-				scope.Warnf("skip PodRecommendation (%s/%s) due to build PodReplicaStatus failed: %s", 
-				podNamespace, podName, err.Error())
+				scope.Warnf("skip PodRecommendation (%s/%s) due to build PodReplicaStatus failed: %s", podRecommendationNamespace, podRecommendationName, err.Error())
 				continue
 			}
 			alamedaResourceIDToPodReplicaStatusMap[alamedaResourceID] = &podReplicaStatus

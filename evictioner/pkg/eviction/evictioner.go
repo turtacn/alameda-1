@@ -82,63 +82,64 @@ func (evictioner *Evictioner) evictProcess() {
 	}
 }
 
-func (evictioner *Evictioner) evictPods(recPodList []*datahub_recommendations.PodRecommendation) {
+func (evictioner *Evictioner) evictPods(recommendations []*datahub_recommendations.PodRecommendation) {
 
-	events := make([]*datahub_events.Event, 0, len(recPodList))
+	events := make([]*datahub_events.Event, 0, len(recommendations))
 
-	for _, recPod := range recPodList {
-		recPodIns := &corev1.Pod{}
+	for _, recommendation := range recommendations {
+
+		if recommendation.ObjectMeta == nil {
+			continue
+		}
+
+		pod := &corev1.Pod{}
 		err := evictioner.k8sClienit.Get(context.TODO(), types.NamespacedName{
-			Namespace: recPod.ObjectMeta.GetNamespace(),
-			Name:      recPod.ObjectMeta.GetName(),
-		}, recPodIns)
+			Namespace: recommendation.ObjectMeta.GetNamespace(),
+			Name:      recommendation.ObjectMeta.GetName(),
+		}, pod)
 		if err != nil {
 			if !k8serrors.IsNotFound(err) {
-				scope.Errorf("Get Pod(%s/%s) failed: %s",
-					recPod.ObjectMeta.GetNamespace(), recPod.ObjectMeta.GetName(), err.Error())
+				scope.Errorf("Get Pod(%s/%s) failed: %s", recommendation.ObjectMeta.GetNamespace(), recommendation.ObjectMeta.GetName(), err.Error())
 			}
 			continue
 		}
 		if evictioner.purgeContainerCPUMemory {
-			topController := recPod.TopController
-			topControllerNamespace := topController.ObjectMeta.GetNamespace()
-			topControllerName := topController.ObjectMeta.GetName()
-			if topController == nil ||
-				(topControllerNamespace == "" && topControllerName == "") {
-				scope.Errorf("Purge pod (%s,%s) resources failed: get empty topController from PodRecommendation",
-					recPodIns.GetNamespace(), recPodIns.GetName())
+			topController := recommendation.TopController
+			if topController == nil || topController.ObjectMeta == nil {
+				scope.Errorf("Purge pod (%s,%s) resources failed: get empty topController from PodRecommendation", pod.GetNamespace(), pod.GetName())
 				continue
 
 			}
-
+			topControllerNamespace := topController.ObjectMeta.Namespace
+			topControllerName := topController.ObjectMeta.Name
 			topControllerKind := topController.Kind
 			topControllerInstance, err := evictioner.getTopController(topControllerNamespace, topControllerName, topControllerKind)
 			if err != nil {
-				scope.Errorf("Purge pod (%s,%s) resources failed: get topController failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+				scope.Errorf("Purge pod (%s,%s) resources failed: get topController failed: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 				continue
 			}
 			if needToPurge, err := evictioner.needToPurgeTopControllerContainerResources(topControllerInstance, topControllerKind); err != nil {
-				scope.Errorf("Purge pod (%s,%s) resources failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+				scope.Errorf("Purge pod (%s,%s) resources failed: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 			} else if needToPurge {
 				if err = evictioner.purgeTopControllerContainerResources(topControllerInstance, topControllerKind); err != nil {
-					scope.Errorf("Purge pod (%s,%s) resources failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+					scope.Errorf("Purge pod (%s,%s) resources failed: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 					continue
 				}
 			} else {
-				err = evictioner.k8sClienit.Delete(context.TODO(), recPodIns)
+				err = evictioner.k8sClienit.Delete(context.TODO(), pod)
 				if err != nil {
-					scope.Errorf("Evict pod (%s,%s) failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+					scope.Errorf("Evict pod (%s,%s) failed: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 				} else {
-					e := newPodEvictEvent(evictioner.clusterID, &recPodIns.ObjectMeta, recPodIns.TypeMeta)
+					e := newPodEvictEvent(evictioner.clusterID, &pod.ObjectMeta, pod.TypeMeta)
 					events = append(events, &e)
 				}
 			}
 		} else {
-			err = evictioner.k8sClienit.Delete(context.TODO(), recPodIns)
+			err = evictioner.k8sClienit.Delete(context.TODO(), pod)
 			if err != nil {
-				scope.Errorf("Evict pod (%s,%s) failed: %s", recPodIns.GetNamespace(), recPodIns.GetName(), err.Error())
+				scope.Errorf("Evict pod (%s,%s) failed: %s", pod.GetNamespace(), pod.GetName(), err.Error())
 			} else {
-				e := newPodEvictEvent(evictioner.clusterID, &recPodIns.ObjectMeta, recPodIns.TypeMeta)
+				e := newPodEvictEvent(evictioner.clusterID, &pod.ObjectMeta, pod.TypeMeta)
 				events = append(events, &e)
 			}
 		}
@@ -313,19 +314,11 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_recom
 	nowTime := time.Now()
 	nowTimestamp := time.Now().Unix()
 
-	resp, err := evictioner.listPodRecommsPossibleToApply(nowTimestamp)
+	recommendations, err := evictioner.listPodRecommendations(nowTimestamp)
 	if err != nil {
-		return appliablePodRecList, err
-	} else if resp.Status == nil {
-		return appliablePodRecList, fmt.Errorf("Receive nil status from datahub")
-	} else if resp.Status.Code != int32(code.Code_OK) {
-		return appliablePodRecList, fmt.Errorf("Status code not 0: receive status code: %d,message: %s", resp.GetStatus().GetCode(), resp.GetStatus().GetMessage())
+		return nil, errors.Wrap(err, "list pod recommendations failed")
 	}
-
-	podRecommsPossibleToApply := resp.GetPodRecommendations()
-	scope.Debugf("Possible applicable pod recommendation lists: %s", utils.InterfaceToString(podRecommsPossibleToApply))
-
-	controllerRecommendationInfoMap := NewControllerRecommendationInfoMap(evictioner.k8sClienit, podRecommsPossibleToApply)
+	controllerRecommendationInfoMap := NewControllerRecommendationInfoMap(evictioner.k8sClienit, recommendations)
 	for _, controllerRecommendationInfo := range controllerRecommendationInfoMap {
 		podRecommendationInfos := controllerRecommendationInfo.podRecommendationInfos
 		sort.Slice(podRecommendationInfos, func(i, j int) bool {
@@ -381,10 +374,15 @@ func (evictioner *Evictioner) listAppliablePodRecommendation() ([]*datahub_recom
 	return appliablePodRecList, nil
 }
 
-func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) (*datahub_recommendations.ListPodRecommendationsResponse, error) {
+func (evictioner *Evictioner) listPodRecommendations(nowTimestamp int64) ([]*datahub_recommendations.PodRecommendation, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	in := &datahub_recommendations.ListPodRecommendationsRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: evictioner.clusterID,
+			},
+		},
 		QueryCondition: &datahub_common.QueryCondition{
 			TimeRange: &datahub_common.TimeRange{
 				ApplyTime: &timestamp.Timestamp{
@@ -396,8 +394,16 @@ func (evictioner *Evictioner) listPodRecommsPossibleToApply(nowTimestamp int64) 
 		},
 	}
 	scope.Debugf("Request of ListAvailablePodRecommendations is %s.", utils.InterfaceToString(in))
+	resp, err := evictioner.datahubClnt.ListAvailablePodRecommendations(ctx, in)
+	if err != nil {
+		return nil, err
+	} else if resp == nil || resp.Status == nil {
+		return nil, fmt.Errorf("receive nil status from datahub")
+	} else if resp.Status.Code != int32(code.Code_OK) {
+		return nil, fmt.Errorf("status code not 0: receive status code: %d, message: %s", resp.GetStatus().GetCode(), resp.GetStatus().GetMessage())
+	}
 
-	return evictioner.datahubClnt.ListAvailablePodRecommendations(ctx, in)
+	return resp.GetPodRecommendations(), nil
 }
 
 func (evictioner *Evictioner) sendEvents(events []*datahub_events.Event) error {
@@ -508,27 +514,23 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		// Filter out invalid PodRecommendation
 		copyPodRecommendation := proto.Clone(podRecommendation)
 		podRecommendation = copyPodRecommendation.(*datahub_recommendations.PodRecommendation)
-
-		recNS := podRecommendation.ObjectMeta.GetNamespace()
-		recName := podRecommendation.ObjectMeta.GetName()
-		if recNS == "" && recName == "" {
-			scope.Errorf("Skip PodRecommendation due to PodRecommendation has empty NamespacedName")
+		recommendationObjectMeta := podRecommendation.ObjectMeta
+		if recommendationObjectMeta == nil {
+			scope.Errorf("Skip PodRecommendation due to PodRecommendation has nil ObjectMeta")
 			continue
 		}
 
 		// Get AlamedaScaler owns this PodRecommendation and validate the AlamedaScaler is enabled execution.
-		alamedaRecommendation, err := getResource.GetAlamedaRecommendation(
-			recNS, recName)
+		alamedaRecommendation, err := getResource.GetAlamedaRecommendation(recommendationObjectMeta.Namespace, recommendationObjectMeta.Name)
 		if err != nil {
-			scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s",
-				recNS, recName, err.Error())
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s", recommendationObjectMeta.Namespace, recommendationObjectMeta.Name, err.Error())
 			continue
 		}
 		alamedaScalerNamespace := ""
 		alamedaScalerName := ""
 		for _, or := range alamedaRecommendation.OwnerReferences {
 			if or.Kind == "AlamedaScaler" {
-				alamedaScalerNamespace = alamedaRecommendation.GetNamespacedName()
+				alamedaScalerNamespace = alamedaRecommendation.Namespace
 				alamedaScalerName = or.Name
 				break
 			}
@@ -537,49 +539,42 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		if !exist {
 			alamedaScaler, err = getResource.GetAlamedaScaler(alamedaScalerNamespace, alamedaScalerName)
 			if err != nil {
-				scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s",
-					recNS, recName, err.Error())
+				scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s", recommendationObjectMeta.Namespace, recommendationObjectMeta.Name, err.Error())
 				continue
 			}
 			alamedaScalerMap[fmt.Sprintf("%s/%s", alamedaScalerNamespace, alamedaScalerName)] = alamedaScaler
 		}
 		if !alamedaScaler.IsEnableExecution() {
-			scope.Errorf("Skip PodRecommendation (%s/%s) because it's execution is not enabled.",
-				recNS, recName)
+			scope.Errorf("Skip PodRecommendation (%s/%s) because it's execution is not enabled.", recommendationObjectMeta.Namespace, recommendationObjectMeta.Name)
 			continue
 		}
 
 		// Get Pod instance of this PodRecommendation
-		podNamespace := recNS
-		podName := recName
+		podNamespace := recommendationObjectMeta.Namespace
+		podName := recommendationObjectMeta.Name
 		pod, err := getResource.GetPod(podNamespace, podName)
 		if err != nil {
-			scope.Errorf("Skip PodRecommendation due to get Pod (%s/%s) failed: %s",
-				podNamespace, podName, err.Error())
+			scope.Errorf("Skip PodRecommendation due to get Pod (%s/%s) failed: %s", podNamespace, podName, err.Error())
 			continue
 		}
 
 		// Get topmost controller namespace, name and kind controlling this pod
 		controller := podRecommendation.TopController
 		if controller == nil {
-			scope.Errorf("Skip PodRecommendation (%s/%s) due to PodRecommendation has empty topmost controller",
-				recNS, recName)
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to PodRecommendation has nil topmost controller", podNamespace, podName)
 			continue
-		} else if controller.ObjectMeta.GetNamespace() == "" &&
-			controller.ObjectMeta.GetName() == "" {
-			scope.Errorf("Skip PodRecommendation (%s/%s) due to topmost controller has empty NamespacedName",
-				recNS, recName)
+		} else if controller.ObjectMeta == nil {
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to topmost controller has nil ObjectMeta", podNamespace, podName)
 			continue
 		}
 
 		// Append podRecommendationInfos into controllerRecommendationInfo
-		controllerID := fmt.Sprintf("%s.%s.%s", controller.Kind,
-			controller.ObjectMeta.GetNamespace(), controller.ObjectMeta.GetName())
+		controllerID := fmt.Sprintf("%s.%s.%s", controller.Kind, controller.ObjectMeta.Namespace, controller.ObjectMeta.Name)
 		_, exist = controllerRecommendationInfoMap[controllerID]
 		if !exist {
 			controllerRecommendationInfoMap[controllerID] = &controllerRecommendationInfo{
-				namespace:              controller.ObjectMeta.GetNamespace(),
-				name:                   controller.ObjectMeta.GetName(),
+				namespace:              controller.ObjectMeta.Namespace,
+				name:                   controller.ObjectMeta.Name,
 				kind:                   datahub_resources.Kind_name[int32(controller.Kind)],
 				alamedaScaler:          alamedaScaler,
 				podRecommendationInfos: make([]*podRecommendationInfo, 0),
