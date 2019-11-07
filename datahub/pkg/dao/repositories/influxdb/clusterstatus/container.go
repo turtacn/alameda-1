@@ -370,7 +370,7 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 		if val, ok := ApiResources.PodPhase_name[int32(pod.Status.Phase)]; ok {
 			podPhase = &val
 		} else {
-			val = ApiResources.PodPhase_name[int32(ApiResources.PodPhase_Unknown)]
+			val = ApiResources.PodPhase_name[int32(ApiResources.PodPhase_UNKNOWN)]
 			podPhase = &val
 		}
 		podMessage = &pod.Status.Message

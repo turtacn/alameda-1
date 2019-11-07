@@ -61,14 +61,26 @@ func (c *NodeRepository) CreateRecommendations(recommendations []*ApiRecommendat
 }
 
 func (c *NodeRepository) ListRecommendations(in *ApiRecommendations.ListNodeRecommendationsRequest) ([]*ApiRecommendations.NodeRecommendation, error) {
-	name := in.GetObjectMeta()[0].GetName()
-
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Node,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.NodeName, "=", name)
+	for _, objMeta := range in.GetObjectMeta() {
+		name := objMeta.GetName()
+
+		if name == "" {
+			influxdbStatement.WhereClause = ""
+			break
+		}
+
+		keyList := []string{EntityInfluxRecommend.NodeName}
+		valueList := []string{name}
+
+		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
+
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()

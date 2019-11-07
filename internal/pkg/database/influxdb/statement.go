@@ -24,6 +24,7 @@ type Statement struct {
 	GroupByTags    []string
 	Function       *Function
 	WhereClause    string
+	TimeClause     string
 	OrderClause    string
 	LimitClause    string
 }
@@ -104,10 +105,10 @@ func (s *Statement) AppendWhereClauseWithTime(operator string, value int64) {
 
 	tm := time.Unix(int64(value), 0)
 
-	if s.WhereClause == "" {
-		s.WhereClause += fmt.Sprintf("WHERE time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
+	if s.WhereClause == "" && s.TimeClause == "" {
+		s.TimeClause += fmt.Sprintf("WHERE time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
 	} else {
-		s.WhereClause += fmt.Sprintf("AND time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
+		s.TimeClause += fmt.Sprintf("AND time%s'%s' ", operator, tm.UTC().Format(time.RFC3339))
 	}
 }
 
@@ -129,7 +130,7 @@ func (s *Statement) SetFunction(funcType FunctionType, funcName, target string) 
 	s.Function = &Function{}
 	s.Function.FuncType = funcType
 	s.Function.FuncName = funcName
-	s.Function.Target   = target
+	s.Function.Target = target
 }
 
 func (s *Statement) SetOrderClauseFromQueryCondition() {
@@ -157,6 +158,20 @@ func (s *Statement) GenerateCondition(keyList, valueList []string, op string) st
 			condition += fmt.Sprintf("\"%s\"='%s' %s ", keyList[i], valueList[i], op)
 		}
 	}
+	condition = strings.TrimSuffix(condition, fmt.Sprintf("%s ", op))
+	if condition != "" {
+		condition = "(" + condition + ")"
+	}
+	return condition
+}
+
+func (s *Statement) GenerateConditionByList(conditionList []string, op string) string {
+	condition := ""
+
+	for _, conditionStr := range conditionList {
+		condition += fmt.Sprintf("%s %s ", conditionStr, op)
+	}
+
 	condition = strings.TrimSuffix(condition, fmt.Sprintf("%s ", op))
 	if condition != "" {
 		condition = "(" + condition + ")"
@@ -203,8 +218,17 @@ func (s *Statement) BuildQueryCmd() string {
 		groupByStr = strings.TrimSuffix(groupByStr, ",")
 	}
 
-	cmd = fmt.Sprintf("SELECT %s FROM \"%s\" %s %s %s %s",
-		fieldsStr, s.Measurement, s.WhereClause,
+	if s.WhereClause != "" {
+		index := strings.Index(s.WhereClause, "WHERE") + 6
+
+		tempClause := s.WhereClause
+		tempClause = tempClause + ")"
+		tempClause = tempClause[:index] + "(" + tempClause[index:]
+		s.WhereClause = tempClause
+	}
+
+	cmd = fmt.Sprintf("SELECT %s FROM \"%s\" %s %s %s %s %s",
+		fieldsStr, s.Measurement, s.WhereClause, s.TimeClause,
 		groupByStr, s.OrderClause, s.LimitClause)
 
 	return cmd

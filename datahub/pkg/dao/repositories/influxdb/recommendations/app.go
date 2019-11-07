@@ -62,16 +62,27 @@ func (c *AppRepository) CreateRecommendations(recommendations []*ApiRecommendati
 }
 
 func (c *AppRepository) ListRecommendations(in *ApiRecommendations.ListApplicationRecommendationsRequest) ([]*ApiRecommendations.ApplicationRecommendation, error) {
-	namespace := in.GetObjectMeta()[0].GetNamespace()
-	name := in.GetObjectMeta()[0].GetName()
-
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    App,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.AppNamespace, "=", namespace)
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.AppName, "=", name)
+	for _, objMeta := range in.GetObjectMeta() {
+		namespace := objMeta.GetNamespace()
+		name := objMeta.GetName()
+
+		if namespace == "" && name == "" {
+			influxdbStatement.WhereClause = ""
+			break
+		}
+
+		keyList := []string{EntityInfluxRecommend.AppNamespace, EntityInfluxRecommend.AppName}
+		valueList := []string{namespace, name}
+
+		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
+
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()

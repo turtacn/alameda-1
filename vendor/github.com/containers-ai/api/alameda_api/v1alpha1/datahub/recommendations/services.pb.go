@@ -444,7 +444,7 @@ func (m *ListControllerRecommendationsRequest) GetRecommendedType() ControllerRe
 	if m != nil {
 		return m.RecommendedType
 	}
-	return ControllerRecommendedType_CRT_Undefined
+	return ControllerRecommendedType_CRT_UNDEFINED
 }
 
 // Represents a response for listing controller recommendations request

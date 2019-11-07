@@ -33,13 +33,13 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 	for _, controllerRecommendation := range controllerRecommendations {
 		recommendedType := controllerRecommendation.GetRecommendedType()
 
-		if recommendedType == ApiRecommendations.ControllerRecommendedType_CRT_Primitive {
+		if recommendedType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
 			recommendedSpec := controllerRecommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
 				EntityInfluxRecommend.ControllerNamespace: controllerRecommendation.GetObjectMeta().GetNamespace(),
 				EntityInfluxRecommend.ControllerName:      controllerRecommendation.GetObjectMeta().GetName(),
-				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_CRT_Primitive.String(),
+				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -64,13 +64,13 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 
 			points = append(points, pt)
 
-		} else if recommendedType == ApiRecommendations.ControllerRecommendedType_CRT_K8s {
+		} else if recommendedType == ApiRecommendations.ControllerRecommendedType_K8S {
 			recommendedSpec := controllerRecommendation.GetRecommendedSpecK8S()
 
 			tags := map[string]string{
 				EntityInfluxRecommend.ControllerNamespace: controllerRecommendation.GetObjectMeta().GetNamespace(),
 				EntityInfluxRecommend.ControllerName:      controllerRecommendation.GetObjectMeta().GetName(),
-				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_CRT_K8s.String(),
+				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_K8S.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -102,24 +102,37 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 }
 
 func (c *ControllerRepository) ListControllerRecommendations(in *ApiRecommendations.ListControllerRecommendationsRequest) ([]*ApiRecommendations.ControllerRecommendation, error) {
-	namespace := in.GetObjectMeta()[0].GetNamespace()
-	name := in.GetObjectMeta()[0].GetName()
-	recommendationType := in.GetRecommendedType()
-
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ControllerNamespace, "=", namespace)
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ControllerName, "=", name)
+	recommendationType := in.GetRecommendedType().String()
+	kind := in.GetKind().String()
+
+	for _, objMeta := range in.GetObjectMeta() {
+		namespace := objMeta.GetNamespace()
+		name := objMeta.GetName()
+
+		keyList := []string{
+			EntityInfluxRecommend.ControllerNamespace,
+			EntityInfluxRecommend.ControllerName,
+			EntityInfluxRecommend.ControllerKind,
+		}
+		valueList := []string{namespace, name, kind}
+
+		if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxRecommend.ControllerType)
+			valueList = append(valueList, recommendationType)
+		}
+
+		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
+
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
-	if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_Undefined {
-		influxdbStatement.AppendWhereClause("AND", EntityInfluxRecommend.ControllerType, "=", recommendationType.String())
-	}
 
 	cmd := influxdbStatement.BuildQueryCmd()
 
@@ -167,7 +180,7 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 				}
 			}
 
-			if commendationType == ApiRecommendations.ControllerRecommendedType_CRT_Primitive {
+			if commendationType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
 				tempRecommendation := &ApiRecommendations.ControllerRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
 						Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
@@ -194,7 +207,7 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 
 				recommendations = append(recommendations, tempRecommendation)
 
-			} else if commendationType == ApiRecommendations.ControllerRecommendedType_CRT_K8s {
+			} else if commendationType == ApiRecommendations.ControllerRecommendedType_K8S {
 				tempRecommendation := &ApiRecommendations.ControllerRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
 						Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],

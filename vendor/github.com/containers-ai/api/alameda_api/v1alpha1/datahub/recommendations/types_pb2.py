@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.recommendations',
   syntax='proto3',
   serialized_options=_b('ZIgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations'),
-  serialized_pb=_b('\n8alameda_api/v1alpha1/datahub/recommendations/types.proto\x12\x35\x63ontainersai.alameda.v1alpha1.datahub.recommendations\x1a\x1fgoogle/protobuf/timestamp.proto\"\xea\x02\n\x19\x43ontrollerRecommendedSpec\x12\x18\n\x10\x63urrent_replicas\x18\x01 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x02 \x01(\x05\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14\x63urrent_cpu_requests\x18\x05 \x01(\x01\x12\x1c\n\x14\x63urrent_mem_requests\x18\x06 \x01(\x01\x12\x1a\n\x12\x63urrent_cpu_limits\x18\x07 \x01(\x01\x12\x1a\n\x12\x63urrent_mem_limits\x18\x08 \x01(\x01\x12\x1a\n\x12\x64\x65sired_cpu_limits\x18\t \x01(\x01\x12\x1a\n\x12\x64\x65sired_mem_limits\x18\n \x01(\x01\x12\x12\n\ntotal_cost\x18\x0b \x01(\x01\"\xad\x01\n\x1c\x43ontrollerRecommendedSpecK8s\x12\x18\n\x10\x63urrent_replicas\x18\x01 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x02 \x01(\x05\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*N\n\x19\x43ontrollerRecommendedType\x12\x11\n\rCRT_Undefined\x10\x00\x12\x11\n\rCRT_Primitive\x10\x01\x12\x0b\n\x07\x43RT_K8s\x10\x02\x42KZIgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendationsb\x06proto3')
+  serialized_pb=_b('\n8alameda_api/v1alpha1/datahub/recommendations/types.proto\x12\x35\x63ontainersai.alameda.v1alpha1.datahub.recommendations\x1a\x1fgoogle/protobuf/timestamp.proto\"\xea\x02\n\x19\x43ontrollerRecommendedSpec\x12\x18\n\x10\x63urrent_replicas\x18\x01 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x02 \x01(\x05\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14\x63urrent_cpu_requests\x18\x05 \x01(\x01\x12\x1c\n\x14\x63urrent_mem_requests\x18\x06 \x01(\x01\x12\x1a\n\x12\x63urrent_cpu_limits\x18\x07 \x01(\x01\x12\x1a\n\x12\x63urrent_mem_limits\x18\x08 \x01(\x01\x12\x1a\n\x12\x64\x65sired_cpu_limits\x18\t \x01(\x01\x12\x1a\n\x12\x64\x65sired_mem_limits\x18\n \x01(\x01\x12\x12\n\ntotal_cost\x18\x0b \x01(\x01\"\xad\x01\n\x1c\x43ontrollerRecommendedSpecK8s\x12\x18\n\x10\x63urrent_replicas\x18\x01 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x02 \x01(\x05\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*F\n\x19\x43ontrollerRecommendedType\x12\x11\n\rCRT_UNDEFINED\x10\x00\x12\r\n\tPRIMITIVE\x10\x01\x12\x07\n\x03K8S\x10\x02\x42KZIgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendationsb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -33,29 +33,29 @@ _CONTROLLERRECOMMENDEDTYPE = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='CRT_Undefined', index=0, number=0,
+      name='CRT_UNDEFINED', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='CRT_Primitive', index=1, number=1,
+      name='PRIMITIVE', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='CRT_K8s', index=2, number=2,
+      name='K8S', index=2, number=2,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=689,
-  serialized_end=767,
+  serialized_end=759,
 )
 _sym_db.RegisterEnumDescriptor(_CONTROLLERRECOMMENDEDTYPE)
 
 ControllerRecommendedType = enum_type_wrapper.EnumTypeWrapper(_CONTROLLERRECOMMENDEDTYPE)
-CRT_Undefined = 0
-CRT_Primitive = 1
-CRT_K8s = 2
+CRT_UNDEFINED = 0
+PRIMITIVE = 1
+K8S = 2
 
 
 

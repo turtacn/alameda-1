@@ -254,7 +254,7 @@ func (m *ControllerRecommendation) GetRecommendedType() ControllerRecommendedTyp
 	if m != nil {
 		return m.RecommendedType
 	}
-	return ControllerRecommendedType_CRT_Undefined
+	return ControllerRecommendedType_CRT_UNDEFINED
 }
 
 func (m *ControllerRecommendation) GetRecommendedSpec() *ControllerRecommendedSpec {
