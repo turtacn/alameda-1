@@ -1,7 +1,6 @@
 package influxdb
 
 import (
-	DaoPlanningTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/plannings/types"
 	RepoInfluxPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/plannings"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
@@ -17,7 +16,7 @@ type ContainerPlannings struct {
 	InfluxDBConfig InternalInflux.Config
 }
 
-func NewContainerPlanningsWithConfig(config InternalInflux.Config) DaoPlanningTypes.ContainerPlanningsDAO {
+func NewContainerPlanningsWithConfig(config InternalInflux.Config) *ContainerPlannings {
 	return &ContainerPlannings{InfluxDBConfig: config}
 }
 
