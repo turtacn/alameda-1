@@ -226,19 +226,19 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *ApiRecommendati
 
 // ListContainerRecommendations list container recommendations
 func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendations.ListPodRecommendationsRequest) ([]*ApiRecommendations.PodRecommendation, error) {
-	kind := in.GetKind()
-	granularity := in.GetGranularity()
-
-	if granularity == 0 {
-		granularity = 30
-	}
-
 	podRecommendations := make([]*ApiRecommendations.PodRecommendation, 0)
 
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Container,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 		GroupByTags:    []string{EntityInfluxRecommend.ContainerName, EntityInfluxRecommend.ContainerNamespace, EntityInfluxRecommend.ContainerPodName},
+	}
+
+	kind := in.GetKind()
+	granularity := in.GetGranularity()
+
+	if granularity == 0 {
+		granularity = 30
 	}
 
 	for _, objMeta := range in.GetObjectMeta() {

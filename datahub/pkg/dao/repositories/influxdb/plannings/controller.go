@@ -105,24 +105,43 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 }
 
 func (c *ControllerRepository) ListControllerPlannings(in *ApiPlannings.ListControllerPlanningsRequest) ([]*ApiPlannings.ControllerPlanning, error) {
-	namespace := in.GetObjectMeta()[0].GetNamespace()
-	name := in.GetObjectMeta()[0].GetName()
-	ctlPlanningType := in.GetCtlPlanningType()
-
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ControllerNamespace, "=", namespace)
-	influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ControllerName, "=", name)
+	planningType := in.GetPlanningType().String()
+	ctlPlanningType := in.GetCtlPlanningType().String()
+	kind := in.GetKind().String()
+
+	for _, objMeta := range in.GetObjectMeta() {
+		namespace := objMeta.GetNamespace()
+		name := objMeta.GetName()
+
+		keyList := []string{
+			EntityInfluxPlanning.ControllerNamespace,
+			EntityInfluxPlanning.ControllerName,
+			EntityInfluxPlanning.ControllerKind,
+		}
+		valueList := []string{namespace, name, kind}
+
+		if ctlPlanningType != ApiPlannings.ControllerPlanningType_CPT_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxPlanning.ControllerType)
+			valueList = append(valueList, ctlPlanningType)
+		}
+
+		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxPlanning.ControllerPlanningType)
+			valueList = append(valueList, planningType)
+		}
+
+		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
+
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
-	if ctlPlanningType != ApiPlannings.ControllerPlanningType_CPT_UNDEFINED {
-		influxdbStatement.AppendWhereClause("AND", EntityInfluxPlanning.ControllerType, "=", ctlPlanningType.String())
-	}
 
 	cmd := influxdbStatement.BuildQueryCmd()
 
