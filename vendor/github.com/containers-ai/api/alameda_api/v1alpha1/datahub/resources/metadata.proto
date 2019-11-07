@@ -17,9 +17,9 @@ enum Kind {
 
 enum ScalingTool {
     SCALING_TOOL_UNDEFINED = 0;
-    SCALING_TOOL_NONE      = 1;
-    SCALING_TOOL_VPA       = 2;
-    SCALING_TOOL_HPA       = 3;
+    NONE                   = 1;
+    VPA                    = 2;
+    HPA                    = 3;
 }
 
 message ObjectMeta {

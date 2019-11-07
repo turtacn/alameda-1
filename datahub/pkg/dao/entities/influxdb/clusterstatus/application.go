@@ -40,4 +40,5 @@ type ApplicationEntity struct {
 	Name        *string
 	Namespace   *string
 	ClusterName *string
+	Uid         *string
 }

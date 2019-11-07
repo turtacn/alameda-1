@@ -10,8 +10,8 @@ option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/r
 
 enum ControllerRecommendedType {
     CRT_UNDEFINED = 0;
-    PRIMITIVE = 1;
-    K8S       = 2;
+    PRIMITIVE     = 1;
+    K8S           = 2;
 }
 
 message ControllerRecommendedSpec {

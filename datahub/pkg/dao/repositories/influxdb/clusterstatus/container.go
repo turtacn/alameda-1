@@ -751,7 +751,7 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 						},
 					},
 					// TODO: handle ScalingTool from Enable_VPA and Enable_HPA
-					ScalingTool: ApiResources.ScalingTool_SCALING_TOOL_VPA,
+					ScalingTool: ApiResources.ScalingTool_VPA,
 				},
 			}
 			datahubPodMap[podID] = datahubPod

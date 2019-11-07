@@ -38,4 +38,5 @@ type NamespaceEntity struct {
 	Namespace   *string
 	NodeName    *string
 	ClusterName *string
+	Uid         *string
 }
