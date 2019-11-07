@@ -47,7 +47,18 @@ func (repo *PodRepository) ListAlamedaPods() ([]*datahub_resources.Pod, error) {
 }
 
 // DeletePods delete pods from datahub
-func (repo *PodRepository) DeletePods(pods []*datahub_resources.Pod) error {
+func (repo *PodRepository) DeletePods(arg interface{}) error {
+	objMeta := []*datahub_resources.ObjectMeta{}
+	if pods, ok := arg.([]*datahub_resources.Pod); ok {
+		for _, pod := range pods {
+			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
+				Name: pod.ObjectMeta.GetName(),
+			})
+		}
+	}
+	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
+		objMeta = meta
+	}
 
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	defer conn.Close()
@@ -56,7 +67,7 @@ func (repo *PodRepository) DeletePods(pods []*datahub_resources.Pod) error {
 	}
 
 	req := datahub_resources.DeletePodsRequest{
-		Pods: pods,
+		ObjectMeta: objMeta,
 	}
 
 	aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)

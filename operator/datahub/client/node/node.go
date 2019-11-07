@@ -55,10 +55,21 @@ func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*datahub_resources.
 }
 
 // DeleteAlamedaNodes delete predicted node from datahub
-func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(nodes []*datahub_resources.Node) error {
+func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(arg interface{}) error {
+	objMeta := []*datahub_resources.ObjectMeta{}
+	if nodes, ok := arg.([]*datahub_resources.Node); ok {
+		for _, node := range nodes {
+			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
+				Name: node.ObjectMeta.GetName(),
+			})
+		}
+	}
+	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
+		objMeta = meta
+	}
 
 	req := datahub_resources.DeleteNodesRequest{
-		Nodes: nodes,
+		ObjectMeta: objMeta,
 	}
 
 	if resp, err := repo.datahubClient.DeleteNodes(context.Background(), &req); err != nil {

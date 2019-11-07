@@ -608,15 +608,22 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			appPartOf = scaler.Labels["app.federator.ai/part-of"]
 		}
 
+		scalingTool := datahub_resources.ScalingTool_NONE
+		scalingToolType := strings.ToLower(strings.Trim(scaler.Spec.ScalingTool.Type, " "))
+		if scalingToolType == "vpa" {
+			scalingTool = datahub_resources.ScalingTool_VPA
+		} else if scalingToolType == "hpa" {
+			scalingTool = datahub_resources.ScalingTool_HPA
+		}
+
 		podsNeedCreating = append(podsNeedCreating, &datahub_resources.Pod{
 			AlamedaPodSpec: &datahub_resources.AlamedaPodSpec{
 				AlamedaScaler: &datahub_resources.ObjectMeta{
 					Namespace: scaler.Namespace,
 					Name:      scaler.Name,
 				},
-				Policy:     datahub_resources.RecommendationPolicy(policy),
-				Enable_VPA: scaler.IsScalingToolTypeVPA(),
-				Enable_HPA: scaler.IsScalingToolTypeHPA(),
+				Policy:      datahub_resources.RecommendationPolicy(policy),
+				ScalingTool: scalingTool,
 				AlamedaScalerResources: &datahub_resources.ResourceRequirements{
 					Requests: map[int32]string{
 						int32(datahub_common.ResourceName_CPU):    scaler.GetRequestCPUMilliCores(),
@@ -702,24 +709,16 @@ func deletePodsFromDatahub(scalerNamespacedName *types.NamespacedName, existingP
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
-	podsNeedDeleting := []*datahub_resources.Pod{}
+	podsNeedDeleting := []*datahub_resources.ObjectMeta{}
 	for _, pod := range pods {
-		podsNeedDeleting = append(podsNeedDeleting, &datahub_resources.Pod{
-			ObjectMeta: &datahub_resources.ObjectMeta{
-				Namespace: pod.Namespace,
-				Name:      pod.Name,
-			},
-			AlamedaPodSpec: &datahub_resources.AlamedaPodSpec{
-				AlamedaScaler: &datahub_resources.ObjectMeta{
-					Namespace: scalerNamespacedName.Namespace,
-					Name:      scalerNamespacedName.Name,
-				},
-			},
+		podsNeedDeleting = append(podsNeedDeleting, &datahub_resources.ObjectMeta{
+			Namespace: pod.Namespace,
+			Name:      pod.Name,
 		})
 	}
 
 	req := datahub_resources.DeletePodsRequest{
-		Pods: podsNeedDeleting,
+		ObjectMeta: podsNeedDeleting,
 	}
 	resp, err := datahubServiceClnt.DeletePods(context.Background(), &req)
 	if err != nil {

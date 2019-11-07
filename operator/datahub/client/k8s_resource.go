@@ -78,7 +78,19 @@ func (repo *K8SResource) CreateAlamedaWatchedResource(resources []*datahub_resou
 	return nil
 }
 
-func (repo *K8SResource) DeleteAlamedaWatchedResource(resources []*datahub_resources.Controller) error {
+func (repo *K8SResource) DeleteAlamedaWatchedResource(arg interface{}) error {
+	objMeta := []*datahub_resources.ObjectMeta{}
+	if controllers, ok := arg.([]*datahub_resources.Controller); ok {
+		for _, controller := range controllers {
+			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
+				Name: controller.ObjectMeta.GetName(),
+			})
+		}
+	}
+	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
+		objMeta = meta
+	}
+
 	conn, err := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure())
 	if err != nil {
 		return errors.Errorf("delete controllers to datahub failed: %s", err.Error())
@@ -87,7 +99,7 @@ func (repo *K8SResource) DeleteAlamedaWatchedResource(resources []*datahub_resou
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	req := datahub_resources.DeleteControllersRequest{
-		Controllers: resources,
+		ObjectMeta: objMeta,
 	}
 	scope.Debugf("Delete controllers to datahub with request %s.", alamutils.InterfaceToString(req))
 	resp, err := datahubServiceClnt.DeleteControllers(context.Background(), &req)
