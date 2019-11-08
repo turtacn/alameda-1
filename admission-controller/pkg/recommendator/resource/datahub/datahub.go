@@ -96,9 +96,11 @@ func buildListAvailablePodRecommendationsRequest(request resource.ListController
 	}
 
 	datahubRequest = &datahub_recommendations.ListPodRecommendationsRequest{
-		NamespacedName: &datahub_resources.NamespacedName{
-			Namespace: request.Namespace,
-			Name:      request.Name,
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				Namespace: request.Namespace,
+				Name:      request.Name,
+			},
 		},
 		Kind: datahubKind,
 		QueryCondition: &datahub_common.QueryCondition{
@@ -115,12 +117,8 @@ func buildListAvailablePodRecommendationsRequest(request resource.ListController
 // TODO assign value of datahub.PodRecommendation.AssignedPodName to resource.Recommendation.AssignedPodName
 func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecommendation *datahub_recommendations.PodRecommendation) *resource.PodResourceRecommendation {
 
-	namespace := ""
-	name := ""
-	if namespacedName := datahubPodRecommendation.GetNamespacedName(); namespacedName != nil {
-		namespace = namespacedName.Namespace
-		name = namespacedName.Name
-	}
+	namespace := datahubPodRecommendation.ObjectMeta.GetNamespace()
+	name := datahubPodRecommendation.ObjectMeta.GetName()
 
 	startTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetStartTime())
 	endTime, _ := ptypes.Timestamp(datahubPodRecommendation.GetEndTime())
@@ -129,9 +127,7 @@ func buildPodResourceRecommendationFromDatahubPodRecommendation(datahubPodRecomm
 	topControllerName := ""
 	if datahubPodRecommendation.TopController != nil {
 		topControllerKind = datahubKind_K8SKind[datahubPodRecommendation.TopController.Kind]
-		if datahubPodRecommendation.TopController.NamespacedName != nil {
-			topControllerName = datahubPodRecommendation.TopController.NamespacedName.Name
-		}
+		topControllerName = datahubPodRecommendation.TopController.ObjectMeta.GetName()
 	}
 
 	podRecommendation := &resource.PodResourceRecommendation{

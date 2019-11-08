@@ -12,7 +12,7 @@ import (
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/pkg/errors"
 	"gopkg.in/mail.v2"
 )
@@ -48,7 +48,7 @@ func NewEmailClient(notificationChannel *notifyingv1alpha1.AlamedaNotificationCh
 	}, nil
 }
 
-func (emailClient *EmailClient) SendEvent(evt *datahub_v1alpha1.Event) error {
+func (emailClient *EmailClient) SendEvent(evt *datahub_events.Event) error {
 	msg := evt.GetMessage()
 	subject := notifier_utils.EventEmailSubject(evt)
 	from := emailClient.notificationChannel.Spec.Email.From

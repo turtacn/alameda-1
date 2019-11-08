@@ -14,6 +14,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/spf13/viper"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -29,7 +30,7 @@ type notifier struct {
 }
 
 func NewNotifier(mgr manager.Manager, datahubClient datahub_v1alpha1.DatahubServiceClient,
-                 clusterInfo *notifier_utils.ClusterInfo) *notifier {
+	clusterInfo *notifier_utils.ClusterInfo) *notifier {
 	return &notifier{
 		k8sClient:     mgr.GetClient(),
 		clusterInfo:   clusterInfo,
@@ -37,7 +38,7 @@ func NewNotifier(mgr manager.Manager, datahubClient datahub_v1alpha1.DatahubServ
 	}
 }
 
-func (notifier *notifier) NotifyEvents(evts []*datahub_v1alpha1.Event) {
+func (notifier *notifier) NotifyEvents(evts []*datahub_events.Event) {
 	alamedaNotificationTopicList := &notifyingv1alpha1.AlamedaNotificationTopicList{}
 	err := notifier.k8sClient.List(context.TODO(), alamedaNotificationTopicList)
 	if err != nil {
@@ -52,7 +53,7 @@ func (notifier *notifier) NotifyEvents(evts []*datahub_v1alpha1.Event) {
 	}
 }
 
-func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_v1alpha1.Event,
+func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_events.Event,
 	notificationTopic *notifyingv1alpha1.AlamedaNotificationTopic) {
 	if notificationTopic.Spec.Disabled {
 		return
@@ -150,7 +151,7 @@ func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_v1alpha1.Event,
 	if toSendEvt {
 		evtSender := event.NewEventSender(notifier.datahubClient)
 		podName := utils.GetRunningPodName()
-		evtSender.SendEvents([]*datahub_v1alpha1.Event{
+		evtSender.SendEvents([]*datahub_events.Event{
 			event.GetEmailNotificationEvent(errMsg, podName, notifier.clusterInfo.UID),
 		})
 	}
@@ -172,7 +173,7 @@ func (notifier *notifier) sendEvtBaseOnTopic(evt *datahub_v1alpha1.Event,
 	}
 }
 
-func (notifier *notifier) sendEvtByEmails(evt *datahub_v1alpha1.Event,
+func (notifier *notifier) sendEvtByEmails(evt *datahub_events.Event,
 	emailChannel *notifyingv1alpha1.AlamedaEmailChannel) error {
 	alamedaNotificationChannel := &notifyingv1alpha1.AlamedaNotificationChannel{}
 	err := notifier.k8sClient.Get(context.TODO(), client.ObjectKey{

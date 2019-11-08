@@ -40,9 +40,11 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 
 	ctx := buildDefaultRequestContext()
 	req := &datahub_resources.ListControllersRequest{
-		NamespacedName: &datahub_resources.NamespacedName{
-			Namespace: namespace,
-			Name:      name,
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				Namespace: namespace,
+				Name:      name,
+			},
 		},
 	}
 	scope.Debugf("query ListControllers to datahub, send request: %+v", req)
@@ -60,29 +62,31 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 	controllers := resp.Controllers
 	indices := getMatchedControllerIndices(controllers, namespace, name, datahub_resources.Kind(datahubKind))
 	if len(indices) == 0 {
-		return false, errors.Errorf("cannot find matched controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
+		return false, errors.Errorf(
+			"cannot find matched controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
 	}
 	controller := controllers[0]
 
-	alamedaScalerIndices := getMatchedResourceIndicesWithKind(controller.OwnerInfo, datahub_resources.Kind_ALAMEDASCALER)
+	alamedaScalerIndices := getMatchedResourceIndicesWithKind(
+		controller.GetOwnerReferences(), datahub_resources.Kind_ALAMEDASCALER)
 	if len(alamedaScalerIndices) == 0 {
-		return false, errors.Errorf("cannot find matched AlamedaScaler to controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
+		return false, errors.Errorf(
+			"cannot find matched AlamedaScaler to controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
 	}
-	alamedaScalerInfo := controller.OwnerInfo[alamedaScalerIndices[0]]
-	alamedaScalerNamespacedName := alamedaScalerInfo.NamespacedName
-	if alamedaScalerNamespacedName == nil {
-		return false, errors.Errorf("getting AlamedaScaler with empty NamespacedName controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
-	} else if alamedaScalerNamespacedName.Namespace == "" || alamedaScalerNamespacedName.Name == "" {
-		return false, errors.Errorf("getting AlamedaScaler with empty NamespacedName controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
+	alamedaScalerInfo := controller.OwnerReferences[alamedaScalerIndices[0]]
+	asNS := alamedaScalerInfo.ObjectMeta.GetNamespace()
+	asName := alamedaScalerInfo.ObjectMeta.GetName()
+	if asNS == "" || asName == "" {
+		return false, errors.Errorf(
+			"getting AlamedaScaler with empty NamespacedName controller (%s/%s ,kind: %s) from datahub",
+			namespace, name, kind)
 	}
 
 	alamedaScaler := autoscaling_v1alpha1.AlamedaScaler{}
-	err = v.sigsK8SClient.Get(
-		ctx,
-		client.ObjectKey{
-			Namespace: alamedaScalerNamespacedName.Namespace,
-			Name:      alamedaScalerNamespacedName.Name,
-		},
+	err = v.sigsK8SClient.Get(ctx, client.ObjectKey{
+		Namespace: asNS,
+		Name:      asName,
+	},
 		&alamedaScaler)
 	if err != nil {
 		return false, errors.Errorf("get AlamedaScaler from k8s failed: %s", err.Error())
@@ -98,33 +102,37 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 	return alamedaScaler.IsEnableExecution(), nil
 }
 
-func getMatchedControllerIndices(controllers []*datahub_resources.Controller, namespace string, name string, kind datahub_resources.Kind) []int {
+func getMatchedControllerIndices(controllers []*datahub_resources.Controller,
+	namespace string, name string, kind datahub_resources.Kind) []int {
 
-	controllersInfo := make([]*datahub_resources.ResourceInfo, len(controllers))
+	controllersInfo := make([]*datahub_resources.Controller, len(controllers))
 	for i, controller := range controllers {
-		controllersInfo[i] = controller.ControllerInfo
+		controllersInfo[i] = controller
 	}
 
 	return getMatchedResourceIndex(controllersInfo, namespace, name, kind)
 }
 
-func getMatchedResourceIndex(resourcesInfo []*datahub_resources.ResourceInfo, namespace string, name string, kind datahub_resources.Kind) []int {
+func getMatchedResourceIndex(controllers []*datahub_resources.Controller,
+	namespace string, name string, kind datahub_resources.Kind) []int {
 
 	indices := make([]int, 0)
-	for i, resourceInfo := range resourcesInfo {
+	for i, controller := range controllers {
 
-		if resourceInfo == nil {
+		if controller == nil {
 			continue
-		} else if resourceInfo.NamespacedName == nil {
-			continue
-		} else if resourceInfo.NamespacedName.Namespace == namespace && resourceInfo.NamespacedName.Name == name && resourceInfo.Kind == kind {
+		} else if controller.ObjectMeta.GetNamespace() == namespace &&
+			controller.ObjectMeta.GetName() == name && controller.GetKind() == kind {
 			indices = append(indices, i)
+		} else {
+			continue
 		}
 	}
 	return indices
 }
 
-func getMatchedResourceIndicesWithKind(resourcesInfo []*datahub_resources.ResourceInfo, kind datahub_resources.Kind) []int {
+func getMatchedResourceIndicesWithKind(resourcesInfo []*datahub_resources.OwnerReference,
+	kind datahub_resources.Kind) []int {
 
 	indices := make([]int, 0)
 	for i, resourceInfo := range resourcesInfo {

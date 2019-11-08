@@ -89,24 +89,28 @@ func (evictioner *Evictioner) evictPods(recPodList []*datahub_recommendations.Po
 	for _, recPod := range recPodList {
 		recPodIns := &corev1.Pod{}
 		err := evictioner.k8sClienit.Get(context.TODO(), types.NamespacedName{
-			Namespace: recPod.GetNamespacedName().GetNamespace(),
-			Name:      recPod.GetNamespacedName().GetName(),
+			Namespace: recPod.ObjectMeta.GetNamespace(),
+			Name:      recPod.ObjectMeta.GetName(),
 		}, recPodIns)
 		if err != nil {
 			if !k8serrors.IsNotFound(err) {
-				scope.Errorf("Get Pod(%s/%s) failed: %s", recPod.GetNamespacedName().GetNamespace(), recPod.GetNamespacedName().GetName(), err.Error())
+				scope.Errorf("Get Pod(%s/%s) failed: %s",
+					recPod.ObjectMeta.GetNamespace(), recPod.ObjectMeta.GetName(), err.Error())
 			}
 			continue
 		}
 		if evictioner.purgeContainerCPUMemory {
 			topController := recPod.TopController
-			if topController == nil || topController.NamespacedName == nil {
-				scope.Errorf("Purge pod (%s,%s) resources failed: get empty topController from PodRecommendation", recPodIns.GetNamespace(), recPodIns.GetName())
+			topControllerNamespace := topController.ObjectMeta.GetNamespace()
+			topControllerName := topController.ObjectMeta.GetName()
+			if topController == nil ||
+				(topControllerNamespace == "" && topControllerName == "") {
+				scope.Errorf("Purge pod (%s,%s) resources failed: get empty topController from PodRecommendation",
+					recPodIns.GetNamespace(), recPodIns.GetName())
 				continue
 
 			}
-			topControllerNamespace := topController.NamespacedName.Namespace
-			topControllerName := topController.NamespacedName.Name
+
 			topControllerKind := topController.Kind
 			topControllerInstance, err := evictioner.getTopController(topControllerNamespace, topControllerName, topControllerKind)
 			if err != nil {
@@ -504,23 +508,27 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		// Filter out invalid PodRecommendation
 		copyPodRecommendation := proto.Clone(podRecommendation)
 		podRecommendation = copyPodRecommendation.(*datahub_recommendations.PodRecommendation)
-		recommendationNamespacedName := podRecommendation.NamespacedName
-		if recommendationNamespacedName == nil {
+
+		recNS := podRecommendation.ObjectMeta.GetNamespace()
+		recName := podRecommendation.ObjectMeta.GetName()
+		if recNS == "" && recName == "" {
 			scope.Errorf("Skip PodRecommendation due to PodRecommendation has empty NamespacedName")
 			continue
 		}
 
 		// Get AlamedaScaler owns this PodRecommendation and validate the AlamedaScaler is enabled execution.
-		alamedaRecommendation, err := getResource.GetAlamedaRecommendation(podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name)
+		alamedaRecommendation, err := getResource.GetAlamedaRecommendation(
+			recNS, recName)
 		if err != nil {
-			scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaRecommendation falied: %s",
+				recNS, recName, err.Error())
 			continue
 		}
 		alamedaScalerNamespace := ""
 		alamedaScalerName := ""
 		for _, or := range alamedaRecommendation.OwnerReferences {
 			if or.Kind == "AlamedaScaler" {
-				alamedaScalerNamespace = alamedaRecommendation.Namespace
+				alamedaScalerNamespace = alamedaRecommendation.GetNamespacedName()
 				alamedaScalerName = or.Name
 				break
 			}
@@ -529,42 +537,49 @@ func NewControllerRecommendationInfoMap(client client.Client, podRecommendations
 		if !exist {
 			alamedaScaler, err = getResource.GetAlamedaScaler(alamedaScalerNamespace, alamedaScalerName)
 			if err != nil {
-				scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s", podRecommendation.NamespacedName.Namespace, podRecommendation.NamespacedName.Name, err.Error())
+				scope.Errorf("Skip PodRecommendation (%s/%s) due to get AlamedaScaler falied: %s",
+					recNS, recName, err.Error())
 				continue
 			}
 			alamedaScalerMap[fmt.Sprintf("%s/%s", alamedaScalerNamespace, alamedaScalerName)] = alamedaScaler
 		}
 		if !alamedaScaler.IsEnableExecution() {
-			scope.Errorf("Skip PodRecommendation (%s/%s) because it's execution is not enabled.", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			scope.Errorf("Skip PodRecommendation (%s/%s) because it's execution is not enabled.",
+				recNS, recName)
 			continue
 		}
 
 		// Get Pod instance of this PodRecommendation
-		podNamespace := recommendationNamespacedName.Namespace
-		podName := recommendationNamespacedName.Name
+		podNamespace := recNS
+		podName := recName
 		pod, err := getResource.GetPod(podNamespace, podName)
 		if err != nil {
-			scope.Errorf("Skip PodRecommendation due to get Pod (%s/%s) failed: %s", podNamespace, podName, err.Error())
+			scope.Errorf("Skip PodRecommendation due to get Pod (%s/%s) failed: %s",
+				podNamespace, podName, err.Error())
 			continue
 		}
 
 		// Get topmost controller namespace, name and kind controlling this pod
 		controller := podRecommendation.TopController
 		if controller == nil {
-			scope.Errorf("Skip PodRecommendation (%s/%s) due to PodRecommendation has empty topmost controller", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to PodRecommendation has empty topmost controller",
+				recNS, recName)
 			continue
-		} else if controller.NamespacedName == nil {
-			scope.Errorf("Skip PodRecommendation (%s/%s) due to topmost controller has empty NamespacedName", recommendationNamespacedName.Namespace, recommendationNamespacedName.Name)
+		} else if controller.ObjectMeta.GetNamespace() == "" &&
+			controller.ObjectMeta.GetName() == "" {
+			scope.Errorf("Skip PodRecommendation (%s/%s) due to topmost controller has empty NamespacedName",
+				recNS, recName)
 			continue
 		}
 
 		// Append podRecommendationInfos into controllerRecommendationInfo
-		controllerID := fmt.Sprintf("%s.%s.%s", controller.Kind, controller.NamespacedName.Namespace, controller.NamespacedName.Name)
+		controllerID := fmt.Sprintf("%s.%s.%s", controller.Kind,
+			controller.ObjectMeta.GetNamespace(), controller.ObjectMeta.GetName())
 		_, exist = controllerRecommendationInfoMap[controllerID]
 		if !exist {
 			controllerRecommendationInfoMap[controllerID] = &controllerRecommendationInfo{
-				namespace:              controller.NamespacedName.Namespace,
-				name:                   controller.NamespacedName.Name,
+				namespace:              controller.ObjectMeta.GetNamespace(),
+				name:                   controller.ObjectMeta.GetName(),
 				kind:                   datahub_resources.Kind_name[int32(controller.Kind)],
 				alamedaScaler:          alamedaScaler,
 				podRecommendationInfos: make([]*podRecommendationInfo, 0),
