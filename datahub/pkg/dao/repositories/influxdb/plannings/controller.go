@@ -151,9 +151,9 @@ func (c *ControllerRepository) ListControllerPlannings(in *ApiPlannings.ListCont
 	}
 
 	influxdbRows := InternalInflux.PackMap(results)
-	recommendations := c.getControllersPlanningsFromInfluxRows(influxdbRows)
+	plannings := c.getControllersPlanningsFromInfluxRows(influxdbRows)
 
-	return recommendations, nil
+	return plannings, nil
 }
 
 func (c *ControllerRepository) getControllersPlanningsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*ApiPlannings.ControllerPlanning {

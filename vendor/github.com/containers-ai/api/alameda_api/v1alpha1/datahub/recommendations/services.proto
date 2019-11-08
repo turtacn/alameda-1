@@ -68,8 +68,10 @@ message ListControllerRecommendationsResponse {
 }
 
 message ListApplicationRecommendationsRequest {
-    common.QueryCondition         query_condition = 1;
-    repeated resources.ObjectMeta object_meta     = 2;
+    common.QueryCondition         query_condition  = 1;
+    repeated resources.ObjectMeta object_meta      = 2;
+    resources.Kind                kind             = 3;
+    ControllerRecommendedType     recommended_type = 4;
 }
 
 message ListApplicationRecommendationsResponse {
@@ -78,8 +80,10 @@ message ListApplicationRecommendationsResponse {
 }
 
 message ListNamespaceRecommendationsRequest {
-    common.QueryCondition         query_condition = 1;
-    repeated resources.ObjectMeta object_meta     = 2;
+    common.QueryCondition         query_condition  = 1;
+    repeated resources.ObjectMeta object_meta      = 2;
+    resources.Kind                kind             = 3;
+    ControllerRecommendedType     recommended_type = 4;
 }
 
 message ListNamespaceRecommendationsResponse {
@@ -88,8 +92,10 @@ message ListNamespaceRecommendationsResponse {
 }
 
 message ListNodeRecommendationsRequest {
-    common.QueryCondition         query_condition = 1;
-    repeated resources.ObjectMeta object_meta     = 2;
+    common.QueryCondition         query_condition  = 1;
+    repeated resources.ObjectMeta object_meta      = 2;
+    resources.Kind                kind             = 3;
+    ControllerRecommendedType     recommended_type = 4;
 }
 
 message ListNodeRecommendationsResponse {
@@ -98,8 +104,10 @@ message ListNodeRecommendationsResponse {
 }
 
 message ListClusterRecommendationsRequest {
-    common.QueryCondition         query_condition = 1;
-    repeated resources.ObjectMeta object_meta     = 2;
+    common.QueryCondition         query_condition  = 1;
+    repeated resources.ObjectMeta object_meta      = 2;
+    resources.Kind                kind             = 3;
+    ControllerRecommendedType     recommended_type = 4;
 }
 
 message ListClusterRecommendationsResponse {
