@@ -40,7 +40,7 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, qu
 
 	for _, pod := range pods {
 		if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
-			pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_SCALING_TOOL_VPA) {
+			pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_VPA) {
 			continue
 		}
 

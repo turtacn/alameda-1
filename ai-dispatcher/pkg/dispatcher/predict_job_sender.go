@@ -58,7 +58,7 @@ func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_resources
 	for _, pod := range pods {
 		if granularity == 30 &&
 			(!viper.GetBool("hourlyPredict") &&
-				pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_SCALING_TOOL_VPA) {
+				pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_VPA) {
 			continue
 		}
 
