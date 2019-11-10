@@ -1,19 +1,19 @@
 package responses
 
 import (
-	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
+	"github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
 type ControllerExtended struct {
-	*DaoClusterTypes.Controller
+	*types.Controller
 }
 
-func (n *ControllerExtended) ProduceController() *ApiResources.Controller {
-	controller := ApiResources.Controller{}
-	controller.OwnerReferences = make([]*ApiResources.OwnerReference, 0)
+func (n *ControllerExtended) ProduceController() *resources.Controller {
+	controller := resources.Controller{}
+	controller.OwnerReferences = make([]*resources.OwnerReference, 0)
 	controller.ObjectMeta = NewObjectMeta(n.ObjectMeta)
-	controller.Kind = ApiResources.Kind(ApiResources.Kind_value[n.Kind])
+	controller.Kind = resources.Kind(resources.Kind_value[n.Kind])
 	controller.Replicas = n.Replicas
 	controller.SpecReplicas = n.SpecReplicas
 	controller.AlamedaControllerSpec = NewAlamedaControllerSpec(n.AlamedaControllerSpec)

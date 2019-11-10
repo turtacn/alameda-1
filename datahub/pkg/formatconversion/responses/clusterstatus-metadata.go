@@ -23,11 +23,3 @@ func NewOwnerReference(ownerReference types.OwnerReference) *resources.OwnerRefe
 	ownerRef.Kind = resources.Kind(resources.Kind_value[ownerReference.Kind])
 	return &ownerRef
 }
-
-func NewAlamedaControllerSpec(controlSpec types.AlamedaControllerSpec) *resources.AlamedaControllerSpec {
-	ctlSpec := resources.AlamedaControllerSpec{}
-	ctlSpec.AlamedaScaler = NewObjectMeta(controlSpec.AlamedaScaler)
-	ctlSpec.Policy = resources.RecommendationPolicy(resources.RecommendationPolicy_value[controlSpec.Policy])
-	ctlSpec.EnableRecommendationExecution = controlSpec.EnableExecution
-	return &ctlSpec
-}

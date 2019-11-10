@@ -24,12 +24,3 @@ func NewOwnerReference(ownerReference *resources.OwnerReference) types.OwnerRefe
 	}
 	return owner
 }
-
-func NewAlamedaControllerSpec(controllerSpec *resources.AlamedaControllerSpec) types.AlamedaControllerSpec {
-	spec := types.AlamedaControllerSpec{
-		AlamedaScaler:   NewObjectMeta(controllerSpec.GetAlamedaScaler()),
-		Policy:          controllerSpec.GetPolicy().String(),
-		EnableExecution: controllerSpec.GetEnableRecommendationExecution(),
-	}
-	return spec
-}

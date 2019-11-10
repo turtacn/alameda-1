@@ -1,16 +1,16 @@
 package responses
 
 import (
-	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
+	"github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
 type NamespaceExtended struct {
-	*DaoClusterTypes.Namespace
+	*types.Namespace
 }
 
-func (n *NamespaceExtended) ProduceNamespace() *ApiResources.Namespace {
-	namespace := &ApiResources.Namespace{
+func (n *NamespaceExtended) ProduceNamespace() *resources.Namespace {
+	namespace := &resources.Namespace{
 		ObjectMeta: NewObjectMeta(n.ObjectMeta),
 	}
 	return namespace

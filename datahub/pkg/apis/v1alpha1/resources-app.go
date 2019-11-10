@@ -22,8 +22,7 @@ func (s *ServiceV1alpha1) CreateApplications(ctx context.Context, in *ApiResourc
 	}
 
 	applicationDAO := DaoCluster.NewApplicationDAO(*s.Config)
-	err := applicationDAO.CreateApplications(requestExtended.ProduceApplications())
-	if err != nil {
+	if err := applicationDAO.CreateApplications(requestExtended.ProduceApplications()); err != nil {
 		scope.Errorf("failed to create applications: %+v", err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

@@ -51,8 +51,8 @@ message Namespace {
 // Represents a Kubernetes node
 message Node {
     ObjectMeta                object_meta        = 1;
-    Capacity                  capacity           = 2;
-    google.protobuf.Timestamp start_time         = 3;
+    google.protobuf.Timestamp start_time         = 2;
+    Capacity                  capacity           = 3;
     AlamedaNodeSpec           alameda_node_spec  = 4;
 }
 

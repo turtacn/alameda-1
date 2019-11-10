@@ -17,8 +17,7 @@ func NewControllerWithConfig(config InternalInflux.Config) DaoClusterTypes.Contr
 
 func (c *Controller) CreateControllers(controllers []*DaoClusterTypes.Controller) error {
 	controllerRepo := RepoInfluxCluster.NewControllerRepository(&c.InfluxDBConfig)
-	err := controllerRepo.CreateControllers(controllers)
-	if err != nil {
+	if err := controllerRepo.CreateControllers(controllers); err != nil {
 		scope.Error(err.Error())
 		return err
 	}

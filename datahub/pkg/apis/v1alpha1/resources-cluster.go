@@ -22,8 +22,7 @@ func (s *ServiceV1alpha1) CreateClusters(ctx context.Context, in *ApiResources.C
 	}
 
 	clusterDAO := DaoCluster.NewClusterDAO(*s.Config)
-	err := clusterDAO.CreateClusters(requestExtended.ProduceClusters())
-	if err != nil {
+	if err := clusterDAO.CreateClusters(requestExtended.ProduceClusters()); err != nil {
 		scope.Errorf("failed to create clusters: %+v", err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

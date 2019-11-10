@@ -22,8 +22,7 @@ func (s *ServiceV1alpha1) CreateNamespaces(ctx context.Context, in *ApiResources
 	}
 
 	namespaceDAO := DaoCluster.NewNamespaceDAO(*s.Config)
-	err := namespaceDAO.CreateNamespaces(requestExtended.ProduceNamespaces())
-	if err != nil {
+	if err := namespaceDAO.CreateNamespaces(requestExtended.ProduceNamespaces()); err != nil {
 		scope.Errorf("failed to create namespaces: %+v", err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

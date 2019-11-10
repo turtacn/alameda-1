@@ -82,8 +82,8 @@ message ListNamespacesResponse {
 
 // Represents a request for listing nodes that need to be predicted
 message ListNodesRequest {
-    common.TimeRange    time_range  = 1;
-    repeated ObjectMeta object_meta = 2;
+    common.QueryCondition query_condition = 1;
+    repeated ObjectMeta   object_meta     = 2;
 }
 
 // Represents a response for a listing nodes request

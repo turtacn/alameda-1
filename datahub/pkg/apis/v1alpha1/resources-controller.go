@@ -22,8 +22,7 @@ func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *ApiResource
 	}
 
 	controllerDAO := DaoCluster.NewControllerDAO(*s.Config)
-	err := controllerDAO.CreateControllers(requestExtended.ProduceControllers())
-	if err != nil {
+	if err := controllerDAO.CreateControllers(requestExtended.ProduceControllers()); err != nil {
 		scope.Errorf("failed to create controllers: %+v", err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
@@ -74,6 +73,7 @@ func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *ApiResources.
 		},
 		Controllers: controllers,
 	}
+
 	return &response, nil
 }
 
