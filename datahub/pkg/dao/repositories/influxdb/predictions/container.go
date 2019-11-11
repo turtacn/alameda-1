@@ -1,7 +1,7 @@
 package predictions
 
 import (
-	"fmt"
+	//"fmt"
 	EntityInfluxPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/predictions"
 	DaoPredictionTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions/types"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
@@ -94,19 +94,37 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 		GroupByTags:    []string{string(EntityInfluxPrediction.ContainerNamespace), string(EntityInfluxPrediction.ContainerPodName), string(EntityInfluxPrediction.ContainerName)},
 	}
 
-	whereClause := ""
-	if request.Granularity == 0 || request.Granularity == 30 {
-		whereClause = fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", string(EntityInfluxPrediction.ContainerGranularity), string(EntityInfluxPrediction.ContainerGranularity))
-	} else {
-		whereClause = fmt.Sprintf("\"%s\"='%s'", string(EntityInfluxPrediction.ContainerGranularity), strconv.FormatInt(request.Granularity, 10))
+	granularity := request.Granularity
+	if granularity == 0 {
+		granularity = 30
+	}
+
+	for _, objMeta := range request.ObjectMeta {
+		if objMeta.Namespace == "" && objMeta.Name == "" && request.ModelId == "" && request.PredictionId == "" {
+			statement.WhereClause = ""
+			break
+		}
+
+		keyList := []string{
+			string(EntityInfluxPrediction.ContainerNamespace),
+			string(EntityInfluxPrediction.ContainerPodName),
+			string(EntityInfluxPrediction.ContainerModelId),
+			string(EntityInfluxPrediction.ContainerPredictionId),
+			string(EntityInfluxPrediction.ContainerGranularity),
+		}
+		valueList := []string{
+			objMeta.Namespace,
+			objMeta.Name,
+			request.ModelId,
+			request.PredictionId,
+			strconv.FormatInt(granularity, 10),
+		}
+
+		tempCondition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", tempCondition)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerNamespace), "=", request.ObjectMeta[0].Namespace)
-	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerPodName), "=", request.ObjectMeta[0].Name)
-	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerModelId), "=", request.ModelId)
-	statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerPredictionId), "=", request.PredictionId)
-	statement.AppendWhereClauseDirectly("AND", whereClause)
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -146,276 +164,3 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 
 	return containerPredictionList, nil
 }
-
-/*
-func (r *ContainerRepository) CreateContainerPrediction(in *ApiPredictions.CreatePodPredictionsRequest) error {
-
-	points := make([]*InfluxClient.Point, 0)
-
-	for _, podPrediction := range in.GetPodPredictions() {
-		podNamespace := podPrediction.GetObjectMeta().GetNamespace()
-		podName := podPrediction.GetObjectMeta().GetName()
-		//modelId := podPrediction.GetModelId()
-		//predictionId := podPrediction.GetPredictionId()
-		modelId := ""
-		predictionId := ""
-
-		for _, containerPrediction := range podPrediction.GetContainerPredictions() {
-			containerName := containerPrediction.GetName()
-
-			r.appendMetricDataToPoints(FormatEnum.MetricKindRaw, containerPrediction.GetPredictedRawData(), &points, podNamespace, podName, containerName, modelId, predictionId)
-			r.appendMetricDataToPoints(FormatEnum.MetricKindUpperBound, containerPrediction.GetPredictedUpperboundData(), &points, podNamespace, podName, containerName, modelId, predictionId)
-			r.appendMetricDataToPoints(FormatEnum.MetricKindLowerBound, containerPrediction.GetPredictedLowerboundData(), &points, podNamespace, podName, containerName, modelId, predictionId)
-		}
-	}
-
-	err := r.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
-		Database: string(RepoInflux.Prediction),
-	})
-	if err != nil {
-		return errors.Wrap(err, "create container prediction failed")
-	}
-
-	return nil
-}
-
-func (r *ContainerRepository) appendMetricDataToPoints(kind FormatEnum.MetricKind, metricDataList []*ApiPredictions.MetricData, points *[]*InfluxClient.Point, podNamespace, podName, containerName, modelId, predictionId string) error {
-	for _, metricData := range metricDataList {
-		metricType := ""
-		switch metricData.GetMetricType() {
-		case ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-			metricType = FormatEnum.MetricTypeCPUUsageSecondsPercentage
-		case ApiCommon.MetricType_MEMORY_USAGE_BYTES:
-			metricType = FormatEnum.MetricTypeMemoryUsageBytes
-		}
-
-		if metricType == "" {
-			return errors.New("No corresponding metricType")
-		}
-
-		granularity := metricData.GetGranularity()
-		if granularity == 0 {
-			granularity = 30
-		}
-
-		for _, data := range metricData.GetData() {
-			tempTimeSeconds := data.GetTime().Seconds
-			value := data.GetNumValue()
-			valueInFloat64, err := DatahubUtils.StringToFloat64(value)
-			if err != nil {
-				return errors.Wrap(err, "new influxdb data point failed")
-			}
-
-			tags := map[string]string{
-				string(EntityInfluxPrediction.ContainerNamespace):   podNamespace,
-				string(EntityInfluxPrediction.ContainerPodName):     podName,
-				string(EntityInfluxPrediction.ContainerName):        containerName,
-				string(EntityInfluxPrediction.ContainerMetric):      metricType,
-				string(EntityInfluxPrediction.ContainerKind):        kind,
-				string(EntityInfluxPrediction.ContainerGranularity): strconv.FormatInt(granularity, 10),
-			}
-			fields := map[string]interface{}{
-				string(EntityInfluxPrediction.ContainerModelId):      modelId,
-				string(EntityInfluxPrediction.ContainerPredictionId): predictionId,
-				string(EntityInfluxPrediction.ContainerValue):        valueInFloat64,
-			}
-			point, err := InfluxClient.NewPoint(string(Container), tags, fields, time.Unix(tempTimeSeconds, 0))
-			if err != nil {
-				return errors.Wrap(err, "new influxdb data point failed")
-			}
-			*points = append(*points, point)
-		}
-	}
-
-	return nil
-}
-
-// ListContainerPredictionsByRequest list containers' prediction from influxDB
-func (r *ContainerRepository) ListContainerPredictionsByRequest(request DaoPredictionTypes.ListPodPredictionsRequest) ([]*ApiPredictions.PodPrediction, error) {
-	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
-
-	queryCondition := DBCommon.QueryCondition{
-		StartTime:      request.QueryCondition.StartTime,
-		EndTime:        request.QueryCondition.EndTime,
-		StepTime:       request.QueryCondition.StepTime,
-		TimestampOrder: request.QueryCondition.TimestampOrder,
-		Limit:          request.QueryCondition.Limit,
-	}
-
-	influxdbStatement := InternalInflux.Statement{
-		QueryCondition: &queryCondition,
-		Measurement:    Container,
-		WhereClause:    whereClause,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ContainerNamespace), string(EntityInfluxPrediction.ContainerPodName), string(EntityInfluxPrediction.ContainerName), string(EntityInfluxPrediction.ContainerMetric), string(EntityInfluxPrediction.ContainerKind), string(EntityInfluxPrediction.ContainerGranularity)},
-	}
-
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause(string(EntityInfluxPrediction.ContainerModelId), "=", request.ModelId)
-	influxdbStatement.AppendWhereClause(string(EntityInfluxPrediction.ContainerPredictionId), "=", request.PredictionId)
-	influxdbStatement.SetLimitClauseFromQueryCondition()
-	influxdbStatement.SetOrderClauseFromQueryCondition()
-	cmd := influxdbStatement.BuildQueryCmd()
-
-	results, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Prediction))
-	if err != nil {
-		return []*ApiPredictions.PodPrediction{}, errors.Wrap(err, "list container prediction failed")
-	}
-
-	rows := InternalInflux.PackMap(results)
-	podPredictions := r.getPodPredictionsFromInfluxRows(rows)
-
-	return podPredictions, nil
-}
-
-func (r *ContainerRepository) getPodPredictionsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*ApiPredictions.PodPrediction {
-	podMap := map[string]*ApiPredictions.PodPrediction{}
-	podContainerMap := map[string]*ApiPredictions.ContainerPrediction{}
-	podContainerKindMetricMap := map[string]*ApiCommon.MetricData{}
-	podContainerKindMetricSampleMap := map[string][]*ApiCommon.Sample{}
-
-	for _, row := range rows {
-		namespace := row.Tags[string(EntityInfluxPrediction.ContainerNamespace)]
-		podName := row.Tags[string(EntityInfluxPrediction.ContainerPodName)]
-		name := row.Tags[string(EntityInfluxPrediction.ContainerName)]
-		metricType := row.Tags[string(EntityInfluxPrediction.ContainerMetric)]
-
-		metricValue := ApiCommon.MetricType(ApiCommon.MetricType_value[metricType])
-		switch metricType {
-		case FormatEnum.MetricTypeCPUUsageSecondsPercentage:
-			metricValue = ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE
-		case FormatEnum.MetricTypeMemoryUsageBytes:
-			metricValue = ApiCommon.MetricType_MEMORY_USAGE_BYTES
-		}
-
-		kind := FormatEnum.MetricKindRaw
-		if val, ok := row.Tags[string(EntityInfluxPrediction.ContainerKind)]; ok {
-			if val != "" {
-				kind = val
-			}
-		}
-
-		granularity := int64(30)
-		if val, ok := row.Tags[string(EntityInfluxPrediction.ContainerGranularity)]; ok {
-			if val != "" {
-				granularity, _ = strconv.ParseInt(val, 10, 64)
-			}
-		}
-
-		for _, data := range row.Data {
-			modelId := data[string(EntityInfluxPrediction.ContainerModelId)]
-			predictionId := data[string(EntityInfluxPrediction.ContainerPredictionId)]
-
-			podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
-			podMap[podKey] = &ApiPredictions.PodPrediction{}
-			podMap[podKey].ObjectMeta = &ApiResources.ObjectMeta{
-				Namespace: namespace,
-				Name:      podName,
-			}
-			//podMap[namespace+"|"+podName+"|"+modelId+"|"+predictionId].ModelId = modelId
-			//podMap[namespace+"|"+podName+"|"+modelId+"|"+predictionId].PredictionId = predictionId
-
-			podContainerKey := podKey + "|" + name
-			podContainerMap[podContainerKey] = &ApiPredictions.ContainerPrediction{}
-			podContainerMap[podContainerKey].Name = name
-
-			metricKey := podContainerKey + "|" + kind + "|" + metricType
-			podContainerKindMetricMap[metricKey] = &ApiCommon.MetricData{}
-			podContainerKindMetricMap[metricKey].MetricType = metricValue
-			podContainerKindMetricMap[metricKey].Granularity = granularity
-
-			t, _ := time.Parse(time.RFC3339, data[string(EntityInfluxPrediction.ContainerTime)])
-			value := data[string(EntityInfluxPrediction.ContainerValue)]
-
-			googleTimestamp, _ := ptypes.TimestampProto(t)
-
-			tempSample := &ApiCommon.Sample{
-				Time:     googleTimestamp,
-				NumValue: value,
-			}
-			podContainerKindMetricSampleMap[metricKey] = append(podContainerKindMetricSampleMap[metricKey], tempSample)
-		}
-	}
-
-	for k := range podContainerKindMetricMap {
-		namespace := strings.Split(k, "|")[0]
-		podName := strings.Split(k, "|")[1]
-		modelId := strings.Split(k, "|")[2]
-		predictionId := strings.Split(k, "|")[3]
-		name := strings.Split(k, "|")[4]
-		kind := strings.Split(k, "|")[5]
-		metricType := strings.Split(k, "|")[6]
-
-		podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
-		podContainerKey := podKey + "|" + name
-		metricKey := podContainerKey + "|" + kind + "|" + metricType
-
-		podContainerKindMetricMap[metricKey].Data = podContainerKindMetricSampleMap[metricKey]
-
-		//if kind == Metric.ContainerMetricKindUpperbound {
-		//	podContainerMap[podContainerKey].PredictedUpperboundData = append(podContainerMap[podContainerKey].PredictedUpperboundData, podContainerKindMetricMap[metricKey])
-		//} else if kind == Metric.ContainerMetricKindLowerbound {
-		//	podContainerMap[podContainerKey].PredictedLowerboundData = append(podContainerMap[podContainerKey].PredictedLowerboundData, podContainerKindMetricMap[metricKey])
-		//} else {
-		//	podContainerMap[podContainerKey].PredictedRawData = append(podContainerMap[podContainerKey].PredictedRawData, podContainerKindMetricMap[metricKey])
-		//}
-	}
-
-	for k := range podContainerMap {
-		namespace := strings.Split(k, "|")[0]
-		podName := strings.Split(k, "|")[1]
-		modelId := strings.Split(k, "|")[2]
-		predictionId := strings.Split(k, "|")[3]
-		name := strings.Split(k, "|")[4]
-
-		podKey := namespace + "|" + podName + "|" + modelId + "|" + predictionId
-		podContainerKey := podKey + "|" + name
-
-		podMap[podKey].ContainerPredictions = append(podMap[podKey].ContainerPredictions, podContainerMap[podContainerKey])
-	}
-
-	podList := make([]*ApiPredictions.PodPrediction, 0)
-	for k := range podMap {
-		podList = append(podList, podMap[k])
-	}
-
-	return podList
-}
-
-func (r *ContainerRepository) buildInfluxQLWhereClauseFromRequest(request DaoPredictionTypes.ListPodPredictionsRequest) string {
-	var (
-		whereClause string
-		conditions  string
-	)
-
-	if request.Namespace != "" {
-		conditions += fmt.Sprintf(`"%s"='%s'`, string(EntityInfluxPrediction.ContainerNamespace), request.Namespace)
-	}
-	if request.PodName != "" {
-		if conditions != "" {
-			conditions += fmt.Sprintf(` AND "%s"='%s'`, string(EntityInfluxPrediction.ContainerPodName), request.PodName)
-		} else {
-			conditions += fmt.Sprintf(`"%s"='%s'`, string(EntityInfluxPrediction.ContainerPodName), request.PodName)
-		}
-	}
-
-	if conditions != "" {
-		if request.Granularity == 30 {
-			conditions += fmt.Sprintf(` AND ("%s"='' OR "%s"='%d')`, string(EntityInfluxPrediction.ContainerGranularity), string(EntityInfluxPrediction.ContainerGranularity), request.Granularity)
-		} else {
-			conditions += fmt.Sprintf(` AND "%s"='%d'`, string(EntityInfluxPrediction.ContainerGranularity), request.Granularity)
-		}
-	} else {
-		if request.Granularity == 30 {
-			conditions += fmt.Sprintf(`("%s"='' OR "%s"='%d')`, string(EntityInfluxPrediction.ContainerGranularity), string(EntityInfluxPrediction.ContainerGranularity), request.Granularity)
-		} else {
-			conditions += fmt.Sprintf(`"%s"='%d'`, string(EntityInfluxPrediction.ContainerGranularity), request.Granularity)
-		}
-	}
-
-	if conditions != "" {
-		whereClause = fmt.Sprintf("WHERE %s", conditions)
-	}
-
-	return whereClause
-}
-*/
