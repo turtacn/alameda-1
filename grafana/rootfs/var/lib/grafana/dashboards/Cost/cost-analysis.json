@@ -3509,7 +3509,7 @@
         "definition": "show tag values on alameda_fedemeter from recommendation_jeri with key = \"country\"",
         "hide": 0,
         "includeAll": false,
-        "label": "Region",
+        "label": "Country",
         "multi": false,
         "name": "country",
         "options": [],
