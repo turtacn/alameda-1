@@ -348,7 +348,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Namespace Cost Percentage",
+      "title": "Namespace Cost Percentage(Last Hour)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -458,7 +458,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Application Cost Percentage - $ns",
+      "title": "Application Cost Percentage - $ns(Last Hour)",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -604,7 +604,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select last(\"\") as namespacename, 100 - sum(costpercentage) as costpercentage, $current_cost - sum(workloadcost) * 730 as workloadcost from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' ",
+          "query": "select last(\"\") as namespacename, 100 - sum(costpercentage) as costpercentage, ($current_cost / 730) - sum(workloadcost) as workloadcost from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' ",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -635,7 +635,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select namespacename, costpercentage, workloadcost * 730 as workloadcost from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' ",
+          "query": "select namespacename, costpercentage, workloadcost from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5]]$/ and starttime = '$ns_starttime' ",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -653,7 +653,7 @@
           "tags": []
         }
       ],
-      "title": "Namespace",
+      "title": "Namespace(Last Hour)",
       "transform": "table",
       "type": "table"
     },
@@ -752,7 +752,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select mean(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '1' and time >= now()  and time <= now() +1d group by time(3600s), namespacename",
+          "query": "select mean(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '1' and time >= now()-1h  and time <= now() +1d group by time(3600s), namespacename",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
