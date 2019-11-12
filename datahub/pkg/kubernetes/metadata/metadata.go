@@ -55,17 +55,17 @@ func (p *ObjectMeta) Initialize(values map[string]string) {
 
 func (p *ObjectMeta) GenerateKeyList() []string {
 	keyList := make([]string, 0)
-	if p.Name != "" {
-		keyList = append(keyList, "name")
-	}
-	if p.Namespace != "" {
-		keyList = append(keyList, "namespace")
+	if p.ClusterName != "" {
+		keyList = append(keyList, "cluster_name")
 	}
 	if p.NodeName != "" {
 		keyList = append(keyList, "node_name")
 	}
-	if p.ClusterName != "" {
-		keyList = append(keyList, "cluster_name")
+	if p.Namespace != "" {
+		keyList = append(keyList, "namespace")
+	}
+	if p.Name != "" {
+		keyList = append(keyList, "name")
 	}
 	if p.Uid != "" {
 		keyList = append(keyList, "uid")
@@ -75,17 +75,17 @@ func (p *ObjectMeta) GenerateKeyList() []string {
 
 func (p *ObjectMeta) GenerateValueList() []string {
 	valueList := make([]string, 0)
-	if p.Name != "" {
-		valueList = append(valueList, p.Name)
-	}
-	if p.Namespace != "" {
-		valueList = append(valueList, p.Namespace)
+	if p.ClusterName != "" {
+		valueList = append(valueList, p.ClusterName)
 	}
 	if p.NodeName != "" {
 		valueList = append(valueList, p.NodeName)
 	}
-	if p.ClusterName != "" {
-		valueList = append(valueList, p.ClusterName)
+	if p.Namespace != "" {
+		valueList = append(valueList, p.Namespace)
+	}
+	if p.Name != "" {
+		valueList = append(valueList, p.Name)
 	}
 	if p.Uid != "" {
 		valueList = append(valueList, p.Uid)

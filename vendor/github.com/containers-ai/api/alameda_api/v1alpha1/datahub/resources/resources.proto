@@ -21,22 +21,22 @@ message Container {
 // Represents a Kubernetes pod
 message Pod {
     ObjectMeta                object_meta      = 1;
-    string                    resource_link    = 2;
-    repeated Container        containers       = 3;
-    google.protobuf.Timestamp start_time       = 4;
-    Controller                top_controller   = 5;
-    PodStatus                 status           = 6;
-    string                    app_name         = 7;
-    string                    app_part_of      = 8;
+    google.protobuf.Timestamp start_time       = 2;
+    string                    resource_link    = 3;
+    string                    app_name         = 4;
+    string                    app_part_of      = 5;
+    repeated Container        containers       = 6;
+    Controller                top_controller   = 7;
+    PodStatus                 status           = 8;
     AlamedaPodSpec            alameda_pod_spec = 9;
 }
 
 message Controller {
     ObjectMeta              object_meta             = 1;
     Kind                    kind                    = 2;
-    repeated OwnerReference owner_references        = 3;
-    int32                   replicas                = 4;
-    int32                   spec_replicas           = 5;
+    int32                   replicas                = 3;
+    int32                   spec_replicas           = 4;
+    repeated OwnerReference owner_references        = 5;
     AlamedaControllerSpec   alameda_controller_spec = 6;
 }
 

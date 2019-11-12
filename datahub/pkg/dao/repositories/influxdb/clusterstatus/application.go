@@ -6,9 +6,14 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
+	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"time"
+)
+
+var (
+	scope = Log.RegisterScope("cluster_status_db_measurement", "cluster_status DB measurement", 0)
 )
 
 type ApplicationRepository struct {

@@ -39,10 +39,10 @@ message CreateClustersRequest {
 
 // Represents a request for listing pods that need to be predicted
 message ListPodsRequest {
-    common.TimeRange    time_range   = 1;
-    repeated ObjectMeta object_meta  = 2;
-    Kind                kind         = 3;
-    ScalingTool         scaling_tool = 4;
+    common.QueryCondition query_condition = 1;
+    repeated ObjectMeta   object_meta     = 2;
+    Kind                  kind            = 3;
+    ScalingTool           scaling_tool    = 4;
 }
 
 // Represents a response for a listing pods request

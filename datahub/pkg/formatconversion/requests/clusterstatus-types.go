@@ -14,6 +14,21 @@ func NewAlamedaControllerSpec(controllerSpec *resources.AlamedaControllerSpec) t
 	return spec
 }
 
+func NewAlamedaPodSpec(podSpec *resources.AlamedaPodSpec) *types.AlamedaPodSpec {
+	if podSpec != nil {
+		objectMeta := NewObjectMeta(podSpec.GetAlamedaScaler())
+
+		spec := &types.AlamedaPodSpec{}
+		spec.AlamedaScaler = &objectMeta
+		spec.Policy = podSpec.GetPolicy().String()
+		spec.UsedRecommendationId = podSpec.GetUsedRecommendationId()
+		spec.AlamedaScalerResources = NewResourceRequirements(podSpec.GetAlamedaScalerResources())
+		spec.ScalingTool = podSpec.GetScalingTool().String()
+		return spec
+	}
+	return nil
+}
+
 func NewAlamedaNodeSpec(nodeSpec *resources.AlamedaNodeSpec) *types.AlamedaNodeSpec {
 	if nodeSpec != nil {
 		spec := &types.AlamedaNodeSpec{}
@@ -42,6 +57,26 @@ func NewCapacity(capacity *resources.Capacity) *types.Capacity {
 			NetworkMegabitsPerSecond: capacity.NetworkMegabitsPerSecond,
 		}
 		return c
+	}
+	return nil
+}
+
+func NewResourceRequirements(resourceReq *resources.ResourceRequirements) *types.ResourceRequirements {
+	if resourceReq != nil {
+		requirements := types.ResourceRequirements{}
+		if resourceReq.GetLimits() != nil {
+			requirements.Limits = make(map[int32]string)
+			for k, v := range resourceReq.GetLimits() {
+				requirements.Limits[k] = v
+			}
+		}
+		if resourceReq.GetRequests() != nil {
+			requirements.Requests = make(map[int32]string)
+			for k, v := range resourceReq.GetRequests() {
+				requirements.Requests[k] = v
+			}
+		}
+		return &requirements
 	}
 	return nil
 }

@@ -6,6 +6,6 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 )
 
-func NewContainerDAO(config config.Config) types.ContainerDAO {
-	return influxdb.NewContainerWithConfig(*config.InfluxDB)
+func NewPodDAO(config config.Config) types.PodDAO {
+	return influxdb.NewPodWithConfig(*config.InfluxDB)
 }

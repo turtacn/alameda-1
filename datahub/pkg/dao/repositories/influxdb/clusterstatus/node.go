@@ -111,6 +111,9 @@ func (p *NodeRepository) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]
 		}
 
 		condition := strings.Join(conditionList, " AND ")
+		if condition != "" {
+			condition = "(" + condition + ")"
+		}
 		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 	if len(request.ObjectMeta) == 0 {

@@ -21,21 +21,7 @@ func (r *CreateControllersRequestExtended) ProduceControllers() []*DaoClusterTyp
 	controllers := make([]*DaoClusterTypes.Controller, 0)
 
 	for _, ctl := range r.GetControllers() {
-		// Normalize request
-		objectMeta := NewObjectMeta(ctl.GetObjectMeta())
-		objectMeta.NodeName = ""
-
-		controller := DaoClusterTypes.NewController()
-		controller.ObjectMeta = objectMeta
-		controller.Kind = ctl.GetKind().String()
-		controller.Replicas = ctl.GetReplicas()
-		controller.SpecReplicas = ctl.GetSpecReplicas()
-		for _, owner := range ctl.GetOwnerReferences() {
-			controller.OwnerReferences = append(controller.OwnerReferences, NewOwnerReference(owner))
-		}
-		controller.AlamedaControllerSpec = NewAlamedaControllerSpec(ctl.GetAlamedaControllerSpec())
-
-		controllers = append(controllers, controller)
+		controllers = append(controllers, NewController(ctl))
 	}
 
 	return controllers
@@ -63,4 +49,25 @@ func (r *ListControllersRequestExtended) ProduceRequest() DaoClusterTypes.ListCo
 	}
 	request.Kind = r.GetKind().String()
 	return request
+}
+
+func NewController(controller *ApiResources.Controller) *DaoClusterTypes.Controller {
+	if controller != nil {
+		// Normalize request
+		objectMeta := NewObjectMeta(controller.GetObjectMeta())
+		objectMeta.NodeName = ""
+
+		ctl := DaoClusterTypes.NewController()
+		ctl.ObjectMeta = objectMeta
+		ctl.Kind = controller.GetKind().String()
+		ctl.Replicas = controller.GetReplicas()
+		ctl.SpecReplicas = controller.GetSpecReplicas()
+		for _, owner := range controller.GetOwnerReferences() {
+			ctl.OwnerReferences = append(ctl.OwnerReferences, NewOwnerReference(owner))
+		}
+		ctl.AlamedaControllerSpec = NewAlamedaControllerSpec(controller.GetAlamedaControllerSpec())
+
+		return ctl
+	}
+	return nil
 }

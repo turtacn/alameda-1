@@ -1,41 +1,27 @@
 package clusterstatus
 
 import (
-	"fmt"
-	EntityInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
+	//"fmt"
+	EntityInfluxCluster "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
+	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
-	FormatConvert "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	//FormatConvert "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	Log "github.com/containers-ai/alameda/pkg/utils/log"
+	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/golang/protobuf/ptypes/timestamp"
+	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	//"github.com/golang/protobuf/ptypes/timestamp"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
-	"strconv"
+	//"strconv"
+	//"strings"
 	"strings"
 )
 
-var (
-	scope = Log.RegisterScope("cluster_status_db_measurement", "cluster_status DB measurement", 0)
-)
-
-// ContainerRepository is used to operate node measurement of cluster_status database
 type ContainerRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-// IsTag checks the column is tag or not
-func (containerRepository *ContainerRepository) IsTag(column string) bool {
-	for _, tag := range EntityInfluxClusterStatus.ContainerTags {
-		if column == string(tag) {
-			return true
-		}
-	}
-	return false
-}
-
-// NewContainerRepository creates the ContainerRepository instance
 func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
 	return &ContainerRepository{
 		influxDB: &InternalInflux.InfluxClient{
@@ -46,112 +32,177 @@ func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerReposi
 	}
 }
 
-// ListAlamedaContainers list predicted containers have relation with arguments
-func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name string, kind ApiResources.Kind, timeRange *ApiCommon.TimeRange) ([]*ApiResources.Pod, error) {
-	pods := []*ApiResources.Pod{}
-	whereStr := ""
-
-	conditions := make([]string, 0)
-	relationStatement := ""
-	podCreatePeriodCondition := containerRepository.getPodCreatePeriodCondition(timeRange)
-	switch kind {
-	case ApiResources.Kind_POD:
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerPodName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_DEPLOYMENT:
-		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENT]))
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_DEPLOYMENTCONFIG:
-		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENTCONFIG]))
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_ALAMEDASCALER:
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerAlamedaScalerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_STATEFULSET:
-		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_STATEFULSET]))
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	default:
-		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", ApiResources.Kind_name[int32(kind)])
-	}
-	if len(conditions) > 0 {
-		relationStatement = fmt.Sprintf("(%s", conditions[0])
-		for _, condition := range conditions[1:] {
-			relationStatement += fmt.Sprintf(" AND %s", condition)
-		}
-		relationStatement += ")"
-	}
-	if relationStatement != "" {
-		if whereStr != "" {
-			whereStr = fmt.Sprintf("%s AND %s", whereStr, relationStatement)
-		} else {
-			whereStr = fmt.Sprintf("WHERE %s", relationStatement)
+func (p *ContainerRepository) IsTag(column string) bool {
+	for _, tag := range EntityInfluxCluster.ContainerTags {
+		if column == string(tag) {
+			return true
 		}
 	}
+	return false
+}
 
-	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
-		string(Container), whereStr,
-		string(EntityInfluxClusterStatus.ContainerNamespace), string(EntityInfluxClusterStatus.ContainerPodName),
-		string(EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace), string(EntityInfluxClusterStatus.ContainerAlamedaScalerName))
-	scope.Debugf("ListAlamedaContainers command: %s", cmd)
-	if results, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus)); err == nil {
+func (p *ContainerRepository) CreateContainers(containers map[string][]*DaoClusterTypes.Container) error {
+	points := make([]*InfluxClient.Point, 0)
 
-		containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
+	for _, cnts := range containers {
+		for _, cnt := range cnts {
+			entity := EntityInfluxCluster.ContainerEntity{
+				Time:        InternalInflux.ZeroTime,
+				Name:        cnt.Name,
+				PodName:     cnt.PodName,
+				Namespace:   cnt.Namespace,
+				NodeName:    cnt.NodeName,
+				ClusterName: cnt.ClusterName,
+				Uid:         cnt.Uid,
+			}
+			if cnt.Resources != nil {
+				if value, exist := cnt.Resources.Limits[int32(ApiCommon.ResourceName_CPU)]; exist {
+					entity.ResourceLimitCPU = value
+				}
+				if value, exist := cnt.Resources.Limits[int32(ApiCommon.ResourceName_MEMORY)]; exist {
+					entity.ResourceLimitMemory = value
+				}
+				if value, exist := cnt.Resources.Requests[int32(ApiCommon.ResourceName_CPU)]; exist {
+					entity.ResourceRequestCPU = value
+				}
+				if value, exist := cnt.Resources.Requests[int32(ApiCommon.ResourceName_MEMORY)]; exist {
+					entity.ResourceRequestMemory = value
+				}
+			}
+			if cnt.Status != nil {
+				if cnt.Status.State != nil {
+					if cnt.Status.State.Waiting != nil {
+						entity.StatusWaitingReason = cnt.Status.State.Waiting.Reason
+						entity.StatusWaitingMessage = cnt.Status.State.Waiting.Message
+					}
+					if cnt.Status.State.Running != nil {
+						entity.StatusRunningStartedAt = cnt.Status.State.Running.StartedAt.GetSeconds()
+					}
+					if cnt.Status.State.Terminated != nil {
+						entity.StatusTerminatedExitCode = cnt.Status.State.Terminated.ExitCode
+						entity.StatusTerminatedReason = cnt.Status.State.Terminated.Reason
+						entity.StatusTerminatedMessage = cnt.Status.State.Terminated.Message
+						entity.StatusTerminatedStartedAt = cnt.Status.State.Terminated.StartedAt.GetSeconds()
+						entity.StatusTerminatedFinishedAt = cnt.Status.State.Terminated.FinishedAt.GetSeconds()
+					}
 
-		rows := InternalInflux.PackMap(results)
-		for _, row := range rows {
-			for _, data := range row.Data {
-				entity := EntityInfluxClusterStatus.NewContainerEntityFromMap(data)
-				containerEntities = append(containerEntities, &entity)
+				}
+				if cnt.Status.LastTerminationState != nil {
+					if cnt.Status.LastTerminationState.Waiting != nil {
+						entity.LastTerminationWaitingReason = cnt.Status.LastTerminationState.Waiting.Reason
+						entity.LastTerminationWaitingMessage = cnt.Status.LastTerminationState.Waiting.Message
+					}
+					if cnt.Status.LastTerminationState.Running != nil {
+						entity.LastTerminationRunningStartedAt = cnt.Status.LastTerminationState.Running.StartedAt.GetSeconds()
+					}
+					if cnt.Status.LastTerminationState.Terminated != nil {
+						entity.LastTerminationTerminatedExitCode = cnt.Status.LastTerminationState.Terminated.ExitCode
+						entity.LastTerminationTerminatedReason = cnt.Status.LastTerminationState.Terminated.Reason
+						entity.LastTerminationTerminatedMessage = cnt.Status.LastTerminationState.Terminated.Message
+						entity.LastTerminationTerminatedStartedAt = cnt.Status.LastTerminationState.Terminated.StartedAt.GetSeconds()
+						entity.LastTerminationTerminatedFinishedAt = cnt.Status.LastTerminationState.Terminated.FinishedAt.GetSeconds()
+					}
+				}
+			}
+			entity.RestartCount = cnt.Status.RestartCount
+
+			// Add to influx point list
+			if pt, err := entity.BuildInfluxPoint(string(Container)); err == nil {
+				points = append(points, pt)
+			} else {
+				scope.Error(err.Error())
 			}
 		}
-
-		pods = buildDatahubPodsFromContainerEntities(containerEntities)
-		return pods, nil
-	} else {
-		return pods, err
 	}
+
+	// Batch write influxdb data points
+	err := p.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.ClusterStatus),
+	})
+	if err != nil {
+		scope.Error(err.Error())
+		return errors.Wrap(err, "failed to batch write influxdb data points")
+	}
+
+	return nil
+}
+
+func (p *ContainerRepository) ListContainers(request DaoClusterTypes.ListContainersRequest) (map[string][]*DaoClusterTypes.Container, error) {
+	containerMap := make(map[string][]*DaoClusterTypes.Container, 0)
+
+	statement := InternalInflux.Statement{
+		QueryCondition: &request.QueryCondition,
+		Measurement:    Container,
+		GroupByTags:    []string{string(EntityInfluxCluster.ContainerPodName), string(EntityInfluxCluster.ContainerNamespace), string(EntityInfluxCluster.ContainerNodeName), string(EntityInfluxCluster.ContainerClusterName)},
+	}
+
+	// Build influx query command
+	for _, containerMeta := range request.ContainerObjectMeta {
+		keyList := containerMeta.ObjectMeta.GenerateKeyList()
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerPodName))
+
+		valueList := containerMeta.ObjectMeta.GenerateValueList()
+		valueList = append(valueList, containerMeta.PodName)
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
+	}
+	statement.SetOrderClauseFromQueryCondition()
+	statement.SetLimitClauseFromQueryCondition()
+	cmd := statement.BuildQueryCmd()
+
+	response, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
+	if err != nil {
+		return make(map[string][]*DaoClusterTypes.Container, 0), errors.Wrap(err, "failed to list containers")
+	}
+
+	results := InternalInfluxModels.NewInfluxResults(response)
+	for _, result := range results {
+		for i := 0; i < result.GetGroupNum(); i++ {
+			group := result.GetGroup(i)
+			row := group.GetRow(0)
+			clusterNamespacePodName := p.ClusterNamespacePodName(row)
+			containerMap[clusterNamespacePodName] = make([]*DaoClusterTypes.Container, 0)
+			for j := 0; j < group.GetRowNum(); j++ {
+				row := group.GetRow(j)
+				container := DaoClusterTypes.NewContainer()
+				container.Initialize(row)
+				containerMap[clusterNamespacePodName] = append(containerMap[clusterNamespacePodName], container)
+			}
+		}
+	}
+
+	return containerMap, nil
+}
+
+func (p *ContainerRepository) ClusterNamespacePodName(values map[string]string) string {
+	valueList := make([]string, 0)
+
+	if value, ok := values[string(EntityInfluxCluster.ContainerClusterName)]; ok {
+		if value != "" {
+			valueList = append(valueList, value)
+		}
+	}
+	if value, ok := values[string(EntityInfluxCluster.ContainerNamespace)]; ok {
+		if value != "" {
+			valueList = append(valueList, value)
+		}
+	}
+	if value, ok := values[string(EntityInfluxCluster.ContainerPodName)]; ok {
+		if value != "" {
+			valueList = append(valueList, value)
+		}
+	}
+
+	if len(valueList) > 0 {
+		return strings.Join(valueList, "/")
+	}
+
+	return ""
 }
 
 // CreateContainers add containers information container measurement
-func (containerRepository *ContainerRepository) CreateContainers(pods []*ApiResources.Pod) error {
+/*func (p *ContainerRepository) CreateContainersOrig(pods []*ApiResources.Pod) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	// Do delete containers before creating them
@@ -185,10 +236,13 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*ApiReso
 	}
 
 	return nil
-}
+}*/
+
+// ListAlamedaContainers list predicted containers have relation with arguments
+/*
 
 // DeleteContainers set containers' field is_deleted to true into container measurement
-func (containerRepository *ContainerRepository) DeleteContainers(pods []*ApiResources.Pod) error {
+func (p *ContainerRepository) DeleteContainers(pods []*ApiResources.Pod) error {
 	for _, pod := range pods {
 		if pod.GetObjectMeta() == nil || pod.GetAlamedaPodSpec().GetAlamedaScaler() == nil {
 			continue
@@ -207,10 +261,10 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*ApiReso
 		}
 	}
 	return nil
-}
+}*/
 
 // ListPodsContainers list containers information container measurement
-func (containerRepository *ContainerRepository) ListPodsContainers(pods []*ApiResources.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
+/*func (p *ContainerRepository) ListPodsContainers(pods []*ApiResources.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
 
 	var (
 		cmd                 = ""
@@ -258,40 +312,9 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*ApiRe
 	}
 
 	return containerEntities, nil
-}
+}*/
 
-func (containerRepository *ContainerRepository) getPodCreatePeriodCondition(timeRange *ApiCommon.TimeRange) string {
-	if timeRange == nil {
-		return ""
-	}
-
-	var start int64 = 0
-	var end int64 = 0
-
-	if timeRange.StartTime != nil {
-		start = timeRange.StartTime.Seconds
-	}
-
-	if timeRange.EndTime != nil {
-		end = timeRange.EndTime.Seconds
-	}
-
-	if start == 0 && end == 0 {
-		return ""
-	} else if start == 0 && end != 0 {
-		period := fmt.Sprintf(`"pod_create_time" < %d`, end)
-		return period
-	} else if start != 0 && end == 0 {
-		period := fmt.Sprintf(`"pod_create_time" >= %d`, start)
-		return period
-	} else if start != 0 && end != 0 {
-		period := fmt.Sprintf(`"pod_create_time" >= %d AND "pod_create_time" < %d`, start, end)
-		return period
-	}
-
-	return ""
-}
-
+/*
 func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
 
 	var (
@@ -587,7 +610,9 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 	}
 	return containerEntities, nil
 }
+*/
 
+/*
 func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClusterStatus.ContainerEntity) []*ApiResources.Pod {
 
 	datahubPods := make([]*ApiResources.Pod, 0)
@@ -685,14 +710,12 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 				appPartOf = *containerEntity.AppPartOf
 			}
 			// TODO: handle compatibility of enableHPA and enableVPA
-			/*
 				if containerEntity.EnableHPA != nil {
 					enableHPA = *containerEntity.EnableHPA
 				}
 				if containerEntity.EnableVPA != nil {
 					enableVPA = *containerEntity.EnableVPA
 				}
-			*/
 			if containerEntity.AlamedaScalerResourceLimitCPU != nil {
 				alamedaScalerResourceLimitCPU = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceLimitCPU, 'f', -1, 64)
 			}
@@ -768,7 +791,9 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 
 	return datahubPods
 }
+*/
 
+/*
 func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatus.ContainerEntity) *ApiResources.Container {
 
 	var (
@@ -900,7 +925,9 @@ func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatu
 
 	return container
 }
+*/
 
+/*
 func getDatahubPodIDString(containerEntity *EntityInfluxClusterStatus.ContainerEntity) string {
 
 	var (
@@ -929,3 +956,4 @@ func getDatahubPodIDString(containerEntity *EntityInfluxClusterStatus.ContainerE
 
 	return fmt.Sprintf("%s.%s.%s.%s.%s", namespace, podName, alamedaScalerNS, alamedaScalerName, nodeName)
 }
+*/

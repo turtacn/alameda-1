@@ -6,6 +6,7 @@ import (
 
 const (
 	Container   influxdb.Measurement = "container"
+	Pod         influxdb.Measurement = "pod"
 	Controller  influxdb.Measurement = "controller"
 	Application influxdb.Measurement = "application"
 	Namespace   influxdb.Measurement = "namespace"

@@ -11,10 +11,10 @@ option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/r
 
 message AlamedaPodSpec {
     ObjectMeta           alameda_scaler           = 1;
-    RecommendationPolicy policy                   = 2;
-    string               used_recommendation_id   = 3;
-    ResourceRequirements alameda_scaler_resources = 4;
-    ScalingTool          scaling_tool             = 5;
+    string               used_recommendation_id   = 2;
+    ScalingTool          scaling_tool             = 3;
+    RecommendationPolicy policy                   = 4;
+    ResourceRequirements alameda_scaler_resources = 5;
 }
 
 message AlamedaControllerSpec {
