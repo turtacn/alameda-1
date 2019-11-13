@@ -114,7 +114,9 @@ func NewNodeInfo(k8sNode corev1.Node) (NodeInfo, error) {
 func (n NodeInfo) DatahubNode() datahub_resources.Node {
 
 	node := datahub_resources.Node{
-		Name: n.Name,
+		ObjectMeta: &datahub_resources.ObjectMeta{
+			Name: n.Name,
+		},
 		Capacity: &datahub_resources.Capacity{
 			CpuCores:    n.CPUCores,
 			MemoryBytes: n.MemoryBytes,
@@ -122,15 +124,17 @@ func (n NodeInfo) DatahubNode() datahub_resources.Node {
 		StartTime: &timestamp.Timestamp{
 			Seconds: n.CreatedTime,
 		},
-		Provider: &datahub_resources.Provider{
-			Provider:     n.Provider,
-			InstanceType: n.InstanceType,
-			Region:       n.Region,
-			Zone:         n.Zone,
-			Os:           n.OS,
-			Role:         n.Role,
-			InstanceId:   n.InstanceID,
-			StorageSize:  n.StorageSize,
+		AlamedaNodeSpec: &datahub_resources.AlamedaNodeSpec{
+			Provider: &datahub_resources.Provider{
+				Provider:     n.Provider,
+				InstanceType: n.InstanceType,
+				Region:       n.Region,
+				Zone:         n.Zone,
+				Os:           n.OS,
+				Role:         n.Role,
+				InstanceId:   n.InstanceID,
+				StorageSize:  n.StorageSize,
+			},
 		},
 	}
 

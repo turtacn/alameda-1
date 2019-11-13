@@ -21,8 +21,8 @@ func (p *PodPredictions) CreatePredictions(predictions DaoPredictionTypes.PodPre
 
 	predictionSampleList := make([]*DaoPredictionTypes.ContainerPredictionSample, 0)
 	for _, podMetric := range predictions.MetricMap {
-		namespace := podMetric.Namespace
-		podName := podMetric.PodName
+		namespace := podMetric.ObjectMeta.Namespace
+		podName := podMetric.ObjectMeta.Name
 
 		for _, containerMetric := range podMetric.ContainerPredictionMap.MetricMap {
 			containerName := containerMetric.ContainerName

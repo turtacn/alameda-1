@@ -30,23 +30,23 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 
 func (c *ControllerRepository) CreateControllerRecommendations(controllerRecommendations []*ApiRecommendations.ControllerRecommendation) error {
 	points := make([]*InfluxClient.Point, 0)
-	for _, conrollerRecommendation := range controllerRecommendations {
-		recommendedType := conrollerRecommendation.GetRecommendedType()
+	for _, controllerRecommendation := range controllerRecommendations {
+		recommendedType := controllerRecommendation.GetRecommendedType()
 
-		if recommendedType == ApiRecommendations.ControllerRecommendedType_CRT_Primitive {
-			recommendedSpec := conrollerRecommendation.GetRecommendedSpec()
+		if recommendedType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
+			recommendedSpec := controllerRecommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
-				EntityInfluxRecommend.ControllerNamespace: recommendedSpec.GetNamespacedName().GetNamespace(),
-				EntityInfluxRecommend.ControllerName:      recommendedSpec.GetNamespacedName().GetName(),
-				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_CRT_Primitive.String(),
+				EntityInfluxRecommend.ControllerNamespace: controllerRecommendation.GetObjectMeta().GetNamespace(),
+				EntityInfluxRecommend.ControllerName:      controllerRecommendation.GetObjectMeta().GetName(),
+				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
 			}
 
 			fields := map[string]interface{}{
 				EntityInfluxRecommend.ControllerCurrentReplicas: recommendedSpec.GetCurrentReplicas(),
 				EntityInfluxRecommend.ControllerDesiredReplicas: recommendedSpec.GetDesiredReplicas(),
 				EntityInfluxRecommend.ControllerCreateTime:      recommendedSpec.GetCreateTime().GetSeconds(),
-				EntityInfluxRecommend.ControllerKind:            recommendedSpec.GetKind().String(),
+				EntityInfluxRecommend.ControllerKind:            controllerRecommendation.GetKind().String(),
 
 				EntityInfluxRecommend.ControllerCurrentCPURequest: recommendedSpec.GetCurrentCpuRequests(),
 				EntityInfluxRecommend.ControllerCurrentMEMRequest: recommendedSpec.GetCurrentMemRequests(),
@@ -64,20 +64,20 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 
 			points = append(points, pt)
 
-		} else if recommendedType == ApiRecommendations.ControllerRecommendedType_CRT_K8s {
-			recommendedSpec := conrollerRecommendation.GetRecommendedSpecK8S()
+		} else if recommendedType == ApiRecommendations.ControllerRecommendedType_K8S {
+			recommendedSpec := controllerRecommendation.GetRecommendedSpecK8S()
 
 			tags := map[string]string{
-				EntityInfluxRecommend.ControllerNamespace: recommendedSpec.GetNamespacedName().GetNamespace(),
-				EntityInfluxRecommend.ControllerName:      recommendedSpec.GetNamespacedName().GetName(),
-				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_CRT_K8s.String(),
+				EntityInfluxRecommend.ControllerNamespace: controllerRecommendation.GetObjectMeta().GetNamespace(),
+				EntityInfluxRecommend.ControllerName:      controllerRecommendation.GetObjectMeta().GetName(),
+				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_K8S.String(),
 			}
 
 			fields := map[string]interface{}{
 				EntityInfluxRecommend.ControllerCurrentReplicas: recommendedSpec.GetCurrentReplicas(),
 				EntityInfluxRecommend.ControllerDesiredReplicas: recommendedSpec.GetDesiredReplicas(),
 				EntityInfluxRecommend.ControllerCreateTime:      recommendedSpec.GetCreateTime().GetSeconds(),
-				EntityInfluxRecommend.ControllerKind:            recommendedSpec.GetKind().String(),
+				EntityInfluxRecommend.ControllerKind:            controllerRecommendation.GetKind().String(),
 			}
 
 			pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(recommendedSpec.GetTime().GetSeconds(), 0))
@@ -102,24 +102,37 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 }
 
 func (c *ControllerRepository) ListControllerRecommendations(in *ApiRecommendations.ListControllerRecommendationsRequest) ([]*ApiRecommendations.ControllerRecommendation, error) {
-	namespace := in.GetNamespacedName().GetNamespace()
-	name := in.GetNamespacedName().GetName()
-	recommendationType := in.GetRecommendedType()
-
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ControllerNamespace, "=", namespace)
-	influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ControllerName, "=", name)
+	recommendationType := in.GetRecommendedType().String()
+	kind := in.GetKind().String()
+
+	for _, objMeta := range in.GetObjectMeta() {
+		namespace := objMeta.GetNamespace()
+		name := objMeta.GetName()
+
+		keyList := []string{
+			EntityInfluxRecommend.ControllerNamespace,
+			EntityInfluxRecommend.ControllerName,
+			EntityInfluxRecommend.ControllerKind,
+		}
+		valueList := []string{namespace, name, kind}
+
+		if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxRecommend.ControllerType)
+			valueList = append(valueList, recommendationType)
+		}
+
+		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
+
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
-	if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_Undefined {
-		influxdbStatement.AppendWhereClause(EntityInfluxRecommend.ControllerType, "=", recommendationType.String())
-	}
 
 	cmd := influxdbStatement.BuildQueryCmd()
 
@@ -167,21 +180,21 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 				}
 			}
 
-			if commendationType == ApiRecommendations.ControllerRecommendedType_CRT_Primitive {
+			if commendationType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
 				tempRecommendation := &ApiRecommendations.ControllerRecommendation{
+					ObjectMeta: &ApiResources.ObjectMeta{
+						Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
+						Name:      data[string(EntityInfluxRecommend.ControllerName)],
+					},
+					Kind:            commendationKind,
 					RecommendedType: commendationType,
 					RecommendedSpec: &ApiRecommendations.ControllerRecommendedSpec{
-						NamespacedName: &ApiResources.NamespacedName{
-							Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
-							Name:      data[string(EntityInfluxRecommend.ControllerName)],
-						},
 						CurrentReplicas: int32(currentReplicas),
 						DesiredReplicas: int32(desiredReplicas),
 						Time:            tempTime,
 						CreateTime: &timestamp.Timestamp{
 							Seconds: createTime,
 						},
-						Kind:               commendationKind,
 						CurrentCpuRequests: currentCpuRequests,
 						CurrentMemRequests: currentMemRequests,
 						CurrentCpuLimits:   currentCpuLimits,
@@ -194,21 +207,21 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 
 				recommendations = append(recommendations, tempRecommendation)
 
-			} else if commendationType == ApiRecommendations.ControllerRecommendedType_CRT_K8s {
+			} else if commendationType == ApiRecommendations.ControllerRecommendedType_K8S {
 				tempRecommendation := &ApiRecommendations.ControllerRecommendation{
+					ObjectMeta: &ApiResources.ObjectMeta{
+						Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
+						Name:      data[string(EntityInfluxRecommend.ControllerName)],
+					},
+					Kind:            commendationKind,
 					RecommendedType: commendationType,
 					RecommendedSpecK8S: &ApiRecommendations.ControllerRecommendedSpecK8S{
-						NamespacedName: &ApiResources.NamespacedName{
-							Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
-							Name:      data[string(EntityInfluxRecommend.ControllerName)],
-						},
 						CurrentReplicas: int32(currentReplicas),
 						DesiredReplicas: int32(desiredReplicas),
 						Time:            tempTime,
 						CreateTime: &timestamp.Timestamp{
 							Seconds: createTime,
 						},
-						Kind: commendationKind,
 					},
 				}
 

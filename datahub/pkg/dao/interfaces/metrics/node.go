@@ -12,9 +12,9 @@ func NewNodeMetricsReaderDAO(config config.Config) types.NodeMetricsDAO {
 	case "influxdb":
 		return influxdb.NewNodeMetricsWithConfig(*config.InfluxDB)
 	case "prometheus":
-		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus)
+		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	default:
-		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus)
+		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	}
 }
 
@@ -23,8 +23,8 @@ func NewNodeMetricsWriterDAO(config config.Config) types.NodeMetricsDAO {
 	case "influxdb":
 		return influxdb.NewNodeMetricsWithConfig(*config.InfluxDB)
 	case "prometheus":
-		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus)
+		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	default:
-		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus)
+		return prometheus.NewNodeMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	}
 }

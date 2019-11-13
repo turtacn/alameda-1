@@ -91,11 +91,11 @@ func NewAdmissionControllerWithConfig(cfg Config, sigsK8SClient client.Client, d
 		return nil, errors.Wrap(err, "new AdmissionController failed")
 	}
 
-	resourceRecommendator, err := datahub_resource_recommendator.NewDatahubResourceRecommendator(datahubClient)
+	resourceRecommendator, err := datahub_resource_recommendator.NewDatahubResourceRecommendator(datahubClient, clusterID)
 	if err != nil {
 		return nil, errors.Wrap(err, "new AdmissionController failed")
 	}
-	controllerValidator := datahub_controller_validator.NewControllerValidator(datahubClient, sigsK8SClient)
+	controllerValidator := datahub_controller_validator.NewControllerValidator(datahubClient, sigsK8SClient, clusterID)
 
 	ac := &admissionController{
 		config: &cfg,

@@ -44,79 +44,171 @@ service DatahubService {
 
     // Licenses --------------------------------------------------
     rpc GetLicense(google.protobuf.Empty)
-        returns (licenses.GetLicenseResponse) {}
+        returns (licenses.GetLicenseResponse){}
 
     // Metrics --------------------------------------------------
     rpc CreatePodMetrics(metrics.CreatePodMetricsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
+
+    rpc CreateControllerMetrics(metrics.CreateControllerMetricsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateApplicationMetrics(metrics.CreateApplicationMetricsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNamespaceMetrics(metrics.CreateNamespaceMetricsRequest)
+        returns (google.rpc.Status){}
 
     rpc CreateNodeMetrics(metrics.CreateNodeMetricsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
+
+    rpc CreateClusterMetrics(metrics.CreateClusterMetricsRequest)
+        returns (google.rpc.Status){}
 
     rpc ListPodMetrics(metrics.ListPodMetricsRequest)
-        returns (metrics.ListPodMetricsResponse) {}
+        returns (metrics.ListPodMetricsResponse){}
+
+    rpc ListControllerMetrics(metrics.ListControllerMetricsRequest)
+        returns (metrics.ListControllerMetricsResponse){}
+
+    rpc ListApplicationMetrics(metrics.ListApplicationMetricsRequest)
+        returns (metrics.ListApplicationMetricsResponse){}
+
+    rpc ListNamespaceMetrics(metrics.ListNamespaceMetricsRequest)
+        returns (metrics.ListNamespaceMetricsResponse){}
 
     rpc ListNodeMetrics(metrics.ListNodeMetricsRequest)
-        returns (metrics.ListNodeMetricsResponse) {}
+        returns (metrics.ListNodeMetricsResponse){}
+
+    rpc ListClusterMetrics(metrics.ListClusterMetricsRequest)
+        returns (metrics.ListClusterMetricsResponse){}
 
     // Ping --------------------------------------------------
     rpc Ping(google.protobuf.Empty)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
 
     // Plannings --------------------------------------------------
     rpc CreatePodPlannings(plannings.CreatePodPlanningsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
 
     rpc CreateControllerPlannings(plannings.CreateControllerPlanningsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
+
+    rpc CreateApplicationPlannings(plannings.CreateApplicationPlanningsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNamespacePlannings(plannings.CreateNamespacePlanningsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNodePlannings(plannings.CreateNodePlanningsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateClusterPlannings(plannings.CreateClusterPlanningsRequest)
+        returns (google.rpc.Status){}
 
     rpc ListPodPlannings(plannings.ListPodPlanningsRequest)
-        returns (plannings.ListPodPlanningsResponse) {}
+        returns (plannings.ListPodPlanningsResponse){}
 
     rpc ListControllerPlannings(plannings.ListControllerPlanningsRequest)
-        returns (plannings.ListControllerPlanningsResponse) {}
+        returns (plannings.ListControllerPlanningsResponse){}
+
+    rpc ListApplicationPlannings(plannings.ListApplicationPlanningsRequest)
+        returns (plannings.ListApplicationPlanningsResponse){}
+
+    rpc ListNamespacePlannings(plannings.ListNamespacePlanningsRequest)
+        returns (plannings.ListNamespacePlanningsResponse){}
+
+    rpc ListNodePlannings(plannings.ListNodePlanningsRequest)
+        returns (plannings.ListNodePlanningsResponse){}
+
+    rpc ListClusterPlannings(plannings.ListClusterPlanningsRequest)
+        returns (plannings.ListClusterPlanningsResponse){}
 
     // Predictions --------------------------------------------------
-    rpc CreateNodePredictions(predictions.CreateNodePredictionsRequest)
-        returns (google.rpc.Status) {}
-
     rpc CreatePodPredictions(predictions.CreatePodPredictionsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
 
-    rpc ListNodePredictions(predictions.ListNodePredictionsRequest)
-        returns (predictions.ListNodePredictionsResponse) {}
+    rpc CreateControllerPredictions(predictions.CreateControllerPredictionsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateApplicationPredictions(predictions.CreateApplicationPredictionsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNamespacePredictions(predictions.CreateNamespacePredictionsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNodePredictions(predictions.CreateNodePredictionsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateClusterPredictions(predictions.CreateClusterPredictionsRequest)
+        returns (google.rpc.Status){}
 
     rpc ListPodPredictions(predictions.ListPodPredictionsRequest)
-        returns (predictions.ListPodPredictionsResponse) {}
+        returns (predictions.ListPodPredictionsResponse){}
+
+    rpc ListControllerPredictions(predictions.ListControllerPredictionsRequest)
+        returns (predictions.ListControllerPredictionsResponse){}
+
+    rpc ListApplicationPredictions(predictions.ListApplicationPredictionsRequest)
+        returns (predictions.ListApplicationPredictionsResponse){}
+
+    rpc ListNamespacePredictions(predictions.ListNamespacePredictionsRequest)
+        returns (predictions.ListNamespacePredictionsResponse){}
+
+    rpc ListNodePredictions(predictions.ListNodePredictionsRequest)
+        returns (predictions.ListNodePredictionsResponse){}
+
+    rpc ListClusterPredictions(predictions.ListClusterPredictionsRequest)
+        returns (predictions.ListClusterPredictionsResponse){}
 
     // Rawdata --------------------------------------------------
     rpc ReadRawdata(rawdata.ReadRawdataRequest)
-        returns (rawdata.ReadRawdataResponse) {}
+        returns (rawdata.ReadRawdataResponse){}
 
     rpc WriteRawdata(rawdata.WriteRawdataRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
 
     // Recommendations --------------------------------------------------
     rpc CreatePodRecommendations(recommendations.CreatePodRecommendationsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
 
     rpc CreateControllerRecommendations(recommendations.CreateControllerRecommendationsRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
+
+    rpc CreateApplicationRecommendations(recommendations.CreateApplicationRecommendationsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNamespaceRecommendations(recommendations.CreateNamespaceRecommendationsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNodeRecommendations(recommendations.CreateNodeRecommendationsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateClusterRecommendations(recommendations.CreateClusterRecommendationsRequest)
+        returns (google.rpc.Status){}
 
     rpc ListPodRecommendations(recommendations.ListPodRecommendationsRequest)
-        returns (recommendations.ListPodRecommendationsResponse) {}
+        returns (recommendations.ListPodRecommendationsResponse){}
 
     rpc ListAvailablePodRecommendations(recommendations.ListPodRecommendationsRequest)
-        returns (recommendations.ListPodRecommendationsResponse) {}
+        returns (recommendations.ListPodRecommendationsResponse){}
 
     rpc ListControllerRecommendations(recommendations.ListControllerRecommendationsRequest)
-        returns (recommendations.ListControllerRecommendationsResponse) {}
+        returns (recommendations.ListControllerRecommendationsResponse){}
+
+    rpc ListApplicationRecommendations(recommendations.ListApplicationRecommendationsRequest)
+        returns (recommendations.ListApplicationRecommendationsResponse){}
+
+    rpc ListNamespaceRecommendations(recommendations.ListNamespaceRecommendationsRequest)
+        returns (recommendations.ListNamespaceRecommendationsResponse){}
+
+    rpc ListNodeRecommendations(recommendations.ListNodeRecommendationsRequest)
+        returns (recommendations.ListNodeRecommendationsResponse){}
+
+    rpc ListClusterRecommendations(recommendations.ListClusterRecommendationsRequest)
+        returns (recommendations.ListClusterRecommendationsResponse){}
 
     // Resources --------------------------------------------------
-    // Used to list system scores
-    rpc ListSimulatedSchedulingScores(scores.ListSimulatedSchedulingScoresRequest)
-        returns (scores.ListSimulatedSchedulingScoresResponse) {}
-
     // Used to add pods that need to be predicted
     rpc CreatePods(resources.CreatePodsRequest)
         returns (google.rpc.Status){}
@@ -124,28 +216,41 @@ service DatahubService {
     rpc CreateControllers(resources.CreateControllersRequest)
         returns (google.rpc.Status){}
 
+    rpc CreateApplications(resources.CreateApplicationsRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateNamespaces(resources.CreateNamespacesRequest)
+        returns (google.rpc.Status){}
+
     // Used to add nodes that need to be predicted
-    rpc CreateAlamedaNodes(resources.CreateAlamedaNodesRequest)
+    rpc CreateNodes(resources.CreateNodesRequest)
+        returns (google.rpc.Status){}
+
+    rpc CreateClusters(resources.CreateClustersRequest)
         returns (google.rpc.Status){}
 
     // Used to list pods need to be predicted
-    rpc ListAlamedaPods(resources.ListAlamedaPodsRequest)
+    rpc ListPods(resources.ListPodsRequest)
         returns (resources.ListPodsResponse){}
 
-    // Used to list nodes need to be predicted
-    rpc ListAlamedaNodes(resources.ListAlamedaNodesRequest)
-        returns (resources.ListNodesResponse){}
+    rpc ListControllers(resources.ListControllersRequest)
+        returns (resources.ListControllersResponse){}
+
+    // Application
+    rpc ListApplications(resources.ListApplicationsRequest)
+        returns (resources.ListApplicationsResponse){}
+
+    // Namespace
+    rpc ListNamespaces(resources.ListNamespacesRequest)
+        returns (resources.ListNamespacesResponse){}
 
     // Used to list nodes' information
     rpc ListNodes(resources.ListNodesRequest)
         returns (resources.ListNodesResponse){}
 
-    rpc ListControllers(resources.ListControllersRequest)
-        returns (resources.ListControllersResponse){}
-
-    // Used to list pods by a node name
-    rpc ListPodsByNodeName(resources.ListPodsByNodeNamesRequest)
-        returns (resources.ListPodsResponse) {}
+    // Cluster
+    rpc ListClusters(resources.ListClustersRequest)
+        returns (resources.ListClustersResponse){}
 
     // Used to delete info of pods
     rpc DeletePods(resources.DeletePodsRequest)
@@ -154,13 +259,23 @@ service DatahubService {
     rpc DeleteControllers(resources.DeleteControllersRequest)
         returns (google.rpc.Status){}
 
+    rpc DeleteApplications(resources.DeleteApplicationsRequest)
+        returns (google.rpc.Status){}
+
+    rpc DeleteNamespaces(resources.DeleteNamespacesRequest)
+        returns (google.rpc.Status){}
+
     // Used to stop generating predictions for the nodes
-    rpc DeleteAlamedaNodes(resources.DeleteAlamedaNodesRequest)
+    rpc DeleteNodes(resources.DeleteNodesRequest)
         returns (google.rpc.Status){}
 
     // Scores --------------------------------------------------
     rpc CreateSimulatedSchedulingScores(scores.CreateSimulatedSchedulingScoresRequest)
-        returns (google.rpc.Status) {}
+        returns (google.rpc.Status){}
+
+    // Used to list system scores
+    rpc ListSimulatedSchedulingScores(scores.ListSimulatedSchedulingScoresRequest)
+        returns (scores.ListSimulatedSchedulingScoresResponse){}
 
     // weave scope --------------------------------------------------
     rpc ListWeaveScopeHosts(weavescope.ListWeaveScopeHostsRequest)

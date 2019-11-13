@@ -16,8 +16,7 @@ type PodPredictionsDAO interface {
 
 // PodPrediction Prediction model to represent one pod's Prediction
 type PodPrediction struct {
-	Namespace              metadata.NamespaceName
-	PodName                metadata.PodName
+	ObjectMeta             metadata.ObjectMeta
 	ContainerPredictionMap ContainerPredictionMap
 }
 
@@ -29,8 +28,7 @@ type PodPredictionMap struct {
 // ListPodPredictionsRequest ListPodPredictionsRequest
 type ListPodPredictionsRequest struct {
 	DBCommon.QueryCondition
-	Namespace    string
-	PodName      string
+	ObjectMeta   []metadata.ObjectMeta
 	ModelId      string
 	PredictionId string
 	Granularity  int64
@@ -49,9 +47,15 @@ func NewPodPredictionMap() PodPredictionMap {
 	return podPredictionMap
 }
 
+func NewListPodPredictionsRequest() ListPodPredictionsRequest {
+	request := ListPodPredictionsRequest{}
+	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
+	return request
+}
+
 // NamespacePodName Return identity of the pod Prediction
 func (p *PodPrediction) NamespacePodName() metadata.NamespacePodName {
-	return metadata.NamespacePodName(fmt.Sprintf("%s/%s", p.Namespace, p.PodName))
+	return metadata.NamespacePodName(fmt.Sprintf("%s/%s", p.ObjectMeta.Namespace, p.ObjectMeta.Name))
 }
 
 // Merge Merge current PodPrediction with input PodPrediction

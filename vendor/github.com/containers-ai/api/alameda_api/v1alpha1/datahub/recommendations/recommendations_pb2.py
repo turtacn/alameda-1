@@ -16,7 +16,7 @@ _sym_db = _symbol_database.Default()
 from alameda_api.v1alpha1.datahub.common import metrics_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2
 from alameda_api.v1alpha1.datahub.resources import metadata_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2
 from alameda_api.v1alpha1.datahub.resources import policies_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_policies__pb2
-from alameda_api.v1alpha1.datahub.resources import types_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2
+from alameda_api.v1alpha1.datahub.resources import resources_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_resources__pb2
 from alameda_api.v1alpha1.datahub.recommendations import types_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
@@ -26,9 +26,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.recommendations',
   syntax='proto3',
   serialized_options=_b('ZIgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations'),
-  serialized_pb=_b('\nBalameda_api/v1alpha1/datahub/recommendations/recommendations.proto\x12\x35\x63ontainersai.alameda.v1alpha1.datahub.recommendations\x1a\x31\x61lameda_api/v1alpha1/datahub/common/metrics.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/policies.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/resources/types.proto\x1a\x38\x61lameda_api/v1alpha1/datahub/recommendations/types.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9f\x03\n\x17\x43ontainerRecommendation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12W\n\x15limit_recommendations\x18\x02 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\x12Y\n\x17request_recommendations\x18\x03 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\x12_\n\x1dinitial_limit_recommendations\x18\x04 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\x12\x61\n\x1finitial_request_recommendations\x18\x05 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\"\xc4\x04\n\x11PodRecommendation\x12X\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.NamespacedName\x12 \n\x18\x61pply_recommendation_now\x18\x02 \x01(\x08\x12[\n\x11\x61ssign_pod_policy\x18\x03 \x01(\x0b\x32@.containersai.alameda.v1alpha1.datahub.resources.AssignPodPolicy\x12q\n\x19\x63ontainer_recommendations\x18\x04 \x03(\x0b\x32N.containersai.alameda.v1alpha1.datahub.recommendations.ContainerRecommendation\x12.\n\nstart_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12V\n\x0etop_controller\x18\x07 \x01(\x0b\x32>.containersai.alameda.v1alpha1.datahub.resources.TopController\x12\x19\n\x11recommendation_id\x18\x08 \x01(\t\x12\x12\n\ntotal_cost\x18\t \x01(\x01\"\xe5\x02\n\x18\x43ontrollerRecommendation\x12j\n\x10recommended_type\x18\x01 \x01(\x0e\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType\x12j\n\x10recommended_spec\x18\x02 \x01(\x0b\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpec\x12q\n\x14recommended_spec_k8s\x18\x03 \x01(\x0b\x32S.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpecK8sBKZIgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendationsb\x06proto3')
+  serialized_pb=_b('\nBalameda_api/v1alpha1/datahub/recommendations/recommendations.proto\x12\x35\x63ontainersai.alameda.v1alpha1.datahub.recommendations\x1a\x31\x61lameda_api/v1alpha1/datahub/common/metrics.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/policies.proto\x1a\x36\x61lameda_api/v1alpha1/datahub/resources/resources.proto\x1a\x38\x61lameda_api/v1alpha1/datahub/recommendations/types.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9f\x03\n\x17\x43ontainerRecommendation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12W\n\x15limit_recommendations\x18\x02 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\x12Y\n\x17request_recommendations\x18\x03 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\x12_\n\x1dinitial_limit_recommendations\x18\x04 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\x12\x61\n\x1finitial_request_recommendations\x18\x05 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricData\"\xb9\x04\n\x11PodRecommendation\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12 \n\x18\x61pply_recommendation_now\x18\x02 \x01(\x08\x12[\n\x11\x61ssign_pod_policy\x18\x03 \x01(\x0b\x32@.containersai.alameda.v1alpha1.datahub.resources.AssignPodPolicy\x12q\n\x19\x63ontainer_recommendations\x18\x04 \x03(\x0b\x32N.containersai.alameda.v1alpha1.datahub.recommendations.ContainerRecommendation\x12.\n\nstart_time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12S\n\x0etop_controller\x18\x07 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.Controller\x12\x19\n\x11recommendation_id\x18\x08 \x01(\t\x12\x12\n\ntotal_cost\x18\t \x01(\x01\"\xfc\x03\n\x18\x43ontrollerRecommendation\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12j\n\x10recommended_type\x18\x03 \x01(\x0e\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType\x12j\n\x10recommended_spec\x18\x04 \x01(\x0b\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpec\x12q\n\x14recommended_spec_k8s\x18\x05 \x01(\x0b\x32S.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpecK8s\"\xfd\x03\n\x19\x41pplicationRecommendation\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12j\n\x10recommended_type\x18\x03 \x01(\x0e\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType\x12j\n\x10recommended_spec\x18\x04 \x01(\x0b\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpec\x12q\n\x14recommended_spec_k8s\x18\x05 \x01(\x0b\x32S.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpecK8s\"\xfb\x03\n\x17NamespaceRecommendation\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12j\n\x10recommended_type\x18\x03 \x01(\x0e\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType\x12j\n\x10recommended_spec\x18\x04 \x01(\x0b\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpec\x12q\n\x14recommended_spec_k8s\x18\x05 \x01(\x0b\x32S.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpecK8s\"\xf6\x03\n\x12NodeRecommendation\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12j\n\x10recommended_type\x18\x03 \x01(\x0e\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType\x12j\n\x10recommended_spec\x18\x04 \x01(\x0b\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpec\x12q\n\x14recommended_spec_k8s\x18\x05 \x01(\x0b\x32S.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpecK8s\"\xf9\x03\n\x15\x43lusterRecommendation\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12j\n\x10recommended_type\x18\x03 \x01(\x0e\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedType\x12j\n\x10recommended_spec\x18\x04 \x01(\x0b\x32P.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpec\x12q\n\x14recommended_spec_k8s\x18\x05 \x01(\x0b\x32S.containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendedSpecK8sBKZIgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendationsb\x06proto3')
   ,
-  dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_policies__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2.DESCRIPTOR,google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
+  dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_policies__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_resources__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2.DESCRIPTOR,google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 
 
@@ -87,8 +87,8 @@ _CONTAINERRECOMMENDATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=430,
-  serialized_end=845,
+  serialized_start=434,
+  serialized_end=849,
 )
 
 
@@ -100,7 +100,7 @@ _PODRECOMMENDATION = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='namespaced_name', full_name='containersai.alameda.v1alpha1.datahub.recommendations.PodRecommendation.namespaced_name', index=0,
+      name='object_meta', full_name='containersai.alameda.v1alpha1.datahub.recommendations.PodRecommendation.object_meta', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -174,8 +174,8 @@ _PODRECOMMENDATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=848,
-  serialized_end=1428,
+  serialized_start=852,
+  serialized_end=1421,
 )
 
 
@@ -187,22 +187,36 @@ _CONTROLLERRECOMMENDATION = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='recommended_type', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.recommended_type', index=0,
-      number=1, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='recommended_spec', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.recommended_spec', index=1,
-      number=2, type=11, cpp_type=10, label=1,
+      name='object_meta', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.object_meta', index=0,
+      number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='recommended_spec_k8s', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.recommended_spec_k8s', index=2,
-      number=3, type=11, cpp_type=10, label=1,
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.kind', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_type', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.recommended_type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.recommended_spec', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec_k8s', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation.recommended_spec_k8s', index=4,
+      number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -219,26 +233,288 @@ _CONTROLLERRECOMMENDATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1431,
-  serialized_end=1788,
+  serialized_start=1424,
+  serialized_end=1932,
+)
+
+
+_APPLICATIONRECOMMENDATION = _descriptor.Descriptor(
+  name='ApplicationRecommendation',
+  full_name='containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='object_meta', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation.object_meta', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation.kind', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_type', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation.recommended_type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation.recommended_spec', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec_k8s', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation.recommended_spec_k8s', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1935,
+  serialized_end=2444,
+)
+
+
+_NAMESPACERECOMMENDATION = _descriptor.Descriptor(
+  name='NamespaceRecommendation',
+  full_name='containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='object_meta', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation.object_meta', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation.kind', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_type', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation.recommended_type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation.recommended_spec', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec_k8s', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation.recommended_spec_k8s', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2447,
+  serialized_end=2954,
+)
+
+
+_NODERECOMMENDATION = _descriptor.Descriptor(
+  name='NodeRecommendation',
+  full_name='containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='object_meta', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation.object_meta', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation.kind', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_type', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation.recommended_type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation.recommended_spec', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec_k8s', full_name='containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation.recommended_spec_k8s', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2957,
+  serialized_end=3459,
+)
+
+
+_CLUSTERRECOMMENDATION = _descriptor.Descriptor(
+  name='ClusterRecommendation',
+  full_name='containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='object_meta', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation.object_meta', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='kind', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation.kind', index=1,
+      number=2, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_type', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation.recommended_type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation.recommended_spec', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='recommended_spec_k8s', full_name='containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation.recommended_spec_k8s', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3462,
+  serialized_end=3967,
 )
 
 _CONTAINERRECOMMENDATION.fields_by_name['limit_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2._METRICDATA
 _CONTAINERRECOMMENDATION.fields_by_name['request_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2._METRICDATA
 _CONTAINERRECOMMENDATION.fields_by_name['initial_limit_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2._METRICDATA
 _CONTAINERRECOMMENDATION.fields_by_name['initial_request_recommendations'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2._METRICDATA
-_PODRECOMMENDATION.fields_by_name['namespaced_name'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._NAMESPACEDNAME
+_PODRECOMMENDATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _PODRECOMMENDATION.fields_by_name['assign_pod_policy'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_policies__pb2._ASSIGNPODPOLICY
 _PODRECOMMENDATION.fields_by_name['container_recommendations'].message_type = _CONTAINERRECOMMENDATION
 _PODRECOMMENDATION.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _PODRECOMMENDATION.fields_by_name['end_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_PODRECOMMENDATION.fields_by_name['top_controller'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._TOPCONTROLLER
+_PODRECOMMENDATION.fields_by_name['top_controller'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_resources__pb2._CONTROLLER
+_CONTROLLERRECOMMENDATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_CONTROLLERRECOMMENDATION.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
 _CONTROLLERRECOMMENDATION.fields_by_name['recommended_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDTYPE
 _CONTROLLERRECOMMENDATION.fields_by_name['recommended_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPEC
 _CONTROLLERRECOMMENDATION.fields_by_name['recommended_spec_k8s'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPECK8S
+_APPLICATIONRECOMMENDATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_APPLICATIONRECOMMENDATION.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
+_APPLICATIONRECOMMENDATION.fields_by_name['recommended_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDTYPE
+_APPLICATIONRECOMMENDATION.fields_by_name['recommended_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPEC
+_APPLICATIONRECOMMENDATION.fields_by_name['recommended_spec_k8s'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPECK8S
+_NAMESPACERECOMMENDATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_NAMESPACERECOMMENDATION.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
+_NAMESPACERECOMMENDATION.fields_by_name['recommended_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDTYPE
+_NAMESPACERECOMMENDATION.fields_by_name['recommended_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPEC
+_NAMESPACERECOMMENDATION.fields_by_name['recommended_spec_k8s'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPECK8S
+_NODERECOMMENDATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_NODERECOMMENDATION.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
+_NODERECOMMENDATION.fields_by_name['recommended_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDTYPE
+_NODERECOMMENDATION.fields_by_name['recommended_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPEC
+_NODERECOMMENDATION.fields_by_name['recommended_spec_k8s'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPECK8S
+_CLUSTERRECOMMENDATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
+_CLUSTERRECOMMENDATION.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
+_CLUSTERRECOMMENDATION.fields_by_name['recommended_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDTYPE
+_CLUSTERRECOMMENDATION.fields_by_name['recommended_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPEC
+_CLUSTERRECOMMENDATION.fields_by_name['recommended_spec_k8s'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_recommendations_dot_types__pb2._CONTROLLERRECOMMENDEDSPECK8S
 DESCRIPTOR.message_types_by_name['ContainerRecommendation'] = _CONTAINERRECOMMENDATION
 DESCRIPTOR.message_types_by_name['PodRecommendation'] = _PODRECOMMENDATION
 DESCRIPTOR.message_types_by_name['ControllerRecommendation'] = _CONTROLLERRECOMMENDATION
+DESCRIPTOR.message_types_by_name['ApplicationRecommendation'] = _APPLICATIONRECOMMENDATION
+DESCRIPTOR.message_types_by_name['NamespaceRecommendation'] = _NAMESPACERECOMMENDATION
+DESCRIPTOR.message_types_by_name['NodeRecommendation'] = _NODERECOMMENDATION
+DESCRIPTOR.message_types_by_name['ClusterRecommendation'] = _CLUSTERRECOMMENDATION
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ContainerRecommendation = _reflection.GeneratedProtocolMessageType('ContainerRecommendation', (_message.Message,), {
@@ -261,6 +537,34 @@ ControllerRecommendation = _reflection.GeneratedProtocolMessageType('ControllerR
   # @@protoc_insertion_point(class_scope:containersai.alameda.v1alpha1.datahub.recommendations.ControllerRecommendation)
   })
 _sym_db.RegisterMessage(ControllerRecommendation)
+
+ApplicationRecommendation = _reflection.GeneratedProtocolMessageType('ApplicationRecommendation', (_message.Message,), {
+  'DESCRIPTOR' : _APPLICATIONRECOMMENDATION,
+  '__module__' : 'alameda_api.v1alpha1.datahub.recommendations.recommendations_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.alameda.v1alpha1.datahub.recommendations.ApplicationRecommendation)
+  })
+_sym_db.RegisterMessage(ApplicationRecommendation)
+
+NamespaceRecommendation = _reflection.GeneratedProtocolMessageType('NamespaceRecommendation', (_message.Message,), {
+  'DESCRIPTOR' : _NAMESPACERECOMMENDATION,
+  '__module__' : 'alameda_api.v1alpha1.datahub.recommendations.recommendations_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.alameda.v1alpha1.datahub.recommendations.NamespaceRecommendation)
+  })
+_sym_db.RegisterMessage(NamespaceRecommendation)
+
+NodeRecommendation = _reflection.GeneratedProtocolMessageType('NodeRecommendation', (_message.Message,), {
+  'DESCRIPTOR' : _NODERECOMMENDATION,
+  '__module__' : 'alameda_api.v1alpha1.datahub.recommendations.recommendations_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.alameda.v1alpha1.datahub.recommendations.NodeRecommendation)
+  })
+_sym_db.RegisterMessage(NodeRecommendation)
+
+ClusterRecommendation = _reflection.GeneratedProtocolMessageType('ClusterRecommendation', (_message.Message,), {
+  'DESCRIPTOR' : _CLUSTERRECOMMENDATION,
+  '__module__' : 'alameda_api.v1alpha1.datahub.recommendations.recommendations_pb2'
+  # @@protoc_insertion_point(class_scope:containersai.alameda.v1alpha1.datahub.recommendations.ClusterRecommendation)
+  })
+_sym_db.RegisterMessage(ClusterRecommendation)
 
 
 DESCRIPTOR._options = None

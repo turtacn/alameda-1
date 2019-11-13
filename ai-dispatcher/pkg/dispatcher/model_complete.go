@@ -10,8 +10,8 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	datahub_gpu "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
@@ -65,7 +65,11 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 
 				res, err := datahubServiceClnt.ListNodes(context.Background(),
 					&datahub_resources.ListNodesRequest{
-						NodeNames: []string{nodeName},
+						ObjectMeta: []*datahub_resources.ObjectMeta{
+							&datahub_resources.ObjectMeta{
+								Name: nodeName,
+							},
+						},
 					})
 				if err == nil {
 					nodes := res.GetNodes()
@@ -88,11 +92,13 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 					fmt.Sprintf("%s/%s", podNS, podName), dataGranularity, mt)
 				metricExporter.ExportPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
 
-				res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
-					&datahub_resources.ListAlamedaPodsRequest{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: podNS,
-							Name:      podName,
+				res, err := datahubServiceClnt.ListPods(context.Background(),
+					&datahub_resources.ListPodsRequest{
+						ObjectMeta: []*datahub_resources.ObjectMeta{
+							&datahub_resources.ObjectMeta{
+								Namespace: podNS,
+								Name:      podName,
+							},
 						},
 					})
 				if err == nil {

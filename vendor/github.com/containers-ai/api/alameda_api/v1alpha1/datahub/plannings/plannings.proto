@@ -8,7 +8,7 @@ import "alameda_api/v1alpha1/datahub/common/metrics.proto";
 import "alameda_api/v1alpha1/datahub/plannings/types.proto";
 import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
 import "alameda_api/v1alpha1/datahub/resources/policies.proto";
-import "alameda_api/v1alpha1/datahub/resources/types.proto";
+import "alameda_api/v1alpha1/datahub/resources/resources.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings";
@@ -22,21 +22,59 @@ message ContainerPlanning {
 }
 
 message PodPlanning {
-    PlanningType               planning_type       = 1;
-    resources.NamespacedName   namespaced_name     = 2;
+    resources.ObjectMeta       object_meta         = 1;
+    PlanningType               planning_type       = 2;
     bool                       apply_planning_now  = 3;
     resources.AssignPodPolicy  assign_pod_policy   = 4;
     repeated ContainerPlanning container_plannings = 5;
     google.protobuf.Timestamp  start_time          = 6;
     google.protobuf.Timestamp  end_time            = 7;
-    resources.TopController    top_controller      = 8;
+    resources.Controller       top_controller      = 8;
     string                     planning_id         = 9;
     double                     total_cost          = 10;
 }
 
 message ControllerPlanning {
-    PlanningType              planning_type         = 1;
-    ControllerPlanningType    ctl_planning_type     = 2;
-    ControllerPlanningSpec    ctl_planning_spec     = 3;
-    ControllerPlanningSpecK8s ctl_planning_spec_k8s = 4;
+    resources.ObjectMeta      object_meta           = 1;
+    resources.Kind            kind                  = 2;
+    PlanningType              planning_type         = 3;
+    ControllerPlanningType    ctl_planning_type     = 4;
+    ControllerPlanningSpec    ctl_planning_spec     = 5;
+    ControllerPlanningSpecK8s ctl_planning_spec_k8s = 6;
+}
+
+message ApplicationPlanning {
+    resources.ObjectMeta      object_meta                   = 1;
+    resources.Kind            kind                          = 2;
+    PlanningType              planning_type                 = 3;
+    ControllerPlanningType    application_planning_type     = 4;
+    ControllerPlanningSpec    application_planning_spec     = 5;
+    ControllerPlanningSpecK8s application_planning_spec_k8s = 6;
+}
+
+message NamespacePlanning {
+    resources.ObjectMeta      object_meta                 = 1;
+    resources.Kind            kind                        = 2;
+    PlanningType              planning_type               = 3;
+    ControllerPlanningType    namespace_planning_type     = 4;
+    ControllerPlanningSpec    namespace_planning_spec     = 5;
+    ControllerPlanningSpecK8s namespace_planning_spec_k8s = 6;
+}
+
+message NodePlanning {
+    resources.ObjectMeta      object_meta            = 1;
+    resources.Kind            kind                   = 2;
+    PlanningType              planning_type          = 3;
+    ControllerPlanningType    node_planning_type     = 4;
+    ControllerPlanningSpec    node_planning_spec     = 5;
+    ControllerPlanningSpecK8s node_planning_spec_k8s = 6;
+}
+
+message ClusterPlanning {
+    resources.ObjectMeta      object_meta               = 1;
+    resources.Kind            kind                      = 2;
+    PlanningType              planning_type             = 3;
+    ControllerPlanningType    cluster_planning_type     = 4;
+    ControllerPlanningSpec    cluster_planning_spec     = 5;
+    ControllerPlanningSpecK8s cluster_planning_spec_k8s = 6;
 }

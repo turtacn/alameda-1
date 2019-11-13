@@ -20,6 +20,8 @@ github.com/containers-ai/alameda v4.2.459-0.20190930041729-c908f2d26598+incompat
 github.com/containers-ai/alameda v4.2.459-0.20190930041729-c908f2d26598+incompatible/go.mod h1:Y80sCayfnVnZ8jbPW0ZY8exCutnodYJJBV1Oi1R9WHc=
 github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f h1:Oh9NptCfImY51lyXi9kbVLOFztDcDaJfcDOQ7THJEkQ=
 github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f/go.mod h1:4lntUeoAjUdYzGVcVgb/N15po7roqVAgGWqeH1Twe04=
+github.com/containers-ai/api v4.2.467-0.20191108042638-aff5f3a7f637+incompatible h1:91VIzJSTZ6tqSxj28zzGE5nsUCNguShX7p4nC0Bv7Yw=
+github.com/containers-ai/api v4.2.467-0.20191108042638-aff5f3a7f637+incompatible/go.mod h1:4lntUeoAjUdYzGVcVgb/N15po7roqVAgGWqeH1Twe04=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-etcd v2.0.0+incompatible/go.mod h1:Jez6KQU2B/sWsbdaef3ED8NzMklzPG4d5KIOhIy30Tk=

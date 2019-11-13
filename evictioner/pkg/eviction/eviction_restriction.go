@@ -82,25 +82,25 @@ func NewEvictionRestriction(client client.Client, maxUnavailable string, trigger
 		copyPodRecommendation := proto.Clone(podRecommendation)
 		podRecommendation = copyPodRecommendation.(*datahub_recommendations.PodRecommendation)
 
-		if podRecommendation.NamespacedName == nil {
-			scope.Warnf("skip PodRecommendation due to get nil NamespacedName")
+		if podRecommendation.ObjectMeta == nil {
+			scope.Warnf("skip PodRecommendation due to get nil ObjectMeta")
 			continue
 		}
 
-		podRecommendationNamespace := podRecommendation.NamespacedName.Namespace
-		podRecommendationName := podRecommendation.NamespacedName.Name
+		podRecommendationNamespace := podRecommendation.ObjectMeta.Namespace
+		podRecommendationName := podRecommendation.ObjectMeta.Name
 		podNamespace := podRecommendationNamespace
 		podName := podRecommendationName
 		podID := fmt.Sprintf("%s/%s", podNamespace, podName)
 		podIDToPodRecommendationMap[podID] = podRecommendation
 
 		topController := podRecommendation.TopController
-		if topController == nil || topController.NamespacedName == nil {
+		if topController == nil || topController.ObjectMeta == nil {
 			scope.Warnf("skip PodRecommendation (%s/%s) due to get empty topController", podRecommendationNamespace, podRecommendationName)
 			continue
 		}
-		alamedaResourceNamespace := topController.NamespacedName.Namespace
-		alamedaResourceName := topController.NamespacedName.Name
+		alamedaResourceNamespace := topController.ObjectMeta.Namespace
+		alamedaResourceName := topController.ObjectMeta.Name
 		alamedaResourceKind := topController.Kind
 		alamedaResourceID := fmt.Sprintf("%s.%s.%s", alamedaResourceNamespace, alamedaResourceName, alamedaResourceKind)
 		podIDToAlamedaResourceIDMap[podID] = alamedaResourceID

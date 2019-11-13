@@ -29,8 +29,8 @@ func (r *MemoryTotalBytesRepository) ListMemoryTotalBytes(host, minorNumber stri
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause("host", "=", host)
-	influxdbStatement.AppendWhereClause("minor_number", "=", minorNumber)
+	influxdbStatement.AppendWhereClause("AND", "host", "=", host)
+	influxdbStatement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

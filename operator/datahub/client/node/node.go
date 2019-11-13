@@ -40,11 +40,11 @@ func (repo *AlamedaNodeRepository) CreateAlamedaNode(nodes []*datahub_resources.
 
 func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*datahub_resources.Node) error {
 
-	req := datahub_resources.CreateAlamedaNodesRequest{
-		AlamedaNodes: nodes,
+	req := datahub_resources.CreateNodesRequest{
+		Nodes: nodes,
 	}
 
-	if reqRes, err := repo.datahubClient.CreateAlamedaNodes(context.Background(), &req); err != nil {
+	if reqRes, err := repo.datahubClient.CreateNodes(context.Background(), &req); err != nil {
 		return errors.Errorf("create nodes to datahub failed: %s", err.Error())
 	} else if reqRes == nil {
 		return errors.Errorf("create nodes to datahub failed: receive nil status")
@@ -55,13 +55,24 @@ func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*datahub_resources.
 }
 
 // DeleteAlamedaNodes delete predicted node from datahub
-func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(nodes []*datahub_resources.Node) error {
-
-	req := datahub_resources.DeleteAlamedaNodesRequest{
-		AlamedaNodes: nodes,
+func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(arg interface{}) error {
+	objMeta := []*datahub_resources.ObjectMeta{}
+	if nodes, ok := arg.([]*datahub_resources.Node); ok {
+		for _, node := range nodes {
+			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
+				Name: node.ObjectMeta.GetName(),
+			})
+		}
+	}
+	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
+		objMeta = meta
 	}
 
-	if resp, err := repo.datahubClient.DeleteAlamedaNodes(context.Background(), &req); err != nil {
+	req := datahub_resources.DeleteNodesRequest{
+		ObjectMeta: objMeta,
+	}
+
+	if resp, err := repo.datahubClient.DeleteNodes(context.Background(), &req); err != nil {
 		return errors.Errorf("delete node from Datahub failed: %s", err.Error())
 	} else if resp.Code != int32(code.Code_OK) {
 		return errors.Errorf("delete node from Datahub failed: receive code: %d, message: %s", resp.Code, resp.Message)
@@ -76,8 +87,8 @@ func (repo *AlamedaNodeRepository) ListAlamedaNodes() ([]*datahub_resources.Node
 
 func (repo *AlamedaNodeRepository) listAlamedaNodes() ([]*datahub_resources.Node, error) {
 	alamNodes := []*datahub_resources.Node{}
-	req := datahub_resources.ListAlamedaNodesRequest{}
-	if reqRes, err := repo.datahubClient.ListAlamedaNodes(context.Background(), &req); err != nil {
+	req := datahub_resources.ListNodesRequest{}
+	if reqRes, err := repo.datahubClient.ListNodes(context.Background(), &req); err != nil {
 		if reqRes.Status != nil {
 			return alamNodes, errors.Errorf("list nodes from Datahub failed: %s", err.Error())
 		}

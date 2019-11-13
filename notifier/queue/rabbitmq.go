@@ -7,9 +7,10 @@ import (
 
 	"github.com/containers-ai/alameda/notifier/notifying"
 	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
+	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/spf13/viper"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
@@ -106,7 +107,7 @@ func (client *rabbitmqClient) Start() {
 	go func() {
 		for d := range msgs {
 			scope.Infof("Received events: %s", d.Body)
-			evts := &[]*datahub_v1alpha1.Event{}
+			evts := &[]*datahub_events.Event{}
 			decodeErr := json.Unmarshal(d.Body, evts)
 			if decodeErr != nil {
 				scope.Error(decodeErr.Error())

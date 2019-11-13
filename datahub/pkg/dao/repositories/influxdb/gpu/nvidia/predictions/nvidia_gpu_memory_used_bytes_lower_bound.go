@@ -85,11 +85,11 @@ func (r *MemoryUsedBytesLowerBoundRepository) ListPredictions(host, minorNumber,
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesHost, "=", host)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber, "=", minorNumber)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesModelId, "=", modelId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesPredictionId, "=", predictionId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.MemoryUsedBytesGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesHost, "=", host)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesPredictionId, "=", predictionId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

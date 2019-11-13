@@ -85,11 +85,11 @@ func (r *TemperatureCelsiusRepository) ListPredictions(host, minorNumber, modelI
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusHost, "=", host)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusMinorNumber, "=", minorNumber)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusModelId, "=", modelId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusPredictionId, "=", predictionId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.TemperatureCelsiusGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusHost, "=", host)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusPredictionId, "=", predictionId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

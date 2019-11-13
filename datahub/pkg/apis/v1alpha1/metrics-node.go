@@ -22,7 +22,7 @@ func (s *ServiceV1alpha1) CreateNodeMetrics(ctx context.Context, in *ApiMetrics.
 	}
 
 	metricDAO := DaoMetric.NewNodeMetricsWriterDAO(*s.Config)
-	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
+	err := metricDAO.CreateMetrics(ctx, requestExtended.ProduceMetrics())
 	if err != nil {
 		scope.Errorf("failed to create node metrics: %+v", err.Error())
 		return &status.Status{
@@ -48,9 +48,10 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *ApiMetrics.Li
 			},
 		}, nil
 	}
+	requestExt.SetDefault()
 
 	metricDAO := DaoMetric.NewNodeMetricsReaderDAO(*s.Config)
-	nodesMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
+	nodesMetricMap, err := metricDAO.ListMetrics(ctx, requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListNodeMetrics failed: %+v", err)
 		return &ApiMetrics.ListNodeMetricsResponse{

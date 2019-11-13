@@ -21,7 +21,7 @@ func (r *CreateNodePredictionsRequestExtended) ProducePredictions() DaoPredictio
 	for _, node := range r.GetNodePredictions() {
 		nodePrediction := DaoPredictionTypes.NewNodePrediction()
 		nodePrediction.IsScheduled = node.GetIsScheduled()
-		nodePrediction.NodeName = node.GetName()
+		nodePrediction.ObjectMeta.Name = node.GetObjectMeta().GetName()
 
 		// Handle predicted raw data
 		for _, data := range node.GetPredictedRawData() {
@@ -98,12 +98,12 @@ func (r *CreatePodPredictionsRequestExtended) ProducePredictions() DaoPrediction
 	podPredictionMap := DaoPredictionTypes.NewPodPredictionMap()
 
 	for _, pod := range r.GetPodPredictions() {
-		namespace := pod.GetNamespacedName().GetNamespace()
-		podName := pod.GetNamespacedName().GetName()
+		namespace := pod.GetObjectMeta().GetNamespace()
+		podName := pod.GetObjectMeta().GetName()
 
 		podPrediction := DaoPredictionTypes.NewPodPrediction()
-		podPrediction.Namespace = namespace
-		podPrediction.PodName = podName
+		podPrediction.ObjectMeta.Namespace = namespace
+		podPrediction.ObjectMeta.Name = podName
 
 		for _, container := range pod.GetContainerPredictions() {
 			containerName := container.GetName()
@@ -188,29 +188,20 @@ func (r *ListNodePredictionsRequestExtended) Validate() error {
 }
 
 func (r *ListNodePredictionsRequestExtended) ProduceRequest() DaoPredictionTypes.ListNodePredictionsRequest {
-	nodeNames := make([]string, 0)
-	granularity := int64(30)
-
-	if r.Request.GetNodeNames() != nil {
-		for _, nodeName := range r.Request.GetNodeNames() {
-			nodeNames = append(nodeNames, nodeName)
+	request := DaoPredictionTypes.NewListNodePredictionRequest()
+	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
+	request.ModelId = r.Request.GetModelId()
+	request.PredictionId = r.Request.GetPredictionId()
+	request.Granularity = 30
+	if r.Request.GetGranularity() != 0 {
+		request.Granularity = r.Request.GetGranularity()
+	}
+	if r.Request.GetObjectMeta() != nil {
+		for _, objectMeta := range r.Request.GetObjectMeta() {
+			request.ObjectMeta = append(request.ObjectMeta, NewObjectMeta(objectMeta))
 		}
 	}
-
-	if r.Request.GetGranularity() != 0 {
-		granularity = r.Request.GetGranularity()
-	}
-
-	queryCondition := QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
-	listNodePredictionsRequest := DaoPredictionTypes.ListNodePredictionsRequest{
-		QueryCondition: queryCondition,
-		NodeNames:      nodeNames,
-		ModelId:        r.Request.GetModelId(),
-		PredictionId:   r.Request.GetPredictionId(),
-		Granularity:    granularity,
-	}
-
-	return listNodePredictionsRequest
+	return request
 }
 
 type ListPodPredictionsRequestExtended struct {
@@ -222,29 +213,19 @@ func (r *ListPodPredictionsRequestExtended) Validate() error {
 }
 
 func (r *ListPodPredictionsRequestExtended) ProduceRequest() DaoPredictionTypes.ListPodPredictionsRequest {
-	namespace := ""
-	podName := ""
-	granularity := int64(30)
-
-	if r.Request.GetNamespacedName() != nil {
-		namespace = r.Request.GetNamespacedName().GetNamespace()
-		podName = r.Request.GetNamespacedName().GetName()
-	}
-
+	request := DaoPredictionTypes.NewListPodPredictionsRequest()
+	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
+	request.ModelId = r.Request.GetModelId()
+	request.PredictionId = r.Request.GetPredictionId()
+	request.FillDays = r.Request.GetFillDays()
+	request.Granularity = 30
 	if r.Request.GetGranularity() != 0 {
-		granularity = r.Request.GetGranularity()
+		request.Granularity = r.Request.GetGranularity()
 	}
-
-	queryCondition := QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
-	listContainerPredictionsRequest := DaoPredictionTypes.ListPodPredictionsRequest{
-		QueryCondition: queryCondition,
-		Namespace:      namespace,
-		PodName:        podName,
-		ModelId:        r.Request.GetModelId(),
-		PredictionId:   r.Request.GetPredictionId(),
-		Granularity:    granularity,
-		FillDays:       r.Request.GetFillDays(),
+	if r.Request.GetObjectMeta() != nil {
+		for _, objectMeta := range r.Request.GetObjectMeta() {
+			request.ObjectMeta = append(request.ObjectMeta, NewObjectMeta(objectMeta))
+		}
 	}
-
-	return listContainerPredictionsRequest
+	return request
 }

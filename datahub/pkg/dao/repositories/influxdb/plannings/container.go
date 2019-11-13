@@ -4,7 +4,6 @@ import (
 	"fmt"
 	EntityInfluxPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/plannings"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
-	FormatConvert "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
@@ -64,8 +63,8 @@ func (c *ContainerRepository) CreateContainerPlannings(in *ApiPlannings.CreatePo
 			//TODO
 		}
 
-		podNS := podPlanning.GetNamespacedName().GetNamespace()
-		podName := podPlanning.GetNamespacedName().GetName()
+		podNS := podPlanning.GetObjectMeta().GetNamespace()
+		podName := podPlanning.GetObjectMeta().GetName()
 		podTotalCost := podPlanning.GetTotalCost()
 		containerPlannings := podPlanning.GetContainerPlannings()
 		topController := podPlanning.GetTopController()
@@ -100,8 +99,8 @@ func (c *ContainerRepository) CreateContainerPlannings(in *ApiPlannings.CreatePo
 			fields := map[string]interface{}{
 				//TODO
 				//string(EntityInfluxRecommend.ContainerPolicy):            "",
-				EntityInfluxPlanning.ContainerTopControllerName: topController.GetNamespacedName().GetName(),
-				EntityInfluxPlanning.ContainerTopControllerKind: FormatConvert.KindDisp[(topController.GetKind())],
+				EntityInfluxPlanning.ContainerTopControllerName: topController.GetObjectMeta().GetName(),
+				EntityInfluxPlanning.ContainerTopControllerKind: topController.GetKind().String(),
 				EntityInfluxPlanning.ContainerPolicy:            podPolicyValue,
 				EntityInfluxPlanning.ContainerPolicyTime:        podPlanning.GetAssignPodPolicy().GetTime().GetSeconds(),
 				EntityInfluxPlanning.ContainerPodTotalCost:      podTotalCost,
@@ -228,9 +227,6 @@ func (c *ContainerRepository) CreateContainerPlannings(in *ApiPlannings.CreatePo
 
 // ListContainerPlannings list container plannings
 func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPlanningsRequest) ([]*ApiPlannings.PodPlanning, error) {
-	kind := in.GetKind()
-	granularity := in.GetGranularity()
-
 	podPlannings := make([]*ApiPlannings.PodPlanning, 0)
 
 	influxdbStatement := InternalInflux.Statement{
@@ -239,38 +235,48 @@ func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPla
 		GroupByTags:    []string{EntityInfluxPlanning.ContainerName, EntityInfluxPlanning.ContainerNamespace, EntityInfluxPlanning.ContainerPodName},
 	}
 
-	nameCol := ""
-	switch kind {
-	case ApiResources.Kind_POD:
-		nameCol = string(EntityInfluxPlanning.ContainerPodName)
-	case ApiResources.Kind_DEPLOYMENT:
-		nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
-	case ApiResources.Kind_DEPLOYMENTCONFIG:
-		nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
-	case ApiResources.Kind_STATEFULSET:
-		nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
-	default:
-		return podPlannings, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
-	}
-	influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ContainerNamespace, "=", in.GetNamespacedName().GetNamespace())
-	influxdbStatement.AppendWhereClause(nameCol, "=", in.GetNamespacedName().GetName())
+	kind := in.GetKind()
+	planningType := in.GetPlanningType().String()
+	granularity := in.GetGranularity()
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
-
-	if kind != ApiResources.Kind_POD {
-		kindConditionStr := fmt.Sprintf("\"%s\"='%s'", EntityInfluxPlanning.ContainerTopControllerKind, FormatConvert.KindDisp[kind])
-		influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ContainerTopControllerKind, "=", kindConditionStr)
+	if granularity == 0 {
+		granularity = 30
 	}
 
-	if granularity == 0 || granularity == 30 {
-		tempCondition := fmt.Sprintf("(\"%s\"='' OR \"%s\"='30')", EntityInfluxPlanning.ContainerGranularity, EntityInfluxPlanning.ContainerGranularity)
-		influxdbStatement.AppendWhereClauseDirectly(tempCondition)
-	} else {
-		influxdbStatement.AppendWhereClause(EntityInfluxPlanning.ContainerGranularity, "=", strconv.FormatInt(granularity, 10))
-	}
+	for _, objMeta := range in.GetObjectMeta() {
+		tempCondition := ""
+		name := objMeta.GetName()
 
-	influxdbStatement.SetOrderClauseFromQueryCondition()
-	influxdbStatement.SetLimitClauseFromQueryCondition()
+		nameCol := ""
+		switch kind {
+		case ApiResources.Kind_POD:
+			nameCol = string(EntityInfluxPlanning.ContainerPodName)
+		case ApiResources.Kind_DEPLOYMENT:
+			nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
+		case ApiResources.Kind_DEPLOYMENTCONFIG:
+			nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
+		case ApiResources.Kind_STATEFULSET:
+			nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
+		default:
+			return podPlannings, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
+		}
+
+		keyList := []string{nameCol, EntityInfluxPlanning.ContainerGranularity}
+		valueList := []string{name, strconv.FormatInt(granularity, 10)}
+
+		if kind != ApiResources.Kind_POD {
+			keyList = append(keyList, EntityInfluxPlanning.ContainerTopControllerKind)
+			valueList = append(valueList, kind.String())
+		}
+
+		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxPlanning.ControllerPlanningType)
+			valueList = append(valueList, planningType)
+		}
+
+		tempCondition = influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
 
 	cmd := influxdbStatement.BuildQueryCmd()
 	scope.Debugf(fmt.Sprintf("ListContainerPlannings: %s", cmd))
@@ -297,23 +303,24 @@ func (c *ContainerRepository) queryPlannings(cmd string, granularity int64) ([]*
 		for _, data := range row.Data {
 			podPlanning := &ApiPlannings.PodPlanning{}
 			podPlanning.PlanningType = ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[EntityInfluxPlanning.ContainerPlanningType]])
-			podPlanning.NamespacedName = &ApiResources.NamespacedName{
+			podPlanning.ObjectMeta = &ApiResources.ObjectMeta{
 				Namespace: data[EntityInfluxPlanning.ContainerNamespace],
 				Name:      data[EntityInfluxPlanning.ContainerPodName],
 			}
 
 			tempTopControllerKind := data[EntityInfluxPlanning.ContainerTopControllerKind]
 			var topControllerKind ApiResources.Kind
-			if val, ok := FormatConvert.KindEnum[tempTopControllerKind]; ok {
-				topControllerKind = val
+			if val, ok := ApiResources.Kind_value[tempTopControllerKind]; ok {
+				topControllerKind = ApiResources.Kind(val)
 			}
 
-			podPlanning.TopController = &ApiResources.TopController{
-				NamespacedName: &ApiResources.NamespacedName{
+			podPlanning.TopController = &ApiResources.Controller{
+				ObjectMeta: &ApiResources.ObjectMeta{
 					Namespace: data[EntityInfluxPlanning.ContainerNamespace],
 					Name:      data[EntityInfluxPlanning.ContainerTopControllerName],
 				},
-				Kind: topControllerKind,
+				Kind:            topControllerKind,
+				OwnerReferences: make([]*ApiResources.OwnerReference, 0),
 			}
 
 			startTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.ContainerStartTime], 10, 64)

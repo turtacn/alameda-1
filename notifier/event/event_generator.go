@@ -4,20 +4,20 @@ import (
 	"time"
 
 	"github.com/containers-ai/alameda/pkg/utils"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
-func GetEmailNotificationEvent(msg, podName, clusterId string) *datahub_v1alpha1.Event {
-	return &datahub_v1alpha1.Event{
+func GetEmailNotificationEvent(msg, podName, clusterId string) *datahub_events.Event {
+	return &datahub_events.Event{
 		Time: &timestamp.Timestamp{
 			Seconds: time.Now().Unix(),
 		},
 		ClusterId: clusterId,
-		Type:      datahub_v1alpha1.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
-		Version:   datahub_v1alpha1.EventVersion_EVENT_VERSION_V1,
-		Level:     datahub_v1alpha1.EventLevel_EVENT_LEVEL_WARNING,
-		Subject: &datahub_v1alpha1.K8SObjectReference{
+		Type:      datahub_events.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
+		Version:   datahub_events.EventVersion_EVENT_VERSION_V1,
+		Level:     datahub_events.EventLevel_EVENT_LEVEL_WARNING,
+		Subject: &datahub_events.K8SObjectReference{
 			Kind:      "Pod",
 			Namespace: utils.GetRunningNamespace(),
 			Name:      podName,

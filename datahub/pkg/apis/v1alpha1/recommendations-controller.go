@@ -15,7 +15,7 @@ func (s *ServiceV1alpha1) CreateControllerRecommendations(ctx context.Context, i
 
 	controllerRecommendationList := in.GetControllerRecommendations()
 	controllerDAO := DaoRecommendation.NewControllerRecommendationsDAO(*s.Config)
-	err := controllerDAO.AddControllerRecommendations(controllerRecommendationList)
+	err := controllerDAO.CreateControllerRecommendations(controllerRecommendationList)
 
 	if err != nil {
 		scope.Error(err.Error())

@@ -16,7 +16,7 @@ type NodePredictionsDAO interface {
 
 // NodePrediction Prediction model to represent one node Prediction
 type NodePrediction struct {
-	NodeName             metadata.NodeName
+	ObjectMeta           metadata.ObjectMeta
 	IsScheduled          bool
 	PredictionRaw        map[enumconv.MetricType]*types.PredictionMetricData
 	PredictionUpperBound map[enumconv.MetricType]*types.PredictionMetricData
@@ -31,7 +31,7 @@ type NodePredictionMap struct {
 // ListNodePredictionsRequest ListNodePredictionsRequest
 type ListNodePredictionsRequest struct {
 	common.QueryCondition
-	NodeNames    []string
+	ObjectMeta   []metadata.ObjectMeta
 	ModelId      string
 	PredictionId string
 	Granularity  int64
@@ -49,6 +49,12 @@ func NewNodePredictionMap() NodePredictionMap {
 	nodePredictionMap := NodePredictionMap{}
 	nodePredictionMap.MetricMap = make(map[metadata.NodeName]*NodePrediction)
 	return nodePredictionMap
+}
+
+func NewListNodePredictionRequest() ListNodePredictionsRequest {
+	request := ListNodePredictionsRequest{}
+	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
+	return request
 }
 
 func (n *NodePrediction) AddRawSample(metricType enumconv.MetricType, granularity int64, sample types.PredictionSample) {
@@ -92,7 +98,7 @@ func (n *NodePrediction) Merge(in *NodePrediction) {
 
 // AddNodePrediction Add node Prediction into NodesPredictionMap
 func (n *NodePredictionMap) AddNodePrediction(nodePrediction *NodePrediction) {
-	nodeName := nodePrediction.NodeName
+	nodeName := nodePrediction.ObjectMeta.Name
 	if existNodePrediction, exist := n.MetricMap[nodeName]; exist {
 		existNodePrediction.Merge(nodePrediction)
 	} else {

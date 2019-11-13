@@ -4,6 +4,7 @@ import (
 	"context"
 
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 )
@@ -18,12 +19,12 @@ func NewEventSender(datahubClient datahub_v1alpha1.DatahubServiceClient) *eventS
 	}
 }
 
-func (evtSender *eventSender) SendEvents(events []*datahub_v1alpha1.Event) error {
+func (evtSender *eventSender) SendEvents(events []*datahub_events.Event) error {
 	if len(events) == 0 {
 		return nil
 	}
 
-	request := datahub_v1alpha1.CreateEventsRequest{
+	request := datahub_events.CreateEventsRequest{
 		Events: events,
 	}
 	status, err := evtSender.datahubClient.CreateEvents(context.TODO(), &request)

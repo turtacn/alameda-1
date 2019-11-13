@@ -142,8 +142,8 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(dispatcher.datahubGrpcCn)
 
 	if pdUnit == UnitTypeNode {
-		res, err := datahubServiceClnt.ListAlamedaNodes(context.Background(),
-			&datahub_resources.ListAlamedaNodesRequest{})
+		res, err := datahubServiceClnt.ListNodes(context.Background(),
+			&datahub_resources.ListNodesRequest{})
 		if err != nil {
 			scope.Errorf("List nodes for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
@@ -166,8 +166,8 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			len(nodes), granularity)
 
 	} else if pdUnit == UnitTypePod {
-		res, err := datahubServiceClnt.ListAlamedaPods(context.Background(),
-			&datahub_resources.ListAlamedaPodsRequest{})
+		res, err := datahubServiceClnt.ListPods(context.Background(),
+			&datahub_resources.ListPodsRequest{})
 		if err != nil {
 			scope.Errorf("List pods for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())

@@ -8,23 +8,22 @@ import (
 	"strings"
 	"time"
 
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/spf13/viper"
 	Corev1 "k8s.io/api/core/v1"
 	K8SErrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
 )
 
 type NodeInfo struct {
-	UID           string
-	Name          string
-	RoleMaster    bool
-	RoleCompute   bool
-	RoleInfra     bool
-	Hostname      string
-	IPInternal    []string
-	IPExternal    []string
+	UID         string
+	Name        string
+	RoleMaster  bool
+	RoleCompute bool
+	RoleInfra   bool
+	Hostname    string
+	IPInternal  []string
+	IPExternal  []string
 }
 
 type ClusterInfo struct {
@@ -45,7 +44,7 @@ func RemoveEmptyStr(strList []string) []string {
 	return ret
 }
 
-func EventEmailSubject(evt *datahub_v1alpha1.Event) string {
+func EventEmailSubject(evt *datahub_events.Event) string {
 	msg := evt.GetMessage()
 	levelMap := viper.GetStringMap("eventLevel")
 	level := evt.GetLevel()
@@ -53,7 +52,7 @@ func EventEmailSubject(evt *datahub_v1alpha1.Event) string {
 		strings.Title(levelMap[strconv.FormatInt(int64(level), 10)].(string)), msg)
 }
 
-func EventHTMLMsg(evt *datahub_v1alpha1.Event, clusterInfo *ClusterInfo) string {
+func EventHTMLMsg(evt *datahub_events.Event, clusterInfo *ClusterInfo) string {
 	var cInfo *ClusterInfo
 	levelMap := viper.GetStringMap("eventLevel")
 	eventMap := viper.GetStringMap("eventType")

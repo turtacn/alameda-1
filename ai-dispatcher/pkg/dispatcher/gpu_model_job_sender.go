@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -37,6 +38,10 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_gpu.Gpu,
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, gpu := range gpus {
+		if granularity == 30 && !viper.GetBool("hourlyPredict") {
+			continue
+		}
+
 		gpuHost := gpu.GetMetadata().GetHost()
 		gpuMinorNumber := gpu.GetMetadata().GetMinorNumber()
 
