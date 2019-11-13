@@ -113,12 +113,11 @@ type ContainerEntity struct {
 }
 
 // NewContainerEntityFromMap Build entity from map
-func NewContainerEntity(data map[string]string) ContainerEntity {
-	tempTimestamp, _ := utils.ParseTime(data[string(ContainerTime)])
+func NewContainerEntity(data map[string]string) *ContainerEntity {
+	entity := ContainerEntity{}
 
-	entity := ContainerEntity{
-		Time: tempTimestamp,
-	}
+	tempTimestamp, _ := utils.ParseTime(data[string(ContainerTime)])
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
 	if value, exist := data[string(ContainerName)]; exist {
@@ -222,7 +221,7 @@ func NewContainerEntity(data map[string]string) ContainerEntity {
 		entity.RestartCount = int32(valueInt64)
 	}
 
-	return entity
+	return &entity
 }
 
 func (e *ContainerEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {

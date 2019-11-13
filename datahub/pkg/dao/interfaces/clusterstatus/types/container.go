@@ -9,7 +9,6 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"strconv"
 )
 
 type Container struct {
@@ -87,170 +86,104 @@ func NewListContainersRequest() ListContainersRequest {
 	return request
 }
 
-func (p *Container) Initialize(values map[string]string) {
-	if value, ok := values[string(clusterstatus.ContainerName)]; ok {
-		p.Name = value
+func (p *Container) Initialize(entity *clusterstatus.ContainerEntity) {
+	p.Name = entity.Name
+	p.PodName = entity.PodName
+	p.Namespace = entity.Namespace
+	p.NodeName = entity.NodeName
+	p.ClusterName = entity.ClusterName
+	p.Uid = entity.Uid
+
+	// Build Resources
+	p.Resources = &ResourceRequirements{}
+	p.Resources.Limits = make(map[int32]string)
+	p.Resources.Requests = make(map[int32]string)
+	if entity.ResourceLimitCPU != "" {
+		p.Resources.Limits[int32(ApiCommon.ResourceName_CPU)] = entity.ResourceLimitCPU
 	}
-	if value, ok := values[string(clusterstatus.ContainerPodName)]; ok {
-		p.PodName = value
+	if entity.ResourceLimitMemory != "" {
+		p.Resources.Limits[int32(ApiCommon.ResourceName_MEMORY)] = entity.ResourceLimitMemory
 	}
-	if value, ok := values[string(clusterstatus.ContainerNamespace)]; ok {
-		p.Namespace = value
+	if entity.ResourceRequestCPU != "" {
+		p.Resources.Requests[int32(ApiCommon.ResourceName_CPU)] = entity.ResourceRequestCPU
 	}
-	if value, ok := values[string(clusterstatus.ContainerNodeName)]; ok {
-		p.NodeName = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerClusterName)]; ok {
-		p.ClusterName = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerUid)]; ok {
-		p.Uid = value
+	if entity.ResourceRequestMemory != "" {
+		p.Resources.Requests[int32(ApiCommon.ResourceName_MEMORY)] = entity.ResourceRequestMemory
 	}
 
-	if value, ok := values[string(clusterstatus.ContainerResourceLimitCPU)]; ok {
-		if value != "" {
-			p.Resources.Limits[int32(ApiCommon.ResourceName_CPU)] = value
-		}
-	}
-	if value, ok := values[string(clusterstatus.ContainerResourceLimitMemory)]; ok {
-		if value != "" {
-			p.Resources.Limits[int32(ApiCommon.ResourceName_CPU)] = value
-		}
-	}
-	if value, ok := values[string(clusterstatus.ContainerResourceRequestCPU)]; ok {
-		if value != "" {
-			p.Resources.Requests[int32(ApiCommon.ResourceName_CPU)] = value
-		}
-	}
-	if value, ok := values[string(clusterstatus.ContainerResourceRequestMemory)]; ok {
-		if value != "" {
-			p.Resources.Requests[int32(ApiCommon.ResourceName_MEMORY)] = value
-		}
-	}
-
-	// TODO: remove empty state !!
+	// Build Status
 	p.Status = &ContainerStatus{}
-
-	p.Status.State = &ContainerState{}
-	p.Status.State.Waiting = &ContainerStateWaiting{}
-	p.Status.State.Running = &ContainerStateRunning{}
-	p.Status.State.Terminated = &ContainerStateTerminated{}
-
-	p.Status.LastTerminationState = &ContainerState{}
-	p.Status.LastTerminationState.Waiting = &ContainerStateWaiting{}
-	p.Status.LastTerminationState.Running = &ContainerStateRunning{}
-	p.Status.LastTerminationState.Terminated = &ContainerStateTerminated{}
-
-	if value, ok := values[string(clusterstatus.ContainerStatusWaitingReason)]; ok {
-		p.Status.State.Waiting.Reason = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerStatusWaitingMessage)]; ok {
-		p.Status.State.Waiting.Message = value
-	}
-
-	if value, ok := values[string(clusterstatus.ContainerStatusRunningStartedAt)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.State.Running.StartedAt = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-
-	if value, ok := values[string(clusterstatus.ContainerStatusTerminatedExitCode)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.State.Terminated.ExitCode = int32(valueInt64)
-	}
-	if value, ok := values[string(clusterstatus.ContainerStatusTerminatedReason)]; ok {
-		p.Status.State.Terminated.Reason = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerStatusTerminatedMessage)]; ok {
-		p.Status.State.Terminated.Message = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerStatusTerminatedStartedAt)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.State.Terminated.StartedAt = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-	if value, ok := values[string(clusterstatus.ContainerStatusTerminatedFinishedAt)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.State.Terminated.FinishedAt = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationWaitingReason)]; ok {
-		p.Status.LastTerminationState.Waiting.Reason = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationWaitingMessage)]; ok {
-		p.Status.LastTerminationState.Waiting.Message = value
-	}
-
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationRunningStartedAt)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.LastTerminationState.Running.StartedAt = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationTerminatedExitCode)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.LastTerminationState.Terminated.ExitCode = int32(valueInt64)
-	}
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationTerminatedReason)]; ok {
-		p.Status.LastTerminationState.Terminated.Reason = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationTerminatedMessage)]; ok {
-		p.Status.LastTerminationState.Terminated.Message = value
-	}
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationTerminatedStartedAt)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.LastTerminationState.Terminated.StartedAt = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-	if value, ok := values[string(clusterstatus.ContainerLastTerminationTerminatedFinishedAt)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.LastTerminationState.Terminated.FinishedAt = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-
-	if value, ok := values[string(clusterstatus.ContainerRestartCount)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Status.RestartCount = int32(valueInt64)
-	}
-
+	p.Status.State = p.newState(entity)
+	p.Status.LastTerminationState = p.newLastTerminationState(entity)
+	p.Status.RestartCount = entity.RestartCount
 }
 
-func (p *Container) initStatusWaiting(values map[string]string) {
-	if value, ok := values[string(clusterstatus.ContainerStatusWaitingReason)]; ok {
-		if value != "" {
-			if p.Status == nil {
-				p.Status = &ContainerStatus{}
-			}
-			if p.Status.State == nil {
-				p.Status.State = &ContainerState{}
-			}
-			if p.Status.State.Waiting == nil {
-				p.Status.State.Waiting = &ContainerStateWaiting{}
-			}
-		}
+func (p *Container) newState(entity *clusterstatus.ContainerEntity) *ContainerState {
+	waiting := p.waiting(entity.StatusWaitingReason, entity.StatusWaitingMessage)
+	running := p.running(entity.StatusRunningStartedAt)
+	terminated := p.terminated(
+		entity.StatusTerminatedReason,
+		entity.StatusTerminatedMessage,
+		entity.StatusTerminatedStartedAt,
+		entity.StatusTerminatedFinishedAt,
+		entity.StatusTerminatedExitCode)
+	if waiting != nil || running != nil || terminated != nil {
+		state := &ContainerState{}
+		state.Waiting = waiting
+		state.Running = running
+		state.Terminated = terminated
+		return state
 	}
-	if value, ok := values[string(clusterstatus.ContainerStatusWaitingMessage)]; ok {
-		if value != "" {
-			if p.Status == nil {
-				p.Status = &ContainerStatus{}
-			}
-			if p.Status.State == nil {
-				p.Status.State = &ContainerState{}
-			}
-			if p.Status.State.Waiting == nil {
-				p.Status.State.Waiting = &ContainerStateWaiting{}
-			}
-		}
-	}
+	return nil
 }
 
-func (p *Container) initStatusRunning(values map[string]string) {
-	if value, ok := values[string(clusterstatus.ContainerStatusRunningStartedAt)]; ok {
-		if value != "" {
-			if p.Status == nil {
-				p.Status = &ContainerStatus{}
-			}
-			if p.Status.State == nil {
-				p.Status.State = &ContainerState{}
-			}
-			if p.Status.State.Running == nil {
-				p.Status.State.Running = &ContainerStateRunning{}
-			}
-		}
+func (p *Container) newLastTerminationState(entity *clusterstatus.ContainerEntity) *ContainerState {
+	waiting := p.waiting(entity.LastTerminationWaitingReason, entity.LastTerminationWaitingMessage)
+	running := p.running(entity.LastTerminationRunningStartedAt)
+	terminated := p.terminated(
+		entity.LastTerminationTerminatedReason,
+		entity.LastTerminationTerminatedMessage,
+		entity.LastTerminationTerminatedStartedAt,
+		entity.LastTerminationTerminatedFinishedAt,
+		entity.LastTerminationTerminatedExitCode)
+	if waiting != nil || running != nil || terminated != nil {
+		state := &ContainerState{}
+		state.Waiting = waiting
+		state.Running = running
+		state.Terminated = terminated
+		return state
 	}
+	return nil
+}
+
+func (p *Container) waiting(reason, message string) *ContainerStateWaiting {
+	if reason != "" || message != "" {
+		state := &ContainerStateWaiting{}
+		state.Reason = reason
+		state.Message = message
+		return state
+	}
+	return nil
+}
+
+func (p *Container) running(startedAt int64) *ContainerStateRunning {
+	if startedAt != 0 {
+		state := &ContainerStateRunning{}
+		state.StartedAt = &timestamp.Timestamp{Seconds: startedAt}
+		return state
+	}
+	return nil
+}
+
+func (p *Container) terminated(reason, message string, startedAt, finishedAt int64, exitCode int32) *ContainerStateTerminated {
+	if reason != "" || message != "" || startedAt != 0 || finishedAt != 0 {
+		state := &ContainerStateTerminated{}
+		state.Reason = reason
+		state.Message = message
+		state.StartedAt = &timestamp.Timestamp{Seconds: startedAt}
+		state.FinishedAt = &timestamp.Timestamp{Seconds: finishedAt}
+		state.ExitCode = exitCode
+		return state
+	}
+	return nil
 }

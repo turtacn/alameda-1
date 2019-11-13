@@ -1,11 +1,11 @@
 package clusterstatus
 
 import (
-	//"github.com/containers-ai/alameda/datahub/pkg/utils"
+	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
-	//"strconv"
+	"strconv"
 	"time"
 )
 
@@ -99,6 +99,96 @@ type PodEntity struct {
 	AlamedaSpecResourceRequestCPU    string // TODO: check if type string or float64
 	AlamedaSpecResourceRequestMemory string // TODO: check if type string or float64
 	AlamedaSpecScalingTool           string
+}
+
+func NewPodEntity(data map[string]string) *PodEntity {
+	entity := PodEntity{}
+
+	tempTimestamp, _ := utils.ParseTime(data[string("time")])
+	entity.Time = tempTimestamp
+
+	// InfluxDB tags
+	if value, exist := data[string(PodName)]; exist {
+		entity.Name = value
+	}
+	if value, exist := data[string(PodNamespace)]; exist {
+		entity.Namespace = value
+	}
+	if value, exist := data[string(PodNodeName)]; exist {
+		entity.NodeName = value
+	}
+	if value, exist := data[string(PodClusterName)]; exist {
+		entity.ClusterName = value
+	}
+	if value, exist := data[string(PodUid)]; exist {
+		entity.Uid = value
+	}
+	if value, exist := data[string(PodAlamedaSpecScalerName)]; exist {
+		entity.AlamedaSpecScalerName = value
+	}
+	if value, exist := data[string(PodAlamedaSpecScalerNamespace)]; exist {
+		entity.AlamedaSpecScalerNamespace = value
+	}
+	if value, exist := data[string(PodAlamedaSpecScalerClusterName)]; exist {
+		entity.AlamedaSpecScalerClusterName = value
+	}
+	if value, exist := data[string(PodAppName)]; exist {
+		entity.AppName = value
+	}
+	if value, exist := data[string(PodAppPartOf)]; exist {
+		entity.AppPartOf = value
+	}
+
+	// InfluxDB fields
+	if value, exist := data[string(PodCreateTime)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.CreateTime = valueInt64
+	}
+	if value, exist := data[string(PodResourceLink)]; exist {
+		entity.ResourceLink = value
+	}
+	if value, exist := data[string(PodTopControllerName)]; exist {
+		entity.TopControllerName = value
+	}
+	if value, exist := data[string(PodTopControllerKind)]; exist {
+		entity.TopControllerKind = value
+	}
+	if value, exist := data[string(PodTopControllerReplicas)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.TopControllerReplicas = int32(valueInt64)
+	}
+	if value, exist := data[string(PodStatusPhase)]; exist {
+		entity.StatusPhase = value
+	}
+	if value, exist := data[string(PodStatusMessage)]; exist {
+		entity.StatusMessage = value
+	}
+	if value, exist := data[string(PodStatusReason)]; exist {
+		entity.StatusReason = value
+	}
+	if value, exist := data[string(PodAlamedaSpecPolicy)]; exist {
+		entity.AlamedaSpecPolicy = value
+	}
+	if value, exist := data[string(PodAlamedaSpecUsedRecommendationID)]; exist {
+		entity.AlamedaSpecUsedRecommendationID = value
+	}
+	if value, exist := data[string(PodAlamedaSpecResourceLimitCPU)]; exist {
+		entity.AlamedaSpecResourceLimitCPU = value
+	}
+	if value, exist := data[string(PodAlamedaSpecResourceLimitMemory)]; exist {
+		entity.AlamedaSpecResourceLimitMemory = value
+	}
+	if value, exist := data[string(PodAlamedaSpecResourceRequestCPU)]; exist {
+		entity.AlamedaSpecResourceRequestCPU = value
+	}
+	if value, exist := data[string(PodAlamedaSpecResourceRequestMemory)]; exist {
+		entity.AlamedaSpecResourceRequestMemory = value
+	}
+	if value, exist := data[string(PodAlamedaSpecScalingTool)]; exist {
+		entity.AlamedaSpecScalingTool = value
+	}
+
+	return &entity
 }
 
 func (p *PodEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {

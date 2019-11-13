@@ -166,7 +166,7 @@ func (p *ContainerRepository) ListContainers(request DaoClusterTypes.ListContain
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				container := DaoClusterTypes.NewContainer()
-				container.Initialize(row)
+				container.Initialize(EntityInfluxCluster.NewContainerEntity(row))
 				containerMap[clusterNamespacePodName] = append(containerMap[clusterNamespacePodName], container)
 			}
 		}

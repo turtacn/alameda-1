@@ -7,7 +7,6 @@ import (
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"strconv"
 	"strings"
 )
 
@@ -41,8 +40,8 @@ type AlamedaPodSpec struct {
 	AlamedaScaler          *metadata.ObjectMeta
 	Policy                 string
 	UsedRecommendationId   string
-	AlamedaScalerResources *ResourceRequirements
 	ScalingTool            string
+	AlamedaScalerResources *ResourceRequirements
 }
 
 type PodStatus struct {
@@ -64,92 +63,53 @@ func NewListPodsRequest() ListPodsRequest {
 	return request
 }
 
-func (p *Pod) Initialize(values map[string]string) {
+func (p *Pod) Initialize(entity *clusterstatus.PodEntity) {
 	p.ObjectMeta = &metadata.ObjectMeta{}
-	p.ObjectMeta.Initialize(values)
-	if value, ok := values[string(clusterstatus.PodCreateTime)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.CreateTime = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-	p.ResourceLink = values[string(clusterstatus.PodResourceLink)]
-	p.AppName = values[string(clusterstatus.PodAppName)]
-	p.AppPartOf = values[string(clusterstatus.PodAppPartOf)]
-	p.Containers = make([]*Container, 0)
+	p.ObjectMeta.Name = entity.Name
+	p.ObjectMeta.Namespace = entity.Namespace
+	p.ObjectMeta.NodeName = entity.NodeName
+	p.ObjectMeta.ClusterName = entity.ClusterName
+	p.ObjectMeta.Uid = entity.Uid
+	p.CreateTime = &timestamp.Timestamp{Seconds: entity.CreateTime}
+	p.ResourceLink = entity.ResourceLink
+	p.AppName = entity.AppName
+	p.AppPartOf = entity.AppPartOf
 
-	// Build top controller
-	p.TopController.ObjectMeta.Name = values[string(clusterstatus.PodTopControllerName)]
-	p.TopController.Kind = values[string(clusterstatus.PodTopControllerKind)]
-	if value, ok := values[string(clusterstatus.PodTopControllerReplicas)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.TopController.Replicas = int32(valueInt64)
-	}
+	// Build TopController
+	p.TopController = &Controller{}
+	p.TopController.ObjectMeta.Name = entity.TopControllerName
+	p.TopController.Kind = entity.TopControllerKind
+	p.TopController.Replicas = entity.TopControllerReplicas
 
-	// Build status
-	if value, ok := values[string(clusterstatus.PodStatusPhase)]; ok {
-		if p.Status == nil {
-			p.Status = &PodStatus{}
-		}
-		p.Status.Phase = value
-	}
-	if value, ok := values[string(clusterstatus.PodStatusMessage)]; ok {
-		if p.Status == nil {
-			p.Status = &PodStatus{}
-		}
-		p.Status.Message = value
-	}
-	if value, ok := values[string(clusterstatus.PodStatusReason)]; ok {
-		if p.Status == nil {
-			p.Status = &PodStatus{}
-		}
-		p.Status.Reason = value
-	}
+	// Build Status
+	p.Status = &PodStatus{}
+	p.Status.Phase = entity.StatusPhase
+	p.Status.Message = entity.StatusMessage
+	p.Status.Reason = entity.StatusReason
 
-	// Build alameda pod spec
+	// Build AlamedaPodSpec
 	p.AlamedaPodSpec = &AlamedaPodSpec{}
 	p.AlamedaPodSpec.AlamedaScaler = &metadata.ObjectMeta{}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecScalerName)]; ok {
-		p.AlamedaPodSpec.AlamedaScaler.Name = value
-	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecScalerNamespace)]; ok {
-		p.AlamedaPodSpec.AlamedaScaler.Namespace = value
-	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecScalerClusterName)]; ok {
-		p.AlamedaPodSpec.AlamedaScaler.ClusterName = value
-	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecPolicy)]; ok {
-		p.AlamedaPodSpec.Policy = value
-	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecUsedRecommendationID)]; ok {
-		p.AlamedaPodSpec.UsedRecommendationId = value
-	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecScalingTool)]; ok {
-		p.AlamedaPodSpec.ScalingTool = value
-	}
+	p.AlamedaPodSpec.AlamedaScaler.Name = entity.AlamedaSpecScalerName
+	p.AlamedaPodSpec.AlamedaScaler.Namespace = entity.AlamedaSpecScalerNamespace
+	p.AlamedaPodSpec.AlamedaScaler.ClusterName = entity.AlamedaSpecScalerClusterName
+	p.AlamedaPodSpec.ScalingTool = entity.AlamedaSpecScalingTool
+	p.AlamedaPodSpec.Policy = entity.AlamedaSpecPolicy
+	p.AlamedaPodSpec.UsedRecommendationId = entity.AlamedaSpecUsedRecommendationID
 	p.AlamedaPodSpec.AlamedaScalerResources = &ResourceRequirements{}
 	p.AlamedaPodSpec.AlamedaScalerResources.Limits = make(map[int32]string)
 	p.AlamedaPodSpec.AlamedaScalerResources.Requests = make(map[int32]string)
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecResourceLimitCPU)]; ok {
-		if value != "" {
-			p.AlamedaPodSpec.AlamedaScalerResources.Limits[int32(ApiCommon.ResourceName_CPU)] = value
-		}
+	if entity.AlamedaSpecResourceLimitCPU != "" {
+		p.AlamedaPodSpec.AlamedaScalerResources.Limits[int32(ApiCommon.ResourceName_CPU)] = entity.AlamedaSpecResourceLimitCPU
 	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecResourceLimitMemory)]; ok {
-		if value != "" {
-			p.AlamedaPodSpec.AlamedaScalerResources.Limits[int32(ApiCommon.ResourceName_MEMORY)] = value
-		}
+	if entity.AlamedaSpecResourceLimitMemory != "" {
+		p.AlamedaPodSpec.AlamedaScalerResources.Limits[int32(ApiCommon.ResourceName_MEMORY)] = entity.AlamedaSpecResourceLimitMemory
 	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecResourceRequestCPU)]; ok {
-		if value != "" {
-			p.AlamedaPodSpec.AlamedaScalerResources.Requests[int32(ApiCommon.ResourceName_CPU)] = value
-		}
+	if entity.AlamedaSpecResourceRequestCPU != "" {
+		p.AlamedaPodSpec.AlamedaScalerResources.Requests[int32(ApiCommon.ResourceName_CPU)] = entity.AlamedaSpecResourceRequestCPU
 	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecResourceRequestMemory)]; ok {
-		if value != "" {
-			p.AlamedaPodSpec.AlamedaScalerResources.Requests[int32(ApiCommon.ResourceName_MEMORY)] = value
-		}
-	}
-	if value, ok := values[string(clusterstatus.PodAlamedaSpecScalingTool)]; ok {
-		p.AlamedaPodSpec.ScalingTool = value
+	if entity.AlamedaSpecResourceRequestMemory != "" {
+		p.AlamedaPodSpec.AlamedaScalerResources.Requests[int32(ApiCommon.ResourceName_MEMORY)] = entity.AlamedaSpecResourceRequestMemory
 	}
 }
 
@@ -168,7 +128,4 @@ func (p *Pod) ClusterNamespacePodName() string {
 		return strings.Join(valueList, "/")
 	}
 	return ""
-}
-
-func (p *PodStatus) Initialize(values map[string]string) {
 }

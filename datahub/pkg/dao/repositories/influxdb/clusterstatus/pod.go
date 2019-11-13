@@ -158,7 +158,7 @@ func (p *PodRepository) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*Da
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				pod := DaoClusterTypes.NewPod()
-				pod.Initialize(row)
+				pod.Initialize(EntityInfluxCluster.NewPodEntity(row))
 				pods = append(pods, pod)
 			}
 		}
