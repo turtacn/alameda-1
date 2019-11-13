@@ -557,7 +557,7 @@
           "unit": "percent"
         },
         {
-          "alias": "Workload Cost(Per Month)",
+          "alias": "Workload Cost",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
