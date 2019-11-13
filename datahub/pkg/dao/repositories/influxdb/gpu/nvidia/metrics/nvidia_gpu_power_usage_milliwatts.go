@@ -40,8 +40,8 @@ func (r *PowerUsageMilliWattsRepository) read(host, minorNumber string, conditio
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause("host", "=", host)
-	influxdbStatement.AppendWhereClause("minor_number", "=", minorNumber)
+	influxdbStatement.AppendWhereClause("AND", "host", "=", host)
+	influxdbStatement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()
@@ -121,8 +121,8 @@ func (r *PowerUsageMilliWattsRepository) last(host, minorNumber string, conditio
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause("host", "=", host)
-	statement.AppendWhereClause("minor_number", "=", minorNumber)
+	statement.AppendWhereClause("AND", "host", "=", host)
+	statement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -141,8 +141,8 @@ func (r *PowerUsageMilliWattsRepository) max(host, minorNumber string, condition
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClause("host", "=", host)
-	statement.AppendWhereClause("minor_number", "=", minorNumber)
+	statement.AppendWhereClause("AND", "host", "=", host)
+	statement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", "")

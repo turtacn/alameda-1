@@ -4,39 +4,33 @@ syntax = "proto3";
 
 package containersai.alameda.v1alpha1.datahub.recommendations;
 
-import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
-import "alameda_api/v1alpha1/datahub/resources/types.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations";
 
 enum ControllerRecommendedType {
-    CRT_Undefined = 0;
-    CRT_Primitive = 1;
-    CRT_K8s       = 2;
+    CRT_UNDEFINED = 0;
+    PRIMITIVE     = 1;
+    K8S           = 2;
 }
 
 message ControllerRecommendedSpec {
-    resources.NamespacedName  namespaced_name      = 1;
-    resources.Kind            kind                 = 2;
-    int32                     current_replicas     = 3;
-    int32                     desired_replicas     = 4;
-    google.protobuf.Timestamp time                 = 5;
-    google.protobuf.Timestamp create_time          = 6;
-    double                    current_cpu_requests = 7;
-    double                    current_mem_requests = 8;
-    double                    current_cpu_limits   = 9;
-    double                    current_mem_limits   = 10;
-    double                    desired_cpu_limits   = 11;
-    double                    desired_mem_limits   = 12;
-    double                    total_cost           = 13;
+    int32                     current_replicas     = 1;
+    int32                     desired_replicas     = 2;
+    google.protobuf.Timestamp time                 = 3;
+    google.protobuf.Timestamp create_time          = 4;
+    double                    current_cpu_requests = 5;
+    double                    current_mem_requests = 6;
+    double                    current_cpu_limits   = 7;
+    double                    current_mem_limits   = 8;
+    double                    desired_cpu_limits   = 9;
+    double                    desired_mem_limits   = 10;
+    double                    total_cost           = 11;
 }
 
 message ControllerRecommendedSpecK8s {
-    resources.NamespacedName  namespaced_name  = 1;
-    resources.Kind            kind             = 2;
-    int32                     current_replicas = 3;
-    int32                     desired_replicas = 4;
-    google.protobuf.Timestamp time             = 5;
-    google.protobuf.Timestamp create_time      = 6;
+    int32                     current_replicas = 1;
+    int32                     desired_replicas = 2;
+    google.protobuf.Timestamp time             = 3;
+    google.protobuf.Timestamp create_time      = 4;
 }

@@ -296,9 +296,7 @@ func (r *ReconcileAlamedaScaler) syncDatahubResource(alamedaScaler *autoscalingv
 
 func (r *ReconcileAlamedaScaler) listAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler) ([]*datahub_resources.Controller, error) {
 	k8sRes := datahubclient.NewK8SResource()
-	controllers, err := k8sRes.ListAlamedaWatchedResource(&datahub_resources.NamespacedName{
-		Namespace: scaler.GetNamespace(),
-	})
+	controllers, err := k8sRes.ListAlamedaWatchedResource(scaler.GetNamespace(), "")
 	return controllers, err
 }
 
@@ -313,24 +311,26 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			policy = datahub_resources.RecommendationPolicy_COMPACT
 		}
 		watchedReses = append(watchedReses, &datahub_resources.Controller{
-			ControllerInfo: &datahub_resources.ResourceInfo{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: dc.Namespace,
-					Name:      dc.Name,
-				},
-				Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
+			ObjectMeta: &datahub_resources.ObjectMeta{
+				Namespace: dc.Namespace,
+				Name:      dc.Name,
 			},
-			OwnerInfo: []*datahub_resources.ResourceInfo{&datahub_resources.ResourceInfo{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: scaler.GetNamespace(),
-					Name:      scaler.GetName(),
+			Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
+			OwnerReferences: []*datahub_resources.OwnerReference{
+				&datahub_resources.OwnerReference{
+					ObjectMeta: &datahub_resources.ObjectMeta{
+						Namespace: dc.Namespace,
+						Name:      dc.Name,
+					},
+					Kind: datahub_resources.Kind_ALAMEDASCALER,
 				},
-				Kind: datahub_resources.Kind_ALAMEDASCALER,
-			}},
-			Policy:                        policy,
-			EnableRecommendationExecution: scaler.IsEnableExecution(),
-			Replicas:                      int32(len(dc.Pods)),
-			SpecReplicas:                  *dc.SpecReplicas,
+			},
+			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
+				Policy:                        policy,
+				EnableRecommendationExecution: scaler.IsEnableExecution(),
+			},
+			Replicas:     int32(len(dc.Pods)),
+			SpecReplicas: *dc.SpecReplicas,
 		})
 	}
 	for _, deploy := range scaler.Status.AlamedaController.Deployments {
@@ -341,24 +341,26 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			policy = datahub_resources.RecommendationPolicy_COMPACT
 		}
 		watchedReses = append(watchedReses, &datahub_resources.Controller{
-			ControllerInfo: &datahub_resources.ResourceInfo{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: deploy.Namespace,
-					Name:      deploy.Name,
-				},
-				Kind: datahub_resources.Kind_DEPLOYMENT,
+			ObjectMeta: &datahub_resources.ObjectMeta{
+				Namespace: deploy.Namespace,
+				Name:      deploy.Name,
 			},
-			OwnerInfo: []*datahub_resources.ResourceInfo{&datahub_resources.ResourceInfo{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: scaler.GetNamespace(),
-					Name:      scaler.GetName(),
+			Kind: datahub_resources.Kind_DEPLOYMENT,
+			OwnerReferences: []*datahub_resources.OwnerReference{
+				&datahub_resources.OwnerReference{
+					ObjectMeta: &datahub_resources.ObjectMeta{
+						Namespace: scaler.GetNamespace(),
+						Name:      scaler.GetName(),
+					},
+					Kind: datahub_resources.Kind_ALAMEDASCALER,
 				},
-				Kind: datahub_resources.Kind_ALAMEDASCALER,
-			}},
-			Policy:                        policy,
-			EnableRecommendationExecution: scaler.IsEnableExecution(),
-			Replicas:                      int32(len(deploy.Pods)),
-			SpecReplicas:                  *deploy.SpecReplicas,
+			},
+			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
+				Policy:                        policy,
+				EnableRecommendationExecution: scaler.IsEnableExecution(),
+			},
+			Replicas:     int32(len(deploy.Pods)),
+			SpecReplicas: *deploy.SpecReplicas,
 		})
 	}
 	for _, statefulSet := range scaler.Status.AlamedaController.StatefulSets {
@@ -369,24 +371,26 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			policy = datahub_resources.RecommendationPolicy_COMPACT
 		}
 		watchedReses = append(watchedReses, &datahub_resources.Controller{
-			ControllerInfo: &datahub_resources.ResourceInfo{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: statefulSet.Namespace,
-					Name:      statefulSet.Name,
-				},
-				Kind: datahub_resources.Kind_STATEFULSET,
+			ObjectMeta: &datahub_resources.ObjectMeta{
+				Namespace: statefulSet.Namespace,
+				Name:      statefulSet.Name,
 			},
-			OwnerInfo: []*datahub_resources.ResourceInfo{&datahub_resources.ResourceInfo{
-				NamespacedName: &datahub_resources.NamespacedName{
-					Namespace: scaler.GetNamespace(),
-					Name:      scaler.GetName(),
+			Kind: datahub_resources.Kind_STATEFULSET,
+			OwnerReferences: []*datahub_resources.OwnerReference{
+				&datahub_resources.OwnerReference{
+					ObjectMeta: &datahub_resources.ObjectMeta{
+						Namespace: scaler.GetNamespace(),
+						Name:      scaler.GetName(),
+					},
+					Kind: datahub_resources.Kind_ALAMEDASCALER,
 				},
-				Kind: datahub_resources.Kind_ALAMEDASCALER,
-			}},
-			Policy:                        policy,
-			EnableRecommendationExecution: scaler.IsEnableExecution(),
-			Replicas:                      int32(len(statefulSet.Pods)),
-			SpecReplicas:                  *statefulSet.SpecReplicas,
+			},
+			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
+				Policy:                        policy,
+				EnableRecommendationExecution: scaler.IsEnableExecution(),
+			},
+			Replicas:     int32(len(statefulSet.Pods)),
+			SpecReplicas: *statefulSet.SpecReplicas,
 		})
 	}
 	err := k8sRes.CreateAlamedaWatchedResource(watchedReses)
@@ -398,8 +402,8 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 
 	for _, ctlr := range ctlrsFromDH {
 		isOwnedScaler := false
-		for _, ownedInfo := range ctlr.GetOwnerInfo() {
-			if ownedInfo.Kind == datahub_resources.Kind_ALAMEDASCALER && ownedInfo.GetNamespacedName().GetName() == scaler.GetName() {
+		for _, ownedInfo := range ctlr.GetOwnerReferences() {
+			if ownedInfo.Kind == datahub_resources.Kind_ALAMEDASCALER && ownedInfo.GetObjectMeta().GetName() == scaler.GetName() {
 				isOwnedScaler = true
 				break
 			}
@@ -407,9 +411,9 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 		if !isOwnedScaler {
 			continue
 		}
-		ctlrKind := ctlr.GetControllerInfo().GetKind()
-		ctlrName := ctlr.GetControllerInfo().GetNamespacedName().GetName()
-		ctlrNS := ctlr.GetControllerInfo().GetNamespacedName().GetNamespace()
+		ctlrKind := ctlr.GetKind()
+		ctlrName := ctlr.GetObjectMeta().GetName()
+		ctlrNS := ctlr.GetObjectMeta().GetNamespace()
 		inScaler := false
 		if ctlrKind == datahub_resources.Kind_DEPLOYMENTCONFIG {
 			for _, dc := range scaler.Status.AlamedaController.DeploymentConfigs {
@@ -420,20 +424,20 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 			}
 			if !inScaler {
 				delCtlrs = append(delCtlrs, &datahub_resources.Controller{
-					ControllerInfo: &datahub_resources.ResourceInfo{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: ctlrNS,
-							Name:      ctlrName,
-						},
-						Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
+					ObjectMeta: &datahub_resources.ObjectMeta{
+						Namespace: ctlrNS,
+						Name:      ctlrName,
 					},
-					OwnerInfo: []*datahub_resources.ResourceInfo{&datahub_resources.ResourceInfo{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: scaler.GetNamespace(),
-							Name:      scaler.GetName(),
+					Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
+					OwnerReferences: []*datahub_resources.OwnerReference{
+						&datahub_resources.OwnerReference{
+							ObjectMeta: &datahub_resources.ObjectMeta{
+								Namespace: scaler.GetNamespace(),
+								Name:      scaler.GetName(),
+							},
+							Kind: datahub_resources.Kind_ALAMEDASCALER,
 						},
-						Kind: datahub_resources.Kind_ALAMEDASCALER,
-					}},
+					},
 				})
 			}
 		} else if ctlrKind == datahub_resources.Kind_DEPLOYMENT {
@@ -445,20 +449,20 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 			}
 			if !inScaler {
 				delCtlrs = append(delCtlrs, &datahub_resources.Controller{
-					ControllerInfo: &datahub_resources.ResourceInfo{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: ctlrNS,
-							Name:      ctlrName,
-						},
-						Kind: datahub_resources.Kind_DEPLOYMENT,
+					ObjectMeta: &datahub_resources.ObjectMeta{
+						Namespace: ctlrNS,
+						Name:      ctlrName,
 					},
-					OwnerInfo: []*datahub_resources.ResourceInfo{&datahub_resources.ResourceInfo{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: scaler.GetNamespace(),
-							Name:      scaler.GetName(),
+					Kind: datahub_resources.Kind_DEPLOYMENT,
+					OwnerReferences: []*datahub_resources.OwnerReference{
+						&datahub_resources.OwnerReference{
+							ObjectMeta: &datahub_resources.ObjectMeta{
+								Namespace: scaler.GetNamespace(),
+								Name:      scaler.GetName(),
+							},
+							Kind: datahub_resources.Kind_ALAMEDASCALER,
 						},
-						Kind: datahub_resources.Kind_ALAMEDASCALER,
-					}},
+					},
 				})
 			}
 		} else if ctlrKind == datahub_resources.Kind_STATEFULSET {
@@ -470,20 +474,20 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 			}
 			if !inScaler {
 				delCtlrs = append(delCtlrs, &datahub_resources.Controller{
-					ControllerInfo: &datahub_resources.ResourceInfo{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: ctlrNS,
-							Name:      ctlrName,
-						},
-						Kind: datahub_resources.Kind_STATEFULSET,
+					ObjectMeta: &datahub_resources.ObjectMeta{
+						Namespace: ctlrNS,
+						Name:      ctlrName,
 					},
-					OwnerInfo: []*datahub_resources.ResourceInfo{&datahub_resources.ResourceInfo{
-						NamespacedName: &datahub_resources.NamespacedName{
-							Namespace: scaler.GetNamespace(),
-							Name:      scaler.GetName(),
+					Kind: datahub_resources.Kind_STATEFULSET,
+					OwnerReferences: []*datahub_resources.OwnerReference{
+						&datahub_resources.OwnerReference{
+							ObjectMeta: &datahub_resources.ObjectMeta{
+								Namespace: scaler.GetNamespace(),
+								Name:      scaler.GetName(),
+							},
+							Kind: datahub_resources.Kind_ALAMEDASCALER,
 						},
-						Kind: datahub_resources.Kind_ALAMEDASCALER,
-					}},
+					},
 				})
 			}
 		}
@@ -521,12 +525,12 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 		containers := []*datahub_resources.Container{}
 		startTime := &timestamp.Timestamp{}
 		for _, container := range pod.Containers {
-			limitRes := []*datahub_common.MetricData{}
-			requestRes := []*datahub_common.MetricData{}
 			containers = append(containers, &datahub_resources.Container{
-				Name:            container.Name,
-				LimitResource:   limitRes,
-				RequestResource: requestRes,
+				Name: container.Name,
+				Resources: &datahub_resources.ResourceRequirements{
+					Limits:   map[int32]string{},
+					Requests: map[int32]string{},
+				},
 			})
 		}
 
@@ -556,47 +560,19 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 							if &podContainer.Resources != nil && podContainer.Resources.Limits != nil {
 								resVal, ok := podContainer.Resources.Limits[resourceType]
 								if ok && resourceType == corev1.ResourceCPU {
-									containers[containerIdx].LimitResource = append(containers[containerIdx].LimitResource, &datahub_common.MetricData{
-										MetricType: datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-										Data: []*datahub_common.Sample{
-											&datahub_common.Sample{
-												NumValue: strconv.FormatInt(resVal.MilliValue(), 10),
-											},
-										},
-									})
+									containers[containerIdx].Resources.Limits[int32(datahub_common.ResourceName_CPU)] = strconv.FormatInt(resVal.MilliValue(), 10)
 								}
 								if ok && resourceType == corev1.ResourceMemory {
-									containers[containerIdx].LimitResource = append(containers[containerIdx].LimitResource, &datahub_common.MetricData{
-										MetricType: datahub_common.MetricType_MEMORY_USAGE_BYTES,
-										Data: []*datahub_common.Sample{
-											&datahub_common.Sample{
-												NumValue: strconv.FormatInt(resVal.Value(), 10),
-											},
-										},
-									})
+									containers[containerIdx].Resources.Limits[int32(datahub_common.ResourceName_MEMORY)] = strconv.FormatInt(resVal.Value(), 10)
 								}
 							}
 							if &podContainer.Resources != nil && podContainer.Resources.Requests != nil {
 								resVal, ok := podContainer.Resources.Requests[resourceType]
 								if ok && resourceType == corev1.ResourceCPU {
-									containers[containerIdx].RequestResource = append(containers[containerIdx].RequestResource, &datahub_common.MetricData{
-										MetricType: datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-										Data: []*datahub_common.Sample{
-											&datahub_common.Sample{
-												NumValue: strconv.FormatInt(resVal.MilliValue(), 10),
-											},
-										},
-									})
+									containers[containerIdx].Resources.Requests[int32(datahub_common.ResourceName_CPU)] = strconv.FormatInt(resVal.MilliValue(), 10)
 								}
 								if ok && resourceType == corev1.ResourceMemory {
-									containers[containerIdx].RequestResource = append(containers[containerIdx].RequestResource, &datahub_common.MetricData{
-										MetricType: datahub_common.MetricType_MEMORY_USAGE_BYTES,
-										Data: []*datahub_common.Sample{
-											&datahub_common.Sample{
-												NumValue: strconv.FormatInt(resVal.Value(), 10),
-											},
-										},
-									})
+									containers[containerIdx].Resources.Requests[int32(datahub_common.ResourceName_MEMORY)] = strconv.FormatInt(resVal.Value(), 10)
 								}
 							}
 						}
@@ -632,36 +608,45 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 			appPartOf = scaler.Labels["app.federator.ai/part-of"]
 		}
 
+		scalingTool := datahub_resources.ScalingTool_NONE
+		scalingToolType := strings.ToLower(strings.Trim(scaler.Spec.ScalingTool.Type, " "))
+		if scalingToolType == "vpa" {
+			scalingTool = datahub_resources.ScalingTool_VPA
+		} else if scalingToolType == "hpa" {
+			scalingTool = datahub_resources.ScalingTool_HPA
+		}
+
 		podsNeedCreating = append(podsNeedCreating, &datahub_resources.Pod{
-			AlamedaScaler: &datahub_resources.NamespacedName{
-				Namespace: scaler.Namespace,
-				Name:      scaler.Name,
+			AlamedaPodSpec: &datahub_resources.AlamedaPodSpec{
+				AlamedaScaler: &datahub_resources.ObjectMeta{
+					Namespace: scaler.Namespace,
+					Name:      scaler.Name,
+				},
+				Policy:      datahub_resources.RecommendationPolicy(policy),
+				ScalingTool: scalingTool,
+				AlamedaScalerResources: &datahub_resources.ResourceRequirements{
+					Requests: map[int32]string{
+						int32(datahub_common.ResourceName_CPU):    scaler.GetRequestCPUMilliCores(),
+						int32(datahub_common.ResourceName_MEMORY): scaler.GetRequestMemoryBytes(),
+					},
+					Limits: map[int32]string{
+						int32(datahub_common.ResourceName_CPU):    scaler.GetLimitCPUMilliCores(),
+						int32(datahub_common.ResourceName_MEMORY): scaler.GetLimitMemoryBytes(),
+					},
+				},
 			},
-			NamespacedName: &datahub_resources.NamespacedName{
-				Namespace: pod.Namespace,
+			ObjectMeta: &datahub_resources.ObjectMeta{
 				Name:      pod.Name,
+				Namespace: pod.Namespace,
+				NodeName:  nodeName,
 			},
-			Policy:        datahub_resources.RecommendationPolicy(policy),
 			Containers:    containers,
-			NodeName:      nodeName,
 			ResourceLink:  resourceLink,
 			StartTime:     startTime,
 			TopController: topCtrl,
 			Status:        podStatus,
-			Enable_VPA:    scaler.IsScalingToolTypeVPA(),
-			Enable_HPA:    scaler.IsScalingToolTypeHPA(),
 			AppName:       appName,
 			AppPartOf:     appPartOf,
-			AlamedaScalerResources: &datahub_resources.ResourceRequirements{
-				Requests: map[int32]string{
-					int32(datahub_common.ResourceName_CPU):    scaler.GetRequestCPUMilliCores(),
-					int32(datahub_common.ResourceName_MEMORY): scaler.GetRequestMemoryBytes(),
-				},
-				Limits: map[int32]string{
-					int32(datahub_common.ResourceName_CPU):    scaler.GetLimitCPUMilliCores(),
-					int32(datahub_common.ResourceName_MEMORY): scaler.GetLimitMemoryBytes(),
-				},
-			},
 		})
 	}
 
@@ -683,23 +668,24 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 func deleteControllersFromDatahub(scalerNamespace, scalerName string) error {
 
 	k8sRes := datahubclient.NewK8SResource()
-	controllers, err := k8sRes.ListAlamedaWatchedResource(&datahub_resources.NamespacedName{
-		Namespace: scalerNamespace,
-	})
+	controllers, err := k8sRes.ListAlamedaWatchedResource(scalerNamespace, "")
 	if err != nil {
 		return err
 	}
 
 	controllersNeedDelete := make([]*datahub_resources.Controller, 0)
 	for _, controller := range controllers {
-		for _, ownerInfo := range controller.GetOwnerInfo() {
+		for _, ownerInfo := range controller.GetOwnerReferences() {
 			if ownerInfo == nil {
 				continue
 			}
-			if ownerInfo.NamespacedName == nil {
+			oiNS := ownerInfo.GetObjectMeta().GetNamespace()
+			oiName := ownerInfo.GetObjectMeta().GetName()
+			if oiNS == "" && oiName == "" {
 				continue
 			}
-			if ownerInfo.NamespacedName.Namespace == scalerNamespace && ownerInfo.NamespacedName.Name == scalerName && ownerInfo.Kind == datahub_resources.Kind_ALAMEDASCALER {
+			if oiNS == scalerNamespace && oiName == scalerName &&
+				ownerInfo.Kind == datahub_resources.Kind_ALAMEDASCALER {
 				controllersNeedDelete = append(controllersNeedDelete, controller)
 			}
 		}
@@ -723,22 +709,16 @@ func deletePodsFromDatahub(scalerNamespacedName *types.NamespacedName, existingP
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
-	podsNeedDeleting := []*datahub_resources.Pod{}
+	podsNeedDeleting := []*datahub_resources.ObjectMeta{}
 	for _, pod := range pods {
-		podsNeedDeleting = append(podsNeedDeleting, &datahub_resources.Pod{
-			NamespacedName: &datahub_resources.NamespacedName{
-				Namespace: pod.Namespace,
-				Name:      pod.Name,
-			},
-			AlamedaScaler: &datahub_resources.NamespacedName{
-				Namespace: scalerNamespacedName.Namespace,
-				Name:      scalerNamespacedName.Name,
-			},
+		podsNeedDeleting = append(podsNeedDeleting, &datahub_resources.ObjectMeta{
+			Namespace: pod.Namespace,
+			Name:      pod.Name,
 		})
 	}
 
 	req := datahub_resources.DeletePodsRequest{
-		Pods: podsNeedDeleting,
+		ObjectMeta: podsNeedDeleting,
 	}
 	resp, err := datahubServiceClnt.DeletePods(context.Background(), &req)
 	if err != nil {
@@ -785,14 +765,16 @@ func getPodsObservedByAlamedaScalerFromDatahub(scalerNamespacedName *types.Names
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
-	req := datahub_resources.ListAlamedaPodsRequest{
-		NamespacedName: &datahub_resources.NamespacedName{
-			Namespace: scalerNamespacedName.Namespace,
-			Name:      scalerNamespacedName.Name,
+	req := datahub_resources.ListPodsRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				Namespace: scalerNamespacedName.Namespace,
+				Name:      scalerNamespacedName.Name,
+			},
 		},
 		Kind: datahub_resources.Kind_ALAMEDASCALER,
 	}
-	resp, err := datahubServiceClnt.ListAlamedaPods(context.Background(), &req)
+	resp, err := datahubServiceClnt.ListPods(context.Background(), &req)
 	if err != nil {
 		return podsInDatahub, errors.Errorf("get alameda pods for AlamedaScaler (%s/%s) failed: %s", scalerNamespacedName.Namespace, scalerNamespacedName.Name, err.Error())
 	} else if resp.Status == nil {
@@ -802,15 +784,16 @@ func getPodsObservedByAlamedaScalerFromDatahub(scalerNamespacedName *types.Names
 	}
 
 	for _, pod := range resp.GetPods() {
+		pNS := pod.GetObjectMeta().GetNamespace()
+		pName := pod.GetObjectMeta().GetName()
 
-		namespacedName := pod.GetNamespacedName()
-		if namespacedName == nil {
+		if pNS == "" && pName == "" {
 			continue
 		}
 
 		podsInDatahub = append(podsInDatahub, &autoscalingv1alpha1.AlamedaPod{
-			Namespace: namespacedName.Namespace,
-			Name:      namespacedName.Name,
+			Namespace: pNS,
+			Name:      pName,
 		})
 	}
 

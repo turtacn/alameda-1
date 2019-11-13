@@ -85,11 +85,11 @@ func (r *PowerUsageMilliWattsRepository) ListPredictions(host, minorNumber, mode
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsHost, "=", host)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber, "=", minorNumber)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsModelId, "=", modelId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsPredictionId, "=", predictionId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.PowerUsageMilliWattsGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsHost, "=", host)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsPredictionId, "=", predictionId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

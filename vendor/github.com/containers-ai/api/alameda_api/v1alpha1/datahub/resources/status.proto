@@ -10,14 +10,14 @@ option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/r
 
 // The valid statuses of pods
 enum PodPhase {
-    Undefined        = 0;
-    Pending          = 1;
-    Running          = 2;
-    Succeeded        = 3;
-    Failed           = 4;
-    Unknown          = 5;
-    Completed        = 6;
-    CrashLoopBackOff = 7;
+    POD_PHASE_UNDEFINED = 0;
+    PENDING             = 1;
+    RUNNING             = 2;
+    SUCCEEDED           = 3;
+    FAILED              = 4;
+    UNKNOWN             = 5;
+    COMPLETED           = 6;
+    CRASHLOOPBACKOFF    = 7;
 }
 
 // ContainerStateWaiting is a waiting state of a container

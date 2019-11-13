@@ -8,7 +8,6 @@ import "alameda_api/v1alpha1/datahub/common/queries.proto";
 import "alameda_api/v1alpha1/datahub/plannings/plannings.proto";
 import "alameda_api/v1alpha1/datahub/plannings/types.proto";
 import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
-import "alameda_api/v1alpha1/datahub/resources/types.proto";
 import "google/rpc/status.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings";
@@ -24,13 +23,29 @@ message CreateControllerPlanningsRequest {
     repeated ControllerPlanning controller_plannings = 1;
 }
 
+message CreateApplicationPlanningsRequest {
+    repeated ApplicationPlanning application_plannings = 1;
+}
+
+message CreateNamespacePlanningsRequest {
+    repeated NamespacePlanning namespace_plannings = 1;
+}
+
+message CreateNodePlanningsRequest {
+    repeated NodePlanning node_plannings = 1;
+}
+
+message CreateClusterPlanningsRequest {
+    repeated ClusterPlanning cluster_plannings = 1;
+}
+
 // Represents a request for listing plannings of pods
 message ListPodPlanningsRequest {
-    common.QueryCondition    query_condition = 1;
-    resources.NamespacedName namespaced_name = 2;
-    resources.Kind           kind            = 3;
-    int64                    granularity     = 4;
-    PlanningType             planning_type   = 5;
+    common.QueryCondition         query_condition = 1;
+    repeated resources.ObjectMeta object_meta     = 2;
+    resources.Kind                kind            = 3;
+    int64                         granularity     = 4;
+    PlanningType                  planning_type   = 5;
 }
 
 // Represents a response for listing pod plannings request
@@ -41,14 +56,67 @@ message ListPodPlanningsResponse {
 
 // Represents a request for listing plannings of controllers
 message ListControllerPlanningsRequest {
-    common.QueryCondition    query_condition   = 1;
-    resources.NamespacedName namespaced_name   = 2;
-    ControllerPlanningType   ctl_planning_type = 3;
-    PlanningType             planning_type     = 4;
+    common.QueryCondition         query_condition   = 1;
+    repeated resources.ObjectMeta object_meta       = 2;
+    resources.Kind                kind              = 3;
+    ControllerPlanningType        ctl_planning_type = 4;
+    PlanningType                  planning_type     = 5;
 }
 
 // Represents a response for listing controller plannings request
 message ListControllerPlanningsResponse {
     google.rpc.Status           status               = 1;
     repeated ControllerPlanning controller_plannings = 2;
+}
+
+message ListApplicationPlanningsRequest {
+    common.QueryCondition         query_condition   = 1;
+    repeated resources.ObjectMeta object_meta       = 2;
+    resources.Kind                kind              = 3;
+    ControllerPlanningType        ctl_planning_type = 4;
+    PlanningType                  planning_type     = 5;
+}
+
+message ListApplicationPlanningsResponse {
+    google.rpc.Status            status                = 1;
+    repeated ApplicationPlanning application_plannings = 2;
+}
+
+message ListNamespacePlanningsRequest {
+    common.QueryCondition         query_condition   = 1;
+    repeated resources.ObjectMeta object_meta       = 2;
+    resources.Kind                kind              = 3;
+    ControllerPlanningType        ctl_planning_type = 4;
+    PlanningType                  planning_type     = 5;
+}
+
+message ListNamespacePlanningsResponse {
+    google.rpc.Status          status              = 1;
+    repeated NamespacePlanning namespace_plannings = 2;
+}
+
+message ListNodePlanningsRequest {
+    common.QueryCondition         query_condition   = 1;
+    repeated resources.ObjectMeta object_meta       = 2;
+    resources.Kind                kind              = 3;
+    ControllerPlanningType        ctl_planning_type = 4;
+    PlanningType                  planning_type     = 5;
+}
+
+message ListNodePlanningsResponse {
+    google.rpc.Status     status         = 1;
+    repeated NodePlanning node_plannings = 2;
+}
+
+message ListClusterPlanningsRequest {
+    common.QueryCondition         query_condition   = 1;
+    repeated resources.ObjectMeta object_meta       = 2;
+    resources.Kind                kind              = 3;
+    ControllerPlanningType        ctl_planning_type = 4;
+    PlanningType                  planning_type     = 5;
+}
+
+message ListClusterPlanningsResponse {
+    google.rpc.Status        status            = 1;
+    repeated ClusterPlanning cluster_plannings = 2;
 }

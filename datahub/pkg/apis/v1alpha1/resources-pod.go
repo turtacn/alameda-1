@@ -1,8 +1,9 @@
 package v1alpha1
 
 import (
-	DaoClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus"
-	DaoClusterStatusInflux "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/influxdb"
+	DaoCluster "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus"
+	FormatRequest "github.com/containers-ai/alameda/datahub/pkg/formatconversion/requests"
+	FormatResponse "github.com/containers-ai/alameda/datahub/pkg/formatconversion/responses"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"golang.org/x/net/context"
@@ -14,84 +15,99 @@ import (
 func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *ApiResources.CreatePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoClusterStatus.ContainerOperation = &DaoClusterStatusInflux.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
+	requestExtended := FormatRequest.CreatePodsRequestExtended{CreatePodsRequest: *in}
+	if requestExtended.Validate() != nil {
+		return &status.Status{
+			Code: int32(code.Code_INVALID_ARGUMENT),
+		}, nil
 	}
 
-	if err := containerDAO.AddPods(in.GetPods()); err != nil {
+	podDAO := DaoCluster.NewPodDAO(*s.Config)
+	if err := podDAO.CreatePods(requestExtended.ProducePods()); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),
 		}, nil
 	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
 }
 
 // ListAlamedaPods returns predicted pods
-func (s *ServiceV1alpha1) ListAlamedaPods(ctx context.Context, in *ApiResources.ListAlamedaPodsRequest) (*ApiResources.ListPodsResponse, error) {
+func (s *ServiceV1alpha1) ListPods(ctx context.Context, in *ApiResources.ListPodsRequest) (*ApiResources.ListPodsResponse, error) {
 	scope.Debug("Request received from ListAlamedaPods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoClusterStatus.ContainerOperation = &DaoClusterStatusInflux.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
+	requestExt := FormatRequest.ListPodsRequestExtended{ListPodsRequest: in}
+	if err := requestExt.Validate(); err != nil {
+		return &ApiResources.ListPodsResponse{
+			Status: &status.Status{
+				Code:    int32(code.Code_INVALID_ARGUMENT),
+				Message: err.Error(),
+			},
+		}, nil
 	}
 
-	namespace, name := "", ""
-	if namespacedName := in.GetNamespacedName(); namespacedName != nil {
-		namespace = namespacedName.GetNamespace()
-		name = namespacedName.GetName()
-	}
-	kind := in.GetKind()
-	timeRange := in.GetTimeRange()
-
-	if alamedaPods, err := containerDAO.ListAlamedaPods(namespace, name, kind, timeRange); err != nil {
-		scope.Error(err.Error())
+	podDAO := DaoCluster.NewPodDAO(*s.Config)
+	pds, err := podDAO.ListPods(requestExt.ProduceRequest())
+	if err != nil {
+		scope.Errorf("ListNodes failed: %+v", err)
 		return &ApiResources.ListPodsResponse{
 			Status: &status.Status{
 				Code:    int32(code.Code_INTERNAL),
 				Message: err.Error(),
 			},
 		}, nil
-	} else {
-		res := &ApiResources.ListPodsResponse{
-			Pods: alamedaPods,
-			Status: &status.Status{
-				Code: int32(code.Code_OK),
-			},
-		}
-		scope.Debug("Request sent from ListAlamedaPods grpc function: " + AlamedaUtils.InterfaceToString(res))
-		return res, nil
 	}
-}
 
-// ListPodsByNodeName list pods running on specific nodes
-func (s *ServiceV1alpha1) ListPodsByNodeName(ctx context.Context, in *ApiResources.ListPodsByNodeNamesRequest) (*ApiResources.ListPodsResponse, error) {
-	scope.Debug("Request received from ListPodsByNodeName grpc function: " + AlamedaUtils.InterfaceToString(in))
+	pods := make([]*ApiResources.Pod, 0)
+	for _, pd := range pds {
+		podExtended := FormatResponse.PodExtended{Pod: pd}
+		pod := podExtended.ProducePod()
+		pods = append(pods, pod)
+	}
 
-	return &ApiResources.ListPodsResponse{
+	response := ApiResources.ListPodsResponse{
 		Status: &status.Status{
-			Code:    int32(code.Code_OK),
-			Message: "This function is deprecated.",
+			Code: int32(code.Code_OK),
 		},
-	}, nil
+		Pods: pods,
+	}
+
+	return &response, nil
 }
 
 // DeletePods update containers information of pods to database
 func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *ApiResources.DeletePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeletePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	var containerDAO DaoClusterStatus.ContainerOperation = &DaoClusterStatusInflux.Container{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-	if err := containerDAO.DeletePods(in.GetPods()); err != nil {
-		scope.Errorf("DeletePods failed: %+v", err)
+	/*
+		podList := make([]*ApiResources.Pod, 0)
+		for _, objectMeta := range in.GetObjectMeta() {
+			podList = append(podList, &ApiResources.Pod{
+				ObjectMeta: &ApiResources.ObjectMeta{
+					Name:        objectMeta.GetName(),
+					Namespace:   objectMeta.GetNamespace(),
+					NodeName:    objectMeta.GetNodeName(),
+					ClusterName: objectMeta.GetClusterName(),
+				},
+			})
+		}
+
+		containerDAO := DaoCluster.NewContainerDAO(*s.Config)
+		if err := containerDAO.DeletePods(podList); err != nil {
+			scope.Errorf("DeletePods failed: %+v", err)
+			return &status.Status{
+				Code:    int32(code.Code_INTERNAL),
+				Message: err.Error(),
+			}, nil
+		}
 		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
+			Code: int32(code.Code_OK),
 		}, nil
-	}
+	*/
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

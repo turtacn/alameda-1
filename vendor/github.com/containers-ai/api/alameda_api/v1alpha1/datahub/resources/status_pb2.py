@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.resources',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources'),
-  serialized_pb=_b('\n3alameda_api/v1alpha1/datahub/resources/status.proto\x12/containersai.alameda.v1alpha1.datahub.resources\x1a\x1fgoogle/protobuf/timestamp.proto\"8\n\x15\x43ontainerStateWaiting\x12\x0e\n\x06reason\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\"G\n\x15\x43ontainerStateRunning\x12.\n\nstarted_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xaf\x01\n\x18\x43ontainerStateTerminated\x12\x11\n\texit_code\x18\x01 \x01(\x05\x12\x0e\n\x06reason\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12.\n\nstarted_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x66inished_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa1\x02\n\x0e\x43ontainerState\x12W\n\x07waiting\x18\x01 \x01(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.resources.ContainerStateWaiting\x12W\n\x07running\x18\x02 \x01(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.resources.ContainerStateRunning\x12]\n\nterminated\x18\x03 \x01(\x0b\x32I.containersai.alameda.v1alpha1.datahub.resources.ContainerStateTerminated\"\xd9\x01\n\x0f\x43ontainerStatus\x12N\n\x05state\x18\x01 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.ContainerState\x12_\n\x16last_termination_state\x18\x02 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.ContainerState\x12\x15\n\rrestart_count\x18\x03 \x01(\x05\"v\n\tPodStatus\x12H\n\x05phase\x18\x01 \x01(\x0e\x32\x39.containersai.alameda.v1alpha1.datahub.resources.PodPhase\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06reason\x18\x03 \x01(\t*\x80\x01\n\x08PodPhase\x12\r\n\tUndefined\x10\x00\x12\x0b\n\x07Pending\x10\x01\x12\x0b\n\x07Running\x10\x02\x12\r\n\tSucceeded\x10\x03\x12\n\n\x06\x46\x61iled\x10\x04\x12\x0b\n\x07Unknown\x10\x05\x12\r\n\tCompleted\x10\x06\x12\x14\n\x10\x43rashLoopBackOff\x10\x07\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
+  serialized_pb=_b('\n3alameda_api/v1alpha1/datahub/resources/status.proto\x12/containersai.alameda.v1alpha1.datahub.resources\x1a\x1fgoogle/protobuf/timestamp.proto\"8\n\x15\x43ontainerStateWaiting\x12\x0e\n\x06reason\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\"G\n\x15\x43ontainerStateRunning\x12.\n\nstarted_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xaf\x01\n\x18\x43ontainerStateTerminated\x12\x11\n\texit_code\x18\x01 \x01(\x05\x12\x0e\n\x06reason\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12.\n\nstarted_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x66inished_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa1\x02\n\x0e\x43ontainerState\x12W\n\x07waiting\x18\x01 \x01(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.resources.ContainerStateWaiting\x12W\n\x07running\x18\x02 \x01(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.resources.ContainerStateRunning\x12]\n\nterminated\x18\x03 \x01(\x0b\x32I.containersai.alameda.v1alpha1.datahub.resources.ContainerStateTerminated\"\xd9\x01\n\x0f\x43ontainerStatus\x12N\n\x05state\x18\x01 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.ContainerState\x12_\n\x16last_termination_state\x18\x02 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.ContainerState\x12\x15\n\rrestart_count\x18\x03 \x01(\x05\"v\n\tPodStatus\x12H\n\x05phase\x18\x01 \x01(\x0e\x32\x39.containersai.alameda.v1alpha1.datahub.resources.PodPhase\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06reason\x18\x03 \x01(\t*\x8a\x01\n\x08PodPhase\x12\x17\n\x13POD_PHASE_UNDEFINED\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\r\n\tSUCCEEDED\x10\x03\x12\n\n\x06\x46\x41ILED\x10\x04\x12\x0b\n\x07UNKNOWN\x10\x05\x12\r\n\tCOMPLETED\x10\x06\x12\x14\n\x10\x43RASHLOOPBACKOFF\x10\x07\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -33,54 +33,54 @@ _PODPHASE = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='Undefined', index=0, number=0,
+      name='POD_PHASE_UNDEFINED', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Pending', index=1, number=1,
+      name='PENDING', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Running', index=2, number=2,
+      name='RUNNING', index=2, number=2,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Succeeded', index=3, number=3,
+      name='SUCCEEDED', index=3, number=3,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Failed', index=4, number=4,
+      name='FAILED', index=4, number=4,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Unknown', index=5, number=5,
+      name='UNKNOWN', index=5, number=5,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='Completed', index=6, number=6,
+      name='COMPLETED', index=6, number=6,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='CrashLoopBackOff', index=7, number=7,
+      name='CRASHLOOPBACKOFF', index=7, number=7,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=1079,
-  serialized_end=1207,
+  serialized_end=1217,
 )
 _sym_db.RegisterEnumDescriptor(_PODPHASE)
 
 PodPhase = enum_type_wrapper.EnumTypeWrapper(_PODPHASE)
-Undefined = 0
-Pending = 1
-Running = 2
-Succeeded = 3
-Failed = 4
-Unknown = 5
-Completed = 6
-CrashLoopBackOff = 7
+POD_PHASE_UNDEFINED = 0
+PENDING = 1
+RUNNING = 2
+SUCCEEDED = 3
+FAILED = 4
+UNKNOWN = 5
+COMPLETED = 6
+CRASHLOOPBACKOFF = 7
 
 
 

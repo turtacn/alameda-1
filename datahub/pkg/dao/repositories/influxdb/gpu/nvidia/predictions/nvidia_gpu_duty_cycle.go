@@ -85,11 +85,11 @@ func (r *DutyCycleRepository) ListPredictions(host, minorNumber, modelId, predic
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleHost, "=", host)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleMinorNumber, "=", minorNumber)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleModelId, "=", modelId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCyclePredictionId, "=", predictionId)
-	influxdbStatement.AppendWhereClause(EntityInfluxGpuPrediction.DutyCycleGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleHost, "=", host)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleMinorNumber, "=", minorNumber)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleModelId, "=", modelId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCyclePredictionId, "=", predictionId)
+	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleGranularity, "=", granularity)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

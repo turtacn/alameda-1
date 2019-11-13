@@ -23,7 +23,7 @@ func queryDatahub(datahubAddr string) error {
 
 	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
-	_, err = datahubServiceClnt.ListAlamedaNodes(context.Background(), &datahub_resources.ListAlamedaNodesRequest{})
+	_, err = datahubServiceClnt.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
 	if err != nil {
 		return err
 	}

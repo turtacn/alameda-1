@@ -62,3 +62,7 @@ version="v1.4.7"
 [[constraint]]
   branch = "master"
   name = "golang.org/x/sync"
+
+[[constraint]]
+  name = "github.com/containers-ai/api"
+  branch = "prototype"

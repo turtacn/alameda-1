@@ -18,7 +18,8 @@ const (
 )
 
 type Config struct {
-	BindAddress string                     `mapstructure:"bindAddress"`
+	BindAddress string `mapstructure:"bindAddress"`
+	ClusterUID  string
 	Prometheus  *InternalPromth.Config     `mapstructure:"prometheus"`
 	InfluxDB    *InternalInflux.Config     `mapstructure:"influxdb"`
 	Apis        *Apis.Config               `mapstructure:"apis"`

@@ -19,8 +19,8 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *ApiR
 
 	podRecommendations := in.GetPodRecommendations()
 	for _, podRecommendation := range podRecommendations {
-		podNS := podRecommendation.GetNamespacedName().Namespace
-		podName := podRecommendation.GetNamespacedName().Name
+		podNS := podRecommendation.GetObjectMeta().GetNamespace()
+		podName := podRecommendation.GetObjectMeta().GetName()
 		alamedaRecommendation := &AutoScalingV1alpha1.AlamedaRecommendation{}
 
 		if err := s.K8SClient.Get(context.TODO(), K8sTypes.NamespacedName{
@@ -39,7 +39,7 @@ func (s *ServiceV1alpha1) CreatePodRecommendations(ctx context.Context, in *ApiR
 	}
 
 	containerDAO := DaoRecommendation.NewContainerRecommendationsDAO(*s.Config)
-	if err := containerDAO.AddPodRecommendations(in); err != nil {
+	if err := containerDAO.CreatePodRecommendations(in); err != nil {
 		scope.Error(err.Error())
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),

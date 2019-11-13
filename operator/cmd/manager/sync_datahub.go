@@ -38,9 +38,8 @@ func startSyncingAlamedaPodsWithDatahubSuccess(client client.Client) error {
 	getResource := resources.NewGetResource(client)
 
 	for _, alamedaPod := range alamedaPods {
-		namespacedName := alamedaPod.GetNamespacedName()
-		alamPodNS := namespacedName.GetNamespace()
-		alamPodName := namespacedName.GetName()
+		alamPodNS := alamedaPod.GetObjectMeta().GetNamespace()
+		alamPodName := alamedaPod.GetObjectMeta().GetName()
 		_, err := getResource.GetPod(alamPodNS, alamPodName)
 		if err != nil && k8sErrors.IsNotFound(err) {
 			podsNeedToRm = append(podsNeedToRm, alamedaPod)
@@ -49,7 +48,7 @@ func startSyncingAlamedaPodsWithDatahubSuccess(client client.Client) error {
 			return fmt.Errorf("Get pod (%s/%s) failed while sync alameda pod with datahub. (%s)", alamPodNS, alamPodName, err.Error())
 		}
 
-		alamedaScaler := alamedaPod.GetAlamedaScaler()
+		alamedaScaler := alamedaPod.GetAlamedaPodSpec().GetAlamedaScaler()
 		alamScalerNS := alamedaScaler.GetNamespace()
 		alamScalerName := alamedaScaler.GetName()
 		_, err = getResource.GetAlamedaScaler(alamScalerNS, alamScalerName)
@@ -84,7 +83,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 
 	// Get current conrtoller list from Alameda-Datahub
 	datahubK8SResourceRepository := datahub_client.NewK8SResource()
-	alamedaResources, err := datahubK8SResourceRepository.ListAlamedaWatchedResource(nil)
+	alamedaResources, err := datahubK8SResourceRepository.ListAlamedaWatchedResource("", "")
 	if err != nil {
 		return errors.Wrap(err, "list resources watched by Alameda failed")
 	}
@@ -92,22 +91,14 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 	controllersNeedToRm := []*datahub_resources.Controller{}
 	getResource := resources.NewGetResource(client)
 	for _, alamedaResource := range alamedaResources {
-
-		info := alamedaResource.GetControllerInfo()
-		if info == nil {
+		resourceNamespace := alamedaResource.GetObjectMeta().GetNamespace()
+		resourceName := alamedaResource.GetObjectMeta().GetName()
+		if resourceNamespace == "" && resourceName == "" {
 			continue
-		}
-		resourceNamespace := ""
-		resourceName := ""
-		if namespacedName := info.GetNamespacedName(); namespacedName == nil {
-			continue
-		} else {
-			resourceNamespace = namespacedName.GetNamespace()
-			resourceName = namespacedName.GetName()
 		}
 
 		// Get controller from k8s, if controller is not existed, append conttoller to the list that needs to delete
-		kind := info.GetKind()
+		kind := alamedaResource.GetKind()
 		switch kind {
 		case datahub_resources.Kind_DEPLOYMENT:
 			_, err := getResource.GetDeployment(resourceNamespace, resourceName)
@@ -139,7 +130,7 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 
 		// Get AlamedaScaler that owning this controller from k8s,
 		// if AlamedaScaler is not existed, append conttoller to the list that needs to delete
-		ownerInfos := alamedaResource.GetOwnerInfo()
+		ownerInfos := alamedaResource.GetOwnerReferences()
 		for _, ownerInfo := range ownerInfos {
 			if ownerInfo == nil {
 				continue
@@ -147,12 +138,12 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 			if ownerInfo.GetKind() != datahub_resources.Kind_ALAMEDASCALER {
 				continue
 			}
-			alamedaScalerNamespacedName := ownerInfo.GetNamespacedName()
-			if alamedaScalerNamespacedName == nil {
+
+			alamScalerNS := ownerInfo.GetObjectMeta().GetNamespace()
+			alamScalerName := ownerInfo.GetObjectMeta().GetName()
+			if alamScalerNS == "" && alamScalerName == "" {
 				continue
 			}
-			alamScalerNS := alamedaScalerNamespacedName.GetNamespace()
-			alamScalerName := alamedaScalerNamespacedName.GetName()
 			_, err = getResource.GetAlamedaScaler(alamScalerNS, alamScalerName)
 			if err != nil && k8sErrors.IsNotFound(err) {
 				controllersNeedToRm = append(controllersNeedToRm, alamedaResource)

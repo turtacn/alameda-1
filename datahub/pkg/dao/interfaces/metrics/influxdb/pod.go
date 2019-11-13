@@ -1,6 +1,8 @@
 package influxdb
 
 import (
+	"context"
+
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoInfluxMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/metrics"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
@@ -15,7 +17,7 @@ func NewPodMetricsWithConfig(config InternalInflux.Config) DaoMetricTypes.PodMet
 	return &PodMetrics{InfluxDBConfig: config}
 }
 
-func (p *PodMetrics) CreateMetrics(metrics DaoMetricTypes.PodMetricMap) error {
+func (p *PodMetrics) CreateMetrics(ctx context.Context, metrics DaoMetricTypes.PodMetricMap) error {
 	// Write container cpu metrics
 	containerCpuRepo := RepoInfluxMetric.NewContainerCpuRepositoryWithConfig(p.InfluxDBConfig)
 	cpuSampleList := make([]*DaoMetricTypes.ContainerMetricSample, 0)
@@ -49,7 +51,7 @@ func (p *PodMetrics) CreateMetrics(metrics DaoMetricTypes.PodMetricMap) error {
 	return nil
 }
 
-func (p *PodMetrics) ListMetrics(request DaoMetricTypes.ListPodMetricsRequest) (DaoMetricTypes.PodMetricMap, error) {
+func (p *PodMetrics) ListMetrics(ctx context.Context, request DaoMetricTypes.ListPodMetricsRequest) (DaoMetricTypes.PodMetricMap, error) {
 	podMetricMap := DaoMetricTypes.NewPodMetricMap()
 
 	// Read container cpu metrics

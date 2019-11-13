@@ -7,18 +7,14 @@ package containersai.alameda.v1alpha1.datahub.recommendations;
 import "alameda_api/v1alpha1/datahub/common/metrics.proto";
 import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
 import "alameda_api/v1alpha1/datahub/resources/policies.proto";
-import "alameda_api/v1alpha1/datahub/resources/types.proto";
+import "alameda_api/v1alpha1/datahub/resources/resources.proto";
 import "alameda_api/v1alpha1/datahub/recommendations/types.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations";
 
-/**
- * Represents a resource configuration recommendation
- *
- * It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
- *
- */
+// Represents a resource configuration recommendation
+// It includes recommended limits and requests for the initial stage (a container which is just started) and after the initial stage
 message ContainerRecommendation {
     string                     name                            = 1;
     repeated common.MetricData limit_recommendations           = 2;
@@ -27,24 +23,55 @@ message ContainerRecommendation {
     repeated common.MetricData initial_request_recommendations = 5;
 }
 
-/**
- * Represents a set of container resource configuration recommendations of a pod
- *
- */
+// Represents a set of container resource configuration recommendations of a pod
 message PodRecommendation {
-    resources.NamespacedName         namespaced_name           = 1;
+    resources.ObjectMeta             object_meta               = 1;
     bool                             apply_recommendation_now  = 2;
     resources.AssignPodPolicy        assign_pod_policy         = 3;
     repeated ContainerRecommendation container_recommendations = 4;
     google.protobuf.Timestamp        start_time                = 5;
     google.protobuf.Timestamp        end_time                  = 6;
-    resources.TopController          top_controller            = 7;
+    resources.Controller             top_controller            = 7;
     string                           recommendation_id         = 8;
     double                           total_cost                = 9;
 }
 
 message ControllerRecommendation {
-    ControllerRecommendedType    recommended_type     = 1;
-    ControllerRecommendedSpec    recommended_spec     = 2;
-    ControllerRecommendedSpecK8s recommended_spec_k8s = 3;
+    resources.ObjectMeta         object_meta          = 1;
+    resources.Kind               kind                 = 2;
+    ControllerRecommendedType    recommended_type     = 3;
+    ControllerRecommendedSpec    recommended_spec     = 4;
+    ControllerRecommendedSpecK8s recommended_spec_k8s = 5;
+}
+
+message ApplicationRecommendation {
+    resources.ObjectMeta         object_meta          = 1;
+    resources.Kind               kind                 = 2;
+    ControllerRecommendedType    recommended_type     = 3;
+    ControllerRecommendedSpec    recommended_spec     = 4;
+    ControllerRecommendedSpecK8s recommended_spec_k8s = 5;
+}
+
+message NamespaceRecommendation {
+    resources.ObjectMeta         object_meta          = 1;
+    resources.Kind               kind                 = 2;
+    ControllerRecommendedType    recommended_type     = 3;
+    ControllerRecommendedSpec    recommended_spec     = 4;
+    ControllerRecommendedSpecK8s recommended_spec_k8s = 5;
+}
+
+message NodeRecommendation {
+    resources.ObjectMeta         object_meta          = 1;
+    resources.Kind               kind                 = 2;
+    ControllerRecommendedType    recommended_type     = 3;
+    ControllerRecommendedSpec    recommended_spec     = 4;
+    ControllerRecommendedSpecK8s recommended_spec_k8s = 5;
+}
+
+message ClusterRecommendation {
+    resources.ObjectMeta         object_meta          = 1;
+    resources.Kind               kind                 = 2;
+    ControllerRecommendedType    recommended_type     = 3;
+    ControllerRecommendedSpec    recommended_spec     = 4;
+    ControllerRecommendedSpecK8s recommended_spec_k8s = 5;
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -38,7 +39,11 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, node := range nodes {
-		nodeName := node.GetName()
+		if granularity == 30 && !viper.GetBool("hourlyPredict") {
+			continue
+		}
+
+		nodeName := node.ObjectMeta.GetName()
 		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, node, granularity)
 		if err != nil {
 			scope.Infof("Get node %s last prediction failed: %s",
@@ -57,13 +62,13 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 
 func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSender queue.QueueSender, pdUnit string,
 	granularity int64, nodeInfo *modelInfo) {
-	nodeName := node.GetName()
+	nodeName := node.ObjectMeta.GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	marshaler := jsonpb.Marshaler{}
 	nodeStr, err := marshaler.MarshalToString(node)
 	if err != nil {
 		scope.Errorf("Encode pb message failed for node %s with granularity seconds %v. %s",
-			node.GetName(), granularity, err.Error())
+			nodeName, granularity, err.Error())
 		return
 	}
 	if len(nodeInfo.ModelMetrics) > 0 && nodeStr != "" {
@@ -99,10 +104,14 @@ func (sender *nodeModelJobSender) genNodeInfo(nodeName string,
 
 func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	node *datahub_resources.Node, granularity int64) ([]*datahub_predictions.MetricData, error) {
-	nodeName := node.GetName()
+	nodeName := node.ObjectMeta.GetName()
 	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 		&datahub_predictions.ListNodePredictionsRequest{
-			NodeNames:   []string{nodeName},
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name: nodeName,
+				},
+			},
 			Granularity: granularity,
 			QueryCondition: &datahub_common.QueryCondition{
 				Limit: 1,
@@ -146,7 +155,7 @@ func (sender *nodeModelJobSender) getQueryMetricStartTime(descNodePredictions []
 func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64, datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	lastPredictionMetrics []*datahub_predictions.MetricData) {
-	nodeName := node.GetName()
+	nodeName := node.ObjectMeta.GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	queryCondition := &datahub_common.QueryCondition{
 		Order: datahub_common.QueryCondition_DESC,
@@ -196,7 +205,11 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 
 			nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 				&datahub_predictions.ListNodePredictionsRequest{
-					NodeNames:      []string{nodeName},
+					ObjectMeta: []*datahub_resources.ObjectMeta{
+						&datahub_resources.ObjectMeta{
+							Name: nodeName,
+						},
+					},
 					ModelId:        lastPrediction.GetModelId(),
 					Granularity:    granularity,
 					QueryCondition: queryCondition,
@@ -225,7 +238,11 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 							},
 						},
 					},
-					NodeNames: []string{nodeName},
+					ObjectMeta: []*datahub_resources.ObjectMeta{
+						&datahub_resources.ObjectMeta{
+							Name: nodeName,
+						},
+					},
 				})
 			if err != nil {
 				scope.Errorf("List nodes %s metric with granularity %v for sending model job failed: %s",

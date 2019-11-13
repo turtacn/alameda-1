@@ -1,41 +1,27 @@
 package clusterstatus
 
 import (
-	"fmt"
-	EntityInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
+	//"fmt"
+	EntityInfluxCluster "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
+	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
-	FormatConvert "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	//FormatConvert "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	Log "github.com/containers-ai/alameda/pkg/utils/log"
+	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/golang/protobuf/ptypes/timestamp"
+	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	//"github.com/golang/protobuf/ptypes/timestamp"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
-	"strconv"
+	//"strconv"
+	//"strings"
 	"strings"
 )
 
-var (
-	scope = Log.RegisterScope("cluster_status_db_measurement", "cluster_status DB measurement", 0)
-)
-
-// ContainerRepository is used to operate node measurement of cluster_status database
 type ContainerRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-// IsTag checks the column is tag or not
-func (containerRepository *ContainerRepository) IsTag(column string) bool {
-	for _, tag := range EntityInfluxClusterStatus.ContainerTags {
-		if column == string(tag) {
-			return true
-		}
-	}
-	return false
-}
-
-// NewContainerRepository creates the ContainerRepository instance
 func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
 	return &ContainerRepository{
 		influxDB: &InternalInflux.InfluxClient{
@@ -46,112 +32,177 @@ func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerReposi
 	}
 }
 
-// ListAlamedaContainers list predicted containers have relation with arguments
-func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name string, kind ApiResources.Kind, timeRange *ApiCommon.TimeRange) ([]*ApiResources.Pod, error) {
-	pods := []*ApiResources.Pod{}
-	whereStr := ""
-
-	conditions := make([]string, 0)
-	relationStatement := ""
-	podCreatePeriodCondition := containerRepository.getPodCreatePeriodCondition(timeRange)
-	switch kind {
-	case ApiResources.Kind_POD:
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerPodName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_DEPLOYMENT:
-		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENT]))
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_DEPLOYMENTCONFIG:
-		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_DEPLOYMENTCONFIG]))
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_ALAMEDASCALER:
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerAlamedaScalerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	case ApiResources.Kind_STATEFULSET:
-		conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerKind, FormatConvert.KindDisp[ApiResources.Kind_STATEFULSET]))
-		if namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerNamespace, namespace))
-		}
-		if name != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s" = '%s'`, EntityInfluxClusterStatus.ContainerTopControllerName, name))
-		}
-		if podCreatePeriodCondition != "" {
-			conditions = append(conditions, podCreatePeriodCondition)
-		}
-	default:
-		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", ApiResources.Kind_name[int32(kind)])
-	}
-	if len(conditions) > 0 {
-		relationStatement = fmt.Sprintf("(%s", conditions[0])
-		for _, condition := range conditions[1:] {
-			relationStatement += fmt.Sprintf(" AND %s", condition)
-		}
-		relationStatement += ")"
-	}
-	if relationStatement != "" {
-		if whereStr != "" {
-			whereStr = fmt.Sprintf("%s AND %s", whereStr, relationStatement)
-		} else {
-			whereStr = fmt.Sprintf("WHERE %s", relationStatement)
+func (p *ContainerRepository) IsTag(column string) bool {
+	for _, tag := range EntityInfluxCluster.ContainerTags {
+		if column == string(tag) {
+			return true
 		}
 	}
+	return false
+}
 
-	cmd := fmt.Sprintf("SELECT * FROM %s %s GROUP BY \"%s\",\"%s\",\"%s\",\"%s\"",
-		string(Container), whereStr,
-		string(EntityInfluxClusterStatus.ContainerNamespace), string(EntityInfluxClusterStatus.ContainerPodName),
-		string(EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace), string(EntityInfluxClusterStatus.ContainerAlamedaScalerName))
-	scope.Debugf("ListAlamedaContainers command: %s", cmd)
-	if results, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus)); err == nil {
+func (p *ContainerRepository) CreateContainers(containers map[string][]*DaoClusterTypes.Container) error {
+	points := make([]*InfluxClient.Point, 0)
 
-		containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
+	for _, cnts := range containers {
+		for _, cnt := range cnts {
+			entity := EntityInfluxCluster.ContainerEntity{
+				Time:        InternalInflux.ZeroTime,
+				Name:        cnt.Name,
+				PodName:     cnt.PodName,
+				Namespace:   cnt.Namespace,
+				NodeName:    cnt.NodeName,
+				ClusterName: cnt.ClusterName,
+				Uid:         cnt.Uid,
+			}
+			if cnt.Resources != nil {
+				if value, exist := cnt.Resources.Limits[int32(ApiCommon.ResourceName_CPU)]; exist {
+					entity.ResourceLimitCPU = value
+				}
+				if value, exist := cnt.Resources.Limits[int32(ApiCommon.ResourceName_MEMORY)]; exist {
+					entity.ResourceLimitMemory = value
+				}
+				if value, exist := cnt.Resources.Requests[int32(ApiCommon.ResourceName_CPU)]; exist {
+					entity.ResourceRequestCPU = value
+				}
+				if value, exist := cnt.Resources.Requests[int32(ApiCommon.ResourceName_MEMORY)]; exist {
+					entity.ResourceRequestMemory = value
+				}
+			}
+			if cnt.Status != nil {
+				if cnt.Status.State != nil {
+					if cnt.Status.State.Waiting != nil {
+						entity.StatusWaitingReason = cnt.Status.State.Waiting.Reason
+						entity.StatusWaitingMessage = cnt.Status.State.Waiting.Message
+					}
+					if cnt.Status.State.Running != nil {
+						entity.StatusRunningStartedAt = cnt.Status.State.Running.StartedAt.GetSeconds()
+					}
+					if cnt.Status.State.Terminated != nil {
+						entity.StatusTerminatedExitCode = cnt.Status.State.Terminated.ExitCode
+						entity.StatusTerminatedReason = cnt.Status.State.Terminated.Reason
+						entity.StatusTerminatedMessage = cnt.Status.State.Terminated.Message
+						entity.StatusTerminatedStartedAt = cnt.Status.State.Terminated.StartedAt.GetSeconds()
+						entity.StatusTerminatedFinishedAt = cnt.Status.State.Terminated.FinishedAt.GetSeconds()
+					}
 
-		rows := InternalInflux.PackMap(results)
-		for _, row := range rows {
-			for _, data := range row.Data {
-				entity := EntityInfluxClusterStatus.NewContainerEntityFromMap(data)
-				containerEntities = append(containerEntities, &entity)
+				}
+				if cnt.Status.LastTerminationState != nil {
+					if cnt.Status.LastTerminationState.Waiting != nil {
+						entity.LastTerminationWaitingReason = cnt.Status.LastTerminationState.Waiting.Reason
+						entity.LastTerminationWaitingMessage = cnt.Status.LastTerminationState.Waiting.Message
+					}
+					if cnt.Status.LastTerminationState.Running != nil {
+						entity.LastTerminationRunningStartedAt = cnt.Status.LastTerminationState.Running.StartedAt.GetSeconds()
+					}
+					if cnt.Status.LastTerminationState.Terminated != nil {
+						entity.LastTerminationTerminatedExitCode = cnt.Status.LastTerminationState.Terminated.ExitCode
+						entity.LastTerminationTerminatedReason = cnt.Status.LastTerminationState.Terminated.Reason
+						entity.LastTerminationTerminatedMessage = cnt.Status.LastTerminationState.Terminated.Message
+						entity.LastTerminationTerminatedStartedAt = cnt.Status.LastTerminationState.Terminated.StartedAt.GetSeconds()
+						entity.LastTerminationTerminatedFinishedAt = cnt.Status.LastTerminationState.Terminated.FinishedAt.GetSeconds()
+					}
+				}
+			}
+			entity.RestartCount = cnt.Status.RestartCount
+
+			// Add to influx point list
+			if pt, err := entity.BuildInfluxPoint(string(Container)); err == nil {
+				points = append(points, pt)
+			} else {
+				scope.Error(err.Error())
 			}
 		}
-
-		pods = buildDatahubPodsFromContainerEntities(containerEntities)
-		return pods, nil
-	} else {
-		return pods, err
 	}
+
+	// Batch write influxdb data points
+	err := p.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.ClusterStatus),
+	})
+	if err != nil {
+		scope.Error(err.Error())
+		return errors.Wrap(err, "failed to batch write influxdb data points")
+	}
+
+	return nil
+}
+
+func (p *ContainerRepository) ListContainers(request DaoClusterTypes.ListContainersRequest) (map[string][]*DaoClusterTypes.Container, error) {
+	containerMap := make(map[string][]*DaoClusterTypes.Container, 0)
+
+	statement := InternalInflux.Statement{
+		QueryCondition: &request.QueryCondition,
+		Measurement:    Container,
+		GroupByTags:    []string{string(EntityInfluxCluster.ContainerPodName), string(EntityInfluxCluster.ContainerNamespace), string(EntityInfluxCluster.ContainerNodeName), string(EntityInfluxCluster.ContainerClusterName)},
+	}
+
+	// Build influx query command
+	for _, containerMeta := range request.ContainerObjectMeta {
+		keyList := containerMeta.ObjectMeta.GenerateKeyList()
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerPodName))
+
+		valueList := containerMeta.ObjectMeta.GenerateValueList()
+		valueList = append(valueList, containerMeta.PodName)
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
+	}
+	statement.SetOrderClauseFromQueryCondition()
+	statement.SetLimitClauseFromQueryCondition()
+	cmd := statement.BuildQueryCmd()
+
+	response, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
+	if err != nil {
+		return make(map[string][]*DaoClusterTypes.Container, 0), errors.Wrap(err, "failed to list containers")
+	}
+
+	results := InternalInfluxModels.NewInfluxResults(response)
+	for _, result := range results {
+		for i := 0; i < result.GetGroupNum(); i++ {
+			group := result.GetGroup(i)
+			row := group.GetRow(0)
+			clusterNamespacePodName := p.ClusterNamespacePodName(row)
+			containerMap[clusterNamespacePodName] = make([]*DaoClusterTypes.Container, 0)
+			for j := 0; j < group.GetRowNum(); j++ {
+				row := group.GetRow(j)
+				container := DaoClusterTypes.NewContainer()
+				container.Initialize(EntityInfluxCluster.NewContainerEntity(row))
+				containerMap[clusterNamespacePodName] = append(containerMap[clusterNamespacePodName], container)
+			}
+		}
+	}
+
+	return containerMap, nil
+}
+
+func (p *ContainerRepository) ClusterNamespacePodName(values map[string]string) string {
+	valueList := make([]string, 0)
+
+	if value, ok := values[string(EntityInfluxCluster.ContainerClusterName)]; ok {
+		if value != "" {
+			valueList = append(valueList, value)
+		}
+	}
+	if value, ok := values[string(EntityInfluxCluster.ContainerNamespace)]; ok {
+		if value != "" {
+			valueList = append(valueList, value)
+		}
+	}
+	if value, ok := values[string(EntityInfluxCluster.ContainerPodName)]; ok {
+		if value != "" {
+			valueList = append(valueList, value)
+		}
+	}
+
+	if len(valueList) > 0 {
+		return strings.Join(valueList, "/")
+	}
+
+	return ""
 }
 
 // CreateContainers add containers information container measurement
-func (containerRepository *ContainerRepository) CreateContainers(pods []*ApiResources.Pod) error {
+/*func (p *ContainerRepository) CreateContainersOrig(pods []*ApiResources.Pod) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	// Do delete containers before creating them
@@ -185,18 +236,21 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*ApiReso
 	}
 
 	return nil
-}
+}*/
+
+// ListAlamedaContainers list predicted containers have relation with arguments
+/*
 
 // DeleteContainers set containers' field is_deleted to true into container measurement
-func (containerRepository *ContainerRepository) DeleteContainers(pods []*ApiResources.Pod) error {
+func (p *ContainerRepository) DeleteContainers(pods []*ApiResources.Pod) error {
 	for _, pod := range pods {
-		if pod.GetNamespacedName() == nil || pod.GetAlamedaScaler() == nil {
+		if pod.GetObjectMeta() == nil || pod.GetAlamedaPodSpec().GetAlamedaScaler() == nil {
 			continue
 		}
-		podNS := pod.GetNamespacedName().GetNamespace()
-		podName := pod.GetNamespacedName().GetName()
-		alaScalerNS := pod.GetAlamedaScaler().GetNamespace()
-		alaScalerName := pod.GetAlamedaScaler().GetName()
+		podNS := pod.GetObjectMeta().GetNamespace()
+		podName := pod.GetObjectMeta().GetName()
+		alaScalerNS := pod.GetAlamedaPodSpec().GetAlamedaScaler().GetNamespace()
+		alaScalerName := pod.GetAlamedaPodSpec().GetAlamedaScaler().GetName()
 		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s' AND \"%s\"='%s' AND \"%s\"='%s' AND \"%s\"='%s'", Container,
 			EntityInfluxClusterStatus.ContainerNamespace, podNS, EntityInfluxClusterStatus.ContainerPodName, podName,
 			EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace, alaScalerNS, EntityInfluxClusterStatus.ContainerAlamedaScalerName, alaScalerName)
@@ -207,10 +261,10 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*ApiReso
 		}
 	}
 	return nil
-}
+}*/
 
 // ListPodsContainers list containers information container measurement
-func (containerRepository *ContainerRepository) ListPodsContainers(pods []*ApiResources.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
+/*func (p *ContainerRepository) ListPodsContainers(pods []*ApiResources.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
 
 	var (
 		cmd                 = ""
@@ -231,9 +285,9 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*ApiRe
 			podName   = ""
 		)
 
-		if pod.GetNamespacedName() != nil {
-			namespace = pod.GetNamespacedName().GetNamespace()
-			podName = pod.GetNamespacedName().GetName()
+		if pod.GetObjectMeta() != nil {
+			namespace = pod.GetObjectMeta().GetNamespace()
+			podName = pod.GetObjectMeta().GetName()
 		}
 
 		cmdTagsFilterString += fmt.Sprintf(`("%s" = '%s' and "%s" = '%s') or `,
@@ -258,40 +312,9 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*ApiRe
 	}
 
 	return containerEntities, nil
-}
+}*/
 
-func (containerRepository *ContainerRepository) getPodCreatePeriodCondition(timeRange *ApiCommon.TimeRange) string {
-	if timeRange == nil {
-		return ""
-	}
-
-	var start int64 = 0
-	var end int64 = 0
-
-	if timeRange.StartTime != nil {
-		start = timeRange.StartTime.Seconds
-	}
-
-	if timeRange.EndTime != nil {
-		end = timeRange.EndTime.Seconds
-	}
-
-	if start == 0 && end == 0 {
-		return ""
-	} else if start == 0 && end != 0 {
-		period := fmt.Sprintf(`"pod_create_time" < %d`, end)
-		return period
-	} else if start != 0 && end == 0 {
-		period := fmt.Sprintf(`"pod_create_time" >= %d`, start)
-		return period
-	} else if start != 0 && end != 0 {
-		period := fmt.Sprintf(`"pod_create_time" >= %d AND "pod_create_time" < %d`, start, end)
-		return period
-	}
-
-	return ""
-}
-
+/*
 func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
 
 	var (
@@ -338,39 +361,39 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 		alamedaScalerResourceRequestMemory        *float64
 	)
 
-	nodeName = &pod.NodeName
+	nodeName = &pod.ObjectMeta.NodeName
 	resourceLink = &pod.ResourceLink
-	usedRecommendationID = &pod.UsedRecommendationId
+	usedRecommendationID = &pod.AlamedaPodSpec.UsedRecommendationId
 
-	if pod.NamespacedName != nil {
-		namespace = &pod.NamespacedName.Namespace
-		podName = &pod.NamespacedName.Name
+	if pod.ObjectMeta != nil {
+		namespace = &pod.ObjectMeta.Namespace
+		podName = &pod.ObjectMeta.Name
 	}
-	if pod.AlamedaScaler != nil {
-		alamedaScalerNamespace = &pod.AlamedaScaler.Namespace
-		alamedaScalerName = &pod.AlamedaScaler.Name
+	if pod.AlamedaPodSpec.AlamedaScaler != nil {
+		alamedaScalerNamespace = &pod.AlamedaPodSpec.AlamedaScaler.Namespace
+		alamedaScalerName = &pod.AlamedaPodSpec.AlamedaScaler.Name
 	}
 	if pod.StartTime != nil {
 		startTime := pod.StartTime.GetSeconds()
 		podCreatedTime = &startTime
 	}
 	if pod.TopController != nil {
-		if pod.TopController.NamespacedName != nil {
-			topControllerName = &pod.TopController.NamespacedName.Name
+		if pod.TopController.ObjectMeta != nil {
+			topControllerName = &pod.TopController.ObjectMeta.Name
 		}
 		if k, exist := FormatConvert.KindDisp[pod.TopController.Kind]; exist {
 			topControllerKind = &k
 		}
 		topControllerReplicas = &pod.TopController.Replicas
 	}
-	if p, exist := FormatConvert.RecommendationPolicyDisp[pod.GetPolicy()]; exist {
+	if p, exist := FormatConvert.RecommendationPolicyDisp[pod.GetAlamedaPodSpec().GetPolicy()]; exist {
 		policy = &p
 	}
 	if pod.Status != nil {
 		if val, ok := ApiResources.PodPhase_name[int32(pod.Status.Phase)]; ok {
 			podPhase = &val
 		} else {
-			val = ApiResources.PodPhase_name[int32(ApiResources.PodPhase_Unknown)]
+			val = ApiResources.PodPhase_name[int32(ApiResources.PodPhase_UNKNOWN)]
 			podPhase = &val
 		}
 		podMessage = &pod.Status.Message
@@ -379,8 +402,9 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 
 	appName := pod.GetAppName()
 	appPartOf := pod.GetAppPartOf()
-	enableVPA := pod.GetEnable_VPA()
-	enableHPA := pod.GetEnable_HPA()
+	// TODO: transform enableVPA and enableHAP to into ScalingTool
+	enableVPA := true
+	enableHPA := false
 
 	containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
 	for _, datahubContainer := range pod.Containers {
@@ -409,43 +433,46 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 		lastTerminationStatusTerminatedFinishedAt = nil
 		restartCount = nil
 
-		for _, metricData := range datahubContainer.GetLimitResource() {
-			if data := metricData.GetData(); len(data) == 1 {
-				switch metricData.GetMetricType() {
-				case ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-					val, err := strconv.ParseFloat(data[0].NumValue, 64)
-					if err != nil {
-						scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
+		if datahubContainer.GetResources() != nil {
+			resourceRequirements := datahubContainer.GetResources()
+			if resourceRequirements.GetLimits() != nil {
+				for resourceName, value := range datahubContainer.GetResources().GetLimits() {
+					switch ApiCommon.ResourceName(resourceName) {
+					case ApiCommon.ResourceName_CPU:
+						val, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						resourceLimitCPU = &val
+					case ApiCommon.ResourceName_MEMORY:
+						val, err := strconv.ParseInt(value, 10, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to int64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						resourceLimitMemory = &val
+					default:
+						scope.Warnf("no mapping resource type for Datahub.ResourceName: %s, skip assigning value", ApiCommon.ResourceName_name[int32(resourceName)])
 					}
-					resourceLimitCPU = &val
-				case ApiCommon.MetricType_MEMORY_USAGE_BYTES:
-					val, err := strconv.ParseInt(data[0].NumValue, 10, 64)
-					if err != nil {
-						scope.Warnf("convert string: %s to int64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
-					}
-					resourceLimitMemory = &val
-				default:
-					scope.Warnf("no mapping metric type for Datahub.MetricType: %s, skip assigning value", ApiCommon.MetricType_name[int32(metricData.GetMetricType())])
 				}
 			}
-		}
-		for _, metricData := range datahubContainer.GetRequestResource() {
-			if data := metricData.GetData(); len(data) == 1 {
-				switch metricData.GetMetricType() {
-				case ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
-					val, err := strconv.ParseFloat(data[0].NumValue, 64)
-					if err != nil {
-						scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
+			if resourceRequirements.GetRequests() != nil {
+				for resourceName, value := range datahubContainer.GetResources().GetRequests() {
+					switch ApiCommon.ResourceName(resourceName) {
+					case ApiCommon.ResourceName_CPU:
+						val, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to float64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						resourceRequestCPU = &val
+					case ApiCommon.ResourceName_MEMORY:
+						val, err := strconv.ParseInt(value, 10, 64)
+						if err != nil {
+							scope.Warnf("convert string: %s to int64 failed, skip assigning value, err: %s", value, err.Error())
+						}
+						resourceRequestMemory = &val
+					default:
+						scope.Warnf("no mapping resource type for Datahub.ResourceName: %s, skip assigning value", ApiCommon.ResourceName_name[int32(resourceName)])
 					}
-					resourceRequestCPU = &val
-				case ApiCommon.MetricType_MEMORY_USAGE_BYTES:
-					val, err := strconv.ParseInt(data[0].NumValue, 10, 64)
-					if err != nil {
-						scope.Warnf("convert string: %s to int64 failed, skip assigning value, err: %s", data[0].NumValue, err.Error())
-					}
-					resourceRequestMemory = &val
-				default:
-					scope.Warnf("no mapping metric type for Datahub.MetricType: %s, skip assigning value", ApiCommon.MetricType_name[int32(metricData.GetMetricType())])
 				}
 			}
 		}
@@ -487,8 +514,8 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 			}
 			restartCount = &containerStatus.RestartCount
 		}
-		if pod.GetAlamedaScalerResources() != nil {
-			resourceRequirements := pod.GetAlamedaScalerResources()
+		if pod.GetAlamedaPodSpec().GetAlamedaScalerResources() != nil {
+			resourceRequirements := pod.GetAlamedaPodSpec().GetAlamedaScalerResources()
 			if resourceRequirements.GetLimits() != nil {
 				for resourceName, value := range resourceRequirements.GetLimits() {
 					switch resourceName {
@@ -583,7 +610,9 @@ func buildContainerEntitiesFromDatahubPod(pod *ApiResources.Pod) ([]*EntityInflu
 	}
 	return containerEntities, nil
 }
+*/
 
+/*
 func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClusterStatus.ContainerEntity) []*ApiResources.Pod {
 
 	datahubPods := make([]*ApiResources.Pod, 0)
@@ -598,26 +627,27 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 		if !exist {
 
 			var (
-				podName                            string
-				podPhase                           string
-				podMessage                         string
-				podReason                          string
-				namespace                          string
-				resourceLink                       string
-				alamedaScalerNamespace             string
-				alamedaScalerName                  string
-				nodeName                           string
-				podCreatedTime                     int64
-				policy                             string
-				topControllerNamespace             string
-				topControllerName                  string
-				topControllerKind                  string
-				topControllerReplicas              int32
-				usedRecommendationID               string
-				appName                            string
-				appPartOf                          string
-				enableHPA                          bool
-				enableVPA                          bool
+				podName                string
+				podPhase               string
+				podMessage             string
+				podReason              string
+				namespace              string
+				resourceLink           string
+				alamedaScalerNamespace string
+				alamedaScalerName      string
+				nodeName               string
+				podCreatedTime         int64
+				policy                 string
+				topControllerNamespace string
+				topControllerName      string
+				topControllerKind      string
+				topControllerReplicas  int32
+				usedRecommendationID   string
+				appName                string
+				appPartOf              string
+				// TODO: add new member scalingTool
+				// enableHPA                          bool
+				// enableVPA                          bool
 				alamedaScalerResourceLimitCPU      string
 				alamedaScalerResourceLimitMemory   string
 				alamedaScalerResourceRequestCPU    string
@@ -679,12 +709,13 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 			if containerEntity.AppPartOf != nil {
 				appPartOf = *containerEntity.AppPartOf
 			}
-			if containerEntity.EnableHPA != nil {
-				enableHPA = *containerEntity.EnableHPA
-			}
-			if containerEntity.EnableVPA != nil {
-				enableVPA = *containerEntity.EnableVPA
-			}
+			// TODO: handle compatibility of enableHPA and enableVPA
+				if containerEntity.EnableHPA != nil {
+					enableHPA = *containerEntity.EnableHPA
+				}
+				if containerEntity.EnableVPA != nil {
+					enableVPA = *containerEntity.EnableVPA
+				}
 			if containerEntity.AlamedaScalerResourceLimitCPU != nil {
 				alamedaScalerResourceLimitCPU = strconv.FormatFloat(*containerEntity.AlamedaScalerResourceLimitCPU, 'f', -1, 64)
 			}
@@ -699,48 +730,51 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 			}
 
 			datahubPod = &ApiResources.Pod{
-				NamespacedName: &ApiResources.NamespacedName{
+				ObjectMeta: &ApiResources.ObjectMeta{
 					Name:      podName,
 					Namespace: namespace,
+					NodeName:  nodeName,
+					// TODO: cluster name
 				},
 				ResourceLink: resourceLink,
 				Containers:   make([]*ApiResources.Container, 0),
-				AlamedaScaler: &ApiResources.NamespacedName{
-					Name:      alamedaScalerName,
-					Namespace: alamedaScalerNamespace,
-				},
-				NodeName: nodeName,
 				StartTime: &timestamp.Timestamp{
 					Seconds: podCreatedTime,
 				},
-				Policy: FormatConvert.RecommendationPolicyEnum[policy],
-				TopController: &ApiResources.TopController{
-					NamespacedName: &ApiResources.NamespacedName{
-						Namespace: topControllerNamespace,
+				TopController: &ApiResources.Controller{
+					ObjectMeta: &ApiResources.ObjectMeta{
 						Name:      topControllerName,
+						Namespace: topControllerNamespace,
 					},
 					Replicas: topControllerReplicas,
 					Kind:     FormatConvert.KindEnum[topControllerKind],
 				},
-				UsedRecommendationId: usedRecommendationID,
 				Status: &ApiResources.PodStatus{
 					Phase:   ApiResources.PodPhase(ApiResources.PodPhase_value[podPhase]),
 					Message: podMessage,
 					Reason:  podReason,
 				},
-				AppName:    appName,
-				AppPartOf:  appPartOf,
-				Enable_HPA: enableHPA,
-				Enable_VPA: enableVPA,
-				AlamedaScalerResources: &ApiResources.ResourceRequirements{
-					Limits: map[int32]string{
-						int32(ApiCommon.ResourceName_CPU):    alamedaScalerResourceLimitCPU,
-						int32(ApiCommon.ResourceName_MEMORY): alamedaScalerResourceLimitMemory,
+				AppName:   appName,
+				AppPartOf: appPartOf,
+				AlamedaPodSpec: &ApiResources.AlamedaPodSpec{
+					AlamedaScaler: &ApiResources.ObjectMeta{
+						Name:      alamedaScalerName,
+						Namespace: alamedaScalerNamespace,
 					},
-					Requests: map[int32]string{
-						int32(ApiCommon.ResourceName_CPU):    alamedaScalerResourceRequestCPU,
-						int32(ApiCommon.ResourceName_MEMORY): alamedaScalerResourceRequestMemory,
+					Policy:               FormatConvert.RecommendationPolicyEnum[policy],
+					UsedRecommendationId: usedRecommendationID,
+					AlamedaScalerResources: &ApiResources.ResourceRequirements{
+						Limits: map[int32]string{
+							int32(ApiCommon.ResourceName_CPU):    alamedaScalerResourceLimitCPU,
+							int32(ApiCommon.ResourceName_MEMORY): alamedaScalerResourceLimitMemory,
+						},
+						Requests: map[int32]string{
+							int32(ApiCommon.ResourceName_CPU):    alamedaScalerResourceRequestCPU,
+							int32(ApiCommon.ResourceName_MEMORY): alamedaScalerResourceRequestMemory,
+						},
 					},
+					// TODO: handle ScalingTool from Enable_VPA and Enable_HPA
+					ScalingTool: ApiResources.ScalingTool_VPA,
 				},
 			}
 			datahubPodMap[podID] = datahubPod
@@ -757,7 +791,9 @@ func buildDatahubPodsFromContainerEntities(containerEntities []*EntityInfluxClus
 
 	return datahubPods
 }
+*/
 
+/*
 func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatus.ContainerEntity) *ApiResources.Container {
 
 	var (
@@ -835,51 +871,20 @@ func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatu
 	// Pack container
 	container := &ApiResources.Container{}
 	container.Name = *containerEntity.Name
-	container.LimitResource = make([]*ApiCommon.MetricData, 0)
+	container.Resources = &ApiResources.ResourceRequirements{}
+	container.Resources.Limits = make(map[int32]string)
+	container.Resources.Requests = make(map[int32]string)
 	if containerEntity.ResourceLimitCPU != nil {
-		metricData := &ApiCommon.MetricData{
-			MetricType: ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*ApiCommon.Sample{
-				{
-					NumValue: strconv.FormatFloat(*containerEntity.ResourceLimitCPU, 'f', -1, 64),
-				},
-			},
-		}
-		container.LimitResource = append(container.LimitResource, metricData)
+		container.Resources.Limits[int32(ApiCommon.ResourceName_CPU)] = strconv.FormatFloat(*containerEntity.ResourceLimitCPU, 'f', -1, 64)
 	}
 	if containerEntity.ResourceLimitMemory != nil {
-		metricData := &ApiCommon.MetricData{
-			MetricType: ApiCommon.MetricType_MEMORY_USAGE_BYTES,
-			Data: []*ApiCommon.Sample{
-				{
-					NumValue: strconv.FormatInt(*containerEntity.ResourceLimitMemory, 10),
-				},
-			},
-		}
-		container.LimitResource = append(container.LimitResource, metricData)
+		container.Resources.Limits[int32(ApiCommon.ResourceName_MEMORY)] = strconv.FormatInt(*containerEntity.ResourceLimitMemory, 10)
 	}
-	container.RequestResource = make([]*ApiCommon.MetricData, 0)
 	if containerEntity.ResourceRequestCPU != nil {
-		metricData := &ApiCommon.MetricData{
-			MetricType: ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-			Data: []*ApiCommon.Sample{
-				{
-					NumValue: strconv.FormatFloat(*containerEntity.ResourceRequestCPU, 'f', -1, 64),
-				},
-			},
-		}
-		container.RequestResource = append(container.RequestResource, metricData)
+		container.Resources.Requests[int32(ApiCommon.ResourceName_CPU)] = strconv.FormatFloat(*containerEntity.ResourceRequestCPU, 'f', -1, 64)
 	}
 	if containerEntity.ResourceRequestMemory != nil {
-		metricData := &ApiCommon.MetricData{
-			MetricType: ApiCommon.MetricType_MEMORY_USAGE_BYTES,
-			Data: []*ApiCommon.Sample{
-				{
-					NumValue: strconv.FormatInt(*containerEntity.ResourceRequestMemory, 10),
-				},
-			},
-		}
-		container.RequestResource = append(container.RequestResource, metricData)
+		container.Resources.Requests[int32(ApiCommon.ResourceName_MEMORY)] = strconv.FormatInt(*containerEntity.ResourceRequestMemory, 10)
 	}
 	containerStatus := &ApiResources.ContainerStatus{
 		State: &ApiResources.ContainerState{
@@ -920,7 +925,9 @@ func containerEntityToDatahubContainer(containerEntity *EntityInfluxClusterStatu
 
 	return container
 }
+*/
 
+/*
 func getDatahubPodIDString(containerEntity *EntityInfluxClusterStatus.ContainerEntity) string {
 
 	var (
@@ -949,3 +956,4 @@ func getDatahubPodIDString(containerEntity *EntityInfluxClusterStatus.ContainerE
 
 	return fmt.Sprintf("%s.%s.%s.%s.%s", namespace, podName, alamedaScalerNS, alamedaScalerName, nodeName)
 }
+*/

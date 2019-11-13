@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/containers-ai/alameda v4.2.459-0.20190930041729-c908f2d26598+incompatible
-	github.com/containers-ai/api v0.0.0-20190916081203-a47a613d0a1f
+	github.com/containers-ai/api v4.2.467-0.20191108042638-aff5f3a7f637+incompatible
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/gofuzz v1.0.0 // indirect

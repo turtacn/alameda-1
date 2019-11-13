@@ -15,8 +15,6 @@ _sym_db = _symbol_database.Default()
 
 
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
-from alameda_api.v1alpha1.datahub.resources import metadata_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2
-from alameda_api.v1alpha1.datahub.resources import types_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -24,9 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.plannings',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings'),
-  serialized_pb=_b('\n2alameda_api/v1alpha1/datahub/plannings/types.proto\x12/containersai.alameda.v1alpha1.datahub.plannings\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/resources/types.proto\"\x86\x04\n\x16\x43ontrollerPlanningSpec\x12X\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.NamespacedName\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x18\n\x10\x63urrent_replicas\x18\x03 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x04 \x01(\x05\x12(\n\x04time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14\x63urrent_cpu_requests\x18\x07 \x01(\x01\x12\x1c\n\x14\x63urrent_mem_requests\x18\x08 \x01(\x01\x12\x1a\n\x12\x63urrent_cpu_limits\x18\t \x01(\x01\x12\x1a\n\x12\x63urrent_mem_limits\x18\n \x01(\x01\x12\x1a\n\x12\x64\x65sired_cpu_limits\x18\x0b \x01(\x01\x12\x1a\n\x12\x64\x65sired_mem_limits\x18\x0c \x01(\x01\x12\x12\n\ntotal_cost\x18\r \x01(\x01\"\xc9\x02\n\x19\x43ontrollerPlanningSpecK8s\x12X\n\x0fnamespaced_name\x18\x01 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.NamespacedName\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x18\n\x10\x63urrent_replicas\x18\x03 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x04 \x01(\x05\x12(\n\x04time\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*H\n\x0cPlanningType\x12\x10\n\x0cPT_UNDEFINED\x10\x00\x12\x15\n\x11PT_RECOMMENDATION\x10\x01\x12\x0f\n\x0bPT_PLANNING\x10\x02*K\n\x16\x43ontrollerPlanningType\x12\x11\n\rCPT_UNDEFINED\x10\x00\x12\x11\n\rCPT_PRIMITIVE\x10\x01\x12\x0b\n\x07\x43PT_K8S\x10\x02\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/planningsb\x06proto3')
+  serialized_pb=_b('\n2alameda_api/v1alpha1/datahub/plannings/types.proto\x12/containersai.alameda.v1alpha1.datahub.plannings\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe7\x02\n\x16\x43ontrollerPlanningSpec\x12\x18\n\x10\x63urrent_replicas\x18\x01 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x02 \x01(\x05\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1c\n\x14\x63urrent_cpu_requests\x18\x05 \x01(\x01\x12\x1c\n\x14\x63urrent_mem_requests\x18\x06 \x01(\x01\x12\x1a\n\x12\x63urrent_cpu_limits\x18\x07 \x01(\x01\x12\x1a\n\x12\x63urrent_mem_limits\x18\x08 \x01(\x01\x12\x1a\n\x12\x64\x65sired_cpu_limits\x18\t \x01(\x01\x12\x1a\n\x12\x64\x65sired_mem_limits\x18\n \x01(\x01\x12\x12\n\ntotal_cost\x18\x0b \x01(\x01\"\xaa\x01\n\x19\x43ontrollerPlanningSpecK8s\x12\x18\n\x10\x63urrent_replicas\x18\x01 \x01(\x05\x12\x18\n\x10\x64\x65sired_replicas\x18\x02 \x01(\x05\x12(\n\x04time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*H\n\x0cPlanningType\x12\x10\n\x0cPT_UNDEFINED\x10\x00\x12\x15\n\x11PT_RECOMMENDATION\x10\x01\x12\x0f\n\x0bPT_PLANNING\x10\x02*K\n\x16\x43ontrollerPlanningType\x12\x11\n\rCPT_UNDEFINED\x10\x00\x12\x11\n\rCPT_PRIMITIVE\x10\x01\x12\x0b\n\x07\x43PT_K8S\x10\x02\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/planningsb\x06proto3')
   ,
-  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2.DESCRIPTOR,])
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 _PLANNINGTYPE = _descriptor.EnumDescriptor(
   name='PlanningType',
@@ -49,8 +47,8 @@ _PLANNINGTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1096,
-  serialized_end=1168,
+  serialized_start=671,
+  serialized_end=743,
 )
 _sym_db.RegisterEnumDescriptor(_PLANNINGTYPE)
 
@@ -76,8 +74,8 @@ _CONTROLLERPLANNINGTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1170,
-  serialized_end=1245,
+  serialized_start=745,
+  serialized_end=820,
 )
 _sym_db.RegisterEnumDescriptor(_CONTROLLERPLANNINGTYPE)
 
@@ -99,92 +97,78 @@ _CONTROLLERPLANNINGSPEC = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='namespaced_name', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.namespaced_name', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.kind', index=1,
-      number=2, type=14, cpp_type=8, label=1,
+      name='current_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_replicas', index=0,
+      number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='current_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_replicas', index=2,
-      number=3, type=5, cpp_type=1, label=1,
+      name='desired_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.desired_replicas', index=1,
+      number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='desired_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.desired_replicas', index=3,
-      number=4, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.time', index=4,
-      number=5, type=11, cpp_type=10, label=1,
+      name='time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.time', index=2,
+      number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='create_time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.create_time', index=5,
-      number=6, type=11, cpp_type=10, label=1,
+      name='create_time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.create_time', index=3,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='current_cpu_requests', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_cpu_requests', index=6,
+      name='current_cpu_requests', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_cpu_requests', index=4,
+      number=5, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='current_mem_requests', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_mem_requests', index=5,
+      number=6, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='current_cpu_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_cpu_limits', index=6,
       number=7, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='current_mem_requests', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_mem_requests', index=7,
+      name='current_mem_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_mem_limits', index=7,
       number=8, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='current_cpu_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_cpu_limits', index=8,
+      name='desired_cpu_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.desired_cpu_limits', index=8,
       number=9, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='current_mem_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.current_mem_limits', index=9,
+      name='desired_mem_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.desired_mem_limits', index=9,
       number=10, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='desired_cpu_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.desired_cpu_limits', index=10,
+      name='total_cost', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.total_cost', index=10,
       number=11, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='desired_mem_limits', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.desired_mem_limits', index=11,
-      number=12, type=1, cpp_type=5, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='total_cost', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpec.total_cost', index=12,
-      number=13, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -201,8 +185,8 @@ _CONTROLLERPLANNINGSPEC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=244,
-  serialized_end=762,
+  serialized_start=137,
+  serialized_end=496,
 )
 
 
@@ -214,43 +198,29 @@ _CONTROLLERPLANNINGSPECK8S = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='namespaced_name', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.namespaced_name', index=0,
-      number=1, type=11, cpp_type=10, label=1,
+      name='current_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.current_replicas', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='desired_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.desired_replicas', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.time', index=2,
+      number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.kind', index=1,
-      number=2, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='current_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.current_replicas', index=2,
-      number=3, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='desired_replicas', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.desired_replicas', index=3,
-      number=4, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.time', index=4,
-      number=5, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='create_time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.create_time', index=5,
-      number=6, type=11, cpp_type=10, label=1,
+      name='create_time', full_name='containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningSpecK8s.create_time', index=3,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -267,16 +237,12 @@ _CONTROLLERPLANNINGSPECK8S = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=765,
-  serialized_end=1094,
+  serialized_start=499,
+  serialized_end=669,
 )
 
-_CONTROLLERPLANNINGSPEC.fields_by_name['namespaced_name'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._NAMESPACEDNAME
-_CONTROLLERPLANNINGSPEC.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._KIND
 _CONTROLLERPLANNINGSPEC.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _CONTROLLERPLANNINGSPEC.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_CONTROLLERPLANNINGSPECK8S.fields_by_name['namespaced_name'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._NAMESPACEDNAME
-_CONTROLLERPLANNINGSPECK8S.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._KIND
 _CONTROLLERPLANNINGSPECK8S.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _CONTROLLERPLANNINGSPECK8S.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 DESCRIPTOR.message_types_by_name['ControllerPlanningSpec'] = _CONTROLLERPLANNINGSPEC

@@ -28,6 +28,8 @@ enum EventType {
     EVENT_TYPE_ANOMALY_ANALYSIS_CREATE      = 18;
     EVENT_TYPE_LICENSE                      = 19;
     EVENT_TYPE_EMAIL_NOTIFICATION           = 20;
+    EVENT_TYPE_ANOMALY_FORECAST_DETECT      = 21;
+    EVENT_TYPE_ANOMALY_REALTIME_DETECT      = 22;
 }
 
 enum EventVersion {

@@ -2,207 +2,269 @@ package clusterstatus
 
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
+	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"time"
 )
 
-type nodeField = string
-type nodeTag = string
-
 const (
-	NodeTime nodeTag = "time" // NodeTime is the time node information is inserted to database
-	NodeName nodeTag = "name" // NodeName is the name of node
+	NodeName        influxdb.Tag = "name" // NodeName is the name of node
+	NodeClusterName influxdb.Tag = "cluster_name"
+	NodeUid         influxdb.Tag = "uid"
 
-	NodeGroup          nodeField = "group"             // NodeGroup is node group name
-	NodeInCluster      nodeField = "in_cluster"        // NodeInCluster is the state node is in cluster or not
-	NodeCPUCores       nodeField = "node_cpu_cores"    // NodeCPUCores is the amount of cores in node
-	NodeMemoryBytes    nodeField = "node_memory_bytes" // NodeMemoryBytes is the amount of momory bytes in node
-	NodeCreateTime     nodeField = "create_time"
-	NodeIOProvider     nodeField = "io_provider" // Cloud service provider
-	NodeIOInstanceType nodeField = "io_instance_type"
-	NodeIORegion       nodeField = "io_region"
-	NodeIOZone         nodeField = "io_zone"
-	NodeIOOS           nodeField = "io_os"
-	NodeIORole         nodeField = "io_role"
-	NodeIOInstanceID   nodeField = "io_instance_id"
-	NodeIOStorageSize  nodeField = "io_storage_size"
+	NodeCreateTime     influxdb.Field = "create_time"
+	NodeCPUCores       influxdb.Field = "node_cpu_cores"    // NodeCPUCores is the amount of cores in node
+	NodeMemoryBytes    influxdb.Field = "node_memory_bytes" // NodeMemoryBytes is the amount of memory bytes in node
+	NodeNetworkMbps    influxdb.Field = "node_network_mbps" // NodeNetworkMbps is mega bits per second
+	NodeIOProvider     influxdb.Field = "io_provider"       // Cloud service provider
+	NodeIOInstanceType influxdb.Field = "io_instance_type"
+	NodeIORegion       influxdb.Field = "io_region"
+	NodeIOZone         influxdb.Field = "io_zone"
+	NodeIOOS           influxdb.Field = "io_os"
+	NodeIORole         influxdb.Field = "io_role"
+	NodeIOInstanceID   influxdb.Field = "io_instance_id"
+	NodeIOStorageSize  influxdb.Field = "io_storage_size"
 )
 
 var (
 	// NodeTags list tags of node measurement
-	NodeTags = []nodeTag{NodeTime, NodeName}
+	NodeTags = []influxdb.Tag{
+		NodeName,
+		NodeClusterName,
+		NodeUid,
+	}
+
 	// NodeFields list fields of node measurement
-	NodeFields = []nodeField{NodeGroup, NodeInCluster, NodeCPUCores, NodeMemoryBytes, NodeCreateTime, NodeIOProvider, NodeIOInstanceType, NodeIORegion, NodeIOZone}
+	NodeFields = []influxdb.Field{
+		NodeCreateTime,
+		NodeCPUCores,
+		NodeMemoryBytes,
+		NodeNetworkMbps,
+		NodeIOProvider,
+		NodeIOInstanceType,
+		NodeIORegion,
+		NodeIOZone,
+		NodeIOOS,
+		NodeIORole,
+		NodeIOInstanceID,
+		NodeIOStorageSize,
+	}
 )
 
 // NodeEntity is entity in database
 type NodeEntity struct {
-	Time           time.Time
-	Name           *string
-	NodeGroup      *string
-	IsInCluster    *bool
-	CPUCores       *int64
-	MemoryBytes    *int64
-	CreatedTime    *int64
-	IOProvider     *string
-	IOInstanceType *string
-	IORegion       *string
-	IOZone         *string
-	IOOS           *string
-	IORole         *string
-	IOInstanceID   *string
-	IOStorageSize  *int64
+	Time        time.Time
+	Name        string
+	ClusterName string
+	Uid         string
+
+	CreateTime     int64
+	CPUCores       int64
+	MemoryBytes    int64
+	NetworkMbps    int64
+	IOProvider     string
+	IOInstanceType string
+	IORegion       string
+	IOZone         string
+	IOOS           string
+	IORole         string
+	IOInstanceID   string
+	IOStorageSize  int64
 }
 
 // NewNodeEntityFromMap Build entity from map
-func NewNodeEntityFromMap(data map[string]string) NodeEntity {
-
-	// TODO: log error
-	tempTimestamp, _ := utils.ParseTime(data[ContainerTime])
+func NewNodeEntity(data map[string]string) NodeEntity {
+	tempTimestamp, _ := utils.ParseTime(data[string("time")])
 
 	entity := NodeEntity{
 		Time: tempTimestamp,
 	}
 
-	if name, exist := data[NodeName]; exist {
-		entity.Name = &name
+	// InfluxDB tags
+	if value, exist := data[string(NodeName)]; exist {
+		entity.Name = value
 	}
-	if nodeGroup, exist := data[NodeGroup]; exist {
-		entity.NodeGroup = &nodeGroup
+	if value, exist := data[string(NodeClusterName)]; exist {
+		entity.ClusterName = value
 	}
-	if isInCluster, exist := data[NodeInCluster]; exist {
-		value, _ := strconv.ParseBool(isInCluster)
-		entity.IsInCluster = &value
+	if value, exist := data[string(NodeUid)]; exist {
+		entity.Uid = value
 	}
-	if cpuCores, exist := data[NodeCPUCores]; exist {
-		value, _ := strconv.ParseInt(cpuCores, 10, 64)
-		entity.CPUCores = &value
+
+	// InfluxDB fields
+	if value, exist := data[string(NodeCreateTime)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.CreateTime = valueInt64
 	}
-	if memoryBytes, exist := data[NodeMemoryBytes]; exist {
-		value, _ := strconv.ParseInt(memoryBytes, 10, 64)
-		entity.MemoryBytes = &value
+	if value, exist := data[string(NodeCPUCores)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.CPUCores = valueInt64
 	}
-	if ioProvider, exist := data[NodeIOProvider]; exist {
-		entity.IOProvider = &ioProvider
+	if value, exist := data[string(NodeMemoryBytes)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.MemoryBytes = valueInt64
 	}
-	if ioInstanceType, exist := data[NodeIOInstanceType]; exist {
-		entity.IOInstanceType = &ioInstanceType
+	if value, exist := data[string(NodeNetworkMbps)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.NetworkMbps = valueInt64
 	}
-	if ioRegion, exist := data[NodeIORegion]; exist {
-		entity.IORegion = &ioRegion
+	if value, exist := data[string(NodeIOProvider)]; exist {
+		entity.IOProvider = value
 	}
-	if ioZone, exist := data[NodeIOZone]; exist {
-		entity.IOZone = &ioZone
+	if value, exist := data[string(NodeIOInstanceType)]; exist {
+		entity.IOInstanceType = value
 	}
-	if ioOs, exist := data[NodeIOOS]; exist {
-		entity.IOOS = &ioOs
+	if value, exist := data[string(NodeIORegion)]; exist {
+		entity.IORegion = value
 	}
-	if ioRole, exist := data[NodeIORole]; exist {
-		entity.IORole = &ioRole
+	if value, exist := data[string(NodeIOZone)]; exist {
+		entity.IOZone = value
 	}
-	if ioInstanceID, exist := data[NodeIOInstanceID]; exist {
-		entity.IOInstanceID = &ioInstanceID
+	if value, exist := data[string(NodeIOOS)]; exist {
+		entity.IOOS = value
 	}
-	if ioStorageSize, exist := data[NodeIOStorageSize]; exist {
-		value, _ := strconv.ParseInt(ioStorageSize, 10, 64)
-		entity.IOStorageSize = &value
+	if value, exist := data[string(NodeIORole)]; exist {
+		entity.IORole = value
+	}
+	if value, exist := data[string(NodeIOInstanceID)]; exist {
+		entity.IOInstanceID = value
+	}
+	if value, exist := data[string(NodeIOStorageSize)]; exist {
+		valueInt64, _ := strconv.ParseInt(value, 10, 64)
+		entity.IOStorageSize = valueInt64
 	}
 
 	return entity
 }
 
-func (e NodeEntity) InfluxDBPoint(measurementName string) (*InfluxClient.Point, error) {
-
-	tags := map[string]string{}
-	if e.Name != nil {
-		tags[NodeName] = *e.Name
+func (e *NodeEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {
+	// Pack influx tags
+	tags := map[string]string{
+		string(NodeName):        e.Name,
+		string(NodeClusterName): e.ClusterName,
+		string(NodeUid):         e.Uid,
 	}
 
-	fields := map[string]interface{}{}
-	if e.NodeGroup != nil {
-		fields[NodeGroup] = *e.NodeGroup
-	}
-	if e.IsInCluster != nil {
-		fields[NodeInCluster] = *e.IsInCluster
-	}
-	if e.CPUCores != nil {
-		fields[NodeCPUCores] = *e.CPUCores
-	}
-	if e.MemoryBytes != nil {
-		fields[NodeMemoryBytes] = *e.MemoryBytes
-	}
-	if e.CreatedTime != nil {
-		fields[NodeCreateTime] = *e.CreatedTime
-	}
-	if e.IOProvider != nil {
-		fields[NodeIOProvider] = *e.IOProvider
-	}
-	if e.IOInstanceType != nil {
-		fields[NodeIOInstanceType] = *e.IOInstanceType
-	}
-	if e.IORegion != nil {
-		fields[NodeIORegion] = *e.IORegion
-	}
-	if e.IOZone != nil {
-		fields[NodeIOZone] = *e.IOZone
-	}
-	if e.IOOS != nil {
-		fields[NodeIOOS] = *e.IOOS
-	}
-	if e.IORole != nil {
-		fields[NodeIORole] = *e.IORole
-	}
-	if e.IOInstanceID != nil {
-		fields[NodeIOInstanceID] = *e.IOInstanceID
-	}
-	if e.IOStorageSize != nil {
-		fields[NodeIOStorageSize] = *e.IOStorageSize
+	// Pack influx fields
+	fields := map[string]interface{}{
+		string(NodeCreateTime):     e.CreateTime,
+		string(NodeCPUCores):       e.CPUCores,
+		string(NodeMemoryBytes):    e.MemoryBytes,
+		string(NodeNetworkMbps):    e.NetworkMbps,
+		string(NodeIOProvider):     e.IOProvider,
+		string(NodeIOInstanceType): e.IOInstanceType,
+		string(NodeIORegion):       e.IORegion,
+		string(NodeIOZone):         e.IOZone,
+		string(NodeIOOS):           e.IOOS,
+		string(NodeIORole):         e.IORole,
+		string(NodeIOInstanceID):   e.IOInstanceID,
+		string(NodeIOStorageSize):  e.IOStorageSize,
 	}
 
-	return InfluxClient.NewPoint(measurementName, tags, fields, e.Time)
+	return InfluxClient.NewPoint(measurement, tags, fields, e.Time)
 }
 
-func (e NodeEntity) BuildDatahubNode() *ApiResources.Node {
+func (e *NodeEntity) BuildNode() *ApiResources.Node {
+	node := &ApiResources.Node{}
 
-	node := &ApiResources.Node{
-		Capacity: &ApiResources.Capacity{},
-		Provider: &ApiResources.Provider{},
+	// Build ObjectMeta
+	if e.Name != "" {
+		if node.ObjectMeta == nil {
+			node.ObjectMeta = &ApiResources.ObjectMeta{}
+		}
+		node.ObjectMeta.Name = e.Name
+	}
+	if e.ClusterName != "" {
+		if node.ObjectMeta == nil {
+			node.ObjectMeta = &ApiResources.ObjectMeta{}
+		}
+		node.ObjectMeta.ClusterName = e.ClusterName
+	}
+	if e.Uid != "" {
+		if node.ObjectMeta == nil {
+			node.ObjectMeta = &ApiResources.ObjectMeta{}
+		}
+		node.ObjectMeta.Uid = e.Uid
 	}
 
-	if e.Name != nil {
-		node.Name = *e.Name
+	// Build capacity
+	if e.CPUCores != 0 {
+		if node.Capacity == nil {
+			node.Capacity = &ApiResources.Capacity{}
+		}
+		node.Capacity.CpuCores = e.CPUCores
 	}
-	if e.CPUCores != nil {
-		node.Capacity.CpuCores = *e.CPUCores
+	if e.MemoryBytes != 0 {
+		if node.Capacity == nil {
+			node.Capacity = &ApiResources.Capacity{}
+		}
+		node.Capacity.MemoryBytes = e.MemoryBytes
 	}
-	if e.MemoryBytes != nil {
-		node.Capacity.MemoryBytes = *e.MemoryBytes
+	if e.NetworkMbps != 0 {
+		if node.Capacity == nil {
+			node.Capacity = &ApiResources.Capacity{}
+		}
+		node.Capacity.NetworkMegabitsPerSecond = e.NetworkMbps
 	}
-	if e.IOProvider != nil {
-		node.Provider.Provider = *e.IOProvider
+
+	// Build provider
+	if e.IOProvider != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.Provider = e.IOProvider
 	}
-	if e.IOInstanceType != nil {
-		node.Provider.InstanceType = *e.IOInstanceType
+	if e.IOInstanceType != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.InstanceType = e.IOInstanceType
 	}
-	if e.IORegion != nil {
-		node.Provider.Region = *e.IORegion
+	if e.IORegion != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.Region = e.IORegion
 	}
-	if e.IOZone != nil {
-		node.Provider.Zone = *e.IOZone
+	if e.IOZone != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.Zone = e.IOZone
 	}
-	if e.IOOS != nil {
-		node.Provider.Os = *e.IOOS
+	if e.IOOS != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.Os = e.IOOS
 	}
-	if e.IORole != nil {
-		node.Provider.Role = *e.IORole
+	if e.IORole != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.Role = e.IORole
 	}
-	if e.IOInstanceID != nil {
-		node.Provider.InstanceId = *e.IOInstanceID
+	if e.IOInstanceID != "" {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.InstanceId = e.IOInstanceID
 	}
-	if e.IOStorageSize != nil {
-		node.Provider.StorageSize = *e.IOStorageSize
+	if e.IOStorageSize != 0 {
+		if node.AlamedaNodeSpec == nil {
+			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
+			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
+		}
+		node.AlamedaNodeSpec.Provider.StorageSize = e.IOStorageSize
 	}
 
 	return node

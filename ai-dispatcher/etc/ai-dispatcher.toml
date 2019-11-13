@@ -1,3 +1,5 @@
+hourlyPredict = true
+
 [datahub]
 address = "datahub.alameda.svc.cluster.local:50050"
 connRetry = 5

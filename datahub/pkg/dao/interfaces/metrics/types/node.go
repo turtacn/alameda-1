@@ -1,40 +1,42 @@
 package types
 
 import (
+	"context"
+	"sort"
+
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
-	"sort"
 )
 
 // NodeMetricsDAO DAO interface of node metric data.
 type NodeMetricsDAO interface {
-	CreateMetrics(NodeMetricMap) error
-	ListMetrics(ListNodeMetricsRequest) (NodeMetricMap, error)
+	CreateMetrics(context.Context, NodeMetricMap) error
+	ListMetrics(context.Context, ListNodeMetricsRequest) (NodeMetricMap, error)
 }
 
 type NodeMetricSample struct {
-	NodeName   metadata.NodeName
+	ObjectMeta metadata.ObjectMeta
 	MetricType enumconv.MetricType
 	Metrics    []types.Sample
 }
 
 // NodeMetric Metric model to represent one node metric
 type NodeMetric struct {
-	NodeName metadata.NodeName
-	Metrics  map[enumconv.MetricType][]types.Sample
+	ObjectMeta metadata.ObjectMeta
+	Metrics    map[enumconv.MetricType][]types.Sample
 }
 
 // NodesMetricMap Nodes' metric map
 type NodeMetricMap struct {
-	MetricMap map[metadata.NodeName]*NodeMetric
+	MetricMap map[metadata.ObjectMeta]*NodeMetric
 }
 
 // ListNodeMetricsRequest Argument of method ListNodeMetrics
 type ListNodeMetricsRequest struct {
 	common.QueryCondition
-	NodeNames []metadata.NodeName
+	ObjectMetas []metadata.ObjectMeta
 }
 
 func NewNodeMetricSample() *NodeMetricSample {
@@ -51,13 +53,23 @@ func NewNodeMetric() *NodeMetric {
 
 func NewNodeMetricMap() NodeMetricMap {
 	nodeMetricMap := NodeMetricMap{}
-	nodeMetricMap.MetricMap = make(map[metadata.NodeName]*NodeMetric)
+	nodeMetricMap.MetricMap = make(map[metadata.ObjectMeta]*NodeMetric)
 	return nodeMetricMap
+}
+
+func NewListNodeMetricsRequest() ListNodeMetricsRequest {
+	request := ListNodeMetricsRequest{}
+	request.ObjectMetas = make([]metadata.ObjectMeta, 0)
+	return request
 }
 
 // GetNodeNames Return nodes name in request
 func (r ListNodeMetricsRequest) GetNodeNames() []metadata.NodeName {
-	return r.NodeNames
+	nodeNames := make([]metadata.NodeName, 0)
+	for _, objectMeta := range r.ObjectMetas {
+		nodeNames = append(nodeNames, objectMeta.Name)
+	}
+	return nodeNames
 }
 
 // GetEmptyNodeNames Return slice with one empty string element
@@ -67,7 +79,8 @@ func (r ListNodeMetricsRequest) GetEmptyNodeNames() []metadata.NodeName {
 
 func (n *NodeMetric) GetSamples(metricType enumconv.MetricType) *NodeMetricSample {
 	nodeSample := NewNodeMetricSample()
-	nodeSample.NodeName = n.NodeName
+	nodeSample.ObjectMeta.Name = n.ObjectMeta.Name
+	nodeSample.ObjectMeta.ClusterName = n.ObjectMeta.ClusterName
 	nodeSample.MetricType = metricType
 
 	if value, exist := n.Metrics[metricType]; exist {
@@ -115,11 +128,10 @@ func (n *NodeMetric) Limit(limit int) {
 
 // AddNodeMetric Add node metric into NodesMetricMap
 func (n *NodeMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
-	nodeName := nodeMetric.NodeName
-	if existNodeMetric, exist := n.MetricMap[nodeName]; exist {
+	if existNodeMetric, exist := n.MetricMap[nodeMetric.ObjectMeta]; exist {
 		existNodeMetric.Merge(nodeMetric)
 	} else {
-		n.MetricMap[nodeName] = nodeMetric
+		n.MetricMap[nodeMetric.ObjectMeta] = nodeMetric
 	}
 }
 

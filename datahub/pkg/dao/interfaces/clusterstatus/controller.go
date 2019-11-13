@@ -1,11 +1,11 @@
 package clusterstatus
 
 import (
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	"github.com/containers-ai/alameda/datahub/pkg/config"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/influxdb"
+	"github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 )
 
-type ControllerOperation interface {
-	CreateControllers([]*ApiResources.Controller) error
-	ListControllers(*ApiResources.ListControllersRequest) ([]*ApiResources.Controller, error)
-	DeleteControllers(*ApiResources.DeleteControllersRequest) error
+func NewControllerDAO(config config.Config) types.ControllerDAO {
+	return influxdb.NewControllerWithConfig(*config.InfluxDB)
 }

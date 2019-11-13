@@ -29,8 +29,8 @@ func (r *NumDevicesRepository) ListNumDevices(host, instance string, condition *
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
-	influxdbStatement.AppendWhereClause("host", "=", host)
-	influxdbStatement.AppendWhereClause("instance", "=", instance)
+	influxdbStatement.AppendWhereClause("AND", "host", "=", host)
+	influxdbStatement.AppendWhereClause("AND", "instance", "=", instance)
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

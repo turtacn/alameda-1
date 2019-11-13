@@ -4,11 +4,11 @@ import (
 	DaoMetric "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics"
 	FormatRequest "github.com/containers-ai/alameda/datahub/pkg/formatconversion/requests"
 	FormatResponse "github.com/containers-ai/alameda/datahub/pkg/formatconversion/responses"
+	K8sMetadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiMetrics "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -28,7 +28,7 @@ func (s *ServiceV1alpha1) CreatePodMetrics(ctx context.Context, in *ApiMetrics.C
 	}
 
 	metricDAO := DaoMetric.NewPodMetricsWriterDAO(*s.Config)
-	err := metricDAO.CreateMetrics(requestExtended.ProduceMetrics())
+	err := metricDAO.CreateMetrics(ctx, requestExtended.ProduceMetrics())
 	if err != nil {
 		scope.Errorf("failed to create pod metrics: %+v", err.Error())
 		return &status.Status{
@@ -59,9 +59,10 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *ApiMetrics.Lis
 			},
 		}, nil
 	}
+	requestExt.SetDefault()
 
 	metricDAO := DaoMetric.NewPodMetricsReaderDAO(*s.Config)
-	podMetricMap, err := metricDAO.ListMetrics(requestExt.ProduceRequest())
+	podMetricMap, err := metricDAO.ListMetrics(ctx, requestExt.ProduceRequest())
 	if err != nil {
 		scope.Errorf("ListPodMetrics failed: %+v", err)
 		return &ApiMetrics.ListPodMetricsResponse{
@@ -113,14 +114,14 @@ func (s *ServiceV1alpha1) ListPodMetricsDemo(ctx context.Context, in *ApiMetrics
 		step = 3600
 	}
 
-	tempNamespacedName := ApiResources.NamespacedName{
-		Namespace: in.NamespacedName.Namespace,
-		Name:      in.NamespacedName.Name,
+	tempObjectMeta := K8sMetadata.ObjectMeta{
+		Namespace: in.ObjectMeta[0].Namespace,
+		Name:      in.ObjectMeta[0].Name,
 	}
 
 	demoContainerMetricList := make([]*ApiMetrics.ContainerMetric, 0)
 	demoContainerMetric := ApiMetrics.ContainerMetric{
-		Name:       in.NamespacedName.Name,
+		Name:       in.ObjectMeta[0].Name,
 		MetricData: make([]*ApiCommon.MetricData, 0),
 	}
 	demoContainerMetricList = append(demoContainerMetricList, &demoContainerMetric)
@@ -138,7 +139,7 @@ func (s *ServiceV1alpha1) ListPodMetricsDemo(ctx context.Context, in *ApiMetrics
 	demoDataMapCPU, _ := DatahubUtils.ReadCSV("metric_cpu.csv")
 	demoDataMapMem, _ := DatahubUtils.ReadCSV("metric_memory.csv")
 
-	demoKey := in.NamespacedName.Namespace + "_" + in.NamespacedName.Name
+	demoKey := in.ObjectMeta[0].Namespace + "_" + in.ObjectMeta[0].Name
 
 	startTime := endTime - int64(step*len(demoDataMapCPU[demoKey]))
 	for index, value := range demoDataMapCPU[demoKey] {
@@ -161,7 +162,7 @@ func (s *ServiceV1alpha1) ListPodMetricsDemo(ctx context.Context, in *ApiMetrics
 	demoContainerMetric.MetricData = append(demoContainerMetric.MetricData, &demoMetricDataMem)
 
 	demoPodMetric := ApiMetrics.PodMetric{
-		NamespacedName:   &tempNamespacedName,
+		ObjectMeta:       FormatResponse.NewObjectMeta(tempObjectMeta),
 		ContainerMetrics: demoContainerMetricList,
 	}
 	demoPodMetricList = append(demoPodMetricList, &demoPodMetric)

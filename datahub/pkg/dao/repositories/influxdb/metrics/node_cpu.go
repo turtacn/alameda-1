@@ -13,7 +13,6 @@ import (
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strconv"
-	"strings"
 )
 
 type NodeCpuRepository struct {
@@ -43,7 +42,9 @@ func (r *NodeCpuRepository) CreateMetrics(metrics []*DaoMetricTypes.NodeMetricSa
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxMetric.NodeName): metricSample.NodeName,
+				string(EntityInfluxMetric.NodeName):        metricSample.ObjectMeta.Name,
+				string(EntityInfluxMetric.NodeClusterName): metricSample.ObjectMeta.ClusterName,
+				string(EntityInfluxMetric.NodeUID):         metricSample.ObjectMeta.Uid,
 			}
 
 			// Pack influx fields
@@ -86,18 +87,18 @@ func (r *NodeCpuRepository) read(request DaoMetricTypes.ListNodeMetricsRequest) 
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    NodeCpu,
-		GroupByTags:    []string{string(EntityInfluxMetric.NodeName)},
+		GroupByTags: []string{
+			string(EntityInfluxMetric.NodeName), string(EntityInfluxMetric.NodeClusterName),
+			string(EntityInfluxMetric.NodeUID),
+		},
 	}
 
-	whereClause := ""
-	for _, value := range request.NodeNames {
-		whereClause += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetric.NodeName, value)
+	for _, objectMeta := range request.ObjectMetas {
+		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
-	whereClause = strings.TrimSuffix(whereClause, "OR ")
-	whereClause = "(" + whereClause + ")"
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClauseDirectly(whereClause)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -112,7 +113,9 @@ func (r *NodeCpuRepository) read(request DaoMetricTypes.ListNodeMetricsRequest) 
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			nodeMetric := DaoMetricTypes.NewNodeMetric()
-			nodeMetric.NodeName = group.Tags[string(EntityInfluxMetric.NodeName)]
+			nodeMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.NodeName)]
+			nodeMetric.ObjectMeta.ClusterName = group.Tags[string(EntityInfluxMetric.NodeClusterName)]
+			nodeMetric.ObjectMeta.Uid = group.Tags[string(EntityInfluxMetric.NodeUID)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -137,18 +140,18 @@ func (r *NodeCpuRepository) steps(request DaoMetricTypes.ListNodeMetricsRequest)
 		QueryCondition: &request.QueryCondition,
 		Measurement:    NodeCpu,
 		SelectedFields: []string{string(EntityInfluxMetric.NodeValue)},
-		GroupByTags:    []string{string(EntityInfluxMetric.NodeName), groupByTime},
+		GroupByTags: []string{
+			string(EntityInfluxMetric.NodeName), string(EntityInfluxMetric.NodeClusterName),
+			string(EntityInfluxMetric.NodeUID), groupByTime,
+		},
 	}
 
-	whereClause := ""
-	for _, value := range request.NodeNames {
-		whereClause += fmt.Sprintf("\"%s\"='%s' OR ", EntityInfluxMetric.NodeName, value)
+	for _, objectMeta := range request.ObjectMetas {
+		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
-	whereClause = strings.TrimSuffix(whereClause, "OR ")
-	whereClause = "(" + whereClause + ")"
 
 	statement.AppendWhereClauseFromTimeCondition()
-	statement.AppendWhereClauseDirectly(whereClause)
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.NodeValue))
@@ -164,7 +167,9 @@ func (r *NodeCpuRepository) steps(request DaoMetricTypes.ListNodeMetricsRequest)
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			nodeMetric := DaoMetricTypes.NewNodeMetric()
-			nodeMetric.NodeName = group.Tags[string(EntityInfluxMetric.NodeName)]
+			nodeMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.NodeName)]
+			nodeMetric.ObjectMeta.ClusterName = group.Tags[string(EntityInfluxMetric.NodeClusterName)]
+			nodeMetric.ObjectMeta.Uid = group.Tags[string(EntityInfluxMetric.NodeUID)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
