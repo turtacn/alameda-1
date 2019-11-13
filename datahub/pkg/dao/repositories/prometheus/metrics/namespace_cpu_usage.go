@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"context"
 	"fmt"
 	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/entities/prometheus/metrics"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
@@ -21,7 +22,7 @@ func NewNamespaceCPUUsageRepositoryWithConfig(cfg InternalPromth.Config) Namespa
 	return NamespaceCPUUsageRepository{PrometheusConfig: cfg}
 }
 
-func (c NamespaceCPUUsageRepository) ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(namespaceNames []string, options ...DBCommon.Option) ([]EntityPromthMetric.NamespaceCPUUsageMillicoresEntity, error) {
+func (c NamespaceCPUUsageRepository) ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(ctx context.Context, namespaceNames []string, options ...DBCommon.Option) ([]EntityPromthMetric.NamespaceCPUUsageMillicoresEntity, error) {
 	// Example of expression to query prometheus
 	// 1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name!="",container_name!="POD",namespace=~"@n1"}) by (namespace)
 	var (
@@ -48,7 +49,7 @@ func (c NamespaceCPUUsageRepository) ListNamespaceCPUUsageMillicoresEntitiesByNa
 	}
 
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {

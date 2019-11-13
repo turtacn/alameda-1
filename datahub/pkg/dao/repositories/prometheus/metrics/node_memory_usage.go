@@ -62,7 +62,7 @@ func (n NodeMemoryUsageRepository) ListNodeMemoryBytesUsageEntitiesByNodeNames(c
 
 	queryExpression := fmt.Sprintf("%s * %s", nodeMemoryBytesTotalQueryExpression, nodeMemoryUtilizationQueryExpression)
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
@@ -120,7 +120,7 @@ func (n NodeMemoryUsageRepository) ListSumOfNodeMetricsByNodeNames(ctx context.C
 
 	queryExpression := fmt.Sprintf("sum(%s * %s)", nodeMemoryBytesTotalQueryExpression, nodeMemoryUtilizationQueryExpression)
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {

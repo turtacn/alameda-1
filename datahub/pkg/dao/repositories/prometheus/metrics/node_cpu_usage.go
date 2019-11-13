@@ -65,7 +65,7 @@ func (n NodeCPUUsageRepository) ListNodeCPUUsageMillicoresEntitiesByNodeNames(ct
 
 	queryExpression := fmt.Sprintf("1000 * %s * %s", queryExpressionSum, queryExpressionAvg)
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
@@ -125,7 +125,7 @@ func (n NodeCPUUsageRepository) ListSumOfNodeCPUUsageMillicoresByNodeNames(ctx c
 
 	queryExpression := fmt.Sprintf("1000 * sum(%s * %s)", queryExpressionSum, queryExpressionAvg)
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {

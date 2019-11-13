@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,6 +11,7 @@ import (
 
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -82,7 +84,7 @@ func (p *Prometheus) Query(query string, startTime, timeout *time.Time) (Respons
 }
 
 // QueryRange data over a range of time from prometheus
-func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, stepTime *time.Duration) (Response, error) {
+func (p *Prometheus) QueryRange(ctx context.Context, query string, startTime, endTime *time.Time, stepTime *time.Duration) (Response, error) {
 
 	var (
 		err error
@@ -145,12 +147,26 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 		httpRequest.Header = h
 	}
 
-	httpResponse, err = p.Client.Do(httpRequest)
-	if err != nil {
-		scope.Errorf("failed to send http request to prometheus: %s", err.Error())
-		scope.Error("failed to query_range prometheus")
-		return Response{}, errors.New("failed to send http request to prometheus")
+	responseChan := make(chan *http.Response)
+	wg, wgCTX := errgroup.WithContext(ctx)
+	httpRequest = httpRequest.WithContext(wgCTX)
+	wg.Go(func() error {
+		httpResponse, err = p.Client.Do(httpRequest)
+		if err != nil {
+			scope.Errorf("failed to send http request to prometheus: %s", err.Error())
+			scope.Error("failed to query_range prometheus")
+			return errors.Wrap(err, "failed to send http request to prometheus")
+		}
+		responseChan <- httpResponse
+		return nil
+	})
+
+	select {
+	case <-wgCTX.Done():
+		return Response{}, wg.Wait()
+	case httpResponse = <-responseChan:
 	}
+
 	err = decodeHTTPResponse(httpResponse, &response)
 	if err != nil {
 		return Response{}, errors.Wrap(err, "failed to query_range prometheus")

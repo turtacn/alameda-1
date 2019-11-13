@@ -153,7 +153,7 @@ func (p *ControllerMetrics) getControllerMetric(ctx context.Context, controllerM
 	producerWG := errgroup.Group{}
 	producerWG.Go(func() error {
 		podCPUUsageRepo := RepoPromthMetric.NewPodCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(namespace, podNames, options...)
+		podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNames, options...)
 		if err != nil {
 			return errors.Wrap(err, "list sum of pod cpu usage metrics failed")
 		}
@@ -172,7 +172,7 @@ func (p *ControllerMetrics) getControllerMetric(ctx context.Context, controllerM
 	})
 	producerWG.Go(func() error {
 		podMemoryUsageRepo := RepoPromthMetric.NewPodMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(namespace, podNames, options...)
+		podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNames, options...)
 		if err != nil {
 			return errors.Wrap(err, "list sum of pod memory usage metrics failed")
 		}

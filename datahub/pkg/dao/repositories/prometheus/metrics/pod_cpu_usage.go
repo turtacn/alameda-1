@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -22,7 +23,7 @@ func NewPodCPUUsageRepositoryWithConfig(cfg InternalPromth.Config) PodCPUUsageRe
 	return PodCPUUsageRepository{PrometheusConfig: cfg}
 }
 
-func (c PodCPUUsageRepository) ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(namespace string, podNames []string, options ...DBCommon.Option) ([]EntityPromthMetric.PodCPUUsageMillicoresEntity, error) {
+func (c PodCPUUsageRepository) ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx context.Context, namespace string, podNames []string, options ...DBCommon.Option) ([]EntityPromthMetric.PodCPUUsageMillicoresEntity, error) {
 	// Example of expression to query prometheus
 	// 1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name!="",container_name!="POD",namespace="@n1",pod_name=~"@p1|@p2"})
 
@@ -59,7 +60,7 @@ func (c PodCPUUsageRepository) ListPodCPUUsageMillicoresEntitiesBySummingPodMetr
 	}
 
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {

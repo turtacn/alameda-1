@@ -54,7 +54,7 @@ func (c ContainerCpuUsageRepository) ListContainerCPUUsageMillicoresEntitiesByNa
 		return nil, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
-	response, err := prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "query prometheus failed")
 	} else if response.Status != InternalPromth.StatusSuccess {

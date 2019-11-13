@@ -99,7 +99,7 @@ func (p *NamespaceMetrics) getNamespaceMetricMapByObjectMetas(ctx context.Contex
 	producerWG.Go(func() error {
 
 		namespaceCPUUsageRepo := RepoPromthMetric.NewNamespaceCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		namespaceCPUUsageEntities, err := namespaceCPUUsageRepo.ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(namespaceNames, options...)
+		namespaceCPUUsageEntities, err := namespaceCPUUsageRepo.ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(ctx, namespaceNames, options...)
 		if err != nil {
 			return errors.Wrap(err, "list namespace cpu usage metrics failed")
 		}
@@ -114,7 +114,7 @@ func (p *NamespaceMetrics) getNamespaceMetricMapByObjectMetas(ctx context.Contex
 	producerWG.Go(func() error {
 
 		namespaceMemoryUsageRepo := RepoPromthMetric.NewNamespaceMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		namespaceMemoryUsageEntities, err := namespaceMemoryUsageRepo.ListNamespaceMemoryUsageBytesEntitiesByNamespaceNames(namespaceNames, options...)
+		namespaceMemoryUsageEntities, err := namespaceMemoryUsageRepo.ListNamespaceMemoryUsageBytesEntitiesByNamespaceNames(ctx, namespaceNames, options...)
 		if err != nil {
 			return errors.Wrap(err, "list namespace memory usage metrics failed")
 		}

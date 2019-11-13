@@ -1,13 +1,15 @@
 package prometheus
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	Common "github.com/containers-ai/api/common"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"time"
 )
 
 func ReadRawdata(config *Config, queries []*Common.Query) ([]*Common.ReadRawdata, error) {
@@ -57,9 +59,9 @@ func ReadRawdata(config *Config, queries []*Common.Query) ([]*Common.ReadRawdata
 		case "query":
 			response, err = prometheusClient.Query(queryExpression, opt.StartTime, opt.Timeout)
 		case "query_range":
-			response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+			response, err = prometheusClient.QueryRange(context.TODO(), queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 		default:
-			response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
+			response, err = prometheusClient.QueryRange(context.TODO(), queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 		}
 
 		if err != nil {
