@@ -1,7 +1,7 @@
 ## Configuration
 
 ### The Operator configuration file
-The default configuration file path is /etc/alameda/operator/operator.yml.
+The default configuration file path is /etc/alameda/operator/operator.toml.
 
 ### Operator environment variables
 Alameda Operator can use environment variables to override properties in the configuration file.

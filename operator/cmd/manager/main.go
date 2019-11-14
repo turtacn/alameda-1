@@ -88,7 +88,7 @@ func init() {
 	flag.BoolVar(&showVer, "version", false, "show version")
 	flag.BoolVar(&readinessProbeFlag, "readiness-probe", false, "probe for readiness")
 	flag.BoolVar(&livenessProbeFlag, "liveness-probe", false, "probe for liveness")
-	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml",
+	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.toml",
 		"File path to operator coniguration")
 	flag.StringVar(&crdLocation, "crd-location", "/etc/alameda/operator/crds", "CRD location")
 

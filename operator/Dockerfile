@@ -11,7 +11,7 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/etc/operator.yml /etc/alameda/operator/operator.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/etc/operator.toml /etc/alameda/operator/operator.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/manager .
 COPY --from=builder /go/src/github.com/containers-ai/alameda/operator/config/crds /etc/alameda/operator/crds
 EXPOSE 50050/tcp 50443/tcp

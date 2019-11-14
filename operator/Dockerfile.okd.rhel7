@@ -27,7 +27,7 @@ LABEL summary="$SUMMARY" \
 
 WORKDIR /opt/app-root/src
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/LICENSE /licenses/
-COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/operator/etc/operator.yml /etc/alameda/operator/operator.yml
+COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/operator/etc/operator.toml /etc/alameda/operator/operator.toml
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/operator/manager .
 EXPOSE 50050/tcp 50443/tcp
 
