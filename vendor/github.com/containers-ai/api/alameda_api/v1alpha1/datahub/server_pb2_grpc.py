@@ -406,6 +406,11 @@ class DatahubServiceStub(object):
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteNodesRequest.SerializeToString,
         response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
         )
+    self.DeleteClusters = channel.unary_unary(
+        '/containersai.alameda.v1alpha1.datahub.DatahubService/DeleteClusters',
+        request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteClustersRequest.SerializeToString,
+        response_deserializer=google_dot_rpc_dot_status__pb2.Status.FromString,
+        )
     self.CreateSimulatedSchedulingScores = channel.unary_unary(
         '/containersai.alameda.v1alpha1.datahub.DatahubService/CreateSimulatedSchedulingScores',
         request_serializer=alameda__api_dot_v1alpha1_dot_datahub_dot_scores_dot_services__pb2.CreateSimulatedSchedulingScoresRequest.SerializeToString,
@@ -995,6 +1000,13 @@ class DatahubServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def DeleteClusters(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def CreateSimulatedSchedulingScores(self, request, context):
     """Scores --------------------------------------------------
     """
@@ -1446,6 +1458,11 @@ def add_DatahubServiceServicer_to_server(servicer, server):
       'DeleteNodes': grpc.unary_unary_rpc_method_handler(
           servicer.DeleteNodes,
           request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteNodesRequest.FromString,
+          response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
+      ),
+      'DeleteClusters': grpc.unary_unary_rpc_method_handler(
+          servicer.DeleteClusters,
+          request_deserializer=alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_services__pb2.DeleteClustersRequest.FromString,
           response_serializer=google_dot_rpc_dot_status__pb2.Status.SerializeToString,
       ),
       'CreateSimulatedSchedulingScores': grpc.unary_unary_rpc_method_handler(

@@ -74,3 +74,11 @@ func (s *ServiceV1alpha1) ListClusters(ctx context.Context, in *ApiResources.Lis
 		Clusters: clusters,
 	}, nil
 }
+
+func (s *ServiceV1alpha1) DeleteClusters(ctx context.Context, in *ApiResources.DeleteClustersRequest) (*status.Status, error) {
+	scope.Debug("Request received from DeleteClusters grpc function: " + AlamedaUtils.InterfaceToString(in))
+
+	return &status.Status{
+		Code: int32(code.Code_OK),
+	}, nil
+}

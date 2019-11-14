@@ -47,7 +47,9 @@ func (r *ListControllersRequestExtended) ProduceRequest() DaoClusterTypes.ListCo
 			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
 		}
 	}
-	request.Kind = r.GetKind().String()
+	if r.GetKind() != ApiResources.Kind_KIND_UNDEFINED {
+		request.Kind = r.GetKind().String()
+	}
 	return request
 }
 
@@ -62,9 +64,6 @@ func NewController(controller *ApiResources.Controller) *DaoClusterTypes.Control
 		ctl.Kind = controller.GetKind().String()
 		ctl.Replicas = controller.GetReplicas()
 		ctl.SpecReplicas = controller.GetSpecReplicas()
-		for _, owner := range controller.GetOwnerReferences() {
-			ctl.OwnerReferences = append(ctl.OwnerReferences, NewOwnerReference(owner))
-		}
 		ctl.AlamedaControllerSpec = NewAlamedaControllerSpec(controller.GetAlamedaControllerSpec())
 
 		return ctl

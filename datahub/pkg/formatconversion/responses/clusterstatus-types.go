@@ -25,6 +25,7 @@ func NewAlamedaPodSpec(podSpec *types.AlamedaPodSpec) *resources.AlamedaPodSpec 
 func NewAlamedaControllerSpec(controlSpec types.AlamedaControllerSpec) *resources.AlamedaControllerSpec {
 	ctlSpec := resources.AlamedaControllerSpec{}
 	ctlSpec.AlamedaScaler = NewObjectMeta(controlSpec.AlamedaScaler)
+	ctlSpec.ScalingTool = resources.ScalingTool(resources.ScalingTool_value[controlSpec.ScalingTool])
 	ctlSpec.Policy = resources.RecommendationPolicy(resources.RecommendationPolicy_value[controlSpec.Policy])
 	ctlSpec.EnableRecommendationExecution = controlSpec.EnableExecution
 	return &ctlSpec

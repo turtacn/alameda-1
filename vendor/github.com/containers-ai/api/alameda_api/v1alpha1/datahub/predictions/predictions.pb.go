@@ -180,7 +180,7 @@ func (m *ControllerPrediction) GetKind() resources.Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return resources.Kind_POD
+	return resources.Kind_KIND_UNDEFINED
 }
 
 func (m *ControllerPrediction) GetPredictedRawData() []*MetricData {

@@ -13,6 +13,13 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings";
 
+message Planning {
+    repeated common.MetricData limit_plannings           = 1;
+    repeated common.MetricData request_plannings         = 2;
+    repeated common.MetricData initial_limit_plannings   = 3;
+    repeated common.MetricData initial_request_plannings = 4;
+}
+
 message ContainerPlanning {
     string                     name                      = 1;
     repeated common.MetricData limit_plannings           = 2;
@@ -24,57 +31,68 @@ message ContainerPlanning {
 message PodPlanning {
     resources.ObjectMeta       object_meta         = 1;
     PlanningType               planning_type       = 2;
-    bool                       apply_planning_now  = 3;
-    resources.AssignPodPolicy  assign_pod_policy   = 4;
-    repeated ContainerPlanning container_plannings = 5;
+    string                     planning_id         = 3;
+    double                     total_cost          = 4;
+    bool                       apply_planning_now  = 5;
     google.protobuf.Timestamp  start_time          = 6;
     google.protobuf.Timestamp  end_time            = 7;
-    resources.Controller       top_controller      = 8;
-    string                     planning_id         = 9;
-    double                     total_cost          = 10;
+    resources.AssignPodPolicy  assign_pod_policy   = 8;
+    resources.Controller       top_controller      = 9;
+    repeated ContainerPlanning container_plannings = 10;
 }
 
 message ControllerPlanning {
-    resources.ObjectMeta      object_meta           = 1;
-    resources.Kind            kind                  = 2;
-    PlanningType              planning_type         = 3;
-    ControllerPlanningType    ctl_planning_type     = 4;
-    ControllerPlanningSpec    ctl_planning_spec     = 5;
-    ControllerPlanningSpecK8s ctl_planning_spec_k8s = 6;
+    resources.ObjectMeta       object_meta         = 1;
+    resources.Kind             kind                = 2;
+    PlanningType               planning_type       = 3;
+    string                     planning_id         = 4;
+    double                     total_cost          = 5;
+    bool                       apply_planning_now  = 6;
+    google.protobuf.Timestamp  start_time          = 7;
+    google.protobuf.Timestamp  end_time            = 8;
+    repeated Planning          plannings           = 9;
 }
 
 message ApplicationPlanning {
-    resources.ObjectMeta      object_meta                   = 1;
-    resources.Kind            kind                          = 2;
-    PlanningType              planning_type                 = 3;
-    ControllerPlanningType    application_planning_type     = 4;
-    ControllerPlanningSpec    application_planning_spec     = 5;
-    ControllerPlanningSpecK8s application_planning_spec_k8s = 6;
+    resources.ObjectMeta       object_meta         = 1;
+    PlanningType               planning_type       = 2;
+    string                     planning_id         = 3;
+    double                     total_cost          = 4;
+    bool                       apply_planning_now  = 5;
+    google.protobuf.Timestamp  start_time          = 6;
+    google.protobuf.Timestamp  end_time            = 7;
+    repeated Planning          plannings           = 8;
 }
 
 message NamespacePlanning {
-    resources.ObjectMeta      object_meta                 = 1;
-    resources.Kind            kind                        = 2;
-    PlanningType              planning_type               = 3;
-    ControllerPlanningType    namespace_planning_type     = 4;
-    ControllerPlanningSpec    namespace_planning_spec     = 5;
-    ControllerPlanningSpecK8s namespace_planning_spec_k8s = 6;
+    resources.ObjectMeta       object_meta         = 1;
+    PlanningType               planning_type       = 2;
+    string                     planning_id         = 3;
+    double                     total_cost          = 4;
+    bool                       apply_planning_now  = 5;
+    google.protobuf.Timestamp  start_time          = 6;
+    google.protobuf.Timestamp  end_time            = 7;
+    repeated Planning          plannings           = 8;
 }
 
 message NodePlanning {
-    resources.ObjectMeta      object_meta            = 1;
-    resources.Kind            kind                   = 2;
-    PlanningType              planning_type          = 3;
-    ControllerPlanningType    node_planning_type     = 4;
-    ControllerPlanningSpec    node_planning_spec     = 5;
-    ControllerPlanningSpecK8s node_planning_spec_k8s = 6;
+    resources.ObjectMeta       object_meta         = 1;
+    PlanningType               planning_type       = 2;
+    string                     planning_id         = 3;
+    double                     total_cost          = 4;
+    bool                       apply_planning_now  = 5;
+    google.protobuf.Timestamp  start_time          = 6;
+    google.protobuf.Timestamp  end_time            = 7;
+    repeated Planning          plannings           = 8;
 }
 
 message ClusterPlanning {
-    resources.ObjectMeta      object_meta               = 1;
-    resources.Kind            kind                      = 2;
-    PlanningType              planning_type             = 3;
-    ControllerPlanningType    cluster_planning_type     = 4;
-    ControllerPlanningSpec    cluster_planning_spec     = 5;
-    ControllerPlanningSpecK8s cluster_planning_spec_k8s = 6;
+    resources.ObjectMeta       object_meta         = 1;
+    PlanningType               planning_type       = 2;
+    string                     planning_id         = 3;
+    double                     total_cost          = 4;
+    bool                       apply_planning_now  = 5;
+    google.protobuf.Timestamp  start_time          = 6;
+    google.protobuf.Timestamp  end_time            = 7;
+    repeated Planning          plannings           = 8;
 }

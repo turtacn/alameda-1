@@ -36,12 +36,12 @@ message Controller {
     Kind                    kind                    = 2;
     int32                   replicas                = 3;
     int32                   spec_replicas           = 4;
-    repeated OwnerReference owner_references        = 5;
-    AlamedaControllerSpec   alameda_controller_spec = 6;
+    AlamedaControllerSpec   alameda_controller_spec = 5;
 }
 
 message Application {
-    ObjectMeta object_meta = 1;
+    ObjectMeta             object_meta              = 1;
+    AlamedaApplicationSpec alameda_application_spec = 2;
 }
 
 message Namespace {

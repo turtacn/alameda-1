@@ -123,3 +123,7 @@ message DeleteNamespacesRequest {
 message DeleteNodesRequest {
     repeated ObjectMeta object_meta = 1;
 }
+
+message DeleteClustersRequest {
+    repeated ObjectMeta object_meta = 1;
+}

@@ -8,6 +8,7 @@ import (
 func NewAlamedaControllerSpec(controllerSpec *resources.AlamedaControllerSpec) types.AlamedaControllerSpec {
 	spec := types.AlamedaControllerSpec{
 		AlamedaScaler:   NewObjectMeta(controllerSpec.GetAlamedaScaler()),
+		ScalingTool:     controllerSpec.GetScalingTool().String(),
 		Policy:          controllerSpec.GetPolicy().String(),
 		EnableExecution: controllerSpec.GetEnableRecommendationExecution(),
 	}

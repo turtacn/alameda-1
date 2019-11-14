@@ -247,7 +247,7 @@ func (m *ControllerRecommendation) GetKind() resources.Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return resources.Kind_POD
+	return resources.Kind_KIND_UNDEFINED
 }
 
 func (m *ControllerRecommendation) GetRecommendedType() ControllerRecommendedType {
@@ -318,7 +318,7 @@ func (m *ApplicationRecommendation) GetKind() resources.Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return resources.Kind_POD
+	return resources.Kind_KIND_UNDEFINED
 }
 
 func (m *ApplicationRecommendation) GetRecommendedType() ControllerRecommendedType {
@@ -389,7 +389,7 @@ func (m *NamespaceRecommendation) GetKind() resources.Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return resources.Kind_POD
+	return resources.Kind_KIND_UNDEFINED
 }
 
 func (m *NamespaceRecommendation) GetRecommendedType() ControllerRecommendedType {
@@ -460,7 +460,7 @@ func (m *NodeRecommendation) GetKind() resources.Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return resources.Kind_POD
+	return resources.Kind_KIND_UNDEFINED
 }
 
 func (m *NodeRecommendation) GetRecommendedType() ControllerRecommendedType {
@@ -531,7 +531,7 @@ func (m *ClusterRecommendation) GetKind() resources.Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return resources.Kind_POD
+	return resources.Kind_KIND_UNDEFINED
 }
 
 func (m *ClusterRecommendation) GetRecommendedType() ControllerRecommendedType {

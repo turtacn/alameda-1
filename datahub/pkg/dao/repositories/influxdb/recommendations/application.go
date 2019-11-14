@@ -57,7 +57,7 @@ func (c *AppRepository) CreateRecommendations(recommendations []*ApiRecommendati
 				EntityInfluxRecommend.AppTotalCost:         recommendedSpec.GetTotalCost(),
 			}
 
-			pt, err := InfluxClient.NewPoint(string(App), tags, fields, time.Unix(recommendedSpec.GetTime().GetSeconds(), 0))
+			pt, err := InfluxClient.NewPoint(string(Application), tags, fields, time.Unix(recommendedSpec.GetTime().GetSeconds(), 0))
 			if err != nil {
 				scope.Error(err.Error())
 			}
@@ -80,7 +80,7 @@ func (c *AppRepository) CreateRecommendations(recommendations []*ApiRecommendati
 				EntityInfluxRecommend.AppKind:            recommendation.GetKind().String(),
 			}
 
-			pt, err := InfluxClient.NewPoint(string(App), tags, fields, time.Unix(recommendedSpec.GetTime().GetSeconds(), 0))
+			pt, err := InfluxClient.NewPoint(string(Application), tags, fields, time.Unix(recommendedSpec.GetTime().GetSeconds(), 0))
 			if err != nil {
 				scope.Error(err.Error())
 			}
@@ -103,7 +103,7 @@ func (c *AppRepository) CreateRecommendations(recommendations []*ApiRecommendati
 
 func (c *AppRepository) ListRecommendations(in *ApiRecommendations.ListApplicationRecommendationsRequest) ([]*ApiRecommendations.ApplicationRecommendation, error) {
 	influxdbStatement := InternalInflux.Statement{
-		Measurement:    App,
+		Measurement:    Application,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
 	}
 

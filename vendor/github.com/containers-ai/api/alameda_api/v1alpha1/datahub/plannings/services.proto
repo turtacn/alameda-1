@@ -21,22 +21,27 @@ message CreatePodPlanningsRequest {
 // Represents a request for creating a controller's plannings
 message CreateControllerPlanningsRequest {
     repeated ControllerPlanning controller_plannings = 1;
+    int64                       granularity          = 2;
 }
 
 message CreateApplicationPlanningsRequest {
     repeated ApplicationPlanning application_plannings = 1;
+    int64                        granularity           = 2;
 }
 
 message CreateNamespacePlanningsRequest {
     repeated NamespacePlanning namespace_plannings = 1;
+    int64                      granularity         = 2;
 }
 
 message CreateNodePlanningsRequest {
     repeated NodePlanning node_plannings = 1;
+    int64                 granularity    = 2;
 }
 
 message CreateClusterPlanningsRequest {
     repeated ClusterPlanning cluster_plannings = 1;
+    int64                    granularity       = 2;
 }
 
 // Represents a request for listing plannings of pods

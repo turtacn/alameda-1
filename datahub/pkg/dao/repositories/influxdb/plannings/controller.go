@@ -6,12 +6,12 @@ import (
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	ApiPlannings "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	InfluxClient "github.com/influxdata/influxdb/client/v2"
-	"strconv"
-	"time"
+	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	//"github.com/golang/protobuf/ptypes"
+	//"github.com/golang/protobuf/ptypes/timestamp"
+	//InfluxClient "github.com/influxdata/influxdb/client/v2"
+	//"strconv"
+	//"time"
 )
 
 type ControllerRepository struct {
@@ -29,77 +29,79 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*ApiPlannings.ControllerPlanning) error {
-	points := make([]*InfluxClient.Point, 0)
+	/*
+		points := make([]*InfluxClient.Point, 0)
 
-	for _, controllerPlanning := range controllerPlannings {
-		ctlPlanningType := controllerPlanning.GetCtlPlanningType()
+		for _, controllerPlanning := range controllerPlannings {
+			ctlPlanningType := controllerPlanning.GetCtlPlanningType()
 
-		if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
-			planningSpec := controllerPlanning.GetCtlPlanningSpec()
+			if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
+				planningSpec := controllerPlanning.GetCtlPlanningSpec()
 
-			tags := map[string]string{
-				EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
-				EntityInfluxPlanning.ControllerNamespace:    controllerPlanning.GetObjectMeta().GetNamespace(),
-				EntityInfluxPlanning.ControllerName:         controllerPlanning.GetObjectMeta().GetName(),
-				EntityInfluxPlanning.ControllerType:         ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE.String(),
+				tags := map[string]string{
+					EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
+					EntityInfluxPlanning.ControllerNamespace:    controllerPlanning.GetObjectMeta().GetNamespace(),
+					EntityInfluxPlanning.ControllerName:         controllerPlanning.GetObjectMeta().GetName(),
+					EntityInfluxPlanning.ControllerType:         ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE.String(),
+				}
+
+				fields := map[string]interface{}{
+					EntityInfluxPlanning.ControllerCurrentReplicas: planningSpec.GetCurrentReplicas(),
+					EntityInfluxPlanning.ControllerDesiredReplicas: planningSpec.GetDesiredReplicas(),
+					EntityInfluxPlanning.ControllerCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
+					EntityInfluxPlanning.ControllerKind:            controllerPlanning.GetKind().String(),
+
+					EntityInfluxPlanning.ControllerCurrentCPURequest: planningSpec.GetCurrentCpuRequests(),
+					EntityInfluxPlanning.ControllerCurrentMEMRequest: planningSpec.GetCurrentMemRequests(),
+					EntityInfluxPlanning.ControllerCurrentCPULimit:   planningSpec.GetCurrentCpuLimits(),
+					EntityInfluxPlanning.ControllerCurrentMEMLimit:   planningSpec.GetCurrentMemLimits(),
+					EntityInfluxPlanning.ControllerDesiredCPULimit:   planningSpec.GetDesiredCpuLimits(),
+					EntityInfluxPlanning.ControllerDesiredMEMLimit:   planningSpec.GetDesiredMemLimits(),
+					EntityInfluxPlanning.ControllerTotalCost:         planningSpec.GetTotalCost(),
+				}
+
+				pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
+				if err != nil {
+					scope.Error(err.Error())
+				}
+
+				points = append(points, pt)
+
+			} else if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
+				planningSpec := controllerPlanning.GetCtlPlanningSpecK8S()
+
+				tags := map[string]string{
+					EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
+					EntityInfluxPlanning.ControllerNamespace:    controllerPlanning.GetObjectMeta().GetNamespace(),
+					EntityInfluxPlanning.ControllerName:         controllerPlanning.GetObjectMeta().GetName(),
+					EntityInfluxPlanning.ControllerType:         ApiPlannings.ControllerPlanningType_CPT_K8S.String(),
+				}
+
+				fields := map[string]interface{}{
+					EntityInfluxPlanning.ControllerCurrentReplicas: planningSpec.GetCurrentReplicas(),
+					EntityInfluxPlanning.ControllerDesiredReplicas: planningSpec.GetDesiredReplicas(),
+					EntityInfluxPlanning.ControllerCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
+					EntityInfluxPlanning.ControllerKind:            controllerPlanning.GetKind().String(),
+				}
+
+				pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
+				if err != nil {
+					scope.Error(err.Error())
+				}
+
+				points = append(points, pt)
 			}
-
-			fields := map[string]interface{}{
-				EntityInfluxPlanning.ControllerCurrentReplicas: planningSpec.GetCurrentReplicas(),
-				EntityInfluxPlanning.ControllerDesiredReplicas: planningSpec.GetDesiredReplicas(),
-				EntityInfluxPlanning.ControllerCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
-				EntityInfluxPlanning.ControllerKind:            controllerPlanning.GetKind().String(),
-
-				EntityInfluxPlanning.ControllerCurrentCPURequest: planningSpec.GetCurrentCpuRequests(),
-				EntityInfluxPlanning.ControllerCurrentMEMRequest: planningSpec.GetCurrentMemRequests(),
-				EntityInfluxPlanning.ControllerCurrentCPULimit:   planningSpec.GetCurrentCpuLimits(),
-				EntityInfluxPlanning.ControllerCurrentMEMLimit:   planningSpec.GetCurrentMemLimits(),
-				EntityInfluxPlanning.ControllerDesiredCPULimit:   planningSpec.GetDesiredCpuLimits(),
-				EntityInfluxPlanning.ControllerDesiredMEMLimit:   planningSpec.GetDesiredMemLimits(),
-				EntityInfluxPlanning.ControllerTotalCost:         planningSpec.GetTotalCost(),
-			}
-
-			pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
-			if err != nil {
-				scope.Error(err.Error())
-			}
-
-			points = append(points, pt)
-
-		} else if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
-			planningSpec := controllerPlanning.GetCtlPlanningSpecK8S()
-
-			tags := map[string]string{
-				EntityInfluxPlanning.ControllerPlanningType: controllerPlanning.GetPlanningType().String(),
-				EntityInfluxPlanning.ControllerNamespace:    controllerPlanning.GetObjectMeta().GetNamespace(),
-				EntityInfluxPlanning.ControllerName:         controllerPlanning.GetObjectMeta().GetName(),
-				EntityInfluxPlanning.ControllerType:         ApiPlannings.ControllerPlanningType_CPT_K8S.String(),
-			}
-
-			fields := map[string]interface{}{
-				EntityInfluxPlanning.ControllerCurrentReplicas: planningSpec.GetCurrentReplicas(),
-				EntityInfluxPlanning.ControllerDesiredReplicas: planningSpec.GetDesiredReplicas(),
-				EntityInfluxPlanning.ControllerCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
-				EntityInfluxPlanning.ControllerKind:            controllerPlanning.GetKind().String(),
-			}
-
-			pt, err := InfluxClient.NewPoint(string(Controller), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
-			if err != nil {
-				scope.Error(err.Error())
-			}
-
-			points = append(points, pt)
 		}
-	}
 
-	err := c.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
-		Database: string(RepoInflux.Planning),
-	})
+		err := c.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+			Database: string(RepoInflux.Planning),
+		})
 
-	if err != nil {
-		scope.Error(err.Error())
-		return err
-	}
+		if err != nil {
+			scope.Error(err.Error())
+			return err
+		}
+	*/
 
 	return nil
 }
@@ -159,88 +161,90 @@ func (c *ControllerRepository) ListControllerPlannings(in *ApiPlannings.ListCont
 func (c *ControllerRepository) getControllersPlanningsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*ApiPlannings.ControllerPlanning {
 	plannings := make([]*ApiPlannings.ControllerPlanning, 0)
 
-	for _, influxdbRow := range rows {
-		for _, data := range influxdbRow.Data {
-			currentReplicas, _ := strconv.ParseInt(data[EntityInfluxPlanning.ControllerCurrentReplicas], 10, 64)
-			desiredReplicas, _ := strconv.ParseInt(data[EntityInfluxPlanning.ControllerDesiredReplicas], 10, 64)
-			createTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.ControllerCreateTime], 10, 64)
+	/*
+		for _, influxdbRow := range rows {
+			for _, data := range influxdbRow.Data {
+				currentReplicas, _ := strconv.ParseInt(data[EntityInfluxPlanning.ControllerCurrentReplicas], 10, 64)
+				desiredReplicas, _ := strconv.ParseInt(data[EntityInfluxPlanning.ControllerDesiredReplicas], 10, 64)
+				createTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.ControllerCreateTime], 10, 64)
 
-			t, _ := time.Parse(time.RFC3339, data[EntityInfluxPlanning.ControllerTime])
-			tempTime, _ := ptypes.TimestampProto(t)
+				t, _ := time.Parse(time.RFC3339, data[EntityInfluxPlanning.ControllerTime])
+				tempTime, _ := ptypes.TimestampProto(t)
 
-			currentCpuRequests, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentCPURequest], 64)
-			currentMemRequests, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentMEMRequest], 64)
-			currentCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentCPULimit], 64)
-			currentMemLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentMEMLimit], 64)
-			desiredCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerDesiredCPULimit], 64)
-			desiredMemLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerDesiredMEMLimit], 64)
-			totalCost, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerTotalCost], 64)
+				currentCpuRequests, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentCPURequest], 64)
+				currentMemRequests, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentMEMRequest], 64)
+				currentCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentCPULimit], 64)
+				currentMemLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerCurrentMEMLimit], 64)
+				desiredCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerDesiredCPULimit], 64)
+				desiredMemLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerDesiredMEMLimit], 64)
+				totalCost, _ := strconv.ParseFloat(data[EntityInfluxPlanning.ControllerTotalCost], 64)
 
-			var ctlPlanningType ApiPlannings.ControllerPlanningType
-			if tempType, exist := data[EntityInfluxPlanning.ControllerType]; exist {
-				if value, ok := ApiPlannings.ControllerPlanningType_value[tempType]; ok {
-					ctlPlanningType = ApiPlannings.ControllerPlanningType(value)
+				var ctlPlanningType ApiPlannings.ControllerPlanningType
+				if tempType, exist := data[EntityInfluxPlanning.ControllerType]; exist {
+					if value, ok := ApiPlannings.ControllerPlanningType_value[tempType]; ok {
+						ctlPlanningType = ApiPlannings.ControllerPlanningType(value)
+					}
 				}
-			}
 
-			var planningKind ApiResources.Kind
-			if tempKind, exist := data[EntityInfluxPlanning.ControllerKind]; exist {
-				if value, ok := ApiResources.Kind_value[tempKind]; ok {
-					planningKind = ApiResources.Kind(value)
+				var planningKind ApiResources.Kind
+				if tempKind, exist := data[EntityInfluxPlanning.ControllerKind]; exist {
+					if value, ok := ApiResources.Kind_value[tempKind]; ok {
+						planningKind = ApiResources.Kind(value)
+					}
 				}
-			}
 
-			if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
-				tempPlanning := &ApiPlannings.ControllerPlanning{
-					ObjectMeta: &ApiResources.ObjectMeta{
-						Name:      data[string(EntityInfluxPlanning.ControllerName)],
-						Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
-					},
-					Kind:            planningKind,
-					PlanningType:    ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
-					CtlPlanningType: ctlPlanningType,
-					CtlPlanningSpec: &ApiPlannings.ControllerPlanningSpec{
-						CurrentReplicas: int32(currentReplicas),
-						DesiredReplicas: int32(desiredReplicas),
-						Time:            tempTime,
-						CreateTime: &timestamp.Timestamp{
-							Seconds: createTime,
+				if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
+					tempPlanning := &ApiPlannings.ControllerPlanning{
+						ObjectMeta: &ApiResources.ObjectMeta{
+							Name:      data[string(EntityInfluxPlanning.ControllerName)],
+							Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
 						},
-						CurrentCpuRequests: currentCpuRequests,
-						CurrentMemRequests: currentMemRequests,
-						CurrentCpuLimits:   currentCpuLimits,
-						CurrentMemLimits:   currentMemLimits,
-						DesiredCpuLimits:   desiredCpuLimits,
-						DesiredMemLimits:   desiredMemLimits,
-						TotalCost:          totalCost,
-					},
-				}
-
-				plannings = append(plannings, tempPlanning)
-
-			} else if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
-				tempPlanning := &ApiPlannings.ControllerPlanning{
-					ObjectMeta: &ApiResources.ObjectMeta{
-						Name:      data[string(EntityInfluxPlanning.ControllerName)],
-						Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
-					},
-					Kind:            planningKind,
-					PlanningType:    ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
-					CtlPlanningType: ctlPlanningType,
-					CtlPlanningSpecK8S: &ApiPlannings.ControllerPlanningSpecK8S{
-						CurrentReplicas: int32(currentReplicas),
-						DesiredReplicas: int32(desiredReplicas),
-						Time:            tempTime,
-						CreateTime: &timestamp.Timestamp{
-							Seconds: createTime,
+						Kind:            planningKind,
+						PlanningType:    ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
+						CtlPlanningType: ctlPlanningType,
+						CtlPlanningSpec: &ApiPlannings.ControllerPlanningSpec{
+							CurrentReplicas: int32(currentReplicas),
+							DesiredReplicas: int32(desiredReplicas),
+							Time:            tempTime,
+							CreateTime: &timestamp.Timestamp{
+								Seconds: createTime,
+							},
+							CurrentCpuRequests: currentCpuRequests,
+							CurrentMemRequests: currentMemRequests,
+							CurrentCpuLimits:   currentCpuLimits,
+							CurrentMemLimits:   currentMemLimits,
+							DesiredCpuLimits:   desiredCpuLimits,
+							DesiredMemLimits:   desiredMemLimits,
+							TotalCost:          totalCost,
 						},
-					},
-				}
+					}
 
-				plannings = append(plannings, tempPlanning)
+					plannings = append(plannings, tempPlanning)
+
+				} else if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
+					tempPlanning := &ApiPlannings.ControllerPlanning{
+						ObjectMeta: &ApiResources.ObjectMeta{
+							Name:      data[string(EntityInfluxPlanning.ControllerName)],
+							Namespace: data[string(EntityInfluxPlanning.ControllerNamespace)],
+						},
+						Kind:            planningKind,
+						PlanningType:    ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.ControllerPlanningType)]]),
+						CtlPlanningType: ctlPlanningType,
+						CtlPlanningSpecK8S: &ApiPlannings.ControllerPlanningSpecK8S{
+							CurrentReplicas: int32(currentReplicas),
+							DesiredReplicas: int32(desiredReplicas),
+							Time:            tempTime,
+							CreateTime: &timestamp.Timestamp{
+								Seconds: createTime,
+							},
+						},
+					}
+
+					plannings = append(plannings, tempPlanning)
+				}
 			}
 		}
-	}
+	*/
 
 	return plannings
 }

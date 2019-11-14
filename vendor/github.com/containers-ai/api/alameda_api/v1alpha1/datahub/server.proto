@@ -269,6 +269,9 @@ service DatahubService {
     rpc DeleteNodes(resources.DeleteNodesRequest)
         returns (google.rpc.Status){}
 
+    rpc DeleteClusters(resources.DeleteClustersRequest)
+        returns (google.rpc.Status){}
+
     // Scores --------------------------------------------------
     rpc CreateSimulatedSchedulingScores(scores.CreateSimulatedSchedulingScoresRequest)
         returns (google.rpc.Status){}

@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.resources',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources'),
-  serialized_pb=_b('\n5alameda_api/v1alpha1/datahub/resources/metadata.proto\x12/containersai.alameda.v1alpha1.datahub.resources\"c\n\nObjectMeta\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tnode_name\x18\x03 \x01(\t\x12\x14\n\x0c\x63luster_name\x18\x04 \x01(\t\x12\x0b\n\x03uid\x18\x05 \x01(\t\"\xa7\x01\n\x0eOwnerReference\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind*Y\n\x04Kind\x12\x07\n\x03POD\x10\x00\x12\x0e\n\nDEPLOYMENT\x10\x01\x12\x14\n\x10\x44\x45PLOYMENTCONFIG\x10\x02\x12\x11\n\rALAMEDASCALER\x10\x03\x12\x0f\n\x0bSTATEFULSET\x10\x04*E\n\x0bScalingTool\x12\x1a\n\x16SCALING_TOOL_UNDEFINED\x10\x00\x12\x08\n\x04NONE\x10\x01\x12\x07\n\x03VPA\x10\x02\x12\x07\n\x03HPA\x10\x03\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
+  serialized_pb=_b('\n5alameda_api/v1alpha1/datahub/resources/metadata.proto\x12/containersai.alameda.v1alpha1.datahub.resources\"c\n\nObjectMeta\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tnode_name\x18\x03 \x01(\t\x12\x14\n\x0c\x63luster_name\x18\x04 \x01(\t\x12\x0b\n\x03uid\x18\x05 \x01(\t\"\xa7\x01\n\x0eOwnerReference\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind*m\n\x04Kind\x12\x12\n\x0eKIND_UNDEFINED\x10\x00\x12\x07\n\x03POD\x10\x01\x12\x0e\n\nDEPLOYMENT\x10\x02\x12\x14\n\x10\x44\x45PLOYMENTCONFIG\x10\x03\x12\x11\n\rALAMEDASCALER\x10\x04\x12\x0f\n\x0bSTATEFULSET\x10\x05*E\n\x0bScalingTool\x12\x1a\n\x16SCALING_TOOL_UNDEFINED\x10\x00\x12\x08\n\x04NONE\x10\x01\x12\x07\n\x03VPA\x10\x02\x12\x07\n\x03HPA\x10\x03\x42\x45ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
 )
 
 _KIND = _descriptor.EnumDescriptor(
@@ -31,30 +31,34 @@ _KIND = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='POD', index=0, number=0,
+      name='KIND_UNDEFINED', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='DEPLOYMENT', index=1, number=1,
+      name='POD', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='DEPLOYMENTCONFIG', index=2, number=2,
+      name='DEPLOYMENT', index=2, number=2,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='ALAMEDASCALER', index=3, number=3,
+      name='DEPLOYMENTCONFIG', index=3, number=3,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='STATEFULSET', index=4, number=4,
+      name='ALAMEDASCALER', index=4, number=4,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='STATEFULSET', index=5, number=5,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=377,
-  serialized_end=466,
+  serialized_end=486,
 )
 _sym_db.RegisterEnumDescriptor(_KIND)
 
@@ -84,17 +88,18 @@ _SCALINGTOOL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=468,
-  serialized_end=537,
+  serialized_start=488,
+  serialized_end=557,
 )
 _sym_db.RegisterEnumDescriptor(_SCALINGTOOL)
 
 ScalingTool = enum_type_wrapper.EnumTypeWrapper(_SCALINGTOOL)
-POD = 0
-DEPLOYMENT = 1
-DEPLOYMENTCONFIG = 2
-ALAMEDASCALER = 3
-STATEFULSET = 4
+KIND_UNDEFINED = 0
+POD = 1
+DEPLOYMENT = 2
+DEPLOYMENTCONFIG = 3
+ALAMEDASCALER = 4
+STATEFULSET = 5
 SCALING_TOOL_UNDEFINED = 0
 NONE = 1
 VPA = 2

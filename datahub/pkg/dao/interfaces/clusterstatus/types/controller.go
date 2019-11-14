@@ -17,7 +17,6 @@ type ControllerDAO interface {
 type Controller struct {
 	ObjectMeta            metadata.ObjectMeta
 	Kind                  string
-	OwnerReferences       []OwnerReference
 	Replicas              int32
 	SpecReplicas          int32
 	AlamedaControllerSpec AlamedaControllerSpec
@@ -29,20 +28,15 @@ type ListControllersRequest struct {
 	Kind       string // Valid values: POD, DEPLOYMENT, DEPLOYMENTCONFIG, ALAMEDASCALER, STATEFULSET,
 }
 
-type OwnerReference struct {
-	ObjectMeta metadata.ObjectMeta
-	Kind       string
-}
-
 type AlamedaControllerSpec struct {
 	AlamedaScaler   metadata.ObjectMeta
+	ScalingTool     string
 	Policy          string
 	EnableExecution bool
 }
 
 func NewController() *Controller {
 	controller := Controller{}
-	controller.OwnerReferences = make([]OwnerReference, 0)
 	return &controller
 }
 
@@ -64,16 +58,12 @@ func (p *Controller) Populate(values map[string]string) {
 	p.AlamedaControllerSpec.Initialize(values)
 }
 
-func (p *OwnerReference) Initialize(values map[string]string) {
-	p.ObjectMeta.Initialize(values)
-
-	if value, ok := values[string(clusterstatus.ControllerOwnerKind)]; ok {
-		p.Kind = value
-	}
-}
-
 func (p *AlamedaControllerSpec) Initialize(values map[string]string) {
 	p.AlamedaScaler.Initialize(values)
+
+	if value, ok := values[string(clusterstatus.ControllerAlamedaSpecScalingTool)]; ok {
+		p.ScalingTool = value
+	}
 
 	if value, ok := values[string(clusterstatus.ControllerAlamedaSpecPolicy)]; ok {
 		p.Policy = value

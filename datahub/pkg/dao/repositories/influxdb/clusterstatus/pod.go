@@ -132,6 +132,10 @@ func (p *PodRepository) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*Da
 			conditionList = append(conditionList, createCondition)
 		}
 
+		if request.ScalingTool != "" && request.ScalingTool != ApiResources.ScalingTool_name[0] {
+			conditionList = append(conditionList, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalingTool, request.ScalingTool))
+		}
+
 		condition := strings.Join(conditionList, " AND ")
 		if condition != "" {
 			condition = "(" + condition + ")"
@@ -139,7 +143,12 @@ func (p *PodRepository) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*Da
 		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 	if len(request.ObjectMeta) == 0 {
-		statement.AppendWhereClauseDirectly("AND", fmt.Sprintf(`("%s"='%s')`, EntityInfluxCluster.PodTopControllerKind, request.Kind))
+		if request.Kind != "" && request.Kind != ApiResources.Kind_name[0] {
+			statement.AppendWhereClauseDirectly("AND", fmt.Sprintf(`("%s"='%s')`, EntityInfluxCluster.PodTopControllerKind, request.Kind))
+		}
+		if request.ScalingTool != "" && request.ScalingTool != ApiResources.ScalingTool_name[0] {
+			statement.AppendWhereClauseDirectly("AND", fmt.Sprintf(`("%s"='%s')`, EntityInfluxCluster.PodAlamedaSpecScalingTool, request.ScalingTool))
+		}
 		statement.AppendWhereClauseDirectly("AND", p.genCreatePeriodCondition(request.QueryCondition))
 	}
 	statement.SetOrderClauseFromQueryCondition()
@@ -173,7 +182,7 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, k
 	switch kind {
 	case ApiResources.Kind_POD:
 		if objectMeta.Namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s"=%s'`, EntityInfluxCluster.PodNamespace, objectMeta.Namespace))
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodNamespace, objectMeta.Namespace))
 		}
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodName, objectMeta.Name))

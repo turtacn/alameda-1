@@ -71,7 +71,11 @@ func (r *ListPodsRequestExtended) ProduceRequest() DaoClusterTypes.ListPodsReque
 			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
 		}
 	}
-	request.Kind = r.GetKind().String()
-	request.ScalingTool = r.GetScalingTool().String()
+	if r.GetKind() != ApiResources.Kind_KIND_UNDEFINED {
+		request.Kind = r.GetKind().String()
+	}
+	if r.GetScalingTool() != ApiResources.ScalingTool_SCALING_TOOL_UNDEFINED {
+		request.ScalingTool = r.GetScalingTool().String()
+	}
 	return request
 }

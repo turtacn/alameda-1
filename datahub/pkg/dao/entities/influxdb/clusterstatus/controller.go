@@ -10,14 +10,12 @@ const (
 	ControllerNamespace                  influxdb.Tag   = "namespace"
 	ControllerClusterName                influxdb.Tag   = "cluster_name"
 	ControllerUid                        influxdb.Tag   = "uid"
-	ControllerOwnerName                  influxdb.Tag   = "owner_name"
-	ControllerOwnerNamespace             influxdb.Tag   = "owner_namespace"
-	ControllerOwnerKind                  influxdb.Field = "owner_kind"
+	ControllerAlamedaSpecScalerName      influxdb.Tag   = "spec_name"
+	ControllerAlamedaSpecScalerNamespace influxdb.Tag   = "spec_namespace"
 	ControllerKind                       influxdb.Field = "kind"
 	ControllerReplicas                   influxdb.Field = "replicas"
 	ControllerSpecReplicas               influxdb.Field = "spec_replicas"
-	ControllerAlamedaSpecName            influxdb.Field = "spec_name"
-	ControllerAlamedaSpecNamespace       influxdb.Field = "spec_namespace"
+	ControllerAlamedaSpecScalingTool     influxdb.Field = "spec_scaling_tool"
 	ControllerAlamedaSpecPolicy          influxdb.Field = "policy"
 	ControllerAlamedaSpecEnableExecution influxdb.Field = "enable_execution"
 )
@@ -30,18 +28,16 @@ var (
 		ControllerNamespace,
 		ControllerClusterName,
 		ControllerUid,
-		ControllerOwnerName,
-		ControllerOwnerNamespace,
+		ControllerAlamedaSpecScalerName,
+		ControllerAlamedaSpecScalerNamespace,
 	}
 
 	// ControllerFields is list of fields of alameda_controller_recommendation measurement
 	ControllerFields = []influxdb.Field{
-		ControllerOwnerKind,
 		ControllerKind,
 		ControllerReplicas,
 		ControllerSpecReplicas,
-		ControllerAlamedaSpecName,
-		ControllerAlamedaSpecNamespace,
+		ControllerAlamedaSpecScalingTool,
 		ControllerAlamedaSpecPolicy,
 		ControllerAlamedaSpecEnableExecution,
 	}
@@ -52,14 +48,12 @@ var (
 		string(ControllerNamespace),
 		string(ControllerClusterName),
 		string(ControllerUid),
-		string(ControllerOwnerName),
-		string(ControllerOwnerNamespace),
-		string(ControllerOwnerKind),
+		string(ControllerAlamedaSpecScalerName),
+		string(ControllerAlamedaSpecScalerNamespace),
 		string(ControllerKind),
 		string(ControllerReplicas),
 		string(ControllerSpecReplicas),
-		string(ControllerAlamedaSpecName),
-		string(ControllerAlamedaSpecNamespace),
+		string(ControllerAlamedaSpecScalingTool),
 		string(ControllerAlamedaSpecPolicy),
 		string(ControllerAlamedaSpecEnableExecution),
 	}

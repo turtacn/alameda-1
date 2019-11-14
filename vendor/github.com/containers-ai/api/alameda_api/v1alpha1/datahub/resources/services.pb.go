@@ -312,7 +312,7 @@ func (m *ListPodsRequest) GetKind() Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return Kind_POD
+	return Kind_KIND_UNDEFINED
 }
 
 func (m *ListPodsRequest) GetScalingTool() ScalingTool {
@@ -422,7 +422,7 @@ func (m *ListControllersRequest) GetKind() Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return Kind_POD
+	return Kind_KIND_UNDEFINED
 }
 
 type ListControllersResponse struct {
@@ -910,7 +910,7 @@ func (m *DeleteControllersRequest) GetKind() Kind {
 	if m != nil {
 		return m.Kind
 	}
-	return Kind_POD
+	return Kind_KIND_UNDEFINED
 }
 
 type DeleteApplicationsRequest struct {
@@ -1031,6 +1031,45 @@ func (m *DeleteNodesRequest) GetObjectMeta() []*ObjectMeta {
 	return nil
 }
 
+type DeleteClustersRequest struct {
+	ObjectMeta           []*ObjectMeta `protobuf:"bytes,1,rep,name=object_meta,json=objectMeta,proto3" json:"object_meta,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *DeleteClustersRequest) Reset()         { *m = DeleteClustersRequest{} }
+func (m *DeleteClustersRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteClustersRequest) ProtoMessage()    {}
+func (*DeleteClustersRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_081eed3a684e3192, []int{23}
+}
+
+func (m *DeleteClustersRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteClustersRequest.Unmarshal(m, b)
+}
+func (m *DeleteClustersRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteClustersRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteClustersRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteClustersRequest.Merge(m, src)
+}
+func (m *DeleteClustersRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteClustersRequest.Size(m)
+}
+func (m *DeleteClustersRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteClustersRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteClustersRequest proto.InternalMessageInfo
+
+func (m *DeleteClustersRequest) GetObjectMeta() []*ObjectMeta {
+	if m != nil {
+		return m.ObjectMeta
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*CreatePodsRequest)(nil), "containersai.alameda.v1alpha1.datahub.resources.CreatePodsRequest")
 	proto.RegisterType((*CreateControllersRequest)(nil), "containersai.alameda.v1alpha1.datahub.resources.CreateControllersRequest")
@@ -1055,6 +1094,7 @@ func init() {
 	proto.RegisterType((*DeleteApplicationsRequest)(nil), "containersai.alameda.v1alpha1.datahub.resources.DeleteApplicationsRequest")
 	proto.RegisterType((*DeleteNamespacesRequest)(nil), "containersai.alameda.v1alpha1.datahub.resources.DeleteNamespacesRequest")
 	proto.RegisterType((*DeleteNodesRequest)(nil), "containersai.alameda.v1alpha1.datahub.resources.DeleteNodesRequest")
+	proto.RegisterType((*DeleteClustersRequest)(nil), "containersai.alameda.v1alpha1.datahub.resources.DeleteClustersRequest")
 }
 
 func init() {
@@ -1062,7 +1102,7 @@ func init() {
 }
 
 var fileDescriptor_081eed3a684e3192 = []byte{
-	// 727 bytes of a gzipped FileDescriptorProto
+	// 734 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x97, 0xcf, 0x4f, 0xd4, 0x40,
 	0x14, 0xc7, 0xd3, 0x82, 0xc4, 0xbc, 0x25, 0x20, 0x55, 0xdc, 0xc2, 0x89, 0xf4, 0x44, 0x4c, 0x6c,
 	0x83, 0x8a, 0x31, 0xea, 0x45, 0x57, 0x13, 0x0d, 0xfe, 0xc0, 0xc2, 0x89, 0x48, 0xd6, 0x61, 0x3a,
@@ -1105,8 +1145,8 @@ var fileDescriptor_081eed3a684e3192 = []byte{
 	0x0d, 0xb8, 0x51, 0xa5, 0x36, 0x08, 0x43, 0xf9, 0x60, 0x62, 0x8e, 0xed, 0x60, 0x32, 0x80, 0x85,
 	0x67, 0x2c, 0x64, 0xd5, 0xa3, 0xf3, 0x64, 0xa3, 0xf1, 0xcb, 0x00, 0x5b, 0x31, 0xcf, 0xe8, 0x7e,
 	0x13, 0x45, 0x17, 0x6d, 0xc9, 0xbc, 0x78, 0x5b, 0x3a, 0x82, 0x25, 0xf5, 0x11, 0x97, 0xef, 0xf8,
-	0x87, 0xd0, 0x56, 0xe8, 0xcb, 0x36, 0xd2, 0x04, 0x2c, 0x0d, 0x2e, 0xdb, 0xd4, 0x44, 0x99, 0x4f,
-	0x9f, 0xef, 0x74, 0x7a, 0x5c, 0x6a, 0x37, 0x2b, 0x5d, 0x6a, 0x6f, 0x13, 0xee, 0x65, 0xf7, 0xc7,
-	0xf3, 0xdd, 0x25, 0xf7, 0x66, 0xf2, 0x9b, 0xe2, 0xdd, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x8a,
-	0xa8, 0xe1, 0xd6, 0x4e, 0x0f, 0x00, 0x00,
+	0x87, 0xd0, 0x56, 0xe8, 0xcb, 0x36, 0xd2, 0x04, 0x2c, 0x0d, 0x2e, 0xdb, 0xd4, 0x64, 0x99, 0x29,
+	0x2c, 0xea, 0x62, 0xb9, 0xcc, 0x2d, 0xfb, 0xf4, 0xf9, 0x4e, 0xa7, 0xc7, 0xa5, 0x36, 0xd1, 0xd2,
+	0x5d, 0xfa, 0x36, 0xe1, 0x5e, 0x76, 0x6d, 0x3d, 0xdf, 0x15, 0x76, 0x6f, 0x26, 0xbf, 0xa0, 0xde,
+	0xfd, 0x13, 0x00, 0x00, 0xff, 0xff, 0x44, 0x41, 0xe9, 0xb1, 0xc5, 0x0f, 0x00, 0x00,
 }

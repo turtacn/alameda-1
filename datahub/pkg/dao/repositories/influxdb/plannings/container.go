@@ -319,8 +319,7 @@ func (c *ContainerRepository) queryPlannings(cmd string, granularity int64) ([]*
 					Namespace: data[EntityInfluxPlanning.ContainerNamespace],
 					Name:      data[EntityInfluxPlanning.ContainerTopControllerName],
 				},
-				Kind:            topControllerKind,
-				OwnerReferences: make([]*ApiResources.OwnerReference, 0),
+				Kind: topControllerKind,
 			}
 
 			startTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.ContainerStartTime], 10, 64)
