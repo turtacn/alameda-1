@@ -28,6 +28,7 @@ import (
 	controllerutil "github.com/containers-ai/alameda/operator/pkg/controller/util"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
+	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
@@ -63,11 +64,23 @@ func Add(mgr manager.Manager) error {
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	conn, _ := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(grpcDefaultRetry))))
-	datahubControllerRepo := datahub_client_controller.NewControllerRepository(conn)
+
+	k8sClient, err := client.New(mgr.GetConfig(), client.Options{})
+	if err != nil {
+		panic(errors.Wrap(err, "new kuberenetes client failed").Error())
+	}
+	clusterUID, err := k8sutils.GetClusterUID(k8sClient)
+	if err != nil || clusterUID == "" {
+		panic("cannot get cluster uid")
+	}
+
+	datahubControllerRepo := datahub_client_controller.NewControllerRepository(conn, clusterUID)
 	return &ReconcileStatefulSet{
 		Client:                mgr.GetClient(),
 		scheme:                mgr.GetScheme(),
 		datahubControllerRepo: datahubControllerRepo,
+
+		clusterUID: clusterUID,
 	}
 }
 
@@ -96,6 +109,8 @@ type ReconcileStatefulSet struct {
 	scheme *runtime.Scheme
 
 	datahubControllerRepo *datahub_client_controller.ControllerRepository
+
+	clusterUID string
 }
 
 // Reconcile reads that state of the cluster for a StatefulSet object and makes changes based on the state read
@@ -134,8 +149,9 @@ func (r *ReconcileStatefulSet) Reconcile(request reconcile.Request) (reconcile.R
 		err = r.datahubControllerRepo.DeleteControllers([]*datahub_resources.Controller{
 			&datahub_resources.Controller{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:      request.NamespacedName.Name,
-					Namespace: request.NamespacedName.Namespace,
+					Name:        request.NamespacedName.Name,
+					Namespace:   request.NamespacedName.Namespace,
+					ClusterName: r.clusterUID,
 				},
 				Kind: datahub_resources.Kind_STATEFULSET,
 			},
@@ -192,8 +208,9 @@ func (r *ReconcileStatefulSet) Reconcile(request reconcile.Request) (reconcile.R
 		err = r.datahubControllerRepo.CreateControllers([]*datahub_resources.Controller{
 			&datahub_resources.Controller{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:      request.NamespacedName.Name,
-					Namespace: request.NamespacedName.Namespace,
+					Name:        request.NamespacedName.Name,
+					Namespace:   request.NamespacedName.Namespace,
+					ClusterName: r.clusterUID,
 				},
 				Kind: datahub_resources.Kind_STATEFULSET,
 			},

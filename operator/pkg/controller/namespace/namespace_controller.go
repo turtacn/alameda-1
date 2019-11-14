@@ -21,9 +21,11 @@ import (
 
 	datahub_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
+	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
@@ -61,10 +63,23 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	conn, _ := grpc.Dial(datahubutils.GetDatahubAddress(),
 		grpc.WithInsecure(), grpc.WithUnaryInterceptor(
 			grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(grpcDefaultRetry))))
-	datahubNamespaceRepo := datahub_namespace.NewNamespaceRepository(conn)
+
+	k8sClient, err := client.New(mgr.GetConfig(), client.Options{})
+	if err != nil {
+		panic(errors.Wrap(err, "new kuberenetes client failed").Error())
+	}
+	clusterUID, err := k8s_utils.GetClusterUID(k8sClient)
+	if err != nil || clusterUID == "" {
+		panic("cannot get cluster uid")
+	}
+
+	datahubNamespaceRepo := datahub_namespace.NewNamespaceRepository(conn, clusterUID)
+
 	return &ReconcileNamespace{
 		Client: mgr.GetClient(),
 		scheme: mgr.GetScheme(),
+
+		clusterUID: clusterUID,
 
 		datahubNamespaceRepo: datahubNamespaceRepo,
 	}
@@ -97,6 +112,8 @@ type ReconcileNamespace struct {
 	client.Client
 	scheme *runtime.Scheme
 
+	clusterUID string
+
 	datahubNamespaceRepo *datahub_namespace.NamespaceRepository
 }
 
@@ -114,7 +131,8 @@ func (r *ReconcileNamespace) Reconcile(
 			[]*datahub_resources.Namespace{
 				&datahub_resources.Namespace{
 					ObjectMeta: &datahub_resources.ObjectMeta{
-						Name: request.NamespacedName.Name,
+						Name:        request.NamespacedName.Name,
+						ClusterName: r.clusterUID,
 					},
 				},
 			})
@@ -127,7 +145,8 @@ func (r *ReconcileNamespace) Reconcile(
 			[]*datahub_resources.Namespace{
 				&datahub_resources.Namespace{
 					ObjectMeta: &datahub_resources.ObjectMeta{
-						Name: request.NamespacedName.Name,
+						Name:        request.NamespacedName.Name,
+						ClusterName: r.clusterUID,
 					},
 				},
 			})

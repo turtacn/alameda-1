@@ -18,16 +18,20 @@ var scope = logUtil.RegisterScope("datahub_client_namespace", "namespace of data
 type NamespaceRepository struct {
 	conn          *grpc.ClientConn
 	datahubClient datahub_v1alpha1.DatahubServiceClient
+
+	clusterUID string
 }
 
 // NewNamespaceRepository return NamespaceRepository instance
-func NewNamespaceRepository(conn *grpc.ClientConn) *NamespaceRepository {
+func NewNamespaceRepository(conn *grpc.ClientConn, clusterUID string) *NamespaceRepository {
 
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
 	return &NamespaceRepository{
 		conn:          conn,
 		datahubClient: datahubClient,
+
+		clusterUID: clusterUID,
 	}
 }
 
@@ -39,7 +43,8 @@ func (repo *NamespaceRepository) CreateNamespaces(arg interface{}) error {
 			if !repo.isNSExcluded(ns.GetName()) {
 				namespaces = append(namespaces, &datahub_resources.Namespace{
 					ObjectMeta: &datahub_resources.ObjectMeta{
-						Name: ns.GetName(),
+						Name:        ns.GetName(),
+						ClusterName: repo.clusterUID,
 					},
 				})
 			}
@@ -74,7 +79,13 @@ func (repo *NamespaceRepository) CreateNamespaces(arg interface{}) error {
 func (repo *NamespaceRepository) ListNamespaces() (
 	[]*datahub_resources.Namespace, error) {
 	namespaces := []*datahub_resources.Namespace{}
-	req := datahub_resources.ListNamespacesRequest{}
+	req := datahub_resources.ListNamespacesRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
 	if reqRes, err := repo.datahubClient.ListNamespaces(
 		context.Background(), &req); err != nil {
 		if reqRes.Status != nil {
@@ -94,15 +105,15 @@ func (repo *NamespaceRepository) DeleteNamespaces(arg interface{}) error {
 	if nss, ok := arg.([]*corev1.Namespace); ok {
 		for _, ns := range nss {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name: ns.GetName(),
+				Name:        ns.GetName(),
+				ClusterName: repo.clusterUID,
 			})
 		}
 	}
 	if namespaces, ok := arg.([]*datahub_resources.Namespace); ok {
 		for _, namespace := range namespaces {
-			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name: namespace.ObjectMeta.GetName(),
-			})
+			copyNamespace := *namespace
+			objMeta = append(objMeta, copyNamespace.ObjectMeta)
 		}
 	}
 	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {

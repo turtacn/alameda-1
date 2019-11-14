@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -9,8 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"fmt"
-
+	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
@@ -22,7 +22,13 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 		return errors.Errorf(
 			"Sync nodes with datahub failed due to list nodes from cluster failed: %s", err.Error())
 	}
-	datahubNodeRepo := NewNodeRepository(conn)
+
+	clusterUID, err := k8sutils.GetClusterUID(client)
+	if err != nil {
+		return errors.Wrap(err, "get cluster uid failed")
+	}
+
+	datahubNodeRepo := NewNodeRepository(conn, clusterUID)
 	if len(nodeList.Items) > 0 {
 		if err := datahubNodeRepo.CreateNodes(nodeList.Items); err != nil {
 			return fmt.Errorf(

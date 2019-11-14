@@ -15,16 +15,20 @@ import (
 type ControllerRepository struct {
 	conn          *grpc.ClientConn
 	datahubClient datahub_v1alpha1.DatahubServiceClient
+
+	clusterUID string
 }
 
 // NewControllerRepository return ControllerRepository instance
-func NewControllerRepository(conn *grpc.ClientConn) *ControllerRepository {
+func NewControllerRepository(conn *grpc.ClientConn, clusterUID string) *ControllerRepository {
 
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
 	return &ControllerRepository{
 		conn:          conn,
 		datahubClient: datahubClient,
+
+		clusterUID: clusterUID,
 	}
 }
 
@@ -35,8 +39,9 @@ func (repo *ControllerRepository) CreateControllers(arg interface{}) error {
 		for _, controller := range controllers {
 			controllersToCreate = append(controllersToCreate, &datahub_resources.Controller{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:      controller.GetName(),
-					Namespace: controller.GetNamespace(),
+					Name:        controller.GetName(),
+					Namespace:   controller.GetNamespace(),
+					ClusterName: repo.clusterUID,
 				},
 				Kind: datahub_resources.Kind_DEPLOYMENT,
 			})
@@ -46,8 +51,9 @@ func (repo *ControllerRepository) CreateControllers(arg interface{}) error {
 		for _, controller := range controllers {
 			controllersToCreate = append(controllersToCreate, &datahub_resources.Controller{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:      controller.GetName(),
-					Namespace: controller.GetNamespace(),
+					Name:        controller.GetName(),
+					Namespace:   controller.GetNamespace(),
+					ClusterName: repo.clusterUID,
 				},
 				Kind: datahub_resources.Kind_STATEFULSET,
 			})
@@ -58,8 +64,9 @@ func (repo *ControllerRepository) CreateControllers(arg interface{}) error {
 		for _, controller := range controllers {
 			controllersToCreate = append(controllersToCreate, &datahub_resources.Controller{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:      controller.GetName(),
-					Namespace: controller.GetNamespace(),
+					Name:        controller.GetName(),
+					Namespace:   controller.GetNamespace(),
+					ClusterName: repo.clusterUID,
 				},
 				Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
 			})
@@ -89,7 +96,13 @@ func (repo *ControllerRepository) CreateControllers(arg interface{}) error {
 func (repo *ControllerRepository) ListControllers() (
 	[]*datahub_resources.Controller, error) {
 	controllers := []*datahub_resources.Controller{}
-	req := datahub_resources.ListControllersRequest{}
+	req := datahub_resources.ListControllersRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
 	if reqRes, err := repo.datahubClient.ListControllers(
 		context.Background(), &req); err != nil {
 		if reqRes.Status != nil {
@@ -113,8 +126,9 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 		kind = datahub_resources.Kind_DEPLOYMENT
 		for _, controller := range controllers {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name:      controller.GetName(),
-				Namespace: controller.GetNamespace(),
+				Name:        controller.GetName(),
+				Namespace:   controller.GetNamespace(),
+				ClusterName: repo.clusterUID,
 			})
 		}
 	}
@@ -122,8 +136,9 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 		kind = datahub_resources.Kind_STATEFULSET
 		for _, controller := range controllers {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name:      controller.GetName(),
-				Namespace: controller.GetNamespace(),
+				Name:        controller.GetName(),
+				Namespace:   controller.GetNamespace(),
+				ClusterName: repo.clusterUID,
 			})
 		}
 	}
@@ -131,8 +146,9 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 		kind = datahub_resources.Kind_DEPLOYMENTCONFIG
 		for _, controller := range controllers {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name:      controller.GetName(),
-				Namespace: controller.GetNamespace(),
+				Name:        controller.GetName(),
+				Namespace:   controller.GetNamespace(),
+				ClusterName: repo.clusterUID,
 			})
 		}
 	}
@@ -140,8 +156,9 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 		for _, controller := range controllers {
 			kind = controller.GetKind()
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name:      controller.GetObjectMeta().GetName(),
-				Namespace: controller.GetObjectMeta().GetNamespace(),
+				Name:        controller.GetObjectMeta().GetName(),
+				Namespace:   controller.GetObjectMeta().GetNamespace(),
+				ClusterName: repo.clusterUID,
 			})
 		}
 	}

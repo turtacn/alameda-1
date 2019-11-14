@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -55,7 +56,12 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 			controller.GetNamespace(), controller.GetName())] = true
 	}
 
-	datahubControllerRepo := NewControllerRepository(conn)
+	clusterUID, err := k8sutils.GetClusterUID(client)
+	if err != nil {
+		return errors.Wrap(err, "get cluster uid failed")
+	}
+
+	datahubControllerRepo := NewControllerRepository(conn, clusterUID)
 	if len(deploymentList.Items) > 0 {
 		if err := datahubControllerRepo.CreateControllers(deploymentList.Items); err != nil {
 			return fmt.Errorf(

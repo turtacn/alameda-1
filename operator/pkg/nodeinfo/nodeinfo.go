@@ -111,11 +111,12 @@ func NewNodeInfo(k8sNode corev1.Node) (NodeInfo, error) {
 }
 
 // DatahubNode converts nodeInfo to Datahub Node
-func (n NodeInfo) DatahubNode() datahub_resources.Node {
+func (n NodeInfo) DatahubNode(clusterUID string) datahub_resources.Node {
 
 	node := datahub_resources.Node{
 		ObjectMeta: &datahub_resources.ObjectMeta{
-			Name: n.Name,
+			Name:        n.Name,
+			ClusterName: clusterUID,
 		},
 		Capacity: &datahub_resources.Capacity{
 			CpuCores:    n.CPUCores,

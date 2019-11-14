@@ -17,16 +17,20 @@ import (
 type AlamedaNodeRepository struct {
 	conn          *grpc.ClientConn
 	datahubClient datahub_v1alpha1.DatahubServiceClient
+
+	clusterUID string
 }
 
 // NewNodeRepository return AlamedaNodeRepository instance
-func NewNodeRepository(conn *grpc.ClientConn) *AlamedaNodeRepository {
+func NewNodeRepository(conn *grpc.ClientConn, clusterUID string) *AlamedaNodeRepository {
 
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
 	return &AlamedaNodeRepository{
 		conn:          conn,
 		datahubClient: datahubClient,
+
+		clusterUID: clusterUID,
 	}
 }
 
@@ -43,7 +47,8 @@ func (repo *AlamedaNodeRepository) CreateNodes(
 		for _, coreNode := range coreNodes {
 			nodes = append(nodes, &datahub_resources.Node{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name: coreNode.GetName(),
+					Name:        coreNode.GetName(),
+					ClusterName: repo.clusterUID,
 				},
 			})
 		}
@@ -75,9 +80,8 @@ func (repo *AlamedaNodeRepository) DeleteNodes(arg interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
 	if nodes, ok := arg.([]*datahub_resources.Node); ok {
 		for _, node := range nodes {
-			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name: node.ObjectMeta.GetName(),
-			})
+			copyNode := *node
+			objMeta = append(objMeta, copyNode.ObjectMeta)
 		}
 	}
 	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
@@ -103,7 +107,13 @@ func (repo *AlamedaNodeRepository) ListNodes() ([]*datahub_resources.Node, error
 
 func (repo *AlamedaNodeRepository) listAlamedaNodes() ([]*datahub_resources.Node, error) {
 	alamNodes := []*datahub_resources.Node{}
-	req := datahub_resources.ListNodesRequest{}
+	req := datahub_resources.ListNodesRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
 	if reqRes, err := repo.datahubClient.ListNodes(context.Background(), &req); err != nil {
 		if reqRes.Status != nil {
 			return alamNodes, errors.Errorf("list nodes from Datahub failed: %s", err.Error())

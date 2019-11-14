@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -9,8 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"fmt"
-
+	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
@@ -22,7 +22,13 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 		return errors.Errorf(
 			"Sync namespaces with datahub failed due to list namespaces from cluster failed: %s", err.Error())
 	}
-	datahubNamespaceRepo := NewNamespaceRepository(conn)
+
+	clusterUID, err := k8sutils.GetClusterUID(client)
+	if err != nil {
+		return errors.Wrap(err, "get cluster uid failed")
+	}
+
+	datahubNamespaceRepo := NewNamespaceRepository(conn, clusterUID)
 	if len(namespaceList.Items) > 0 {
 		if err := datahubNamespaceRepo.CreateNamespaces(namespaceList.Items); err != nil {
 			return fmt.Errorf(

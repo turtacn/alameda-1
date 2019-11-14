@@ -13,16 +13,20 @@ import (
 type ClusterRepository struct {
 	conn          *grpc.ClientConn
 	datahubClient datahub_v1alpha1.DatahubServiceClient
+
+	clusterUID string
 }
 
 // NewClusterRepository return ClusterRepository instance
-func NewClusterRepository(conn *grpc.ClientConn) *ClusterRepository {
+func NewClusterRepository(conn *grpc.ClientConn, clusterUID string) *ClusterRepository {
 
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
 	return &ClusterRepository{
 		conn:          conn,
 		datahubClient: datahubClient,
+
+		clusterUID: clusterUID,
 	}
 }
 
@@ -53,7 +57,13 @@ func (repo *ClusterRepository) CreateClusters(arg interface{}) error {
 func (repo *ClusterRepository) ListClusters() (
 	[]*datahub_resources.Cluster, error) {
 	clusters := []*datahub_resources.Cluster{}
-	req := datahub_resources.ListClustersRequest{}
+	req := datahub_resources.ListClustersRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
 	if reqRes, err := repo.datahubClient.ListClusters(
 		context.Background(), &req); err != nil {
 		if reqRes.Status != nil {

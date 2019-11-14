@@ -18,11 +18,14 @@ var (
 )
 
 type K8SResource struct {
+	clusterUID string
 }
 
 // NewK8SResource return K8SResource instance
-func NewK8SResource() *K8SResource {
-	return &K8SResource{}
+func NewK8SResource(clusterUID string) *K8SResource {
+	return &K8SResource{
+		clusterUID: clusterUID,
+	}
 }
 
 func (repo *K8SResource) ListAlamedaWatchedResource(namespace, name string) ([]*datahub_resources.Controller, error) {
@@ -37,8 +40,9 @@ func (repo *K8SResource) ListAlamedaWatchedResource(namespace, name string) ([]*
 	req := datahub_resources.ListControllersRequest{
 		ObjectMeta: []*datahub_resources.ObjectMeta{
 			&datahub_resources.ObjectMeta{
-				Name:      name,
-				Namespace: namespace,
+				Name:        name,
+				Namespace:   namespace,
+				ClusterName: repo.clusterUID,
 			},
 		},
 	}
@@ -82,9 +86,8 @@ func (repo *K8SResource) DeleteAlamedaWatchedResource(arg interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
 	if controllers, ok := arg.([]*datahub_resources.Controller); ok {
 		for _, controller := range controllers {
-			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name: controller.ObjectMeta.GetName(),
-			})
+			copyController := *controller
+			objMeta = append(objMeta, copyController.ObjectMeta)
 		}
 	}
 	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {

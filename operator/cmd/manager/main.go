@@ -35,6 +35,7 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/probe"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
+	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
@@ -45,6 +46,7 @@ import (
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
@@ -69,6 +71,7 @@ var livenessProbeFlag bool
 var operatorConf operator.Config
 var k8sConfig *rest.Config
 var scope *logUtil.Scope
+var clusterUID string
 
 var (
 	dathubConn    *grpc.ClientConn
@@ -160,6 +163,22 @@ func initThirdPartyClient() {
 	datahubClient = datahubv1alpha1.NewDatahubServiceClient(dathubConn)
 }
 
+func initClusterUID() error {
+	k8sClient, err := client.New(k8sConfig, client.Options{})
+	if err != nil {
+		return errors.Wrap(err, "new kubernetes client failed")
+	}
+
+	clusterUID, err = k8sutils.GetClusterUID(k8sClient)
+	if err != nil {
+		return errors.Wrap(err, "get cluster uid failed")
+	} else if clusterUID == "" {
+		return errors.New("get empty cluster uid")
+	}
+
+	return nil
+}
+
 func main() {
 	flag.Parse()
 	if showVer {
@@ -208,6 +227,10 @@ func main() {
 	initLogger()
 	printSoftwareInfo()
 	initThirdPartyClient()
+	err = initClusterUID()
+	if err != nil {
+		panic(err)
+	}
 
 	scope.Info("Registering Components.")
 	registerThirdPartyCRD()

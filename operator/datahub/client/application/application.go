@@ -14,16 +14,20 @@ import (
 type ApplicationRepository struct {
 	conn          *grpc.ClientConn
 	datahubClient datahub_v1alpha1.DatahubServiceClient
+
+	clusterUID string
 }
 
 // NewApplicationRepository return ApplicationRepository instance
-func NewApplicationRepository(conn *grpc.ClientConn) *ApplicationRepository {
+func NewApplicationRepository(conn *grpc.ClientConn, clusterUID string) *ApplicationRepository {
 
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
 	return &ApplicationRepository{
 		conn:          conn,
 		datahubClient: datahubClient,
+
+		clusterUID: clusterUID,
 	}
 }
 
@@ -34,8 +38,9 @@ func (repo *ApplicationRepository) CreateApplications(arg interface{}) error {
 		for _, app := range apps {
 			applications = append(applications, &datahub_resources.Application{
 				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:      app.GetName(),
-					Namespace: app.GetNamespace(),
+					Name:        app.GetName(),
+					Namespace:   app.GetNamespace(),
+					ClusterName: repo.clusterUID,
 				},
 			})
 		}
@@ -64,7 +69,13 @@ func (repo *ApplicationRepository) CreateApplications(arg interface{}) error {
 func (repo *ApplicationRepository) ListApplications() (
 	[]*datahub_resources.Application, error) {
 	applications := []*datahub_resources.Application{}
-	req := datahub_resources.ListApplicationsRequest{}
+	req := datahub_resources.ListApplicationsRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
 	if reqRes, err := repo.datahubClient.ListApplications(
 		context.Background(), &req); err != nil {
 		if reqRes.Status != nil {
@@ -85,8 +96,9 @@ func (repo *ApplicationRepository) DeleteApplications(
 	if applications, ok := arg.([]*datahub_resources.Application); ok {
 		for _, application := range applications {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name:      application.GetObjectMeta().GetName(),
-				Namespace: application.GetObjectMeta().GetNamespace(),
+				Name:        application.GetObjectMeta().GetName(),
+				Namespace:   application.GetObjectMeta().GetNamespace(),
+				ClusterName: repo.clusterUID,
 			})
 		}
 	}

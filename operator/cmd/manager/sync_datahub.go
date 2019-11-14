@@ -29,7 +29,7 @@ func syncAlamedaPodsWithDatahub(client client.Client, retryInterval int64) {
 }
 
 func startSyncingAlamedaPodsWithDatahubSuccess(client client.Client) error {
-	datahubPodRepo := datahub_pod.NewPodRepository()
+	datahubPodRepo := datahub_pod.NewPodRepository(clusterUID)
 	alamedaPods, err := datahubPodRepo.ListAlamedaPods()
 	if err != nil {
 		return fmt.Errorf("Sync alameda pod with datahub failed: %s", err.Error())
@@ -82,7 +82,7 @@ func syncAlamedaResourcesWithDatahub(client client.Client, retryInterval int64) 
 func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error {
 
 	// Get current conrtoller list from Alameda-Datahub
-	datahubK8SResourceRepository := datahub_client.NewK8SResource()
+	datahubK8SResourceRepository := datahub_client.NewK8SResource(clusterUID)
 	alamedaResources, err := datahubK8SResourceRepository.ListAlamedaWatchedResource("", "")
 	if err != nil {
 		return errors.Wrap(err, "list resources watched by Alameda failed")

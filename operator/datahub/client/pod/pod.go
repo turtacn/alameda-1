@@ -17,11 +17,15 @@ var (
 )
 
 // PodRepository creates predicted pod to datahub
-type PodRepository struct{}
+type PodRepository struct {
+	clusterUID string
+}
 
 // NewPodRepository return PodRepository instance
-func NewPodRepository() *PodRepository {
-	return &PodRepository{}
+func NewPodRepository(clusterUID string) *PodRepository {
+	return &PodRepository{
+		clusterUID: clusterUID,
+	}
 }
 
 func (repo *PodRepository) ListAlamedaPods() ([]*datahub_resources.Pod, error) {
@@ -33,6 +37,11 @@ func (repo *PodRepository) ListAlamedaPods() ([]*datahub_resources.Pod, error) {
 	}
 
 	req := datahub_resources.ListPodsRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				ClusterName: repo.clusterUID,
+			},
+		},
 		Kind: datahub_resources.Kind_POD,
 	}
 	aiServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
@@ -51,9 +60,8 @@ func (repo *PodRepository) DeletePods(arg interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
 	if pods, ok := arg.([]*datahub_resources.Pod); ok {
 		for _, pod := range pods {
-			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name: pod.ObjectMeta.GetName(),
-			})
+			copyPod := *pod
+			objMeta = append(objMeta, copyPod.ObjectMeta)
 		}
 	}
 	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {

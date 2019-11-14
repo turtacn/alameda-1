@@ -5,6 +5,7 @@ import (
 	"time"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -22,7 +23,13 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 		return errors.Errorf(
 			"Sync applications with datahub failed due to list applications from cluster failed: %s", err.Error())
 	}
-	datahubApplicationRepo := NewApplicationRepository(conn)
+
+	clusterUID, err := k8sutils.GetClusterUID(client)
+	if err != nil {
+		return errors.Wrap(err, "get cluster uid failed")
+	}
+
+	datahubApplicationRepo := NewApplicationRepository(conn, clusterUID)
 	if len(applicationList.Items) > 0 {
 		if err := datahubApplicationRepo.CreateApplications(applicationList.Items); err != nil {
 			return fmt.Errorf(

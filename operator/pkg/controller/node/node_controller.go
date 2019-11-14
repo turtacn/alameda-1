@@ -32,6 +32,7 @@ import (
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 
+	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	corev1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -79,7 +80,17 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 		grpc.WithInsecure(), grpc.WithUnaryInterceptor(
 			grpc_retry.UnaryClientInterceptor(
 				grpc_retry.WithMax(grpcDefaultRetry))))
-	datahubNodeRepo := datahub_node.NewNodeRepository(conn)
+
+	k8sClient, err := client.New(mgr.GetConfig(), client.Options{})
+	if err != nil {
+		panic(errors.Wrap(err, "new kuberenetes client failed").Error())
+	}
+	clusterUID, err := k8s_utils.GetClusterUID(k8sClient)
+	if err != nil || clusterUID == "" {
+		panic("cannot get cluster uid")
+	}
+
+	datahubNodeRepo := datahub_node.NewNodeRepository(conn, clusterUID)
 
 	r := ReconcileNode{
 		Client: mgr.GetClient(),
@@ -89,6 +100,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 
 		cloudprovider: cloudprovider,
 		regionName:    regionName,
+		clusterUID:    clusterUID,
 	}
 	return &r
 }
@@ -123,6 +135,7 @@ type ReconcileNode struct {
 
 	cloudprovider string
 	regionName    string
+	clusterUID    string
 }
 
 // Reconcile reads that state of the cluster for a Node object and makes changes based on the state read
@@ -171,7 +184,7 @@ func (r *ReconcileNode) createNodesToDatahub(nodes []*corev1.Node) error {
 
 	datahubNodes := make([]*datahub_resources.Node, len(nodes))
 	for i, nodeInfo := range nodeInfos {
-		n := nodeInfo.DatahubNode()
+		n := nodeInfo.DatahubNode(r.clusterUID)
 		datahubNodes[i] = &n
 	}
 
@@ -187,7 +200,7 @@ func (r *ReconcileNode) deleteNodesFromDatahub(nodes []*corev1.Node) error {
 
 	datahubNodes := make([]*datahub_resources.Node, len(nodes))
 	for i, nodeInfo := range nodeInfos {
-		n := nodeInfo.DatahubNode()
+		n := nodeInfo.DatahubNode(r.clusterUID)
 		datahubNodes[i] = &n
 	}
 
