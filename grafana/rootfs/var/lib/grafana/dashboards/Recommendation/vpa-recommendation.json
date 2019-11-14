@@ -1228,11 +1228,6 @@
             "value": "Cluster"
           },
           {
-            "selected": false,
-            "text": "Namespace",
-            "value": "Namespace"
-          },
-          {
             "selected": true,
             "text": "Application",
             "value": "Application"
@@ -1243,7 +1238,7 @@
             "value": "Container"
           }
         ],
-        "query": "Cluster, Namespace, Application, Container",
+        "query": "Cluster, Application, Container",
         "skipUrlSync": false,
         "type": "custom"
       },
