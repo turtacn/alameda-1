@@ -27,10 +27,6 @@ func (c PodCPUUsageRepository) ListPodCPUUsageMillicoresEntitiesBySummingPodMetr
 	// Example of expression to query prometheus
 	// 1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name!="",container_name!="POD",namespace="@n1",pod_name=~"@p1|@p2"})
 
-	var (
-		queryExpressionFormat = "1000 * sum(" + ContainerCpuUsagePercentageMetricName + "{%s})"
-	)
-
 	prometheusClient, err := InternalPromth.NewClient(&c.PrometheusConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "new prometheus client failed")
@@ -51,13 +47,13 @@ func (c PodCPUUsageRepository) ListPodCPUUsageMillicoresEntitiesBySummingPodMetr
 		names = strings.TrimSuffix(names, "|")
 		queryLabelsString += fmt.Sprintf(`,%s =~ "%s"`, ContainerCpuUsagePercentageLabelPodName, names)
 	}
-	queryExpression := fmt.Sprintf(queryExpressionFormat, queryLabelsString)
-
+	queryExpression := fmt.Sprintf(`%s{%s}`, ContainerCpuUsagePercentageMetricName, queryLabelsString)
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return nil, errors.Wrap(err, "wrap query expression failed")
 	}
+	queryExpression = fmt.Sprintf(`1000 * sum(%s)`, queryExpression)
 
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)

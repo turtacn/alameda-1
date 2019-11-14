@@ -26,9 +26,6 @@ func NewNamespaceMemoryUsageRepositoryWithConfig(cfg InternalPromth.Config) Name
 func (n NamespaceMemoryUsageRepository) ListNamespaceMemoryUsageBytesEntitiesByNamespaceNames(ctx context.Context, namespaceNames []string, options ...DBCommon.Option) ([]EntityPromthMetric.NamespaceMemoryUsageBytesEntity, error) {
 	// Example of expression to query prometheus
 	// sum(container_memory_usage_bytes{pod_name!="",container_name!="",container_name!="POD",namespace=~"@n1"}) by (namespace)
-	var (
-		queryExpressionFormat = "sum(" + ContainerMemoryUsageBytesMetricName + "{%s}) by (" + ContainerMemoryUsageBytesLabelNamespace + ")"
-	)
 
 	prometheusClient, err := InternalPromth.NewClient(&n.PrometheusConfig)
 	if err != nil {
@@ -41,13 +38,13 @@ func (n NamespaceMemoryUsageRepository) ListNamespaceMemoryUsageBytesEntitiesByN
 	}
 
 	queryLabelsString := n.buildQueryLabelsStringByNamespaceNames(namespaceNames)
-	queryExpression := fmt.Sprintf(queryExpressionFormat, queryLabelsString)
-
+	queryExpression := fmt.Sprintf(`%s{%s}`, ContainerMemoryUsageBytesMetricName, queryLabelsString)
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return nil, errors.Wrap(err, "wrap query expression failed")
 	}
+	queryExpression = fmt.Sprintf(`sum(%s) by (%s)`, queryExpression, ContainerMemoryUsageBytesLabelNamespace)
 
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)

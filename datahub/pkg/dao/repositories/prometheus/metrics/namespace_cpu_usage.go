@@ -25,9 +25,6 @@ func NewNamespaceCPUUsageRepositoryWithConfig(cfg InternalPromth.Config) Namespa
 func (c NamespaceCPUUsageRepository) ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(ctx context.Context, namespaceNames []string, options ...DBCommon.Option) ([]EntityPromthMetric.NamespaceCPUUsageMillicoresEntity, error) {
 	// Example of expression to query prometheus
 	// 1000 * sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name!="",container_name!="POD",namespace=~"@n1"}) by (namespace)
-	var (
-		queryExpressionFormat = "1000 * sum(" + ContainerCpuUsagePercentageMetricName + "{%s}) by (" + ContainerCpuUsagePercentageLabelNamespace + ")"
-	)
 
 	prometheusClient, err := InternalPromth.NewClient(&c.PrometheusConfig)
 	if err != nil {
@@ -40,13 +37,13 @@ func (c NamespaceCPUUsageRepository) ListNamespaceCPUUsageMillicoresEntitiesByNa
 	}
 
 	queryLabelsString := c.buildQueryLabelsStringByNamespaceNames(namespaceNames)
-	queryExpression := fmt.Sprintf(queryExpressionFormat, queryLabelsString)
-
+	queryExpression := fmt.Sprintf("%s{%s}", ContainerCpuUsagePercentageMetricName, queryLabelsString)
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return nil, errors.Wrap(err, "wrap query expression failed")
 	}
+	queryExpression = fmt.Sprintf(`1000 * sum(%s) by (%s)`, queryExpression, ContainerCpuUsagePercentageLabelNamespace)
 
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
