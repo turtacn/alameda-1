@@ -47,12 +47,12 @@ func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_gpu.Gpu,
 
 		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, gpu, granularity)
 		if err != nil {
-			scope.Infof("Get gpu (host: %s, minor number) last prediction failed: %s",
+			scope.Infof("Get gpu (host: %s, minor number: %s) last prediction failed: %s",
 				gpuHost, gpuMinorNumber, err.Error())
 			continue
 		}
 		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("No prediction found of gpu (host: %s, minor number)",
+			scope.Infof("No prediction found of gpu (host: %s, minor number: %s)",
 				gpuHost, gpuMinorNumber)
 		}
 		sender.sendJobByMetrics(gpu, queueSender, pdUnit, granularity, predictionStep,
@@ -175,7 +175,7 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 			datahub_common.MetricType_DUTY_CYCLE,
 		)
 		sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
-		scope.Infof("No prediction metric found of gpu (host: %s, minor number)",
+		scope.Infof("No prediction metric found of gpu (host: %s, minor number: %s)",
 			gpuHost, gpuMinorNumber)
 		return
 	}
@@ -185,7 +185,7 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 				datahub_common.MetricType_MEMORY_USAGE_BYTES,
 				datahub_common.MetricType_DUTY_CYCLE)
 			sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
-			scope.Infof("No prediction metric %s found of gpu (host: %s, minor number)",
+			scope.Infof("No prediction metric %s found of gpu (host: %s, minor number: %s)",
 				lastPredictionMetric.GetMetricType().String(), gpuHost, gpuMinorNumber)
 			return
 		} else {

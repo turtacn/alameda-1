@@ -44,8 +44,8 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, qu
 			continue
 		}
 
-		podNS := pod.ObjectMeta.GetNamespace()
-		podName := pod.ObjectMeta.GetName()
+		podNS := pod.GetObjectMeta().GetNamespace()
+		podName := pod.GetObjectMeta().GetName()
 		lastPredictionContainers, err := sender.getLastPrediction(datahubServiceClnt, pod, granularity)
 		if err != nil {
 			scope.Errorf("Get pod (%s/%s) last Prediction failed: %s",
@@ -63,8 +63,8 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, qu
 func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender queue.QueueSender, pdUnit string,
 	granularity int64, podInfo *modelInfo) {
 	marshaler := jsonpb.Marshaler{}
-	podNS := pod.ObjectMeta.GetNamespace()
-	podName := pod.ObjectMeta.GetName()
+	podNS := pod.GetObjectMeta().GetNamespace()
+	podName := pod.GetObjectMeta().GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	podStr, err := marshaler.MarshalToString(pod)
 
@@ -129,8 +129,8 @@ func (sender *podModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1
 			Granularity: granularity,
 			ObjectMeta: []*datahub_resources.ObjectMeta{
 				&datahub_resources.ObjectMeta{
-					Name:      pod.ObjectMeta.GetName(),
-					Namespace: pod.ObjectMeta.GetNamespace(),
+					Name:      pod.GetObjectMeta().GetName(),
+					Namespace: pod.GetObjectMeta().GetNamespace(),
 				},
 			},
 			QueryCondition: &datahub_common.QueryCondition{
@@ -172,8 +172,8 @@ func (sender *podModelJobSender) getQueryMetricStartTime(descPodPredictions []*d
 func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64, datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	lastPredictionContainers []*datahub_predictions.ContainerPrediction) {
-	podNS := pod.ObjectMeta.GetNamespace()
-	podName := pod.ObjectMeta.GetName()
+	podNS := pod.GetObjectMeta().GetNamespace()
+	podName := pod.GetObjectMeta().GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	queryCondition := &datahub_common.QueryCondition{
 		Order: datahub_common.QueryCondition_DESC,
@@ -257,8 +257,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 					&datahub_predictions.ListPodPredictionsRequest{
 						ObjectMeta: []*datahub_resources.ObjectMeta{
 							&datahub_resources.ObjectMeta{
-								Name:      pod.ObjectMeta.GetName(),
-								Namespace: pod.ObjectMeta.GetNamespace(),
+								Name:      pod.GetObjectMeta().GetName(),
+								Namespace: pod.GetObjectMeta().GetNamespace(),
 							},
 						},
 						ModelId:        lastPrediction.GetModelId(),
@@ -287,8 +287,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 						},
 						ObjectMeta: []*datahub_resources.ObjectMeta{
 							&datahub_resources.ObjectMeta{
-								Name:      pod.ObjectMeta.GetName(),
-								Namespace: pod.ObjectMeta.GetNamespace(),
+								Name:      pod.GetObjectMeta().GetName(),
+								Namespace: pod.GetObjectMeta().GetNamespace(),
 							},
 						},
 					})

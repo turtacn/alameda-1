@@ -130,27 +130,18 @@ func startSyncingAlamedaResourcesWithDatahubSuccess(client client.Client) error 
 
 		// Get AlamedaScaler that owning this controller from k8s,
 		// if AlamedaScaler is not existed, append conttoller to the list that needs to delete
-		ownerInfos := alamedaResource.GetOwnerReferences()
-		for _, ownerInfo := range ownerInfos {
-			if ownerInfo == nil {
-				continue
-			}
-			if ownerInfo.GetKind() != datahub_resources.Kind_ALAMEDASCALER {
-				continue
-			}
 
-			alamScalerNS := ownerInfo.GetObjectMeta().GetNamespace()
-			alamScalerName := ownerInfo.GetObjectMeta().GetName()
-			if alamScalerNS == "" && alamScalerName == "" {
-				continue
-			}
-			_, err = getResource.GetAlamedaScaler(alamScalerNS, alamScalerName)
-			if err != nil && k8sErrors.IsNotFound(err) {
-				controllersNeedToRm = append(controllersNeedToRm, alamedaResource)
-				break
-			} else if err != nil {
-				return errors.Wrapf(err, "get AlamedaScaler (%s/%s) failed", alamScalerNS, alamScalerName)
-			}
+		alamScalerNS := alamedaResource.GetAlamedaControllerSpec().GetAlamedaScaler().GetNamespace()
+		alamScalerName := alamedaResource.GetAlamedaControllerSpec().GetAlamedaScaler().GetName()
+		if alamScalerNS == "" && alamScalerName == "" {
+			continue
+		}
+		_, err = getResource.GetAlamedaScaler(alamScalerNS, alamScalerName)
+		if err != nil && k8sErrors.IsNotFound(err) {
+			controllersNeedToRm = append(controllersNeedToRm, alamedaResource)
+			break
+		} else if err != nil {
+			return errors.Wrapf(err, "get AlamedaScaler (%s/%s) failed", alamScalerNS, alamScalerName)
 		}
 	}
 

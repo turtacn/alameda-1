@@ -25,6 +25,7 @@ import (
 	"time"
 
 	datahubclient "github.com/containers-ai/alameda/operator/datahub/client"
+	datahub_application "github.com/containers-ai/alameda/operator/datahub/client/application"
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
@@ -33,23 +34,23 @@ import (
 	alamutils "github.com/containers-ai/alameda/pkg/utils"
 	datahubutilscontainer "github.com/containers-ai/alameda/pkg/utils/datahub/container"
 	datahubutilspod "github.com/containers-ai/alameda/pkg/utils/datahub/pod"
+	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
-	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -61,6 +62,7 @@ var (
 
 	onceCheckHasOpenshiftAPIAppsV1 = sync.Once{}
 	hasOpenshiftAPIAppsV1          = false
+	grpcDefaultRetry               = uint(3)
 )
 
 var cachedFirstSynced = false
@@ -79,7 +81,15 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileAlamedaScaler{Client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	conn, _ := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(grpcDefaultRetry))))
+	datahubApplicationRepo := datahub_application.NewApplicationRepository(conn)
+	return &ReconcileAlamedaScaler{
+		Client: mgr.GetClient(),
+		scheme: mgr.GetScheme(),
+
+		datahubApplicationRepo: datahubApplicationRepo,
+	}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -105,6 +115,8 @@ var _ reconcile.Reconciler = &ReconcileAlamedaScaler{}
 type ReconcileAlamedaScaler struct {
 	client.Client
 	scheme *runtime.Scheme
+
+	datahubApplicationRepo *datahub_application.ApplicationRepository
 }
 
 // Reconcile reads that state of the cluster for a AlamedaScaler object and makes changes based on the state read
@@ -142,6 +154,20 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			scope.Errorf("Remove alameda controllers of alamedascaler (%s/%s) from datahub failed. %s", request.Namespace, request.Name, err.Error())
 		} else {
 			scope.Infof("Remove alameda controllers of alamedascaler (%s/%s) from datahub successed.", request.Namespace, request.Name)
+		}
+
+		// Delete application from datahub
+		err = r.datahubApplicationRepo.DeleteApplications([]*datahub_resources.Application{
+			&datahub_resources.Application{
+				ObjectMeta: &datahub_resources.ObjectMeta{
+					Name:      request.NamespacedName.Name,
+					Namespace: request.NamespacedName.Namespace,
+				},
+			},
+		})
+		if err != nil {
+			scope.Errorf("Delete application %s/%s from datahub failed: %s",
+				request.NamespacedName.Namespace, request.NamespacedName.Name, err.Error())
 		}
 	} else if err == nil {
 		// TODO: deployment already in the AlamedaScaler cannot join the other
@@ -226,6 +252,19 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 			return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
 		}
 
+		// add application from datahub
+		err = r.datahubApplicationRepo.CreateApplications([]*datahub_resources.Application{
+			&datahub_resources.Application{
+				ObjectMeta: &datahub_resources.ObjectMeta{
+					Name:      request.NamespacedName.Name,
+					Namespace: request.NamespacedName.Namespace,
+				},
+			},
+		})
+		if err != nil {
+			scope.Errorf("Create application %s/%s from datahub failed: %s",
+				request.NamespacedName.Namespace, request.NamespacedName.Name, err.Error())
+		}
 	} else {
 		scope.Errorf("get AlamedaScaler %s/%s failed: %s", request.Namespace, request.Name, err.Error())
 		return reconcile.Result{Requeue: true, RequeueAfter: 1 * time.Second}, nil
@@ -316,15 +355,6 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				Name:      dc.Name,
 			},
 			Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
-			OwnerReferences: []*datahub_resources.OwnerReference{
-				&datahub_resources.OwnerReference{
-					ObjectMeta: &datahub_resources.ObjectMeta{
-						Namespace: dc.Namespace,
-						Name:      dc.Name,
-					},
-					Kind: datahub_resources.Kind_ALAMEDASCALER,
-				},
-			},
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
@@ -346,15 +376,6 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				Name:      deploy.Name,
 			},
 			Kind: datahub_resources.Kind_DEPLOYMENT,
-			OwnerReferences: []*datahub_resources.OwnerReference{
-				&datahub_resources.OwnerReference{
-					ObjectMeta: &datahub_resources.ObjectMeta{
-						Namespace: scaler.GetNamespace(),
-						Name:      scaler.GetName(),
-					},
-					Kind: datahub_resources.Kind_ALAMEDASCALER,
-				},
-			},
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
@@ -376,15 +397,6 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 				Name:      statefulSet.Name,
 			},
 			Kind: datahub_resources.Kind_STATEFULSET,
-			OwnerReferences: []*datahub_resources.OwnerReference{
-				&datahub_resources.OwnerReference{
-					ObjectMeta: &datahub_resources.ObjectMeta{
-						Namespace: scaler.GetNamespace(),
-						Name:      scaler.GetName(),
-					},
-					Kind: datahub_resources.Kind_ALAMEDASCALER,
-				},
-			},
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
@@ -402,12 +414,13 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 
 	for _, ctlr := range ctlrsFromDH {
 		isOwnedScaler := false
-		for _, ownedInfo := range ctlr.GetOwnerReferences() {
-			if ownedInfo.Kind == datahub_resources.Kind_ALAMEDASCALER && ownedInfo.GetObjectMeta().GetName() == scaler.GetName() {
-				isOwnedScaler = true
-				break
-			}
+		ctScalerNS := ctlr.GetAlamedaControllerSpec().GetAlamedaScaler().GetNamespace()
+		ctScalerName := ctlr.GetAlamedaControllerSpec().GetAlamedaScaler().GetName()
+		if ctScalerNS == scaler.GetNamespace() && ctScalerName == scaler.GetName() {
+			isOwnedScaler = true
+			break
 		}
+
 		if !isOwnedScaler {
 			continue
 		}
@@ -429,15 +442,6 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 						Name:      ctlrName,
 					},
 					Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
-					OwnerReferences: []*datahub_resources.OwnerReference{
-						&datahub_resources.OwnerReference{
-							ObjectMeta: &datahub_resources.ObjectMeta{
-								Namespace: scaler.GetNamespace(),
-								Name:      scaler.GetName(),
-							},
-							Kind: datahub_resources.Kind_ALAMEDASCALER,
-						},
-					},
 				})
 			}
 		} else if ctlrKind == datahub_resources.Kind_DEPLOYMENT {
@@ -454,15 +458,6 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 						Name:      ctlrName,
 					},
 					Kind: datahub_resources.Kind_DEPLOYMENT,
-					OwnerReferences: []*datahub_resources.OwnerReference{
-						&datahub_resources.OwnerReference{
-							ObjectMeta: &datahub_resources.ObjectMeta{
-								Namespace: scaler.GetNamespace(),
-								Name:      scaler.GetName(),
-							},
-							Kind: datahub_resources.Kind_ALAMEDASCALER,
-						},
-					},
 				})
 			}
 		} else if ctlrKind == datahub_resources.Kind_STATEFULSET {
@@ -479,15 +474,6 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 						Name:      ctlrName,
 					},
 					Kind: datahub_resources.Kind_STATEFULSET,
-					OwnerReferences: []*datahub_resources.OwnerReference{
-						&datahub_resources.OwnerReference{
-							ObjectMeta: &datahub_resources.ObjectMeta{
-								Namespace: scaler.GetNamespace(),
-								Name:      scaler.GetName(),
-							},
-							Kind: datahub_resources.Kind_ALAMEDASCALER,
-						},
-					},
 				})
 			}
 		}
@@ -675,19 +661,10 @@ func deleteControllersFromDatahub(scalerNamespace, scalerName string) error {
 
 	controllersNeedDelete := make([]*datahub_resources.Controller, 0)
 	for _, controller := range controllers {
-		for _, ownerInfo := range controller.GetOwnerReferences() {
-			if ownerInfo == nil {
-				continue
-			}
-			oiNS := ownerInfo.GetObjectMeta().GetNamespace()
-			oiName := ownerInfo.GetObjectMeta().GetName()
-			if oiNS == "" && oiName == "" {
-				continue
-			}
-			if oiNS == scalerNamespace && oiName == scalerName &&
-				ownerInfo.Kind == datahub_resources.Kind_ALAMEDASCALER {
-				controllersNeedDelete = append(controllersNeedDelete, controller)
-			}
+		ctScalerNS := controller.GetAlamedaControllerSpec().GetAlamedaScaler().GetNamespace()
+		ctScalerName := controller.GetAlamedaControllerSpec().GetAlamedaScaler().GetName()
+		if ctScalerNS == scalerNamespace && ctScalerName == scalerName {
+			controllersNeedDelete = append(controllersNeedDelete, controller)
 		}
 	}
 

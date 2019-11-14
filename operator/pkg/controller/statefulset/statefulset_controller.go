@@ -21,12 +21,16 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 
+	datahub_client_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
 	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	controllerutil "github.com/containers-ai/alameda/operator/pkg/controller/util"
+	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/pkg/utils/log"
-
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	appsv1 "k8s.io/api/apps/v1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,8 +43,9 @@ import (
 )
 
 var (
-	scope           = log.RegisterScope("statefulset_controller", "deployment controller log", 0)
-	requeueDuration = 1 * time.Second
+	scope            = log.RegisterScope("statefulset_controller", "deployment controller log", 0)
+	requeueDuration  = 1 * time.Second
+	grpcDefaultRetry = uint(3)
 )
 
 /**
@@ -56,7 +61,14 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileStatefulSet{Client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	conn, _ := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(grpcDefaultRetry))))
+	datahubControllerRepo := datahub_client_controller.NewControllerRepository(conn)
+	return &ReconcileStatefulSet{
+		Client:                mgr.GetClient(),
+		scheme:                mgr.GetScheme(),
+		datahubControllerRepo: datahubControllerRepo,
+	}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -82,6 +94,8 @@ var _ reconcile.Reconciler = &ReconcileStatefulSet{}
 type ReconcileStatefulSet struct {
 	client.Client
 	scheme *runtime.Scheme
+
+	datahubControllerRepo *datahub_client_controller.ControllerRepository
 }
 
 // Reconcile reads that state of the cluster for a StatefulSet object and makes changes based on the state read
@@ -114,6 +128,21 @@ func (r *ReconcileStatefulSet) Reconcile(request reconcile.Request) (reconcile.R
 		if err != nil {
 			scope.Errorf("Update AlamedaScaler falied: %s", err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+		}
+
+		// delete controller to datahub
+		err = r.datahubControllerRepo.DeleteControllers([]*datahub_resources.Controller{
+			&datahub_resources.Controller{
+				ObjectMeta: &datahub_resources.ObjectMeta{
+					Name:      request.NamespacedName.Name,
+					Namespace: request.NamespacedName.Namespace,
+				},
+				Kind: datahub_resources.Kind_STATEFULSET,
+			},
+		}, nil)
+		if err != nil {
+			scope.Errorf("Delete controller %s/%s from datahub failed: %s",
+				request.NamespacedName.Namespace, request.NamespacedName.Name, err.Error())
 		}
 	} else if err != nil {
 		scope.Errorf("Get StatefulSet %s/%s failed: %s", request.Namespace, request.Name, err.Error())
@@ -158,6 +187,20 @@ func (r *ReconcileStatefulSet) Reconcile(request reconcile.Request) (reconcile.R
 		if err != nil {
 			scope.Errorf("Update StatefulSet falied: %s", err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+		}
+		// add controller to datahub
+		err = r.datahubControllerRepo.CreateControllers([]*datahub_resources.Controller{
+			&datahub_resources.Controller{
+				ObjectMeta: &datahub_resources.ObjectMeta{
+					Name:      request.NamespacedName.Name,
+					Namespace: request.NamespacedName.Namespace,
+				},
+				Kind: datahub_resources.Kind_STATEFULSET,
+			},
+		})
+		if err != nil {
+			scope.Errorf("Create controller %s/%s from datahub failed: %s",
+				request.NamespacedName.Namespace, request.NamespacedName.Name, err.Error())
 		}
 	}
 

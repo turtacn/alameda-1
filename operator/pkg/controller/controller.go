@@ -17,7 +17,6 @@ limitations under the License.
 package controller
 
 import (
-	"github.com/containers-ai/alameda/operator/pkg/controller/firstsync"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -26,11 +25,6 @@ var AddToManagerFuncs []func(manager.Manager) error
 
 // OpenshiftControllerAddFuncs is a list of functions to add all Controllers to the Manager which functions are reconciling kinds provided by Openshift
 var OpenshiftControllerAddFuncs []func(manager.Manager) error
-
-type GetFirtSynchronizerFunc func() firstsync.FirstSynchronizer
-
-// GetFirtSynchronizerFuncs is a list of func that
-var GetFirtSynchronizerFuncs []GetFirtSynchronizerFunc
 
 // AddToManager adds all Controllers to the Manager
 func AddToManager(m manager.Manager) error {

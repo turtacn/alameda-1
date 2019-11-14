@@ -17,7 +17,9 @@ url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
 
 [serviceSetting]
 granularities = ["30s", "1h", "6h", "24h"]
-predictUnits = ["POD", "NODE", "GPU"]
+predictUnits = ["POD", "NODE", "GPU", "NAMESPACE",
+  "APPLICATION", "CLUSTER", "CONTROLLER"
+]
 
 [granularities]
 
@@ -59,6 +61,18 @@ predictUnits = ["POD", "NODE", "GPU"]
 
   [predictUnits.GPU]
   type = "GPU"
+
+  [predictUnits.NAMESPACE]
+  type = "NAMESPACE"
+
+  [predictUnits.APPLICATION]
+  type = "APPLICATION"
+
+  [predictUnits.CLUSTER]
+  type = "CLUSTER"
+
+  [predictUnits.CONTROLLER]
+  type = "CONTROLLER"
 
 [log]
 setLogcallers = true

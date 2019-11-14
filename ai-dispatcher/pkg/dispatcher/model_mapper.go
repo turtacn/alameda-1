@@ -42,6 +42,7 @@ type container struct {
 	Name         string                      `json:"name"`
 	ModelMetrics []datahub_common.MetricType `json:"modelMetrics"`
 }
+
 type podModel struct {
 	NamespacedName *namespacedName `json:"namespaced_name,omitempty"`
 	Containers     []*container    `json:"containers,omitempty"`
@@ -50,6 +51,7 @@ type podModel struct {
 type nodeModel struct {
 	Name string `json:"name,omitempty"`
 }
+
 type gpuModel struct {
 	Host        string `json:"host,omitempty"`
 	MinorNumber string `json:"minor_number,omitempty"`

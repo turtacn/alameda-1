@@ -43,7 +43,7 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 			continue
 		}
 
-		nodeName := node.ObjectMeta.GetName()
+		nodeName := node.GetObjectMeta().GetName()
 		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, node, granularity)
 		if err != nil {
 			scope.Infof("Get node %s last prediction failed: %s",
@@ -62,7 +62,7 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 
 func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSender queue.QueueSender, pdUnit string,
 	granularity int64, nodeInfo *modelInfo) {
-	nodeName := node.ObjectMeta.GetName()
+	nodeName := node.GetObjectMeta().GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	marshaler := jsonpb.Marshaler{}
 	nodeStr, err := marshaler.MarshalToString(node)
@@ -104,7 +104,7 @@ func (sender *nodeModelJobSender) genNodeInfo(nodeName string,
 
 func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	node *datahub_resources.Node, granularity int64) ([]*datahub_predictions.MetricData, error) {
-	nodeName := node.ObjectMeta.GetName()
+	nodeName := node.GetObjectMeta().GetName()
 	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 		&datahub_predictions.ListNodePredictionsRequest{
 			ObjectMeta: []*datahub_resources.ObjectMeta{
@@ -155,7 +155,7 @@ func (sender *nodeModelJobSender) getQueryMetricStartTime(descNodePredictions []
 func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64, datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	lastPredictionMetrics []*datahub_predictions.MetricData) {
-	nodeName := node.ObjectMeta.GetName()
+	nodeName := node.GetObjectMeta().GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	queryCondition := &datahub_common.QueryCondition{
 		Order: datahub_common.QueryCondition_DESC,

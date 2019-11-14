@@ -1,0 +1,28 @@
+exclude_namespaces = ["kube-public", "kube-service-catalog",
+  "kube-system", "management-infra", "openshift",
+  "openshift-console", "openshift-infra", "openshift-logging",
+  "openshift-monitoring", "openshift-node", "openshift-sdn",
+  "openshift-template-service-broker", "openshift-web-console",
+  "kube-node-lease", "stackpoint-system", "openshift-ansible-service-broker"
+]
+
+[log]
+setLogcallers = true
+outputLevel = "info" # debug, info, warn, error, fatal, none
+filePath = "/var/log/alameda/alameda-operator.log"
+
+[datahub]
+address = "datahub.alameda.svc.cluster.local:50050"
+  [datahub.retryInterval]
+  default = 3 # second
+
+[k8sWebhookServer]
+port = 50443
+validatingWebhookConfigName = "operator-k8s-admission-validation"
+certDir = "/tmp/k8s-webhook-server/cert/"
+  [k8sWebhookServer.service]
+  name = "operator-admission-service"
+  port = 443
+
+[podInfo]
+labelsFile = "/etc/podinfo/labels"

@@ -136,6 +136,121 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
 					}
 				}
+			} else if unitType == UnitTypeApplication {
+				appNamespacedName := unit["namespaced_name"].(map[string]interface{})
+				appNS := appNamespacedName["namespace"].(string)
+				appName := appNamespacedName["name"].(string)
+				modelMapper.RemoveModelInfo(unitType, dataGranularity,
+					fmt.Sprintf("%s/%s", appNS, appName))
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export application %s model time metric with granularity %s value %v",
+					fmt.Sprintf("%s/%s", appNS, appName), dataGranularity, mt)
+				metricExporter.ExportApplicationMetricModelTime(appNS, appName,
+					dataGranularity, float64(mt))
+
+				res, err := datahubServiceClnt.ListApplications(context.Background(),
+					&datahub_resources.ListApplicationsRequest{
+						ObjectMeta: []*datahub_resources.ObjectMeta{
+							&datahub_resources.ObjectMeta{
+								Namespace: appNS,
+								Name:      appName,
+							},
+						},
+					})
+				if err == nil {
+					applications := res.GetApplications()
+					if len(applications) > 0 {
+						scope.Infof("application %s/%s model job completed and send predict job for granularity %s",
+							appNS, appName, dataGranularity)
+						predictJobSender.SendApplicationPredictJobs(applications, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
+			} else if unitType == UnitTypeNamespace {
+				namespaceName := unit["name"].(string)
+				modelMapper.RemoveModelInfo(unitType, dataGranularity, namespaceName)
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export namespace %s model time metric with granularity %s value %v",
+					namespaceName, dataGranularity, mt)
+				metricExporter.ExportNamespaceMetricModelTime(namespaceName, dataGranularity, float64(mt))
+
+				res, err := datahubServiceClnt.ListNamespaces(context.Background(),
+					&datahub_resources.ListNamespacesRequest{
+						ObjectMeta: []*datahub_resources.ObjectMeta{
+							&datahub_resources.ObjectMeta{
+								Name: namespaceName,
+							},
+						},
+					})
+				if err == nil {
+					namespaces := res.GetNamespaces()
+					if len(namespaces) > 0 {
+						scope.Infof("namespace %s model job completed and send predict job for granularity %s",
+							namespaceName, dataGranularity)
+						predictJobSender.SendNamespacePredictJobs(namespaces, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
+			} else if unitType == UnitTypeCluster {
+				clusterName := unit["name"].(string)
+				modelMapper.RemoveModelInfo(unitType, dataGranularity, clusterName)
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export cluster %s model time metric with granularity %s value %v",
+					clusterName, dataGranularity, mt)
+				metricExporter.ExportClusterMetricModelTime(clusterName, dataGranularity, float64(mt))
+
+				res, err := datahubServiceClnt.ListClusters(context.Background(),
+					&datahub_resources.ListClustersRequest{
+						ObjectMeta: []*datahub_resources.ObjectMeta{
+							&datahub_resources.ObjectMeta{
+								Name: clusterName,
+							},
+						},
+					})
+				if err == nil {
+					clusters := res.GetClusters()
+					if len(clusters) > 0 {
+						scope.Infof("cluster %s model job completed and send predict job for granularity %s",
+							clusterName, dataGranularity)
+						predictJobSender.SendClusterPredictJobs(clusters, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
+			} else if unitType == UnitTypeController {
+				appNamespacedName := unit["namespaced_name"].(map[string]interface{})
+				appNS := appNamespacedName["namespace"].(string)
+				appName := appNamespacedName["name"].(string)
+				kind := unit["kind"].(string)
+				modelMapper.RemoveModelInfo(unitType, dataGranularity,
+					fmt.Sprintf("%s/%s", appNS, appName))
+
+				mt := time.Now().Unix() - jobCreateTime
+				scope.Infof("export controller %s model time metric with granularity %s value %v",
+					fmt.Sprintf("%s/%s", appNS, appName), dataGranularity, mt)
+				metricExporter.ExportControllerMetricModelTime(appNS, appName,
+					kind, dataGranularity, float64(mt))
+
+				res, err := datahubServiceClnt.ListControllers(context.Background(),
+					&datahub_resources.ListControllersRequest{
+						ObjectMeta: []*datahub_resources.ObjectMeta{
+							&datahub_resources.ObjectMeta{
+								Namespace: appNS,
+								Name:      appName,
+							},
+						},
+					})
+				if err == nil {
+					controllers := res.GetControllers()
+					if len(controllers) > 0 {
+						scope.Infof("controller %s/%s model job completed and send predict job for granularity %s",
+							appNS, appName, dataGranularity)
+						predictJobSender.SendControllerPredictJobs(controllers, queueSender,
+							unitType, queue.GetGranularitySec(strings.Trim(dataGranularity, " ")))
+					}
+				}
 			}
 		}
 		queueConn.Close()

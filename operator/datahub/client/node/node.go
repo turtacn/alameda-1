@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/grpc"
+	corev1 "k8s.io/api/core/v1"
 )
 
 // providerID: aws:///us-west-2a/i-0769ec8570198bf4b --> <provider_raw>//<region>//<instance_id>
@@ -18,8 +19,8 @@ type AlamedaNodeRepository struct {
 	datahubClient datahub_v1alpha1.DatahubServiceClient
 }
 
-// NewAlamedaNodeRepository return AlamedaNodeRepository instance
-func NewAlamedaNodeRepository(conn *grpc.ClientConn) *AlamedaNodeRepository {
+// NewNodeRepository return AlamedaNodeRepository instance
+func NewNodeRepository(conn *grpc.ClientConn) *AlamedaNodeRepository {
 
 	datahubClient := datahub_v1alpha1.NewDatahubServiceClient(conn)
 
@@ -33,29 +34,44 @@ func (repo *AlamedaNodeRepository) Close() {
 	repo.conn.Close()
 }
 
-// CreateAlamedaNode creates predicted node to datahub
-func (repo *AlamedaNodeRepository) CreateAlamedaNode(nodes []*datahub_resources.Node) error {
-	return repo.createAlamedaNode(nodes)
-}
+// CreateNodes creates predicted node to datahub
+func (repo *AlamedaNodeRepository) CreateNodes(
+	arg interface{}) error {
+	nodes := []*datahub_resources.Node{}
 
-func (repo *AlamedaNodeRepository) createAlamedaNode(nodes []*datahub_resources.Node) error {
-
-	req := datahub_resources.CreateNodesRequest{
-		Nodes: nodes,
+	if coreNodes, ok := arg.([]corev1.Node); ok {
+		for _, coreNode := range coreNodes {
+			nodes = append(nodes, &datahub_resources.Node{
+				ObjectMeta: &datahub_resources.ObjectMeta{
+					Name: coreNode.GetName(),
+				},
+			})
+		}
 	}
 
-	if reqRes, err := repo.datahubClient.CreateNodes(context.Background(), &req); err != nil {
-		return errors.Errorf("create nodes to datahub failed: %s", err.Error())
-	} else if reqRes == nil {
-		return errors.Errorf("create nodes to datahub failed: receive nil status")
-	} else if reqRes.Code != int32(code.Code_OK) {
-		return errors.Errorf("create nodes to datahub failed: receive statusCode: %d, message: %s", reqRes.Code, reqRes.Message)
+	if len(nodes) > 0 {
+		req := datahub_resources.CreateNodesRequest{
+			Nodes: nodes,
+		}
+
+		if reqRes, err := repo.datahubClient.CreateNodes(context.Background(),
+			&req); err != nil {
+			return errors.Errorf("create nodes to datahub failed: %s",
+				err.Error())
+		} else if reqRes == nil {
+			return errors.Errorf("create nodes to datahub failed: receive nil status")
+		} else if reqRes.Code != int32(code.Code_OK) {
+			return errors.Errorf(
+				"create nodes to datahub failed: receive statusCode: %d, message: %s",
+				reqRes.Code, reqRes.Message)
+		}
 	}
+
 	return nil
 }
 
-// DeleteAlamedaNodes delete predicted node from datahub
-func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(arg interface{}) error {
+// DeleteNodes delete predicted node from datahub
+func (repo *AlamedaNodeRepository) DeleteNodes(arg interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
 	if nodes, ok := arg.([]*datahub_resources.Node); ok {
 		for _, node := range nodes {
@@ -80,8 +96,8 @@ func (repo *AlamedaNodeRepository) DeleteAlamedaNodes(arg interface{}) error {
 	return nil
 }
 
-// ListAlamedaNodes lists nodes to datahub
-func (repo *AlamedaNodeRepository) ListAlamedaNodes() ([]*datahub_resources.Node, error) {
+// ListNodes lists nodes to datahub
+func (repo *AlamedaNodeRepository) ListNodes() ([]*datahub_resources.Node, error) {
 	return repo.listAlamedaNodes()
 }
 

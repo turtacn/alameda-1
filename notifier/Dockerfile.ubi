@@ -1,5 +1,5 @@
 # This Dockerfile is used for building notifier on https://connect.redhat.com
-FROM openshift/origin-release:golang-1.12 as builder
+FROM openshift/origin-release:golang-1.13 as builder
 RUN yum update -y
 
 ENV GOPATH /go

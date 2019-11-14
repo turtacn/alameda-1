@@ -25,7 +25,6 @@ import (
 	"google.golang.org/grpc"
 
 	datahub_node "github.com/containers-ai/alameda/operator/datahub/client/node"
-	"github.com/containers-ai/alameda/operator/pkg/controller/firstsync"
 	nodeinfo "github.com/containers-ai/alameda/operator/pkg/nodeinfo"
 	datahubutils "github.com/containers-ai/alameda/operator/pkg/utils/datahub"
 	"github.com/containers-ai/alameda/pkg/provider"
@@ -35,7 +34,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -46,10 +44,9 @@ import (
 )
 
 var (
-	firstSynchronizer firstsync.FirstSynchronizer
-	scope             = logUtil.RegisterScope("node_controller", "node controller log", 0)
-	requeueInterval   = 3 * time.Second
-	grpcDefaultRetry  = uint(3)
+	scope            = logUtil.RegisterScope("node_controller", "node controller log", 0)
+	requeueInterval  = 3 * time.Second
+	grpcDefaultRetry = uint(3)
 )
 
 /**
@@ -61,11 +58,6 @@ var (
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
 	return add(mgr, newReconciler(mgr))
-}
-
-// GetFirstSynchronizer returns reconciler as the FirstSynchronizer
-func GetFirstSynchronizer() firstsync.FirstSynchronizer {
-	return firstSynchronizer
 }
 
 // newReconciler returns a new reconcile.Reconciler
@@ -83,8 +75,11 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 		regionName = provider.AWSRegionMap[provider.GetEC2Region()]
 	}
 
-	conn, _ := grpc.Dial(datahubutils.GetDatahubAddress(), grpc.WithInsecure(), grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(grpcDefaultRetry))))
-	datahubNodeRepo := datahub_node.NewAlamedaNodeRepository(conn)
+	conn, _ := grpc.Dial(datahubutils.GetDatahubAddress(),
+		grpc.WithInsecure(), grpc.WithUnaryInterceptor(
+			grpc_retry.UnaryClientInterceptor(
+				grpc_retry.WithMax(grpcDefaultRetry))))
+	datahubNodeRepo := datahub_node.NewNodeRepository(conn)
 
 	r := ReconcileNode{
 		Client: mgr.GetClient(),
@@ -95,7 +90,6 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 		cloudprovider: cloudprovider,
 		regionName:    regionName,
 	}
-	firstSynchronizer = &r
 	return &r
 }
 
@@ -129,54 +123,6 @@ type ReconcileNode struct {
 
 	cloudprovider string
 	regionName    string
-}
-
-// FirstSync synchronizes k8s nodes with Datahub
-func (r *ReconcileNode) FirstSync() error {
-
-	// Create existing nodes to Datahub
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	nodeList := corev1.NodeList{}
-	if err := r.Client.List(ctx, nil, &nodeList); err != nil {
-		return errors.Errorf("get node list failed: %s", err.Error())
-	}
-	nodes := make([]*corev1.Node, len(nodeList.Items))
-	for i, node := range nodeList.Items {
-		tmpNode := node
-		nodes[i] = &tmpNode
-	}
-	if err := r.createNodesToDatahub(nodes); err != nil {
-		return errors.Wrap(err, "create nodes to Datahub failed")
-	}
-
-	// Clean up unexisting nodes from Datahub
-	existingNodeMap := make(map[string]bool)
-	for _, node := range nodeList.Items {
-		existingNodeMap[node.Name] = true
-	}
-	nodesFromDatahub, err := r.datahubNodeRepo.ListAlamedaNodes()
-	if err != nil {
-		return errors.Wrap(err, "list nodes from Datahub failed")
-	}
-	nodesNeedDeleting := make([]*datahub_resources.Node, 0)
-	for _, n := range nodesFromDatahub {
-		if _, exist := existingNodeMap[n.ObjectMeta.GetName()];exist {
-			continue
-		}
-		nodeInfo, err := r.createNodeInfo(&corev1.Node{ObjectMeta: metav1.ObjectMeta{Name: n.ObjectMeta.GetName()}})
-		if err != nil {
-			return errors.Wrap(err, "create nodeInfo failed")
-		}
-		datahubNode := nodeInfo.DatahubNode()
-		nodesNeedDeleting = append(nodesNeedDeleting, &datahubNode)
-	}
-	err = r.datahubNodeRepo.DeleteAlamedaNodes(nodesNeedDeleting)
-	if err != nil {
-		return errors.Wrap(err, "delete nodes from Datahub failed")
-	}
-
-	return nil
 }
 
 // Reconcile reads that state of the cluster for a Node object and makes changes based on the state read
@@ -229,7 +175,7 @@ func (r *ReconcileNode) createNodesToDatahub(nodes []*corev1.Node) error {
 		datahubNodes[i] = &n
 	}
 
-	return r.datahubNodeRepo.CreateAlamedaNode(datahubNodes)
+	return r.datahubNodeRepo.CreateNodes(datahubNodes)
 }
 
 func (r *ReconcileNode) deleteNodesFromDatahub(nodes []*corev1.Node) error {
@@ -245,7 +191,7 @@ func (r *ReconcileNode) deleteNodesFromDatahub(nodes []*corev1.Node) error {
 		datahubNodes[i] = &n
 	}
 
-	return r.datahubNodeRepo.DeleteAlamedaNodes(datahubNodes)
+	return r.datahubNodeRepo.DeleteNodes(datahubNodes)
 }
 
 func (r *ReconcileNode) createNodeInfos(nodes []*corev1.Node) ([]*nodeinfo.NodeInfo, error) {

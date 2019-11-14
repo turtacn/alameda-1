@@ -24,13 +24,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
-	"github.com/pkg/errors"
-	"github.com/spf13/viper"
-	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
-
 	"github.com/containers-ai/alameda/operator"
+	datahub_client_application "github.com/containers-ai/alameda/operator/datahub/client/application"
+	datahub_client_cluster "github.com/containers-ai/alameda/operator/datahub/client/cluster"
+	datahub_client_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
+	datahub_client_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
+	datahub_client_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
@@ -38,6 +37,11 @@ import (
 	"github.com/containers-ai/alameda/operator/pkg/webhook"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
@@ -84,7 +88,8 @@ func init() {
 	flag.BoolVar(&showVer, "version", false, "show version")
 	flag.BoolVar(&readinessProbeFlag, "readiness-probe", false, "probe for readiness")
 	flag.BoolVar(&livenessProbeFlag, "liveness-probe", false, "probe for liveness")
-	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml", "File path to operator coniguration")
+	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.yml",
+		"File path to operator coniguration")
 	flag.StringVar(&crdLocation, "crd-location", "/etc/alameda/operator/crds", "CRD location")
 
 	scope = logUtil.RegisterScope("manager", "operator entry point", 0)
@@ -94,8 +99,12 @@ func initLogger() {
 
 	opt := logUtil.DefaultOptions()
 	opt.RotationMaxSize = defaultRotationMaxSizeMegabytes
+	logFilePath := viper.GetString("log.filePath")
+	if logFilePath == "" {
+		logFilePath = defaultLogRotateOutputFile
+	}
 	opt.RotationMaxBackups = defaultRotationMaxBackups
-	opt.RotateOutputPath = defaultLogRotateOutputFile
+	opt.RotateOutputPath = logFilePath
 	err := logUtil.Configure(opt)
 	if err != nil {
 		panic(err)
@@ -108,7 +117,8 @@ func initLogger() {
 		if outputLvl, ok := logUtil.StringToLevel(operatorConf.Log.OutputLevel); ok {
 			scope.SetOutputLevel(outputLvl)
 		}
-		if stacktraceLevel, ok := logUtil.StringToLevel(operatorConf.Log.StackTraceLevel); ok {
+		if stacktraceLevel, ok :=
+			logUtil.StringToLevel(operatorConf.Log.StackTraceLevel); ok {
 			scope.SetStackTraceLevel(stacktraceLevel)
 		}
 	}
@@ -135,14 +145,18 @@ func initServerConfig(mgr *manager.Manager) {
 	if err != nil {
 		panic(errors.New("Unmarshal configuration failed: " + err.Error()))
 	} else {
-		if operatorConfBin, err := json.MarshalIndent(operatorConf, "", JSONIndent); err == nil {
-			scope.Infof(fmt.Sprintf("Operator configuration: %s", string(operatorConfBin)))
+		if operatorConfBin, err :=
+			json.MarshalIndent(operatorConf, "", JSONIndent); err == nil {
+			scope.Infof(fmt.Sprintf("Operator configuration: %s",
+				string(operatorConfBin)))
 		}
 	}
 }
 
 func initThirdPartyClient() {
-	dathubConn, _ = grpc.Dial(operatorConf.Datahub.Address, grpc.WithInsecure(), grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(uint(3)))))
+	dathubConn, _ = grpc.Dial(operatorConf.Datahub.Address,
+		grpc.WithInsecure(), grpc.WithUnaryInterceptor(
+			grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(uint(3)))))
 	datahubClient = datahubv1alpha1.NewDatahubServiceClient(dathubConn)
 }
 
@@ -205,7 +219,9 @@ func main() {
 
 	// Setup Controllers
 	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); !ok {
-		controller.AddToManagerFuncs = removeFunctions(controller.AddToManagerFuncs, controller.OpenshiftControllerAddFuncs)
+		controller.AddToManagerFuncs = removeFunctions(
+			controller.AddToManagerFuncs,
+			controller.OpenshiftControllerAddFuncs)
 	}
 	if err := controller.AddToManager(mgr); err != nil {
 		scope.Error(err.Error())
@@ -214,7 +230,8 @@ func main() {
 
 	scope.Info("Setting up webhooks")
 	if err := webhook.AddToManager(mgr); err != nil {
-		scope.Errorf("unable to register webhooks to the manager: %s", err.Error())
+		scope.Errorf("unable to register webhooks to the manager: %s",
+			err.Error())
 		os.Exit(1)
 	}
 
@@ -228,10 +245,42 @@ func main() {
 			if !ok {
 				scope.Error("Wait for cache synchronization failed")
 			} else {
-				go syncAlamedaPodsWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
-				go syncAlamedaResourcesWithDatahub(mgr.GetClient(), operatorConf.Datahub.RetryInterval.Default)
+				go syncAlamedaPodsWithDatahub(mgr.GetClient(),
+					operatorConf.Datahub.RetryInterval.Default)
+				go syncAlamedaResourcesWithDatahub(mgr.GetClient(),
+					operatorConf.Datahub.RetryInterval.Default)
 				go launchWebhook(&mgr, &operatorConf)
 				go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
+				go func() {
+					if err := datahub_client_namespace.SyncWithDatahub(mgr.GetClient(),
+						dathubConn); err != nil {
+						scope.Errorf("sync namespace failed at start due to %s", err.Error())
+					}
+				}()
+				go func() {
+					if err := datahub_client_node.SyncWithDatahub(mgr.GetClient(),
+						dathubConn); err != nil {
+						scope.Errorf("sync node failed at start due to %s", err.Error())
+					}
+				}()
+				go func() {
+					if err := datahub_client_application.SyncWithDatahub(mgr.GetClient(),
+						dathubConn); err != nil {
+						scope.Errorf("sync application failed at start due to %s", err.Error())
+					}
+				}()
+				go func() {
+					if err := datahub_client_cluster.SyncWithDatahub(mgr.GetClient(),
+						dathubConn); err != nil {
+						scope.Errorf("sync cluster failed at start due to %s", err.Error())
+					}
+				}()
+				go func() {
+					if err := datahub_client_controller.SyncWithDatahub(mgr.GetClient(),
+						dathubConn); err != nil {
+						scope.Errorf("sync controller failed at start due to %s", err.Error())
+					}
+				}()
 			}
 			return nil
 		})
@@ -242,29 +291,13 @@ func main() {
 			return mgr.Start(signals.SetupSignalHandler())
 		})
 
-	wg.Go(
-		func() error {
-			for _, f := range controller.GetFirtSynchronizerFuncs {
-				firtSynchronizer := f()
-				if firtSynchronizer == nil {
-					scope.Error("Get firstSynchronizer nil")
-					return errors.New("get firstSynchronizer nil")
-				}
-				if err := firtSynchronizer.FirstSync(); err != nil {
-					scope.Errorf("First synchroniz failed: %s", err.Error())
-					return errors.Wrap(err, "caliing firstSync failed")
-				}
-			}
-			scope.Debugf("All first synchronizer done")
-			return nil
-		})
-
 	if err := wg.Wait(); err != nil {
 		scope.Error(err.Error())
 	}
 }
 
-func removeFunctions(functionList1, functionList2 []func(manager.Manager) error) []func(manager.Manager) error {
+func removeFunctions(functionList1,
+	functionList2 []func(manager.Manager) error) []func(manager.Manager) error {
 
 	functions := make([]func(manager.Manager) error, 0, len(functionList1))
 	for _, f1 := range functionList1 {

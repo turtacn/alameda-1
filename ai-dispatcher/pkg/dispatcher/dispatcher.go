@@ -19,9 +19,13 @@ import (
 )
 
 const (
-	UnitTypeNode = "NODE"
-	UnitTypePod  = "POD"
-	UnitTypeGPU  = "GPU"
+	UnitTypeNode        = "NODE"
+	UnitTypePod         = "POD"
+	UnitTypeGPU         = "GPU"
+	UnitTypeNamespace   = "NAMESPACE"
+	UnitTypeApplication = "APPLICATION"
+	UnitTypeCluster     = "CLUSTER"
+	UnitTypeController  = "CONTROLLER"
 )
 const queueName = "predict"
 const modelQueueName = "model"
@@ -108,8 +112,7 @@ func (dispatcher *Dispatcher) dispatch(granularity string, predictionStep int64,
 		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
 		queueSender := queue.NewRabbitMQSender(queueConn)
 		for _, pdUnit := range dispatcher.svcPredictUnits {
-			if pdUnit != UnitTypeNode && pdUnit != UnitTypePod &&
-				(pdUnit != UnitTypeGPU || granularitySec != 3600) {
+			if pdUnit == UnitTypeGPU && granularitySec != 3600 {
 				continue
 			}
 
@@ -121,10 +124,12 @@ func (dispatcher *Dispatcher) dispatch(granularity string, predictionStep int64,
 			}
 
 			if queueJobType == "predictionJobSendIntervalSec" {
-				scope.Infof("Start dispatching prediction unit %s with granularity %v seconds and cycle %v seconds",
+				scope.Infof(
+					"Start dispatching prediction unit %s with granularity %v seconds and cycle %v seconds",
 					pdUnitType, granularitySec, queueJobSendIntervalSec)
 			} else if queueJobType == "modelJobSendIntervalSec" {
-				scope.Infof("Start dispatching model unit %s with granularity %v seconds and cycle %v seconds",
+				scope.Infof(
+					"Start dispatching model unit %s with granularity %v seconds and cycle %v seconds",
 					pdUnitType, granularitySec, queueJobSendIntervalSec)
 			}
 
@@ -145,70 +150,185 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		res, err := datahubServiceClnt.ListNodes(context.Background(),
 			&datahub_resources.ListNodesRequest{})
 		if err != nil {
-			scope.Errorf("List nodes for model/predict job failed with granularity %v seconds. %s",
+			scope.Errorf(
+				"List nodes for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
 			return
 		}
 
 		nodes := res.GetNodes()
 		if queueJobType == "predictionJobSendIntervalSec" {
-			scope.Infof("Start sending %v node prediction jobs to queue with granularity %v seconds.",
+			scope.Infof(
+				"Start sending %v node prediction jobs to queue with granularity %v seconds.",
 				len(nodes), granularity)
 			dispatcher.predictJobSender.SendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
 		}
 		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
-			scope.Infof("Start sending %v node model jobs to queue with granularity %v seconds.",
+			scope.Infof(
+				"Start sending %v node model jobs to queue with granularity %v seconds.",
 				len(nodes), granularity)
 			dispatcher.modelJobSender.SendNodeModelJobs(nodes, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
-		scope.Infof("Sending %v node jobs to queue completely with granularity %v seconds.",
+		scope.Infof(
+			"Sending %v node jobs to queue completely with granularity %v seconds.",
 			len(nodes), granularity)
 
 	} else if pdUnit == UnitTypePod {
 		res, err := datahubServiceClnt.ListPods(context.Background(),
 			&datahub_resources.ListPodsRequest{})
 		if err != nil {
-			scope.Errorf("List pods for model/predict job failed with granularity %v seconds. %s",
+			scope.Errorf(
+				"List pods for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
 			return
 		}
 
 		pods := res.GetPods()
 		if queueJobType == "predictionJobSendIntervalSec" {
-			scope.Infof("Start sending %v pod prediction jobs to queue with granularity %v seconds.",
+			scope.Infof(
+				"Start sending %v pod prediction jobs to queue with granularity %v seconds.",
 				len(pods), granularity)
 			dispatcher.predictJobSender.SendPodPredictJobs(pods, queueSender, pdUnit, granularity)
 		}
 		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
-			scope.Infof("Start sending %v pod model jobs to queue with granularity %v seconds.",
+			scope.Infof(
+				"Start sending %v pod model jobs to queue with granularity %v seconds.",
 				len(pods), granularity)
 			dispatcher.modelJobSender.SendPodModelJobs(pods, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
-		scope.Infof("Sending %v pod jobs to queue completely with granularity %v seconds.",
+		scope.Infof(
+			"Sending %v pod jobs to queue completely with granularity %v seconds.",
 			len(pods), granularity)
 	} else if pdUnit == UnitTypeGPU {
 		res, err := datahubServiceClnt.ListGpus(context.Background(),
 			&datahub_gpu.ListGpusRequest{})
 		if err != nil {
-			scope.Errorf("List gpus for model/predict job failed with granularity %v seconds. %s",
+			scope.Errorf(
+				"List gpus for model/predict job failed with granularity %v seconds. %s",
 				granularity, err.Error())
 			return
 		}
 		gpus := res.GetGpus()
 		if queueJobType == "predictionJobSendIntervalSec" {
-			scope.Infof("Start sending %v gpu prediction jobs to queue with granularity %v seconds.",
+			scope.Infof(
+				"Start sending %v gpu prediction jobs to queue with granularity %v seconds.",
 				len(gpus), granularity)
 			dispatcher.predictJobSender.SendGPUPredictJobs(gpus, queueSender, pdUnit, granularity)
 		}
 		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
-			scope.Infof("Start sending %v gpu model jobs to queue with granularity %v seconds.",
+			scope.Infof(
+				"Start sending %v gpu model jobs to queue with granularity %v seconds.",
 				len(gpus), granularity)
 			dispatcher.modelJobSender.SendGPUModelJobs(gpus, queueSender, pdUnit, granularity,
 				predictionStep)
 		}
 		scope.Infof("Sending %v gpu jobs to queue completely with granularity %v seconds.",
 			len(gpus), granularity)
+	} else if pdUnit == UnitTypeApplication {
+		res, err := datahubServiceClnt.ListApplications(context.Background(),
+			&datahub_resources.ListApplicationsRequest{})
+		if err != nil {
+			scope.Errorf(
+				"List applications for model/predict job failed with granularity %v seconds. %s",
+				granularity, err.Error())
+			return
+		}
+		applications := res.GetApplications()
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v application prediction jobs to queue with granularity %v seconds.",
+				len(applications), granularity)
+			dispatcher.predictJobSender.SendApplicationPredictJobs(applications, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v application model jobs to queue with granularity %v seconds.",
+				len(applications), granularity)
+			dispatcher.modelJobSender.SendApplicationModelJobs(applications, queueSender, pdUnit, granularity,
+				predictionStep)
+		}
+		scope.Infof("Sending %v application jobs to queue completely with granularity %v seconds.",
+			len(applications), granularity)
+	} else if pdUnit == UnitTypeNamespace {
+		res, err := datahubServiceClnt.ListNamespaces(context.Background(),
+			&datahub_resources.ListNamespacesRequest{})
+		if err != nil {
+			scope.Errorf(
+				"List namespaces for model/predict job failed with granularity %v seconds. %s",
+				granularity, err.Error())
+			return
+		}
+
+		namespaces := res.GetNamespaces()
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v namespace prediction jobs to queue with granularity %v seconds.",
+				len(namespaces), granularity)
+			dispatcher.predictJobSender.SendNamespacePredictJobs(namespaces, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v namespace model jobs to queue with granularity %v seconds.",
+				len(namespaces), granularity)
+			dispatcher.modelJobSender.SendNamespaceModelJobs(namespaces, queueSender, pdUnit, granularity,
+				predictionStep)
+		}
+		scope.Infof(
+			"Sending %v namespace jobs to queue completely with granularity %v seconds.",
+			len(namespaces), granularity)
+	} else if pdUnit == UnitTypeCluster {
+		res, err := datahubServiceClnt.ListClusters(context.Background(),
+			&datahub_resources.ListClustersRequest{})
+		if err != nil {
+			scope.Errorf(
+				"List clusters for model/predict job failed with granularity %v seconds. %s",
+				granularity, err.Error())
+			return
+		}
+
+		clusters := res.GetClusters()
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v cluster prediction jobs to queue with granularity %v seconds.",
+				len(clusters), granularity)
+			dispatcher.predictJobSender.SendClusterPredictJobs(clusters, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v cluster model jobs to queue with granularity %v seconds.",
+				len(clusters), granularity)
+			dispatcher.modelJobSender.SendClusterModelJobs(clusters, queueSender, pdUnit, granularity,
+				predictionStep)
+		}
+		scope.Infof(
+			"Sending %v cluster jobs to queue completely with granularity %v seconds.",
+			len(clusters), granularity)
+	} else if pdUnit == UnitTypeController {
+		res, err := datahubServiceClnt.ListControllers(context.Background(),
+			&datahub_resources.ListControllersRequest{})
+		if err != nil {
+			scope.Errorf(
+				"List controllers for model/predict job failed with granularity %v seconds. %s",
+				granularity, err.Error())
+			return
+		}
+		controllers := res.GetControllers()
+		if queueJobType == "predictionJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v controller prediction jobs to queue with granularity %v seconds.",
+				len(controllers), granularity)
+			dispatcher.predictJobSender.SendControllerPredictJobs(controllers, queueSender, pdUnit, granularity)
+		}
+		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			scope.Infof(
+				"Start sending %v controller model jobs to queue with granularity %v seconds.",
+				len(controllers), granularity)
+			dispatcher.modelJobSender.SendControllerModelJobs(controllers, queueSender, pdUnit, granularity,
+				predictionStep)
+		}
+		scope.Infof("Sending %v controller jobs to queue completely with granularity %v seconds.",
+			len(controllers), granularity)
 	}
 }
