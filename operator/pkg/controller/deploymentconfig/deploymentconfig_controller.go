@@ -153,7 +153,7 @@ func (r *ReconcileDeploymentConfig) Reconcile(request reconcile.Request) (reconc
 					Namespace:   request.NamespacedName.Namespace,
 					ClusterName: r.clusterUID,
 				},
-				Kind: datahub_resources.Kind_STATEFULSET,
+				Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
 			},
 		}, nil)
 		if err != nil {
@@ -213,7 +213,7 @@ func (r *ReconcileDeploymentConfig) Reconcile(request reconcile.Request) (reconc
 					Namespace:   request.NamespacedName.Namespace,
 					ClusterName: r.clusterUID,
 				},
-				Kind: datahub_resources.Kind_STATEFULSET,
+				Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
 			},
 		})
 		if err != nil {

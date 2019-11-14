@@ -19,6 +19,7 @@ package alamedascaler
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"strconv"
 	"strings"
 	"sync"
@@ -299,33 +300,15 @@ func (r *ReconcileAlamedaScaler) syncAlamedaScalerWithDepResources(alamedaScaler
 		existingPodsMap[pod.GetNamespacedName()] = true
 	}
 
-	numOfGoroutine := 2
-	done := make(chan bool)
-	errChan := make(chan error)
-	go func() {
-		if err := r.syncDatahubResource(alamedaScaler, existingPodsMap); err != nil {
-			errChan <- err
-		} else {
-			done <- true
-		}
-	}()
-	go func() {
-		if err := r.syncAlamedaRecommendation(alamedaScaler, existingPodsMap); err != nil {
-			errChan <- err
-		} else {
-			done <- true
-		}
-	}()
-
-	for i := 0; i < numOfGoroutine; i++ {
-		select {
-		case _ = <-done:
-			continue
-		case err := <-errChan:
-			if err != nil {
-				return errors.Wrapf(err, "sync AlamedaScaler %s/%s with dependent resources failed: %s", alamedaScaler.Namespace, alamedaScaler.Name, err.Error())
-			}
-		}
+	wg := errgroup.Group{}
+	wg.Go(func() error {
+		return r.syncDatahubResource(alamedaScaler, existingPodsMap)
+	})
+	wg.Go(func() error {
+		return r.syncAlamedaRecommendation(alamedaScaler, existingPodsMap)
+	})
+	if err := wg.Wait(); err != nil {
+		return errors.Wrapf(err, "sync AlamedaScaler %s/%s with dependent resources failed", alamedaScaler.Namespace, alamedaScaler.Name)
 	}
 
 	return nil
