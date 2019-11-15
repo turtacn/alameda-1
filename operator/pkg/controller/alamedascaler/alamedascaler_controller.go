@@ -360,6 +360,7 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
+				ScalingTool:                   r.getAlamedaScalerDatahubScalingType(*scaler),
 			},
 			Replicas:     int32(len(dc.Pods)),
 			SpecReplicas: *dc.SpecReplicas,
@@ -382,6 +383,7 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
+				ScalingTool:                   r.getAlamedaScalerDatahubScalingType(*scaler),
 			},
 			Replicas:     int32(len(deploy.Pods)),
 			SpecReplicas: *deploy.SpecReplicas,
@@ -404,6 +406,7 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
+				ScalingTool:                   r.getAlamedaScalerDatahubScalingType(*scaler),
 			},
 			Replicas:     int32(len(statefulSet.Pods)),
 			SpecReplicas: *statefulSet.SpecReplicas,
@@ -880,4 +883,17 @@ func (r *ReconcileAlamedaScaler) getNeedDeletingAlamedaRecommendations(alamedaSc
 	}
 
 	return needDeletingAlamedaRecommendations, nil
+}
+
+func (r *ReconcileAlamedaScaler) getAlamedaScalerDatahubScalingType(alamedaScaler autoscalingv1alpha1.AlamedaScaler) datahub_resources.ScalingTool {
+	scalingType := datahub_resources.ScalingTool_SCALING_TOOL_UNDEFINED
+	switch alamedaScaler.Spec.ScalingTool.Type {
+	case autoscalingv1alpha1.ScalingToolTypeVPA:
+		scalingType = datahub_resources.ScalingTool_VPA
+	case autoscalingv1alpha1.ScalingToolTypeHPA:
+		scalingType = datahub_resources.ScalingTool_HPA
+	case autoscalingv1alpha1.ScalingToolTypeDefault:
+		scalingType = datahub_resources.ScalingTool_NONE
+	}
+	return scalingType
 }

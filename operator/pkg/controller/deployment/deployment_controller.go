@@ -205,22 +205,6 @@ func (r *ReconcileDeployment) Reconcile(request reconcile.Request) (reconcile.Re
 			scope.Errorf("Update Deployment falied: %s", err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 		}
-
-		// add controller to datahub
-		err = r.datahubControllerRepo.CreateControllers([]*datahub_resources.Controller{
-			&datahub_resources.Controller{
-				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:        request.NamespacedName.Name,
-					Namespace:   request.NamespacedName.Namespace,
-					ClusterName: r.clusterUID,
-				},
-				Kind: datahub_resources.Kind_DEPLOYMENT,
-			},
-		})
-		if err != nil {
-			scope.Errorf("Create controller %s/%s from datahub failed: %s",
-				request.NamespacedName.Namespace, request.NamespacedName.Name, err.Error())
-		}
 	}
 
 	return reconcile.Result{}, nil

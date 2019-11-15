@@ -62,28 +62,6 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	}
 
 	datahubControllerRepo := NewControllerRepository(conn, clusterUID)
-	if len(deploymentList.Items) > 0 {
-		if err := datahubControllerRepo.CreateControllers(deploymentList.Items); err != nil {
-			return fmt.Errorf(
-				"Sync controllers with datahub failed due to register deploymentconfig failed: %s",
-				err.Error())
-		}
-	}
-	if len(statefulSetList.Items) > 0 {
-		if err := datahubControllerRepo.CreateControllers(statefulSetList.Items); err != nil {
-			return fmt.Errorf(
-				"Sync controllers with datahub failed due to register statefulset failed: %s",
-				err.Error())
-		}
-	}
-	if len(deploymentConfigList.Items) > 0 {
-		if err := datahubControllerRepo.CreateControllers(deploymentConfigList.Items); err != nil {
-			return fmt.Errorf(
-				"Sync controllers with datahub failed due to register deploymentconfig failed: %s",
-				err.Error())
-		}
-	}
-
 	controllersFromDatahub, err := datahubControllerRepo.ListControllers()
 	if err != nil {
 		return fmt.Errorf(
