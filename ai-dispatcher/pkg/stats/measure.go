@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 
+	stats_errors "github.com/containers-ai/alameda/ai-dispatcher/pkg/stats/errors"
 	"github.com/containers-ai/alameda/pkg/utils"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
@@ -65,7 +66,8 @@ func NewMeasurementDataSet(metricSamples []*datahub_common.Sample,
 	return measurementDataSet
 }
 
-func MAPE(measurementDataSet map[int64]*MeasurementData) (float64, error) {
+func MAPE(measurementDataSet map[int64]*MeasurementData,
+	granularity int64) (float64, error) {
 	nPts := 0.0
 	result := 0.0
 	scope.Debugf("Start MAPE calculation")
@@ -83,7 +85,11 @@ func MAPE(measurementDataSet map[int64]*MeasurementData) (float64, error) {
 			metricValue, predictValue, deltaRatio)
 	}
 	if nPts == 0 {
-		return 0, fmt.Errorf("no points in calculation of MAPE")
+		return 0, fmt.Errorf(stats_errors.ErrorNoDataPoints)
+	}
+	if granularity == 30 &&
+		nPts < viper.GetFloat64("measurements.minimumDataPoints") {
+		return 0, fmt.Errorf(stats_errors.ErrorDataPointsNotEnough)
 	}
 	resultPercentage := 100 * (result / nPts)
 	scope.Debugf("MAPE calculation result: %v with sum %v and %v points",
@@ -92,7 +98,7 @@ func MAPE(measurementDataSet map[int64]*MeasurementData) (float64, error) {
 }
 
 func RMSE(measurementDataSet map[int64]*MeasurementData,
-	metricType datahub_common.MetricType) (float64, error) {
+	metricType datahub_common.MetricType, granularity int64) (float64, error) {
 	nPts := 0.0
 	result := 0.0
 	normalize := 1.0
@@ -114,7 +120,11 @@ func RMSE(measurementDataSet map[int64]*MeasurementData,
 			normalize, metricValue/normalize, predictValue/normalize, square)
 	}
 	if nPts == 0 {
-		return 0, fmt.Errorf("no points in calculation of RMSE")
+		return 0, fmt.Errorf(stats_errors.ErrorNoDataPoints)
+	}
+	if granularity == 30 &&
+		nPts < viper.GetFloat64("measurements.minimumDataPoints") {
+		return 0, fmt.Errorf(stats_errors.ErrorDataPointsNotEnough)
 	}
 	resultVal := math.Sqrt(result / nPts)
 	scope.Debugf("RMSE calculation result: %v with sum square %v and %v points",

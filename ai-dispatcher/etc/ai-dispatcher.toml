@@ -84,6 +84,7 @@ timeout = 30
 
 [measurements]
   current = "mape"
+  minimumDataPoints = 5
   [measurements.mape]
   threshold = 15
   [measurements.rmse]

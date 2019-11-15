@@ -6,6 +6,7 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
+	stats_errors "github.com/containers-ai/alameda/ai-dispatcher/pkg/stats/errors"
 	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	datahub_predictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
 	"github.com/spf13/viper"
@@ -40,7 +41,7 @@ func mapeDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 	scope.Infof("start MAPE calculation for %s metric %v with granularity %v",
 		targetDisplayName, metricType, granularity)
 	measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-	mape, mapeErr := stats.MAPE(measurementDataSet)
+	mape, mapeErr := stats.MAPE(measurementDataSet, granularity)
 	if mapeErr == nil {
 		scope.Infof("export MAPE value %v for %s metric %v with granularity %v", mape,
 			targetDisplayName, metricType, granularity)
@@ -67,7 +68,11 @@ func mapeDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
 		}
 	}
-	if mapeErr != nil {
+
+	if mapeErr != nil && stats_errors.DataPointsNotEnough(mapeErr) {
+		scope.Infof("%s metric %v with granularity %v skip modeling due to not enough data points to calculate MAPE",
+			targetDisplayName, metricType, granularity)
+	} else if mapeErr != nil {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
 		scope.Infof(
 			"MAPE calculation of %s metric %v with granularity %v failed due to: %s",
@@ -94,7 +99,7 @@ func rmseDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 	scope.Infof("start RMSE calculation for %s metric %v with granularity %v",
 		targetDisplayName, metricType, granularity)
 	measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
-	rmse, rmseErr := stats.RMSE(measurementDataSet, metricType)
+	rmse, rmseErr := stats.RMSE(measurementDataSet, metricType, granularity)
 	if rmseErr == nil {
 		scope.Infof("export RMSE value %v for %s metric %v with granularity %v", rmse,
 			targetDisplayName, metricType, granularity)
@@ -121,7 +126,11 @@ func rmseDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
 		}
 	}
-	if rmseErr != nil {
+
+	if rmseErr != nil && stats_errors.DataPointsNotEnough(rmseErr) {
+		scope.Infof("%s metric %v with granularity %v skip modeling due to not enough data points to calculate RMSE",
+			targetDisplayName, metricType, granularity)
+	} else if rmseErr != nil {
 		metricsNeedToModel = append(metricsNeedToModel, metricType)
 		scope.Infof(
 			"RMSE calculation of %s metric %v with granularity %v failed due to : %s",
