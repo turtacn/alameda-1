@@ -241,6 +241,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 								Name:      appName,
 							},
 						},
+						Kind: datahub_resources.Kind(datahub_resources.Kind_value[kind]),
 					})
 				if err == nil {
 					controllers := res.GetControllers()
