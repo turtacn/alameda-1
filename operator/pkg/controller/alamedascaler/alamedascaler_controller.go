@@ -278,6 +278,9 @@ func (r *ReconcileAlamedaScaler) Reconcile(request reconcile.Request) (reconcile
 					Namespace:   request.NamespacedName.Namespace,
 					ClusterName: r.clusterUID,
 				},
+				AlamedaApplicationSpec: &datahub_resources.AlamedaApplicationSpec{
+					ScalingTool: r.getAlamedaScalerDatahubScalingType(*alamedaScaler),
+				},
 			},
 		})
 		if err != nil {
@@ -358,6 +361,11 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			},
 			Kind: datahub_resources.Kind_DEPLOYMENTCONFIG,
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
+				AlamedaScaler: &datahub_resources.ObjectMeta{
+					Namespace:   scaler.Namespace,
+					Name:        scaler.Name,
+					ClusterName: r.clusterUID,
+				},
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
 				ScalingTool:                   r.getAlamedaScalerDatahubScalingType(*scaler),
@@ -381,6 +389,11 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			},
 			Kind: datahub_resources.Kind_DEPLOYMENT,
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
+				AlamedaScaler: &datahub_resources.ObjectMeta{
+					Namespace:   scaler.Namespace,
+					Name:        scaler.Name,
+					ClusterName: r.clusterUID,
+				},
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
 				ScalingTool:                   r.getAlamedaScalerDatahubScalingType(*scaler),
@@ -404,6 +417,11 @@ func (r *ReconcileAlamedaScaler) createAlamedaWatchedResourcesToDatahub(scaler *
 			},
 			Kind: datahub_resources.Kind_STATEFULSET,
 			AlamedaControllerSpec: &datahub_resources.AlamedaControllerSpec{
+				AlamedaScaler: &datahub_resources.ObjectMeta{
+					Namespace:   scaler.Namespace,
+					Name:        scaler.Name,
+					ClusterName: r.clusterUID,
+				},
 				Policy:                        policy,
 				EnableRecommendationExecution: scaler.IsEnableExecution(),
 				ScalingTool:                   r.getAlamedaScalerDatahubScalingType(*scaler),

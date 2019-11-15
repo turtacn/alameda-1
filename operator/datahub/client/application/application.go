@@ -42,6 +42,9 @@ func (repo *ApplicationRepository) CreateApplications(arg interface{}) error {
 					Namespace:   app.GetNamespace(),
 					ClusterName: repo.clusterUID,
 				},
+				AlamedaApplicationSpec: &datahub_resources.AlamedaApplicationSpec{
+					ScalingTool: repo.getAlamedaScalerDatahubScalingType(app),
+				},
 			})
 		}
 	}
@@ -124,4 +127,17 @@ func (repo *ApplicationRepository) DeleteApplications(
 
 func (repo *ApplicationRepository) Close() {
 	repo.conn.Close()
+}
+
+func (repo *ApplicationRepository) getAlamedaScalerDatahubScalingType(alamedaScaler autoscalingv1alpha1.AlamedaScaler) datahub_resources.ScalingTool {
+	scalingType := datahub_resources.ScalingTool_SCALING_TOOL_UNDEFINED
+	switch alamedaScaler.Spec.ScalingTool.Type {
+	case autoscalingv1alpha1.ScalingToolTypeVPA:
+		scalingType = datahub_resources.ScalingTool_VPA
+	case autoscalingv1alpha1.ScalingToolTypeHPA:
+		scalingType = datahub_resources.ScalingTool_HPA
+	case autoscalingv1alpha1.ScalingToolTypeDefault:
+		scalingType = datahub_resources.ScalingTool_NONE
+	}
+	return scalingType
 }
