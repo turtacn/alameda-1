@@ -12,9 +12,9 @@ func NewPodMetricsReaderDAO(config config.Config) types.PodMetricsDAO {
 	case "influxdb":
 		return influxdb.NewPodMetricsWithConfig(*config.InfluxDB)
 	case "prometheus":
-		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, config.ClusterUID)
+		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	default:
-		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, config.ClusterUID)
+		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	}
 }
 
@@ -23,8 +23,8 @@ func NewPodMetricsWriterDAO(config config.Config) types.PodMetricsDAO {
 	case "influxdb":
 		return influxdb.NewPodMetricsWithConfig(*config.InfluxDB)
 	case "prometheus":
-		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, config.ClusterUID)
+		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	default:
-		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, config.ClusterUID)
+		return prometheus.NewPodMetricsWithConfig(*config.Prometheus, *config.InfluxDB, config.ClusterUID)
 	}
 }

@@ -47,12 +47,13 @@ func (c ContainerCpuUsageRepository) ListContainerCPUUsageMillicoresEntitiesByNa
 	}
 
 	queryLabelsString = strings.TrimSuffix(queryLabelsString, ",")
-	queryExpression := fmt.Sprintf("1000 * %s{%s}", ContainerCpuUsagePercentageMetricName, queryLabelsString)
+	queryExpression := fmt.Sprintf("%s{%s}", ContainerCpuUsagePercentageMetricName, queryLabelsString)
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
 		return nil, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
+	queryExpression = fmt.Sprintf(`1000 * %s`, queryExpression)
 	scope.Debugf("Query to prometheus: queryExpression: %+v, StartTime: %+v, EndTime: %+v, StepTime: %+v", queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	response, err := prometheusClient.QueryRange(ctx, queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {

@@ -4,10 +4,13 @@ import (
 	"context"
 	"golang.org/x/sync/errgroup"
 
+	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
+	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
+	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 )
@@ -15,13 +18,17 @@ import (
 type PodMetrics struct {
 	PrometheusConfig InternalPromth.Config
 
+	influxPodRepo *RepoInfluxClusterStatus.PodRepository
+
 	clusterUID string
 }
 
 // NewPodMetricsWithConfig Constructor of prometheus pod metric dao
-func NewPodMetricsWithConfig(config InternalPromth.Config, clusterUID string) DaoMetricTypes.PodMetricsDAO {
+func NewPodMetricsWithConfig(config InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.PodMetricsDAO {
 	return &PodMetrics{
 		PrometheusConfig: config,
+
+		influxPodRepo: RepoInfluxClusterStatus.NewPodRepository(&influxCfg),
 
 		clusterUID: clusterUID,
 	}
@@ -60,11 +67,23 @@ func (p *PodMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListPod
 }
 
 func (p *PodMetrics) listPodMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListPodMetricsRequest) ([]metadata.ObjectMeta, error) {
-	// TODO
-	return nil, nil
+
+	pods, err := p.influxPodRepo.ListPods(DaoClusterStatusTypes.ListPodsRequest{
+		ObjectMeta: req.ObjectMetas,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "list pod metadatas from request failed")
+	}
+
+	metas := make([]metadata.ObjectMeta, len(pods))
+	for i, pod := range pods {
+		metas[i] = *pod.ObjectMeta
+	}
+	return metas, nil
 }
 
 func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas []metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.PodMetricMap, error) {
+	scope.Debugf("getPodMetricMapByObjectMetas: podMetas: %+v", podMetas)
 
 	// To minimize the times to query prometheus, aggregate pods in the same namespaces
 	// map[pod.Namespace]map[pod.Name]pod.ObjectMeta
@@ -83,13 +102,14 @@ func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas 
 		wg := errgroup.Group{}
 		podContainerCPURepo := RepoPromthMetric.NewContainerCpuUsageRepositoryWithConfig(p.PrometheusConfig)
 		for namespace, podMetaMap := range namespacePodMap {
+			copyNamespace := namespace
 			copyPodMetaMap := podMetaMap
 			wg.Go(func() error {
 				podNames := make([]string, 0, len(copyPodMetaMap))
 				for podName := range copyPodMetaMap {
 					podNames = append(podNames, podName)
 				}
-				containerCPUEntities, err := podContainerCPURepo.ListContainerCPUUsageMillicoresEntitiesByNamespaceAndPodNames(ctx, namespace, podNames, options...)
+				containerCPUEntities, err := podContainerCPURepo.ListContainerCPUUsageMillicoresEntitiesByNamespaceAndPodNames(ctx, copyNamespace, podNames, options...)
 				if err != nil {
 					return errors.Wrap(err, "list pod cpu usage metrics failed")
 				}
@@ -113,13 +133,14 @@ func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas 
 		wg := errgroup.Group{}
 		podContainerMemoryRepo := RepoPromthMetric.NewContainerMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
 		for namespace, podMetaMap := range namespacePodMap {
+			copyNamespace := namespace
 			copyPodMetaMap := podMetaMap
 			wg.Go(func() error {
 				podNames := make([]string, 0, len(copyPodMetaMap))
 				for podName := range copyPodMetaMap {
 					podNames = append(podNames, podName)
 				}
-				containerMemoryEntities, err := podContainerMemoryRepo.ListContainerMemoryUsageBytesEntitiesByNamespaceAndPodNames(ctx, namespace, podNames, options...)
+				containerMemoryEntities, err := podContainerMemoryRepo.ListContainerMemoryUsageBytesEntitiesByNamespaceAndPodNames(ctx, copyNamespace, podNames, options...)
 				if err != nil {
 					return errors.Wrap(err, "list pod memory usage metrics failed")
 				}
