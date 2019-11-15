@@ -32,7 +32,7 @@ type ControllerObjectMeta struct {
 type ListControllerMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []metadata.ObjectMeta
-	Kind        string
+	Kind        string // DEPLOYMENT, DEPLOYMENTCONFIG and STATEFULSET
 }
 
 // ControllerMetric Metric model to represent one app metric

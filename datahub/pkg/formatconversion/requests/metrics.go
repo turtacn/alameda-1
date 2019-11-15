@@ -7,6 +7,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiMetrics "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics"
+	ApiResource "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -211,7 +212,7 @@ func (r *CreateControllerMetricsRequestExtended) ProduceMetrics() DaoMetricTypes
 		}
 		m := DaoMetricTypes.NewControllerMetric()
 		m.ObjectMeta.ObjectMeta = NewObjectMeta(controllerMetric.GetObjectMeta())
-		m.ObjectMeta.Kind = FormatEnum.KindDisp[controllerMetric.Kind]
+		m.ObjectMeta.Kind = controllerMetric.Kind.String()
 		for _, data := range controllerMetric.GetMetricData() {
 			metricType := MetricTypeNameMap[data.GetMetricType()]
 			for _, sample := range data.GetData() {
@@ -411,13 +412,13 @@ type ListControllerMetricsRequestExtended struct {
 
 func (r *ListControllerMetricsRequestExtended) Validate() error {
 
-	var supportedKind = map[string]bool{
-		FormatEnum.Deployment:       true,
-		FormatEnum.DeploymentConfig: true,
-		FormatEnum.StatefulSet:      true,
+	var supportedKind = map[ApiResource.Kind]bool{
+		ApiResource.Kind_DEPLOYMENT:       true,
+		ApiResource.Kind_DEPLOYMENTCONFIG: true,
+		ApiResource.Kind_STATEFULSET:      true,
 	}
-	kind, exist := FormatEnum.KindDisp[r.Request.Kind]
-	if !exist || !supportedKind[kind] {
+	supported, exist := supportedKind[r.Request.Kind]
+	if !exist || !supported {
 		return errors.Errorf(`controller kind "%s" not supported`, r.Request.Kind)
 	}
 	return nil
@@ -432,7 +433,7 @@ func (r *ListControllerMetricsRequestExtended) ProduceRequest() DaoMetricTypes.L
 	request := DaoMetricTypes.ListControllerMetricsRequest{}
 	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
 	// TODO: Check if kind exists
-	request.Kind = FormatEnum.KindDisp[r.Request.Kind]
+	request.Kind = r.Request.Kind.String()
 	objectMetas := make([]metadata.ObjectMeta, len(r.Request.GetObjectMeta()))
 	for i, objectMeta := range r.Request.GetObjectMeta() {
 		copyObjectMeta := objectMeta

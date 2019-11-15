@@ -127,7 +127,7 @@ func (n ControllerMetricExtended) ProduceMetrics() ApiMetrics.ControllerMetric {
 		ClusterName: n.ControllerMetric.ObjectMeta.ClusterName,
 		Uid:         n.ControllerMetric.ObjectMeta.Uid,
 	}
-	m.Kind = FormatEnum.KindEnum[n.ControllerMetric.ObjectMeta.Kind]
+	m.Kind = ApiResources.Kind(ApiResources.Kind_value[n.ControllerMetric.ObjectMeta.Kind])
 	m.MetricData = metricMapToDatahubMetricSlice(n.ControllerMetric.Metrics)
 
 	return m

@@ -6,11 +6,8 @@ import (
 	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/entities/prometheus/metrics"
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
-	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
-	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -18,22 +15,18 @@ import (
 
 type AppMetrics struct {
 	PrometheusConfig InternalPromth.Config
-	InfluxDBConfig   InternalInflux.Config
 
-	influxAppRepo *RepoInfluxClusterStatus.ApplicationRepository
-	influxPodRepo *RepoInfluxClusterStatus.PodRepository
+	appDAO DaoClusterStatusTypes.ApplicationDAO
 
 	clusterUID string
 }
 
 // NewAppMetricsWithConfig Constructor of prometheus app metric dao
-func NewAppMetricsWithConfig(config InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.AppMetricsDAO {
+func NewAppMetricsWithConfig(config InternalPromth.Config, appDAO DaoClusterStatusTypes.ApplicationDAO, clusterUID string) DaoMetricTypes.AppMetricsDAO {
 	return &AppMetrics{
 		PrometheusConfig: config,
-		InfluxDBConfig:   influxCfg,
 
-		influxPodRepo: RepoInfluxClusterStatus.NewPodRepository(&influxCfg),
-		influxAppRepo: RepoInfluxClusterStatus.NewApplicationRepositoryWithConfig(influxCfg),
+		appDAO: appDAO,
 
 		clusterUID: clusterUID,
 	}
@@ -54,15 +47,15 @@ func (p AppMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListAppM
 
 	var metricMap DaoMetricTypes.AppMetricMap
 	var err error
-	appMetas, err := p.listAppMetasFromRequest(ctx, req)
+	apps, err := p.listAppFromRequest(ctx, req)
 	if err != nil {
 		return DaoMetricTypes.AppMetricMap{}, errors.Wrap(err, "list app metadatas from request failed")
 	}
-	appMetas = filterObjectMetaByClusterUID(p.clusterUID, appMetas)
-	if len(appMetas) == 0 {
+	apps = p.filterApplicationsByClusterUID(p.clusterUID, apps)
+	if len(apps) == 0 {
 		return DaoMetricTypes.AppMetricMap{}, nil
 	}
-	metricMap, err = p.getAppMetricMapByObjectMetas(ctx, appMetas, options...)
+	metricMap, err = p.getAppMetricMapByApps(ctx, apps, options...)
 	if err != nil {
 		return DaoMetricTypes.AppMetricMap{}, errors.Wrap(err, "list app metrics failed")
 	}
@@ -71,31 +64,31 @@ func (p AppMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListAppM
 	return metricMap, nil
 }
 
-func (p *AppMetrics) listAppMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListAppMetricsRequest) ([]metadata.ObjectMeta, error) {
+func (p *AppMetrics) listAppFromRequest(ctx context.Context, req DaoMetricTypes.ListAppMetricsRequest) ([]DaoClusterStatusTypes.Application, error) {
 
-	apps, err := p.influxAppRepo.ListApplications(DaoClusterStatusTypes.ListApplicationsRequest{
+	apps, err := p.appDAO.ListApplications(DaoClusterStatusTypes.ListApplicationsRequest{
 		ObjectMeta: req.ObjectMetas,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "list application metadatas failed")
 	}
-	metas := make([]metadata.ObjectMeta, len(apps))
+	nonPointerSlice := make([]DaoClusterStatusTypes.Application, len(apps))
 	for i, app := range apps {
-		metas[i] = app.ObjectMeta
+		nonPointerSlice[i] = *app
 	}
-	return metas, nil
+	return nonPointerSlice, nil
 }
 
-func (p *AppMetrics) getAppMetricMapByObjectMetas(ctx context.Context, appMetas []metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.AppMetricMap, error) {
-	scope.Debugf("getAppMetricMapByObjectMetas: appMetas: %+v", appMetas)
+func (p *AppMetrics) getAppMetricMapByApps(ctx context.Context, apps []DaoClusterStatusTypes.Application, options ...DBCommon.Option) (DaoMetricTypes.AppMetricMap, error) {
+	scope.Debugf("getAppMetricMapByApps: apps: %+v", apps)
 
 	metricMap := DaoMetricTypes.NewAppMetricMap()
 	metricChan := make(chan DaoMetricTypes.AppMetric)
 	producerWG := errgroup.Group{}
-	for _, appMeta := range appMetas {
-		copyAppMeta := appMeta
+	for _, app := range apps {
+		copyApp := app
 		producerWG.Go(func() error {
-			m, err := p.getAppMetric(ctx, copyAppMeta, options...)
+			m, err := p.getAppMetric(ctx, copyApp, options...)
 			if err != nil {
 				return errors.Wrap(err, "get app metric failed")
 			}
@@ -123,30 +116,29 @@ func (p *AppMetrics) getAppMetricMapByObjectMetas(ctx context.Context, appMetas 
 	return metricMap, nil
 }
 
-func (p *AppMetrics) getAppMetric(ctx context.Context, appMeta metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.AppMetric, error) {
+func (p *AppMetrics) getAppMetric(ctx context.Context, app DaoClusterStatusTypes.Application, options ...DBCommon.Option) (DaoMetricTypes.AppMetric, error) {
 
+	appMeta := app.ObjectMeta
 	emptyAppMetric := DaoMetricTypes.AppMetric{
 		ObjectMeta: appMeta,
 	}
 
-	pods, err := p.listPodMetasByAppObjectMeta(ctx, appMeta)
-	if err != nil {
-		return emptyAppMetric, errors.Wrap(err, "list monitored pods failed")
-	} else if len(pods) == 0 {
+	controllers := p.listControllerMetasByApp(app)
+	if len(controllers) == 0 {
 		return emptyAppMetric, nil
 	}
 
-	namespace := pods[0].Namespace
-	podNames := make([]string, len(pods))
-	for i, pod := range pods {
-		podNames[i] = pod.Name
+	namespace := controllers[0].Namespace
+	podNameRegExps, err := listPodNamesRegExpByControllerObjectMetas(controllers)
+	if err != nil {
+		return emptyAppMetric, errors.Wrap(err, "get pod name regular expressions from controller metadata failed")
 	}
 	metricMap := DaoMetricTypes.NewAppMetricMap()
 	metricChan := make(chan DaoMetricTypes.AppMetric)
 	producerWG := errgroup.Group{}
 	producerWG.Go(func() error {
 		podCPUUsageRepo := RepoPromthMetric.NewPodCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNames, options...)
+		podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
 		if err != nil {
 			return errors.Wrap(err, "list sum of pod cpu usage metrics failed")
 		}
@@ -164,7 +156,7 @@ func (p *AppMetrics) getAppMetric(ctx context.Context, appMeta metadata.ObjectMe
 	})
 	producerWG.Go(func() error {
 		podMemoryUsageRepo := RepoPromthMetric.NewPodMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNames, options...)
+		podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
 		if err != nil {
 			return errors.Wrap(err, "list sum of pod memory usage metrics failed")
 		}
@@ -204,19 +196,25 @@ func (p *AppMetrics) getAppMetric(ctx context.Context, appMeta metadata.ObjectMe
 	return *metric, nil
 }
 
-func (p *AppMetrics) listPodMetasByAppObjectMeta(ctx context.Context, appObjectMeta metadata.ObjectMeta) ([]metadata.ObjectMeta, error) {
+func (p *AppMetrics) listControllerMetasByApp(app DaoClusterStatusTypes.Application) []DaoMetricTypes.ControllerObjectMeta {
 
-	pods, err := p.influxPodRepo.ListPods(DaoClusterStatusTypes.ListPodsRequest{
-		ObjectMeta: []metadata.ObjectMeta{appObjectMeta},
-		Kind:       "ALAMEDASCALER",
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "list pod metadatas by application failed")
-	}
-	podMetas := make([]metadata.ObjectMeta, len(pods))
-	for i, pod := range pods {
-		podMetas[i] = *pod.ObjectMeta
+	metas := make([]DaoMetricTypes.ControllerObjectMeta, len(app.Controllers))
+	for i, controller := range app.Controllers {
+		metas[i] = DaoMetricTypes.ControllerObjectMeta{
+			ObjectMeta: controller.ObjectMeta,
+			Kind:       controller.Kind,
+		}
 	}
 
-	return podMetas, nil
+	return metas
+}
+
+func (p *AppMetrics) filterApplicationsByClusterUID(clusterUID string, apps []DaoClusterStatusTypes.Application) []DaoClusterStatusTypes.Application {
+	newApps := make([]DaoClusterStatusTypes.Application, 0, len(apps))
+	for _, app := range apps {
+		if app.ObjectMeta.ClusterName == clusterUID {
+			newApps = append(newApps, app)
+		}
+	}
+	return newApps
 }

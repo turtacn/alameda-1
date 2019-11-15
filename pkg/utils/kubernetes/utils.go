@@ -8,12 +8,12 @@ import (
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 	Corev1 "k8s.io/api/core/v1"
+	K8SErrors "k8s.io/apimachinery/pkg/api/errors"
 	Metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"os"
-	K8SErrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"strings"
@@ -21,7 +21,7 @@ import (
 
 var scope = Log.RegisterScope("kubernetes_utils", "Kubernetes utils.", 0)
 
-func NewK8SClient() (client.Client, error){
+func NewK8SClient() (client.Client, error) {
 	k8sClientConfig, err := config.GetConfig()
 	if err != nil {
 		return nil, errors.New("Failed to get kubernetes configuration: " + err.Error())
