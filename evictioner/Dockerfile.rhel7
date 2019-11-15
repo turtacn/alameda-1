@@ -27,7 +27,7 @@ LABEL summary="$SUMMARY" \
 
 WORKDIR /opt/app-root/src
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/LICENSE /licenses/
-COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/evictioner/etc/evictioner.yml /etc/alameda/evictioner/evictioner.yml
+COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/evictioner/etc/evictioner.toml /etc/alameda/evictioner/evictioner.toml
 COPY --from=builder /opt/app-root/src/go/src/github.com/containers-ai/alameda/evictioner/evictioner .
 
 RUN chown -R 1001:0 /etc/alameda/evictioner/ && chown -R 1001:0 ./

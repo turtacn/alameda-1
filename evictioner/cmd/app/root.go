@@ -36,7 +36,7 @@ func init() {
 	RootCmd.AddCommand(app.VersionCmd)
 	RootCmd.AddCommand(ProbeCmd)
 
-	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/evictioner/evictioner.yml", "The path to evictioner configuration file.")
+	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/evictioner/evictioner.toml", "The path to evictioner configuration file.")
 }
 
 func initConfig() {

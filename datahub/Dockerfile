@@ -29,7 +29,7 @@ COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/pkg/account
 
 # Copy datahub
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/etc/datahub.yml /etc/alameda/datahub/datahub.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/etc/datahub.toml /etc/alameda/datahub/datahub.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/datahub .
 
 # Copy license-utils

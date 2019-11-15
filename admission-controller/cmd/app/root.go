@@ -20,5 +20,5 @@ func init() {
 	RootCmd.AddCommand(VersionCmd)
 	RootCmd.AddCommand(ProbeCmd)
 
-	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/admission-controller/admission-controller.yml", "File path to admission-controller coniguration")
+	RootCmd.PersistentFlags().StringVar(&configurationFilePath, "config", "/etc/alameda/admission-controller/admission-controller.toml", "File path to admission-controller coniguration")
 }

@@ -31,7 +31,7 @@ LABEL summary="$SUMMARY" \
       vendor="ProphetStor Data Services, Inc."
 
 COPY --from=builder /go/src/github.com/containers-ai/alameda/LICENSE /licenses/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/admission-controller/etc/admission-controller.yml /etc/alameda/admission-controller/admission-controller.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/admission-controller/etc/admission-controller.toml /etc/alameda/admission-controller/admission-controller.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/bin/admission-controller /usr/local/bin/
 EXPOSE 8000/tcp
 

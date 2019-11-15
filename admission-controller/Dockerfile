@@ -12,6 +12,6 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/bin/admission-controller .
-COPY --from=builder /go/src/github.com/containers-ai/alameda/admission-controller/etc/admission-controller.yml /etc/alameda/admission-controller/admission-controller.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/admission-controller/etc/admission-controller.toml /etc/alameda/admission-controller/admission-controller.toml
 EXPOSE 8000/tcp
 ENTRYPOINT ["./admission-controller", "run"]

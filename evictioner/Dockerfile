@@ -11,7 +11,7 @@ RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags
 # Copy the controller-manager into a thin image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/containers-ai/alameda/evictioner/etc/evictioner.yml /etc/alameda/evictioner/evictioner.yml
+COPY --from=builder /go/src/github.com/containers-ai/alameda/evictioner/etc/evictioner.toml /etc/alameda/evictioner/evictioner.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/evictioner/evictioner .
 ENTRYPOINT ["./evictioner"]
 CMD [ "run" ]
