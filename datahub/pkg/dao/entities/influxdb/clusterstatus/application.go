@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	ApplicationTime        influxdb.Tag   = "time"
-	ApplicationName        influxdb.Tag   = "name"
-	ApplicationNamespace   influxdb.Tag   = "namespace"
-	ApplicationClusterName influxdb.Tag   = "cluster_name"
-	ApplicationUid         influxdb.Tag   = "uid"
-	ApplicationValue       influxdb.Field = "value"
+	ApplicationTime                   influxdb.Tag   = "time"
+	ApplicationName                   influxdb.Tag   = "name"
+	ApplicationNamespace              influxdb.Tag   = "namespace"
+	ApplicationClusterName            influxdb.Tag   = "cluster_name"
+	ApplicationUid                    influxdb.Tag   = "uid"
+	ApplicationAlamedaSpecScalingTool influxdb.Field = "spec_scaling_tool"
 )
 
 var (
@@ -23,7 +23,7 @@ var (
 	}
 
 	ApplicationFields = []influxdb.Field{
-		ApplicationValue,
+		ApplicationAlamedaSpecScalingTool,
 	}
 
 	ApplicationColumns = []string{
@@ -31,14 +31,15 @@ var (
 		string(ApplicationNamespace),
 		string(ApplicationClusterName),
 		string(ApplicationUid),
-		string(ApplicationValue),
+		string(ApplicationAlamedaSpecScalingTool),
 	}
 )
 
 type ApplicationEntity struct {
-	Time        time.Time
-	Name        *string
-	Namespace   *string
-	ClusterName *string
-	Uid         *string
+	Time                   time.Time
+	Name                   *string
+	Namespace              *string
+	ClusterName            *string
+	Uid                    *string
+	AlamedaSpecScalingTool *string
 }

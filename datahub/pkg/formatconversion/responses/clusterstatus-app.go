@@ -10,8 +10,14 @@ type ApplicationExtended struct {
 }
 
 func (n *ApplicationExtended) ProduceApplication() *resources.Application {
-	application := &resources.Application{
-		ObjectMeta: NewObjectMeta(n.ObjectMeta),
+	application := &resources.Application{}
+	application.ObjectMeta = NewObjectMeta(n.ObjectMeta)
+	application.AlamedaApplicationSpec = NewAlamedaApplicationSpec(n.AlamedaApplicationSpec)
+	if n.Controllers != nil {
+		application.Controllers = make([]*resources.Controller, 0)
+		for _, controller := range n.Controllers {
+			application.Controllers = append(application.Controllers, NewController(controller))
+		}
 	}
 	return application
 }

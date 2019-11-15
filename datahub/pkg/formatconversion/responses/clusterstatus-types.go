@@ -31,6 +31,15 @@ func NewAlamedaControllerSpec(controlSpec types.AlamedaControllerSpec) *resource
 	return &ctlSpec
 }
 
+func NewAlamedaApplicationSpec(applicationSpec *types.AlamedaApplicationSpec) *resources.AlamedaApplicationSpec {
+	if applicationSpec != nil {
+		spec := resources.AlamedaApplicationSpec{}
+		spec.ScalingTool = resources.ScalingTool(resources.ScalingTool_value[applicationSpec.ScalingTool])
+		return &spec
+	}
+	return nil
+}
+
 func NewAlamedaNodeSpec(nodeSpec *types.AlamedaNodeSpec) *resources.AlamedaNodeSpec {
 	if nodeSpec != nil {
 		spec := resources.AlamedaNodeSpec{}

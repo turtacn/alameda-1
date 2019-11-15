@@ -25,10 +25,10 @@ message Pod {
     string                    resource_link    = 3;
     string                    app_name         = 4;
     string                    app_part_of      = 5;
-    repeated Container        containers       = 6;
+    AlamedaPodSpec            alameda_pod_spec = 6;
     Controller                top_controller   = 7;
     PodStatus                 status           = 8;
-    AlamedaPodSpec            alameda_pod_spec = 9;
+    repeated Container        containers       = 9;
 }
 
 message Controller {
@@ -42,6 +42,7 @@ message Controller {
 message Application {
     ObjectMeta             object_meta              = 1;
     AlamedaApplicationSpec alameda_application_spec = 2;
+    repeated Controller    controllers              = 3;
 }
 
 message Namespace {

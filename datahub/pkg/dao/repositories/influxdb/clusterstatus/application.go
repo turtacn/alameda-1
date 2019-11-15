@@ -44,7 +44,7 @@ func (c *ApplicationRepository) CreateApplications(applications []*DaoClusterTyp
 
 		// Pack influx fields
 		fields := map[string]interface{}{
-			string(EntityInfluxCluster.ApplicationValue): "0",
+			string(EntityInfluxCluster.ApplicationAlamedaSpecScalingTool): application.AlamedaApplicationSpec.ScalingTool,
 		}
 
 		// Add to influx point list
@@ -98,6 +98,7 @@ func (c *ApplicationRepository) ListApplications(request DaoClusterTypes.ListApp
 				row := group.GetRow(j)
 				application := DaoClusterTypes.NewApplication()
 				application.ObjectMeta.Initialize(row)
+				application.AlamedaApplicationSpec = &DaoClusterTypes.AlamedaApplicationSpec{ScalingTool: row[string(EntityInfluxCluster.ApplicationAlamedaSpecScalingTool)]}
 				applications = append(applications, application)
 			}
 		}

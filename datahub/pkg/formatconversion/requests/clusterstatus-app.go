@@ -27,6 +27,7 @@ func (r *CreateApplicationsRequestExtended) ProduceApplications() []*DaoClusterT
 
 		application := DaoClusterTypes.NewApplication()
 		application.ObjectMeta = objectMeta
+		application.AlamedaApplicationSpec = NewAlamedaApplicationSpec(app.GetAlamedaApplicationSpec())
 		applications = append(applications, application)
 	}
 

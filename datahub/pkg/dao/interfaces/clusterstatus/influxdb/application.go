@@ -3,6 +3,7 @@ package influxdb
 import (
 	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	RepoInfluxCluster "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	Log "github.com/containers-ai/alameda/pkg/utils/log"
 )
@@ -36,5 +37,32 @@ func (p *Application) ListApplications(request DaoClusterTypes.ListApplicationsR
 		scope.Error(err.Error())
 		return make([]*DaoClusterTypes.Application, 0), err
 	}
+
+	controllerRequest := DaoClusterTypes.NewListControllersRequest()
+	for _, application := range applications {
+		objectMeta := Metadata.ObjectMeta{}
+		objectMeta.Namespace = application.ObjectMeta.Namespace
+		objectMeta.ClusterName = application.ObjectMeta.ClusterName
+		controllerRequest.ObjectMeta = append(controllerRequest.ObjectMeta, objectMeta)
+	}
+
+	controllerRepo := RepoInfluxCluster.NewControllerRepository(&p.InfluxDBConfig)
+	controllers, err := controllerRepo.ListControllers(controllerRequest)
+	if err != nil {
+		scope.Error(err.Error())
+		return make([]*DaoClusterTypes.Application, 0), err
+	}
+	for _, controller := range controllers {
+		for _, application := range applications {
+			if application.ObjectMeta.Name == controller.AlamedaControllerSpec.AlamedaScaler.Name {
+				if application.Controllers == nil {
+					application.Controllers = make([]*DaoClusterTypes.Controller, 0)
+				}
+				application.Controllers = append(application.Controllers, controller)
+				break
+			}
+		}
+	}
+
 	return applications, nil
 }

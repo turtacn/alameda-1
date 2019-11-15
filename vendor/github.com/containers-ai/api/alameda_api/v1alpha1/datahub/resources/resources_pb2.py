@@ -24,7 +24,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.resources',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources'),
-  serialized_pb=_b('\n6alameda_api/v1alpha1/datahub/resources/resources.proto\x12/containersai.alameda.v1alpha1.datahub.resources\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x33\x61lameda_api/v1alpha1/datahub/resources/status.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/resources/types.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x01\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12X\n\tresources\x18\x02 \x01(\x0b\x32\x45.containersai.alameda.v1alpha1.datahub.resources.ResourceRequirements\x12P\n\x06status\x18\x03 \x01(\x0b\x32@.containersai.alameda.v1alpha1.datahub.resources.ContainerStatus\"\x91\x04\n\x03Pod\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rresource_link\x18\x03 \x01(\t\x12\x10\n\x08\x61pp_name\x18\x04 \x01(\t\x12\x13\n\x0b\x61pp_part_of\x18\x05 \x01(\t\x12N\n\ncontainers\x18\x06 \x03(\x0b\x32:.containersai.alameda.v1alpha1.datahub.resources.Container\x12S\n\x0etop_controller\x18\x07 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.Controller\x12J\n\x06status\x18\x08 \x01(\x0b\x32:.containersai.alameda.v1alpha1.datahub.resources.PodStatus\x12Y\n\x10\x61lameda_pod_spec\x18\t \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.AlamedaPodSpec\"\xb5\x02\n\nController\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x10\n\x08replicas\x18\x03 \x01(\x05\x12\x15\n\rspec_replicas\x18\x04 \x01(\x05\x12g\n\x17\x61lameda_controller_spec\x18\x05 \x01(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.resources.AlamedaControllerSpec\"\xca\x01\n\x0b\x41pplication\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12i\n\x18\x61lameda_application_spec\x18\x02 \x01(\x0b\x32G.containersai.alameda.v1alpha1.datahub.resources.AlamedaApplicationSpec\"]\n\tNamespace\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\xb2\x02\n\x04Node\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12K\n\x08\x63\x61pacity\x18\x03 \x01(\x0b\x32\x39.containersai.alameda.v1alpha1.datahub.resources.Capacity\x12[\n\x11\x61lameda_node_spec\x18\x04 \x01(\x0b\x32@.containersai.alameda.v1alpha1.datahub.resources.AlamedaNodeSpec\"[\n\x07\x43luster\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMetaBEZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
+  serialized_pb=_b('\n6alameda_api/v1alpha1/datahub/resources/resources.proto\x12/containersai.alameda.v1alpha1.datahub.resources\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x33\x61lameda_api/v1alpha1/datahub/resources/status.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/resources/types.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x01\n\tContainer\x12\x0c\n\x04name\x18\x01 \x01(\t\x12X\n\tresources\x18\x02 \x01(\x0b\x32\x45.containersai.alameda.v1alpha1.datahub.resources.ResourceRequirements\x12P\n\x06status\x18\x03 \x01(\x0b\x32@.containersai.alameda.v1alpha1.datahub.resources.ContainerStatus\"\x91\x04\n\x03Pod\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x15\n\rresource_link\x18\x03 \x01(\t\x12\x10\n\x08\x61pp_name\x18\x04 \x01(\t\x12\x13\n\x0b\x61pp_part_of\x18\x05 \x01(\t\x12Y\n\x10\x61lameda_pod_spec\x18\x06 \x01(\x0b\x32?.containersai.alameda.v1alpha1.datahub.resources.AlamedaPodSpec\x12S\n\x0etop_controller\x18\x07 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.Controller\x12J\n\x06status\x18\x08 \x01(\x0b\x32:.containersai.alameda.v1alpha1.datahub.resources.PodStatus\x12N\n\ncontainers\x18\t \x03(\x0b\x32:.containersai.alameda.v1alpha1.datahub.resources.Container\"\xb5\x02\n\nController\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x02 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x10\n\x08replicas\x18\x03 \x01(\x05\x12\x15\n\rspec_replicas\x18\x04 \x01(\x05\x12g\n\x17\x61lameda_controller_spec\x18\x05 \x01(\x0b\x32\x46.containersai.alameda.v1alpha1.datahub.resources.AlamedaControllerSpec\"\x9c\x02\n\x0b\x41pplication\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12i\n\x18\x61lameda_application_spec\x18\x02 \x01(\x0b\x32G.containersai.alameda.v1alpha1.datahub.resources.AlamedaApplicationSpec\x12P\n\x0b\x63ontrollers\x18\x03 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.Controller\"]\n\tNamespace\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\"\xb2\x02\n\x04Node\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12K\n\x08\x63\x61pacity\x18\x03 \x01(\x0b\x32\x39.containersai.alameda.v1alpha1.datahub.resources.Capacity\x12[\n\x11\x61lameda_node_spec\x18\x04 \x01(\x0b\x32@.containersai.alameda.v1alpha1.datahub.resources.AlamedaNodeSpec\"[\n\x07\x43luster\x12P\n\x0bobject_meta\x18\x01 \x01(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMetaBEZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/resourcesb\x06proto3')
   ,
   dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_status__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2.DESCRIPTOR,google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -119,9 +119,9 @@ _POD = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='containers', full_name='containersai.alameda.v1alpha1.datahub.resources.Pod.containers', index=5,
-      number=6, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='alameda_pod_spec', full_name='containersai.alameda.v1alpha1.datahub.resources.Pod.alameda_pod_spec', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -140,9 +140,9 @@ _POD = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='alameda_pod_spec', full_name='containersai.alameda.v1alpha1.datahub.resources.Pod.alameda_pod_spec', index=8,
-      number=9, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='containers', full_name='containersai.alameda.v1alpha1.datahub.resources.Pod.containers', index=8,
+      number=9, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -243,6 +243,13 @@ _APPLICATION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='controllers', full_name='containersai.alameda.v1alpha1.datahub.resources.Application.controllers', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -256,7 +263,7 @@ _APPLICATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1345,
-  serialized_end=1547,
+  serialized_end=1629,
 )
 
 
@@ -286,8 +293,8 @@ _NAMESPACE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1549,
-  serialized_end=1642,
+  serialized_start=1631,
+  serialized_end=1724,
 )
 
 
@@ -338,8 +345,8 @@ _NODE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1645,
-  serialized_end=1951,
+  serialized_start=1727,
+  serialized_end=2033,
 )
 
 
@@ -369,23 +376,24 @@ _CLUSTER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1953,
-  serialized_end=2044,
+  serialized_start=2035,
+  serialized_end=2126,
 )
 
 _CONTAINER.fields_by_name['resources'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._RESOURCEREQUIREMENTS
 _CONTAINER.fields_by_name['status'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_status__pb2._CONTAINERSTATUS
 _POD.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _POD.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_POD.fields_by_name['containers'].message_type = _CONTAINER
+_POD.fields_by_name['alameda_pod_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._ALAMEDAPODSPEC
 _POD.fields_by_name['top_controller'].message_type = _CONTROLLER
 _POD.fields_by_name['status'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_status__pb2._PODSTATUS
-_POD.fields_by_name['alameda_pod_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._ALAMEDAPODSPEC
+_POD.fields_by_name['containers'].message_type = _CONTAINER
 _CONTROLLER.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _CONTROLLER.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
 _CONTROLLER.fields_by_name['alameda_controller_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._ALAMEDACONTROLLERSPEC
 _APPLICATION.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _APPLICATION.fields_by_name['alameda_application_spec'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_types__pb2._ALAMEDAAPPLICATIONSPEC
+_APPLICATION.fields_by_name['controllers'].message_type = _CONTROLLER
 _NAMESPACE.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _NODE.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _NODE.fields_by_name['start_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP

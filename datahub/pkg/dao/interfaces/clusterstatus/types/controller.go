@@ -59,7 +59,12 @@ func (p *Controller) Populate(values map[string]string) {
 }
 
 func (p *AlamedaControllerSpec) Initialize(values map[string]string) {
-	p.AlamedaScaler.Initialize(values)
+	if value, ok := values[string(clusterstatus.ControllerAlamedaSpecScalerName)]; ok {
+		p.AlamedaScaler.Name = value
+	}
+	if value, ok := values[string(clusterstatus.ControllerAlamedaSpecScalerNamespace)]; ok {
+		p.AlamedaScaler.Namespace = value
+	}
 
 	if value, ok := values[string(clusterstatus.ControllerAlamedaSpecScalingTool)]; ok {
 		p.ScalingTool = value

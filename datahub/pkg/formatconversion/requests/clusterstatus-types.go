@@ -30,6 +30,15 @@ func NewAlamedaPodSpec(podSpec *resources.AlamedaPodSpec) *types.AlamedaPodSpec 
 	return nil
 }
 
+func NewAlamedaApplicationSpec(applicationSpec *resources.AlamedaApplicationSpec) *types.AlamedaApplicationSpec {
+	if applicationSpec != nil {
+		spec := &types.AlamedaApplicationSpec{}
+		spec.ScalingTool = applicationSpec.GetScalingTool().String()
+		return spec
+	}
+	return nil
+}
+
 func NewAlamedaNodeSpec(nodeSpec *resources.AlamedaNodeSpec) *types.AlamedaNodeSpec {
 	if nodeSpec != nil {
 		spec := &types.AlamedaNodeSpec{}

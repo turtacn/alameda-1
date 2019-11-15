@@ -11,7 +11,9 @@ type ApplicationDAO interface {
 }
 
 type Application struct {
-	ObjectMeta metadata.ObjectMeta
+	ObjectMeta             metadata.ObjectMeta
+	AlamedaApplicationSpec *AlamedaApplicationSpec
+	Controllers            []*Controller
 }
 
 type ListApplicationsRequest struct {
@@ -19,8 +21,14 @@ type ListApplicationsRequest struct {
 	ObjectMeta []metadata.ObjectMeta
 }
 
+type AlamedaApplicationSpec struct {
+	ScalingTool string
+}
+
 func NewApplication() *Application {
-	return &Application{}
+	application := Application{}
+	application.Controllers = make([]*Controller, 0)
+	return &application
 }
 
 func NewListApplicationsRequest() ListApplicationsRequest {
