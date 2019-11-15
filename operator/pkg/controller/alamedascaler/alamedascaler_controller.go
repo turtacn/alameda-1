@@ -439,17 +439,12 @@ func (r *ReconcileAlamedaScaler) deleteAlamedaWatchedResourcesToDatahub(scaler *
 
 	for _, ctlr := range ctlrsFromDH {
 		copyCTRL := *ctlr
-		isOwnedScaler := false
 		ctScalerNS := ctlr.GetAlamedaControllerSpec().GetAlamedaScaler().GetNamespace()
 		ctScalerName := ctlr.GetAlamedaControllerSpec().GetAlamedaScaler().GetName()
 		if ctScalerNS == scaler.GetNamespace() && ctScalerName == scaler.GetName() {
-			isOwnedScaler = true
-			break
-		}
-
-		if !isOwnedScaler {
 			continue
 		}
+
 		ctlrKind := ctlr.GetKind()
 		ctlrName := ctlr.GetObjectMeta().GetName()
 		inScaler := false
@@ -579,7 +574,7 @@ func (r *ReconcileAlamedaScaler) createPodsToDatahub(scaler *autoscalingv1alpha1
 				Seconds: corePod.ObjectMeta.GetCreationTimestamp().Unix(),
 			}
 			resourceLink = utilsresource.GetResourceLinkForPod(r.Client, corePod)
-			scope.Infof(fmt.Sprintf("resource link for pod (%s/%s) is %s", corePod.GetNamespace(), corePod.GetName(), resourceLink))
+			scope.Debugf(fmt.Sprintf("Resource link for pod (%s/%s) is %s", corePod.GetNamespace(), corePod.GetName(), resourceLink))
 		} else {
 			scope.Errorf("build Datahub pod to create failed, skip this pod: get pod %s/%s from k8s failed: %s", pod.Namespace, pod.Name, err.Error())
 			continue
