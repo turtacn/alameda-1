@@ -3,12 +3,14 @@ package controller
 import (
 	"context"
 
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+
+	"github.com/containers-ai/alameda/operator/datahub/client"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
-	"github.com/pkg/errors"
-	"google.golang.org/genproto/googleapis/rpc/code"
-	"google.golang.org/grpc"
+
 	appsv1 "k8s.io/api/apps/v1"
 )
 
@@ -80,22 +82,15 @@ func (repo *ControllerRepository) CreateControllers(arg interface{}) error {
 		Controllers: controllersToCreate,
 	}
 
-	if reqRes, err := repo.datahubClient.CreateControllers(
-		context.Background(), &req); err != nil {
-		return errors.Errorf("create controllers to datahub failed: %s", err.Error())
-	} else if reqRes == nil {
-		return errors.Errorf("create controllers to datahub failed: receive nil status")
-	} else if reqRes.Code != int32(code.Code_OK) {
-		return errors.Errorf(
-			"create controllers to datahub failed: receive statusCode: %d, message: %s",
-			reqRes.Code, reqRes.Message)
+	if resp, err := repo.datahubClient.CreateControllers(context.Background(), &req); err != nil {
+		return errors.Wrap(err, "create controllers to datahub failed")
+	} else if _, err := client.IsResponseStatusOK(resp); err != nil {
+		return errors.Wrap(err, "create controllers to datahub failed")
 	}
 	return nil
 }
 
-func (repo *ControllerRepository) ListControllers() (
-	[]*datahub_resources.Controller, error) {
-	controllers := []*datahub_resources.Controller{}
+func (repo *ControllerRepository) ListControllers() ([]*datahub_resources.Controller, error) {
 	req := datahub_resources.ListControllersRequest{
 		ObjectMeta: []*datahub_resources.ObjectMeta{
 			&datahub_resources.ObjectMeta{
@@ -103,17 +98,15 @@ func (repo *ControllerRepository) ListControllers() (
 			},
 		},
 	}
-	if reqRes, err := repo.datahubClient.ListControllers(
-		context.Background(), &req); err != nil {
-		if reqRes.Status != nil {
-			return controllers, errors.Errorf(
-				"list controllers from Datahub failed: %s", err.Error())
-		}
-		return controllers, err
-	} else {
-		controllers = reqRes.GetControllers()
+	resp, err := repo.datahubClient.ListControllers(context.Background(), &req)
+	if err != nil {
+		return nil, errors.Wrap(err, "list controllers from datahub failed")
+	} else if resp == nil {
+		return nil, errors.Errorf("list controllers from Datahub failed, receive nil response")
+	} else if _, err := client.IsResponseStatusOK(resp.Status); err != nil {
+		return nil, errors.Wrap(err, "list controllers from Datahub failed")
 	}
-	return controllers, nil
+	return resp.Controllers, nil
 }
 
 // DeleteController delete controllers from datahub
@@ -174,14 +167,11 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 		Kind:       kind,
 	}
 
-	if resp, err := repo.datahubClient.DeleteControllers(
-		context.Background(), &req); err != nil {
-		return errors.Errorf("delete controller from Datahub failed: %s",
-			err.Error())
-	} else if resp.Code != int32(code.Code_OK) {
-		return errors.Errorf(
-			"delete controller from Datahub failed: receive code: %d, message: %s",
-			resp.Code, resp.Message)
+	resp, err := repo.datahubClient.DeleteControllers(context.Background(), &req)
+	if err != nil {
+		return errors.Wrap(err, "delete controllers from Datahub failed")
+	} else if _, err := client.IsResponseStatusOK(resp); err != nil {
+		return errors.Wrap(err, "delete controllers from Datahub failed")
 	}
 	return nil
 }

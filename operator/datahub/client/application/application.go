@@ -3,12 +3,13 @@ package application
 import (
 	"context"
 
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+
+	"github.com/containers-ai/alameda/operator/datahub/client"
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/pkg/errors"
-	"google.golang.org/genproto/googleapis/rpc/code"
-	"google.golang.org/grpc"
 )
 
 type ApplicationRepository struct {
@@ -56,22 +57,15 @@ func (repo *ApplicationRepository) CreateApplications(arg interface{}) error {
 		Applications: applications,
 	}
 
-	if reqRes, err := repo.datahubClient.CreateApplications(
-		context.Background(), &req); err != nil {
+	if resp, err := repo.datahubClient.CreateApplications(context.Background(), &req); err != nil {
 		return errors.Errorf("create applications to datahub failed: %s", err.Error())
-	} else if reqRes == nil {
-		return errors.Errorf("create applications to datahub failed: receive nil status")
-	} else if reqRes.Code != int32(code.Code_OK) {
-		return errors.Errorf(
-			"create applications to datahub failed: receive statusCode: %d, message: %s",
-			reqRes.Code, reqRes.Message)
+	} else if _, err := client.IsResponseStatusOK(resp); err != nil {
+		return errors.Wrap(err, "create applications to Datahub failed")
 	}
 	return nil
 }
 
-func (repo *ApplicationRepository) ListApplications() (
-	[]*datahub_resources.Application, error) {
-	applications := []*datahub_resources.Application{}
+func (repo *ApplicationRepository) ListApplications() ([]*datahub_resources.Application, error) {
 	req := datahub_resources.ListApplicationsRequest{
 		ObjectMeta: []*datahub_resources.ObjectMeta{
 			&datahub_resources.ObjectMeta{
@@ -79,17 +73,15 @@ func (repo *ApplicationRepository) ListApplications() (
 			},
 		},
 	}
-	if reqRes, err := repo.datahubClient.ListApplications(
-		context.Background(), &req); err != nil {
-		if reqRes.Status != nil {
-			return applications, errors.Errorf(
-				"list applications from Datahub failed: %s", err.Error())
-		}
-		return applications, err
-	} else {
-		applications = reqRes.GetApplications()
+	resp, err := repo.datahubClient.ListApplications(context.Background(), &req)
+	if err != nil {
+		return nil, errors.Wrap(err, "list applications from datahub failed")
+	} else if resp == nil {
+		return nil, errors.Errorf("list applications from Datahub failed, receive nil response")
+	} else if _, err := client.IsResponseStatusOK(resp.Status); err != nil {
+		return nil, errors.Wrap(err, "list applications from Datahub failed")
 	}
-	return applications, nil
+	return resp.Applications, nil
 }
 
 // DeleteApplication delete applications from datahub
@@ -113,14 +105,10 @@ func (repo *ApplicationRepository) DeleteApplications(
 		ObjectMeta: objMeta,
 	}
 
-	if resp, err := repo.datahubClient.DeleteApplications(
-		context.Background(), &req); err != nil {
-		return errors.Errorf("delete application from Datahub failed: %s",
-			err.Error())
-	} else if resp.Code != int32(code.Code_OK) {
-		return errors.Errorf(
-			"delete application from Datahub failed: receive code: %d, message: %s",
-			resp.Code, resp.Message)
+	if resp, err := repo.datahubClient.DeleteApplications(context.Background(), &req); err != nil {
+		return errors.Wrap(err, "delete applications from Datahub failed")
+	} else if _, err := client.IsResponseStatusOK(resp); err != nil {
+		return errors.Wrap(err, "delete applications from Datahub failed")
 	}
 	return nil
 }

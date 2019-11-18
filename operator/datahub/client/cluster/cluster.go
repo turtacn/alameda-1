@@ -3,11 +3,12 @@ package cluster
 import (
 	"context"
 
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+
+	"github.com/containers-ai/alameda/operator/datahub/client"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/pkg/errors"
-	"google.golang.org/genproto/googleapis/rpc/code"
-	"google.golang.org/grpc"
 )
 
 type ClusterRepository struct {
@@ -41,22 +42,15 @@ func (repo *ClusterRepository) CreateClusters(arg interface{}) error {
 		Clusters: clusters,
 	}
 
-	if reqRes, err := repo.datahubClient.CreateClusters(
-		context.Background(), &req); err != nil {
-		return errors.Errorf("create clusters to datahub failed: %s", err.Error())
-	} else if reqRes == nil {
-		return errors.Errorf("create clusters to datahub failed: receive nil status")
-	} else if reqRes.Code != int32(code.Code_OK) {
-		return errors.Errorf(
-			"create clusters to datahub failed: receive statusCode: %d, message: %s",
-			reqRes.Code, reqRes.Message)
+	if resp, err := repo.datahubClient.CreateClusters(context.Background(), &req); err != nil {
+		return errors.Wrap(err, "create clusters to datahub failed")
+	} else if _, err := client.IsResponseStatusOK(resp); err != nil {
+		return errors.Wrap(err, "create clusters to datahub failed")
 	}
 	return nil
 }
 
-func (repo *ClusterRepository) ListClusters() (
-	[]*datahub_resources.Cluster, error) {
-	clusters := []*datahub_resources.Cluster{}
+func (repo *ClusterRepository) ListClusters() ([]*datahub_resources.Cluster, error) {
 	req := datahub_resources.ListClustersRequest{
 		ObjectMeta: []*datahub_resources.ObjectMeta{
 			&datahub_resources.ObjectMeta{
@@ -64,17 +58,15 @@ func (repo *ClusterRepository) ListClusters() (
 			},
 		},
 	}
-	if reqRes, err := repo.datahubClient.ListClusters(
-		context.Background(), &req); err != nil {
-		if reqRes.Status != nil {
-			return clusters, errors.Errorf(
-				"list clusters from Datahub failed: %s", err.Error())
-		}
-		return clusters, err
-	} else {
-		clusters = reqRes.GetClusters()
+	resp, err := repo.datahubClient.ListClusters(context.Background(), &req)
+	if err != nil {
+		return nil, errors.Wrap(err, "list clusters from Datahub failed")
+	} else if resp == nil {
+		return nil, errors.Errorf("list clusters from Datahub failed, receive nil response")
+	} else if _, err := client.IsResponseStatusOK(resp.Status); err != nil {
+		return nil, errors.Wrap(err, "list clusters from Datahub failed")
 	}
-	return clusters, nil
+	return resp.Clusters, nil
 }
 
 func (repo *ClusterRepository) Close() {
