@@ -25,11 +25,6 @@ import (
 	"strings"
 
 	"github.com/containers-ai/alameda/operator"
-	datahub_client_application "github.com/containers-ai/alameda/operator/datahub/client/application"
-	datahub_client_cluster "github.com/containers-ai/alameda/operator/datahub/client/cluster"
-	datahub_client_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
-	datahub_client_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
-	datahub_client_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	"github.com/containers-ai/alameda/operator/pkg/apis"
 	"github.com/containers-ai/alameda/operator/pkg/controller"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
@@ -274,36 +269,8 @@ func main() {
 					operatorConf.Datahub.RetryInterval.Default)
 				go launchWebhook(&mgr, &operatorConf)
 				go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
-				go func() {
-					if err := datahub_client_namespace.SyncWithDatahub(mgr.GetClient(),
-						dathubConn); err != nil {
-						scope.Errorf("sync namespace failed at start due to %s", err.Error())
-					}
-				}()
-				go func() {
-					if err := datahub_client_node.SyncWithDatahub(mgr.GetClient(),
-						dathubConn); err != nil {
-						scope.Errorf("sync node failed at start due to %s", err.Error())
-					}
-				}()
-				go func() {
-					if err := datahub_client_application.SyncWithDatahub(mgr.GetClient(),
-						dathubConn); err != nil {
-						scope.Errorf("sync application failed at start due to %s", err.Error())
-					}
-				}()
-				go func() {
-					if err := datahub_client_cluster.SyncWithDatahub(mgr.GetClient(),
-						dathubConn); err != nil {
-						scope.Errorf("sync cluster failed at start due to %s", err.Error())
-					}
-				}()
-				go func() {
-					if err := datahub_client_controller.SyncWithDatahub(mgr.GetClient(),
-						dathubConn); err != nil {
-						scope.Errorf("sync controller failed at start due to %s", err.Error())
-					}
-				}()
+				go syncResourcesWithDatahub(mgr.GetClient(),
+					dathubConn)
 			}
 			return nil
 		})
