@@ -998,6 +998,22 @@
           "unit": "short"
         },
         {
+          "alias": "Type",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "scaling_tool",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -1033,7 +1049,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select enable_HPA, enable_VPA from alameda_cluster_status..container group by alameda_scaler_name, alameda_scaler_namespace limit 1",
+          "query": "select scaling_tool from alameda_cluster_status..pod group by alameda_scaler_name, alameda_scaler_namespace limit 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -1072,7 +1088,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select count(pod_phase) as pod_count  from alameda_cluster_status..container group by  alameda_scaler_name, alameda_scaler_namespace",
+          "query": "select count(pod_phase) as pod_count  from alameda_cluster_status..pod group by  alameda_scaler_name, alameda_scaler_namespace",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -2187,14 +2203,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key = \"alameda_scaler_namespace\"",
+        "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_namespace\"",
         "hide": 2,
         "includeAll": true,
         "label": "NameSpace",
         "multi": true,
         "name": "ns",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key = \"alameda_scaler_namespace\"",
+        "query": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_namespace\"",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2208,18 +2224,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "nodejs",
-          "value": "nodejs"
+          "text": "alameda-busybox",
+          "value": "alameda-busybox"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
+        "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
         "hide": 0,
         "includeAll": false,
         "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
+        "query": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2237,14 +2253,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key = \"pod_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+        "definition": "show tag values on alameda_cluster_status from pod with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
         "hide": 2,
         "includeAll": true,
         "label": "pod",
         "multi": true,
         "name": "pod",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key = \"pod_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+        "query": "show tag values on alameda_cluster_status from pod with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2262,14 +2278,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
+        "definition": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/  and \"pod_name\"=~ /^[[pod]]$/",
         "hide": 2,
         "includeAll": true,
         "label": "container",
         "multi": true,
         "name": "container",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"pod_name\"=~ /^[[pod]]$/",
+        "query": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/  and \"pod_name\"=~ /^[[pod]]$/",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2309,8 +2325,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1569751792000",
-          "value": "1569751792000"
+          "text": "1574417167000",
+          "value": "1574417167000"
         },
         "datasource": "InfluxDB",
         "definition": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
@@ -2377,7 +2393,6 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -2753,8 +2768,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "6",
-          "value": "6"
+          "text": "0",
+          "value": "0"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO'  and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
@@ -2778,8 +2793,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "262",
-          "value": "262"
+          "text": "3",
+          "value": "3"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
