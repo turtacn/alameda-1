@@ -1258,7 +1258,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select history + prediction from (select sum(workloadcost) as history from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter group by namespacename),\n(select cumulative_sum(workloadcost) as prediction from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '1' and $timeFilter and time >= now() group by namespacename) group by namespacename fill(previous)",
+          "query": "select history + prediction from (select sum(workloadcost) as history from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter group by namespacename),\n(select cumulative_sum(workloadcost) as prediction from alameda_fedemeter..cost_namespace where granularity = '86400' and type = '1' and $timeFilter and time >= now() group by namespacename) group by namespacename fill(previous)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
