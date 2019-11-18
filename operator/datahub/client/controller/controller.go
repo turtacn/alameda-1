@@ -109,44 +109,41 @@ func (repo *ControllerRepository) ListControllers() ([]*datahub_resources.Contro
 	return resp.Controllers, nil
 }
 
-// DeleteController delete controllers from datahub
-func (repo *ControllerRepository) DeleteControllers(arg interface{},
-	kindIf interface{}) error {
+// DeleteControllers delete controllers from datahub
+func (repo *ControllerRepository) DeleteControllers(ctx context.Context, arg interface{}, kindIf interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
 	kind := datahub_resources.Kind_POD
 
-	if controllers, ok := arg.([]*appsv1.Deployment); ok {
+	switch v := arg.(type) {
+	case []*appsv1.Deployment:
 		kind = datahub_resources.Kind_DEPLOYMENT
-		for _, controller := range controllers {
+		for _, controller := range v {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
 				Name:        controller.GetName(),
 				Namespace:   controller.GetNamespace(),
 				ClusterName: repo.clusterUID,
 			})
 		}
-	}
-	if controllers, ok := arg.([]*appsv1.StatefulSet); ok {
+	case []*appsv1.StatefulSet:
 		kind = datahub_resources.Kind_STATEFULSET
-		for _, controller := range controllers {
+		for _, controller := range v {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
 				Name:        controller.GetName(),
 				Namespace:   controller.GetNamespace(),
 				ClusterName: repo.clusterUID,
 			})
 		}
-	}
-	if controllers, ok := arg.([]*appsapi_v1.DeploymentConfig); ok {
+	case []*appsapi_v1.DeploymentConfig:
 		kind = datahub_resources.Kind_DEPLOYMENTCONFIG
-		for _, controller := range controllers {
+		for _, controller := range v {
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
 				Name:        controller.GetName(),
 				Namespace:   controller.GetNamespace(),
 				ClusterName: repo.clusterUID,
 			})
 		}
-	}
-	if controllers, ok := arg.([]*datahub_resources.Controller); ok {
-		for _, controller := range controllers {
+	case []*datahub_resources.Controller:
+		for _, controller := range v {
 			kind = controller.GetKind()
 			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
 				Name:        controller.GetObjectMeta().GetName(),
@@ -154,12 +151,13 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 				ClusterName: repo.clusterUID,
 			})
 		}
-	}
-	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
+	case []*datahub_resources.ObjectMeta:
 		if theKind, ok := kindIf.(datahub_resources.Kind); ok {
 			kind = theKind
-			objMeta = meta
+			objMeta = v
 		}
+	default:
+		return errors.Errorf("not supported type(%T)", v)
 	}
 
 	req := datahub_resources.DeleteControllersRequest{
@@ -167,7 +165,7 @@ func (repo *ControllerRepository) DeleteControllers(arg interface{},
 		Kind:       kind,
 	}
 
-	resp, err := repo.datahubClient.DeleteControllers(context.Background(), &req)
+	resp, err := repo.datahubClient.DeleteControllers(ctx, &req)
 	if err != nil {
 		return errors.Wrap(err, "delete controllers from Datahub failed")
 	} else if _, err := client.IsResponseStatusOK(resp); err != nil {

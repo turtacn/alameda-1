@@ -146,7 +146,7 @@ func (r *ReconcileDeploymentConfig) Reconcile(request reconcile.Request) (reconc
 		}
 
 		// delete controller to datahub
-		err = r.datahubControllerRepo.DeleteControllers([]*datahub_resources.Controller{
+		err = r.datahubControllerRepo.DeleteControllers(context.TODO(), []*datahub_resources.Controller{
 			&datahub_resources.Controller{
 				ObjectMeta: &datahub_resources.ObjectMeta{
 					Name:        request.NamespacedName.Name,

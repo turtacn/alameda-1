@@ -65,6 +65,34 @@ func (repo *ApplicationRepository) CreateApplications(arg interface{}) error {
 	return nil
 }
 
+func (repo *ApplicationRepository) GetApplication(ctx context.Context, namespace, name string) (datahub_resources.Application, error) {
+	req := datahub_resources.ListApplicationsRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				Namespace:   namespace,
+				Name:        name,
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
+	resp, err := repo.datahubClient.ListApplications(ctx, &req)
+	if err != nil {
+		return datahub_resources.Application{}, errors.Wrap(err, "list applications from Datahub failed")
+	} else if resp == nil {
+		return datahub_resources.Application{}, errors.New("list applications from Datahub failed: receive nil response")
+	} else if _, err := client.IsResponseStatusOK(resp.Status); err != nil {
+		return datahub_resources.Application{}, errors.Wrap(err, "list applications from Datahub failed")
+	}
+	if len(resp.Applications) < 1 {
+		return datahub_resources.Application{}, errors.New("not found")
+	} else if resp.Applications[0] == nil {
+		return datahub_resources.Application{}, errors.New("not found")
+	} else if len(resp.Applications) > 1 {
+		return datahub_resources.Application{}, errors.Errorf("length of applications from Datahub %d > 1", len(resp.Applications))
+	}
+	return *resp.Applications[0], nil
+}
+
 func (repo *ApplicationRepository) ListApplications() ([]*datahub_resources.Application, error) {
 	req := datahub_resources.ListApplicationsRequest{
 		ObjectMeta: []*datahub_resources.ObjectMeta{

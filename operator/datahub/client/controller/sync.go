@@ -90,19 +90,19 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	}
 
 	if len(deploymentsNeedDeleting) > 0 {
-		err = datahubControllerRepo.DeleteControllers(deploymentsNeedDeleting, nil)
+		err = datahubControllerRepo.DeleteControllers(ctx, deploymentsNeedDeleting, nil)
 		if err != nil {
 			return errors.Wrap(err, "delete deployments from Datahub failed")
 		}
 	}
 	if len(statefulSetsNeedDeleting) > 0 {
-		err = datahubControllerRepo.DeleteControllers(statefulSetsNeedDeleting, nil)
+		err = datahubControllerRepo.DeleteControllers(ctx, statefulSetsNeedDeleting, nil)
 		if err != nil {
 			return errors.Wrap(err, "delete statefulset from Datahub failed")
 		}
 	}
 	if len(deploymentConfigsNeedDeleting) > 0 {
-		err = datahubControllerRepo.DeleteControllers(deploymentConfigsNeedDeleting, nil)
+		err = datahubControllerRepo.DeleteControllers(ctx, deploymentConfigsNeedDeleting, nil)
 		if err != nil {
 			return errors.Wrap(err, "delete deploymentconfig from Datahub failed")
 		}

@@ -263,10 +263,6 @@ func main() {
 			if !ok {
 				scope.Error("Wait for cache synchronization failed")
 			} else {
-				go syncAlamedaPodsWithDatahub(mgr.GetClient(),
-					operatorConf.Datahub.RetryInterval.Default)
-				go syncAlamedaResourcesWithDatahub(mgr.GetClient(),
-					operatorConf.Datahub.RetryInterval.Default)
 				go launchWebhook(&mgr, &operatorConf)
 				go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
 				go syncResourcesWithDatahub(mgr.GetClient(),

@@ -131,6 +131,8 @@ func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (r
 	if err != nil && !k8serrors.IsNotFound(err) {
 		scope.Warnf("Get AlamedaRecommendation(%s/%s) failed, retry after %f seconds, errorMsg: %s", request.Namespace, request.Name, requeueAfter.Seconds(), err.Error())
 		return reconcile.Result{Requeue: true, RequeueAfter: requeueAfter}, nil
+	} else if k8serrors.IsNotFound(err) {
+		return reconcile.Result{Requeue: false}, nil
 	}
 
 	// Delete AlamedaRecommendation if it is not watching by any AlamedaScaler
@@ -140,7 +142,7 @@ func (r *ReconcileAlamedaRecommendation) Reconcile(request reconcile.Request) (r
 		return reconcile.Result{Requeue: true, RequeueAfter: requeueAfter}, nil
 	} else if alamedaScaler.Namespace == "" || alamedaScaler.Name == "" {
 		if err = r.Delete(ctx, &alamedaRecommendation); err != nil {
-			scope.Warnf("Delete AlamedaRecommendation(%s/%s) failed, retry after %f seconds, errorMsg: %s", request.Namespace, request.Name, requeueAfter.Seconds(), err.Error())
+			scope.Warnf("Delete AlamedaRecommendation(%s/%s) failed, retry after %f seconds, errorMsg: %s", alamedaRecommendation.Namespace, alamedaRecommendation.Name, requeueAfter.Seconds(), err.Error())
 			return reconcile.Result{Requeue: true, RequeueAfter: requeueAfter}, nil
 		}
 		return reconcile.Result{}, nil
