@@ -14,9 +14,9 @@ func NewControllerPlanningsWithConfig(config InternalInflux.Config) *ControllerP
 	return &ControllerPlannings{InfluxDBConfig: config}
 }
 
-func (c *ControllerPlannings) AddControllerPlannings(controllerPlannings []*ApiPlannings.ControllerPlanning) error {
+func (c *ControllerPlannings) AddControllerPlannings(in *ApiPlannings.CreateControllerPlanningsRequest) error {
 	controllerRepository := RepoInfluxPlanning.NewControllerRepository(&c.InfluxDBConfig)
-	return controllerRepository.CreateControllerPlannings(controllerPlannings)
+	return controllerRepository.CreateControllerPlannings(in)
 }
 
 func (c *ControllerPlannings) ListControllerPlannings(in *ApiPlannings.ListControllerPlanningsRequest) ([]*ApiPlannings.ControllerPlanning, error) {

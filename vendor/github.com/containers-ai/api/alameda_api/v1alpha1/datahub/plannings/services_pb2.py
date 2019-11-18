@@ -25,7 +25,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.plannings',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings'),
-  serialized_pb=_b('\n5alameda_api/v1alpha1/datahub/plannings/services.proto\x12/containersai.alameda.v1alpha1.datahub.plannings\x1a\x31\x61lameda_api/v1alpha1/datahub/common/queries.proto\x1a\x36\x61lameda_api/v1alpha1/datahub/plannings/plannings.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/plannings/types.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x17google/rpc/status.proto\"\x85\x01\n\x19\x43reatePodPlanningsRequest\x12S\n\rpod_plannings\x18\x01 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.plannings.PodPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x9a\x01\n CreateControllerPlanningsRequest\x12\x61\n\x14\x63ontroller_plannings\x18\x01 \x03(\x0b\x32\x43.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x9d\x01\n!CreateApplicationPlanningsRequest\x12\x63\n\x15\x61pplication_plannings\x18\x01 \x03(\x0b\x32\x44.containersai.alameda.v1alpha1.datahub.plannings.ApplicationPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x97\x01\n\x1f\x43reateNamespacePlanningsRequest\x12_\n\x13namespace_plannings\x18\x01 \x03(\x0b\x32\x42.containersai.alameda.v1alpha1.datahub.plannings.NamespacePlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x88\x01\n\x1a\x43reateNodePlanningsRequest\x12U\n\x0enode_plannings\x18\x01 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.plannings.NodePlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x91\x01\n\x1d\x43reateClusterPlanningsRequest\x12[\n\x11\x63luster_plannings\x18\x01 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.plannings.ClusterPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\xf2\x02\n\x17ListPodPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\x93\x01\n\x18ListPodPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12S\n\rpod_plannings\x18\x02 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.plannings.PodPlanning\"\xc8\x03\n\x1eListControllerPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x62\n\x11\x63tl_planning_type\x18\x04 \x01(\x0e\x32G.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningType\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\xa8\x01\n\x1fListControllerPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x61\n\x14\x63ontroller_plannings\x18\x02 \x03(\x0b\x32\x43.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanning\"\xc9\x03\n\x1fListApplicationPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x62\n\x11\x63tl_planning_type\x18\x04 \x01(\x0e\x32G.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningType\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\xab\x01\n ListApplicationPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x63\n\x15\x61pplication_plannings\x18\x02 \x03(\x0b\x32\x44.containersai.alameda.v1alpha1.datahub.plannings.ApplicationPlanning\"\xc7\x03\n\x1dListNamespacePlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x62\n\x11\x63tl_planning_type\x18\x04 \x01(\x0e\x32G.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningType\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\xa5\x01\n\x1eListNamespacePlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12_\n\x13namespace_plannings\x18\x02 \x03(\x0b\x32\x42.containersai.alameda.v1alpha1.datahub.plannings.NamespacePlanning\"\xc2\x03\n\x18ListNodePlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x62\n\x11\x63tl_planning_type\x18\x04 \x01(\x0e\x32G.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningType\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\x96\x01\n\x19ListNodePlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12U\n\x0enode_plannings\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.plannings.NodePlanning\"\xc5\x03\n\x1bListClusterPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x62\n\x11\x63tl_planning_type\x18\x04 \x01(\x0e\x32G.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanningType\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\x9f\x01\n\x1cListClusterPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12[\n\x11\x63luster_plannings\x18\x02 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.plannings.ClusterPlanningBEZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/planningsb\x06proto3')
+  serialized_pb=_b('\n5alameda_api/v1alpha1/datahub/plannings/services.proto\x12/containersai.alameda.v1alpha1.datahub.plannings\x1a\x31\x61lameda_api/v1alpha1/datahub/common/queries.proto\x1a\x36\x61lameda_api/v1alpha1/datahub/plannings/plannings.proto\x1a\x32\x61lameda_api/v1alpha1/datahub/plannings/types.proto\x1a\x35\x61lameda_api/v1alpha1/datahub/resources/metadata.proto\x1a\x17google/rpc/status.proto\"\x85\x01\n\x19\x43reatePodPlanningsRequest\x12S\n\rpod_plannings\x18\x01 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.plannings.PodPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x9a\x01\n CreateControllerPlanningsRequest\x12\x61\n\x14\x63ontroller_plannings\x18\x01 \x03(\x0b\x32\x43.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x9d\x01\n!CreateApplicationPlanningsRequest\x12\x63\n\x15\x61pplication_plannings\x18\x01 \x03(\x0b\x32\x44.containersai.alameda.v1alpha1.datahub.plannings.ApplicationPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x97\x01\n\x1f\x43reateNamespacePlanningsRequest\x12_\n\x13namespace_plannings\x18\x01 \x03(\x0b\x32\x42.containersai.alameda.v1alpha1.datahub.plannings.NamespacePlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x88\x01\n\x1a\x43reateNodePlanningsRequest\x12U\n\x0enode_plannings\x18\x01 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.plannings.NodePlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\x91\x01\n\x1d\x43reateClusterPlanningsRequest\x12[\n\x11\x63luster_plannings\x18\x01 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.plannings.ClusterPlanning\x12\x13\n\x0bgranularity\x18\x02 \x01(\x03\"\xad\x02\n\x17ListPodPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12T\n\rplanning_type\x18\x04 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\x93\x01\n\x18ListPodPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12S\n\rpod_plannings\x18\x02 \x03(\x0b\x32<.containersai.alameda.v1alpha1.datahub.plannings.PodPlanning\"\xf9\x02\n\x1eListControllerPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x43\n\x04kind\x18\x03 \x01(\x0e\x32\x35.containersai.alameda.v1alpha1.datahub.resources.Kind\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\x12T\n\rplanning_type\x18\x05 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\xa8\x01\n\x1fListControllerPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x61\n\x14\x63ontroller_plannings\x18\x02 \x03(\x0b\x32\x43.containersai.alameda.v1alpha1.datahub.plannings.ControllerPlanning\"\xb5\x02\n\x1fListApplicationPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12T\n\rplanning_type\x18\x04 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\xab\x01\n ListApplicationPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12\x63\n\x15\x61pplication_plannings\x18\x02 \x03(\x0b\x32\x44.containersai.alameda.v1alpha1.datahub.plannings.ApplicationPlanning\"\xb3\x02\n\x1dListNamespacePlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12T\n\rplanning_type\x18\x04 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\xa5\x01\n\x1eListNamespacePlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12_\n\x13namespace_plannings\x18\x02 \x03(\x0b\x32\x42.containersai.alameda.v1alpha1.datahub.plannings.NamespacePlanning\"\xae\x02\n\x18ListNodePlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12T\n\rplanning_type\x18\x04 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\x96\x01\n\x19ListNodePlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12U\n\x0enode_plannings\x18\x02 \x03(\x0b\x32=.containersai.alameda.v1alpha1.datahub.plannings.NodePlanning\"\xb1\x02\n\x1bListClusterPlanningsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12P\n\x0bobject_meta\x18\x02 \x03(\x0b\x32;.containersai.alameda.v1alpha1.datahub.resources.ObjectMeta\x12\x13\n\x0bgranularity\x18\x03 \x01(\x03\x12T\n\rplanning_type\x18\x04 \x01(\x0e\x32=.containersai.alameda.v1alpha1.datahub.plannings.PlanningType\"\x9f\x01\n\x1cListClusterPlanningsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12[\n\x11\x63luster_plannings\x18\x02 \x03(\x0b\x32@.containersai.alameda.v1alpha1.datahub.plannings.ClusterPlanningBEZCgithub.com/containers-ai/api/alameda_api/v1alpha1/datahub/planningsb\x06proto3')
   ,
   dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
@@ -282,22 +282,15 @@ _LISTPODPLANNINGSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListPodPlanningsRequest.kind', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListPodPlanningsRequest.granularity', index=2,
+      number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListPodPlanningsRequest.granularity', index=3,
-      number=4, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListPodPlanningsRequest.planning_type', index=4,
-      number=5, type=14, cpp_type=8, label=1,
+      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListPodPlanningsRequest.planning_type', index=3,
+      number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -315,7 +308,7 @@ _LISTPODPLANNINGSREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1240,
-  serialized_end=1610,
+  serialized_end=1541,
 )
 
 
@@ -352,8 +345,8 @@ _LISTPODPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1613,
-  serialized_end=1760,
+  serialized_start=1544,
+  serialized_end=1691,
 )
 
 
@@ -386,8 +379,8 @@ _LISTCONTROLLERPLANNINGSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ctl_planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListControllerPlanningsRequest.ctl_planning_type', index=3,
-      number=4, type=14, cpp_type=8, label=1,
+      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListControllerPlanningsRequest.granularity', index=3,
+      number=4, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -411,8 +404,8 @@ _LISTCONTROLLERPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1763,
-  serialized_end=2219,
+  serialized_start=1694,
+  serialized_end=2071,
 )
 
 
@@ -449,8 +442,8 @@ _LISTCONTROLLERPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2222,
-  serialized_end=2390,
+  serialized_start=2074,
+  serialized_end=2242,
 )
 
 
@@ -476,22 +469,15 @@ _LISTAPPLICATIONPLANNINGSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListApplicationPlanningsRequest.kind', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListApplicationPlanningsRequest.granularity', index=2,
+      number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ctl_planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListApplicationPlanningsRequest.ctl_planning_type', index=3,
+      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListApplicationPlanningsRequest.planning_type', index=3,
       number=4, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListApplicationPlanningsRequest.planning_type', index=4,
-      number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -508,8 +494,8 @@ _LISTAPPLICATIONPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2393,
-  serialized_end=2850,
+  serialized_start=2245,
+  serialized_end=2554,
 )
 
 
@@ -546,8 +532,8 @@ _LISTAPPLICATIONPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2853,
-  serialized_end=3024,
+  serialized_start=2557,
+  serialized_end=2728,
 )
 
 
@@ -573,22 +559,15 @@ _LISTNAMESPACEPLANNINGSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNamespacePlanningsRequest.kind', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNamespacePlanningsRequest.granularity', index=2,
+      number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ctl_planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNamespacePlanningsRequest.ctl_planning_type', index=3,
+      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNamespacePlanningsRequest.planning_type', index=3,
       number=4, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNamespacePlanningsRequest.planning_type', index=4,
-      number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -605,8 +584,8 @@ _LISTNAMESPACEPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3027,
-  serialized_end=3482,
+  serialized_start=2731,
+  serialized_end=3038,
 )
 
 
@@ -643,8 +622,8 @@ _LISTNAMESPACEPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3485,
-  serialized_end=3650,
+  serialized_start=3041,
+  serialized_end=3206,
 )
 
 
@@ -670,22 +649,15 @@ _LISTNODEPLANNINGSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNodePlanningsRequest.kind', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNodePlanningsRequest.granularity', index=2,
+      number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ctl_planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNodePlanningsRequest.ctl_planning_type', index=3,
+      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNodePlanningsRequest.planning_type', index=3,
       number=4, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListNodePlanningsRequest.planning_type', index=4,
-      number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -702,8 +674,8 @@ _LISTNODEPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3653,
-  serialized_end=4103,
+  serialized_start=3209,
+  serialized_end=3511,
 )
 
 
@@ -740,8 +712,8 @@ _LISTNODEPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4106,
-  serialized_end=4256,
+  serialized_start=3514,
+  serialized_end=3664,
 )
 
 
@@ -767,22 +739,15 @@ _LISTCLUSTERPLANNINGSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='kind', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListClusterPlanningsRequest.kind', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='granularity', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListClusterPlanningsRequest.granularity', index=2,
+      number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ctl_planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListClusterPlanningsRequest.ctl_planning_type', index=3,
+      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListClusterPlanningsRequest.planning_type', index=3,
       number=4, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='planning_type', full_name='containersai.alameda.v1alpha1.datahub.plannings.ListClusterPlanningsRequest.planning_type', index=4,
-      number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -799,8 +764,8 @@ _LISTCLUSTERPLANNINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4259,
-  serialized_end=4712,
+  serialized_start=3667,
+  serialized_end=3972,
 )
 
 
@@ -837,8 +802,8 @@ _LISTCLUSTERPLANNINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4715,
-  serialized_end=4874,
+  serialized_start=3975,
+  serialized_end=4134,
 )
 
 _CREATEPODPLANNINGSREQUEST.fields_by_name['pod_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._PODPLANNING
@@ -849,42 +814,32 @@ _CREATENODEPLANNINGSREQUEST.fields_by_name['node_plannings'].message_type = alam
 _CREATECLUSTERPLANNINGSREQUEST.fields_by_name['cluster_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._CLUSTERPLANNING
 _LISTPODPLANNINGSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTPODPLANNINGSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
-_LISTPODPLANNINGSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
 _LISTPODPLANNINGSREQUEST.fields_by_name['planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._PLANNINGTYPE
 _LISTPODPLANNINGSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTPODPLANNINGSRESPONSE.fields_by_name['pod_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._PODPLANNING
 _LISTCONTROLLERPLANNINGSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTCONTROLLERPLANNINGSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
 _LISTCONTROLLERPLANNINGSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
-_LISTCONTROLLERPLANNINGSREQUEST.fields_by_name['ctl_planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._CONTROLLERPLANNINGTYPE
 _LISTCONTROLLERPLANNINGSREQUEST.fields_by_name['planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._PLANNINGTYPE
 _LISTCONTROLLERPLANNINGSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTCONTROLLERPLANNINGSRESPONSE.fields_by_name['controller_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._CONTROLLERPLANNING
 _LISTAPPLICATIONPLANNINGSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTAPPLICATIONPLANNINGSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
-_LISTAPPLICATIONPLANNINGSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
-_LISTAPPLICATIONPLANNINGSREQUEST.fields_by_name['ctl_planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._CONTROLLERPLANNINGTYPE
 _LISTAPPLICATIONPLANNINGSREQUEST.fields_by_name['planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._PLANNINGTYPE
 _LISTAPPLICATIONPLANNINGSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTAPPLICATIONPLANNINGSRESPONSE.fields_by_name['application_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._APPLICATIONPLANNING
 _LISTNAMESPACEPLANNINGSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTNAMESPACEPLANNINGSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
-_LISTNAMESPACEPLANNINGSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
-_LISTNAMESPACEPLANNINGSREQUEST.fields_by_name['ctl_planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._CONTROLLERPLANNINGTYPE
 _LISTNAMESPACEPLANNINGSREQUEST.fields_by_name['planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._PLANNINGTYPE
 _LISTNAMESPACEPLANNINGSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTNAMESPACEPLANNINGSRESPONSE.fields_by_name['namespace_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._NAMESPACEPLANNING
 _LISTNODEPLANNINGSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTNODEPLANNINGSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
-_LISTNODEPLANNINGSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
-_LISTNODEPLANNINGSREQUEST.fields_by_name['ctl_planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._CONTROLLERPLANNINGTYPE
 _LISTNODEPLANNINGSREQUEST.fields_by_name['planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._PLANNINGTYPE
 _LISTNODEPLANNINGSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTNODEPLANNINGSRESPONSE.fields_by_name['node_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._NODEPLANNING
 _LISTCLUSTERPLANNINGSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTCLUSTERPLANNINGSREQUEST.fields_by_name['object_meta'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._OBJECTMETA
-_LISTCLUSTERPLANNINGSREQUEST.fields_by_name['kind'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_resources_dot_metadata__pb2._KIND
-_LISTCLUSTERPLANNINGSREQUEST.fields_by_name['ctl_planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._CONTROLLERPLANNINGTYPE
 _LISTCLUSTERPLANNINGSREQUEST.fields_by_name['planning_type'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_types__pb2._PLANNINGTYPE
 _LISTCLUSTERPLANNINGSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTCLUSTERPLANNINGSRESPONSE.fields_by_name['cluster_plannings'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_plannings_dot_plannings__pb2._CLUSTERPLANNING

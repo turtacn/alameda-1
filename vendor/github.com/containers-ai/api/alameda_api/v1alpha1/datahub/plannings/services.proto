@@ -48,9 +48,8 @@ message CreateClusterPlanningsRequest {
 message ListPodPlanningsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
-    resources.Kind                kind            = 3;
-    int64                         granularity     = 4;
-    PlanningType                  planning_type   = 5;
+    int64                         granularity     = 3;
+    PlanningType                  planning_type   = 4;
 }
 
 // Represents a response for listing pod plannings request
@@ -64,7 +63,7 @@ message ListControllerPlanningsRequest {
     common.QueryCondition         query_condition   = 1;
     repeated resources.ObjectMeta object_meta       = 2;
     resources.Kind                kind              = 3;
-    ControllerPlanningType        ctl_planning_type = 4;
+    int64                         granularity       = 4;
     PlanningType                  planning_type     = 5;
 }
 
@@ -77,9 +76,8 @@ message ListControllerPlanningsResponse {
 message ListApplicationPlanningsRequest {
     common.QueryCondition         query_condition   = 1;
     repeated resources.ObjectMeta object_meta       = 2;
-    resources.Kind                kind              = 3;
-    ControllerPlanningType        ctl_planning_type = 4;
-    PlanningType                  planning_type     = 5;
+    int64                         granularity       = 3;
+    PlanningType                  planning_type     = 4;
 }
 
 message ListApplicationPlanningsResponse {
@@ -90,9 +88,8 @@ message ListApplicationPlanningsResponse {
 message ListNamespacePlanningsRequest {
     common.QueryCondition         query_condition   = 1;
     repeated resources.ObjectMeta object_meta       = 2;
-    resources.Kind                kind              = 3;
-    ControllerPlanningType        ctl_planning_type = 4;
-    PlanningType                  planning_type     = 5;
+    int64                         granularity       = 3;
+    PlanningType                  planning_type     = 4;
 }
 
 message ListNamespacePlanningsResponse {
@@ -103,9 +100,8 @@ message ListNamespacePlanningsResponse {
 message ListNodePlanningsRequest {
     common.QueryCondition         query_condition   = 1;
     repeated resources.ObjectMeta object_meta       = 2;
-    resources.Kind                kind              = 3;
-    ControllerPlanningType        ctl_planning_type = 4;
-    PlanningType                  planning_type     = 5;
+    int64                         granularity       = 3;
+    PlanningType                  planning_type     = 4;
 }
 
 message ListNodePlanningsResponse {
@@ -116,9 +112,8 @@ message ListNodePlanningsResponse {
 message ListClusterPlanningsRequest {
     common.QueryCondition         query_condition   = 1;
     repeated resources.ObjectMeta object_meta       = 2;
-    resources.Kind                kind              = 3;
-    ControllerPlanningType        ctl_planning_type = 4;
-    PlanningType                  planning_type     = 5;
+    int64                         granularity       = 3;
+    PlanningType                  planning_type     = 4;
 }
 
 message ListClusterPlanningsResponse {

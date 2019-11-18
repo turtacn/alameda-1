@@ -4,43 +4,47 @@ type clusterTag = string
 type clusterField = string
 
 const (
+	ClusterPlanningId   clusterTag = "planning_id"
 	ClusterPlanningType clusterTag = "planning_type"
 	ClusterTime         clusterTag = "time"
 	ClusterName         clusterTag = "name"
-	ClusterType         clusterTag = "type"
+	ClusterGranularity  clusterTag = "granularity"
 
-	ClusterKind              clusterField = "kind"
-	ClusterCurrentReplicas   clusterField = "current_replicas"
-	ClusterDesiredReplicas   clusterField = "desired_replicas"
-	ClusterCreateTime        clusterField = "create_time"
-	ClusterCurrentCPURequest clusterField = "current_cpu_requests"
-	ClusterCurrentMEMRequest clusterField = "current_mem_requests"
-	ClusterCurrentCPULimit   clusterField = "current_cpu_limits"
-	ClusterCurrentMEMLimit   clusterField = "current_mem_limits"
-	ClusterDesiredCPULimit   clusterField = "desired_cpu_limits"
-	ClusterDesiredMEMLimit   clusterField = "desired_mem_limits"
-	ClusterTotalCost         clusterField = "total_cost"
+	ClusterResourceRequestCPU           clusterField = "resource_request_cpu"
+	ClusterResourceRequestMemory        clusterField = "resource_request_memory"
+	ClusterResourceLimitCPU             clusterField = "resource_limit_cpu"
+	ClusterResourceLimitMemory          clusterField = "resource_limit_memory"
+	ClusterInitialResourceRequestCPU    clusterField = "initial_resource_request_cpu"
+	ClusterInitialResourceRequestMemory clusterField = "initial_resource_request_memory"
+	ClusterInitialResourceLimitCPU      clusterField = "initial_resource_limit_cpu"
+	ClusterInitialResourceLimitMemory   clusterField = "initial_resource_limit_memory"
+	ClusterStartTime                    clusterField = "start_time"
+	ClusterEndTime                      clusterField = "end_time"
+	ClusterTotalCost                    clusterField = "total_cost"
+	ClusterApplyPlanningNow             clusterField = "apply_planning_now"
 )
 
 var (
 	ClusterTags = []clusterTag{
+		ClusterPlanningId,
 		ClusterPlanningType,
 		ClusterTime,
 		ClusterName,
-		ClusterType,
+		ClusterGranularity,
 	}
 
 	ClusterFields = []clusterField{
-		ClusterKind,
-		ClusterCurrentReplicas,
-		ClusterDesiredReplicas,
-		ClusterCreateTime,
-		ClusterCurrentCPURequest,
-		ClusterCurrentMEMRequest,
-		ClusterCurrentCPULimit,
-		ClusterCurrentMEMLimit,
-		ClusterDesiredCPULimit,
-		ClusterDesiredMEMLimit,
+		ClusterResourceRequestCPU,
+		ClusterResourceRequestMemory,
+		ClusterResourceLimitCPU,
+		ClusterResourceLimitMemory,
+		ClusterInitialResourceRequestCPU,
+		ClusterInitialResourceRequestMemory,
+		ClusterInitialResourceLimitCPU,
+		ClusterInitialResourceLimitMemory,
+		ClusterStartTime,
+		ClusterEndTime,
 		ClusterTotalCost,
+		ClusterApplyPlanningNow,
 	}
 )

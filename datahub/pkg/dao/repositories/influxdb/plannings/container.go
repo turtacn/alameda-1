@@ -2,6 +2,13 @@ package plannings
 
 import (
 	"fmt"
+	"math"
+	"strconv"
+	"time"
+
+	"github.com/golang/protobuf/ptypes/timestamp"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
+
 	EntityInfluxPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/plannings"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
@@ -11,12 +18,6 @@ import (
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiPlannings "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	InfluxClient "github.com/influxdata/influxdb/client/v2"
-	"github.com/pkg/errors"
-	"math"
-	"strconv"
-	"time"
 )
 
 var (
@@ -235,7 +236,6 @@ func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPla
 		GroupByTags:    []string{EntityInfluxPlanning.ContainerName, EntityInfluxPlanning.ContainerNamespace, EntityInfluxPlanning.ContainerPodName},
 	}
 
-	kind := in.GetKind()
 	planningType := in.GetPlanningType().String()
 	granularity := in.GetGranularity()
 
@@ -245,28 +245,18 @@ func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPla
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
-		nameCol := ""
-		switch kind {
-		case ApiResources.Kind_POD:
-			nameCol = string(EntityInfluxPlanning.ContainerPodName)
-		case ApiResources.Kind_DEPLOYMENT:
-			nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
-		case ApiResources.Kind_DEPLOYMENTCONFIG:
-			nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
-		case ApiResources.Kind_STATEFULSET:
-			nameCol = string(EntityInfluxPlanning.ContainerTopControllerName)
-		default:
-			return podPlannings, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
+		keyList := []string{
+			EntityInfluxPlanning.ContainerNamespace,
+			EntityInfluxPlanning.ContainerPodName,
+			EntityInfluxPlanning.ContainerGranularity,
 		}
-
-		keyList := []string{nameCol, EntityInfluxPlanning.ContainerGranularity}
-		valueList := []string{name, strconv.FormatInt(granularity, 10)}
-
-		if kind != ApiResources.Kind_POD {
-			keyList = append(keyList, EntityInfluxPlanning.ContainerTopControllerKind)
-			valueList = append(valueList, kind.String())
+		valueList := []string{
+			namespace,
+			name,
+			strconv.FormatInt(granularity, 10),
 		}
 
 		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
@@ -278,6 +268,9 @@ func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPla
 		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
 	}
 
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
+	influxdbStatement.SetOrderClauseFromQueryCondition()
+	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()
 	scope.Debugf(fmt.Sprintf("ListContainerPlannings: %s", cmd))
 

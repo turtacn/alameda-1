@@ -14,7 +14,7 @@ func (s *ServiceV1alpha1) CreateControllerPlannings(ctx context.Context, in *Api
 	scope.Debug("Request received from CreateControllerPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	controllerDAO := DaoPlanning.NewControllerPlanningsDAO(*s.Config)
-	err := controllerDAO.AddControllerPlannings(in.GetControllerPlannings())
+	err := controllerDAO.AddControllerPlannings(in)
 
 	if err != nil {
 		scope.Error(err.Error())

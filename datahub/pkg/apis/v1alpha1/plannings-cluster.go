@@ -12,9 +12,8 @@ import (
 func (s *ServiceV1alpha1) CreateClusterPlannings(ctx context.Context, in *ApiPlannings.CreateClusterPlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateClusterPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	clusterPlanningList := in.GetClusterPlannings()
 	clusterDAO := DaoPlannings.NewClusterPlanningsDAO(*s.Config)
-	err := clusterDAO.CreatePlannings(clusterPlanningList)
+	err := clusterDAO.CreatePlannings(in)
 
 	if err != nil {
 		scope.Error(err.Error())

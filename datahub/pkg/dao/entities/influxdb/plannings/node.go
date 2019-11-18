@@ -4,43 +4,47 @@ type nodeTag = string
 type nodeField = string
 
 const (
+	NodePlanningId   nodeTag = "planning_id"
 	NodePlanningType nodeTag = "planning_type"
 	NodeTime         nodeTag = "time"
 	NodeName         nodeTag = "name"
-	NodeType         nodeTag = "type"
+	NodeGranularity  nodeTag = "granularity"
 
-	NodeKind              nodeField = "kind"
-	NodeCurrentReplicas   nodeField = "current_replicas"
-	NodeDesiredReplicas   nodeField = "desired_replicas"
-	NodeCreateTime        nodeField = "create_time"
-	NodeCurrentCPURequest nodeField = "current_cpu_requests"
-	NodeCurrentMEMRequest nodeField = "current_mem_requests"
-	NodeCurrentCPULimit   nodeField = "current_cpu_limits"
-	NodeCurrentMEMLimit   nodeField = "current_mem_limits"
-	NodeDesiredCPULimit   nodeField = "desired_cpu_limits"
-	NodeDesiredMEMLimit   nodeField = "desired_mem_limits"
-	NodeTotalCost         nodeField = "total_cost"
+	NodeResourceRequestCPU           nodeField = "resource_request_cpu"
+	NodeResourceRequestMemory        nodeField = "resource_request_memory"
+	NodeResourceLimitCPU             nodeField = "resource_limit_cpu"
+	NodeResourceLimitMemory          nodeField = "resource_limit_memory"
+	NodeInitialResourceRequestCPU    nodeField = "initial_resource_request_cpu"
+	NodeInitialResourceRequestMemory nodeField = "initial_resource_request_memory"
+	NodeInitialResourceLimitCPU      nodeField = "initial_resource_limit_cpu"
+	NodeInitialResourceLimitMemory   nodeField = "initial_resource_limit_memory"
+	NodeStartTime                    nodeField = "start_time"
+	NodeEndTime                      nodeField = "end_time"
+	NodeTotalCost                    nodeField = "total_cost"
+	NodeApplyPlanningNow             nodeField = "apply_planning_now"
 )
 
 var (
 	NodeTags = []nodeTag{
+		NodePlanningId,
 		NodePlanningType,
 		NodeTime,
 		NodeName,
-		NodeType,
+		NodeGranularity,
 	}
 
 	NodeFields = []nodeField{
-		NodeKind,
-		NodeCurrentReplicas,
-		NodeDesiredReplicas,
-		NodeCreateTime,
-		NodeCurrentCPURequest,
-		NodeCurrentMEMRequest,
-		NodeCurrentCPULimit,
-		NodeCurrentMEMLimit,
-		NodeDesiredCPULimit,
-		NodeDesiredMEMLimit,
+		NodeResourceRequestCPU,
+		NodeResourceRequestMemory,
+		NodeResourceLimitCPU,
+		NodeResourceLimitMemory,
+		NodeInitialResourceRequestCPU,
+		NodeInitialResourceRequestMemory,
+		NodeInitialResourceLimitCPU,
+		NodeInitialResourceLimitMemory,
+		NodeStartTime,
+		NodeEndTime,
 		NodeTotalCost,
+		NodeApplyPlanningNow,
 	}
 )

@@ -1,17 +1,21 @@
 package plannings
 
 import (
+	"math"
+	"strconv"
+	"time"
+
+	"github.com/golang/protobuf/ptypes/timestamp"
+	InfluxClient "github.com/influxdata/influxdb/client/v2"
+
 	EntityInfluxPlanning "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/plannings"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
+	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiPlannings "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/plannings"
-	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	//"github.com/golang/protobuf/ptypes"
-	//"github.com/golang/protobuf/ptypes/timestamp"
-	//InfluxClient "github.com/influxdata/influxdb/client/v2"
-	//"strconv"
-	//"time"
+	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
 type AppRepository struct {
@@ -28,108 +32,204 @@ func NewAppRepository(influxDBCfg *InternalInflux.Config) *AppRepository {
 	}
 }
 
-func (c *AppRepository) CreatePlannings(plannings []*ApiPlannings.ApplicationPlanning) error {
-	/*
-		points := make([]*InfluxClient.Point, 0)
+func (c *AppRepository) CreatePlannings(in *ApiPlannings.CreateApplicationPlanningsRequest) error {
+	appPlannings := in.GetApplicationPlannings()
+	granularity := in.GetGranularity()
+	if granularity == 0 {
+		granularity = 30
+	}
 
+	points := make([]*InfluxClient.Point, 0)
+	for _, appPlanning := range appPlannings {
+		if appPlanning.GetApplyPlanningNow() {
+			//TODO
+		}
+
+		planningId := appPlanning.GetPlanningId()
+		planningType := appPlanning.GetPlanningType().String()
+		namespace := appPlanning.GetObjectMeta().GetNamespace()
+		name := appPlanning.GetObjectMeta().GetName()
+		totalCost := appPlanning.GetTotalCost()
+		applyPlanningNow := appPlanning.GetApplyPlanningNow()
+
+		plannings := appPlanning.GetPlannings()
 		for _, planning := range plannings {
-			appPlanningType := planning.GetApplicationPlanningType()
+			tags := map[string]string{
+				EntityInfluxPlanning.AppPlanningId:   planningId,
+				EntityInfluxPlanning.AppPlanningType: planningType,
+				EntityInfluxPlanning.AppNamespace:    namespace,
+				EntityInfluxPlanning.AppName:         name,
+				EntityInfluxPlanning.AppGranularity:  strconv.FormatInt(granularity, 10),
+			}
+			fields := map[string]interface{}{
+				EntityInfluxPlanning.AppTotalCost:        totalCost,
+				EntityInfluxPlanning.AppApplyPlanningNow: applyPlanningNow,
+			}
 
-			if appPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
-				planningSpec := planning.GetApplicationPlanningSpec()
-
-				tags := map[string]string{
-					EntityInfluxPlanning.AppPlanningType: planning.GetPlanningType().String(),
-					EntityInfluxPlanning.AppNamespace:    planning.GetObjectMeta().GetNamespace(),
-					EntityInfluxPlanning.AppName:         planning.GetObjectMeta().GetName(),
-					EntityInfluxPlanning.AppType:         ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE.String(),
+			initialLimitPlanning := make(map[ApiCommon.MetricType]interface{})
+			if planning.GetInitialLimitPlannings() != nil {
+				for _, rec := range planning.GetInitialLimitPlannings() {
+					// One and only one record in initial limit recommendation
+					initialLimitPlanning[rec.GetMetricType()] = rec.Data[0].NumValue
 				}
-
-				fields := map[string]interface{}{
-					EntityInfluxPlanning.AppCurrentReplicas: planningSpec.GetCurrentReplicas(),
-					EntityInfluxPlanning.AppDesiredReplicas: planningSpec.GetDesiredReplicas(),
-					EntityInfluxPlanning.AppCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
-					EntityInfluxPlanning.AppKind:            planning.GetKind().String(),
-
-					EntityInfluxPlanning.AppCurrentCPURequest: planningSpec.GetCurrentCpuRequests(),
-					EntityInfluxPlanning.AppCurrentMEMRequest: planningSpec.GetCurrentMemRequests(),
-					EntityInfluxPlanning.AppCurrentCPULimit:   planningSpec.GetCurrentCpuLimits(),
-					EntityInfluxPlanning.AppCurrentMEMLimit:   planningSpec.GetCurrentMemLimits(),
-					EntityInfluxPlanning.AppDesiredCPULimit:   planningSpec.GetDesiredCpuLimits(),
-					EntityInfluxPlanning.AppDesiredMEMLimit:   planningSpec.GetDesiredMemLimits(),
-					EntityInfluxPlanning.AppTotalCost:         planningSpec.GetTotalCost(),
+			}
+			initialRequestPlanning := make(map[ApiCommon.MetricType]interface{})
+			if planning.GetInitialRequestPlannings() != nil {
+				for _, rec := range planning.GetInitialRequestPlannings() {
+					// One and only one record in initial request recommendation
+					initialRequestPlanning[rec.GetMetricType()] = rec.Data[0].NumValue
 				}
+			}
 
-				pt, err := InfluxClient.NewPoint(string(Application), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
-				if err != nil {
-					scope.Error(err.Error())
+			for _, metricData := range planning.GetLimitPlannings() {
+				if data := metricData.GetData(); len(data) > 0 {
+					for _, datum := range data {
+						newFields := map[string]interface{}{}
+						for key, value := range fields {
+							newFields[key] = value
+						}
+						newFields[EntityInfluxPlanning.AppStartTime] = datum.GetTime().GetSeconds()
+						newFields[EntityInfluxPlanning.AppEndTime] = datum.GetEndTime().GetSeconds()
+
+						switch metricData.GetMetricType() {
+						case ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+							if numVal, err := DatahubUtils.StringToFloat64(datum.NumValue); err == nil {
+								newFields[EntityInfluxPlanning.AppResourceLimitCPU] = numVal
+							}
+							if value, ok := initialLimitPlanning[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
+								if numVal, err := DatahubUtils.StringToFloat64(value.(string)); err == nil {
+									newFields[EntityInfluxPlanning.AppInitialResourceLimitCPU] = numVal
+								}
+							} else {
+								newFields[EntityInfluxPlanning.AppInitialResourceLimitCPU] = float64(0)
+							}
+						case ApiCommon.MetricType_MEMORY_USAGE_BYTES:
+							if numVal, err := DatahubUtils.StringToFloat64(datum.NumValue); err == nil {
+								memoryBytes := math.Floor(numVal)
+								newFields[EntityInfluxPlanning.AppResourceLimitMemory] = memoryBytes
+							}
+							if value, ok := initialLimitPlanning[ApiCommon.MetricType_MEMORY_USAGE_BYTES]; ok {
+								if numVal, err := DatahubUtils.StringToFloat64(value.(string)); err == nil {
+									memoryBytes := math.Floor(numVal)
+									newFields[EntityInfluxPlanning.AppInitialResourceLimitMemory] = memoryBytes
+								}
+							} else {
+								newFields[EntityInfluxPlanning.AppInitialResourceLimitMemory] = float64(0)
+							}
+						}
+
+						if pt, err := InfluxClient.NewPoint(string(Application), tags, newFields, time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
+							points = append(points, pt)
+						} else {
+							scope.Error(err.Error())
+						}
+					}
 				}
+			}
 
-				points = append(points, pt)
+			for _, metricData := range planning.GetRequestPlannings() {
+				if data := metricData.GetData(); len(data) > 0 {
+					for _, datum := range data {
+						newFields := map[string]interface{}{}
+						for key, value := range fields {
+							newFields[key] = value
+						}
+						newFields[EntityInfluxPlanning.AppStartTime] = datum.GetTime().GetSeconds()
+						newFields[EntityInfluxPlanning.AppEndTime] = datum.GetEndTime().GetSeconds()
 
-			} else if appPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
-				planningSpec := planning.GetApplicationPlanningSpecK8S()
-
-				tags := map[string]string{
-					EntityInfluxPlanning.AppPlanningType: planning.GetPlanningType().String(),
-					EntityInfluxPlanning.AppNamespace:    planning.GetObjectMeta().GetNamespace(),
-					EntityInfluxPlanning.AppName:         planning.GetObjectMeta().GetName(),
-					EntityInfluxPlanning.AppType:         ApiPlannings.ControllerPlanningType_CPT_K8S.String(),
+						switch metricData.GetMetricType() {
+						case ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE:
+							if numVal, err := DatahubUtils.StringToFloat64(datum.NumValue); err == nil {
+								newFields[EntityInfluxPlanning.AppResourceRequestCPU] = numVal
+							}
+							if value, ok := initialRequestPlanning[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE]; ok {
+								if numVal, err := DatahubUtils.StringToFloat64(value.(string)); err == nil {
+									newFields[EntityInfluxPlanning.AppInitialResourceRequestCPU] = numVal
+								}
+							} else {
+								newFields[EntityInfluxPlanning.AppInitialResourceRequestCPU] = float64(0)
+							}
+						case ApiCommon.MetricType_MEMORY_USAGE_BYTES:
+							if numVal, err := DatahubUtils.StringToFloat64(datum.NumValue); err == nil {
+								memoryBytes := math.Floor(numVal)
+								newFields[EntityInfluxPlanning.AppResourceRequestMemory] = memoryBytes
+							}
+							if value, ok := initialRequestPlanning[ApiCommon.MetricType_MEMORY_USAGE_BYTES]; ok {
+								if numVal, err := DatahubUtils.StringToFloat64(value.(string)); err == nil {
+									memoryBytes := math.Floor(numVal)
+									newFields[EntityInfluxPlanning.AppInitialResourceRequestMemory] = memoryBytes
+								}
+							} else {
+								newFields[EntityInfluxPlanning.AppInitialResourceRequestMemory] = float64(0)
+							}
+						}
+						if pt, err := InfluxClient.NewPoint(string(Application),
+							tags, newFields,
+							time.Unix(datum.GetTime().GetSeconds(), 0)); err == nil {
+							points = append(points, pt)
+						} else {
+							scope.Error(err.Error())
+						}
+					}
 				}
-
-				fields := map[string]interface{}{
-					EntityInfluxPlanning.AppCurrentReplicas: planningSpec.GetCurrentReplicas(),
-					EntityInfluxPlanning.AppDesiredReplicas: planningSpec.GetDesiredReplicas(),
-					EntityInfluxPlanning.AppCreateTime:      planningSpec.GetCreateTime().GetSeconds(),
-					EntityInfluxPlanning.AppKind:            planning.GetKind().String(),
-				}
-
-				pt, err := InfluxClient.NewPoint(string(Application), tags, fields, time.Unix(planningSpec.GetTime().GetSeconds(), 0))
-				if err != nil {
-					scope.Error(err.Error())
-				}
-
-				points = append(points, pt)
 			}
 		}
+	}
+	err := c.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+		Database: string(RepoInflux.Planning),
+	})
 
-		err := c.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
-			Database: string(RepoInflux.Planning),
-		})
-
-		if err != nil {
-			scope.Error(err.Error())
-			return err
-		}
-	*/
-
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (c *AppRepository) ListPlannings(in *ApiPlannings.ListApplicationPlanningsRequest) ([]*ApiPlannings.ApplicationPlanning, error) {
+	plannings := make([]*ApiPlannings.ApplicationPlanning, 0)
+
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Application,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
+		GroupByTags:    []string{EntityInfluxPlanning.AppNamespace, EntityInfluxPlanning.AppName},
 	}
 
 	planningType := in.GetPlanningType().String()
-	ctlPlanningType := in.GetCtlPlanningType().String()
-	kind := in.GetKind().String()
+	granularity := in.GetGranularity()
+
+	if granularity == 0 {
+		granularity = 30
+	}
 
 	for _, objMeta := range in.GetObjectMeta() {
+		tempCondition := ""
 		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
 		keyList := []string{
 			EntityInfluxPlanning.AppNamespace,
 			EntityInfluxPlanning.AppName,
-			EntityInfluxPlanning.AppKind,
+			EntityInfluxPlanning.AppGranularity,
 		}
-		valueList := []string{namespace, name, kind}
+		valueList := []string{namespace, name, strconv.FormatInt(granularity, 10)}
 
-		if ctlPlanningType != ApiPlannings.ControllerPlanningType_CPT_UNDEFINED.String() {
-			keyList = append(keyList, EntityInfluxPlanning.AppType)
-			valueList = append(valueList, ctlPlanningType)
+		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxPlanning.AppPlanningType)
+			valueList = append(valueList, planningType)
+		}
+
+		tempCondition = influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
+	}
+
+	if influxdbStatement.WhereClause == "" {
+		tempCondition := ""
+
+		keyList := []string{
+			EntityInfluxPlanning.AppGranularity,
+		}
+		valueList := []string{
+			strconv.FormatInt(granularity, 10),
 		}
 
 		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
@@ -137,114 +237,118 @@ func (c *AppRepository) ListPlannings(in *ApiPlannings.ListApplicationPlanningsR
 			valueList = append(valueList, planningType)
 		}
 
-		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
+		tempCondition = influxdbStatement.GenerateCondition(keyList, valueList, "AND")
 		influxdbStatement.AppendWhereClauseDirectly("OR", tempCondition)
 	}
 
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 
-	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Planning))
+	plannings, err := c.queryPlannings(cmd, granularity)
 	if err != nil {
-		return make([]*ApiPlannings.ApplicationPlanning, 0), err
+		return plannings, err
 	}
-
-	influxdbRows := InternalInflux.PackMap(results)
-	plannings := c.getPlanningsFromInfluxRows(influxdbRows)
 
 	return plannings, nil
 }
 
-func (c *AppRepository) getPlanningsFromInfluxRows(rows []*InternalInflux.InfluxRow) []*ApiPlannings.ApplicationPlanning {
-	plannings := make([]*ApiPlannings.ApplicationPlanning, 0)
+func (c *AppRepository) queryPlannings(cmd string, granularity int64) ([]*ApiPlannings.ApplicationPlanning, error) {
+	ret := make([]*ApiPlannings.ApplicationPlanning, 0)
 
-	/*
-		for _, influxdbRow := range rows {
-			for _, data := range influxdbRow.Data {
-				currentReplicas, _ := strconv.ParseInt(data[EntityInfluxPlanning.AppCurrentReplicas], 10, 64)
-				desiredReplicas, _ := strconv.ParseInt(data[EntityInfluxPlanning.AppDesiredReplicas], 10, 64)
-				createTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.AppCreateTime], 10, 64)
+	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Planning))
+	if err != nil {
+		return ret, err
+	}
 
-				t, _ := time.Parse(time.RFC3339, data[EntityInfluxPlanning.AppTime])
-				tempTime, _ := ptypes.TimestampProto(t)
+	rows := InternalInflux.PackMap(results)
 
-				currentCpuRequests, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppCurrentCPURequest], 64)
-				currentMemRequests, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppCurrentMEMRequest], 64)
-				currentCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppCurrentCPULimit], 64)
-				currentMemLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppCurrentMEMLimit], 64)
-				desiredCpuLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppDesiredCPULimit], 64)
-				desiredMemLimits, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppDesiredMEMLimit], 64)
-				totalCost, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppTotalCost], 64)
+	for _, row := range rows {
+		for _, data := range row.Data {
+			appPlanning := &ApiPlannings.ApplicationPlanning{}
+			appPlanning.PlanningId = data[EntityInfluxPlanning.AppPlanningId]
+			appPlanning.ObjectMeta = &ApiResources.ObjectMeta{
+				Namespace: data[EntityInfluxPlanning.AppNamespace],
+				Name:      data[EntityInfluxPlanning.AppName],
+			}
 
-				var ctlPlanningType ApiPlannings.ControllerPlanningType
-				if tempType, exist := data[EntityInfluxPlanning.AppType]; exist {
-					if value, ok := ApiPlannings.ControllerPlanningType_value[tempType]; ok {
-						ctlPlanningType = ApiPlannings.ControllerPlanningType(value)
-					}
-				}
-
-				var planningKind ApiResources.Kind
-				if tempKind, exist := data[EntityInfluxPlanning.AppKind]; exist {
-					if value, ok := ApiResources.Kind_value[tempKind]; ok {
-						planningKind = ApiResources.Kind(value)
-					}
-				}
-
-				if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_PRIMITIVE {
-					tempPlanning := &ApiPlannings.ApplicationPlanning{
-						ObjectMeta: &ApiResources.ObjectMeta{
-							Name:      data[string(EntityInfluxPlanning.AppName)],
-							Namespace: data[string(EntityInfluxPlanning.AppNamespace)],
-						},
-						Kind:                    planningKind,
-						PlanningType:            ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.AppPlanningType)]]),
-						ApplicationPlanningType: ctlPlanningType,
-						ApplicationPlanningSpec: &ApiPlannings.ControllerPlanningSpec{
-							CurrentReplicas: int32(currentReplicas),
-							DesiredReplicas: int32(desiredReplicas),
-							Time:            tempTime,
-							CreateTime: &timestamp.Timestamp{
-								Seconds: createTime,
-							},
-							CurrentCpuRequests: currentCpuRequests,
-							CurrentMemRequests: currentMemRequests,
-							CurrentCpuLimits:   currentCpuLimits,
-							CurrentMemLimits:   currentMemLimits,
-							DesiredCpuLimits:   desiredCpuLimits,
-							DesiredMemLimits:   desiredMemLimits,
-							TotalCost:          totalCost,
-						},
-					}
-
-					plannings = append(plannings, tempPlanning)
-
-				} else if ctlPlanningType == ApiPlannings.ControllerPlanningType_CPT_K8S {
-					tempPlanning := &ApiPlannings.ApplicationPlanning{
-						ObjectMeta: &ApiResources.ObjectMeta{
-							Name:      data[string(EntityInfluxPlanning.AppName)],
-							Namespace: data[string(EntityInfluxPlanning.AppNamespace)],
-						},
-						Kind:                    planningKind,
-						PlanningType:            ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[string(EntityInfluxPlanning.AppPlanningType)]]),
-						ApplicationPlanningType: ctlPlanningType,
-						ApplicationPlanningSpecK8S: &ApiPlannings.ControllerPlanningSpecK8S{
-							CurrentReplicas: int32(currentReplicas),
-							DesiredReplicas: int32(desiredReplicas),
-							Time:            tempTime,
-							CreateTime: &timestamp.Timestamp{
-								Seconds: createTime,
-							},
-						},
-					}
-
-					plannings = append(plannings, tempPlanning)
+			var planningType ApiPlannings.PlanningType
+			if tempPlanningType, exist := data[EntityInfluxPlanning.AppPlanningType]; exist {
+				if value, ok := ApiPlannings.PlanningType_value[tempPlanningType]; ok {
+					planningType = ApiPlannings.PlanningType(value)
 				}
 			}
-		}
-	*/
+			appPlanning.PlanningType = planningType
 
-	return plannings
+			tempTotalCost, _ := strconv.ParseFloat(data[EntityInfluxPlanning.AppTotalCost], 64)
+			appPlanning.TotalCost = tempTotalCost
+
+			tempApplyPlanningNow, _ := strconv.ParseBool(data[EntityInfluxPlanning.AppApplyPlanningNow])
+			appPlanning.ApplyPlanningNow = tempApplyPlanningNow
+
+			startTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.AppStartTime], 10, 64)
+			endTime, _ := strconv.ParseInt(data[EntityInfluxPlanning.AppEndTime], 10, 64)
+
+			appPlanning.StartTime = &timestamp.Timestamp{
+				Seconds: startTime,
+			}
+
+			appPlanning.EndTime = &timestamp.Timestamp{
+				Seconds: endTime,
+			}
+
+			//
+			tempPlanning := &ApiPlannings.Planning{}
+
+			metricTypeList := []ApiCommon.MetricType{ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE, ApiCommon.MetricType_MEMORY_USAGE_BYTES}
+			sampleTime := &timestamp.Timestamp{
+				Seconds: startTime,
+			}
+			sampleEndTime := &timestamp.Timestamp{
+				Seconds: endTime,
+			}
+
+			//
+			for _, metricType := range metricTypeList {
+				metricDataList := make([]*ApiCommon.MetricData, 0)
+				for a := 0; a < 4; a++ {
+					sample := &ApiCommon.Sample{
+						Time:    sampleTime,
+						EndTime: sampleEndTime,
+					}
+
+					metricData := &ApiCommon.MetricData{
+						MetricType:  metricType,
+						Granularity: granularity,
+					}
+					metricData.Data = append(metricData.Data, sample)
+					metricDataList = append(metricDataList, metricData)
+				}
+
+				tempPlanning.LimitPlannings = append(tempPlanning.LimitPlannings, metricDataList[0])
+				tempPlanning.RequestPlannings = append(tempPlanning.RequestPlannings, metricDataList[1])
+				tempPlanning.InitialLimitPlannings = append(tempPlanning.InitialLimitPlannings, metricDataList[2])
+				tempPlanning.InitialRequestPlannings = append(tempPlanning.InitialRequestPlannings, metricDataList[3])
+			}
+
+			tempPlanning.LimitPlannings[0].Data[0].NumValue = data[EntityInfluxPlanning.AppResourceLimitCPU]
+			tempPlanning.LimitPlannings[1].Data[0].NumValue = data[EntityInfluxPlanning.AppResourceLimitMemory]
+
+			tempPlanning.RequestPlannings[0].Data[0].NumValue = data[EntityInfluxPlanning.AppResourceRequestCPU]
+			tempPlanning.RequestPlannings[1].Data[0].NumValue = data[EntityInfluxPlanning.AppResourceRequestMemory]
+
+			tempPlanning.InitialLimitPlannings[0].Data[0].NumValue = data[EntityInfluxPlanning.AppInitialResourceLimitCPU]
+			tempPlanning.InitialLimitPlannings[1].Data[0].NumValue = data[EntityInfluxPlanning.AppInitialResourceLimitMemory]
+
+			tempPlanning.InitialRequestPlannings[0].Data[0].NumValue = data[EntityInfluxPlanning.AppInitialResourceRequestCPU]
+			tempPlanning.InitialRequestPlannings[1].Data[0].NumValue = data[EntityInfluxPlanning.AppInitialResourceRequestMemory]
+
+			appPlanning.Plannings = append(appPlanning.Plannings, tempPlanning)
+
+			ret = append(ret, appPlanning)
+		}
+	}
+
+	return ret, nil
 }

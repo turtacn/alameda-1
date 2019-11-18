@@ -12,9 +12,8 @@ import (
 func (s *ServiceV1alpha1) CreateApplicationPlannings(ctx context.Context, in *ApiPlannings.CreateApplicationPlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateApplicationPlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	appPlanningList := in.GetApplicationPlannings()
 	appDAO := DaoPlannings.NewAppPlanningsDAO(*s.Config)
-	err := appDAO.CreatePlannings(appPlanningList)
+	err := appDAO.CreatePlannings(in)
 
 	if err != nil {
 		scope.Error(err.Error())

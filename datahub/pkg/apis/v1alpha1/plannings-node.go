@@ -12,9 +12,8 @@ import (
 func (s *ServiceV1alpha1) CreateNodePlannings(ctx context.Context, in *ApiPlannings.CreateNodePlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNodePlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	nodePlanningList := in.GetNodePlannings()
 	nodeDAO := DaoPlannings.NewNodePlanningsDAO(*s.Config)
-	err := nodeDAO.CreatePlannings(nodePlanningList)
+	err := nodeDAO.CreatePlannings(in)
 
 	if err != nil {
 		scope.Error(err.Error())

@@ -14,9 +14,9 @@ func NewClusterPlanningsWithConfig(config InternalInflux.Config) *ClusterPlannin
 	return &ClusterPlannings{InfluxDBConfig: config}
 }
 
-func (c *ClusterPlannings) CreatePlannings(plannings []*ApiPlannings.ClusterPlanning) error {
+func (c *ClusterPlannings) CreatePlannings(in *ApiPlannings.CreateClusterPlanningsRequest) error {
 	repository := RepoInfluxPlanning.NewClusterRepository(&c.InfluxDBConfig)
-	return repository.CreatePlannings(plannings)
+	return repository.CreatePlannings(in)
 }
 
 func (c *ClusterPlannings) ListPlannings(in *ApiPlannings.ListClusterPlanningsRequest) ([]*ApiPlannings.ClusterPlanning, error) {

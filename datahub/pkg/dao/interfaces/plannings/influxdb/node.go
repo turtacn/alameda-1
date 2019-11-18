@@ -14,9 +14,9 @@ func NewNodePlanningsWithConfig(config InternalInflux.Config) *NodePlannings {
 	return &NodePlannings{InfluxDBConfig: config}
 }
 
-func (c *NodePlannings) CreatePlannings(plannings []*ApiPlannings.NodePlanning) error {
+func (c *NodePlannings) CreatePlannings(in *ApiPlannings.CreateNodePlanningsRequest) error {
 	repository := RepoInfluxPlanning.NewNodeRepository(&c.InfluxDBConfig)
-	return repository.CreatePlannings(plannings)
+	return repository.CreatePlannings(in)
 }
 
 func (c *NodePlannings) ListPlannings(in *ApiPlannings.ListNodePlanningsRequest) ([]*ApiPlannings.NodePlanning, error) {

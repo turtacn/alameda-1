@@ -4,43 +4,47 @@ type namespaceTag = string
 type namespaceField = string
 
 const (
+	NamespacePlanningId   namespaceTag = "planning_id"
 	NamespacePlanningType namespaceTag = "planning_type"
 	NamespaceTime         namespaceTag = "time"
 	NamespaceName         namespaceTag = "name"
-	NamespaceType         namespaceTag = "type"
+	NamespaceGranularity  namespaceTag = "granularity"
 
-	NamespaceKind              namespaceField = "kind"
-	NamespaceCurrentReplicas   namespaceField = "current_replicas"
-	NamespaceDesiredReplicas   namespaceField = "desired_replicas"
-	NamespaceCreateTime        namespaceField = "create_time"
-	NamespaceCurrentCPURequest namespaceField = "current_cpu_requests"
-	NamespaceCurrentMEMRequest namespaceField = "current_mem_requests"
-	NamespaceCurrentCPULimit   namespaceField = "current_cpu_limits"
-	NamespaceCurrentMEMLimit   namespaceField = "current_mem_limits"
-	NamespaceDesiredCPULimit   namespaceField = "desired_cpu_limits"
-	NamespaceDesiredMEMLimit   namespaceField = "desired_mem_limits"
-	NamespaceTotalCost         namespaceField = "total_cost"
+	NamespaceResourceRequestCPU           namespaceField = "resource_request_cpu"
+	NamespaceResourceRequestMemory        namespaceField = "resource_request_memory"
+	NamespaceResourceLimitCPU             namespaceField = "resource_limit_cpu"
+	NamespaceResourceLimitMemory          namespaceField = "resource_limit_memory"
+	NamespaceInitialResourceRequestCPU    namespaceField = "initial_resource_request_cpu"
+	NamespaceInitialResourceRequestMemory namespaceField = "initial_resource_request_memory"
+	NamespaceInitialResourceLimitCPU      namespaceField = "initial_resource_limit_cpu"
+	NamespaceInitialResourceLimitMemory   namespaceField = "initial_resource_limit_memory"
+	NamespaceStartTime                    namespaceField = "start_time"
+	NamespaceEndTime                      namespaceField = "end_time"
+	NamespaceTotalCost                    namespaceField = "total_cost"
+	NamespaceApplyPlanningNow             namespaceField = "apply_planning_now"
 )
 
 var (
 	NamespaceTags = []namespaceTag{
+		NamespacePlanningId,
 		NamespacePlanningType,
 		NamespaceTime,
 		NamespaceName,
-		NamespaceType,
+		NamespaceGranularity,
 	}
 
 	NamespaceFields = []namespaceField{
-		NamespaceKind,
-		NamespaceCurrentReplicas,
-		NamespaceDesiredReplicas,
-		NamespaceCreateTime,
-		NamespaceCurrentCPURequest,
-		NamespaceCurrentMEMRequest,
-		NamespaceCurrentCPULimit,
-		NamespaceCurrentMEMLimit,
-		NamespaceDesiredCPULimit,
-		NamespaceDesiredMEMLimit,
+		NamespaceResourceRequestCPU,
+		NamespaceResourceRequestMemory,
+		NamespaceResourceLimitCPU,
+		NamespaceResourceLimitMemory,
+		NamespaceInitialResourceRequestCPU,
+		NamespaceInitialResourceRequestMemory,
+		NamespaceInitialResourceLimitCPU,
+		NamespaceInitialResourceLimitMemory,
+		NamespaceStartTime,
+		NamespaceEndTime,
 		NamespaceTotalCost,
+		NamespaceApplyPlanningNow,
 	}
 )

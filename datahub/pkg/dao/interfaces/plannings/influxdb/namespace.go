@@ -14,9 +14,9 @@ func NewNamespacePlanningsWithConfig(config InternalInflux.Config) *NamespacePla
 	return &NamespacePlannings{InfluxDBConfig: config}
 }
 
-func (c *NamespacePlannings) CreatePlannings(plannings []*ApiPlannings.NamespacePlanning) error {
+func (c *NamespacePlannings) CreatePlannings(in *ApiPlannings.CreateNamespacePlanningsRequest) error {
 	repository := RepoInfluxPlanning.NewNamespaceRepository(&c.InfluxDBConfig)
-	return repository.CreatePlannings(plannings)
+	return repository.CreatePlannings(in)
 }
 
 func (c *NamespacePlannings) ListPlannings(in *ApiPlannings.ListNamespacePlanningsRequest) ([]*ApiPlannings.NamespacePlanning, error) {

@@ -12,9 +12,8 @@ import (
 func (s *ServiceV1alpha1) CreateNamespacePlannings(ctx context.Context, in *ApiPlannings.CreateNamespacePlanningsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNamespacePlannings grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	namespacePlanningList := in.GetNamespacePlannings()
 	namespaceDAO := DaoPlannings.NewNamespacePlanningsDAO(*s.Config)
-	err := namespaceDAO.CreatePlannings(namespacePlanningList)
+	err := namespaceDAO.CreatePlannings(in)
 
 	if err != nil {
 		scope.Error(err.Error())

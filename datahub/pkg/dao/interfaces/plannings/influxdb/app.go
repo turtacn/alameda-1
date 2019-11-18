@@ -14,9 +14,9 @@ func NewAppPlanningsWithConfig(config InternalInflux.Config) *AppPlannings {
 	return &AppPlannings{InfluxDBConfig: config}
 }
 
-func (c *AppPlannings) CreatePlannings(recommendations []*ApiPlannings.ApplicationPlanning) error {
+func (c *AppPlannings) CreatePlannings(in *ApiPlannings.CreateApplicationPlanningsRequest) error {
 	repository := RepoInfluxPlanning.NewAppRepository(&c.InfluxDBConfig)
-	return repository.CreatePlannings(recommendations)
+	return repository.CreatePlannings(in)
 }
 
 func (c *AppPlannings) ListPlannings(in *ApiPlannings.ListApplicationPlanningsRequest) ([]*ApiPlannings.ApplicationPlanning, error) {

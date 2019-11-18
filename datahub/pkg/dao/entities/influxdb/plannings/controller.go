@@ -4,46 +4,52 @@ type controllerTag = string
 type controllerField = string
 
 const (
+	ControllerPlanningId   controllerTag = "planning_id"
 	ControllerPlanningType controllerTag = "planning_type"
 	ControllerTime         controllerTag = "time"
 	ControllerNamespace    controllerTag = "namespace"
 	ControllerName         controllerTag = "name"
-	ControllerType         controllerTag = "type"
+	ControllerGranularity  controllerTag = "granularity"
+	ControllerKind         controllerTag = "kind"
 
-	ControllerKind              controllerField = "kind"
-	ControllerCurrentReplicas   controllerField = "current_replicas"
-	ControllerDesiredReplicas   controllerField = "desired_replicas"
-	ControllerCreateTime        controllerField = "create_time"
-	ControllerCurrentCPURequest controllerField = "current_cpu_requests"
-	ControllerCurrentMEMRequest controllerField = "current_mem_requests"
-	ControllerCurrentCPULimit   controllerField = "current_cpu_limits"
-	ControllerCurrentMEMLimit   controllerField = "current_mem_limits"
-	ControllerDesiredCPULimit   controllerField = "desired_cpu_limits"
-	ControllerDesiredMEMLimit   controllerField = "desired_mem_limits"
-	ControllerTotalCost         controllerField = "total_cost"
+	ControllerResourceRequestCPU           controllerField = "resource_request_cpu"
+	ControllerResourceRequestMemory        controllerField = "resource_request_memory"
+	ControllerResourceLimitCPU             controllerField = "resource_limit_cpu"
+	ControllerResourceLimitMemory          controllerField = "resource_limit_memory"
+	ControllerInitialResourceRequestCPU    controllerField = "initial_resource_request_cpu"
+	ControllerInitialResourceRequestMemory controllerField = "initial_resource_request_memory"
+	ControllerInitialResourceLimitCPU      controllerField = "initial_resource_limit_cpu"
+	ControllerInitialResourceLimitMemory   controllerField = "initial_resource_limit_memory"
+	ControllerStartTime                    controllerField = "start_time"
+	ControllerEndTime                      controllerField = "end_time"
+	ControllerTotalCost                    controllerField = "total_cost"
+	ControllerApplyPlanningNow             controllerField = "apply_planning_now"
 )
 
 var (
 	// ControllerTags is list of tags of alameda_controller_recommendation measurement
 	ControllerTags = []controllerTag{
+		ControllerPlanningId,
+		ControllerPlanningType,
 		ControllerTime,
 		ControllerNamespace,
 		ControllerName,
-		ControllerType,
+		ControllerGranularity,
+		ControllerKind,
 	}
 	// ControllerFields is list of fields of alameda_controller_recommendation measurement
 	ControllerField = []controllerField{
-		ControllerCurrentReplicas,
-		ControllerDesiredReplicas,
-		ControllerCreateTime,
-		ControllerKind,
-
-		ControllerCurrentCPURequest,
-		ControllerCurrentMEMRequest,
-		ControllerCurrentCPULimit,
-		ControllerCurrentMEMLimit,
-		ControllerDesiredCPULimit,
-		ControllerDesiredMEMLimit,
+		ControllerResourceRequestCPU,
+		ControllerResourceRequestMemory,
+		ControllerResourceLimitCPU,
+		ControllerResourceLimitMemory,
+		ControllerInitialResourceRequestCPU,
+		ControllerInitialResourceRequestMemory,
+		ControllerInitialResourceLimitCPU,
+		ControllerInitialResourceLimitMemory,
+		ControllerStartTime,
+		ControllerEndTime,
 		ControllerTotalCost,
+		ControllerApplyPlanningNow,
 	}
 )
