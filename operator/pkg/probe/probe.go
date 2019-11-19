@@ -1,6 +1,7 @@
 package probe
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -23,13 +24,16 @@ func ReadinessProbe(cfg *ReadinessProbeConfig) {
 	datahubAddr := cfg.DatahubAddr
 	err := queryDatahub(datahubAddr)
 	if err != nil {
-		scope.Errorf("Readiness probe: query datahub failed due to %s", err.Error())
+		scope.Errorf("Readiness probe: query datahub %s failed due to %s",
+			datahubAddr, err.Error())
 		os.Exit(1)
 	}
 
-	err = queryWebhookSrv(cfg.ValidationSrvPort)
+	svcURL := fmt.Sprintf("https://localhost:%s", fmt.Sprint(cfg.WHSrvPort))
+	err = queryWebhookSrv(svcURL)
 	if err != nil {
-		scope.Errorf("Readiness probe: query validation webhook server failed due to %s", err.Error())
+		scope.Errorf("Readiness probe: query validation webhook server %s failed due to %s",
+			svcURL, err.Error())
 		os.Exit(1)
 	}
 	os.Exit(0)

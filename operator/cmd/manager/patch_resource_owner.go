@@ -9,6 +9,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"
 	openshiftappsv1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -17,6 +18,9 @@ import (
 )
 
 func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
+	opWHSrvName := viper.GetString("k8sWebhookServer.service.name")
+	opWHSrvNamespace := viper.GetString("k8sWebhookServer.service.namespace")
+	opWHVaCfgName := viper.GetString("k8sWebhookServer.validatingWebhookConfigName")
 
 	dep, dc, err := getDeploymentOrDeploymentConfigRunningManager()
 	if err != nil {
@@ -46,7 +50,11 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 
 		retry := false
 
-		serviceKeys := []client.ObjectKey{client.ObjectKey{Namespace: operatorConf.K8SWebhookServer.Service.Namespace, Name: operatorConf.K8SWebhookServer.Service.Name}}
+		serviceKeys := []client.ObjectKey{
+			client.ObjectKey{
+				Namespace: opWHSrvNamespace,
+				Name:      opWHSrvName,
+			}}
 		for _, servicesKey := range serviceKeys {
 			service := corev1.Service{}
 			if err := sigsK8SClient.Get(context.TODO(), servicesKey, &service); err != nil {
@@ -62,7 +70,9 @@ func addOwnerReferenceToResourcesCreateFrom3rdPkg(sigsK8SClient client.Client) {
 			}
 		}
 
-		validatingWebhookConfigKeys := []client.ObjectKey{client.ObjectKey{Name: operatorConf.K8SWebhookServer.ValidatingWebhookConfigName}}
+		validatingWebhookConfigKeys := []client.ObjectKey{client.ObjectKey{
+			Name: opWHVaCfgName,
+		}}
 		for _, webhookConfigKey := range validatingWebhookConfigKeys {
 			webhookConfig := admissionregistrationv1beta1.ValidatingWebhookConfiguration{}
 			if err := sigsK8SClient.Get(context.TODO(), webhookConfigKey, &webhookConfig); err != nil {

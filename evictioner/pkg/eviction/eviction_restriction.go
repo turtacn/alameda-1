@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	datahubutils "github.com/containers-ai/alameda/datahub/pkg/utils"
-	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	datahub_recommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"

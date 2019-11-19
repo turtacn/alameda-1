@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	"github.com/containers-ai/alameda/pkg/utils"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"

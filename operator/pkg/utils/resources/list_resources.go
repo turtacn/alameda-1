@@ -6,7 +6,7 @@ import (
 
 	openshift_apps_v1 "github.com/openshift/api/apps/v1"
 
-	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autuscaling "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
@@ -143,8 +143,8 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 
 	replicasetListIns := &appsv1.ReplicaSetList{}
 	err = listResources.client.List(context.TODO(),
-		client.InNamespace(deployNS),
-		replicasetListIns)
+		replicasetListIns,
+		client.InNamespace(deployNS))
 	if err != nil {
 		return pods, err
 	}
@@ -153,9 +153,11 @@ func (listResources *ListResources) ListPodsByDeployment(deployNS, deployName st
 		for _, or := range replicasetIns.GetOwnerReferences() {
 			if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "deployment" && or.Name == deployName {
 				podListIns := &corev1.PodList{}
-				err = listResources.client.List(context.TODO(),
-					client.InNamespace(deployNS).MatchingLabels(replicasetIns.Spec.Selector.MatchLabels),
-					podListIns)
+				err = listResources.client.List(
+					context.TODO(), podListIns,
+					client.InNamespace(deployNS),
+					client.MatchingLabels(replicasetIns.Spec.Selector.MatchLabels))
+
 				if err != nil {
 					scope.Error(err.Error())
 					continue
@@ -189,8 +191,8 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 
 	replicationControllerListIns := &corev1.ReplicationControllerList{}
 	err = listResources.client.List(context.TODO(),
-		client.InNamespace(deployConfigNS),
-		replicationControllerListIns)
+		replicationControllerListIns,
+		client.InNamespace(deployConfigNS))
 	if err != nil {
 		return pods, err
 	}
@@ -199,9 +201,9 @@ func (listResources *ListResources) ListPodsByDeploymentConfig(deployConfigNS, d
 		for _, or := range replicationControllerIns.GetOwnerReferences() {
 			if or.Controller != nil && *or.Controller && strings.ToLower(or.Kind) == "deploymentconfig" && or.Name == deployConfigName {
 				podListIns := &corev1.PodList{}
-				err = listResources.client.List(context.TODO(),
-					client.InNamespace(deployConfigNS).MatchingLabels(replicationControllerIns.Spec.Selector),
-					podListIns)
+				err = listResources.client.List(context.TODO(), podListIns,
+					client.InNamespace(deployConfigNS),
+					client.MatchingLabels(replicationControllerIns.Spec.Selector))
 				if err != nil {
 					scope.Error(err.Error())
 					continue
@@ -238,9 +240,9 @@ func (listResources *ListResources) ListPodsByStatefulSet(namespace, name string
 	// List pods containing labels that statefulSet selects in the same namespace
 	// And filter out pods that does not have any ownerReference which references to the statefulSet
 	podList := &corev1.PodList{}
-	err = listResources.client.List(context.TODO(),
-		client.InNamespace(namespace).MatchingLabels(statefulSet.Spec.Selector.MatchLabels),
-		podList)
+	err = listResources.client.List(context.TODO(), podList,
+		client.InNamespace(namespace),
+		client.MatchingLabels(statefulSet.Spec.Selector.MatchLabels))
 	if err != nil {
 		return pods, errors.Errorf("list pods with labels same with StatefulSet.Spec.Selector.MatchLabels (%s/%s) failed: %s", namespace, name, err.Error())
 	}
@@ -292,7 +294,6 @@ func (listResources *ListResources) ListAlamedaRecommendationOwnedByAlamedaScale
 
 func (listResources *ListResources) listAllResources(resourceList runtime.Object) error {
 	if err := listResources.client.List(context.TODO(),
-		&client.ListOptions{},
 		resourceList); err != nil {
 		scope.Error(err.Error())
 		return err
@@ -301,10 +302,10 @@ func (listResources *ListResources) listAllResources(resourceList runtime.Object
 }
 
 func (listResources *ListResources) listResourcesByNamespace(resourceList runtime.Object, namespace string) error {
-	if err := listResources.client.List(context.TODO(),
+	if err := listResources.client.List(context.TODO(), resourceList,
 		&client.ListOptions{
 			Namespace: namespace,
-		}, resourceList); err != nil {
+		}); err != nil {
 		scope.Error(err.Error())
 		return err
 	}
@@ -313,8 +314,8 @@ func (listResources *ListResources) listResourcesByNamespace(resourceList runtim
 
 func (listResources *ListResources) listResourcesByLabels(resourceList runtime.Object, lbls map[string]string) error {
 	if err := listResources.client.List(context.TODO(),
-		client.MatchingLabels(lbls),
-		resourceList); err != nil {
+		resourceList,
+		client.MatchingLabels(lbls)); err != nil {
 		scope.Error(err.Error())
 		return err
 	}
@@ -323,8 +324,8 @@ func (listResources *ListResources) listResourcesByLabels(resourceList runtime.O
 
 func (listResources *ListResources) listResourcesByNamespaceLabels(resourceList runtime.Object, namespace string, lbls map[string]string) error {
 	if err := listResources.client.List(context.TODO(),
-		client.InNamespace(namespace).MatchingLabels(lbls),
-		resourceList); err != nil {
+		resourceList, client.InNamespace(namespace),
+		client.MatchingLabels(lbls)); err != nil {
 		scope.Debug(err.Error())
 		return err
 	}

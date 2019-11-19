@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/containers-ai/alameda/admission-controller/pkg/validator/controller"
-	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_client "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"

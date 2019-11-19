@@ -1,7 +1,7 @@
 package kubernetes
 
 import (
-	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	openshift_apps "github.com/openshift/api/apps"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	apps_v1 "k8s.io/api/apps/v1"

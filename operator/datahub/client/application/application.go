@@ -3,13 +3,12 @@ package application
 import (
 	"context"
 
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
-
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	"github.com/containers-ai/alameda/operator/datahub/client"
-	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 )
 
 type ApplicationRepository struct {
@@ -101,6 +100,7 @@ func (repo *ApplicationRepository) ListApplications() ([]*datahub_resources.Appl
 			},
 		},
 	}
+
 	resp, err := repo.datahubClient.ListApplications(context.Background(), &req)
 	if err != nil {
 		return nil, errors.Wrap(err, "list applications from datahub failed")

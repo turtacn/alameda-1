@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	utils "github.com/containers-ai/alameda/operator/pkg/utils"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"

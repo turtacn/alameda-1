@@ -7,7 +7,7 @@ import (
 
 	"github.com/containers-ai/alameda/cmd/app"
 	"github.com/containers-ai/alameda/evictioner/pkg/eviction"
-	"github.com/containers-ai/alameda/operator/pkg/apis"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	openshift_apps "github.com/openshift/api/apps"
@@ -69,9 +69,11 @@ func startEvictioner() {
 	if err != nil {
 		scope.Error(err.Error())
 	}
-	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+
+	if err := autoscalingv1alpha1.AddToScheme(mgr.GetScheme()); err != nil {
 		scope.Error(err.Error())
 	}
+
 	if err := openshift_apps.Install(mgr.GetScheme()); err != nil {
 		scope.Error(err.Error())
 	}

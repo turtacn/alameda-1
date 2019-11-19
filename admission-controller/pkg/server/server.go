@@ -19,7 +19,7 @@ import (
 	admission_controller_utils "github.com/containers-ai/alameda/admission-controller/pkg/utils"
 	controller_validator "github.com/containers-ai/alameda/admission-controller/pkg/validator/controller"
 	datahub_controller_validator "github.com/containers-ai/alameda/admission-controller/pkg/validator/controller/datahub"
-	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	metadata_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes/metadata"

@@ -3,7 +3,7 @@ package resources
 import (
 	"context"
 
-	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autuscaling "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

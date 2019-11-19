@@ -16,7 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func syncResourcesWithDatahub(client client.Client, dathubConn *grpc.ClientConn) {
+func syncResourcesWithDatahub(client client.Client, datahubConn *grpc.ClientConn) {
 	for {
 		clusterUID, err := k8sutils.GetClusterUID(client)
 		if err == nil {
@@ -30,37 +30,37 @@ func syncResourcesWithDatahub(client client.Client, dathubConn *grpc.ClientConn)
 
 	go func() {
 		if err := datahub_client_namespace.SyncWithDatahub(client,
-			dathubConn); err != nil {
+			datahubConn); err != nil {
 			scope.Errorf("sync namespace failed at start due to %s", err.Error())
 		}
 	}()
 	go func() {
 		if err := datahub_client_node.SyncWithDatahub(client,
-			dathubConn); err != nil {
+			datahubConn); err != nil {
 			scope.Errorf("sync node failed at start due to %s", err.Error())
 		}
 	}()
 	go func() {
 		if err := datahub_client_application.SyncWithDatahub(client,
-			dathubConn); err != nil {
+			datahubConn); err != nil {
 			scope.Errorf("sync application failed at start due to %s", err.Error())
 		}
 	}()
 	go func() {
 		if err := datahub_client_cluster.SyncWithDatahub(client,
-			dathubConn); err != nil {
+			datahubConn); err != nil {
 			scope.Errorf("sync cluster failed at start due to %s", err.Error())
 		}
 	}()
 	go func() {
 		if err := datahub_client_controller.SyncWithDatahub(client,
-			dathubConn); err != nil {
+			datahubConn); err != nil {
 			scope.Errorf("sync controller failed at start due to %s", err.Error())
 		}
 	}()
 	go func() {
 		if err := datahub_client_pod.SyncWithDatahub(client,
-			dathubConn); err != nil {
+			datahubConn); err != nil {
 			scope.Errorf("sync pod failed at start due to %s", err.Error())
 		}
 	}()

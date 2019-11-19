@@ -58,6 +58,7 @@ func (repo *ClusterRepository) ListClusters() ([]*datahub_resources.Cluster, err
 			},
 		},
 	}
+
 	resp, err := repo.datahubClient.ListClusters(context.Background(), &req)
 	if err != nil {
 		return nil, errors.Wrap(err, "list clusters from Datahub failed")

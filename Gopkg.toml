@@ -21,15 +21,15 @@ required = [
 
 # STANZAS BELOW ARE GENERATED AND MAY BE WRITTEN - DO NOT MODIFY BELOW THIS LINE.
 
-[[constraint]]
+[[override]]
   name="sigs.k8s.io/controller-runtime"
-  version="v0.1.10"
+  version="v0.4.0"
 
-[[constraint]]
+[[override]]
   name="sigs.k8s.io/controller-tools"
-  version="v0.1.9"
+  version="v0.2.3"
 
-[[constraint]]
+[[override]]
   name="github.com/robfig/cron"
   version="v1.2.0"
 
@@ -41,23 +41,27 @@ version="v1.4.7"
 
 [[override]]
   name="k8s.io/api"
-  version="kubernetes-1.13.3"
+  version="kubernetes-1.16.3"
 
 [[override]]
   name="k8s.io/apiextensions-apiserver"
-  version="kubernetes-1.13.3"
+  version="kubernetes-1.16.3"
 
 [[override]]
   name="k8s.io/apimachinery"
-  version="kubernetes-1.13.3"
+  version="kubernetes-1.16.3"
 
 [[override]]
   name="k8s.io/client-go"
-  version="kubernetes-1.13.3"
+  version="kubernetes-1.16.3"
 
-[[constraint]]
+[[override]]
+  name = "github.com/openshift/client-go"
+  revision = "2823239d2298214509c3536714f684101799e81b"
+
+[[override]]
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
-  version = "1.0.0"
+  version = "1.1.0"
 
 [[constraint]]
   branch = "master"

@@ -2,7 +2,7 @@ package alamedarecommendation
 
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
-	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscaling_v1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiRecommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"

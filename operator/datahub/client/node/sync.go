@@ -20,7 +20,7 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	nodeList := corev1.NodeList{}
-	if err := client.List(ctx, nil, &nodeList); err != nil {
+	if err := client.List(ctx, &nodeList); err != nil {
 		return errors.Errorf(
 			"Sync nodes with datahub failed due to list nodes from cluster failed: %s", err.Error())
 	}

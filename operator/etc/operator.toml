@@ -20,9 +20,12 @@ address = "datahub.alameda.svc.cluster.local:50050"
 port = 50443
 validatingWebhookConfigName = "operator-k8s-admission-validation"
 certDir = "/tmp/k8s-webhook-server/cert/"
+
+  [k8sWebhookServer.admissionPaths]
+  validateDeployment = "/validate-autoscaling-containers-ai-v1-deployment"
+  validateDeploymentConfig = "/validate-autoscaling-containers-ai-v1-deploymentconfig"
+  
   [k8sWebhookServer.service]
   name = "operator-admission-service"
   port = 443
-
-[podInfo]
-labelsFile = "/etc/podinfo/labels"
+  

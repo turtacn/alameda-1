@@ -62,10 +62,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        volumeMounts:
-        - name: podinfo
-          mountPath: /etc/podinfo
-          readOnly: false
         readinessProbe:
           exec:
             command:
@@ -82,12 +78,4 @@ spec:
           initialDelaySeconds: 5
           failureThreshold: 20
           periodSeconds: 5
-      volumes:
-      - name: podinfo
-        downwardAPI:
-          items:
-          - path: "labels"
-            fieldRef:
-              fieldPath: metadata.labels
-
  

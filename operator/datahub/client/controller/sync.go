@@ -24,7 +24,7 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	existingControllerMap := make(map[string]bool)
 
 	deploymentList := appsv1.DeploymentList{}
-	if err := client.List(ctx, nil, &deploymentList); err != nil {
+	if err := client.List(ctx, &deploymentList); err != nil {
 		return errors.Errorf(
 			"Sync controller with datahub failed due to list deployments from cluster failed: %s",
 			err.Error())
@@ -35,7 +35,7 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	}
 
 	statefulSetList := appsv1.StatefulSetList{}
-	if err := client.List(ctx, nil, &statefulSetList); err != nil {
+	if err := client.List(ctx, &statefulSetList); err != nil {
 		return errors.Errorf(
 			"Sync controller with datahub failed due to list statefulsets from cluster failed: %s",
 			err.Error())
@@ -46,7 +46,7 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	}
 
 	deploymentConfigList := appsapi_v1.DeploymentConfigList{}
-	if err := client.List(ctx, nil, &deploymentConfigList); err != nil {
+	if err := client.List(ctx, &deploymentConfigList); err != nil {
 		return errors.Errorf(
 			"Sync controller with datahub failed due to list deploymentconfigs from cluster failed: %s",
 			err.Error())

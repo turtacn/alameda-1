@@ -2,19 +2,15 @@ package operator
 
 import (
 	datahub "github.com/containers-ai/alameda/operator/datahub"
-	k8swhsrv "github.com/containers-ai/alameda/operator/k8s-webhook-server"
-	"github.com/containers-ai/alameda/operator/podinfo"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 // Config defines configurations
 type Config struct {
-	Log              *log.Config      `mapstructure:"log"`
-	Datahub          *datahub.Config  `mapstructure:"datahub"`
-	K8SWebhookServer *k8swhsrv.Config `mapstructure:"k8sWebhookServer"`
-	PodInfo          *podinfo.Config  `mapstructure:"podInfo"`
-	Manager          manager.Manager
+	Log     *log.Config     `mapstructure:"log"`
+	Datahub *datahub.Config `mapstructure:"datahub"`
+	Manager manager.Manager
 }
 
 // NewConfig returns Config objecdt
@@ -42,8 +38,6 @@ func (c *Config) init() {
 
 	c.Log = &defaultLogConfig
 	c.Datahub = datahub.NewConfig()
-	c.PodInfo = podinfo.NewConfig()
-	c.K8SWebhookServer = k8swhsrv.NewConfig()
 }
 
 func (c Config) Validate() error {

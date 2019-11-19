@@ -81,6 +81,7 @@ func (repo *NamespaceRepository) ListNamespaces() (
 			},
 		},
 	}
+
 	resp, err := repo.datahubClient.ListNamespaces(context.Background(), &req)
 	if err != nil {
 		return nil, errors.Wrap(err, "list namespaces from Datahub failed")

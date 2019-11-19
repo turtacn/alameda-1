@@ -18,7 +18,7 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	namespaceList := corev1.NamespaceList{}
-	if err := client.List(ctx, nil, &namespaceList); err != nil {
+	if err := client.List(ctx, &namespaceList); err != nil {
 		return errors.Errorf(
 			"Sync namespaces with datahub failed due to list namespaces from cluster failed: %s", err.Error())
 	}

@@ -18,7 +18,7 @@ import (
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	openshiftappsv1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -267,8 +267,8 @@ func prepareMutatingWebhookConfigurationInstance() error {
 			Name:            fmt.Sprintf("mutating-webhook.admission-controller.%s.svc", namespace),
 			OwnerReferences: []meta_v1.OwnerReference{ownerReferenceOfControllerOwningAdmissionController},
 		},
-		Webhooks: []admissionregistration_v1beta1.Webhook{
-			admissionregistration_v1beta1.Webhook{
+		Webhooks: []admissionregistration_v1beta1.MutatingWebhook{
+			admissionregistration_v1beta1.MutatingWebhook{
 				Name: fmt.Sprintf("mutating-webhook.admission-controller.%s.svc", namespace),
 				Rules: []admissionregistration_v1beta1.RuleWithOperations{
 					admissionregistration_v1beta1.RuleWithOperations{

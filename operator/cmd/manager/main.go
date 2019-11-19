@@ -25,26 +25,38 @@ import (
 	"strings"
 
 	"github.com/containers-ai/alameda/operator"
-	"github.com/containers-ai/alameda/operator/pkg/apis"
-	"github.com/containers-ai/alameda/operator/pkg/controller"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
+	"github.com/containers-ai/alameda/operator/controllers"
+	datahub_client_application "github.com/containers-ai/alameda/operator/datahub/client/application"
+	datahub_client_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
+	datahub_client_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
+	datahub_client_node "github.com/containers-ai/alameda/operator/datahub/client/node"
+	datahub_client_pod "github.com/containers-ai/alameda/operator/datahub/client/pod"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
-	"github.com/containers-ai/alameda/operator/pkg/webhook"
+	"github.com/containers-ai/alameda/operator/pkg/utils/resources/validate"
+	op_webhook "github.com/containers-ai/alameda/operator/pkg/webhook"
+	"github.com/containers-ai/alameda/pkg/provider"
 	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	osappsapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 const (
@@ -62,6 +74,8 @@ var crdLocation string
 var showVer bool
 var readinessProbeFlag bool
 var livenessProbeFlag bool
+var metricsAddr string
+var enableLeaderElection bool
 
 var operatorConf operator.Config
 var k8sConfig *rest.Config
@@ -69,7 +83,7 @@ var scope *logUtil.Scope
 var clusterUID string
 
 var (
-	dathubConn    *grpc.ClientConn
+	datahubConn    *grpc.ClientConn
 	datahubClient datahubv1alpha1.DatahubServiceClient
 )
 
@@ -80,6 +94,8 @@ var (
 	BUILD_TIME string
 	// GO_VERSION is go version
 	GO_VERSION string
+
+	scheme = runtime.NewScheme()
 )
 
 func init() {
@@ -89,8 +105,19 @@ func init() {
 	flag.StringVar(&operatorConfigFile, "config", "/etc/alameda/operator/operator.toml",
 		"File path to operator coniguration")
 	flag.StringVar(&crdLocation, "crd-location", "/etc/alameda/operator/crds", "CRD location")
-
+	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
+		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	scope = logUtil.RegisterScope("manager", "operator entry point", 0)
+
+	_ = clientgoscheme.AddToScheme(scheme)
+
+	_ = autoscalingv1alpha1.AddToScheme(scheme)
+	_ = appsv1.AddToScheme(scheme)
+	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); ok {
+		_ = osappsapi.AddToScheme(scheme)
+	}
+	// +kubebuilder:scaffold:scheme
 }
 
 func initLogger() {
@@ -152,10 +179,10 @@ func initServerConfig(mgr *manager.Manager) {
 }
 
 func initThirdPartyClient() {
-	dathubConn, _ = grpc.Dial(operatorConf.Datahub.Address,
+	datahubConn, _ = grpc.Dial(operatorConf.Datahub.Address,
 		grpc.WithInsecure(), grpc.WithUnaryInterceptor(
 			grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(uint(3)))))
-	datahubClient = datahubv1alpha1.NewDatahubServiceClient(dathubConn)
+	datahubClient = datahubv1alpha1.NewDatahubServiceClient(datahubConn)
 }
 
 func initClusterUID() error {
@@ -186,18 +213,22 @@ func main() {
 		return
 	} else if readinessProbeFlag {
 		initServerConfig(nil)
+		opWHSrvPort := viper.GetInt32("k8sWebhookServer.port")
 		readinessProbe(&probe.ReadinessProbeConfig{
-			ValidationSrvPort: operatorConf.K8SWebhookServer.Port,
-			DatahubAddr:       operatorConf.Datahub.Address,
+			WHSrvPort:   opWHSrvPort,
+			DatahubAddr: operatorConf.Datahub.Address,
 		})
 		return
 	} else if livenessProbeFlag {
 		initServerConfig(nil)
+		opWHSrvName := viper.GetString("k8sWebhookServer.service.name")
+		opWHSrvNamespace := viper.GetString("k8sWebhookServer.service.namespace")
+		opWHSrvPort := viper.GetInt32("k8sWebhookServer.service.port")
 		livenessProbe(&probe.LivenessProbeConfig{
 			ValidationSvc: &probe.ValidationSvc{
-				SvcName: operatorConf.K8SWebhookServer.Service.Name,
-				SvcNS:   operatorConf.K8SWebhookServer.Service.Namespace,
-				SvcPort: operatorConf.K8SWebhookServer.Service.Port,
+				SvcName: opWHSrvName,
+				SvcNS:   opWHSrvNamespace,
+				SvcPort: opWHSrvPort,
 			},
 		})
 		return
@@ -210,8 +241,13 @@ func main() {
 	}
 	k8sConfig = cfg
 
-	// Create a new Cmd to provide shared dependencies and start components
-	mgr, err := manager.New(k8sConfig, manager.Options{})
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+		Scheme:             scheme,
+		MetricsBindAddress: metricsAddr,
+		LeaderElection:     enableLeaderElection,
+		Port:               9443,
+	})
+
 	if err != nil {
 		scope.Error(err.Error())
 		os.Exit(1)
@@ -228,29 +264,140 @@ func main() {
 	}
 
 	scope.Info("Registering Components.")
-	registerThirdPartyCRD()
-	// Setup Scheme for all resources
-	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
-		scope.Error(err.Error())
+	datahubControllerRepo := datahub_client_controller.NewControllerRepository(datahubConn, clusterUID)
+	datahubPodRepo := datahub_client_pod.NewPodRepository(datahubConn, clusterUID)
+	// Setup Controllers
+	if err = (&controllers.AlamedaScalerReconciler{
+		Client:                 mgr.GetClient(),
+		Scheme:                 mgr.GetScheme(),
+		ClusterUID:             clusterUID,
+		DatahubApplicationRepo: datahub_client_application.NewApplicationRepository(datahubConn, clusterUID),
+		DatahubControllerRepo:  datahubControllerRepo,
+		DatahubPodRepo:         datahubPodRepo,
+	}).SetupWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
+		os.Exit(1)
+	}
+	if err = (&controllers.AlamedaRecommendationReconciler{
+		Client:        mgr.GetClient(),
+		Scheme:        mgr.GetScheme(),
+		ClusterUID:    clusterUID,
+		DatahubClient: datahubv1alpha1.NewDatahubServiceClient(datahubConn),
+	}).SetupWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
 
-	// Setup Controllers
-	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); !ok {
-		controller.AddToManagerFuncs = removeFunctions(
-			controller.AddToManagerFuncs,
-			controller.OpenshiftControllerAddFuncs)
+	if err = (&controllers.DeploymentReconciler{
+		Client:                mgr.GetClient(),
+		Scheme:                mgr.GetScheme(),
+		ClusterUID:            clusterUID,
+		DatahubControllerRepo: datahubControllerRepo,
+	}).SetupWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
+		os.Exit(1)
 	}
-	if err := controller.AddToManager(mgr); err != nil {
-		scope.Error(err.Error())
+	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); ok {
+		if err = (&controllers.DeploymentConfigReconciler{
+			Client:                mgr.GetClient(),
+			Scheme:                mgr.GetScheme(),
+			ClusterUID:            clusterUID,
+			DatahubControllerRepo: datahubControllerRepo,
+		}).SetupWithManager(mgr); err != nil {
+			scope.Errorf(err.Error())
+			os.Exit(1)
+		}
+	}
+	if err = (&controllers.NamespaceReconciler{
+		Client:               mgr.GetClient(),
+		Scheme:               mgr.GetScheme(),
+		ClusterUID:           clusterUID,
+		DatahubNamespaceRepo: datahub_client_namespace.NewNamespaceRepository(datahubConn, clusterUID),
+	}).SetupWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
+		os.Exit(1)
+	}
+	cloudprovider := ""
+	if provider.OnGCE() {
+		cloudprovider = provider.GCP
+	} else if provider.OnEC2() {
+		cloudprovider = provider.AWS
+	}
+
+	regionName := ""
+	switch cloudprovider {
+	case provider.AWS:
+		regionName = provider.AWSRegionMap[provider.GetEC2Region()]
+	}
+	if err = (&controllers.NodeReconciler{
+		Client:          mgr.GetClient(),
+		Scheme:          mgr.GetScheme(),
+		ClusterUID:      clusterUID,
+		Cloudprovider:   cloudprovider,
+		RegionName:      regionName,
+		DatahubNodeRepo: *datahub_client_node.NewNodeRepository(datahubConn, clusterUID),
+	}).SetupWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
+		os.Exit(1)
+	}
+	if err = (&controllers.StatefulSetReconciler{
+		Client:                mgr.GetClient(),
+		Scheme:                mgr.GetScheme(),
+		ClusterUID:            clusterUID,
+		DatahubControllerRepo: datahubControllerRepo,
+	}).SetupWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
 
 	scope.Info("Setting up webhooks")
-	if err := webhook.AddToManager(mgr); err != nil {
-		scope.Errorf("unable to register webhooks to the manager: %s",
-			err.Error())
+	vr := &validate.ResourceValidate{}
+	if err = (&autoscalingv1alpha1.AlamedaScaler{
+		Validate: vr,
+	}).SetupWebhookWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
 		os.Exit(1)
+	}
+
+	whSrv := mgr.GetWebhookServer()
+	deploymentValidatingHook := &webhook.Admission{
+		Handler: admission.HandlerFunc(func(ctx context.Context,
+			req webhook.AdmissionRequest) webhook.AdmissionResponse {
+			decoder, err := admission.NewDecoder(scheme)
+			if err != nil {
+				scope.Errorf("new decoder failed %s", err.Error())
+				return webhook.Denied(err.Error())
+			}
+			return op_webhook.HandleDeployment(decoder, mgr.GetClient(), ctx, req)
+		}),
+	}
+
+	if viper.IsSet("k8sWebhookServer.admissionPaths.validateDeployment") {
+		whSrv.Register(
+			viper.GetString("k8sWebhookServer.admissionPaths.validateDeployment"),
+			deploymentValidatingHook)
+	}
+
+	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); ok {
+		if viper.IsSet("k8sWebhookServer.admissionPaths.validateDeploymentConfig") {
+			deploymentConfigValidatingHook := &webhook.Admission{
+				Handler: admission.HandlerFunc(func(ctx context.Context,
+					req webhook.AdmissionRequest) webhook.AdmissionResponse {
+					decoder, err := admission.NewDecoder(scheme)
+					if err != nil {
+						scope.Errorf("new decoder failed %s", err.Error())
+						return webhook.Denied(err.Error())
+					}
+					return op_webhook.HandleDeploymentConfig(decoder, mgr.GetClient(), ctx, req)
+				}),
+			}
+			whSrv.Register(
+				viper.GetString("k8sWebhookServer.admissionPaths.validateDeploymentConfig"),
+				deploymentConfigValidatingHook)
+		}
+	}
+	if viper.IsSet("k8sWebhookServer.port") {
+		whSrv.Port = viper.GetInt("k8sWebhookServer.port")
 	}
 
 	wg, ctx := errgroup.WithContext(context.Background())
@@ -263,10 +410,9 @@ func main() {
 			if !ok {
 				scope.Error("Wait for cache synchronization failed")
 			} else {
-				go launchWebhook(&mgr, &operatorConf)
 				go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
 				go syncResourcesWithDatahub(mgr.GetClient(),
-					dathubConn)
+					datahubConn)
 			}
 			return nil
 		})
@@ -274,26 +420,10 @@ func main() {
 	wg.Go(
 		func() error {
 			scope.Info("Starting the Cmd.")
-			return mgr.Start(signals.SetupSignalHandler())
+			return mgr.Start(ctrl.SetupSignalHandler())
 		})
 
 	if err := wg.Wait(); err != nil {
 		scope.Error(err.Error())
 	}
-}
-
-func removeFunctions(functionList1,
-	functionList2 []func(manager.Manager) error) []func(manager.Manager) error {
-
-	functions := make([]func(manager.Manager) error, 0, len(functionList1))
-	for _, f1 := range functionList1 {
-		for _, f2 := range functionList2 {
-			f1Str := fmt.Sprintf("%p", f1)
-			f2Str := fmt.Sprintf("%p", f2)
-			if f1Str != f2Str {
-				functions = append(functions, f1)
-			}
-		}
-	}
-	return functions
 }

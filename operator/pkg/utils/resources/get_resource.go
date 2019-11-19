@@ -3,7 +3,7 @@ package resources
 import (
 	"context"
 
-	autuscaling "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autuscaling "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	appsapi_v1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"

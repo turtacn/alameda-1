@@ -98,6 +98,7 @@ func (repo *ControllerRepository) ListControllers() ([]*datahub_resources.Contro
 			},
 		},
 	}
+
 	resp, err := repo.datahubClient.ListControllers(context.Background(), &req)
 	if err != nil {
 		return nil, errors.Wrap(err, "list controllers from datahub failed")

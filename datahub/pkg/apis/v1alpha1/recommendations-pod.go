@@ -2,7 +2,7 @@ package v1alpha1
 
 import (
 	DaoRecommendation "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/recommendations"
-	AutoScalingV1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	AutoScalingV1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	ReconcilerAlamedaRecommendation "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedarecommendation"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
 	ApiRecommendations "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/recommendations"
