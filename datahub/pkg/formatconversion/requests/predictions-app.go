@@ -3,6 +3,7 @@ package requests
 import (
 	DaoPredictionTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions/types"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
 	"github.com/golang/protobuf/ptypes"
 )
@@ -19,8 +20,12 @@ func (r *CreateApplicationPredictionsRequestExtended) ProducePredictions() DaoPr
 	applicationPredictionMap := DaoPredictionTypes.NewApplicationPredictionMap()
 
 	for _, application := range r.GetApplicationPredictions() {
+		// Normalize request
+		objectMeta := NewObjectMeta(application.GetObjectMeta())
+		objectMeta.NodeName = ""
+
 		applicationPrediction := DaoPredictionTypes.NewApplicationPrediction()
-		applicationPrediction.ObjectMeta.Name = application.GetObjectMeta().GetName()
+		applicationPrediction.ObjectMeta = objectMeta
 
 		// Handle predicted raw data
 		for _, data := range application.GetPredictedRawData() {
@@ -96,15 +101,23 @@ func (r *ListApplicationPredictionsRequestExtended) Validate() error {
 func (r *ListApplicationPredictionsRequestExtended) ProduceRequest() DaoPredictionTypes.ListApplicationPredictionsRequest {
 	request := DaoPredictionTypes.NewListApplicationPredictionRequest()
 	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
+	request.Granularity = 30
 	request.ModelId = r.Request.GetModelId()
 	request.PredictionId = r.Request.GetPredictionId()
-	request.Granularity = 30
 	if r.Request.GetGranularity() != 0 {
 		request.Granularity = r.Request.GetGranularity()
 	}
 	if r.Request.GetObjectMeta() != nil {
-		for _, objectMeta := range r.Request.GetObjectMeta() {
-			request.ObjectMeta = append(request.ObjectMeta, NewObjectMeta(objectMeta))
+		for _, meta := range r.Request.GetObjectMeta() {
+			// Normalize request
+			objectMeta := NewObjectMeta(meta)
+			objectMeta.NodeName = ""
+
+			if objectMeta.IsEmpty() {
+				request.ObjectMeta = make([]Metadata.ObjectMeta, 0)
+				return request
+			}
+			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
 		}
 	}
 	return request

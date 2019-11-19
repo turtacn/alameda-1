@@ -6,6 +6,7 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
@@ -31,12 +32,10 @@ func NewNodeRepositoryWithConfig(influxDBCfg InternalInflux.Config) *NodeReposit
 func (r *NodeRepository) CreatePredictions(predictions DaoPredictionTypes.NodePredictionMap) error {
 	points := make([]*InfluxClient.Point, 0)
 
-	for _, nodePrediction := range predictions.MetricMap {
-		nodeName := nodePrediction.ObjectMeta.Name
-		isScheduled := nodePrediction.IsScheduled
-		r.appendPoints(FormatEnum.MetricKindRaw, nodeName, isScheduled, nodePrediction.PredictionRaw, &points)
-		r.appendPoints(FormatEnum.MetricKindUpperBound, nodeName, isScheduled, nodePrediction.PredictionUpperBound, &points)
-		r.appendPoints(FormatEnum.MetricKindLowerBound, nodeName, isScheduled, nodePrediction.PredictionLowerBound, &points)
+	for _, prediction := range predictions.MetricMap {
+		r.appendPoints(FormatEnum.MetricKindRaw, prediction.ObjectMeta, prediction.IsScheduled, prediction.PredictionRaw, &points)
+		r.appendPoints(FormatEnum.MetricKindUpperBound, prediction.ObjectMeta, prediction.IsScheduled, prediction.PredictionUpperBound, &points)
+		r.appendPoints(FormatEnum.MetricKindLowerBound, prediction.ObjectMeta, prediction.IsScheduled, prediction.PredictionLowerBound, &points)
 	}
 
 	// Batch write influxdb data points
@@ -59,32 +58,26 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 		GroupByTags:    []string{string(EntityInfluxPrediction.NodeName), string(EntityInfluxPrediction.NodeIsScheduled)},
 	}
 
-	granularity := request.Granularity
-	if granularity == 0 {
-		granularity = 30
+	for _, objectMeta := range request.ObjectMeta {
+		// TODO: Add IsScheduled parameter
+		keyList := objectMeta.GenerateKeyList()
+		keyList = append(keyList, string(EntityInfluxPrediction.NodeGranularity))
+		keyList = append(keyList, string(EntityInfluxPrediction.NodeModelId))
+		keyList = append(keyList, string(EntityInfluxPrediction.NodePredictionId))
+
+		valueList := objectMeta.GenerateValueList()
+		valueList = append(valueList, strconv.FormatInt(request.Granularity, 10))
+		valueList = append(valueList, request.ModelId)
+		valueList = append(valueList, request.PredictionId)
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
-	for _, objMeta := range request.ObjectMeta {
-		if objMeta.Name == "" && request.ModelId == "" && request.PredictionId == "" {
-			statement.WhereClause = ""
-			break
-		}
-
-		keyList := []string{
-			string(EntityInfluxPrediction.NodeName),
-			string(EntityInfluxPrediction.NodeModelId),
-			string(EntityInfluxPrediction.NodePredictionId),
-			string(EntityInfluxPrediction.NodeGranularity),
-		}
-		valueList := []string{
-			objMeta.Name,
-			request.ModelId,
-			request.PredictionId,
-			strconv.FormatInt(granularity, 10),
-		}
-
-		tempCondition := statement.GenerateCondition(keyList, valueList, "AND")
-		statement.AppendWhereClauseDirectly("OR", tempCondition)
+	if len(request.ObjectMeta) == 0 {
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NodeGranularity), "=", strconv.FormatInt(request.Granularity, 10))
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NodeModelId), "=", request.ModelId)
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NodePredictionId), "=", request.PredictionId)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
@@ -102,15 +95,15 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			nodePrediction := DaoPredictionTypes.NewNodePrediction()
-			nodePrediction.ObjectMeta.Name = group.Tags[string(EntityInfluxPrediction.NodeName)]
+			nodePrediction.ObjectMeta.Initialize(group.GetRow(0))
 			nodePrediction.IsScheduled, _ = strconv.ParseBool(group.Tags[string(EntityInfluxPrediction.NodeIsScheduled)])
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
-					entity := EntityInfluxPrediction.NewNodeEntityFromMap(group.GetRow(j))
+					entity := EntityInfluxPrediction.NewNodeEntity(group.GetRow(j))
 					sample := FormatTypes.PredictionSample{Timestamp: entity.Time, Value: *entity.Value, ModelId: *entity.ModelId, PredictionId: *entity.PredictionId}
 					granularity, _ := strconv.ParseInt(*entity.Granularity, 10, 64)
-					switch *entity.Kind {
+					switch *entity.MetricType {
 					case FormatEnum.MetricKindRaw:
 						nodePrediction.AddRawSample(*entity.Metric, granularity, sample)
 					case FormatEnum.MetricKindUpperBound:
@@ -127,7 +120,7 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 	return nodePredictionList, nil
 }
 
-func (r *NodeRepository) appendPoints(kind FormatEnum.MetricKind, nodeName string, isScheduled bool, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
+func (r *NodeRepository) appendPoints(kind FormatEnum.MetricKind, objectMeta Metadata.ObjectMeta, isScheduled bool, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
 	for metricType, metricData := range predictions {
 		granularity := metricData.Granularity
 		if granularity == 0 {
@@ -143,11 +136,12 @@ func (r *NodeRepository) appendPoints(kind FormatEnum.MetricKind, nodeName strin
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxPrediction.NodeName):        nodeName,
-				string(EntityInfluxPrediction.NodeIsScheduled): strconv.FormatBool(isScheduled),
+				string(EntityInfluxPrediction.NodeName):        objectMeta.Name,
+				string(EntityInfluxPrediction.NodeClusterName): objectMeta.ClusterName,
 				string(EntityInfluxPrediction.NodeMetric):      metricType,
-				string(EntityInfluxPrediction.NodeKind):        kind,
+				string(EntityInfluxPrediction.NodeMetricType):  kind,
 				string(EntityInfluxPrediction.NodeGranularity): strconv.FormatInt(granularity, 10),
+				string(EntityInfluxPrediction.NodeIsScheduled): strconv.FormatBool(isScheduled),
 			}
 
 			// Pack influx fields

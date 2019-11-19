@@ -8,30 +8,29 @@ import (
 	"github.com/golang/protobuf/ptypes"
 )
 
-type CreateClusterPredictionsRequestExtended struct {
-	ApiPredictions.CreateClusterPredictionsRequest
+type CreateNodePredictionsRequestExtended struct {
+	ApiPredictions.CreateNodePredictionsRequest
 }
 
-func (r *CreateClusterPredictionsRequestExtended) Validate() error {
+func (r *CreateNodePredictionsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *CreateClusterPredictionsRequestExtended) ProducePredictions() DaoPredictionTypes.ClusterPredictionMap {
-	clusterPredictionMap := DaoPredictionTypes.NewClusterPredictionMap()
+func (r *CreateNodePredictionsRequestExtended) ProducePredictions() DaoPredictionTypes.NodePredictionMap {
+	nodePredictionMap := DaoPredictionTypes.NewNodePredictionMap()
 
-	for _, cluster := range r.GetClusterPredictions() {
+	for _, node := range r.GetNodePredictions() {
 		// Normalize request
-		objectMeta := NewObjectMeta(cluster.GetObjectMeta())
+		objectMeta := NewObjectMeta(node.GetObjectMeta())
 		objectMeta.Namespace = ""
 		objectMeta.NodeName = ""
-		objectMeta.ClusterName = ""
-		objectMeta.NodeName = ""
 
-		clusterPrediction := DaoPredictionTypes.NewClusterPrediction()
-		clusterPrediction.ObjectMeta.Name = cluster.GetObjectMeta().GetName()
+		nodePrediction := DaoPredictionTypes.NewNodePrediction()
+		nodePrediction.ObjectMeta = objectMeta
+		nodePrediction.IsScheduled = node.GetIsScheduled()
 
 		// Handle predicted raw data
-		for _, data := range cluster.GetPredictedRawData() {
+		for _, data := range node.GetPredictedRawData() {
 			metricType := MetricTypeNameMap[data.GetMetricType()]
 			granularity := data.GetGranularity()
 			for _, sample := range data.GetData() {
@@ -45,12 +44,12 @@ func (r *CreateClusterPredictionsRequestExtended) ProducePredictions() DaoPredic
 					ModelId:      sample.GetModelId(),
 					PredictionId: sample.GetPredictionId(),
 				}
-				clusterPrediction.AddRawSample(metricType, granularity, sample)
+				nodePrediction.AddRawSample(metricType, granularity, sample)
 			}
 		}
 
 		// Handle predicted upper bound data
-		for _, data := range cluster.GetPredictedUpperboundData() {
+		for _, data := range node.GetPredictedUpperboundData() {
 			metricType := MetricTypeNameMap[data.GetMetricType()]
 			granularity := data.GetGranularity()
 			for _, sample := range data.GetData() {
@@ -64,12 +63,12 @@ func (r *CreateClusterPredictionsRequestExtended) ProducePredictions() DaoPredic
 					ModelId:      sample.GetModelId(),
 					PredictionId: sample.GetPredictionId(),
 				}
-				clusterPrediction.AddUpperBoundSample(metricType, granularity, sample)
+				nodePrediction.AddUpperBoundSample(metricType, granularity, sample)
 			}
 		}
 
 		// Handle predicted lower bound data
-		for _, data := range cluster.GetPredictedLowerboundData() {
+		for _, data := range node.GetPredictedLowerboundData() {
 			metricType := MetricTypeNameMap[data.GetMetricType()]
 			granularity := data.GetGranularity()
 			for _, sample := range data.GetData() {
@@ -83,26 +82,26 @@ func (r *CreateClusterPredictionsRequestExtended) ProducePredictions() DaoPredic
 					ModelId:      sample.GetModelId(),
 					PredictionId: sample.GetPredictionId(),
 				}
-				clusterPrediction.AddLowerBoundSample(metricType, granularity, sample)
+				nodePrediction.AddLowerBoundSample(metricType, granularity, sample)
 			}
 		}
 
-		clusterPredictionMap.AddClusterPrediction(clusterPrediction)
+		nodePredictionMap.AddNodePrediction(nodePrediction)
 	}
 
-	return clusterPredictionMap
+	return nodePredictionMap
 }
 
-type ListClusterPredictionsRequestExtended struct {
-	Request *ApiPredictions.ListClusterPredictionsRequest
+type ListNodePredictionsRequestExtended struct {
+	Request *ApiPredictions.ListNodePredictionsRequest
 }
 
-func (r *ListClusterPredictionsRequestExtended) Validate() error {
+func (r *ListNodePredictionsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListClusterPredictionsRequestExtended) ProduceRequest() DaoPredictionTypes.ListClusterPredictionsRequest {
-	request := DaoPredictionTypes.NewListClusterPredictionRequest()
+func (r *ListNodePredictionsRequestExtended) ProduceRequest() DaoPredictionTypes.ListNodePredictionsRequest {
+	request := DaoPredictionTypes.NewListNodePredictionRequest()
 	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
 	request.Granularity = 30
 	request.ModelId = r.Request.GetModelId()
@@ -116,7 +115,6 @@ func (r *ListClusterPredictionsRequestExtended) ProduceRequest() DaoPredictionTy
 			objectMeta := NewObjectMeta(meta)
 			objectMeta.Namespace = ""
 			objectMeta.NodeName = ""
-			objectMeta.ClusterName = ""
 
 			if objectMeta.IsEmpty() {
 				request.ObjectMeta = make([]Metadata.ObjectMeta, 0)

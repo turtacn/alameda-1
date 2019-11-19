@@ -6,9 +6,11 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
+	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strconv"
@@ -32,11 +34,9 @@ func (r *ControllerRepository) CreatePredictions(predictions DaoPredictionTypes.
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, prediction := range predictions.MetricMap {
-		controllerName := prediction.ObjectMeta.Name
-		ctlKind := prediction.CtlKind
-		r.appendPoints(FormatEnum.MetricKindRaw, controllerName, ctlKind, prediction.PredictionRaw, &points)
-		r.appendPoints(FormatEnum.MetricKindUpperBound, controllerName, ctlKind, prediction.PredictionUpperBound, &points)
-		r.appendPoints(FormatEnum.MetricKindLowerBound, controllerName, ctlKind, prediction.PredictionLowerBound, &points)
+		r.appendPoints(FormatEnum.MetricKindRaw, prediction.ObjectMeta, prediction.Kind, prediction.PredictionRaw, &points)
+		r.appendPoints(FormatEnum.MetricKindUpperBound, prediction.ObjectMeta, prediction.Kind, prediction.PredictionUpperBound, &points)
+		r.appendPoints(FormatEnum.MetricKindLowerBound, prediction.ObjectMeta, prediction.Kind, prediction.PredictionLowerBound, &points)
 	}
 
 	// Batch write influxdb data points
@@ -59,32 +59,30 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 		GroupByTags:    []string{string(EntityInfluxPrediction.ControllerName)},
 	}
 
-	granularity := request.Granularity
-	if granularity == 0 {
-		granularity = 30
+	for _, objectMeta := range request.ObjectMeta {
+		keyList := objectMeta.GenerateKeyList()
+		keyList = append(keyList, string(EntityInfluxPrediction.ControllerKind))
+		keyList = append(keyList, string(EntityInfluxPrediction.ControllerGranularity))
+		keyList = append(keyList, string(EntityInfluxPrediction.ControllerModelId))
+		keyList = append(keyList, string(EntityInfluxPrediction.ControllerPredictionId))
+
+		valueList := objectMeta.GenerateValueList()
+		valueList = append(valueList, request.Kind)
+		valueList = append(valueList, strconv.FormatInt(request.Granularity, 10))
+		valueList = append(valueList, request.ModelId)
+		valueList = append(valueList, request.PredictionId)
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
-	for _, objMeta := range request.ObjectMeta {
-		if objMeta.Name == "" && request.ModelId == "" && request.PredictionId == "" {
-			statement.WhereClause = ""
-			break
+	if len(request.ObjectMeta) == 0 {
+		if request.Kind != "" && request.Kind != ApiResources.Kind_name[0] {
+			statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ControllerKind), "=", request.Kind)
 		}
-
-		keyList := []string{
-			string(EntityInfluxPrediction.ControllerName),
-			string(EntityInfluxPrediction.ControllerModelId),
-			string(EntityInfluxPrediction.ControllerPredictionId),
-			string(EntityInfluxPrediction.ControllerGranularity),
-		}
-		valueList := []string{
-			objMeta.Name,
-			request.ModelId,
-			request.PredictionId,
-			strconv.FormatInt(granularity, 10),
-		}
-
-		tempCondition := statement.GenerateCondition(keyList, valueList, "AND")
-		statement.AppendWhereClauseDirectly("OR", tempCondition)
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ControllerGranularity), "=", strconv.FormatInt(request.Granularity, 10))
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ControllerModelId), "=", request.ModelId)
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ControllerPredictionId), "=", request.PredictionId)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
@@ -101,16 +99,17 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 	for _, result := range results {
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
+			row := group.GetRow(0)
 			controllerPrediction := DaoPredictionTypes.NewControllerPrediction()
-			controllerPrediction.ObjectMeta.Name = group.Tags[string(EntityInfluxPrediction.ControllerName)]
-			controllerPrediction.CtlKind = group.Tags[string(EntityInfluxPrediction.ControllerCtlKind)]
+			controllerPrediction.ObjectMeta.Initialize(row)
+			controllerPrediction.Kind = row[string(EntityInfluxPrediction.ControllerKind)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
-					entity := EntityInfluxPrediction.NewControllerEntityFromMap(group.GetRow(j))
+					entity := EntityInfluxPrediction.NewControllerEntity(group.GetRow(j))
 					sample := FormatTypes.PredictionSample{Timestamp: entity.Time, Value: *entity.Value, ModelId: *entity.ModelId, PredictionId: *entity.PredictionId}
 					granularity, _ := strconv.ParseInt(*entity.Granularity, 10, 64)
-					switch *entity.Kind {
+					switch *entity.MetricType {
 					case FormatEnum.MetricKindRaw:
 						controllerPrediction.AddRawSample(*entity.Metric, granularity, sample)
 					case FormatEnum.MetricKindUpperBound:
@@ -127,7 +126,7 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 	return controllerPredictionList, nil
 }
 
-func (r *ControllerRepository) appendPoints(kind FormatEnum.MetricKind, controllerName string, ctlKind string, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
+func (r *ControllerRepository) appendPoints(kind FormatEnum.MetricKind, objectMeta Metadata.ObjectMeta, ctlKind string, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
 	for metricType, metricData := range predictions {
 		granularity := metricData.Granularity
 		if granularity == 0 {
@@ -143,11 +142,13 @@ func (r *ControllerRepository) appendPoints(kind FormatEnum.MetricKind, controll
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxPrediction.ControllerName):        controllerName,
+				string(EntityInfluxPrediction.ControllerName):        objectMeta.Name,
+				string(EntityInfluxPrediction.ControllerNamespace):   objectMeta.Namespace,
+				string(EntityInfluxPrediction.ControllerClusterName): objectMeta.ClusterName,
 				string(EntityInfluxPrediction.ControllerMetric):      metricType,
-				string(EntityInfluxPrediction.ControllerKind):        kind,
-				string(EntityInfluxPrediction.ControllerCtlKind):     ctlKind,
+				string(EntityInfluxPrediction.ControllerMetricType):  kind,
 				string(EntityInfluxPrediction.ControllerGranularity): strconv.FormatInt(granularity, 10),
+				string(EntityInfluxPrediction.ControllerKind):        ctlKind,
 			}
 
 			// Pack influx fields

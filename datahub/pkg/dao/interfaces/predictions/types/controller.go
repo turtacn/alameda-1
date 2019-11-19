@@ -15,7 +15,6 @@ type ControllerPredictionsDAO interface {
 // ControllerPrediction Prediction model to represent one controller Prediction
 type ControllerPrediction struct {
 	ObjectMeta           metadata.ObjectMeta
-	CtlKind              string
 	Kind                 string
 	PredictionRaw        map[enumconv.MetricType]*types.PredictionMetricData
 	PredictionUpperBound map[enumconv.MetricType]*types.PredictionMetricData
@@ -34,6 +33,7 @@ type ListControllerPredictionsRequest struct {
 	ModelId      string
 	PredictionId string
 	Granularity  int64
+	Kind         string
 }
 
 func NewControllerPrediction() *ControllerPrediction {

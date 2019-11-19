@@ -3,6 +3,7 @@ package requests
 import (
 	DaoPredictionTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions/types"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
 	"github.com/golang/protobuf/ptypes"
 )
@@ -19,8 +20,13 @@ func (r *CreateNamespacePredictionsRequestExtended) ProducePredictions() DaoPred
 	namespacePredictionMap := DaoPredictionTypes.NewNamespacePredictionMap()
 
 	for _, namespace := range r.GetNamespacePredictions() {
+		// Normalize request
+		objectMeta := NewObjectMeta(namespace.GetObjectMeta())
+		objectMeta.Namespace = ""
+		objectMeta.NodeName = ""
+
 		namespacePrediction := DaoPredictionTypes.NewNamespacePrediction()
-		namespacePrediction.ObjectMeta.Name = namespace.GetObjectMeta().GetName()
+		namespacePrediction.ObjectMeta = objectMeta
 
 		// Handle predicted raw data
 		for _, data := range namespace.GetPredictedRawData() {
@@ -96,15 +102,24 @@ func (r *ListNamespacePredictionsRequestExtended) Validate() error {
 func (r *ListNamespacePredictionsRequestExtended) ProduceRequest() DaoPredictionTypes.ListNamespacePredictionsRequest {
 	request := DaoPredictionTypes.NewListNamespacePredictionRequest()
 	request.QueryCondition = QueryConditionExtend{r.Request.GetQueryCondition()}.QueryCondition()
+	request.Granularity = 30
 	request.ModelId = r.Request.GetModelId()
 	request.PredictionId = r.Request.GetPredictionId()
-	request.Granularity = 30
 	if r.Request.GetGranularity() != 0 {
 		request.Granularity = r.Request.GetGranularity()
 	}
 	if r.Request.GetObjectMeta() != nil {
-		for _, objectMeta := range r.Request.GetObjectMeta() {
-			request.ObjectMeta = append(request.ObjectMeta, NewObjectMeta(objectMeta))
+		for _, meta := range r.Request.GetObjectMeta() {
+			// Normalize request
+			objectMeta := NewObjectMeta(meta)
+			objectMeta.Namespace = ""
+			objectMeta.NodeName = ""
+
+			if objectMeta.IsEmpty() {
+				request.ObjectMeta = make([]Metadata.ObjectMeta, 0)
+				return request
+			}
+			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
 		}
 	}
 	return request

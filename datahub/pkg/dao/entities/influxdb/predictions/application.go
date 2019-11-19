@@ -9,9 +9,11 @@ import (
 const (
 	ApplicationTime        influxdb.Tag = "time"
 	ApplicationName        influxdb.Tag = "name"
+	ApplicationNameSpace   influxdb.Tag = "namespace"
+	ApplicationClusterName influxdb.Tag = "cluster_name"
 	ApplicationMetric      influxdb.Tag = "metric"
+	ApplicationMetricType  influxdb.Tag = "kind"
 	ApplicationGranularity influxdb.Tag = "granularity"
-	ApplicationKind        influxdb.Tag = "kind"
 
 	ApplicationModelId      influxdb.Field = "model_id"
 	ApplicationPredictionId influxdb.Field = "prediction_id"
@@ -19,17 +21,31 @@ const (
 )
 
 var (
-	ApplicationTags   = []influxdb.Tag{ApplicationName, ApplicationMetric, ApplicationGranularity}
-	ApplicationFields = []influxdb.Field{ApplicationModelId, ApplicationPredictionId, ApplicationValue}
+	ApplicationTags = []influxdb.Tag{
+		ApplicationName,
+		ApplicationNameSpace,
+		ApplicationClusterName,
+		ApplicationMetric,
+		ApplicationMetricType,
+		ApplicationGranularity,
+	}
+
+	ApplicationFields = []influxdb.Field{
+		ApplicationModelId,
+		ApplicationPredictionId,
+		ApplicationValue,
+	}
 )
 
 // Entity Container prediction entity in influxDB
 type ApplicationEntity struct {
 	Time        time.Time
 	Name        *string
+	Namespace   *string
+	ClusterName *string
 	Metric      *string
+	MetricType  *string
 	Granularity *string
-	Kind        *string
 
 	ModelId      *string
 	PredictionId *string
@@ -37,26 +53,31 @@ type ApplicationEntity struct {
 }
 
 // NewEntityFromMap Build entity from map
-func NewApplicationEntityFromMap(data map[string]string) ApplicationEntity {
+func NewApplicationEntity(data map[string]string) ApplicationEntity {
+	entity := ApplicationEntity{}
+
 	// TODO: log error
 	tempTimestamp, _ := utils.ParseTime(data[string(ApplicationTime)])
-
-	entity := ApplicationEntity{
-		Time: tempTimestamp,
-	}
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
-	if name, exist := data[string(ApplicationName)]; exist {
-		entity.Name = &name
+	if value, exist := data[string(ApplicationName)]; exist {
+		entity.Name = &value
 	}
-	if metricData, exist := data[string(ApplicationMetric)]; exist {
-		entity.Metric = &metricData
+	if value, exist := data[string(ApplicationNameSpace)]; exist {
+		entity.Namespace = &value
 	}
-	if valueStr, exist := data[string(ApplicationGranularity)]; exist {
-		entity.Granularity = &valueStr
+	if value, exist := data[string(ApplicationClusterName)]; exist {
+		entity.ClusterName = &value
 	}
-	if valueStr, exist := data[string(ApplicationKind)]; exist {
-		entity.Kind = &valueStr
+	if value, exist := data[string(ApplicationMetric)]; exist {
+		entity.Metric = &value
+	}
+	if value, exist := data[string(ApplicationMetricType)]; exist {
+		entity.MetricType = &value
+	}
+	if value, exist := data[string(ApplicationGranularity)]; exist {
+		entity.Granularity = &value
 	}
 
 	// InfluxDB fields

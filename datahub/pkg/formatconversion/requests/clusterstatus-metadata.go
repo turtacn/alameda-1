@@ -6,12 +6,13 @@ import (
 )
 
 func NewObjectMeta(objectMeta *resources.ObjectMeta) metadata.ObjectMeta {
-	meta := metadata.ObjectMeta{
-		Name:        objectMeta.GetName(),
-		Namespace:   objectMeta.GetNamespace(),
-		NodeName:    objectMeta.GetNodeName(),
-		ClusterName: objectMeta.GetClusterName(),
-		Uid:         objectMeta.GetUid(),
+	meta := metadata.ObjectMeta{}
+	if objectMeta != nil {
+		meta.Name = objectMeta.GetName()
+		meta.Namespace = objectMeta.GetNamespace()
+		meta.NodeName = objectMeta.GetNodeName()
+		meta.ClusterName = objectMeta.GetClusterName()
+		meta.Uid = objectMeta.GetUid()
 	}
 	return meta
 }

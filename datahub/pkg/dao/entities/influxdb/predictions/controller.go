@@ -9,10 +9,12 @@ import (
 const (
 	ControllerTime        influxdb.Tag = "time"
 	ControllerName        influxdb.Tag = "name"
+	ControllerNamespace   influxdb.Tag = "namespace"
+	ControllerClusterName influxdb.Tag = "cluster_name"
 	ControllerMetric      influxdb.Tag = "metric"
+	ControllerMetricType  influxdb.Tag = "kind"
 	ControllerGranularity influxdb.Tag = "granularity"
-	ControllerKind        influxdb.Tag = "kind"
-	ControllerCtlKind     influxdb.Tag = "controller_kind"
+	ControllerKind        influxdb.Tag = "controller_kind"
 
 	ControllerModelId      influxdb.Field = "model_id"
 	ControllerPredictionId influxdb.Field = "prediction_id"
@@ -20,18 +22,33 @@ const (
 )
 
 var (
-	ControllerTags   = []influxdb.Tag{ControllerName, ControllerMetric, ControllerGranularity, ControllerKind}
-	ControllerFields = []influxdb.Field{ControllerModelId, ControllerPredictionId, ControllerValue}
+	ControllerTags = []influxdb.Tag{
+		ControllerName,
+		ControllerNamespace,
+		ControllerClusterName,
+		ControllerMetric,
+		ControllerMetricType,
+		ControllerGranularity,
+		ControllerKind,
+	}
+
+	ControllerFields = []influxdb.Field{
+		ControllerModelId,
+		ControllerPredictionId,
+		ControllerValue,
+	}
 )
 
 // Entity Container prediction entity in influxDB
 type ControllerEntity struct {
 	Time        time.Time
 	Name        *string
+	Namespace   *string
+	ClusterName *string
 	Metric      *string
-	Kind        *string
+	MetricType  *string
 	Granularity *string
-	CtlKind     *string
+	Kind        *string
 
 	ModelId      *string
 	PredictionId *string
@@ -39,29 +56,34 @@ type ControllerEntity struct {
 }
 
 // NewEntityFromMap Build entity from map
-func NewControllerEntityFromMap(data map[string]string) ControllerEntity {
+func NewControllerEntity(data map[string]string) ControllerEntity {
+	entity := ControllerEntity{}
+
 	// TODO: log error
 	tempTimestamp, _ := utils.ParseTime(data[string(ControllerTime)])
-
-	entity := ControllerEntity{
-		Time: tempTimestamp,
-	}
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
-	if name, exist := data[string(ControllerName)]; exist {
-		entity.Name = &name
+	if value, exist := data[string(ControllerName)]; exist {
+		entity.Name = &value
 	}
-	if metricData, exist := data[string(ControllerMetric)]; exist {
-		entity.Metric = &metricData
+	if value, exist := data[string(ControllerNamespace)]; exist {
+		entity.Namespace = &value
 	}
-	if valueStr, exist := data[string(ControllerGranularity)]; exist {
-		entity.Granularity = &valueStr
+	if value, exist := data[string(ControllerClusterName)]; exist {
+		entity.ClusterName = &value
 	}
-	if valueStr, exist := data[string(ControllerKind)]; exist {
-		entity.Kind = &valueStr
+	if value, exist := data[string(ControllerMetric)]; exist {
+		entity.Metric = &value
 	}
-	if valueStr, exist := data[string(ControllerCtlKind)]; exist {
-		entity.CtlKind = &valueStr
+	if value, exist := data[string(ControllerMetricType)]; exist {
+		entity.MetricType = &value
+	}
+	if value, exist := data[string(ControllerGranularity)]; exist {
+		entity.Granularity = &value
+	}
+	if value, exist := data[string(ControllerKind)]; exist {
+		entity.Kind = &value
 	}
 
 	// InfluxDB fields
