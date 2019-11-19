@@ -383,6 +383,7 @@ func (evictioner *Evictioner) listPodRecommendations(nowTimestamp int64) ([]*dat
 				ClusterName: evictioner.clusterID,
 			},
 		},
+		Kind: datahub_resources.Kind_POD,
 		QueryCondition: &datahub_common.QueryCondition{
 			TimeRange: &datahub_common.TimeRange{
 				ApplyTime: &timestamp.Timestamp{
