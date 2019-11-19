@@ -58,6 +58,8 @@ var (
 
 	onceCheckHasOpenshiftAPIAppsV1 = sync.Once{}
 	hasOpenshiftAPIAppsV1          = false
+
+	requeueAfter = 3 * time.Second
 )
 
 var alamedascalerFirstSynced = false
@@ -98,35 +100,11 @@ func (r *AlamedaScalerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 	// Delete resources relative to AlamedaScaler
 	if alamedaScaler, err := getResource.GetAlamedaScaler(req.Namespace, req.Name); err != nil && k8sErrors.IsNotFound(err) {
 		scope.Infof("AlamedaScaler (%s/%s) is deleted, remove alameda pods from datahub.", req.Namespace, req.Name)
-		err := r.deletePodsFromDatahub(&req.NamespacedName, make(map[autoscalingv1alpha1.NamespacedName]bool))
-		if err != nil {
-			scope.Errorf("Remove alameda pods of alamedascaler (%s/%s) from datahub failed. %s", req.Namespace, req.Name, err.Error())
-		} else {
-			scope.Infof("Remove alameda pods of alamedascaler (%s/%s) from datahub successed.", req.Namespace, req.Name)
-		}
-		err = r.deleteControllersFromDatahubByAlamedaScaler(context.TODO(), req.Namespace, req.Name)
-		if err != nil {
-			scope.Errorf("Remove alameda controllers of alamedascaler (%s/%s) from datahub failed. %s", req.Namespace, req.Name, err.Error())
-		} else {
-			scope.Infof("Remove alameda controllers of alamedascaler (%s/%s) from datahub successed.", req.Namespace, req.Name)
-		}
-
-		// Delete application from datahub
-		err = r.DatahubApplicationRepo.DeleteApplications([]*datahub_resources.Application{
-			&datahub_resources.Application{
-				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:        req.NamespacedName.Name,
-					Namespace:   req.NamespacedName.Namespace,
-					ClusterName: r.ClusterUID,
-				},
-			},
-		})
-		if err != nil {
-			scope.Errorf("Delete application %s/%s from datahub failed: %s",
-				req.NamespacedName.Namespace, req.NamespacedName.Name, err.Error())
+		if err := r.handleAlamedaScalerDeletion(req.Namespace, req.Name); err != nil {
+			scope.Errorf("Handle AlamedaScaler(%s/%s) deletion failed, retry after %f seconds. %s", req.Namespace, req.Name, requeueAfter.Seconds(), err.Error())
+			return ctrl.Result{Requeue: true, RequeueAfter: requeueAfter}, nil
 		}
 	} else if err == nil {
-		// TODO: deployment already in the AlamedaScaler cannot join the other
 		alamedaScaler.SetDefaultValue()
 		alamedaScalerNS := alamedaScaler.GetNamespace()
 		alamedaScalerName := alamedaScaler.GetName()
@@ -277,11 +255,11 @@ func (r *AlamedaScalerReconciler) syncDatahubResource(alamedaScaler *autoscaling
 
 func (r *AlamedaScalerReconciler) listAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler) ([]*datahub_resources.Controller, error) {
 
-	application, err := r.DatahubApplicationRepo.GetApplication(context.TODO(), scaler.Namespace, scaler.Name)
+	controllers, err := r.DatahubControllerRepo.ListControllersByApplication(context.TODO(), scaler.Namespace, scaler.Name)
 	if err != nil {
-		return nil, errors.Wrap(err, "get application from Datahub failed")
+		return nil, errors.Wrap(err, "list controllers by application from Datahub failed")
 	}
-	return application.Controllers, nil
+	return controllers, nil
 }
 
 func (r *AlamedaScalerReconciler) createAlamedaWatchedResourcesToDatahub(scaler *autoscalingv1alpha1.AlamedaScaler) error {
@@ -555,6 +533,41 @@ func (r *AlamedaScalerReconciler) createPodsToDatahub(ctx context.Context, scale
 	return nil
 }
 
+func (r *AlamedaScalerReconciler) handleAlamedaScalerDeletion(namespace, name string) error {
+
+	ctx := context.TODO()
+	wg, ctx := errgroup.WithContext(ctx)
+	wg.Go(func() error {
+		if err := r.deleteControllersFromDatahubByAlamedaScaler(ctx, namespace, name); err != nil {
+			return errors.Wrapf(err, "delete controllers from datahub by AlamedaScaler(%s/%s) failed", namespace, name)
+		}
+		scope.Infof("Remove alameda controllers of AlamedaScaler(%s/%s) from datahub successed.", namespace, name)
+		return nil
+	})
+	wg.Go(func() error {
+		if err := r.deletePodsFromDatahubByAlamedaScaler(ctx, namespace, name); err != nil {
+			return errors.Wrapf(err, "delete pods from datahub by AlamedaScaler(%s/%s) failed", namespace, name)
+		}
+		scope.Infof("Remove alameda pods of AlamedaScaler(%s/%s) from datahub successed.", namespace, name)
+		return nil
+	})
+	wg.Go(func() error {
+		applicationObejctMeta := datahub_resources.ObjectMeta{
+			Namespace:   namespace,
+			Name:        name,
+			ClusterName: r.ClusterUID,
+		}
+		// Delete application from datahub
+		if err := r.DatahubApplicationRepo.DeleteApplications(ctx, []*datahub_resources.ObjectMeta{&applicationObejctMeta}); err != nil {
+			return errors.Wrapf(err, "delete Application(%s/%s) from datahub failed", namespace, name)
+		}
+		scope.Infof("Remove application of AlamedaScaler(%s/%s) from datahub successed.", namespace, name)
+		return nil
+	})
+
+	return wg.Wait()
+}
+
 func (r *AlamedaScalerReconciler) deleteControllersFromDatahubByAlamedaScaler(ctx context.Context, namespace, name string) error {
 
 	application, err := r.DatahubApplicationRepo.GetApplication(ctx, namespace, name)
@@ -583,6 +596,27 @@ func (r *AlamedaScalerReconciler) deleteControllersFromDatahubByAlamedaScaler(ct
 	}
 
 	return wg.Wait()
+}
+
+func (r *AlamedaScalerReconciler) deletePodsFromDatahubByAlamedaScaler(ctx context.Context, namespace, name string) error {
+
+	pods, err := r.DatahubPodRepo.ListAlamedaPodsByAlamedaScaler(ctx, namespace, name)
+	if err != nil {
+		return errors.Wrapf(err, "list pods by AlamedaScaler(%s/%s) failed", namespace, name)
+	}
+
+	podsNeedDeleting := make([]*datahub_resources.ObjectMeta, len(pods))
+	for i, pod := range pods {
+		podsNeedDeleting[i] = pod.ObjectMeta
+	}
+	if len(podsNeedDeleting) == 0 {
+		return nil
+	}
+	err = r.DatahubPodRepo.DeletePods(ctx, podsNeedDeleting)
+	if err != nil {
+		return errors.Wrapf(err, "delete pods by AlamedaScaler(%s/%s) failed", namespace, name)
+	}
+	return nil
 }
 
 func (r *AlamedaScalerReconciler) deletePodsFromDatahub(scalerNamespacedName *types.NamespacedName, existingPodsMap map[autoscalingv1alpha1.NamespacedName]bool) error {

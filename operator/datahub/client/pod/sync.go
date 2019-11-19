@@ -35,9 +35,8 @@ func deleteRedudantPodFromDatahub(k8sClient client.Client, conn *grpc.ClientConn
 		return errors.Wrap(err, "list pods from Datahub failed")
 	}
 
-	podsNeedDeleting := []*datahub_resources.Pod{}
+	podsNeedToBeDeleted := []*datahub_resources.ObjectMeta{}
 	for _, pod := range pods {
-		copyPod := pod
 		if pod == nil || pod.ObjectMeta == nil || pod.ObjectMeta.Namespace == "" || pod.ObjectMeta.Name == "" {
 			continue
 		}
@@ -47,7 +46,7 @@ func deleteRedudantPodFromDatahub(k8sClient client.Client, conn *grpc.ClientConn
 		name := pod.ObjectMeta.Name
 		err := k8sClient.Get(context.TODO(), client.ObjectKey{Namespace: namespace, Name: name}, &p)
 		if err != nil && k8serrors.IsNotFound(err) {
-			podsNeedDeleting = append(podsNeedDeleting, copyPod)
+			podsNeedToBeDeleted = append(podsNeedToBeDeleted, pod.ObjectMeta)
 			continue
 		} else if err != nil {
 			return errors.Wrapf(err, "get Pod(%s/%s) failed", namespace, name)
@@ -56,15 +55,14 @@ func deleteRedudantPodFromDatahub(k8sClient client.Client, conn *grpc.ClientConn
 		if exist, err := isMonitoringAlamedaScalerOfPodExist(k8sClient, *pod); err != nil {
 			return errors.Wrapf(err, "check if monitoring AlamedaScaler of Pod(%s/%s) is exist failed", namespace, name)
 		} else if !exist {
-			podsNeedDeleting = append(podsNeedDeleting, copyPod)
+			podsNeedToBeDeleted = append(podsNeedToBeDeleted, pod.ObjectMeta)
 		}
 	}
 
-	if len(podsNeedDeleting) <= 0 {
+	if len(podsNeedToBeDeleted) <= 0 {
 		return nil
 	}
-
-	if err := datahubPodRepo.DeletePods(context.TODO(), podsNeedDeleting); err != nil {
+	if err := datahubPodRepo.DeletePods(context.TODO(), podsNeedToBeDeleted); err != nil {
 		return errors.Wrap(err, "delete pods from datahub failed")
 	}
 	return nil

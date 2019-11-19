@@ -50,16 +50,16 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 			"Sync applications with datahub failed due to list applications from datahub failed: %s",
 			err.Error())
 	}
-	applicationsNeedDeleting := make([]*datahub_resources.Application, 0)
+	applicationsNeedDeleting := make([]*datahub_resources.ObjectMeta, 0)
 	for _, n := range applicationsFromDatahub {
 		if _, exist := existingApplicationMap[fmt.Sprintf("%s/%s",
 			n.GetObjectMeta().GetNamespace(), n.GetObjectMeta().GetName())]; exist {
 			continue
 		}
-		applicationsNeedDeleting = append(applicationsNeedDeleting, n)
+		applicationsNeedDeleting = append(applicationsNeedDeleting, n.ObjectMeta)
 	}
 	if len(applicationsNeedDeleting) > 0 {
-		err = datahubApplicationRepo.DeleteApplications(applicationsNeedDeleting)
+		err = datahubApplicationRepo.DeleteApplications(context.TODO(), applicationsNeedDeleting)
 		if err != nil {
 			return errors.Wrap(err, "delete applications from Datahub failed")
 		}

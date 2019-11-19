@@ -112,28 +112,12 @@ func (repo *ApplicationRepository) ListApplications() ([]*datahub_resources.Appl
 	return resp.Applications, nil
 }
 
-// DeleteApplication delete applications from datahub
-func (repo *ApplicationRepository) DeleteApplications(
-	arg interface{}) error {
-	objMeta := []*datahub_resources.ObjectMeta{}
-	if applications, ok := arg.([]*datahub_resources.Application); ok {
-		for _, application := range applications {
-			objMeta = append(objMeta, &datahub_resources.ObjectMeta{
-				Name:        application.GetObjectMeta().GetName(),
-				Namespace:   application.GetObjectMeta().GetNamespace(),
-				ClusterName: repo.clusterUID,
-			})
-		}
-	}
-	if meta, ok := arg.([]*datahub_resources.ObjectMeta); ok {
-		objMeta = meta
-	}
-
+// DeleteApplications delete applications from datahub
+func (repo *ApplicationRepository) DeleteApplications(ctx context.Context, objectMetas []*datahub_resources.ObjectMeta) error {
 	req := datahub_resources.DeleteApplicationsRequest{
-		ObjectMeta: objMeta,
+		ObjectMeta: objectMetas,
 	}
-
-	if resp, err := repo.datahubClient.DeleteApplications(context.Background(), &req); err != nil {
+	if resp, err := repo.datahubClient.DeleteApplications(ctx, &req); err != nil {
 		return errors.Wrap(err, "delete applications from Datahub failed")
 	} else if _, err := client.IsResponseStatusOK(resp); err != nil {
 		return errors.Wrap(err, "delete applications from Datahub failed")

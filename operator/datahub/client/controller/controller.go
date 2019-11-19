@@ -110,6 +110,34 @@ func (repo *ControllerRepository) ListControllers() ([]*datahub_resources.Contro
 	return resp.Controllers, nil
 }
 
+func (repo *ControllerRepository) ListControllersByApplication(ctx context.Context, namespace, name string) ([]*datahub_resources.Controller, error) {
+	req := datahub_resources.ListControllersRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{
+				Namespace:   namespace,
+				ClusterName: repo.clusterUID,
+			},
+		},
+	}
+
+	resp, err := repo.datahubClient.ListControllers(ctx, &req)
+	if err != nil {
+		return nil, errors.Wrap(err, "list controllers from datahub failed")
+	} else if resp == nil {
+		return nil, errors.Errorf("list controllers from Datahub failed, receive nil response")
+	} else if _, err := client.IsResponseStatusOK(resp.Status); err != nil {
+		return nil, errors.Wrap(err, "list controllers from Datahub failed")
+	}
+	controllers := make([]*datahub_resources.Controller, 0, len(resp.Controllers))
+	for _, controller := range resp.Controllers {
+		copyController := *controller
+		if controller != nil && repo.isControllerHasApplicationInfo(*controller, namespace, name) {
+			controllers = append(controllers, &copyController)
+		}
+	}
+	return controllers, nil
+}
+
 // DeleteControllers delete controllers from datahub
 func (repo *ControllerRepository) DeleteControllers(ctx context.Context, arg interface{}, kindIf interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
@@ -177,4 +205,14 @@ func (repo *ControllerRepository) DeleteControllers(ctx context.Context, arg int
 
 func (repo *ControllerRepository) Close() {
 	repo.conn.Close()
+}
+
+func (repo *ControllerRepository) isControllerHasApplicationInfo(controller datahub_resources.Controller, appNamespace, appName string) bool {
+
+	if controller.AlamedaControllerSpec != nil && controller.AlamedaControllerSpec.AlamedaScaler != nil &&
+		controller.AlamedaControllerSpec.AlamedaScaler.Namespace == appNamespace && controller.AlamedaControllerSpec.AlamedaScaler.Name == appName {
+		return true
+	}
+
+	return false
 }

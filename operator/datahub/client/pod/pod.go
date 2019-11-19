@@ -91,21 +91,9 @@ func (repo *PodRepository) ListAlamedaPodsByAlamedaScaler(ctx context.Context, n
 }
 
 // DeletePods delete pods from datahub
-func (repo *PodRepository) DeletePods(ctx context.Context, arg interface{}) error {
-	objMeta := []*datahub_resources.ObjectMeta{}
-	switch t := arg.(type) {
-	case []*datahub_resources.Pod:
-		for _, pod := range t {
-			copyPod := *pod
-			objMeta = append(objMeta, copyPod.ObjectMeta)
-		}
-	case []*datahub_resources.ObjectMeta:
-		objMeta = t
-	default:
-		return errors.Errorf("not supported type(%T)", t)
-	}
+func (repo *PodRepository) DeletePods(ctx context.Context, objectMetas []*datahub_resources.ObjectMeta) error {
 	req := datahub_resources.DeletePodsRequest{
-		ObjectMeta: objMeta,
+		ObjectMeta: objectMetas,
 	}
 	if resp, err := repo.datahubClient.DeletePods(context.Background(), &req); err != nil {
 		return errors.Wrap(err, "delete pods from Datahub failed")
