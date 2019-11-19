@@ -9,8 +9,6 @@ import (
 	"github.com/containers-ai/alameda/operator/datahub/client"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 // providerID: aws:///us-west-2a/i-0769ec8570198bf4b --> <provider_raw>//<region>//<instance_id>
@@ -41,24 +39,7 @@ func (repo *AlamedaNodeRepository) Close() {
 }
 
 // CreateNodes creates predicted node to datahub
-func (repo *AlamedaNodeRepository) CreateNodes(
-	arg interface{}) error {
-	nodes := []*datahub_resources.Node{}
-
-	if coreNodes, ok := arg.([]corev1.Node); ok {
-		for _, coreNode := range coreNodes {
-			nodes = append(nodes, &datahub_resources.Node{
-				ObjectMeta: &datahub_resources.ObjectMeta{
-					Name:        coreNode.GetName(),
-					ClusterName: repo.clusterUID,
-				},
-				Capacity: &datahub_resources.Capacity{
-					CpuCores:    coreNode.Status.Capacity.Cpu().Value(),
-					MemoryBytes: coreNode.Status.Capacity.Memory().Value(),
-				},
-			})
-		}
-	}
+func (repo *AlamedaNodeRepository) CreateNodes(nodes []*datahub_resources.Node) error {
 
 	if len(nodes) > 0 {
 		req := datahub_resources.CreateNodesRequest{
@@ -70,7 +51,6 @@ func (repo *AlamedaNodeRepository) CreateNodes(
 			return errors.Wrap(err, "create nodes to Datahub failed")
 		}
 	}
-
 	return nil
 }
 
