@@ -1,13 +1,10 @@
 package types
 
 import (
-	//"github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
-	//"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
-	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	//"github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
@@ -29,6 +26,10 @@ type ContainerObjectMeta struct {
 
 type ListContainersRequest struct {
 	common.QueryCondition
+	ContainerObjectMeta []ContainerObjectMeta
+}
+
+type DeleteContainersRequest struct {
 	ContainerObjectMeta []ContainerObjectMeta
 }
 
@@ -82,6 +83,12 @@ func NewContainer() *Container {
 
 func NewListContainersRequest() ListContainersRequest {
 	request := ListContainersRequest{}
+	request.ContainerObjectMeta = make([]ContainerObjectMeta, 0)
+	return request
+}
+
+func NewDeleteContainersRequest() DeleteContainersRequest {
+	request := DeleteContainersRequest{}
 	request.ContainerObjectMeta = make([]ContainerObjectMeta, 0)
 	return request
 }

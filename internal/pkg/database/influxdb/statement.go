@@ -234,6 +234,23 @@ func (s *Statement) BuildQueryCmd() string {
 	return cmd
 }
 
+func (s *Statement) BuildDropCmd() string {
+	cmd := ""
+
+	if s.WhereClause != "" {
+		index := strings.Index(s.WhereClause, "WHERE") + 6
+
+		tempClause := s.WhereClause
+		tempClause = tempClause + ")"
+		tempClause = tempClause[:index] + "(" + tempClause[index:]
+		s.WhereClause = tempClause
+	}
+
+	cmd = fmt.Sprintf("DROP SERIES FROM \"%s\" %s %s", s.Measurement, s.WhereClause, s.TimeClause)
+
+	return cmd
+}
+
 func (s *Statement) Clear() {
 
 }

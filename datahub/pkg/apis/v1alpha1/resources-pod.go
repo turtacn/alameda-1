@@ -16,9 +16,10 @@ func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *ApiResources.Creat
 	scope.Debug("Request received from CreatePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	requestExtended := FormatRequest.CreatePodsRequestExtended{CreatePodsRequest: *in}
-	if requestExtended.Validate() != nil {
+	if err := requestExtended.Validate(); err != nil {
 		return &status.Status{
-			Code: int32(code.Code_INVALID_ARGUMENT),
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
 		}, nil
 	}
 
@@ -83,31 +84,23 @@ func (s *ServiceV1alpha1) ListPods(ctx context.Context, in *ApiResources.ListPod
 func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *ApiResources.DeletePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeletePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	/*
-		podList := make([]*ApiResources.Pod, 0)
-		for _, objectMeta := range in.GetObjectMeta() {
-			podList = append(podList, &ApiResources.Pod{
-				ObjectMeta: &ApiResources.ObjectMeta{
-					Name:        objectMeta.GetName(),
-					Namespace:   objectMeta.GetNamespace(),
-					NodeName:    objectMeta.GetNodeName(),
-					ClusterName: objectMeta.GetClusterName(),
-				},
-			})
-		}
-
-		containerDAO := DaoCluster.NewContainerDAO(*s.Config)
-		if err := containerDAO.DeletePods(podList); err != nil {
-			scope.Errorf("DeletePods failed: %+v", err)
-			return &status.Status{
-				Code:    int32(code.Code_INTERNAL),
-				Message: err.Error(),
-			}, nil
-		}
+	requestExt := FormatRequest.DeletePodsRequestExtended{DeletePodsRequest: *in}
+	if err := requestExt.Validate(); err != nil {
 		return &status.Status{
-			Code: int32(code.Code_OK),
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
 		}, nil
-	*/
+	}
+
+	podDAO := DaoCluster.NewPodDAO(*s.Config)
+	if err := podDAO.DeletePods(requestExt.ProduceRequest()); err != nil {
+		scope.Errorf("failed to delete pods: %+v", err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

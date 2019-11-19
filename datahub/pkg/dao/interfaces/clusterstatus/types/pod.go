@@ -14,7 +14,7 @@ import (
 type PodDAO interface {
 	CreatePods([]*Pod) error
 	ListPods(ListPodsRequest) ([]*Pod, error)
-	//DeletePods([]*resources.Pod) error
+	DeletePods(DeletePodsRequest) error
 }
 
 type Pod struct {
@@ -34,6 +34,10 @@ type ListPodsRequest struct {
 	ObjectMeta  []metadata.ObjectMeta
 	Kind        string // Valid values: POD, DEPLOYMENT, DEPLOYMENTCONFIG, ALAMEDASCALER, STATEFULSET
 	ScalingTool string // Valid values: NONE, VPA, HPA
+}
+
+type DeletePodsRequest struct {
+	ObjectMeta []metadata.ObjectMeta
 }
 
 type AlamedaPodSpec struct {
@@ -59,6 +63,12 @@ func NewPod() *Pod {
 
 func NewListPodsRequest() ListPodsRequest {
 	request := ListPodsRequest{}
+	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
+	return request
+}
+
+func NewDeletePodsRequest() DeletePodsRequest {
+	request := DeletePodsRequest{}
 	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
 	return request
 }

@@ -1,7 +1,6 @@
 package clusterstatus
 
 import (
-	//"fmt"
 	"fmt"
 	EntityInfluxCluster "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
 	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
@@ -174,6 +173,30 @@ func (p *PodRepository) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*Da
 	}
 
 	return pods, nil
+}
+
+func (p *PodRepository) DeletePods(request DaoClusterTypes.DeletePodsRequest) error {
+	statement := InternalInflux.Statement{
+		Measurement: Pod,
+	}
+
+	// Build influx drop command
+	for _, objectMeta := range request.ObjectMeta {
+		keyList := objectMeta.GenerateKeyList()
+
+		valueList := objectMeta.GenerateValueList()
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
+	}
+	cmd := statement.BuildDropCmd()
+
+	_, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
+	if err != nil {
+		return errors.Wrap(err, "failed to delete pods")
+	}
+
+	return nil
 }
 
 func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, kind ApiResources.Kind) string {
