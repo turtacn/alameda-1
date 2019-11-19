@@ -8,11 +8,13 @@ import (
 
 const (
 	ContainerTime        influxdb.Tag = "time"
-	ContainerNamespace   influxdb.Tag = "namespace"
-	ContainerPodName     influxdb.Tag = "pod_name"
 	ContainerName        influxdb.Tag = "name"
+	ContainerPodName     influxdb.Tag = "pod_name"
+	ContainerNamespace   influxdb.Tag = "namespace"
+	ContainerNodeName    influxdb.Tag = "node_name"
+	ContainerClusterName influxdb.Tag = "cluster_name"
 	ContainerMetric      influxdb.Tag = "metric"
-	ContainerKind        influxdb.Tag = "kind"
+	ContainerMetricType  influxdb.Tag = "kind"
 	ContainerGranularity influxdb.Tag = "granularity"
 
 	ContainerModelId      influxdb.Field = "model_id"
@@ -21,19 +23,35 @@ const (
 )
 
 var (
-	ContainerTags   = []influxdb.Tag{ContainerNamespace, ContainerPodName, ContainerName, ContainerMetric, ContainerKind, ContainerGranularity}
-	ContainerFields = []influxdb.Field{ContainerModelId, ContainerPredictionId, ContainerValue}
+	ContainerTags = []influxdb.Tag{
+		ContainerName,
+		ContainerPodName,
+		ContainerNamespace,
+		ContainerNodeName,
+		ContainerClusterName,
+		ContainerMetric,
+		ContainerMetricType,
+		ContainerGranularity,
+	}
+
+	ContainerFields = []influxdb.Field{
+		ContainerModelId,
+		ContainerPredictionId,
+		ContainerValue,
+	}
 )
 
 // Entity Container prediction entity in influxDB
 type ContainerEntity struct {
 	Time        time.Time
-	Namespace   *string
-	PodName     *string
 	Name        *string
+	PodName     *string
+	Namespace   *string
+	NodeName    *string
+	ClusterName *string
 	Metric      *string
+	MetricType  *string
 	Granularity *string
-	Kind        *string
 
 	ModelId      *string
 	PredictionId *string
@@ -41,32 +59,37 @@ type ContainerEntity struct {
 }
 
 // NewEntityFromMap Build entity from map
-func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
+func NewContainerEntity(data map[string]string) ContainerEntity {
+	entity := ContainerEntity{}
+
 	// TODO: log error
 	tempTimestamp, _ := utils.ParseTime(data[string(ContainerTime)])
-
-	entity := ContainerEntity{
-		Time: tempTimestamp,
-	}
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
-	if namespace, exist := data[string(ContainerNamespace)]; exist {
-		entity.Namespace = &namespace
+	if value, exist := data[string(ContainerName)]; exist {
+		entity.Name = &value
 	}
-	if podName, exist := data[string(ContainerPodName)]; exist {
-		entity.PodName = &podName
+	if value, exist := data[string(ContainerPodName)]; exist {
+		entity.PodName = &value
 	}
-	if name, exist := data[string(ContainerName)]; exist {
-		entity.Name = &name
+	if value, exist := data[string(ContainerNamespace)]; exist {
+		entity.Namespace = &value
 	}
-	if metricData, exist := data[string(ContainerMetric)]; exist {
-		entity.Metric = &metricData
+	if value, exist := data[string(ContainerNodeName)]; exist {
+		entity.NodeName = &value
+	}
+	if value, exist := data[string(ContainerClusterName)]; exist {
+		entity.ClusterName = &value
+	}
+	if value, exist := data[string(ContainerMetric)]; exist {
+		entity.Metric = &value
+	}
+	if value, exist := data[string(ContainerMetricType)]; exist {
+		entity.MetricType = &value
 	}
 	if granularity, exist := data[string(ContainerGranularity)]; exist {
 		entity.Granularity = &granularity
-	}
-	if kind, exist := data[string(ContainerKind)]; exist {
-		entity.Kind = &kind
 	}
 
 	// InfluxDB fields

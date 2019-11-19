@@ -22,7 +22,7 @@ func (d *ControllerPredictionExtended) ProducePredictions() *ApiPredictions.Cont
 	)
 
 	var ctlKind ApiResources.Kind
-	if value, ok := ApiResources.Kind_value[d.CtlKind]; ok {
+	if value, ok := ApiResources.Kind_value[d.Kind]; ok {
 		ctlKind = ApiResources.Kind(value)
 	}
 

@@ -8,9 +8,11 @@ import (
 )
 
 type ContainerPredictionSample struct {
-	Namespace     metadata.NamespaceName
-	PodName       metadata.PodName
 	ContainerName metadata.ContainerName
+	PodName       metadata.PodName
+	Namespace     metadata.NamespaceName
+	NodeName      metadata.NodeName
+	ClusterName   metadata.ClusterName
 	MetricType    enumconv.MetricType
 	MetricKind    enumconv.MetricKind
 	Predictions   *types.PredictionMetricData
@@ -18,9 +20,11 @@ type ContainerPredictionSample struct {
 
 // ContainerPrediction Prediction model to represent one container Prediction
 type ContainerPrediction struct {
-	Namespace            metadata.NamespaceName
-	PodName              metadata.PodName
 	ContainerName        metadata.ContainerName
+	PodName              metadata.PodName
+	Namespace            metadata.NamespaceName
+	NodeName             metadata.NodeName
+	ClusterName          metadata.ClusterName
 	PredictionRaw        map[enumconv.MetricType]*types.PredictionMetricData
 	PredictionUpperBound map[enumconv.MetricType]*types.PredictionMetricData
 	PredictionLowerBound map[enumconv.MetricType]*types.PredictionMetricData
@@ -93,8 +97,10 @@ func (c *ContainerPrediction) BuildPodPrediction() *PodPrediction {
 
 	return &PodPrediction{
 		ObjectMeta: metadata.ObjectMeta{
-			Name:      c.PodName,
-			Namespace: c.Namespace,
+			Name:        c.PodName,
+			Namespace:   c.Namespace,
+			NodeName:    c.NodeName,
+			ClusterName: c.ClusterName,
 		},
 		ContainerPredictionMap: containerPredictionMap,
 	}

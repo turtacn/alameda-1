@@ -9,10 +9,11 @@ import (
 const (
 	NodeTime        influxdb.Tag = "time"
 	NodeName        influxdb.Tag = "name"
+	NodeClusterName influxdb.Tag = "cluster_name"
 	NodeMetric      influxdb.Tag = "metric"
-	NodeIsScheduled influxdb.Tag = "is_scheduled"
+	NodeMetricType  influxdb.Tag = "kind"
 	NodeGranularity influxdb.Tag = "granularity"
-	NodeKind        influxdb.Tag = "kind"
+	NodeIsScheduled influxdb.Tag = "is_scheduled"
 
 	NodeModelId      influxdb.Field = "model_id"
 	NodePredictionId influxdb.Field = "prediction_id"
@@ -20,18 +21,31 @@ const (
 )
 
 var (
-	NodeTags   = []influxdb.Tag{NodeName, NodeMetric, NodeIsScheduled, NodeGranularity, NodeKind}
-	NodeFields = []influxdb.Field{NodeModelId, NodePredictionId, NodeValue}
+	NodeTags = []influxdb.Tag{
+		NodeName,
+		NodeClusterName,
+		NodeMetric,
+		NodeMetricType,
+		NodeGranularity,
+		NodeIsScheduled,
+	}
+
+	NodeFields = []influxdb.Field{
+		NodeModelId,
+		NodePredictionId,
+		NodeValue,
+	}
 )
 
 // Entity Container prediction entity in influxDB
 type NodeEntity struct {
 	Time        time.Time
 	Name        *string
+	ClusterName *string
 	Metric      *string
-	IsScheduled *string
+	MetricType  *string
 	Granularity *string
-	Kind        *string
+	IsScheduled *string
 
 	ModelId      *string
 	PredictionId *string
@@ -39,29 +53,31 @@ type NodeEntity struct {
 }
 
 // NewEntityFromMap Build entity from map
-func NewNodeEntityFromMap(data map[string]string) NodeEntity {
+func NewNodeEntity(data map[string]string) NodeEntity {
+	entity := NodeEntity{}
+
 	// TODO: log error
 	tempTimestamp, _ := utils.ParseTime(data[string(NodeTime)])
-
-	entity := NodeEntity{
-		Time: tempTimestamp,
-	}
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
-	if name, exist := data[string(NodeName)]; exist {
-		entity.Name = &name
+	if value, exist := data[string(NodeName)]; exist {
+		entity.Name = &value
 	}
-	if metricData, exist := data[string(NodeMetric)]; exist {
-		entity.Metric = &metricData
+	if value, exist := data[string(NodeClusterName)]; exist {
+		entity.ClusterName = &value
 	}
-	if isScheduled, exist := data[string(NodeIsScheduled)]; exist {
-		entity.IsScheduled = &isScheduled
+	if value, exist := data[string(NodeMetric)]; exist {
+		entity.Metric = &value
 	}
-	if valueStr, exist := data[string(NodeGranularity)]; exist {
-		entity.Granularity = &valueStr
+	if value, exist := data[string(NodeMetricType)]; exist {
+		entity.MetricType = &value
 	}
-	if valueStr, exist := data[string(NodeKind)]; exist {
-		entity.Kind = &valueStr
+	if value, exist := data[string(NodeGranularity)]; exist {
+		entity.Granularity = &value
+	}
+	if value, exist := data[string(NodeIsScheduled)]; exist {
+		entity.IsScheduled = &value
 	}
 
 	// InfluxDB fields

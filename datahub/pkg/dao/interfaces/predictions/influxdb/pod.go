@@ -21,8 +21,10 @@ func (p *PodPredictions) CreatePredictions(predictions DaoPredictionTypes.PodPre
 
 	predictionSampleList := make([]*DaoPredictionTypes.ContainerPredictionSample, 0)
 	for _, podMetric := range predictions.MetricMap {
-		namespace := podMetric.ObjectMeta.Namespace
 		podName := podMetric.ObjectMeta.Name
+		namespace := podMetric.ObjectMeta.Namespace
+		nodeName := podMetric.ObjectMeta.NodeName
+		clusterName := podMetric.ObjectMeta.ClusterName
 
 		for _, containerMetric := range podMetric.ContainerPredictionMap.MetricMap {
 			containerName := containerMetric.ContainerName
@@ -30,9 +32,11 @@ func (p *PodPredictions) CreatePredictions(predictions DaoPredictionTypes.PodPre
 			// Handle predicted raw data
 			for metricType, metricData := range containerMetric.PredictionRaw {
 				predictionSample := &DaoPredictionTypes.ContainerPredictionSample{
-					Namespace:     namespace,
-					PodName:       podName,
 					ContainerName: containerName,
+					PodName:       podName,
+					Namespace:     namespace,
+					NodeName:      nodeName,
+					ClusterName:   clusterName,
 					MetricType:    metricType,
 					MetricKind:    FormatEnum.MetricKindRaw,
 					Predictions:   metricData,
@@ -43,9 +47,11 @@ func (p *PodPredictions) CreatePredictions(predictions DaoPredictionTypes.PodPre
 			// Handle predicted upper bound data
 			for metricType, metricData := range containerMetric.PredictionUpperBound {
 				predictionSample := &DaoPredictionTypes.ContainerPredictionSample{
-					Namespace:     namespace,
-					PodName:       podName,
 					ContainerName: containerName,
+					PodName:       podName,
+					Namespace:     namespace,
+					NodeName:      nodeName,
+					ClusterName:   clusterName,
 					MetricType:    metricType,
 					MetricKind:    FormatEnum.MetricKindUpperBound,
 					Predictions:   metricData,
@@ -56,9 +62,11 @@ func (p *PodPredictions) CreatePredictions(predictions DaoPredictionTypes.PodPre
 			// Handle predicted lower bound data
 			for metricType, metricData := range containerMetric.PredictionLowerBound {
 				predictionSample := &DaoPredictionTypes.ContainerPredictionSample{
-					Namespace:     namespace,
-					PodName:       podName,
 					ContainerName: containerName,
+					PodName:       podName,
+					Namespace:     namespace,
+					NodeName:      nodeName,
+					ClusterName:   clusterName,
 					MetricType:    metricType,
 					MetricKind:    FormatEnum.MetricKindLowerBound,
 					Predictions:   metricData,

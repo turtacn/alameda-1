@@ -6,6 +6,7 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
@@ -32,10 +33,9 @@ func (r *ApplicationRepository) CreatePredictions(predictions DaoPredictionTypes
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, prediction := range predictions.MetricMap {
-		applicationName := prediction.ObjectMeta.Name
-		r.appendPoints(FormatEnum.MetricKindRaw, applicationName, prediction.PredictionRaw, &points)
-		r.appendPoints(FormatEnum.MetricKindUpperBound, applicationName, prediction.PredictionUpperBound, &points)
-		r.appendPoints(FormatEnum.MetricKindLowerBound, applicationName, prediction.PredictionLowerBound, &points)
+		r.appendPoints(FormatEnum.MetricKindRaw, prediction.ObjectMeta, prediction.PredictionRaw, &points)
+		r.appendPoints(FormatEnum.MetricKindUpperBound, prediction.ObjectMeta, prediction.PredictionUpperBound, &points)
+		r.appendPoints(FormatEnum.MetricKindLowerBound, prediction.ObjectMeta, prediction.PredictionLowerBound, &points)
 	}
 
 	// Batch write influxdb data points
@@ -55,35 +55,28 @@ func (r *ApplicationRepository) ListPredictions(request DaoPredictionTypes.ListA
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Application,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ApplicationName)},
+		GroupByTags:    []string{string(EntityInfluxPrediction.ApplicationName), string(EntityInfluxPrediction.ApplicationNameSpace), string(EntityInfluxPrediction.ApplicationClusterName)},
 	}
 
-	granularity := request.Granularity
-	if granularity == 0 {
-		granularity = 30
+	for _, objectMeta := range request.ObjectMeta {
+		keyList := objectMeta.GenerateKeyList()
+		keyList = append(keyList, string(EntityInfluxPrediction.ApplicationGranularity))
+		keyList = append(keyList, string(EntityInfluxPrediction.ApplicationModelId))
+		keyList = append(keyList, string(EntityInfluxPrediction.ApplicationPredictionId))
+
+		valueList := objectMeta.GenerateValueList()
+		valueList = append(valueList, strconv.FormatInt(request.Granularity, 10))
+		valueList = append(valueList, request.ModelId)
+		valueList = append(valueList, request.PredictionId)
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
-	for _, objMeta := range request.ObjectMeta {
-		if objMeta.Name == "" && request.ModelId == "" && request.PredictionId == "" {
-			statement.WhereClause = ""
-			break
-		}
-
-		keyList := []string{
-			string(EntityInfluxPrediction.ApplicationName),
-			string(EntityInfluxPrediction.ApplicationModelId),
-			string(EntityInfluxPrediction.ApplicationPredictionId),
-			string(EntityInfluxPrediction.ApplicationGranularity),
-		}
-		valueList := []string{
-			objMeta.Name,
-			request.ModelId,
-			request.PredictionId,
-			strconv.FormatInt(granularity, 10),
-		}
-
-		tempCondition := statement.GenerateCondition(keyList, valueList, "AND")
-		statement.AppendWhereClauseDirectly("OR", tempCondition)
+	if len(request.ObjectMeta) == 0 {
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ApplicationGranularity), "=", strconv.FormatInt(request.Granularity, 10))
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ApplicationModelId), "=", request.ModelId)
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ApplicationPredictionId), "=", request.PredictionId)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
@@ -101,14 +94,14 @@ func (r *ApplicationRepository) ListPredictions(request DaoPredictionTypes.ListA
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			applicationPrediction := DaoPredictionTypes.NewApplicationPrediction()
-			applicationPrediction.ObjectMeta.Name = group.Tags[string(EntityInfluxPrediction.ApplicationName)]
+			applicationPrediction.ObjectMeta.Initialize(group.GetRow(0))
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
-					entity := EntityInfluxPrediction.NewApplicationEntityFromMap(group.GetRow(j))
+					entity := EntityInfluxPrediction.NewApplicationEntity(group.GetRow(j))
 					sample := FormatTypes.PredictionSample{Timestamp: entity.Time, Value: *entity.Value, ModelId: *entity.ModelId, PredictionId: *entity.PredictionId}
 					granularity, _ := strconv.ParseInt(*entity.Granularity, 10, 64)
-					switch *entity.Kind {
+					switch *entity.MetricType {
 					case FormatEnum.MetricKindRaw:
 						applicationPrediction.AddRawSample(*entity.Metric, granularity, sample)
 					case FormatEnum.MetricKindUpperBound:
@@ -125,7 +118,7 @@ func (r *ApplicationRepository) ListPredictions(request DaoPredictionTypes.ListA
 	return applicationPredictionList, nil
 }
 
-func (r *ApplicationRepository) appendPoints(kind FormatEnum.MetricKind, applicationName string, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
+func (r *ApplicationRepository) appendPoints(kind FormatEnum.MetricKind, objectMeta Metadata.ObjectMeta, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
 	for metricType, metricData := range predictions {
 		granularity := metricData.Granularity
 		if granularity == 0 {
@@ -141,9 +134,11 @@ func (r *ApplicationRepository) appendPoints(kind FormatEnum.MetricKind, applica
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxPrediction.ApplicationName):        applicationName,
+				string(EntityInfluxPrediction.ApplicationName):        objectMeta.Name,
+				string(EntityInfluxPrediction.ApplicationNameSpace):   objectMeta.Namespace,
+				string(EntityInfluxPrediction.ApplicationClusterName): objectMeta.ClusterName,
 				string(EntityInfluxPrediction.ApplicationMetric):      metricType,
-				string(EntityInfluxPrediction.ApplicationKind):        kind,
+				string(EntityInfluxPrediction.ApplicationMetricType):  kind,
 				string(EntityInfluxPrediction.ApplicationGranularity): strconv.FormatInt(granularity, 10),
 			}
 

@@ -1,7 +1,6 @@
 package predictions
 
 import (
-	//"fmt"
 	EntityInfluxPrediction "github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/predictions"
 	DaoPredictionTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/predictions/types"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
@@ -49,11 +48,13 @@ func (r *ContainerRepository) CreatePredictions(predictions []*DaoPredictionType
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxPrediction.ContainerNamespace):   predictionSample.Namespace,
-				string(EntityInfluxPrediction.ContainerPodName):     predictionSample.PodName,
 				string(EntityInfluxPrediction.ContainerName):        predictionSample.ContainerName,
+				string(EntityInfluxPrediction.ContainerPodName):     predictionSample.PodName,
+				string(EntityInfluxPrediction.ContainerNamespace):   predictionSample.Namespace,
+				string(EntityInfluxPrediction.ContainerNodeName):    predictionSample.NodeName,
+				string(EntityInfluxPrediction.ContainerClusterName): predictionSample.ClusterName,
 				string(EntityInfluxPrediction.ContainerMetric):      predictionSample.MetricType,
-				string(EntityInfluxPrediction.ContainerKind):        predictionSample.MetricKind,
+				string(EntityInfluxPrediction.ContainerMetricType):  predictionSample.MetricKind,
 				string(EntityInfluxPrediction.ContainerGranularity): strconv.FormatInt(granularity, 10),
 			}
 
@@ -91,37 +92,34 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Container,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ContainerNamespace), string(EntityInfluxPrediction.ContainerPodName), string(EntityInfluxPrediction.ContainerName)},
-	}
-
-	granularity := request.Granularity
-	if granularity == 0 {
-		granularity = 30
+		GroupByTags:    []string{string(EntityInfluxPrediction.ContainerName), string(EntityInfluxPrediction.ContainerPodName), string(EntityInfluxPrediction.ContainerNamespace)},
 	}
 
 	for _, objMeta := range request.ObjectMeta {
-		if objMeta.Namespace == "" && objMeta.Name == "" && request.ModelId == "" && request.PredictionId == "" {
-			statement.WhereClause = ""
-			break
-		}
-
 		keyList := []string{
-			string(EntityInfluxPrediction.ContainerNamespace),
 			string(EntityInfluxPrediction.ContainerPodName),
+			string(EntityInfluxPrediction.ContainerNamespace),
 			string(EntityInfluxPrediction.ContainerModelId),
 			string(EntityInfluxPrediction.ContainerPredictionId),
 			string(EntityInfluxPrediction.ContainerGranularity),
 		}
+
 		valueList := []string{
-			objMeta.Namespace,
 			objMeta.Name,
+			objMeta.Namespace,
 			request.ModelId,
 			request.PredictionId,
-			strconv.FormatInt(granularity, 10),
+			strconv.FormatInt(request.Granularity, 10),
 		}
 
-		tempCondition := statement.GenerateCondition(keyList, valueList, "AND")
-		statement.AppendWhereClauseDirectly("OR", tempCondition)
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
+	}
+
+	if len(request.ObjectMeta) == 0 {
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerGranularity), "=", strconv.FormatInt(request.Granularity, 10))
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerModelId), "=", request.ModelId)
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.ContainerPredictionId), "=", request.PredictionId)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
@@ -138,17 +136,20 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 	for _, result := range results {
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
+			row := group.GetRow(0)
 			containerPrediction := DaoPredictionTypes.NewContainerPrediction()
-			containerPrediction.Namespace = group.Tags[string(EntityInfluxPrediction.ContainerNamespace)]
-			containerPrediction.PodName = group.Tags[string(EntityInfluxPrediction.ContainerPodName)]
-			containerPrediction.ContainerName = group.Tags[string(EntityInfluxPrediction.ContainerName)]
+			containerPrediction.ContainerName = row[string(EntityInfluxPrediction.ContainerName)]
+			containerPrediction.PodName = row[string(EntityInfluxPrediction.ContainerPodName)]
+			containerPrediction.Namespace = row[string(EntityInfluxPrediction.ContainerNamespace)]
+			containerPrediction.NodeName = row[string(EntityInfluxPrediction.ContainerNodeName)]
+			containerPrediction.ClusterName = row[string(EntityInfluxPrediction.ContainerClusterName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
-					entity := EntityInfluxPrediction.NewContainerEntityFromMap(group.GetRow(j))
+					entity := EntityInfluxPrediction.NewContainerEntity(group.GetRow(j))
 					sample := FormatTypes.PredictionSample{Timestamp: entity.Time, Value: *entity.Value, ModelId: *entity.ModelId, PredictionId: *entity.PredictionId}
 					granularity, _ := strconv.ParseInt(*entity.Granularity, 10, 64)
-					switch *entity.Kind {
+					switch *entity.MetricType {
 					case FormatEnum.MetricKindRaw:
 						containerPrediction.AddRawSample(*entity.Metric, granularity, sample)
 					case FormatEnum.MetricKindUpperBound:

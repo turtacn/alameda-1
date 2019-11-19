@@ -10,8 +10,8 @@ const (
 	ClusterTime        influxdb.Tag = "time"
 	ClusterName        influxdb.Tag = "name"
 	ClusterMetric      influxdb.Tag = "metric"
+	ClusterMetricType  influxdb.Tag = "kind"
 	ClusterGranularity influxdb.Tag = "granularity"
-	ClusterKind        influxdb.Tag = "kind"
 
 	ClusterModelId      influxdb.Field = "model_id"
 	ClusterPredictionId influxdb.Field = "prediction_id"
@@ -19,8 +19,18 @@ const (
 )
 
 var (
-	ClusterTags   = []influxdb.Tag{ClusterName, ClusterMetric, ClusterGranularity}
-	ClusterFields = []influxdb.Field{ClusterModelId, ClusterPredictionId, ClusterValue}
+	ClusterTags = []influxdb.Tag{
+		ClusterName,
+		ClusterMetric,
+		ClusterMetricType,
+		ClusterGranularity,
+	}
+
+	ClusterFields = []influxdb.Field{
+		ClusterModelId,
+		ClusterPredictionId,
+		ClusterValue,
+	}
 )
 
 // Entity Container prediction entity in influxDB
@@ -28,8 +38,8 @@ type ClusterEntity struct {
 	Time        time.Time
 	Name        *string
 	Metric      *string
+	MetricType  *string
 	Granularity *string
-	Kind        *string
 
 	ModelId      *string
 	PredictionId *string
@@ -37,26 +47,25 @@ type ClusterEntity struct {
 }
 
 // NewEntityFromMap Build entity from map
-func NewClusterEntityFromMap(data map[string]string) ClusterEntity {
+func NewClusterEntity(data map[string]string) ClusterEntity {
+	entity := ClusterEntity{}
+
 	// TODO: log error
 	tempTimestamp, _ := utils.ParseTime(data[string(ClusterTime)])
-
-	entity := ClusterEntity{
-		Time: tempTimestamp,
-	}
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
-	if name, exist := data[string(ClusterName)]; exist {
-		entity.Name = &name
+	if value, exist := data[string(ClusterName)]; exist {
+		entity.Name = &value
 	}
-	if metricData, exist := data[string(ClusterMetric)]; exist {
-		entity.Metric = &metricData
+	if value, exist := data[string(ClusterMetric)]; exist {
+		entity.Metric = &value
 	}
-	if valueStr, exist := data[string(ClusterGranularity)]; exist {
-		entity.Granularity = &valueStr
+	if value, exist := data[string(ClusterMetricType)]; exist {
+		entity.MetricType = &value
 	}
-	if valueStr, exist := data[string(ClusterKind)]; exist {
-		entity.Kind = &valueStr
+	if value, exist := data[string(ClusterGranularity)]; exist {
+		entity.Granularity = &value
 	}
 
 	// InfluxDB fields

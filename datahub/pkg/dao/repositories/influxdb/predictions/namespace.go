@@ -6,6 +6,7 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatTypes "github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DatahubUtils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
@@ -32,10 +33,9 @@ func (r *NamespaceRepository) CreatePredictions(predictions DaoPredictionTypes.N
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, prediction := range predictions.MetricMap {
-		namespaceName := prediction.ObjectMeta.Name
-		r.appendPoints(FormatEnum.MetricKindRaw, namespaceName, prediction.PredictionRaw, &points)
-		r.appendPoints(FormatEnum.MetricKindUpperBound, namespaceName, prediction.PredictionUpperBound, &points)
-		r.appendPoints(FormatEnum.MetricKindLowerBound, namespaceName, prediction.PredictionLowerBound, &points)
+		r.appendPoints(FormatEnum.MetricKindRaw, prediction.ObjectMeta, prediction.PredictionRaw, &points)
+		r.appendPoints(FormatEnum.MetricKindUpperBound, prediction.ObjectMeta, prediction.PredictionUpperBound, &points)
+		r.appendPoints(FormatEnum.MetricKindLowerBound, prediction.ObjectMeta, prediction.PredictionLowerBound, &points)
 	}
 
 	// Batch write influxdb data points
@@ -58,32 +58,25 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 		GroupByTags:    []string{string(EntityInfluxPrediction.NamespaceName)},
 	}
 
-	granularity := request.Granularity
-	if granularity == 0 {
-		granularity = 30
+	for _, objectMeta := range request.ObjectMeta {
+		keyList := objectMeta.GenerateKeyList()
+		keyList = append(keyList, string(EntityInfluxPrediction.NamespaceGranularity))
+		keyList = append(keyList, string(EntityInfluxPrediction.NamespaceModelId))
+		keyList = append(keyList, string(EntityInfluxPrediction.NamespacePredictionId))
+
+		valueList := objectMeta.GenerateValueList()
+		valueList = append(valueList, strconv.FormatInt(request.Granularity, 10))
+		valueList = append(valueList, request.ModelId)
+		valueList = append(valueList, request.PredictionId)
+
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
-	for _, objMeta := range request.ObjectMeta {
-		if objMeta.Name == "" && request.ModelId == "" && request.PredictionId == "" {
-			statement.WhereClause = ""
-			break
-		}
-
-		keyList := []string{
-			string(EntityInfluxPrediction.NamespaceName),
-			string(EntityInfluxPrediction.NamespaceModelId),
-			string(EntityInfluxPrediction.NamespacePredictionId),
-			string(EntityInfluxPrediction.NamespaceGranularity),
-		}
-		valueList := []string{
-			objMeta.Name,
-			request.ModelId,
-			request.PredictionId,
-			strconv.FormatInt(granularity, 10),
-		}
-
-		tempCondition := statement.GenerateCondition(keyList, valueList, "AND")
-		statement.AppendWhereClauseDirectly("OR", tempCondition)
+	if len(request.ObjectMeta) == 0 {
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NamespaceGranularity), "=", strconv.FormatInt(request.Granularity, 10))
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NamespaceModelId), "=", request.ModelId)
+		statement.AppendWhereClause("AND", string(EntityInfluxPrediction.NamespacePredictionId), "=", request.PredictionId)
 	}
 
 	statement.AppendWhereClauseFromTimeCondition()
@@ -101,14 +94,14 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			namespacePrediction := DaoPredictionTypes.NewNamespacePrediction()
-			namespacePrediction.ObjectMeta.Name = group.Tags[string(EntityInfluxPrediction.NamespaceName)]
+			namespacePrediction.ObjectMeta.Initialize(group.GetRow(0))
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
-					entity := EntityInfluxPrediction.NewNamespaceEntityFromMap(group.GetRow(j))
+					entity := EntityInfluxPrediction.NewNamespaceEntity(group.GetRow(j))
 					sample := FormatTypes.PredictionSample{Timestamp: entity.Time, Value: *entity.Value, ModelId: *entity.ModelId, PredictionId: *entity.PredictionId}
 					granularity, _ := strconv.ParseInt(*entity.Granularity, 10, 64)
-					switch *entity.Kind {
+					switch *entity.MetricType {
 					case FormatEnum.MetricKindRaw:
 						namespacePrediction.AddRawSample(*entity.Metric, granularity, sample)
 					case FormatEnum.MetricKindUpperBound:
@@ -125,7 +118,7 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 	return namespacePredictionList, nil
 }
 
-func (r *NamespaceRepository) appendPoints(kind FormatEnum.MetricKind, namespaceName string, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
+func (r *NamespaceRepository) appendPoints(kind FormatEnum.MetricKind, objectMeta Metadata.ObjectMeta, predictions map[FormatEnum.MetricType]*FormatTypes.PredictionMetricData, points *[]*InfluxClient.Point) error {
 	for metricType, metricData := range predictions {
 		granularity := metricData.Granularity
 		if granularity == 0 {
@@ -141,9 +134,10 @@ func (r *NamespaceRepository) appendPoints(kind FormatEnum.MetricKind, namespace
 
 			// Pack influx tags
 			tags := map[string]string{
-				string(EntityInfluxPrediction.NamespaceName):        namespaceName,
+				string(EntityInfluxPrediction.NamespaceName):        objectMeta.Name,
+				string(EntityInfluxPrediction.NamespaceClusterName): objectMeta.ClusterName,
 				string(EntityInfluxPrediction.NamespaceMetric):      metricType,
-				string(EntityInfluxPrediction.NamespaceKind):        kind,
+				string(EntityInfluxPrediction.NamespaceMetricType):  kind,
 				string(EntityInfluxPrediction.NamespaceGranularity): strconv.FormatInt(granularity, 10),
 			}
 

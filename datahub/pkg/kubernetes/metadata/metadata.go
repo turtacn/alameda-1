@@ -2,17 +2,20 @@ package metadata
 
 type name = string
 
-// NamespaceName Type alias
-type NamespaceName = name
+// ContainerName Type alias
+type ContainerName = name
 
 // PodName Type alias
 type PodName = name
 
-// ContainerName Type alias
-type ContainerName = name
+// NamespaceName Type alias
+type NamespaceName = name
 
 // NodeName Type alias
 type NodeName = name
+
+// NodeName Type alias
+type ClusterName = name
 
 // NamespacePodName Type alias
 type NamespacePodName = name
