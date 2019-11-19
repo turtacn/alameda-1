@@ -1,9 +1,10 @@
-FROM grafana/grafana:5.4.3
+FROM grafana/grafana:6.4.4
 
 ARG image_tag
 
 ENV APPHOME=/opt/prophetstor/federatorai/grafana \
-    APP_DEBUG=0
+    APP_DEBUG=0 \
+    GF_PANELS_DISABLE_SANITIZE_HTML=true
 
 COPY . /tmp/src
 
@@ -12,9 +13,9 @@ COPY . /tmp/src
 USER root
 RUN set -x \
     && id \
-    && apt-get update \
-    && apt-get install -y nano curl procps sqlite3 \
-    && apt-get autoremove -y && apt-get autoclean -y && rm -rf /var/lib/apt/lists/* 
+    && apk update \
+    && apk add --no-cache nano curl procps sqlite \
+    && rm -rf /var/cache/apk/*
 
 RUN set -x \
     ## Build
