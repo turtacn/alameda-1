@@ -1,7 +1,6 @@
 package probe
 
 import (
-	"fmt"
 	"os/exec"
 )
 
@@ -15,8 +14,7 @@ type ValidationSvc struct {
 	SvcPort int32
 }
 
-func queryWebhookSvc(svcName string, svcNS string, port int32) error {
-	svcURL := fmt.Sprintf("https://%s.%s:%s", svcName, svcNS, fmt.Sprint(port))
+func queryWebhookSvc(svcURL string) error {	
 	curlCmd := exec.Command("curl", "-k", svcURL)
 
 	_, err := curlCmd.CombinedOutput()

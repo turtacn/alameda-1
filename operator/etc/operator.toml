@@ -26,6 +26,6 @@ certDir = "/tmp/k8s-webhook-server/cert/"
   validateDeploymentConfig = "/validate-autoscaling-containers-ai-v1-deploymentconfig"
   
   [k8sWebhookServer.service]
-  name = "operator-admission-service"
+  name = "alameda-operator-webhook-service"
   port = 443
   

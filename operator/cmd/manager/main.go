@@ -83,7 +83,7 @@ var scope *logUtil.Scope
 var clusterUID string
 
 var (
-	datahubConn    *grpc.ClientConn
+	datahubConn   *grpc.ClientConn
 	datahubClient datahubv1alpha1.DatahubServiceClient
 )
 
@@ -409,8 +409,7 @@ func main() {
 			ok := mgr.GetCache().WaitForCacheSync(ctx.Done())
 			if !ok {
 				scope.Error("Wait for cache synchronization failed")
-			} else {
-				go addOwnerReferenceToResourcesCreateFrom3rdPkg(mgr.GetClient())
+			} else {				
 				go syncResourcesWithDatahub(mgr.GetClient(),
 					datahubConn)
 			}

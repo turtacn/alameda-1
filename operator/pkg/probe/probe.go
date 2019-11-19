@@ -13,8 +13,11 @@ func LivenessProbe(cfg *LivenessProbeConfig) {
 	svcName := cfg.ValidationSvc.SvcName
 	svcNS := cfg.ValidationSvc.SvcNS
 	svcPort := cfg.ValidationSvc.SvcPort
-	err := queryWebhookSvc(svcName, svcNS, svcPort)
+	svcURL := fmt.Sprintf("https://%s.%s:%s", svcName, svcNS, fmt.Sprint(svcPort))
+	err := queryWebhookSvc(svcURL)
 	if err != nil {
+		scope.Errorf("Liveness probe: query validation webhook service %s failed due to %s",
+			svcURL, err.Error())
 		os.Exit(1)
 	}
 	os.Exit(0)
