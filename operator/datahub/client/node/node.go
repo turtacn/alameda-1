@@ -52,6 +52,10 @@ func (repo *AlamedaNodeRepository) CreateNodes(
 					Name:        coreNode.GetName(),
 					ClusterName: repo.clusterUID,
 				},
+				Capacity: &datahub_resources.Capacity{
+					CpuCores:    coreNode.Status.Capacity.Cpu().Value(),
+					MemoryBytes: coreNode.Status.Capacity.Memory().Value(),
+				},
 			})
 		}
 	}
