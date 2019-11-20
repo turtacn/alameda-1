@@ -28,7 +28,7 @@ import (
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	appsv1 "k8s.io/api/apps/v1"
-	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -44,12 +44,6 @@ type StatefulSetReconciler struct {
 	ClusterUID string
 }
 
-// Reconcile reads that state of the cluster for a StatefulSet object and makes changes based on the state read
-// and what is in the StatefulSet.Spec
-// TODO(user): Modify this Reconcile function to implement your Controller logic.  The scaffolding writes
-// a StatefulSet as an example
-// +kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=apps,resources=statefulsets/status,verbs=get;update;patch
 func (r *StatefulSetReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	requeueDuration := 1 * time.Second
 	getResource := utilsresource.NewGetResource(r)
@@ -57,7 +51,7 @@ func (r *StatefulSetReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 
 	statefulSet := appsv1.StatefulSet{}
 	err := r.Get(context.Background(), req.NamespacedName, &statefulSet)
-	if err != nil && k8s_errors.IsNotFound(err) {
+	if err != nil && k8serrors.IsNotFound(err) {
 		// If statefulSet is deleted, it cannnot find the monitoring AlamedaScaler by calling method GetObservingAlamedaScalerOfController
 		// in type GetResource.
 		alamedaScaler, err := r.getMonitoringAlamedaScaler(req.Namespace, req.Name)
@@ -96,7 +90,7 @@ func (r *StatefulSetReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 		return ctrl.Result{}, nil
 	} else {
 		alamedaScaler, err := getResource.GetObservingAlamedaScalerOfController(autoscaling_v1alpha1.StatefulSetController, req.Namespace, req.Name)
-		if err != nil && !k8s_errors.IsNotFound(err) {
+		if err != nil && !k8serrors.IsNotFound(err) {
 			scope.Errorf("Get observing AlamedaScaler of StatefulSet failed: %s", err.Error())
 			return ctrl.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
 		} else if alamedaScaler == nil {
@@ -116,9 +110,11 @@ func (r *StatefulSetReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 		// Do not trigger the update process twice if last and current AlamedaScaler are the same
 		if lastMonitorAlamedaScalerName != "" && currentMonitorAlamedaScalerName != lastMonitorAlamedaScalerName {
 			lastMonitorAlamedaScaler, err := getResource.GetAlamedaScaler(req.Namespace, lastMonitorAlamedaScalerName)
-			if err != nil && !k8s_errors.IsNotFound(err) {
+			if err != nil && !k8serrors.IsNotFound(err) {
 				scope.Errorf("Get last monitoring AlamedaScaler falied: %s", err.Error())
 				return ctrl.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+			} else if k8serrors.IsNotFound(err) {
+				return ctrl.Result{Requeue: false}, nil
 			}
 			if lastMonitorAlamedaScaler != nil {
 				err := controllerutil.TriggerAlamedaScaler(updateResource, lastMonitorAlamedaScaler)

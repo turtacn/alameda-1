@@ -121,6 +121,8 @@ func (r *DeploymentConfigReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 			if err != nil && !k8sErrors.IsNotFound(err) {
 				scope.Errorf("Get last monitoring AlamedaScaler falied: %s", err.Error())
 				return ctrl.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+			} else if k8sErrors.IsNotFound(err) {
+				return ctrl.Result{Requeue: false}, nil
 			}
 			if lastMonitorAlamedaScaler != nil {
 				err := controllerutil.TriggerAlamedaScaler(updateResource, lastMonitorAlamedaScaler)

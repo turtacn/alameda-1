@@ -44,12 +44,6 @@ type DeploymentReconciler struct {
 	ClusterUID string
 }
 
-// Reconcile reads that state of the cluster for a Deployment object and makes changes based on the state read
-// and what is in the Deployment.Spec
-// TODO(user): Modify this Reconcile function to implement your Controller logic.  The scaffolding writes
-// a Deployment as an example
-// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get;update;patch
 func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	requeueDuration := 1 * time.Second
 	getResource := utilsresource.NewGetResource(r)
@@ -119,6 +113,8 @@ func (r *DeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 			if err != nil && !k8sErrors.IsNotFound(err) {
 				scope.Errorf("Get last monitoring AlamedaScaler falied: %s", err.Error())
 				return ctrl.Result{Requeue: true, RequeueAfter: requeueDuration}, nil
+			} else if k8sErrors.IsNotFound(err) {
+				return ctrl.Result{Requeue: false}, nil
 			}
 			if lastMonitorAlamedaScaler != nil {
 				err := controllerutil.TriggerAlamedaScaler(updateResource, lastMonitorAlamedaScaler)
