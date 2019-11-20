@@ -106,8 +106,8 @@ func (r *ClusterCPURepository) read(ctx context.Context, request DaoMetricTypes.
 	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-
 	cmd := statement.BuildQueryCmd()
+
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.ClusterMetricMap{}, errors.Wrap(err, "query influxdb failed")

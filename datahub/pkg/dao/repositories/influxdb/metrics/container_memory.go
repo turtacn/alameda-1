@@ -98,8 +98,8 @@ func (r *ContainerMemoryRepository) read(request DaoMetricTypes.ListPodMetricsRe
 		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
-	statement.AppendWhereClauseFromTimeCondition()
 	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
+	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -152,8 +152,8 @@ func (r *ContainerMemoryRepository) steps(request DaoMetricTypes.ListPodMetricsR
 		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
-	statement.AppendWhereClauseFromTimeCondition()
 	statement.AppendWhereClause("AND", string(EntityInfluxMetric.ContainerRateRange), "=", strconv.FormatInt(request.RateRange, 10))
+	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ContainerValue))

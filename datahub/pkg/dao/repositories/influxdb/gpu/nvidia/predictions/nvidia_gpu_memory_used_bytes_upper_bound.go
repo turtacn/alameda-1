@@ -84,12 +84,12 @@ func (r *MemoryUsedBytesUpperBoundRepository) ListPredictions(host, minorNumber,
 		GroupByTags:    []string{"host", "uuid"},
 	}
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesHost, "=", host)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesMinorNumber, "=", minorNumber)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesModelId, "=", modelId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesPredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.MemoryUsedBytesGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

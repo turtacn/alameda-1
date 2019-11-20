@@ -274,7 +274,6 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 
@@ -341,7 +340,6 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 	scope.Debugf(fmt.Sprintf("ListContainerRecommendations: %s", cmd))
 

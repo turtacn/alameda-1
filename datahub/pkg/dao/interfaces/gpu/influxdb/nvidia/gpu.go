@@ -24,12 +24,12 @@ func (p Gpu) ListGpus(host, minorNumber string, condition *DBCommon.QueryConditi
 	gpus := make([]*DaoGpu.Gpu, 0)
 
 	queryCondition := &DBCommon.QueryCondition{
-		StartTime:      condition.StartTime,
-		EndTime:        condition.EndTime,
-		Timeout:        condition.Timeout,
-		StepTime:       condition.StepTime,
-		TimestampOrder: DBCommon.Desc,
-		Limit:          1,
+		StartTime:                 condition.StartTime,
+		EndTime:                   condition.EndTime,
+		Timeout:                   condition.Timeout,
+		StepTime:                  condition.StepTime,
+		TimestampOrder:            DBCommon.Desc,
+		Limit:                     1,
 		AggregateOverTimeFunction: DBCommon.None,
 	}
 

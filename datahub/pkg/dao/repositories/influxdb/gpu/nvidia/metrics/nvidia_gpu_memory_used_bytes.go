@@ -39,9 +39,9 @@ func (r *MemoryUsedBytesRepository) read(host, minorNumber string, condition *DB
 		GroupByTags:    []string{"host"},
 	}
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause("AND", "host", "=", host)
 	influxdbStatement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()
@@ -120,9 +120,9 @@ func (r *MemoryUsedBytesRepository) last(host, minorNumber string, condition *DB
 		GroupByTags:    []string{"uuid"},
 	}
 
-	statement.AppendWhereClauseFromTimeCondition()
 	statement.AppendWhereClause("AND", "host", "=", host)
 	statement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
+	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -140,9 +140,9 @@ func (r *MemoryUsedBytesRepository) max(host, minorNumber string, condition *DBC
 		GroupByTags:    []string{"uuid", groupTag},
 	}
 
-	statement.AppendWhereClauseFromTimeCondition()
 	statement.AppendWhereClause("AND", "host", "=", host)
 	statement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
+	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", "")

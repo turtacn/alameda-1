@@ -84,12 +84,12 @@ func (r *TemperatureCelsiusRepository) ListPredictions(host, minorNumber, modelI
 		GroupByTags:    []string{"host", "uuid"},
 	}
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusHost, "=", host)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusMinorNumber, "=", minorNumber)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusModelId, "=", modelId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusPredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.TemperatureCelsiusGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

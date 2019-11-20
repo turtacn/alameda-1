@@ -84,12 +84,12 @@ func (r *DutyCycleLowerBoundRepository) ListPredictions(host, minorNumber, model
 		GroupByTags:    []string{"host", "uuid"},
 	}
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleHost, "=", host)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleMinorNumber, "=", minorNumber)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleModelId, "=", modelId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCyclePredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.DutyCycleGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

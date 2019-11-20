@@ -110,8 +110,8 @@ func (r *NamespaceCPURepository) read(ctx context.Context, request DaoMetricType
 	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-
 	cmd := statement.BuildQueryCmd()
+
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.NamespaceMetricMap{}, errors.Wrap(err, "query influxdb failed")

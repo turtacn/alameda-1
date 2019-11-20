@@ -84,12 +84,12 @@ func (r *PowerUsageMilliWattsUpperBoundRepository) ListPredictions(host, minorNu
 		GroupByTags:    []string{"host", "uuid"},
 	}
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsHost, "=", host)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsMinorNumber, "=", minorNumber)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsModelId, "=", modelId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsPredictionId, "=", predictionId)
 	influxdbStatement.AppendWhereClause("AND", EntityInfluxGpuPrediction.PowerUsageMilliWattsGranularity, "=", granularity)
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()

@@ -107,7 +107,6 @@ func (e *EventRepository) ListEvents(in *ApiEvents.ListEventsRequest) ([]*ApiEve
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 
 	results, err := e.influxDB.QueryDB(cmd, string(RepoInflux.Event))

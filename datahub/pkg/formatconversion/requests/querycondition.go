@@ -61,11 +61,11 @@ func (d QueryConditionExtend) QueryCondition() DBCommon.QueryCondition {
 	}
 
 	queryCondition = DBCommon.QueryCondition{
-		StartTime:      queryStartTime,
-		EndTime:        queryEndTime,
-		StepTime:       queryStepTime,
-		TimestampOrder: queryTimestampOrder,
-		Limit:          queryLimit,
+		StartTime:                 queryStartTime,
+		EndTime:                   queryEndTime,
+		StepTime:                  queryStepTime,
+		TimestampOrder:            queryTimestampOrder,
+		Limit:                     queryLimit,
 		AggregateOverTimeFunction: aggregateFunc,
 	}
 

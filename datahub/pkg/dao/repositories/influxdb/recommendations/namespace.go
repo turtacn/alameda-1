@@ -129,7 +129,6 @@ func (c *NamespaceRepository) ListRecommendations(in *ApiRecommendations.ListNam
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Recommendation))

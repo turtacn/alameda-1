@@ -133,7 +133,6 @@ func (c *ControllerRepository) ListControllerRecommendations(in *ApiRecommendati
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Recommendation))

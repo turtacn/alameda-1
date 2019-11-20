@@ -38,9 +38,9 @@ func (r *DutyCycleRepository) read(host, minorNumber string, condition *DBCommon
 		GroupByTags:    []string{"host", "uuid"},
 	}
 
-	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.AppendWhereClause("AND", "host", "=", host)
 	influxdbStatement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
+	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
 	cmd := influxdbStatement.BuildQueryCmd()
@@ -119,9 +119,9 @@ func (r *DutyCycleRepository) last(host, minorNumber string, condition *DBCommon
 		GroupByTags:    []string{"uuid"},
 	}
 
-	statement.AppendWhereClauseFromTimeCondition()
 	statement.AppendWhereClause("AND", "host", "=", host)
 	statement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
+	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
@@ -139,9 +139,9 @@ func (r *DutyCycleRepository) max(host, minorNumber string, condition *DBCommon.
 		GroupByTags:    []string{"uuid", groupTag},
 	}
 
-	statement.AppendWhereClauseFromTimeCondition()
 	statement.AppendWhereClause("AND", "host", "=", host)
 	statement.AppendWhereClause("AND", "minor_number", "=", minorNumber)
+	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
 	statement.SetFunction(InternalInflux.Select, "MAX", "")

@@ -129,7 +129,6 @@ func (c *ClusterRepository) ListRecommendations(in *ApiRecommendations.ListClust
 	influxdbStatement.AppendWhereClauseFromTimeCondition()
 	influxdbStatement.SetOrderClauseFromQueryCondition()
 	influxdbStatement.SetLimitClauseFromQueryCondition()
-
 	cmd := influxdbStatement.BuildQueryCmd()
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Recommendation))
