@@ -74,44 +74,6 @@ and gpu as **_host/minor number/granularity_**.
 
 # Metrics Export
 
-We export some metrics to prometheus server to evaluate drift performance. Metrics exported are model time, total model time,
+We export some metrics to prometheus server to evaluate drift performance. [Metrics exported](https://github.com/containers-ai/alameda/blob/master/ai-dispatcher/docs/alameda-ai-dispatcher-metrics.md#list-of-metrics-exported-by-alameda-ai-dispatcher) are model time, total model time,
 MAPE, RMSE, and total drift time. Ensure service monitoring is applied as the
 [tutorial](https://github.com/containers-ai/federatorai-operator/blob/master/docs/setmetrics.md#apply-ai-dispatcher-service-monitoring).
-
-Metric Name                                            | Type      | Labels
--------------------------------------------------------|-----------|-----------------------------------------------------------------|
-alameda_ai_dispatcher_pod_model_seconds                | Gauge     | namespace, name, data_granularity                               |
-alameda_ai_dispatcher_pod_model_seconds_total          | Counter   | namespace, name, data_granularity                               |
-alameda_ai_dispatcher_container_metric_mape            | Gauge     | pod_namespace, pod_name, name, metric_type, data_granularity    |
-alameda_ai_dispatcher_container_metric_rmse            | Gauge     | pod_namespace, pod_name, name, metric_type, data_granularity    |
-alameda_ai_dispatcher_pod_metric_drift_total           | Counter   | namespace, name, data_granularity                               |
-alameda_ai_dispatcher_node_model_seconds               | Gauge     | name, data_granularity                                          |
-alameda_ai_dispatcher_node_model_seconds_total         | Counter   | name, data_granularity                                          |
-alameda_ai_dispatcher_node_metric_mape                 | Gauge     | name, metric_type, data_granularity                             |
-alameda_ai_dispatcher_node_metric_rmse                 | Gauge     | name, metric_type,data_granularity                              |
-alameda_ai_dispatcher_node_metric_drift_total          | Counter   | name, data_granularity                                          |
-alameda_ai_dispatcher_gpu_model_seconds                | Gauge     | host, minor_number, data_granularity                            |
-alameda_ai_dispatcher_gpu_model_seconds_total          | Counter   | host, minor_number, data_granularity                            |
-alameda_ai_dispatcher_gpu_metric_mape                  | Gauge     | host, minor_number, metric_type, data_granularity               |
-alameda_ai_dispatcher_gpu_metric_rmse                  | Gauge     | host, minor_number, metric_type, data_granularity               |
-alameda_ai_dispatcher_gpu_metric_drift_total           | Counter   | host, minor_number, data_granularity                            |
-alameda_ai_dispatcher_namespace_model_seconds          | Gauge     | name, data_granularity                                          |
-alameda_ai_dispatcher_namespace_model_seconds_total    | Counter   | name, data_granularity                                          |
-alameda_ai_dispatcher_namespace_metric_mape            | Gauge     | name, metric_type, data_granularity                             |
-alameda_ai_dispatcher_namespace_metric_rmse            | Gauge     | name, metric_type, data_granularity                             |
-alameda_ai_dispatcher_namespace_metric_drift_total     | Counter   | name, data_granularity                                          |
-alameda_ai_dispatcher_application_model_seconds        | Gauge     | namespace, name, data_granularity                               |
-alameda_ai_dispatcher_application_model_seconds_total  | Counter   | namespace, name, data_granularity                               |
-alameda_ai_dispatcher_application_metric_mape          | Gauge     | namespace, name, metric_type, data_granularity                  |
-alameda_ai_dispatcher_application_metric_rmse          | Gauge     | namespace, name, metric_type, data_granularity                  |
-alameda_ai_dispatcher_application_metric_drift_total   | Counter   | namespace, name, data_granularity                               |
-alameda_ai_dispatcher_cluster_model_seconds            | Gauge     | name, data_granularity                                          |
-alameda_ai_dispatcher_cluster_model_seconds_total      | Counter   | name, data_granularity                                          |
-alameda_ai_dispatcher_cluster_metric_mape              | Gauge     | name, metric_type, data_granularity                             |
-alameda_ai_dispatcher_cluster_metric_rmse              | Gauge     | name, metric_type, data_granularity                             |
-alameda_ai_dispatcher_cluster_metric_drift_total       | Counter   | name, data_granularity                                          |
-alameda_ai_dispatcher_controller_model_seconds         | Gauge     | namespace, name, kind, data_granularity                         |
-alameda_ai_dispatcher_controller_model_seconds_total   | Counter   | namespace, name, kind, data_granularity                         |
-alameda_ai_dispatcher_controller_metric_mape           | Gauge     | namespace, name, kind, metric_type, data_granularity            |
-alameda_ai_dispatcher_controller_metric_rmse           | Gauge     | namespace, name, kind, metric_type, data_granularity            |
-alameda_ai_dispatcher_controller_metric_drift_total    | Counter   | namespace, name, kind, data_granularity                         |
