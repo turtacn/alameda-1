@@ -23,7 +23,7 @@
 
 - metric name: alameda_ai_dispatcher_pod_metric_drift_total
   - type: counter
-  - description: This metric shows how many times drifts that a pod encountered. Since a pod may contains multiple containers and a container may have multiple workloads to model, we increase the counting number once any of the above models are drifted
+  - description: This metric shows how many times drifts that a pod encountered. Since a pod may contain multiple containers and a container may have multiple workloads to model, we increase the counting number once any of the above models are drifted
   - labels: The following labels are used to tag this metric that which pod it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target pod
@@ -39,7 +39,7 @@
 
 - metric name: alameda_ai_dispatcher_pod_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far on waiting for remodeling requests beening completed
+  - description: This metric shows how many seconds have been spent so far on waiting for remodeling requests being completed
   - labels: The following labels are used to tag this metric that which pod it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target pod
@@ -77,7 +77,7 @@
 
 - metric name: alameda_ai_dispatcher_node_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far to wait for remodeling requests are completed
+  - description: This metric shows how many seconds have been spent so far to wait for remodeling requests are completed
   - labels: The following labels are used to tag this metric that which node it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target node
@@ -118,7 +118,7 @@
 
 - metric name: alameda_ai_dispatcher_gpu_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far to wait for remodeling requests are completed
+  - description: This metric shows how many seconds have been spent so far to wait for remodeling requests are completed
   - labels: The following labels are used to tag this metric that which gpu it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - host: The host of the target gpu
@@ -156,7 +156,7 @@
 
 - metric name: alameda_ai_dispatcher_namespace_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far to wait for remodeling requests are completed
+  - description: This metric shows how many seconds have been spent so far to wait for remodeling requests are completed
   - labels: The following labels are used to tag this metric that which namespace it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target namespace
@@ -197,7 +197,7 @@
 
 - metric name: alameda_ai_dispatcher_application_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far to wait for remodeling requests are completed
+  - description: This metric shows how many seconds have been spent so far to wait for remodeling requests are completed
   - labels: The following labels are used to tag this metric that which application it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target application
@@ -235,7 +235,7 @@
 
 - metric name: alameda_ai_dispatcher_cluster_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far to wait for remodeling requests are completed
+  - description: This metric shows how many seconds have been spent so far to wait for remodeling requests are completed
   - labels: The following labels are used to tag this metric that which cluster it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target cluster
@@ -280,7 +280,7 @@
 
 - metric name: alameda_ai_dispatcher_controller_model_seconds_total
   - type: counter
-  - description: This metric shows how many seconds have been spended so far to wait for remodeling requests are completed
+  - description: This metric shows how many seconds have been spent so far to wait for remodeling requests are completed
   - labels: The following labels are used to tag this metric that which controller it is reporting
     - data_granularity: The granularity can be **30s**, **1h**, **6h**, or **24h**
     - name: The name of the target controller
