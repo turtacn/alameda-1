@@ -24,7 +24,6 @@ import (
 	datahub_client_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
 	utilsresource "github.com/containers-ai/alameda/operator/pkg/utils/resources"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	appsapi_v1 "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	appsv1 "k8s.io/api/apps/v1"
@@ -157,6 +156,6 @@ func (r *DeploymentReconciler) getMonitoringAlamedaScaler(namespace, name string
 
 func (r *DeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&appsapi_v1.DeploymentConfig{}).
+		For(&appsv1.Deployment{}).
 		Complete(r)
 }

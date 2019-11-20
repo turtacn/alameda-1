@@ -323,7 +323,8 @@ func main() {
 	scope.Info("Registering Components.")
 	datahubControllerRepo := datahub_client_controller.NewControllerRepository(datahubConn, clusterUID)
 	datahubPodRepo := datahub_client_pod.NewPodRepository(datahubConn, clusterUID)
-	// Setup Controllers
+
+	// ------------------------ Setup Controllers ------------------------
 	if err = (&controllers.AlamedaScalerReconciler{
 		Client:                 mgr.GetClient(),
 		Scheme:                 mgr.GetScheme(),
@@ -335,6 +336,7 @@ func main() {
 		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
+
 	if err = (&controllers.AlamedaRecommendationReconciler{
 		Client:        mgr.GetClient(),
 		Scheme:        mgr.GetScheme(),
@@ -354,6 +356,7 @@ func main() {
 		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
+
 	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); ok {
 		if err = (&controllers.DeploymentConfigReconciler{
 			Client:                mgr.GetClient(),
@@ -365,6 +368,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+
 	if err = (&controllers.NamespaceReconciler{
 		Client:               mgr.GetClient(),
 		Scheme:               mgr.GetScheme(),
@@ -374,13 +378,13 @@ func main() {
 		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
+
 	cloudprovider := ""
 	if provider.OnGCE() {
 		cloudprovider = provider.GCP
 	} else if provider.OnEC2() {
 		cloudprovider = provider.AWS
 	}
-
 	regionName := ""
 	switch cloudprovider {
 	case provider.AWS:
@@ -397,6 +401,7 @@ func main() {
 		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
+
 	if err = (&controllers.StatefulSetReconciler{
 		Client:                mgr.GetClient(),
 		Scheme:                mgr.GetScheme(),
@@ -406,6 +411,7 @@ func main() {
 		scope.Errorf(err.Error())
 		os.Exit(1)
 	}
+	// ------------------------ Setup Controllers ------------------------
 
 	setupWebhook(mgr)
 
