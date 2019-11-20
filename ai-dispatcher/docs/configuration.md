@@ -27,3 +27,5 @@ AI dispatcher specific environment variables are begin with token "ALAMEDA_AI_DI
 * ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_THRESHOLD: The threshold of RMSE to send predicted jobs.
 * ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MINIMUMDATAPOINTS: The minimum number of data points to evaluate prediction.
 * ALAMEDA_AI_DISPATCHER_HOURLYPREDICT: The flag of sending model and predicted jobs for granularity 30s except of VPA scaling tool.
+* ALAMEDA_AI_DISPATCHER_SERVICESETTING_GRANULARITIES: Granularity types can be sent to queue
+* ALAMEDA_AI_DISPATCHER_SERVICESETTING_PREDICTUNITS: Predict unit types can be sent to queue

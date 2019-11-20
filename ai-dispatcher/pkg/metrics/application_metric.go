@@ -10,31 +10,31 @@ var (
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "application_model_seconds",
 		Help:      "Target modeling time of application",
-	}, []string{"host", "minor_number", "data_granularity"})
+	}, []string{"namespace", "name", "data_granularity"})
 
 	applicationModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "application_model_seconds_total",
 		Help:      "Total target modeling time of application",
-	}, []string{"host", "minor_number", "data_granularity"})
+	}, []string{"namespace", "name", "data_granularity"})
 
 	applicationMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "application_metric_mape",
 		Help:      "MAPE of application metric",
-	}, []string{"host", "minor_number", "metric_type", "data_granularity"})
+	}, []string{"namespace", "name", "metric_type", "data_granularity"})
 
 	applicationRMSEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "application_metric_rmse",
 		Help:      "RMSE of application metric",
-	}, []string{"host", "minor_number", "metric_type", "data_granularity"})
+	}, []string{"namespace", "name", "metric_type", "data_granularity"})
 
 	applicationMetricDriftCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "application_metric_drift_total",
 		Help:      "Total number of application metric drift",
-	}, []string{"host", "minor_number", "data_granularity"})
+	}, []string{"namespace", "name", "data_granularity"})
 )
 
 type applicationMetric struct{}

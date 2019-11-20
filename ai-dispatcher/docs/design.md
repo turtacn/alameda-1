@@ -9,7 +9,8 @@ the pod with granularity 30s will be sent to queue every 30s. We can set environ
 
 # Drift Evaluation
 
-AI dispatcher tries to list all predicted targets (ex: pods, nodes, gpus) at startup and then sends their own jobs to queue.
+AI dispatcher tries to list all predicted targets (ex: pod, node, gpu, namespace, application, cluster,
+and controller) at startup and then sends their own jobs to queue.
 Due to model job is time wasting, we reuse training model by evaluating their predicted precision via MAPE or RMSE. If
 target has no fresh prediction or it's MAPE or MESE is greater than threshold, model job is sent to queue. **_ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MAPE_THRESHOLD_** and **_ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_THRESHOLD_** are
 environment variables used to set threshold of MAPE and RMSE. **Default evaluation policy is MAPE**, we can change
@@ -20,6 +21,14 @@ The more times model is reused, the larger _n_ is gotten. To prevent incorrect e
 value of _n_ to 5. This parameter is configurable by environment variable **_ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MINIMUMDATAPOINTS_**.
 
 ![Drift Evaluation](drift.png)
+
+# Job type sending customization
+
+We provide **_ALAMEDA_AI_DISPATCHER_SERVICESETTING_GRANULARITIES_** and
+**_ALAMEDA_AI_DISPATCHER_SERVICESETTING_PREDICTUNITS_** to control what kind of job can be sent. If users want to
+predict some targets with some granularties they are interested in (ex: application and namespace with granularities 30s and 1h),
+they can set **_ALAMEDA_AI_DISPATCHER_SERVICESETTING_GRANULARITIES="30s 1h"_** and
+**_ALAMEDA_AI_DISPATCHER_SERVICESETTING_PREDICTUNITS="APPLICATION NAMESPACE"_**.
 
 # MAPE and RMSE
 
@@ -46,14 +55,16 @@ with unit millicores, **_ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_M
 <img src="https://latex.codecogs.com/svg.latex?RMSE%20=%20\sqrt{\frac{\sum_{t=1}^n%20|\frac{p_t-m_t}{normalize}|^2}{n}}" title="RMSE" style="background-color: white; padding: 5px;" />
 
 Environment Variable                                                  | Default Value
-----------------------------------------------------------------------|----------------|
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MAPE_THRESHOLD                     | 15             |
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_THRESHOLD                     | 10             |
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_CURRENT                            | mape           |
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_CPU             | 1              |
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_MEMORY          | 1000000        |
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_DUTYCYCLE       | 0.2            |
-ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MINIMUMDATAPOINTS                  | 5              |
+----------------------------------------------------------------------|-------------------------------------------------------|
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MAPE_THRESHOLD                     | 15                                                    |
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_THRESHOLD                     | 10                                                    |
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_CURRENT                            | mape                                                  |
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_CPU             | 1                                                     |
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_MEMORY          | 1000000                                               |
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_DUTYCYCLE       | 0.2                                                   |
+ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MINIMUMDATAPOINTS                  | 5                                                     |
+ALAMEDA_AI_DISPATCHER_SERVICESETTING_GRANULARITIES                    | 30s 1h 6h 24h                                         |
+ALAMEDA_AI_DISPATCHER_SERVICESETTING_PREDICTUNITS                     | POD NODE GPU NAMESPACE APPLICATION CLUSTER CONTROLLER |
 
 # Deduplicate jobs in queue
 
@@ -67,20 +78,40 @@ We export some metrics to prometheus server to evaluate drift performance. Metri
 MAPE, RMSE, and total drift time. Ensure service monitoring is applied as the
 [tutorial](https://github.com/containers-ai/federatorai-operator/blob/master/docs/setmetrics.md#apply-ai-dispatcher-service-monitoring).
 
-Metric Name                                    | Type      | Labels
------------------------------------------------|-----------|--------------------------------------------------------------|
-alameda_ai_dispatcher_pod_model_seconds        | Gauge     | namespace, name, data_granularity                            |
-alameda_ai_dispatcher_pod_model_seconds_total  | Counter   | namespace, name, data_granularity                            |
-alameda_ai_dispatcher_container_metric_mape    | Gauge     | pod_namespace, pod_name, name, metric_type, data_granularity |
-alameda_ai_dispatcher_container_metric_rmse    | Gauge     | pod_namespace, pod_name, name, metric_type, data_granularity |
-alameda_ai_dispatcher_pod_metric_drift_total   | Counter   | namespace, name, data_granularity                            |
-alameda_ai_dispatcher_node_model_seconds       | Gauge     | name, data_granularity                                       |
-alameda_ai_dispatcher_node_model_seconds_total | Counter   | name, data_granularity                                       |
-alameda_ai_dispatcher_node_metric_mape         | Gauge     | name, metric_type, data_granularity                          |
-alameda_ai_dispatcher_node_metric_rmse         | Gauge     | name, metric_type,data_granularity                           |
-alameda_ai_dispatcher_node_metric_drift_total  | Counter   | name, data_granularity                                       |
-alameda_ai_dispatcher_gpu_model_seconds        | Gauge     | host, minor_number, data_granularity                         |
-alameda_ai_dispatcher_gpu_model_seconds_total  | Counter   | host, minor_number, data_granularity                         |
-alameda_ai_dispatcher_gpu_metric_mape          | Gauge     | host, minor_number, metric_type, data_granularity            |
-alameda_ai_dispatcher_gpu_metric_rmse          | Gauge     | host, minor_number, metric_type, data_granularity            |
-alameda_ai_dispatcher_gpu_metric_drift_total   | Counter   | host, minor_number, data_granularity                         |
+Metric Name                                            | Type      | Labels
+-------------------------------------------------------|-----------|-----------------------------------------------------------------|
+alameda_ai_dispatcher_pod_model_seconds                | Gauge     | namespace, name, data_granularity                               |
+alameda_ai_dispatcher_pod_model_seconds_total          | Counter   | namespace, name, data_granularity                               |
+alameda_ai_dispatcher_container_metric_mape            | Gauge     | pod_namespace, pod_name, name, metric_type, data_granularity    |
+alameda_ai_dispatcher_container_metric_rmse            | Gauge     | pod_namespace, pod_name, name, metric_type, data_granularity    |
+alameda_ai_dispatcher_pod_metric_drift_total           | Counter   | namespace, name, data_granularity                               |
+alameda_ai_dispatcher_node_model_seconds               | Gauge     | name, data_granularity                                          |
+alameda_ai_dispatcher_node_model_seconds_total         | Counter   | name, data_granularity                                          |
+alameda_ai_dispatcher_node_metric_mape                 | Gauge     | name, metric_type, data_granularity                             |
+alameda_ai_dispatcher_node_metric_rmse                 | Gauge     | name, metric_type,data_granularity                              |
+alameda_ai_dispatcher_node_metric_drift_total          | Counter   | name, data_granularity                                          |
+alameda_ai_dispatcher_gpu_model_seconds                | Gauge     | host, minor_number, data_granularity                            |
+alameda_ai_dispatcher_gpu_model_seconds_total          | Counter   | host, minor_number, data_granularity                            |
+alameda_ai_dispatcher_gpu_metric_mape                  | Gauge     | host, minor_number, metric_type, data_granularity               |
+alameda_ai_dispatcher_gpu_metric_rmse                  | Gauge     | host, minor_number, metric_type, data_granularity               |
+alameda_ai_dispatcher_gpu_metric_drift_total           | Counter   | host, minor_number, data_granularity                            |
+alameda_ai_dispatcher_namespace_model_seconds          | Gauge     | name, data_granularity                                          |
+alameda_ai_dispatcher_namespace_model_seconds_total    | Counter   | name, data_granularity                                          |
+alameda_ai_dispatcher_namespace_metric_mape            | Gauge     | name, metric_type, data_granularity                             |
+alameda_ai_dispatcher_namespace_metric_rmse            | Gauge     | name, metric_type, data_granularity                             |
+alameda_ai_dispatcher_namespace_metric_drift_total     | Counter   | name, data_granularity                                          |
+alameda_ai_dispatcher_application_model_seconds        | Gauge     | namespace, name, data_granularity                               |
+alameda_ai_dispatcher_application_model_seconds_total  | Counter   | namespace, name, data_granularity                               |
+alameda_ai_dispatcher_application_metric_mape          | Gauge     | namespace, name, metric_type, data_granularity                  |
+alameda_ai_dispatcher_application_metric_rmse          | Gauge     | namespace, name, metric_type, data_granularity                  |
+alameda_ai_dispatcher_application_metric_drift_total   | Counter   | namespace, name, data_granularity                               |
+alameda_ai_dispatcher_cluster_model_seconds            | Gauge     | name, data_granularity                                          |
+alameda_ai_dispatcher_cluster_model_seconds_total      | Counter   | name, data_granularity                                          |
+alameda_ai_dispatcher_cluster_metric_mape              | Gauge     | name, metric_type, data_granularity                             |
+alameda_ai_dispatcher_cluster_metric_rmse              | Gauge     | name, metric_type, data_granularity                             |
+alameda_ai_dispatcher_cluster_metric_drift_total       | Counter   | name, data_granularity                                          |
+alameda_ai_dispatcher_controller_model_seconds         | Gauge     | namespace, name, kind, data_granularity                         |
+alameda_ai_dispatcher_controller_model_seconds_total   | Counter   | namespace, name, kind, data_granularity                         |
+alameda_ai_dispatcher_controller_metric_mape           | Gauge     | namespace, name, kind, metric_type, data_granularity            |
+alameda_ai_dispatcher_controller_metric_rmse           | Gauge     | namespace, name, kind, metric_type, data_granularity            |
+alameda_ai_dispatcher_controller_metric_drift_total    | Counter   | namespace, name, kind, data_granularity                         |
