@@ -24,6 +24,12 @@ import (
 	"os"
 	"strings"
 
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+
 	"github.com/containers-ai/alameda/operator"
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	"github.com/containers-ai/alameda/operator/controllers"
@@ -40,12 +46,8 @@ import (
 	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
-	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+
 	osappsapi "github.com/openshift/api/apps/v1"
-	"github.com/pkg/errors"
-	"github.com/spf13/viper"
-	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -201,6 +203,61 @@ func initClusterUID() error {
 	return nil
 }
 
+func setupWebhook(mgr manager.Manager) error {
+
+	scope.Info("Setting up webhooks")
+	vr := &validate.ResourceValidate{}
+	if err := (&autoscalingv1alpha1.AlamedaScaler{
+		Validate: vr,
+	}).SetupWebhookWithManager(mgr); err != nil {
+		scope.Errorf(err.Error())
+		os.Exit(1)
+	}
+
+	whSrv := mgr.GetWebhookServer()
+	deploymentValidatingHook := &webhook.Admission{
+		Handler: admission.HandlerFunc(func(ctx context.Context,
+			req webhook.AdmissionRequest) webhook.AdmissionResponse {
+			decoder, err := admission.NewDecoder(scheme)
+			if err != nil {
+				scope.Errorf("new decoder failed %s", err.Error())
+				return webhook.Denied(err.Error())
+			}
+			return op_webhook.HandleDeployment(decoder, mgr.GetClient(), ctx, req)
+		}),
+	}
+
+	if viper.IsSet("k8sWebhookServer.admissionPaths.validateDeployment") {
+		whSrv.Register(
+			viper.GetString("k8sWebhookServer.admissionPaths.validateDeployment"),
+			deploymentValidatingHook)
+	}
+
+	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); ok {
+		if viper.IsSet("k8sWebhookServer.admissionPaths.validateDeploymentConfig") {
+			deploymentConfigValidatingHook := &webhook.Admission{
+				Handler: admission.HandlerFunc(func(ctx context.Context,
+					req webhook.AdmissionRequest) webhook.AdmissionResponse {
+					decoder, err := admission.NewDecoder(scheme)
+					if err != nil {
+						scope.Errorf("new decoder failed %s", err.Error())
+						return webhook.Denied(err.Error())
+					}
+					return op_webhook.HandleDeploymentConfig(decoder, mgr.GetClient(), ctx, req)
+				}),
+			}
+			whSrv.Register(
+				viper.GetString("k8sWebhookServer.admissionPaths.validateDeploymentConfig"),
+				deploymentConfigValidatingHook)
+		}
+	}
+	if viper.IsSet("k8sWebhookServer.port") {
+		whSrv.Port = viper.GetInt("k8sWebhookServer.port")
+	}
+
+	return nil
+}
+
 func main() {
 	flag.Parse()
 	if showVer {
@@ -350,58 +407,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	scope.Info("Setting up webhooks")
-	vr := &validate.ResourceValidate{}
-	if err = (&autoscalingv1alpha1.AlamedaScaler{
-		Validate: vr,
-	}).SetupWebhookWithManager(mgr); err != nil {
-		scope.Errorf(err.Error())
-		os.Exit(1)
-	}
-
-	whSrv := mgr.GetWebhookServer()
-	deploymentValidatingHook := &webhook.Admission{
-		Handler: admission.HandlerFunc(func(ctx context.Context,
-			req webhook.AdmissionRequest) webhook.AdmissionResponse {
-			decoder, err := admission.NewDecoder(scheme)
-			if err != nil {
-				scope.Errorf("new decoder failed %s", err.Error())
-				return webhook.Denied(err.Error())
-			}
-			return op_webhook.HandleDeployment(decoder, mgr.GetClient(), ctx, req)
-		}),
-	}
-
-	if viper.IsSet("k8sWebhookServer.admissionPaths.validateDeployment") {
-		whSrv.Register(
-			viper.GetString("k8sWebhookServer.admissionPaths.validateDeployment"),
-			deploymentValidatingHook)
-	}
-
-	if ok, _ := utils.ServerHasOpenshiftAPIAppsV1(); ok {
-		if viper.IsSet("k8sWebhookServer.admissionPaths.validateDeploymentConfig") {
-			deploymentConfigValidatingHook := &webhook.Admission{
-				Handler: admission.HandlerFunc(func(ctx context.Context,
-					req webhook.AdmissionRequest) webhook.AdmissionResponse {
-					decoder, err := admission.NewDecoder(scheme)
-					if err != nil {
-						scope.Errorf("new decoder failed %s", err.Error())
-						return webhook.Denied(err.Error())
-					}
-					return op_webhook.HandleDeploymentConfig(decoder, mgr.GetClient(), ctx, req)
-				}),
-			}
-			whSrv.Register(
-				viper.GetString("k8sWebhookServer.admissionPaths.validateDeploymentConfig"),
-				deploymentConfigValidatingHook)
-		}
-	}
-	if viper.IsSet("k8sWebhookServer.port") {
-		whSrv.Port = viper.GetInt("k8sWebhookServer.port")
-	}
+	setupWebhook(mgr)
 
 	wg, ctx := errgroup.WithContext(context.Background())
-
 	wg.Go(
 		func() error {
 			// To use instance from return value of function mgr.GetClient(),
@@ -409,7 +417,7 @@ func main() {
 			ok := mgr.GetCache().WaitForCacheSync(ctx.Done())
 			if !ok {
 				scope.Error("Wait for cache synchronization failed")
-			} else {				
+			} else {
 				go syncResourcesWithDatahub(mgr.GetClient(),
 					datahubConn)
 			}
