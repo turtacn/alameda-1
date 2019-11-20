@@ -134,6 +134,7 @@ func (s *Server) InitInfluxdbDatabase() {
 		"alameda_gpu",
 		"alameda_gpu_prediction",
 		"alameda_metric",
+		"alameda_planning",
 		"alameda_prediction",
 		"alameda_recommendation",
 		"alameda_score",
