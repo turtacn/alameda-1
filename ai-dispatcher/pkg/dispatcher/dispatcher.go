@@ -176,7 +176,9 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 
 	} else if pdUnit == UnitTypePod {
 		res, err := datahubServiceClnt.ListPods(context.Background(),
-			&datahub_resources.ListPodsRequest{})
+			&datahub_resources.ListPodsRequest{
+				ScalingTool: datahub_resources.ScalingTool_VPA,
+			})
 		if err != nil {
 			scope.Errorf(
 				"List pods for model/predict job failed with granularity %v seconds. %s",

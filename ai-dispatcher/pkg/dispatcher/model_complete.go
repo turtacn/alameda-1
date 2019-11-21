@@ -100,6 +100,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 								Name:      podName,
 							},
 						},
+						ScalingTool: datahub_resources.ScalingTool_VPA,
 					})
 				if err == nil {
 					pods := res.GetPods()
