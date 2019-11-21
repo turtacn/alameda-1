@@ -608,17 +608,6 @@
           "refId": "C"
         },
         {
-          "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[30s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "30s",
-          "intervalFactor": 1,
-          "legendFormat": "Observation : CPU Usage",
-          "refId": "H"
-        },
-        {
           "alias": "Recommendation: CPU Limit",
           "datasource": "InfluxDB",
           "groupBy": [
@@ -706,7 +695,7 @@
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select * from\n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and 'Cluster' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(30s)),\n( select sum(value)from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(30s))",
+          "query": "select * from\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '30' and \"name\" =~ /^[[h_ns]]$/ and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and 'Cluster' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(30s)),\n( select sum(value)from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 1h and time <= now() + 15m and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(30s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1069,7 +1058,7 @@
           "measurement": "node_prediction",
           "orderByTime": "ASC",
           "policy": "node_prediction",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and 'Cluster' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(30s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '30' and \"name\" =~ /^[[h_ns]]$/ and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and 'Cluster' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(30s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '30' and \"metric\" = 'memory_usage_bytes' and time >= now() - 1h and time <= now() + 15m and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(30s))",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1195,13 +1184,6 @@
             ]
           ],
           "tags": []
-        },
-        {
-          "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[30s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[30s]))",
-          "interval": "30s",
-          "legendFormat": "Observation: Memory Usage",
-          "refId": "H"
         }
       ],
       "thresholds": [],
@@ -1567,14 +1549,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", resource_limit_cpu from ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and ('Application' = '$resource' or 'Namespace' = '$resource') group by \"name\" order by time desc limit 1), ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" = '$pod'  group by \"name\" order by time desc limit 1) where ('false' = '$preloader' or '' = '$preloader') order by time desc",
+        "definition": "select \"name\", resource_limit_cpu from ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and ('Application' = '$resource' or 'Namespace' = '$resource' or 'Cluster' = '$resource') group by \"name\" order by time desc limit 1), ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" = '$pod'  group by \"name\" order by time desc limit 1) where ('false' = '$preloader' or '' = '$preloader') order by time desc",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "pre_container",
         "options": [],
-        "query": "select \"name\", resource_limit_cpu from ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and ('Application' = '$resource' or 'Namespace' = '$resource') group by \"name\" order by time desc limit 1), ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" = '$pod'  group by \"name\" order by time desc limit 1) where ('false' = '$preloader' or '' = '$preloader') order by time desc",
+        "query": "select \"name\", resource_limit_cpu from ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" =~ /^[[h_pod]]$/ and ('Application' = '$resource' or 'Namespace' = '$resource' or 'Cluster' = '$resource') group by \"name\" order by time desc limit 1), ( select \"name\", resource_limit_cpu from alameda_cluster_status..container where \"namespace\" =~ /^[[h_ns]]$/ and \"pod_name\" = '$pod'  group by \"name\" order by time desc limit 1) where ('false' = '$preloader' or '' = '$preloader') order by time desc",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -1653,31 +1635,6 @@
         "name": "all_pod",
         "options": [],
         "query": "show tag values on alameda_cluster_status from pod with key = \"name\" where \"alameda_scaler_namespace\" =~ /^[[all_ns]]$/ and \"alameda_scaler_name\" =~ /^[[all_scaler]]$/",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from node with key = \"name\" where 'Cluster' = '$resource'",
-        "hide": 2,
-        "includeAll": true,
-        "label": null,
-        "multi": false,
-        "name": "node",
-        "options": [],
-        "query": "show tag values on alameda_cluster_status from node with key = \"name\" where 'Cluster' = '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
