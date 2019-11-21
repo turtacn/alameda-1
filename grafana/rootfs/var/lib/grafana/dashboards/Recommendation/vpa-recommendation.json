@@ -1249,11 +1249,6 @@
         "name": "resource",
         "options": [
           {
-            "selected": false,
-            "text": "Cluster",
-            "value": "Cluster"
-          },
-          {
             "selected": true,
             "text": "Application",
             "value": "Application"
@@ -1264,7 +1259,7 @@
             "value": "Container"
           }
         ],
-        "query": "Cluster, Application, Container",
+        "query": "Application, Container",
         "skipUrlSync": false,
         "type": "custom"
       },
