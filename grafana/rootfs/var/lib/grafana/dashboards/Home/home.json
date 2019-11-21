@@ -1204,7 +1204,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select alameda_scaler_name,enable_VPA from alameda_cluster_status..container where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+          "query": "select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
