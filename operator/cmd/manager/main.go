@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
@@ -38,6 +39,7 @@ import (
 	datahub_client_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
 	datahub_client_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	datahub_client_pod "github.com/containers-ai/alameda/operator/datahub/client/pod"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources/validate"
@@ -181,10 +183,19 @@ func initServerConfig(mgr *manager.Manager) {
 }
 
 func initThirdPartyClient() {
-	datahubConn, _ = grpc.Dial(operatorConf.Datahub.Address,
-		grpc.WithInsecure(), grpc.WithUnaryInterceptor(
-			grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(uint(3)))))
-	datahubClient = datahubv1alpha1.NewDatahubServiceClient(datahubConn)
+	for {
+		datahubConn, _ = grpc.Dial(operatorConf.Datahub.Address,
+			grpc.WithInsecure(), grpc.WithUnaryInterceptor(
+				grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(uint(3)))))
+		datahubClient = datahubv1alpha1.NewDatahubServiceClient(datahubConn)
+		_, err := datahubClient.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
+		if err == nil {
+			break
+		} else {
+			scope.Errorf("connect datahub failed on init: %s", err.Error())
+		}
+		time.Sleep(time.Duration(1) * time.Second)
+	}
 }
 
 func initClusterUID() error {
