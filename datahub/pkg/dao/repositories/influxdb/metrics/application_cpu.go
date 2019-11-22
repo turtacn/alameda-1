@@ -111,6 +111,7 @@ func (r *ApplicationCPURepository) read(ctx context.Context, request DaoMetricTy
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.AppMetricMap{}, errors.Wrap(err, "query influxdb failed")
@@ -164,6 +165,7 @@ func (r *ApplicationCPURepository) steps(ctx context.Context, request DaoMetricT
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ApplicationValue))
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.AppMetricMap{}, errors.Wrap(err, "query influxdb failed")

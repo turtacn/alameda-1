@@ -103,6 +103,7 @@ func (r *NodeCpuRepository) read(request DaoMetricTypes.ListNodeMetricsRequest) 
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return make([]*DaoMetricTypes.NodeMetric, 0), errors.Wrap(err, "failed to list node cpu metrics")
@@ -157,6 +158,7 @@ func (r *NodeCpuRepository) steps(request DaoMetricTypes.ListNodeMetricsRequest)
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.NodeValue))
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return make([]*DaoMetricTypes.NodeMetric, 0), errors.Wrap(err, "failed to list node cpu metrics")

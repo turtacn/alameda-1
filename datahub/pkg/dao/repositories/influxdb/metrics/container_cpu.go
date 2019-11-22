@@ -52,6 +52,7 @@ func (r *ContainerCpuRepository) CreateMetrics(metrics []*DaoMetricTypes.Contain
 				string(EntityInfluxMetric.ContainerName):         metricSample.ObjectMeta.Name,
 				string(EntityInfluxMetric.ContainerRateRange):    strconv.FormatInt(metricSample.RateRange, 10),
 				string(EntityInfluxMetric.ContainerClusterName):  metricSample.ObjectMeta.ClusterName,
+				string(EntityInfluxMetric.ContainerNodeName):     metricSample.ObjectMeta.NodeName,
 			}
 
 			// Pack influx fields
@@ -95,11 +96,13 @@ func (r *ContainerCpuRepository) read(request DaoMetricTypes.ListPodMetricsReque
 		QueryCondition: &request.QueryCondition,
 		Measurement:    ContainerCpu,
 		GroupByTags: []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName), string(EntityInfluxMetric.ContainerRateRange),
-			string(EntityInfluxMetric.ContainerClusterName)},
+			string(EntityInfluxMetric.ContainerClusterName), string(EntityInfluxMetric.ContainerNodeName)},
 	}
 
 	for _, objectMeta := range request.ObjectMetas {
-		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		keyList := []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerClusterName), string(EntityInfluxMetric.ContainerNodeName)}
+		valueList := []string{objectMeta.Namespace, objectMeta.Name, objectMeta.ClusterName, objectMeta.NodeName}
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
 		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
@@ -109,6 +112,7 @@ func (r *ContainerCpuRepository) read(request DaoMetricTypes.ListPodMetricsReque
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return make([]*DaoMetricTypes.ContainerMetric, 0), errors.Wrap(err, "failed to list container cpu metrics")
@@ -124,6 +128,7 @@ func (r *ContainerCpuRepository) read(request DaoMetricTypes.ListPodMetricsReque
 			containerMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.ContainerName)]
 			containerMetric.RateRange = request.RateRange
 			containerMetric.ObjectMeta.ClusterName = group.Tags[string(EntityInfluxMetric.ContainerClusterName)]
+			containerMetric.ObjectMeta.NodeName = group.Tags[string(EntityInfluxMetric.ContainerNodeName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -148,12 +153,14 @@ func (r *ContainerCpuRepository) steps(request DaoMetricTypes.ListPodMetricsRequ
 		QueryCondition: &request.QueryCondition,
 		Measurement:    ContainerCpu,
 		SelectedFields: []string{string(EntityInfluxMetric.ContainerValue)},
-		GroupByTags: []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName), groupByTime,
-			string(EntityInfluxMetric.ContainerClusterName)},
+		GroupByTags: []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerName),
+			string(EntityInfluxMetric.ContainerClusterName), string(EntityInfluxMetric.ContainerNodeName), groupByTime},
 	}
 
 	for _, objectMeta := range request.ObjectMetas {
-		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		keyList := []string{string(EntityInfluxMetric.ContainerPodNamespace), string(EntityInfluxMetric.ContainerPodName), string(EntityInfluxMetric.ContainerClusterName), string(EntityInfluxMetric.ContainerNodeName)}
+		valueList := []string{objectMeta.Namespace, objectMeta.Name, objectMeta.ClusterName, objectMeta.NodeName}
+		condition := statement.GenerateCondition(keyList, valueList, "AND")
 		statement.AppendWhereClauseDirectly("OR", condition)
 	}
 
@@ -164,6 +171,7 @@ func (r *ContainerCpuRepository) steps(request DaoMetricTypes.ListPodMetricsRequ
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ContainerValue))
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return make([]*DaoMetricTypes.ContainerMetric, 0), errors.Wrap(err, "failed to list container cpu metrics")
@@ -179,6 +187,7 @@ func (r *ContainerCpuRepository) steps(request DaoMetricTypes.ListPodMetricsRequ
 			containerMetric.ObjectMeta.Name = group.Tags[string(EntityInfluxMetric.ContainerName)]
 			containerMetric.RateRange = request.RateRange
 			containerMetric.ObjectMeta.ClusterName = group.Tags[string(EntityInfluxMetric.ContainerClusterName)]
+			containerMetric.ObjectMeta.NodeName = group.Tags[string(EntityInfluxMetric.ContainerNodeName)]
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {

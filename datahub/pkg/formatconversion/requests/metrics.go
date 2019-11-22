@@ -257,7 +257,7 @@ func (r *CreatePodMetricsRequestExtended) ProduceMetrics() DaoMetricTypes.PodMet
 
 		for _, container := range pod.GetContainerMetrics() {
 			containerMetric := DaoMetricTypes.NewContainerMetric()
-			containerMetric.ObjectMeta.Namespace = podMetric.ObjectMeta.Namespace
+			containerMetric.ObjectMeta.ObjectMeta = NewObjectMeta(pod.GetObjectMeta())
 			containerMetric.ObjectMeta.PodName = podMetric.ObjectMeta.Name
 			containerMetric.ObjectMeta.Name = container.GetName()
 			containerMetric.RateRange = rateRange

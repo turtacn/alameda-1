@@ -108,6 +108,7 @@ func (r *ClusterMemoryRepository) read(ctx context.Context, request DaoMetricTyp
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.ClusterMetricMap{}, errors.Wrap(err, "query influxdb failed")
@@ -158,6 +159,7 @@ func (r *ClusterMemoryRepository) steps(ctx context.Context, request DaoMetricTy
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ClusterValue))
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.ClusterMetricMap{}, errors.Wrap(err, "query influxdb failed")

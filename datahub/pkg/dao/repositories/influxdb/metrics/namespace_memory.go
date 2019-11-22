@@ -112,6 +112,7 @@ func (r *NamespaceMemoryRepository) read(ctx context.Context, request DaoMetricT
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.NamespaceMetricMap{}, errors.Wrap(err, "query influxdb failed")
@@ -166,6 +167,7 @@ func (r *NamespaceMemoryRepository) steps(ctx context.Context, request DaoMetric
 	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.NamespaceValue))
 	cmd := statement.BuildQueryCmd()
 
+	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)
 	response, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Metric))
 	if err != nil {
 		return DaoMetricTypes.NamespaceMetricMap{}, errors.Wrap(err, "query influxdb failed")

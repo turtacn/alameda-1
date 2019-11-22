@@ -14,15 +14,16 @@ const (
 	ContainerName         influxdb.Tag = "name"
 	ContainerRateRange    influxdb.Tag = "rate_range"
 	ContainerClusterName  influxdb.Tag = "cluster_name"
+	ContainerNodeName     influxdb.Tag = "node_name"
 
 	ContainerValue influxdb.Field = "value"
 )
 
 var (
-	ContainerTags    = []influxdb.Tag{ContainerPodNamespace, ContainerPodName, ContainerName, ContainerClusterName}
+	ContainerTags    = []influxdb.Tag{ContainerPodNamespace, ContainerPodName, ContainerName, ContainerClusterName, ContainerNodeName}
 	ContainerFields  = []influxdb.Field{ContainerValue}
 	ContainerColumns = []string{string(ContainerPodNamespace), string(ContainerPodName), string(ContainerName), string(ContainerValue),
-		string(ContainerClusterName)}
+		string(ContainerClusterName), string(ContainerNodeName)}
 )
 
 type ContainerEntity struct {
@@ -32,6 +33,7 @@ type ContainerEntity struct {
 	Name        *string
 	RateRange   *string
 	ClusterName *string
+	NodeName    *string
 
 	Value *float64
 }
@@ -58,6 +60,9 @@ func NewContainerEntityFromMap(data map[string]string) ContainerEntity {
 	}
 	if valueStr, exist := data[string(ContainerClusterName)]; exist {
 		entity.ClusterName = &valueStr
+	}
+	if valueStr, exist := data[string(ContainerNodeName)]; exist {
+		entity.NodeName = &valueStr
 	}
 
 	// InfluxDB fields
