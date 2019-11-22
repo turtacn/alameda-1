@@ -210,6 +210,9 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, k
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodName, objectMeta.Name))
 		}
+		if objectMeta.ClusterName != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodClusterName, objectMeta.ClusterName))
+		}
 	case ApiResources.Kind_DEPLOYMENT:
 		conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodTopControllerKind, ApiResources.Kind_name[int32(kind)]))
 		if objectMeta.Namespace != "" {
@@ -217,6 +220,9 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, k
 		}
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodTopControllerName, objectMeta.Name))
+		}
+		if objectMeta.ClusterName != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodClusterName, objectMeta.ClusterName))
 		}
 	case ApiResources.Kind_DEPLOYMENTCONFIG:
 		conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodTopControllerKind, ApiResources.Kind_name[int32(kind)]))
@@ -226,12 +232,18 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, k
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodTopControllerName, objectMeta.Name))
 		}
+		if objectMeta.ClusterName != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodClusterName, objectMeta.ClusterName))
+		}
 	case ApiResources.Kind_ALAMEDASCALER:
 		if objectMeta.Namespace != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalerNamespace, objectMeta.Namespace))
 		}
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalerName, objectMeta.Name))
+		}
+		if objectMeta.ClusterName != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodClusterName, objectMeta.ClusterName))
 		}
 	case ApiResources.Kind_STATEFULSET:
 		conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodTopControllerKind, ApiResources.Kind_name[int32(kind)]))
@@ -241,9 +253,19 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, k
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodTopControllerName, objectMeta.Name))
 		}
+		if objectMeta.ClusterName != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodClusterName, objectMeta.ClusterName))
+		}
 	default:
-		scope.Errorf("no matching kind(%s) while building influx statement, skip it", kind)
-		return ""
+		if objectMeta.Namespace != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodNamespace, objectMeta.Namespace))
+		}
+		if objectMeta.Name != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodName, objectMeta.Name))
+		}
+		if objectMeta.ClusterName != "" {
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodClusterName, objectMeta.ClusterName))
+		}
 	}
 
 	if len(conditions) > 0 {
