@@ -263,13 +263,13 @@ func (r *AlamedaScalerReconciler) syncDatahubControllersByAlamedaScaler(ctx cont
 
 func (r *AlamedaScalerReconciler) syncDatahubPodsByAlamedaScaler(ctx context.Context, alamedaScaler autoscalingv1alpha1.AlamedaScaler) error {
 
-	// When AlamedaScaler type is not vpa, delete all pods monitored by the AlamedaScaler from Datahub
-	if alamedaScaler.Spec.ScalingTool.Type != autoscalingv1alpha1.ScalingToolTypeVPA {
-		if err := r.deletePodsFromDatahubByAlamedaScaler(ctx, alamedaScaler.Namespace, alamedaScaler.Name); err != nil {
-			return errors.Wrap(err, "delete pods from Datahub by AlamedaScaler failed")
-		}
-		return nil
-	}
+	// // When AlamedaScaler type is not vpa, delete all pods monitored by the AlamedaScaler from Datahub
+	// if alamedaScaler.Spec.ScalingTool.Type != autoscalingv1alpha1.ScalingToolTypeVPA {
+	// 	if err := r.deletePodsFromDatahubByAlamedaScaler(ctx, alamedaScaler.Namespace, alamedaScaler.Name); err != nil {
+	// 		return errors.Wrap(err, "delete pods from Datahub by AlamedaScaler failed")
+	// 	}
+	// 	return nil
+	// }
 
 	// Create pods
 	if err := r.createPodsToDatahubByAlamedaScaler(context.TODO(), alamedaScaler); err != nil {
