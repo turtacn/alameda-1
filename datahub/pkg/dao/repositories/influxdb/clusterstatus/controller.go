@@ -39,13 +39,13 @@ func (c *ControllerRepository) CreateControllers(controllers []*DaoClusterTypes.
 			string(EntityInfluxCluster.ControllerNamespace):                  controller.ObjectMeta.Namespace,
 			string(EntityInfluxCluster.ControllerClusterName):                controller.ObjectMeta.ClusterName,
 			string(EntityInfluxCluster.ControllerUid):                        controller.ObjectMeta.Uid,
+			string(EntityInfluxCluster.ControllerKind):                       controller.Kind,
 			string(EntityInfluxCluster.ControllerAlamedaSpecScalerName):      controller.AlamedaControllerSpec.AlamedaScaler.Name,
 			string(EntityInfluxCluster.ControllerAlamedaSpecScalerNamespace): controller.AlamedaControllerSpec.AlamedaScaler.Namespace,
 		}
 
 		// Pack influx fields
 		fields := map[string]interface{}{
-			string(EntityInfluxCluster.ControllerKind):                       controller.Kind,
 			string(EntityInfluxCluster.ControllerReplicas):                   controller.Replicas,
 			string(EntityInfluxCluster.ControllerSpecReplicas):               controller.SpecReplicas,
 			string(EntityInfluxCluster.ControllerAlamedaSpecScalingTool):     controller.AlamedaControllerSpec.ScalingTool,

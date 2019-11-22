@@ -10,9 +10,9 @@ const (
 	ControllerNamespace                  influxdb.Tag   = "namespace"
 	ControllerClusterName                influxdb.Tag   = "cluster_name"
 	ControllerUid                        influxdb.Tag   = "uid"
+	ControllerKind                       influxdb.Tag   = "kind"
 	ControllerAlamedaSpecScalerName      influxdb.Tag   = "spec_name"
 	ControllerAlamedaSpecScalerNamespace influxdb.Tag   = "spec_namespace"
-	ControllerKind                       influxdb.Field = "kind"
 	ControllerReplicas                   influxdb.Field = "replicas"
 	ControllerSpecReplicas               influxdb.Field = "spec_replicas"
 	ControllerAlamedaSpecScalingTool     influxdb.Field = "spec_scaling_tool"
@@ -28,13 +28,13 @@ var (
 		ControllerNamespace,
 		ControllerClusterName,
 		ControllerUid,
+		ControllerKind,
 		ControllerAlamedaSpecScalerName,
 		ControllerAlamedaSpecScalerNamespace,
 	}
 
 	// ControllerFields is list of fields of alameda_controller_recommendation measurement
 	ControllerFields = []influxdb.Field{
-		ControllerKind,
 		ControllerReplicas,
 		ControllerSpecReplicas,
 		ControllerAlamedaSpecScalingTool,
@@ -48,9 +48,9 @@ var (
 		string(ControllerNamespace),
 		string(ControllerClusterName),
 		string(ControllerUid),
+		string(ControllerKind),
 		string(ControllerAlamedaSpecScalerName),
 		string(ControllerAlamedaSpecScalerNamespace),
-		string(ControllerKind),
 		string(ControllerReplicas),
 		string(ControllerSpecReplicas),
 		string(ControllerAlamedaSpecScalingTool),
