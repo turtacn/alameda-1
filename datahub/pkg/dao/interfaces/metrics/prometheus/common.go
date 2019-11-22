@@ -27,8 +27,8 @@ func filterObjectMetaByClusterUID(clusterUID string, objectMetas []metadata.Obje
 func listPodNamesRegExpByControllerObjectMetas(objectMetas []DaoMetricTypes.ControllerObjectMeta) ([]string, error) {
 
 	controllerKindToRegExpMap := map[string]string{
-		ApiResources.Kind_DEPLOYMENTCONFIG.String(): "%s-[0-9]{0,8}-.*",
-		ApiResources.Kind_DEPLOYMENT.String():       "%s-[0-9a-z]{10}-.*",
+		ApiResources.Kind_DEPLOYMENTCONFIG.String(): "%s-[0-9]{0,7}-[0-9a-z]*",
+		ApiResources.Kind_DEPLOYMENT.String():       "%s-[0-9a-z]{8,10}-[0-9a-z]*",
 		ApiResources.Kind_STATEFULSET.String():      "%s-[0-9]+",
 	}
 
