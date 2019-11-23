@@ -3,7 +3,7 @@ package eviction
 import (
 	"testing"
 
-	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/pkg/apis/autoscaling/v1alpha1"
+	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	"github.com/stretchr/testify/assert"
 )
 

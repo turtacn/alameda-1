@@ -8,7 +8,7 @@ import (
 )
 
 func (r *AlamedaScaler) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	r.mgr = mgr
+	r.Mgr = mgr
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
@@ -58,7 +58,7 @@ func (r *AlamedaScaler) ValidateDelete() error {
 
 // validateAlamedaScalersFn validate the given alamedaScalerLabeler
 func (r *AlamedaScaler) validateAlamedaScalersFn() (bool, error) {
-	clnt := r.mgr.GetClient()
+	clnt := r.Mgr.GetClient()
 	return r.Validate.IsScalerValid(&clnt, &autoscalingapi.ValidatingObject{
 		Namespace:           r.GetNamespace(),
 		Name:                r.GetName(),

@@ -16,17 +16,20 @@ all: manager
 
 # Run tests
 .PHONY: test
-test: generate fmt vet manifests
+#test: generate fmt vet manifests
+test: fmt vet manifests
 	go test ./... -coverprofile cover.out
 
 # Build manager binary
 .PHONY: manager
-manager: generate fmt vet
+#manager: generate fmt vet
+manager: fmt vet
 	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/manager github.com/containers-ai/alameda/operator/cmd/manager
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 .PHONY: run
-run: generate fmt vet manifests
+#run: generate fmt vet manifests
+run: fmt vet manifests
 	go run ./cmd/manager/main.go
 
 # Install CRDs into a cluster

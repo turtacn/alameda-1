@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	notifyingv1alpha1 "github.com/containers-ai/alameda/api/v1alpha1"
+	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"

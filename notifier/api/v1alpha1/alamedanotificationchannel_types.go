@@ -58,7 +58,7 @@ type AlamedaChannelTest struct {
 // +kubebuilder:resource:path=alamedanotificationchannels,scope=Cluster
 // AlamedaNotificationChannel is the Schema for the alamedanotificationchannels API
 type AlamedaNotificationChannel struct {
-	mgr ctrl.Manager `json:"-"`
+	Mgr ctrl.Manager `json:"-"`
 
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

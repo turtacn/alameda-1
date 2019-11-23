@@ -173,7 +173,7 @@ type AlamedaScalerStatus struct {
 // AlamedaScaler is the Schema for the alamedascalers API
 // +k8s:openapi-gen=true
 type AlamedaScaler struct {
-	mgr      ctrl.Manager                      `json:"-"`
+	Mgr      ctrl.Manager                      `json:"-"`
 	Validate apivalidate.AlamedaScalerValidate `json:"-"`
 
 	metav1.TypeMeta   `json:",inline"`

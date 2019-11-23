@@ -11,18 +11,21 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-all: manager
+all: notifier
 
 # Run tests
-test: generate fmt vet manifests
+#test: generate fmt vet manifests
+test: fmt vet manifests
 	go test ./... -coverprofile cover.out
 
-# Build manager binary
-manager: generate fmt vet
-	go build -o bin/manager main.go
+# Build notifier binary
+#notifier: generate fmt vet
+notifier: fmt vet
+	go build -ldflags "-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" -o bin/notifier github.com/containers-ai/alameda/notifier
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
-run: generate fmt vet
+#run: generate fmt vet
+run: fmt vet
 	go run ./main.go
 
 # Install CRDs into a cluster
@@ -31,12 +34,12 @@ install: manifests
 
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 deploy: manifests
-	cd config/manager && kustomize edit set image controller=${IMG}
+	cd config/notifier && kustomize edit set image controller=${IMG}
 	kustomize build config/default | kubectl apply -f -
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=notifier-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 # Run go fmt against code
 fmt:
@@ -54,8 +57,8 @@ generate: controller-gen
 #docker-build: test
 docker-build:
 	docker build .. -t ${IMG} -f Dockerfile.ubi
-	#@echo "updating kustomize image patch file for manager resource"
-	#sed -i'' -e 's@image: .*@image: '"${IMG}"'@' ./config/default/manager_image_patch.yaml
+	#@echo "updating kustomize image patch file for notifier resource"
+	#sed -i'' -e 's@image: .*@image: '"${IMG}"'@' ./config/default/notifier_image_patch.yaml
 
 # Push the docker image
 docker-push:

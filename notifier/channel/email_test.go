@@ -7,7 +7,7 @@ import (
 
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/utils"
-	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_events "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/events"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/spf13/viper"
 )
@@ -23,7 +23,7 @@ func Test_SendEmailBySMTP(t *testing.T) {
 		notificationChannel *notifyingv1alpha1.AlamedaNotificationChannel
 		To                  []string
 		Cc                  []string
-		Event               *datahub_v1alpha1.Event
+		Event               *datahub_events.Event
 		Attachments         map[string]string
 	}
 	tests := []struct {
@@ -49,18 +49,18 @@ func Test_SendEmailBySMTP(t *testing.T) {
 				},
 				To: []string{""},
 				Cc: []string{""},
-				Event: &datahub_v1alpha1.Event{
+				Event: &datahub_events.Event{
 					Time: &timestamp.Timestamp{
 						Seconds: time.Now().Unix(),
 					},
-					Source: &datahub_v1alpha1.EventSource{
+					Source: &datahub_events.EventSource{
 						Host:      "email warning host",
 						Component: "email warning component",
 					},
-					Type:    datahub_v1alpha1.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
-					Version: datahub_v1alpha1.EventVersion_EVENT_VERSION_V1,
-					Level:   datahub_v1alpha1.EventLevel_EVENT_LEVEL_WARNING,
-					Subject: &datahub_v1alpha1.K8SObjectReference{
+					Type:    datahub_events.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
+					Version: datahub_events.EventVersion_EVENT_VERSION_V1,
+					Level:   datahub_events.EventLevel_EVENT_LEVEL_WARNING,
+					Subject: &datahub_events.K8SObjectReference{
 						Kind:      "Pod",
 						Namespace: "federatorai",
 						Name:      "alameda-notifier-7d6b779c47-f6t7q",
@@ -92,18 +92,18 @@ func Test_SendEmailBySMTP(t *testing.T) {
 				},
 				To: []string{""},
 				Cc: []string{""},
-				Event: &datahub_v1alpha1.Event{
+				Event: &datahub_events.Event{
 					Time: &timestamp.Timestamp{
 						Seconds: time.Now().Unix(),
 					},
-					Source: &datahub_v1alpha1.EventSource{
+					Source: &datahub_events.EventSource{
 						Host:      "email warning host",
 						Component: "email warning component",
 					},
-					Type:    datahub_v1alpha1.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
-					Version: datahub_v1alpha1.EventVersion_EVENT_VERSION_V1,
-					Level:   datahub_v1alpha1.EventLevel_EVENT_LEVEL_WARNING,
-					Subject: &datahub_v1alpha1.K8SObjectReference{
+					Type:    datahub_events.EventType_EVENT_TYPE_EMAIL_NOTIFICATION,
+					Version: datahub_events.EventVersion_EVENT_VERSION_V1,
+					Level:   datahub_events.EventLevel_EVENT_LEVEL_WARNING,
+					Subject: &datahub_events.K8SObjectReference{
 						Kind:      "Pod",
 						Namespace: "federatorai",
 						Name:      "alameda-notifier-7d6b779c47-f6t7q",
@@ -131,7 +131,7 @@ func Test_SendEmailBySMTP(t *testing.T) {
 			from := tt.args.notificationChannel.Spec.Email.From
 			recipients := tt.args.To
 			ccs := tt.args.Cc
-			msgHTML := utils.EventHTMLMsg(tt.args.Event)
+			msgHTML := utils.EventHTMLMsg(tt.args.Event, &utils.ClusterInfo{})
 			attachments := tt.args.Attachments
 			emailClient := EmailClient{
 				client: got,

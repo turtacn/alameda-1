@@ -68,11 +68,11 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string) e
 			if retry == (publishRetryTime - 1) {
 				return err
 			}
+			time.Sleep(time.Duration(publishRetryIntervalMS) * time.Millisecond)
 			continue
 		} else {
 			return nil
 		}
-		time.Sleep(time.Duration(publishRetryIntervalMS) * time.Millisecond)
 	}
 	return fmt.Errorf("unknown error to send message to queue %s", queueName)
 }

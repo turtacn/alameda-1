@@ -2,6 +2,7 @@ package stats
 
 import (
 	"testing"
+	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 )
 
 func TestMAPE(t *testing.T) {
@@ -64,7 +65,7 @@ func TestMAPE(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := MAPE(tt.args.measurementDataSet)
+			got, err := MAPE(tt.args.measurementDataSet, 30)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MAPE() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -136,7 +137,7 @@ func TestRMSE(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := RMSE(tt.args.measurementDataSet)
+			got, err := RMSE(tt.args.measurementDataSet, datahub_common.MetricType_MEMORY_USAGE_BYTES, 30)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RMSE() error = %v, wantErr %v", err, tt.wantErr)
 				return

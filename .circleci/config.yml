@@ -2,50 +2,49 @@ version: 2
 jobs:
   build_operator:
     docker:
-      - image: circleci/golang:1.11.5
+      - image: circleci/golang:1.13
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
-      - checkout            
+      - checkout
       - run: cd /go/src/github.com/containers-ai/alameda/operator; make manager
   build_datahub:
     docker:
-      - image: circleci/golang:1.11.5
+      - image: circleci/golang:1.13
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
-      - checkout            
+      - checkout
       - run: cd /go/src/github.com/containers-ai/alameda/datahub; make datahub
-  install_kubebuilder:
+  build_evictioner:
     docker:
-      - image: circleci/golang:1.11.5
-    steps:
-      - run: curl -L -O https://github.com/kubernetes-sigs/kubebuilder/releases/download/v1.0.8/kubebuilder_1.0.8_linux_amd64.tar.gz
-      - run: tar -zxf kubebuilder_1.0.8_linux_amd64.tar.gz
-      - run: mv kubebuilder_1.0.8_linux_amd64 kubebuilder && sudo mv kubebuilder /usr/local/
-      - persist_to_workspace:
-          root: /usr/local
-          paths:
-            - kubebuilder/bin
-  test_operator:
-    docker:
-      - image: circleci/golang:1.11.5
-        user: root
+      - image: circleci/golang:1.13
     working_directory: /go/src/github.com/containers-ai/alameda
-    environment:
-      KUBEBUILDER_DIR: /usr/local/kubebuilder
-      KUBEBUILDER_DIR_WORKSPACE: /tmp/workspace/kubebuilder
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: if [ ! -d "$KUBEBUILDER_DIR" ];then mkdir -p $KUBEBUILDER_DIR;fi;cp -r $KUBEBUILDER_DIR_WORKSPACE/bin $KUBEBUILDER_DIR/bin
-      - run: echo 'export PATH=$KUBEBUILDER_DIR/bin:$PATH' >> ~/.bashrc 
-      - checkout 
-      - run: cd /go/src/github.com/containers-ai/alameda/operator;make test      
-      - run:
-          command: |
-            bash <(curl -s https://codecov.io/bash)
+      - checkout
+      - run: cd /go/src/github.com/containers-ai/alameda/evictioner; make evictioner
+  build_admission_controller:
+    docker:
+      - image: circleci/golang:1.13
+    working_directory: /go/src/github.com/containers-ai/alameda
+    steps:
+      - checkout
+      - run: cd /go/src/github.com/containers-ai/alameda/admission-controller; make admission-controller
+  build_ai_dispatcher:
+    docker:
+      - image: circleci/golang:1.13
+    working_directory: /go/src/github.com/containers-ai/alameda
+    steps:
+      - checkout
+      - run: cd /go/src/github.com/containers-ai/alameda/ai-dispatcher; make ai-dispatcher
+  build_notifier:
+    docker:
+      - image: circleci/golang:1.13
+    working_directory: /go/src/github.com/containers-ai/alameda
+    steps:
+      - checkout
+      - run: cd /go/src/github.com/containers-ai/alameda/notifier; make notifier
   test_datahub:
     docker:
-      - image: circleci/golang:1.11.5
+      - image: circleci/golang:1.13
         user: root
     working_directory: /go/src/github.com/containers-ai/alameda
     steps:
@@ -60,8 +59,8 @@ workflows:
     jobs:
       - build_operator
       - build_datahub
-      - install_kubebuilder
-      - test_operator:
-          requires:
-            - install_kubebuilder
+      - build_evictioner
+      - build_admission_controller
+      - build_ai_dispatcher
+      - build_notifier
       - test_datahub
