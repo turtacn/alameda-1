@@ -1,4 +1,4 @@
-hourlyPredict = true
+hourlyPredict = false
 
 [datahub]
 address = "datahub.alameda.svc.cluster.local:50050"
