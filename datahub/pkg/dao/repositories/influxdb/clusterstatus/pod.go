@@ -203,7 +203,7 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, k
 	conditions := make([]string, 0)
 
 	switch kind {
-	case ApiResources.Kind_POD:
+	case ApiResources.Kind_KIND_UNDEFINED:
 		if objectMeta.Namespace != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodNamespace, objectMeta.Namespace))
 		}

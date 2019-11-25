@@ -62,12 +62,8 @@ func (r *ListPodsRequestExtended) Validate() error {
 func (r *ListPodsRequestExtended) ProduceRequest() DaoClusterTypes.ListPodsRequest {
 	request := DaoClusterTypes.NewListPodsRequest()
 	request.QueryCondition = QueryConditionExtend{r.GetQueryCondition()}.QueryCondition()
-	if r.GetKind() != ApiResources.Kind_KIND_UNDEFINED {
-		request.Kind = r.GetKind().String()
-	}
-	if r.GetScalingTool() != ApiResources.ScalingTool_SCALING_TOOL_UNDEFINED {
-		request.ScalingTool = r.GetScalingTool().String()
-	}
+	request.Kind = r.GetKind().String()
+	request.ScalingTool = r.GetScalingTool().String()
 	if r.GetObjectMeta() != nil {
 		for _, meta := range r.GetObjectMeta() {
 			// Normalize request

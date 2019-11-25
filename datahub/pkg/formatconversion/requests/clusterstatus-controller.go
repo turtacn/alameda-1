@@ -2,6 +2,7 @@ package requests
 
 import (
 	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
@@ -33,6 +34,7 @@ func (r *ListControllersRequestExtended) Validate() error {
 
 func (r *ListControllersRequestExtended) ProduceRequest() DaoClusterTypes.ListControllersRequest {
 	request := DaoClusterTypes.NewListControllersRequest()
+	request.Kind = r.GetKind().String()
 	if r.GetObjectMeta() != nil {
 		for _, meta := range r.GetObjectMeta() {
 			// Normalize request
@@ -40,15 +42,11 @@ func (r *ListControllersRequestExtended) ProduceRequest() DaoClusterTypes.ListCo
 			objectMeta.NodeName = ""
 
 			if objectMeta.IsEmpty() {
-				request := DaoClusterTypes.NewListControllersRequest()
-				request.Kind = r.GetKind().String()
+				request.ObjectMeta = make([]Metadata.ObjectMeta, 0)
 				return request
 			}
 			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
 		}
-	}
-	if r.GetKind() != ApiResources.Kind_KIND_UNDEFINED {
-		request.Kind = r.GetKind().String()
 	}
 	return request
 }

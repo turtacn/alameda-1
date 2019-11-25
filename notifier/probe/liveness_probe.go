@@ -1,3 +1,3 @@
 package probe
 
-type LivenessProbeConfig struct {}
+type LivenessProbeConfig struct{}

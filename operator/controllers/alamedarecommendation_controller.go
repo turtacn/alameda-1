@@ -98,7 +98,7 @@ func (r *AlamedaRecommendationReconciler) Reconcile(req ctrl.Request) (ctrl.Resu
 				ClusterName: r.ClusterUID,
 			},
 		},
-		Kind: datahub_resources.Kind_POD,
+		Kind: datahub_resources.Kind_KIND_UNDEFINED,
 		QueryCondition: &datahub_common.QueryCondition{
 			TimeRange: &datahub_common.TimeRange{
 				EndTime: ptypes.TimestampNow(),

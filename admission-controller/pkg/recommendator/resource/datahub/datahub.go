@@ -22,13 +22,13 @@ import (
 var (
 	scope               = log.RegisterScope("resource-recommendator", "Datahub resource recommendator", 0)
 	k8sKind_DatahubKind = map[string]datahub_resources.Kind{
-		"Pod":              datahub_resources.Kind_POD,
+		"Undefined":        datahub_resources.Kind_KIND_UNDEFINED,
 		"Deployment":       datahub_resources.Kind_DEPLOYMENT,
 		"DeploymentConfig": datahub_resources.Kind_DEPLOYMENTCONFIG,
 		"StatefulSet":      datahub_resources.Kind_STATEFULSET,
 	}
 	datahubKind_K8SKind = map[datahub_resources.Kind]string{
-		datahub_resources.Kind_POD:              "Pod",
+		datahub_resources.Kind_KIND_UNDEFINED:   "Undefined",
 		datahub_resources.Kind_DEPLOYMENT:       "Deployment",
 		datahub_resources.Kind_DEPLOYMENTCONFIG: "DeploymentConfig",
 		datahub_resources.Kind_STATEFULSET:      "StatefulSet",

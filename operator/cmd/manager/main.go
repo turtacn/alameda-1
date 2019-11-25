@@ -39,7 +39,6 @@ import (
 	datahub_client_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
 	datahub_client_node "github.com/containers-ai/alameda/operator/datahub/client/node"
 	datahub_client_pod "github.com/containers-ai/alameda/operator/datahub/client/pod"
-	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/containers-ai/alameda/operator/pkg/probe"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
 	"github.com/containers-ai/alameda/operator/pkg/utils/resources/validate"
@@ -48,6 +47,7 @@ import (
 	k8sutils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 
 	osappsapi "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"

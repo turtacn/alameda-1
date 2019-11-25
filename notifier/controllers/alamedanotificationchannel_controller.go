@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"time"
 
-	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	notifyingv1alpha1 "github.com/containers-ai/alameda/notifier/api/v1alpha1"
 	"github.com/containers-ai/alameda/notifier/channel"
 	notifier_utils "github.com/containers-ai/alameda/notifier/utils"
+	k8s_utils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	k8sapierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"

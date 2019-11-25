@@ -14,7 +14,7 @@ type ValidationSvc struct {
 	SvcPort int32
 }
 
-func queryWebhookSvc(svcURL string) error {	
+func queryWebhookSvc(svcURL string) error {
 	curlCmd := exec.Command("curl", "-k", svcURL)
 
 	_, err := curlCmd.CombinedOutput()

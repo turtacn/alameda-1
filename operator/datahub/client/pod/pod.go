@@ -55,7 +55,7 @@ func (repo *PodRepository) ListAlamedaPods() ([]*datahub_resources.Pod, error) {
 				ClusterName: repo.clusterUID,
 			},
 		},
-		Kind: datahub_resources.Kind_POD,
+		Kind: datahub_resources.Kind_KIND_UNDEFINED,
 	}
 	resp, err := repo.datahubClient.ListPods(context.Background(), &req)
 	if err != nil {

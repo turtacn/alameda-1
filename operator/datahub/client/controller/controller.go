@@ -141,7 +141,7 @@ func (repo *ControllerRepository) ListControllersByApplication(ctx context.Conte
 // DeleteControllers delete controllers from datahub
 func (repo *ControllerRepository) DeleteControllers(ctx context.Context, arg interface{}, kindIf interface{}) error {
 	objMeta := []*datahub_resources.ObjectMeta{}
-	kind := datahub_resources.Kind_POD
+	kind := datahub_resources.Kind_KIND_UNDEFINED
 
 	switch v := arg.(type) {
 	case []*appsv1.Deployment:

@@ -247,7 +247,7 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 
 		nameCol := ""
 		switch kind {
-		case ApiResources.Kind_POD:
+		case ApiResources.Kind_KIND_UNDEFINED:
 			nameCol = string(EntityInfluxRecommend.ContainerPodName)
 		case ApiResources.Kind_DEPLOYMENT:
 			nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
@@ -262,7 +262,7 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 		keyList := []string{nameCol, EntityInfluxRecommend.ContainerGranularity}
 		valueList := []string{name, strconv.FormatInt(granularity, 10)}
 
-		if kind != ApiResources.Kind_POD {
+		if kind != ApiResources.Kind_KIND_UNDEFINED {
 			keyList = append(keyList, EntityInfluxRecommend.ContainerTopControllerKind)
 			valueList = append(valueList, kind.String())
 		}
@@ -307,7 +307,7 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 
 		nameCol := ""
 		switch kind {
-		case ApiResources.Kind_POD:
+		case ApiResources.Kind_KIND_UNDEFINED:
 			nameCol = string(EntityInfluxRecommend.ContainerPodName)
 		case ApiResources.Kind_DEPLOYMENT:
 			nameCol = string(EntityInfluxRecommend.ContainerTopControllerName)
@@ -328,7 +328,7 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 			fmt.Sprintf("\"%s\"<=%d", EntityInfluxRecommend.ContainerEndTime, applyTime),
 		}
 
-		if kind != ApiResources.Kind_POD {
+		if kind != ApiResources.Kind_KIND_UNDEFINED {
 			kindCondition := fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerTopControllerKind, kind.String())
 			conditionList = append(conditionList, kindCondition)
 		}

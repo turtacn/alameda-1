@@ -19,7 +19,7 @@ func GetNamespacedNameKey(namespace, name string) string {
 func ParseResourceLinkForTopController(resourceLink string) (*ApiResources.Controller, error) {
 	res := strings.Split(resourceLink, "/")
 	if len(res) >= 5 {
-		kind := ApiResources.Kind_POD
+		kind := ApiResources.Kind_KIND_UNDEFINED
 		switch res[3] {
 		case "deployments":
 			kind = ApiResources.Kind_DEPLOYMENT
@@ -28,7 +28,7 @@ func ParseResourceLinkForTopController(resourceLink string) (*ApiResources.Contr
 		case "statefulsets":
 			kind = ApiResources.Kind_STATEFULSET
 		default:
-			kind = ApiResources.Kind_POD
+			kind = ApiResources.Kind_KIND_UNDEFINED
 		}
 		return &ApiResources.Controller{
 			ObjectMeta: &ApiResources.ObjectMeta{

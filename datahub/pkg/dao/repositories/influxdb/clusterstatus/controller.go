@@ -86,10 +86,13 @@ func (c *ControllerRepository) ListControllers(request DaoClusterTypes.ListContr
 	// Build influx query command
 	for _, objectMeta := range request.ObjectMeta {
 		keyList := objectMeta.GenerateKeyList()
-		keyList = append(keyList, string(EntityInfluxCluster.ControllerKind))
 
 		valueList := objectMeta.GenerateValueList()
-		valueList = append(valueList, request.Kind)
+
+		if request.Kind != "" && request.Kind != ApiResources.Kind_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.ControllerKind))
+			valueList = append(valueList, request.Kind)
+		}
 
 		condition := statement.GenerateCondition(keyList, valueList, "AND")
 		statement.AppendWhereClauseDirectly("OR", condition)
