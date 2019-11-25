@@ -15,7 +15,6 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -39,11 +38,6 @@ func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, qu
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 
 	for _, pod := range pods {
-		if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
-			pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_VPA) {
-			continue
-		}
-
 		podNS := pod.GetObjectMeta().GetNamespace()
 		podName := pod.GetObjectMeta().GetName()
 		lastPredictionContainers, err := sender.getLastPrediction(datahubServiceClnt, pod, granularity)

@@ -15,7 +15,6 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -39,12 +38,6 @@ func (sender *applicationModelJobSender) sendModelJobs(applications []*datahub_r
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, application := range applications {
-		if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
-			application.GetAlamedaApplicationSpec().GetScalingTool() !=
-				datahub_resources.ScalingTool_VPA) {
-			continue
-		}
-
 		applicationNS := application.GetObjectMeta().GetNamespace()
 		applicationName := application.GetObjectMeta().GetName()
 

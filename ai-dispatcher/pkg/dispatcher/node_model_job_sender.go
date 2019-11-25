@@ -15,7 +15,6 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
@@ -39,10 +38,6 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, node := range nodes {
-		if granularity == 30 && !viper.GetBool("hourlyPredict") {
-			continue
-		}
-
 		nodeName := node.GetObjectMeta().GetName()
 		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, node, granularity)
 		if err != nil {

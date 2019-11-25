@@ -112,7 +112,7 @@ func (dispatcher *Dispatcher) dispatch(granularity string, predictionStep int64,
 		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
 		queueSender := queue.NewRabbitMQSender(queueConn)
 		for _, pdUnit := range dispatcher.svcPredictUnits {
-			if pdUnit == UnitTypeGPU && granularitySec != 3600 {
+			if dispatcher.skipJobSending(pdUnit, granularitySec) {
 				continue
 			}
 
@@ -186,7 +186,15 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			return
 		}
 
-		pods := res.GetPods()
+		pods := []*datahub_resources.Pod{}
+		for _, pod := range res.GetPods() {
+			if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
+				pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_VPA) {
+				continue
+			}
+			pods = append(pods, pod)
+		}
+
 		if queueJobType == "predictionJobSendIntervalSec" {
 			scope.Infof(
 				"Start sending %v pod prediction jobs to queue with granularity %v seconds.",
@@ -237,7 +245,15 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 				granularity, err.Error())
 			return
 		}
-		applications := res.GetApplications()
+		applications := []*datahub_resources.Application{}
+		for _, app := range res.GetApplications() {
+			if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
+				app.GetAlamedaApplicationSpec().GetScalingTool() !=
+					datahub_resources.ScalingTool_VPA) {
+				continue
+			}
+			applications = append(applications, app)
+		}
 		if queueJobType == "predictionJobSendIntervalSec" {
 			scope.Infof(
 				"Start sending %v application prediction jobs to queue with granularity %v seconds.",
@@ -316,7 +332,15 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 				granularity, err.Error())
 			return
 		}
-		controllers := res.GetControllers()
+		controllers := []*datahub_resources.Controller{}
+		for _, ctrl := range res.GetControllers() {
+			if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
+				ctrl.GetAlamedaControllerSpec().GetScalingTool() !=
+					datahub_resources.ScalingTool_VPA) {
+				continue
+			}
+			controllers = append(controllers, ctrl)
+		}
 		if queueJobType == "predictionJobSendIntervalSec" {
 			scope.Infof(
 				"Start sending %v controller prediction jobs to queue with granularity %v seconds.",
@@ -333,4 +357,13 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof("Sending %v controller jobs to queue completely with granularity %v seconds.",
 			len(controllers), granularity)
 	}
+}
+
+func (dispatcher *Dispatcher) skipJobSending(pdUnit string, granularitySec int64) bool {
+	if pdUnit == UnitTypeGPU && granularitySec != 3600 {
+		return true
+	}
+
+	return (pdUnit == UnitTypeNode || pdUnit == UnitTypeCluster || pdUnit == UnitTypeNamespace) &&
+		(granularitySec == 30 && !viper.GetBool("hourlyPredict"))
 }
