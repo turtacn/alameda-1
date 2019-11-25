@@ -177,6 +177,10 @@ func (p *ContainerRepository) DeleteContainers(request DaoClusterTypes.DeleteCon
 		Measurement: Container,
 	}
 
+	if !p.influxDB.MeasurementExist(string(RepoInflux.ClusterStatus), string(Container)) {
+		return nil
+	}
+
 	// Build influx drop command
 	for _, containerMeta := range request.ContainerObjectMeta {
 		keyList := containerMeta.ObjectMeta.GenerateKeyList()

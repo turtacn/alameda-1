@@ -13,8 +13,8 @@ import (
 // ContainerOperation provides container measurement operations
 type PodDAO interface {
 	CreatePods([]*Pod) error
-	ListPods(ListPodsRequest) ([]*Pod, error)
-	DeletePods(DeletePodsRequest) error
+	ListPods(*ListPodsRequest) ([]*Pod, error)
+	DeletePods(*DeletePodsRequest) error
 }
 
 type Pod struct {
@@ -29,15 +29,22 @@ type Pod struct {
 	AlamedaPodSpec *AlamedaPodSpec
 }
 
+type PodObjectMeta struct {
+	ObjectMeta    *metadata.ObjectMeta
+	TopController *metadata.ObjectMeta
+	Kind          string // Valid values: DEPLOYMENT, DEPLOYMENTCONFIG, STATEFULSET
+	ScalingTool   string // Valid values: NONE, VPA, HPA
+}
+
 type ListPodsRequest struct {
 	common.QueryCondition
-	ObjectMeta  []metadata.ObjectMeta
-	Kind        string // Valid values: POD, DEPLOYMENT, DEPLOYMENTCONFIG, ALAMEDASCALER, STATEFULSET
+	ObjectMeta  []*metadata.ObjectMeta
+	Kind        string // Valid values: DEPLOYMENT, DEPLOYMENTCONFIG, STATEFULSET
 	ScalingTool string // Valid values: NONE, VPA, HPA
 }
 
 type DeletePodsRequest struct {
-	ObjectMeta []metadata.ObjectMeta
+	PodObjectMeta []*PodObjectMeta
 }
 
 type AlamedaPodSpec struct {
@@ -61,16 +68,25 @@ func NewPod() *Pod {
 	return &pod
 }
 
-func NewListPodsRequest() ListPodsRequest {
-	request := ListPodsRequest{}
-	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
-	return request
+func NewPodObjectMeta(objectMeta, topController *metadata.ObjectMeta, kind, scalingTool string) *PodObjectMeta {
+	podObjectMeta := PodObjectMeta{}
+	podObjectMeta.ObjectMeta = objectMeta
+	podObjectMeta.TopController = topController
+	podObjectMeta.Kind = kind
+	podObjectMeta.ScalingTool = scalingTool
+	return &podObjectMeta
 }
 
-func NewDeletePodsRequest() DeletePodsRequest {
+func NewListPodsRequest() *ListPodsRequest {
+	request := ListPodsRequest{}
+	request.ObjectMeta = make([]*metadata.ObjectMeta, 0)
+	return &request
+}
+
+func NewDeletePodsRequest() *DeletePodsRequest {
 	request := DeletePodsRequest{}
-	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
-	return request
+	request.PodObjectMeta = make([]*PodObjectMeta, 0)
+	return &request
 }
 
 func (p *Pod) Initialize(entity *clusterstatus.PodEntity) {

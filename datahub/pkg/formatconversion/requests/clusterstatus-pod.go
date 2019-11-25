@@ -59,7 +59,7 @@ func (r *ListPodsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListPodsRequestExtended) ProduceRequest() DaoClusterTypes.ListPodsRequest {
+func (r *ListPodsRequestExtended) ProduceRequest() *DaoClusterTypes.ListPodsRequest {
 	request := DaoClusterTypes.NewListPodsRequest()
 	request.QueryCondition = QueryConditionExtend{r.GetQueryCondition()}.QueryCondition()
 	request.Kind = r.GetKind().String()
@@ -70,10 +70,10 @@ func (r *ListPodsRequestExtended) ProduceRequest() DaoClusterTypes.ListPodsReque
 			objectMeta := NewObjectMeta(meta)
 
 			if objectMeta.IsEmpty() {
-				request.ObjectMeta = make([]Metadata.ObjectMeta, 0)
+				request.ObjectMeta = make([]*Metadata.ObjectMeta, 0)
 				return request
 			}
-			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
+			request.ObjectMeta = append(request.ObjectMeta, &objectMeta)
 		}
 	}
 	return request
@@ -83,7 +83,7 @@ func (r *DeletePodsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *DeletePodsRequestExtended) ProduceRequest() DaoClusterTypes.DeletePodsRequest {
+func (r *DeletePodsRequestExtended) ProduceRequest() *DaoClusterTypes.DeletePodsRequest {
 	request := DaoClusterTypes.NewDeletePodsRequest()
 	if r.GetObjectMeta() != nil {
 		for _, meta := range r.GetObjectMeta() {
@@ -91,10 +91,10 @@ func (r *DeletePodsRequestExtended) ProduceRequest() DaoClusterTypes.DeletePodsR
 			objectMeta := NewObjectMeta(meta)
 
 			if objectMeta.IsEmpty() {
-				request.ObjectMeta = make([]Metadata.ObjectMeta, 0)
+				request.PodObjectMeta = make([]*DaoClusterTypes.PodObjectMeta, 0)
 				return request
 			}
-			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
+			request.PodObjectMeta = append(request.PodObjectMeta, DaoClusterTypes.NewPodObjectMeta(&objectMeta, nil, "", ""))
 		}
 	}
 	return request

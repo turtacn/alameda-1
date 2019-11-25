@@ -25,6 +25,15 @@ func (p *InfluxClient) DeleteMeasurement(db, measurement string) error {
 	return err
 }
 
+func (p *InfluxClient) MeasurementExist(db, measurement string) bool {
+	if response, err := p.QueryDB(fmt.Sprintf("SHOW FIELD KEYS FROM %s", measurement), db); err == nil {
+		if len(response) > 0 && response[0].Series != nil {
+			return true
+		}
+	}
+	return false
+}
+
 // Write points to database
 func (p *InfluxClient) WritePoints(points []*Client.Point, bpCfg Client.BatchPointsConfig) error {
 	client := p.newHttpClient()

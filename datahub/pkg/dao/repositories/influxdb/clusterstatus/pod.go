@@ -108,7 +108,7 @@ func (p *PodRepository) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	return nil
 }
 
-func (p *PodRepository) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*DaoClusterTypes.Pod, error) {
+func (p *PodRepository) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*DaoClusterTypes.Pod, error) {
 	pods := make([]*DaoClusterTypes.Pod, 0)
 
 	statement := InternalInflux.Statement{
@@ -175,16 +175,28 @@ func (p *PodRepository) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*Da
 	return pods, nil
 }
 
-func (p *PodRepository) DeletePods(request DaoClusterTypes.DeletePodsRequest) error {
+func (p *PodRepository) DeletePods(request *DaoClusterTypes.DeletePodsRequest) error {
 	statement := InternalInflux.Statement{
 		Measurement: Pod,
 	}
 
-	// Build influx drop command
-	for _, objectMeta := range request.ObjectMeta {
-		keyList := objectMeta.GenerateKeyList()
+	if !p.influxDB.MeasurementExist(string(RepoInflux.ClusterStatus), string(Pod)) {
+		return nil
+	}
 
-		valueList := objectMeta.GenerateValueList()
+	// Build influx drop command
+	for _, podObjectMeta := range request.PodObjectMeta {
+		keyList := podObjectMeta.ObjectMeta.GenerateKeyList()
+		if podObjectMeta.TopController != nil {
+			keyList = append(keyList, string(EntityInfluxCluster.PodTopControllerName))
+			keyList = append(keyList, string(EntityInfluxCluster.PodTopControllerKind))
+		}
+
+		valueList := podObjectMeta.ObjectMeta.GenerateValueList()
+		if podObjectMeta.TopController != nil {
+			valueList = append(valueList, podObjectMeta.TopController.Name)
+			valueList = append(valueList, podObjectMeta.Kind)
+		}
 
 		condition := statement.GenerateCondition(keyList, valueList, "AND")
 		statement.AppendWhereClauseDirectly("OR", condition)
@@ -199,7 +211,7 @@ func (p *PodRepository) DeletePods(request DaoClusterTypes.DeletePodsRequest) er
 	return nil
 }
 
-func (p *PodRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta, kind ApiResources.Kind) string {
+func (p *PodRepository) genObjectMetaCondition(objectMeta *Metadata.ObjectMeta, kind ApiResources.Kind) string {
 	conditions := make([]string, 0)
 
 	switch kind {

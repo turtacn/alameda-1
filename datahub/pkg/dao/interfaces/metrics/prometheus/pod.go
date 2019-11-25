@@ -68,7 +68,7 @@ func (p *PodMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListPod
 
 func (p *PodMetrics) listPodMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListPodMetricsRequest) ([]metadata.ObjectMeta, error) {
 
-	pods, err := p.influxPodRepo.ListPods(DaoClusterStatusTypes.ListPodsRequest{
+	pods, err := p.influxPodRepo.ListPods(&DaoClusterStatusTypes.ListPodsRequest{
 		ObjectMeta: req.ObjectMetas,
 	})
 	if err != nil {

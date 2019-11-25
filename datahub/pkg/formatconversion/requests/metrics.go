@@ -468,7 +468,7 @@ func (r *ListPodMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListPodM
 	if r.Request.GetRateRange() != 0 {
 		request.RateRange = int64(r.Request.GetRateRange())
 	}
-	objectMetas := make([]metadata.ObjectMeta, len(r.Request.GetObjectMeta()))
+	objectMetas := make([]*metadata.ObjectMeta, len(r.Request.GetObjectMeta()))
 	for i, objectMeta := range r.Request.GetObjectMeta() {
 		copyObjectMeta := objectMeta
 		o := NewObjectMeta(copyObjectMeta)
@@ -476,7 +476,7 @@ func (r *ListPodMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListPodM
 			objectMetas = nil
 			break
 		}
-		objectMetas[i] = o
+		objectMetas[i] = &o
 	}
 	request.ObjectMetas = objectMetas
 	return request

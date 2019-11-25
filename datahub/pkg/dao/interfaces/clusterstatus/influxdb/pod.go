@@ -59,7 +59,7 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	return nil
 }
 
-func (p *Pod) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*DaoClusterTypes.Pod, error) {
+func (p *Pod) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*DaoClusterTypes.Pod, error) {
 	podRepo := RepoInfluxCluster.NewPodRepository(&p.InfluxDBConfig)
 	pods, err := podRepo.ListPods(request)
 	if err != nil {
@@ -93,14 +93,14 @@ func (p *Pod) ListPods(request DaoClusterTypes.ListPodsRequest) ([]*DaoClusterTy
 	return pods, nil
 }
 
-func (p *Pod) DeletePods(request DaoClusterTypes.DeletePodsRequest) error {
+func (p *Pod) DeletePods(request *DaoClusterTypes.DeletePodsRequest) error {
 	delContainerReq := DaoClusterTypes.NewDeleteContainersRequest()
-	for _, objectMeta := range request.ObjectMeta {
+	for _, podObjectMeta := range request.PodObjectMeta {
 		containerMeta := DaoClusterTypes.ContainerObjectMeta{}
-		containerMeta.PodName = objectMeta.Name
-		containerMeta.ObjectMeta.Namespace = objectMeta.Namespace
-		containerMeta.ObjectMeta.NodeName = objectMeta.NodeName
-		containerMeta.ObjectMeta.ClusterName = objectMeta.ClusterName
+		containerMeta.PodName = podObjectMeta.ObjectMeta.Name
+		containerMeta.ObjectMeta.Namespace = podObjectMeta.ObjectMeta.Namespace
+		containerMeta.ObjectMeta.NodeName = podObjectMeta.ObjectMeta.NodeName
+		containerMeta.ObjectMeta.ClusterName = podObjectMeta.ObjectMeta.ClusterName
 		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, containerMeta)
 	}
 

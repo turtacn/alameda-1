@@ -18,13 +18,13 @@ const (
 	PodAlamedaSpecScalerName        influxdb.Tag = "alameda_scaler_name"
 	PodAlamedaSpecScalerNamespace   influxdb.Tag = "alameda_scaler_namespace"
 	PodAlamedaSpecScalerClusterName influxdb.Tag = "alameda_scaler_cluster_name"
+	PodTopControllerName            influxdb.Tag = "top_controller_name"
+	PodTopControllerKind            influxdb.Tag = "top_controller_kind"
 	PodAppName                      influxdb.Tag = "app_name"
 	PodAppPartOf                    influxdb.Tag = "app_part_of"
 
 	PodCreateTime                       influxdb.Field = "pod_create_time"
 	PodResourceLink                     influxdb.Field = "resource_link"
-	PodTopControllerName                influxdb.Field = "top_controller_name"
-	PodTopControllerKind                influxdb.Field = "top_controller_kind"
 	PodTopControllerReplicas            influxdb.Field = "top_controller_replicas"
 	PodStatusPhase                      influxdb.Field = "pod_phase"
 	PodStatusMessage                    influxdb.Field = "pod_message"
@@ -48,6 +48,8 @@ var (
 		PodAlamedaSpecScalerName,
 		PodAlamedaSpecScalerNamespace,
 		PodAlamedaSpecScalerClusterName,
+		PodTopControllerName,
+		PodTopControllerKind,
 		PodAppName,
 		PodAppPartOf,
 	}
@@ -55,8 +57,6 @@ var (
 	PodFields = []influxdb.Field{
 		PodCreateTime,
 		PodResourceLink,
-		PodTopControllerName,
-		PodTopControllerKind,
 		PodTopControllerReplicas,
 		PodStatusPhase,
 		PodStatusMessage,
@@ -81,13 +81,13 @@ type PodEntity struct {
 	AlamedaSpecScalerName        string
 	AlamedaSpecScalerNamespace   string
 	AlamedaSpecScalerClusterName string
+	TopControllerName            string
+	TopControllerKind            string
 	AppName                      string
 	AppPartOf                    string
 
 	CreateTime                       int64
 	ResourceLink                     string
-	TopControllerName                string
-	TopControllerKind                string
 	TopControllerReplicas            int32
 	StatusPhase                      string
 	StatusMessage                    string
@@ -132,6 +132,12 @@ func NewPodEntity(data map[string]string) *PodEntity {
 	if value, exist := data[string(PodAlamedaSpecScalerClusterName)]; exist {
 		entity.AlamedaSpecScalerClusterName = value
 	}
+	if value, exist := data[string(PodTopControllerName)]; exist {
+		entity.TopControllerName = value
+	}
+	if value, exist := data[string(PodTopControllerKind)]; exist {
+		entity.TopControllerKind = value
+	}
 	if value, exist := data[string(PodAppName)]; exist {
 		entity.AppName = value
 	}
@@ -146,12 +152,6 @@ func NewPodEntity(data map[string]string) *PodEntity {
 	}
 	if value, exist := data[string(PodResourceLink)]; exist {
 		entity.ResourceLink = value
-	}
-	if value, exist := data[string(PodTopControllerName)]; exist {
-		entity.TopControllerName = value
-	}
-	if value, exist := data[string(PodTopControllerKind)]; exist {
-		entity.TopControllerKind = value
 	}
 	if value, exist := data[string(PodTopControllerReplicas)]; exist {
 		valueInt64, _ := strconv.ParseInt(value, 10, 64)
@@ -202,6 +202,8 @@ func (p *PodEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, e
 		string(PodAlamedaSpecScalerName):        p.AlamedaSpecScalerName,
 		string(PodAlamedaSpecScalerNamespace):   p.AlamedaSpecScalerNamespace,
 		string(PodAlamedaSpecScalerClusterName): p.AlamedaSpecScalerClusterName,
+		string(PodTopControllerName):            p.TopControllerName,
+		string(PodTopControllerKind):            p.TopControllerKind,
 		string(PodAppName):                      p.AppName,
 		string(PodAppPartOf):                    p.AppPartOf,
 	}
@@ -210,8 +212,6 @@ func (p *PodEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, e
 	fields := map[string]interface{}{
 		string(PodCreateTime):                       p.CreateTime,
 		string(PodResourceLink):                     p.ResourceLink,
-		string(PodTopControllerName):                p.TopControllerName,
-		string(PodTopControllerKind):                p.TopControllerKind,
 		string(PodTopControllerReplicas):            p.TopControllerReplicas,
 		string(PodStatusPhase):                      p.StatusPhase,
 		string(PodStatusMessage):                    p.StatusMessage,

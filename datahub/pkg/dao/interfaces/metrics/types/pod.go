@@ -29,7 +29,7 @@ type PodMetricMap struct {
 // ListPodMetricsRequest Argument of method ListPodMetrics
 type ListPodMetricsRequest struct {
 	common.QueryCondition
-	ObjectMetas []metadata.ObjectMeta
+	ObjectMetas []*metadata.ObjectMeta
 	RateRange   int64
 }
 
@@ -47,7 +47,7 @@ func NewPodMetricMap() PodMetricMap {
 
 func NewListPodMetricsRequest() ListPodMetricsRequest {
 	request := ListPodMetricsRequest{}
-	request.ObjectMetas = make([]metadata.ObjectMeta, 0)
+	request.ObjectMetas = make([]*metadata.ObjectMeta, 0)
 	return request
 }
 
