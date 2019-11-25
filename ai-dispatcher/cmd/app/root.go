@@ -1,15 +1,19 @@
 package app
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/dispatcher"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	alameda_app "github.com/containers-ai/alameda/cmd/app"
+	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/containers-ai/alameda/pkg/utils/log"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/spf13/cobra"
@@ -22,6 +26,7 @@ var (
 	logRotateOutputFile string
 
 	scope *log.Scope
+	conn   *grpc.ClientConn
 )
 
 func launchMetricServer() {
@@ -62,12 +67,18 @@ var rootCmd = &cobra.Command{
 			return
 		}
 		datahubConnRetry := viper.GetInt("datahub.connRetry")
-		conn, err := grpc.Dial(datahubAddr, grpc.WithInsecure(),
+		for {
+			conn, _ = grpc.Dial(datahubAddr, grpc.WithInsecure(),
 			grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
 				grpc_retry.WithMax(uint(datahubConnRetry)))))
-		if err != nil {
-			scope.Errorf("Datahub connection constructs failed. %s", err.Error())
-			return
+			datahubClient := datahubv1alpha1.NewDatahubServiceClient(conn)
+			_, err := datahubClient.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
+			if err == nil {
+				break
+			} else {
+				scope.Errorf("connect datahub failed on init: %s", err.Error())
+			}
+			time.Sleep(time.Duration(1) * time.Second)
 		}
 
 		queueURL := viper.GetString("queue.url")

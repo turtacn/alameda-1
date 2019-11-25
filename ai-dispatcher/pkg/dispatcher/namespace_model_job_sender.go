@@ -172,8 +172,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			datahub_common.MetricType_MEMORY_USAGE_BYTES)
 		sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
-		scope.Infof("No prediction metrics found of namespace %s",
-			namespaceName)
+		scope.Infof("No prediction metrics found of namespace %s, send model jobs with granularity %v",
+			namespaceName, granularity)
 		return
 	}
 
@@ -183,8 +183,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 				datahub_common.MetricType_MEMORY_USAGE_BYTES)
 			sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
-			scope.Infof("No prediction metric %s found of namespace %s",
-				lastPredictionMetric.GetMetricType().String(), namespaceName)
+			scope.Infof("No prediction metric %s found of namespace %s, send model jobs with granularity %v",
+				lastPredictionMetric.GetMetricType().String(), namespaceName, granularity)
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
@@ -197,8 +197,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 				namespaceInfo := sender.genNamespaceInfo(namespaceName,
 					datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES)
-				scope.Infof("send namespace %s model job due to no predict found or predict is out of date",
-					namespaceName)
+				scope.Infof("send namespace %s model job due to no predict found or predict is out of date, send model jobs with granularity %v",
+					namespaceName, granularity)
 				sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
 				return
 			}

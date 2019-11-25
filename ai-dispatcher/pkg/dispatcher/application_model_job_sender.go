@@ -185,8 +185,8 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 			datahub_common.MetricType_DUTY_CYCLE,
 		)
 		sender.sendJob(application, queueSender, pdUnit, granularity, applicationInfo)
-		scope.Infof("No prediction metric found of application %s/%s",
-			applicationNS, applicationName)
+		scope.Infof("No prediction metric found of application %s/%s, send model jobs with granularity %v",
+			applicationNS, applicationName, granularity)
 		return
 	}
 	for _, lastPredictionMetric := range lastPredictionMetrics {
@@ -195,8 +195,8 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 				datahub_common.MetricType_MEMORY_USAGE_BYTES,
 				datahub_common.MetricType_DUTY_CYCLE)
 			sender.sendJob(application, queueSender, pdUnit, granularity, applicationInfo)
-			scope.Infof("No prediction metric %s found of application %s/%s",
-				lastPredictionMetric.GetMetricType().String(), applicationNS, applicationName)
+			scope.Infof("No prediction metric %s found of application %s/%s, send model jobs with granularity %v",
+				lastPredictionMetric.GetMetricType().String(), applicationNS, applicationName,granularity)
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
@@ -210,8 +210,8 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 				applicationInfo := sender.genApplicationInfo(applicationNS, applicationName,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES,
 					datahub_common.MetricType_DUTY_CYCLE)
-				scope.Infof("send application %s/%s model job due to no predict found or predict is out of date",
-					applicationNS, applicationName)
+				scope.Infof("send application %s/%s model job due to no predict found or predict is out of date, send model jobs with granularity %v",
+					applicationNS, applicationName, granularity)
 				sender.sendJob(application, queueSender, pdUnit, granularity, applicationInfo)
 				return
 			}

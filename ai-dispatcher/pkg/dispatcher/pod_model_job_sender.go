@@ -189,8 +189,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 	if len(lastPredictionContainers) == 0 {
 		podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 		sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-		scope.Infof("No last prediction found of pod (%s/%s)",
-			podNS, podName)
+		scope.Infof("No last prediction found of pod (%s/%s), send model jobs with granularity %v",
+			podNS, podName, granularity)
 		return
 	}
 
@@ -205,8 +205,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 		} else {
 			podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 			sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-			scope.Infof("No any last container metric prediction %s found of pod (%s/%s)",
-				lastPredictionContainer.GetName(), podNS, podName)
+			scope.Infof("No any last container metric prediction %s found of pod (%s/%s), send model jobs with granularity %v",
+				lastPredictionContainer.GetName(), podNS, podName, granularity)
 			continue
 		}
 		for _, lastPredictionMetric := range lastPredictionMetrics {
@@ -224,8 +224,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 				podInfo := sender.genPodInfo(podNS, podName)
 				podInfo.Containers = containers
 				sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-				scope.Infof("No last prediction metric %s found of pod (%s/%s)",
-					lastPredictionMetric.GetMetricType().String(), podNS, podName)
+				scope.Infof("No last prediction metric %s found of pod (%s/%s), send model jobs with granularity %v",
+					lastPredictionMetric.GetMetricType().String(), podNS, podName, granularity)
 				return
 			} else {
 				lastPrediction := lastPredictionMetric.GetData()[0]
@@ -247,8 +247,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 					}
 					podInfo := sender.genPodInfo(podNS, podName)
 					podInfo.Containers = containers
-					scope.Infof("send pod (%s/%s) model job due to no predict found or predict is out of date",
-						podNS, podName)
+					scope.Infof("send pod (%s/%s) model job due to no predict found or predict is out of date, send model jobs with granularity %v",
+						podNS, podName, granularity)
 					sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
 					return
 				}

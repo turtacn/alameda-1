@@ -172,8 +172,8 @@ func (sender *clusterModelJobSender) sendJobByMetrics(cluster *datahub_resources
 			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			datahub_common.MetricType_MEMORY_USAGE_BYTES)
 		sender.sendJob(cluster, queueSender, pdUnit, granularity, clusterInfo)
-		scope.Infof("No prediction metrics found of cluster %s",
-			clusterName)
+		scope.Infof("No prediction metrics found of cluster %s, send model jobs with granularity %v",
+			clusterName, granularity)
 		return
 	}
 
@@ -183,8 +183,8 @@ func (sender *clusterModelJobSender) sendJobByMetrics(cluster *datahub_resources
 				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 				datahub_common.MetricType_MEMORY_USAGE_BYTES)
 			sender.sendJob(cluster, queueSender, pdUnit, granularity, clusterInfo)
-			scope.Infof("No prediction metric %s found of cluster %s",
-				lastPredictionMetric.GetMetricType().String(), clusterName)
+			scope.Infof("No prediction metric %s found of cluster %s, send model jobs with granularity %v",
+				lastPredictionMetric.GetMetricType().String(), clusterName, granularity)
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
@@ -197,8 +197,8 @@ func (sender *clusterModelJobSender) sendJobByMetrics(cluster *datahub_resources
 				clusterInfo := sender.genClusterInfo(clusterName,
 					datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES)
-				scope.Infof("send cluster %s model job due to no predict found or predict is out of date",
-					clusterName)
+				scope.Infof("send cluster %s model job due to no predict found or predict is out of date, send model jobs with granularity %v",
+					clusterName, granularity)
 				sender.sendJob(cluster, queueSender, pdUnit, granularity, clusterInfo)
 				return
 			}

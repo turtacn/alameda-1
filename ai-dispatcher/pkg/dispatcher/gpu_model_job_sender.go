@@ -175,8 +175,8 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 			datahub_common.MetricType_DUTY_CYCLE,
 		)
 		sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
-		scope.Infof("No prediction metric found of gpu (host: %s, minor number: %s)",
-			gpuHost, gpuMinorNumber)
+		scope.Infof("No prediction metric found of gpu (host: %s, minor number: %s), send model jobs with granularity %v",
+			gpuHost, gpuMinorNumber, granularity)
 		return
 	}
 	for _, lastPredictionMetric := range lastPredictionMetrics {
@@ -185,8 +185,8 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 				datahub_common.MetricType_MEMORY_USAGE_BYTES,
 				datahub_common.MetricType_DUTY_CYCLE)
 			sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
-			scope.Infof("No prediction metric %s found of gpu (host: %s, minor number: %s)",
-				lastPredictionMetric.GetMetricType().String(), gpuHost, gpuMinorNumber)
+			scope.Infof("No prediction metric %s found of gpu (host: %s, minor number: %s), send model jobs with granularity %v",
+				lastPredictionMetric.GetMetricType().String(), gpuHost, gpuMinorNumber, granularity)
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
@@ -200,8 +200,8 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 				gpuInfo := sender.genGPUInfo(gpuHost, gpuMinorNumber,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES,
 					datahub_common.MetricType_DUTY_CYCLE)
-				scope.Infof("send gpu (host: %s, minor number: %s) model job due to no predict found or predict is out of date",
-					gpuHost, gpuMinorNumber)
+				scope.Infof("send gpu (host: %s, minor number: %s) model job due to no predict found or predict is out of date, send model jobs with granularity %v",
+					gpuHost, gpuMinorNumber, granularity)
 				sender.sendJob(gpu, queueSender, pdUnit, granularity, gpuInfo)
 				return
 			}
