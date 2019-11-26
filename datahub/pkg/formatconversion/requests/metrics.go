@@ -296,6 +296,7 @@ func (r *ListClusterMetricsRequestExtended) Validate() error {
 
 func (r *ListClusterMetricsRequestExtended) SetDefault() {
 	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
 
@@ -326,6 +327,7 @@ func (r *ListNodeMetricsRequestExtended) Validate() error {
 
 func (r *ListNodeMetricsRequestExtended) SetDefault() {
 	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
 
@@ -356,6 +358,7 @@ func (r *ListNamespaceMetricsRequestExtended) Validate() error {
 
 func (r *ListNamespaceMetricsRequestExtended) SetDefault() {
 	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
 
@@ -386,6 +389,7 @@ func (r *ListAppMetricsRequestExtended) Validate() error {
 
 func (r *ListAppMetricsRequestExtended) SetDefault() {
 	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
 
@@ -426,6 +430,7 @@ func (r *ListControllerMetricsRequestExtended) Validate() error {
 
 func (r *ListControllerMetricsRequestExtended) SetDefault() {
 	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
 
@@ -458,6 +463,12 @@ func (r *ListPodMetricsRequestExtended) Validate() error {
 
 func (r *ListPodMetricsRequestExtended) SetDefault() {
 	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+	switch q.TimeRange.Step.Seconds {
+	case 30:
+		q.TimeRange.AggregateFunction = ApiCommon.TimeRange_MAX
+	default:
+		q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
+	}
 	r.Request.QueryCondition = &q
 }
 
