@@ -325,7 +325,7 @@
       "steppedLine": false,
       "targets": [{
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s])) / $current_cpu_total",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s])) / $current_cpu_total",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -335,7 +335,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[3600s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[3600s])) * 100 / $current_memory_total",
+          "expr": "sum (avg_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[3600s]) * avg_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[3600s])) * 100 / $current_memory_total",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1381,7 +1381,7 @@
       "steppedLine": false,
       "targets": [{
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s])) / $current_cpu_total",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s])) / $current_cpu_total",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -1390,7 +1390,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[21600s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[21600s])) * 100 / $current_memory_total",
+          "expr": "sum (avg_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[21600s]) * avg_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[21600s])) * 100 / $current_memory_total",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -2434,7 +2434,7 @@
       "steppedLine": false,
       "targets": [{
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s])) / $current_cpu_total",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s])) / $current_cpu_total",
           "format": "time_series",
           "hide": false,
           "interval": "86400s",
@@ -2444,7 +2444,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[86400s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[86400s])) * 100 / $current_memory_total",
+          "expr": "sum (avg_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[86400s]) * avg_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[86400s])) * 100 / $current_memory_total",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
