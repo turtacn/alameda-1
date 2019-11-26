@@ -189,7 +189,7 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 				datahub_common.MetricType_DUTY_CYCLE)
 			sender.sendJob(application, queueSender, pdUnit, granularity, applicationInfo)
 			scope.Infof("No prediction metric %s found of application %s/%s, send model jobs with granularity %v",
-				lastPredictionMetric.GetMetricType().String(), applicationNS, applicationName,granularity)
+				lastPredictionMetric.GetMetricType().String(), applicationNS, applicationName, granularity)
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
@@ -242,6 +242,7 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 							Step: &duration.Duration{
 								Seconds: granularity,
 							},
+							AggregateFunction: datahub_common.TimeRange_AVG,
 						},
 					},
 					ObjectMeta: []*datahub_resources.ObjectMeta{

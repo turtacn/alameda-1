@@ -231,6 +231,7 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 							Step: &duration.Duration{
 								Seconds: granularity,
 							},
+							AggregateFunction: datahub_common.TimeRange_AVG,
 						},
 					},
 					ObjectMeta: []*datahub_resources.ObjectMeta{

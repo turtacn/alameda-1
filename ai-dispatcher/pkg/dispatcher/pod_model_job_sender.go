@@ -266,6 +266,10 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 					queryStartTime = firstPDTime
 				}
 
+				aggFun := datahub_common.TimeRange_AVG
+				if granularity == 30 {
+					aggFun = datahub_common.TimeRange_MAX
+				}
 				podMetricsRes, err := datahubServiceClnt.ListPodMetrics(context.Background(),
 					&datahub_metrics.ListPodMetricsRequest{
 						QueryCondition: &datahub_common.QueryCondition{
@@ -277,6 +281,7 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 								Step: &duration.Duration{
 									Seconds: granularity,
 								},
+								AggregateFunction: aggFun,
 							},
 						},
 						ObjectMeta: []*datahub_resources.ObjectMeta{

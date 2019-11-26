@@ -242,6 +242,7 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 							Step: &duration.Duration{
 								Seconds: granularity,
 							},
+							AggregateFunction: datahub_common.TimeRange_AVG,
 						},
 					},
 					ObjectMeta: []*datahub_resources.ObjectMeta{
