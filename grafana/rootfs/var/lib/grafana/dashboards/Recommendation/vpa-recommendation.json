@@ -972,7 +972,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$app_ns\", pod_name=~\"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name=~\"$memorys_app_container\", container_name!=\"\"}[30s])))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name=~\"$memorys_app_container\", container_name!=\"\"}[30s])))",
           "format": "time_series",
           "hide": false,
           "instant": false,

@@ -21,6 +21,7 @@
   "panels": [
     {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div style=\"text-align:center;\">\n        <img style=\"vertical-align:middle;\" src=\"https://i1.wp.com/www.prophetstor.com/wp-content/uploads/2017/05/prophetstor_white_logo.png?fit=143%2C62&ssl=1\">\n        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \n        <span style=\"vertical-align:middle; font-size:30px;\">Federator.ai</span>\n      </div>\n    </td>\n  </tr>\n</table>\n",
+      "datasource": null,
       "gridPos": {
         "h": 6,
         "w": 9,
@@ -30,11 +31,13 @@
       "id": 4,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Product",
       "type": "text"
     },
     {
       "content": "<h1 style=\"position: relative; text-align: center; vertical-align:middle; font-size:30px; top: 30%;\">__DEV_VERSION__</h1>",
+      "datasource": null,
       "gridPos": {
         "h": 6,
         "w": 8,
@@ -44,11 +47,13 @@
       "id": 6,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Version",
       "type": "text"
     },
     {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_state\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var state = `${lic_status}`;\n  state = state.toLowerCase();\n  var l_color = \"#299c46\";\n  if (state == \"not activated\") {\n    l_color = \"#ed8128\";\n  }\n  else if (state == \"invalid\" || state == \"no keycode\" || state == \"expired\" || state == \"invalid\") {\n    l_color = \"#d44a3a\";\n  }\n  document.getElementById('home_lic_state').innerHTML = `${lic_status}`;\n  document.getElementById('home_lic_state').style.color = l_color;\n</script>\n<style>\ndiv.submenu-controls > div:nth-child(7) .template-variable, div.submenu-controls > div:nth-child(8) .template-variable {\n  color: #56ce84;\n}\n</style>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 7,
@@ -58,30 +63,34 @@
       "id": 72,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "License Status",
       "type": "text"
     },
     {
       "content": "<table style=\"height:80%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"home_lic_expired_time\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var lic_e_t = parseInt(`${lic_expired_time}` || 0);\n  var lic_e_t_dis = '';\n  if (lic_e_t == 0 || lic_e_t == '') {\n    lic_e_t_dis = 'N/A';\n  }\n  else {\n    var date_t = new Date(lic_e_t);\n    lic_e_t_dis = date_t.getFullYear() + '-' + (\"0\" + (date_t.getMonth() + 1)).slice(-2) + '-' + (\"0\" + date_t.getDate()).slice(-2) + ' ' + (\"0\" + date_t.getHours()).slice(-2) + ':' + (\"0\" + date_t.getMinutes()).slice(-2) + ':' + (\"0\" + date_t.getSeconds()).slice(-2);\n  }\n  document.getElementById('home_lic_expired_time').innerHTML = lic_e_t_dis;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 7,
         "x": 17,
-        "y": 2
+        "y": 3
       },
       "id": 73,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "License Expiration Time",
       "type": "text"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 6
       },
       "id": 18,
       "panels": [],
@@ -110,7 +119,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 5
+        "y": 7
       },
       "hideTimeOverride": true,
       "id": 30,
@@ -130,6 +139,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -194,7 +204,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 5
+        "y": 7
       },
       "hideTimeOverride": true,
       "id": 28,
@@ -214,6 +224,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -278,7 +289,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 5
+        "y": 7
       },
       "hideTimeOverride": true,
       "id": 34,
@@ -298,6 +309,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -362,7 +374,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 5
+        "y": 7
       },
       "hideTimeOverride": true,
       "id": 32,
@@ -382,6 +394,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -448,7 +461,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 5
+        "y": 7
       },
       "hideTimeOverride": true,
       "id": 62,
@@ -468,6 +481,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -564,7 +578,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 5
+        "y": 7
       },
       "hideTimeOverride": true,
       "id": 64,
@@ -584,6 +598,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -666,11 +681,12 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 11
       },
       "hideTimeOverride": true,
       "id": 48,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -848,11 +864,12 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 16
       },
       "id": 16,
       "panels": [],
@@ -867,10 +884,11 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 17
       },
       "id": 50,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -1115,11 +1133,12 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 21
       },
       "id": 20,
       "panels": [],
@@ -1149,7 +1168,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 22
       },
       "id": 68,
       "interval": null,
@@ -1168,6 +1187,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -1236,7 +1256,7 @@
           "value": "null"
         }
       ],
-      "valueName": "avg"
+      "valueName": "first"
     },
     {
       "aliasColors": {},
@@ -1245,11 +1265,12 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 24
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1266,6 +1287,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1308,7 +1332,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$pre_container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum(1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$pre_ns\",namespace!=\"\",pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1526,11 +1550,12 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 24
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1547,6 +1572,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1584,7 +1612,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\",pod_name=~\"$pod\", container_name=~\"$pre_container\", container_name!=\"\"}[3600s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$pre_ns\",namespace!=\"\",pod_name=~\"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name=~\"$memorys_app_container\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1797,11 +1825,12 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 33
       },
       "id": 75,
       "panels": [],
@@ -1810,86 +1839,98 @@
     },
     {
       "content": "<table class=\"table\" style=\"overflow: hidden\">\r\n  <tr style=\"border-top: 2px solid #171819 !important; border-bottom: 2px solid #171819 !important; padding: unset !important; line-height:0.5\">\r\n    <th class=\"th\" style=\"color: #56ce84\">Level</th>\r\n    <th class=\"th\" style=\"color: #56ce84\">Namespace</th>\r\n    <th class=\"th\">Time Range</th>\r\n  </tr>\r\n  <tr>\r\n    <td id=\"event_level\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\r\n    <td id=\"event_namespace\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\r\n    <td id=\"event_tr\" class=\"td\" style=\"border-bottom: 2px solid #171819 !important;border-right: 2px solid #171819 !important;\"></td>\r\n  </tr>\r\n</table>\r\n<script>\r\n\r\n  function getTimeRange() {\r\n    var tr = $(\"div.time-picker-button-select span.select-button-value span\").text();\r\n    document.getElementById('event_tr').innerHTML = tr;\r\n  }\r\n  getTimeRange();\r\n  $(\"div.dashboard-timepicker-wrapper\").on('DOMSubtreeModified', getTimeRange);\r\n  var event_level = `${event_level}`;\r\n  var event_namespace = `${event_ns}`;\r\n  event_namespace = event_namespace.replace('{','');\r\n  event_namespace = event_namespace.replace('}','');\r\n  document.getElementById('event_level').innerHTML = event_level;\r\n  document.getElementById('event_namespace').innerHTML = event_namespace;\r\n</script>\r\n<style>\r\n  .table {\r\n    border-collapse: collapse;\r\n    width: 100%;\r\n    height:95%;\r\n  }\r\n  \r\n  .th {\r\n    color: #33b5e5;\r\n    font-size: 13px;\r\n    text-align: left;\r\n  }\r\n  \r\n  .td {\r\n    text-align: left;\r\n    font-size: 13px;\r\n  }\r\n</style>",
+      "datasource": null,
       "description": "Change Filter by the Event-Level selector on the top",
       "gridPos": {
         "h": 3,
         "w": 9,
         "x": 0,
-        "y": 32
+        "y": 34
       },
       "id": 90,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Filter",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"fatal_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${fatal_count}` || 0;\n  document.getElementById('fatal_count').style.color = 'red';\n  document.getElementById('fatal_count').innerHTML = count;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 3,
         "x": 9,
-        "y": 32
+        "y": 34
       },
       "id": 86,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Fatal",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"error_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${error_count}` || 0;\n  document.getElementById('error_count').style.color = 'red';\n  document.getElementById('error_count').innerHTML = count;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 3,
         "x": 12,
-        "y": 32
+        "y": 34
       },
       "id": 88,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Error",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"warning_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${warning_count}` || 0;\n  document.getElementById('warning_count').style.color = 'yellow';\n  document.getElementById('warning_count').innerHTML = count;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 3,
         "x": 15,
-        "y": 32
+        "y": 34
       },
       "id": 80,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Warning",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"info_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${info_count}` || 0;\n  document.getElementById('info_count').innerHTML = count;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 3,
         "x": 18,
-        "y": 32
+        "y": 34
       },
       "id": 84,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Info",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"debug_count\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var count = `${debug_count}` || 0; \n  document.getElementById('debug_count').innerHTML = count;\n</script>\n<style scope>\n .markdown-html td, .markdown-html table, .markdown-html tr {\n  border: none !important\n}\n</style>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 3,
         "x": 21,
-        "y": 32
+        "y": 34
       },
       "id": 82,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Debug",
       "type": "text"
     },
@@ -1901,10 +1942,11 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 37
       },
       "id": 76,
       "links": [],
+      "options": {},
       "pageSize": 10,
       "scroll": true,
       "showHeader": true,
@@ -2191,7 +2233,7 @@
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 16,
+  "schemaVersion": 20,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -2199,8 +2241,36 @@
       {
         "allValue": null,
         "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select preloader from alameda_metric..grafana_config order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Preloader",
+        "multi": false,
+        "name": "preloader",
+        "options": [],
+        "query": "select preloader from alameda_metric..grafana_config order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_namespace\"",
@@ -2224,8 +2294,35 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-busybox",
-          "value": "alameda-busybox"
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"alameda_scaler_namespace\", scaling_tool from alameda_cluster_status..pod where ('false' = '$preloader' or '' = '$preloader')",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "pre_ns",
+        "options": [],
+        "query": "select \"alameda_scaler_namespace\", scaling_tool from alameda_cluster_status..pod where ('false' = '$preloader' or '' = '$preloader')",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "redis",
+          "value": "redis"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
@@ -2250,7 +2347,9 @@
         "allValue": null,
         "current": {
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
         "definition": "select \"name\", scaling_tool  from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and scaling_tool =~ /VPA/",
@@ -2275,7 +2374,9 @@
         "allValue": null,
         "current": {
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/  and \"pod_name\"=~ /^[[pod]]$/",
@@ -2324,9 +2425,8 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "1574417167000",
-          "value": "1574417167000"
+          "text": "1575612984000",
+          "value": "1575612984000"
         },
         "datasource": "InfluxDB",
         "definition": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
@@ -2418,9 +2518,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2466,9 +2567,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2499,9 +2601,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2542,9 +2645,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2580,9 +2684,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2618,9 +2723,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2661,9 +2767,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2694,9 +2801,10 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "Debug",
-          "value": "Debug"
+          "value": [
+            "Debug"
+          ]
         },
         "hide": 2,
         "includeAll": true,
@@ -2742,7 +2850,6 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "0",
           "value": "0"
         },
@@ -2793,8 +2900,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "3",
-          "value": "3"
+          "text": "1",
+          "value": "1"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
@@ -2868,19 +2975,18 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select preloader from alameda_metric..grafana_config order by time desc limit 1",
+        "definition": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/ and \"pod_name\"=~ /^[[pod]]$/ and ('false' = '$preloader' or '' = '$preloader')",
         "hide": 2,
-        "includeAll": false,
-        "label": "Preloader",
+        "includeAll": true,
+        "label": null,
         "multi": false,
-        "name": "preloader",
+        "name": "pre_container",
         "options": [],
-        "query": "select preloader from alameda_metric..grafana_config order by time desc limit 1",
+        "query": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/ and \"pod_name\"=~ /^[[pod]]$/ and ('false' = '$preloader' or '' = '$preloader')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2894,19 +3000,268 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
           "text": "All",
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/ and \"pod_name\"=~ /^[[pod]]$/ and ('false' = '$preloader' or '' = '$preloader')",
+        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
-        "name": "pre_container",
+        "name": "deployment_controller",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key = \"name\" where \"namespace\" =~ /^[[ns]]$/ and \"pod_name\"=~ /^[[pod]]$/ and ('false' = '$preloader' or '' = '$preloader')",
+        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deploymentConfig_controller",
+        "options": [],
+        "query": "",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "statefulset_controller",
+        "options": [],
+        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deployment_pod",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "refresh": 2,
+        "regex": "/$deployment_controller-[0-9a-z]{8,10}-[0-9a-z]*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deploymentConfig_pod",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "refresh": 2,
+        "regex": "/$deploymentConfig_controller-[0-9]{0,7}-[0-9a-z]* /",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "statefulset_pod",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "refresh": 2,
+        "regex": "/$statefulset_controller-[0-9]+/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_deployment_pod",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes, pod_name)",
+        "refresh": 2,
+        "regex": "/$deployment_controller-[0-9a-z]{8,10}-[0-9a-z]*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_deploymentConfig_pod",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes, pod_name)",
+        "refresh": 2,
+        "regex": "/$deploymentConfig_controller-[0-9]{0,7}-[0-9a-z]* /",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_statefulset_pod",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes, pod_name)",
+        "refresh": 2,
+        "regex": "/$statefulset_controller-[0-9]+/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~ \"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "app_container",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~ \"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes{pod_name=~ \"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_app_container",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes{pod_name=~ \"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
