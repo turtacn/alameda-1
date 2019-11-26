@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"context"
+	"fmt"
 	"golang.org/x/sync/errgroup"
 
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
@@ -176,6 +177,7 @@ func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas 
 	}
 
 	consumerWG.Wait()
+	metricMap = p.patchObjectMeta(metricMap, podMetas)
 	for _, podMeta := range podMetas {
 		if metric, exist := metricMap.MetricMap[podMeta]; !exist || metric == nil {
 			metricMap.MetricMap[podMeta] = &DaoMetricTypes.PodMetric{
@@ -184,4 +186,25 @@ func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas 
 		}
 	}
 	return metricMap, nil
+}
+
+// Because container entity from prometheus does not have cluserName, nodeName and uid ... information,
+// use pod's namespace and name from container entity as id to find the corresponded complete objectMeta and build the new pod metric map.
+func (p *PodMetrics) patchObjectMeta(metricMap DaoMetricTypes.PodMetricMap, podObjectMetas []metadata.ObjectMeta) DaoMetricTypes.PodMetricMap {
+
+	// namespace/podname
+	idFormat := "%s/%s"
+
+	podNamespaceNameToObjectMeta := make(map[string]metadata.ObjectMeta)
+	for _, objectMeta := range podObjectMetas {
+		podNamespaceNameToObjectMeta[fmt.Sprintf(idFormat, objectMeta.Namespace, objectMeta.Name)] = objectMeta
+	}
+
+	newMetricMap := DaoMetricTypes.NewPodMetricMap()
+	for objectMeta := range metricMap.MetricMap {
+		if newObjectMeata, exist := podNamespaceNameToObjectMeta[fmt.Sprintf(idFormat, objectMeta.Namespace, objectMeta.Name)]; exist {
+			newMetricMap.MetricMap[newObjectMeata] = metricMap.MetricMap[objectMeta]
+		}
+	}
+	return newMetricMap
 }
