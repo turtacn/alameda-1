@@ -188,7 +188,11 @@ func (r *ControllerCPURepository) steps(ctx context.Context, request DaoMetricTy
 	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ControllerValue))
+	f, exist := aggregateFuncToInfluxDBFunc[request.AggregateOverTimeFunction]
+	if !exist {
+		return DaoMetricTypes.ControllerMetricMap{}, errors.Errorf(`not supported aggregate function "%d"`, request.AggregateOverTimeFunction)
+	}
+	statement.SetFunction(InternalInflux.Select, f, string(EntityInfluxMetric.ControllerValue))
 	cmd := statement.BuildQueryCmd()
 
 	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)

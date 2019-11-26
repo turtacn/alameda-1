@@ -164,7 +164,11 @@ func (r *NamespaceMemoryRepository) steps(ctx context.Context, request DaoMetric
 	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.NamespaceValue))
+	f, exist := aggregateFuncToInfluxDBFunc[request.AggregateOverTimeFunction]
+	if !exist {
+		return DaoMetricTypes.NamespaceMetricMap{}, errors.Errorf(`not supported aggregate function "%d"`, request.AggregateOverTimeFunction)
+	}
+	statement.SetFunction(InternalInflux.Select, f, string(EntityInfluxMetric.NamespaceValue))
 	cmd := statement.BuildQueryCmd()
 
 	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)

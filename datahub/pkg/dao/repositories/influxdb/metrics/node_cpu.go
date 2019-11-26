@@ -155,7 +155,11 @@ func (r *NodeCpuRepository) steps(request DaoMetricTypes.ListNodeMetricsRequest)
 	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.NodeValue))
+	f, exist := aggregateFuncToInfluxDBFunc[request.AggregateOverTimeFunction]
+	if !exist {
+		return nil, errors.Errorf(`not supported aggregate function "%d"`, request.AggregateOverTimeFunction)
+	}
+	statement.SetFunction(InternalInflux.Select, f, string(EntityInfluxMetric.NodeValue))
 	cmd := statement.BuildQueryCmd()
 
 	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)

@@ -168,7 +168,11 @@ func (r *ContainerCpuRepository) steps(request DaoMetricTypes.ListPodMetricsRequ
 	statement.AppendWhereClauseFromTimeCondition()
 	statement.SetOrderClauseFromQueryCondition()
 	statement.SetLimitClauseFromQueryCondition()
-	statement.SetFunction(InternalInflux.Select, "MAX", string(EntityInfluxMetric.ContainerValue))
+	f, exist := aggregateFuncToInfluxDBFunc[request.AggregateOverTimeFunction]
+	if !exist {
+		return nil, errors.Errorf(`not supported aggregate function "%d"`, request.AggregateOverTimeFunction)
+	}
+	statement.SetFunction(InternalInflux.Select, f, string(EntityInfluxMetric.ContainerValue))
 	cmd := statement.BuildQueryCmd()
 
 	scope.Debugf("Query inlfuxdb: cmd: %s", cmd)

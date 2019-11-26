@@ -8,4 +8,5 @@ import (
 var AggregateFunctionNameMap map[ApiCommon.TimeRange_AggregateFunction]DBCommon.AggregateFunction = map[ApiCommon.TimeRange_AggregateFunction]DBCommon.AggregateFunction{
 	ApiCommon.TimeRange_NONE: DBCommon.None,
 	ApiCommon.TimeRange_MAX:  DBCommon.MaxOverTime,
+	ApiCommon.TimeRange_AVG:  DBCommon.AvgOverTime,
 }
