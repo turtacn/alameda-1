@@ -29,6 +29,10 @@ const (
 )
 const queueName = "predict"
 const modelQueueName = "model"
+var (
+	modelHasVPA = false
+	predictHasVPA = false
+)
 
 var scope = log.RegisterScope("dispatcher", "dispatcher dispatch jobs", 0)
 
@@ -111,6 +115,11 @@ func (dispatcher *Dispatcher) dispatch(granularity string, predictionStep int64,
 	for {
 		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
 		queueSender := queue.NewRabbitMQSender(queueConn)
+		// Node will send model/predict job with granularity 30s if modelHasVPA/predictHasVPA is true
+		if granularitySec == 30 {
+			modelHasVPA = false
+			predictHasVPA = false
+		}
 		for _, pdUnit := range dispatcher.svcPredictUnits {
 			if dispatcher.skipJobSending(pdUnit, granularitySec) {
 				continue
@@ -156,14 +165,26 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			return
 		}
 
-		nodes := res.GetNodes()
+		nodes := []*datahub_resources.Node{}
 		if queueJobType == "predictionJobSendIntervalSec" {
+			for _, no := range res.GetNodes(){
+				if (granularity == 30 && !viper.GetBool("hourlyPredict")) && !predictHasVPA {
+					continue
+				}
+				nodes = append(nodes, no)
+			}
 			scope.Infof(
 				"Start sending %v node prediction jobs to queue with granularity %v seconds.",
 				len(nodes), granularity)
 			dispatcher.predictJobSender.SendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
 		}
 		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			for _, no := range res.GetNodes(){
+				if (granularity == 30 && !viper.GetBool("hourlyPredict")) && !modelHasVPA {
+					continue
+				}
+				nodes = append(nodes, no)
+			}
 			scope.Infof(
 				"Start sending %v node model jobs to queue with granularity %v seconds.",
 				len(nodes), granularity)
@@ -187,21 +208,31 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		}
 
 		pods := []*datahub_resources.Pod{}
+		hasVPA := false
 		for _, pod := range res.GetPods() {
 			if granularity == 30 && (!viper.GetBool("hourlyPredict") &&
 				pod.GetAlamedaPodSpec().GetScalingTool() != datahub_resources.ScalingTool_VPA) {
 				continue
 			}
+			if pod.GetAlamedaPodSpec().GetScalingTool() == datahub_resources.ScalingTool_VPA {
+				hasVPA = true
+			}
 			pods = append(pods, pod)
 		}
 
 		if queueJobType == "predictionJobSendIntervalSec" {
+			if hasVPA {
+				predictHasVPA = true
+			}
 			scope.Infof(
 				"Start sending %v pod prediction jobs to queue with granularity %v seconds.",
 				len(pods), granularity)
 			dispatcher.predictJobSender.SendPodPredictJobs(pods, queueSender, pdUnit, granularity)
 		}
 		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
+			if hasVPA {
+				modelHasVPA = true
+			}
 			scope.Infof(
 				"Start sending %v pod model jobs to queue with granularity %v seconds.",
 				len(pods), granularity)
@@ -364,6 +395,6 @@ func (dispatcher *Dispatcher) skipJobSending(pdUnit string, granularitySec int64
 		return true
 	}
 
-	return (pdUnit == UnitTypeNode || pdUnit == UnitTypeCluster || pdUnit == UnitTypeNamespace) &&
+	return (pdUnit == UnitTypeCluster || pdUnit == UnitTypeNamespace) &&
 		(granularitySec == 30 && !viper.GetBool("hourlyPredict"))
 }

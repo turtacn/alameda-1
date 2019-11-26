@@ -17,9 +17,12 @@ url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
 
 [serviceSetting]
 granularities = ["30s", "1h", "6h", "24h"]
-predictUnits = ["POD", "NODE", "GPU", "NAMESPACE",
-  "APPLICATION", "CLUSTER", "CONTROLLER"
+predictUnits = ["POD", "GPU", "NAMESPACE",
+  "APPLICATION", "CLUSTER", "CONTROLLER", "NODE"
 ]
+# must put NODE predict unit at last, because to send
+# NODE jobs with granularity 30s depends on POD job
+# with granularity 30s are sent
 
 [granularities]
 
