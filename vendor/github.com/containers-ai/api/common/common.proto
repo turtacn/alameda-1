@@ -23,6 +23,7 @@ message TimeRange {
     enum AggregateFunction {
         NONE = 0;
         MAX = 1;
+        AVG = 2;
     }
     AggregateFunction aggregate_function = 5;
     google.protobuf.Timestamp apply_time = 6;
