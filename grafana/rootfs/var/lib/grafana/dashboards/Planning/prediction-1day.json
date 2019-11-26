@@ -657,7 +657,28 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum (1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s]))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "3600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "H"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$namespace_ns\", namespace!=\"\"}[3600s]))",
+          "format": "time_series",
+          "hide": false,
+          "interval": "3600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "J"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -667,14 +688,13 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s]))",
+          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
-          "instant": false,
           "interval": "3600s",
           "intervalFactor": 1,
           "legendFormat": "Observation : CPU Usage",
-          "refId": "H"
+          "refId": "K"
         },
         {
           "alias": "Prediction: CPU Usage",
@@ -1083,7 +1103,24 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[3600s])))",
+          "expr": "sum (avg_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[3600s]) * avg_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[3600s]))",
+          "interval": "3600s",
+          "legendFormat": "Observation: Memory Usage",
+          "refId": "H"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$namespace_ns\", namespace!=\"\"}[3600s])))",
+          "format": "time_series",
+          "hide": false,
+          "interval": "3600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation: Memory Usage",
+          "refId": "J"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1093,10 +1130,13 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[3600s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[3600s]))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s])))",
+          "format": "time_series",
+          "hide": false,
           "interval": "3600s",
+          "intervalFactor": 1,
           "legendFormat": "Observation: Memory Usage",
-          "refId": "H"
+          "refId": "K"
         },
         {
           "alias": "Prediction: Memory Usage",
@@ -1519,7 +1559,28 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[21600s]))",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s]))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "21600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "H"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$namespace_ns\", namespace!=\"\"}[21600s]))",
+          "format": "time_series",
+          "hide": false,
+          "interval": "21600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "J"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[21600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "21600s",
@@ -1529,14 +1590,13 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s]))",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s]))",
           "format": "time_series",
           "hide": false,
-          "instant": false,
           "interval": "21600s",
           "intervalFactor": 1,
           "legendFormat": "Observation : CPU Usage",
-          "refId": "H"
+          "refId": "K"
         },
         {
           "alias": "Prediction: CPU Usage",
@@ -1944,7 +2004,23 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[21600s])))",
+          "expr": "sum (avg_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[21600s]) * avg_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[21600s]))",
+          "interval": "21600s",
+          "legendFormat": "Observation: Memory Usage",
+          "refId": "H"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$namespace_ns\", namespace!=\"\"}[21600s])))",
+          "format": "time_series",
+          "interval": "21600s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation: Memory Usage",
+          "refId": "J"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[21600s])))",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -1953,10 +2029,12 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[21600s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[21600s]))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s])))",
+          "format": "time_series",
           "interval": "21600s",
+          "intervalFactor": 1,
           "legendFormat": "Observation: Memory Usage",
-          "refId": "H"
+          "refId": "K"
         },
         {
           "alias": "Prediction: Memory Usage",
@@ -2379,7 +2457,27 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[86400s]))",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s]))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "86400s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "H"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$namespace_ns\", namespace!=\"\"}[86400s]))",
+          "format": "time_series",
+          "interval": "86400s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation : CPU Usage",
+          "refId": "J"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[86400s]))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2388,14 +2486,12 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * max_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * max_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s]))",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s]))",
           "format": "time_series",
-          "hide": false,
-          "instant": false,
           "interval": "86400s",
           "intervalFactor": 1,
           "legendFormat": "Observation : CPU Usage",
-          "refId": "H"
+          "refId": "K"
         },
         {
           "alias": "Prediction: CPU Usage",
@@ -2803,7 +2899,23 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$h_ns\", pod_name=~\"$h_pod\", container_name=~\"$pre_container\", container_name!=\"\"}[86400s])))",
+          "expr": "sum (avg_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[86400s]) * avg_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[86400s]))",
+          "interval": "86400s",
+          "legendFormat": "Observation: Memory Usage",
+          "refId": "H"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$namespace_ns\", namespace!=\"\"}[86400s])))",
+          "format": "time_series",
+          "interval": "86400s",
+          "intervalFactor": 1,
+          "legendFormat": "Observation: Memory Usage",
+          "refId": "J"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$app_ns\", namespace!=\"\", pod_name=~\"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name=~\"$app_container\", container_name!=\"\"}[86400s])))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2812,10 +2924,12 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (max_over_time(node:node_memory_bytes_total:sum{node=~\"$node\"}[86400s]) * max_over_time(node:node_memory_utilisation_2:{node=~\"$node\"}[86400s]))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s])))",
+          "format": "time_series",
           "interval": "86400s",
+          "intervalFactor": 1,
           "legendFormat": "Observation: Memory Usage",
-          "refId": "H"
+          "refId": "K"
         },
         {
           "alias": "Prediction: Memory Usage",
@@ -3454,32 +3568,6 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "InfluxDB",
-        "definition": "select \"name\", resource_request_cpu from (select \"name\", resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and 'Container' != '$resource' and 'Cluster' != '$resource'),  (select \"name\", resource_request_cpu from alameda_cluster_status..container where \"pod_name\" ='$h_pod' and \"name\" = '$container' and 'Container' = '$resource') where 'false' = '$preloader' or '' = '$preloader'",
-        "hide": 2,
-        "includeAll": true,
-        "label": null,
-        "multi": false,
-        "name": "pre_container",
-        "options": [],
-        "query": "select \"name\", resource_request_cpu from (select \"name\", resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and 'Container' != '$resource' and 'Cluster' != '$resource'),  (select \"name\", resource_request_cpu from alameda_cluster_status..container where \"pod_name\" ='$h_pod' and \"name\" = '$container' and 'Container' = '$resource') where 'false' = '$preloader' or '' = '$preloader'",
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
           "text": "All",
           "value": "$__all"
         },
@@ -3501,12 +3589,373 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Namespace' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "namespace_ns",
+        "options": [],
+        "query": "select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Namespace' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Application' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "app_ns",
+        "options": [],
+        "query": "select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Application' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Container' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "container_ns",
+        "options": [],
+        "query": "select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Container' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"alameda_scaler_namespace\" order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deployment_controller",
+        "options": [],
+        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deploymentConfig_controller",
+        "options": [],
+        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "statefulset_controller",
+        "options": [],
+        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deployment_pod",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "refresh": 2,
+        "regex": "/$deployment_controller-[0-9a-z]{8,10}-[0-9a-z]*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "deploymentConfig_pod",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "refresh": 2,
+        "regex": "/$deploymentConfig_controller-[0-9]{0,7}-[0-9a-z]* /",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "statefulset_pod",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate, pod_name)",
+        "refresh": 2,
+        "regex": "/$statefulset_controller-[0-9]+/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_deployment_pod",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes, pod_name)",
+        "refresh": 2,
+        "regex": "/$deployment_controller-[0-9a-z]{8,10}-[0-9a-z]*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_deploymentConfig_pod",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes, pod_name)",
+        "refresh": 2,
+        "regex": "/$deploymentConfig_controller-[0-9]{0,7}-[0-9a-z]* /",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes, pod_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_statefulset_pod",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes, pod_name)",
+        "refresh": 2,
+        "regex": "/$statefulset_controller-[0-9]+/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~ \"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "app_container",
+        "options": [],
+        "query": "label_values(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{pod_name=~ \"[[deployment_pod]]|[[statefulset_pod]]|[[deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(container_memory_usage_bytes{pod_name=~ \"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "memorys_app_container",
+        "options": [],
+        "query": "label_values(container_memory_usage_bytes{pod_name=~ \"[[memorys_deployment_pod]]|[[memorys_statefulset_pod]]|[[memorys_deploymentConfig_pod]]\", container_name != \"POD\"}, container_name)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "now-5d",
-    "to": "now+1d"
+    "from": "now-5M",
+    "to": "now+1M"
   },
   "timepicker": {
     "refresh_intervals": [
