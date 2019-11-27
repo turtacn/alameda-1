@@ -1,6 +1,7 @@
 package influxdb
 
 import (
+	"errors"
 	"fmt"
 	Client "github.com/influxdata/influxdb/client/v2"
 	"strings"
@@ -8,8 +9,24 @@ import (
 )
 
 // Create database
-func (p *InfluxClient) CreateDatabase(db string) error {
-	_, err := p.QueryDB(fmt.Sprintf("CREATE DATABASE %s", db), db)
+func (p *InfluxClient) CreateDatabase(db string, retry int) error {
+	counter := 0
+	err := errors.New("")
+
+	for true {
+		counter += 1
+		_, err = p.QueryDB(fmt.Sprintf("CREATE DATABASE %s", db), db)
+		if err == nil {
+			break
+		}
+		scope.Error(err.Error())
+		scope.Errorf("failed to create database(%s), try again", db)
+		if retry < 0 || (retry > 0 && retry == counter) {
+			break
+		}
+		time.Sleep(3 * time.Second)
+	}
+
 	return err
 }
 
@@ -50,7 +67,7 @@ func (p *InfluxClient) WritePoints(points []*Client.Point, bpCfg Client.BatchPoi
 
 	if err := client.Write(bp); err != nil {
 		if strings.Contains(err.Error(), "database not found") {
-			if err = p.CreateDatabase(bpCfg.Database); err != nil {
+			if err = p.CreateDatabase(bpCfg.Database, -1); err != nil {
 				scope.Error(err.Error())
 				return err
 			} else {
@@ -90,11 +107,25 @@ func (p *InfluxClient) QueryDB(cmd, database string) (res []Client.Result, err e
 }
 
 // Modify default retention policy
-func (p *InfluxClient) ModifyDefaultRetentionPolicy(db string) error {
+func (p *InfluxClient) ModifyDefaultRetentionPolicy(db string, retry int) error {
 	duration := p.RetentionDuration
 	shardGroupDuration := p.RetentionShardDuration
+	counter := 0
+	err := errors.New("")
 	retentionCmd := fmt.Sprintf("ALTER RETENTION POLICY \"autogen\" on \"%s\" DURATION %s SHARD DURATION %s", db, duration, shardGroupDuration)
-	_, err := p.QueryDB(retentionCmd, db)
+	for true {
+		counter += 1
+		_, err = p.QueryDB(retentionCmd, db)
+		if err == nil {
+			break
+		}
+		scope.Error(err.Error())
+		scope.Errorf("failed to modify retention policy on database(%s), try again", db)
+		if retry < 0 || (retry > 0 && retry == counter) {
+			break
+		}
+		time.Sleep(3 * time.Second)
+	}
 	return err
 }
 

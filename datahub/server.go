@@ -121,6 +121,8 @@ func (s *Server) Err() <-chan error {
 }
 
 func (s *Server) InitInfluxdbDatabase() {
+	scope.Info("Initialize database")
+
 	influxdbClient := InternalInflux.NewClient(&InternalInflux.Config{
 		Address:                s.Config.InfluxDB.Address,
 		Username:               s.Config.InfluxDB.Username,
@@ -141,12 +143,12 @@ func (s *Server) InitInfluxdbDatabase() {
 	}
 
 	for _, db := range databaseList {
-		err := influxdbClient.CreateDatabase(db)
+		err := influxdbClient.CreateDatabase(db, 0)
 		if err != nil {
 			scope.Error(err.Error())
 		}
 
-		err = influxdbClient.ModifyDefaultRetentionPolicy(db)
+		err = influxdbClient.ModifyDefaultRetentionPolicy(db, 0)
 		if err != nil {
 			scope.Error(err.Error())
 		}

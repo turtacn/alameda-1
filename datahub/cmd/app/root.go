@@ -65,7 +65,6 @@ func mergeConfigFileValueWithDefaultConfigValue() {
 
 func initConfig() {
 	config = DatahubConfig.NewDefaultConfig()
-
 	initViperSetting()
 	mergeConfigFileValueWithDefaultConfigValue()
 }
@@ -90,18 +89,22 @@ func initLogger() {
 }
 
 func initEventMgt() {
+	scope.Info("Initialize event management")
+
 	EventMgt.InitEventMgt(config.InfluxDB, config.RabbitMQ)
 }
 
 func initKeycode() {
-	Keycodes.KeycodeInit(config.Keycode)
+	scope.Info("Initialize keycode management")
 
+	Keycodes.KeycodeInit(config.Keycode)
 	keycodeMgt := Keycodes.NewKeycodeMgt()
 	keycodeMgt.Refresh(true)
 }
 
 func initNotifier() {
-	Notifier.NotifierInit(config.Notifier)
+	scope.Info("Initialize notifier")
 
+	Notifier.NotifierInit(config.Notifier)
 	go Notifier.Run()
 }
