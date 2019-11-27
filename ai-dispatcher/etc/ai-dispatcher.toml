@@ -37,21 +37,21 @@ predictUnits = ["POD", "GPU", "NAMESPACE",
   dataGranularity = "6h"
   dataGranularitySec = 21600
   predictionSteps = 30
-  predictionJobSendIntervalSec = 86400
+  predictionJobSendIntervalSec = 21600
   modelJobSendIntervalSec = 21600
 
   [granularities.1h]
   dataGranularity = "1h"
   dataGranularitySec = 3600
   predictionSteps = 30
-  predictionJobSendIntervalSec = 28800
+  predictionJobSendIntervalSec = 3600
   modelJobSendIntervalSec = 3600
 
   [granularities.30s]
   dataGranularity = "30s"
   dataGranularitySec = 30
   predictionSteps = 30
-  predictionJobSendIntervalSec = 900
+  predictionJobSendIntervalSec = 30
   modelJobSendIntervalSec = 30
 
 [predictUnits]
