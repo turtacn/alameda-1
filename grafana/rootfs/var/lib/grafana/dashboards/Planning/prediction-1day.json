@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 21,
-  "iteration": 1574935475258,
+  "iteration": 1574936645920,
   "links": [],
   "panels": [
     {
@@ -3424,15 +3424,14 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
           "selected": true,
-          "text": "None",
-          "value": ""
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
         "definition": "select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' and scaling_tool =~ /VPA/ and 'Controller' = '$resource'",
         "hide": 2,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Pod",
         "multi": false,
         "name": "pod",
@@ -3451,15 +3450,14 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
           "selected": true,
-          "text": "None",
-          "value": ""
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"pod_name\" = '$pod' and 'Controller' = '$resource'",
         "hide": 2,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Container",
         "multi": false,
         "name": "container",
