@@ -15,11 +15,13 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
+  "id": 22,
   "iteration": 1565251885176,
   "links": [],
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -44,6 +46,7 @@
       },
       "id": 5,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -331,7 +334,6 @@
       ],
       "title": "Managed Containers",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
@@ -346,6 +348,7 @@
       },
       "id": 4,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -499,11 +502,11 @@
       ],
       "title": "Managed Nodes",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -522,6 +525,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 24,
@@ -546,6 +550,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -825,7 +832,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-           "query": "select sum(max) from (select max(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and $timeFilter and 'true' = '$preloader' and 'Application' = '$resource' group by time(30s)), (select max(value) from alameda_metric..container_cpu where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and $timeFilter and 'true' = '$preloader' and 'Container' = '$resource' group by time(30s)) where $timeFilter group by time(30s)",
+          "query": "select sum(max) from (select max(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and $timeFilter and 'true' = '$preloader' and 'Application' = '$resource' group by time(30s)), (select max(value) from alameda_metric..container_cpu where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and $timeFilter and 'true' = '$preloader' and 'Container' = '$resource' group by time(30s)) where $timeFilter group by time(30s)",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -896,6 +903,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 24,
@@ -920,6 +928,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1718,7 +1729,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -1770,7 +1781,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },

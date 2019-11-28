@@ -20,6 +20,7 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -44,6 +45,7 @@
       },
       "id": 5,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -293,11 +295,11 @@
       ],
       "title": "Managed Controllers with HPA ScalingTool per Selected Application",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -350,6 +352,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -465,6 +468,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -583,6 +587,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -699,6 +704,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -815,6 +821,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -931,6 +938,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -1012,6 +1020,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -1036,6 +1045,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1367,6 +1379,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -1391,6 +1404,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1929,7 +1945,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -1981,7 +1997,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },

@@ -1,14 +1,16 @@
 {
   "annotations": {
-    "list": [{
-      "builtIn": 1,
-      "datasource": "-- Grafana --",
-      "enable": true,
-      "hide": true,
-      "iconColor": "rgba(0, 211, 255, 1)",
-      "name": "Annotations & Alerts",
-      "type": "dashboard"
-    }]
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
   "editable": true,
   "gnetId": null,
@@ -16,8 +18,10 @@
   "id": 14,
   "iteration": 1566901059423,
   "links": [],
-  "panels": [{
+  "panels": [
+    {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -31,6 +35,7 @@
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"config_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\">\n    </td>\n  </tr>\n</table>\n<script>\n  var currentProvider = `${current_provider}`.toLowerCase();\n  if (currentProvider === 'aws') {\n    document.getElementById('config_provider').src = 'https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG';\n  } else if ( currentProvider === 'azure') {\n    document.getElementById('config_provider').src = 'https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png';\n    document.getElementById('config_provider').style.height = '50%';\n    document.getElementById('config_provider').style.width = '50%';\n  } else if ( currentProvider === 'gcp') {\n    document.getElementById('config_provider').src = 'https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png';\n    document.getElementById('config_provider').style.height = '40%';\n  }\n  //document.getElementById('config_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'black'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -40,11 +45,13 @@
       "id": 34,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Current Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_cost\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var cost = `$${$current_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('config_cost').innerHTML = cost;\n  document.getElementById('config_cost').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -54,11 +61,13 @@
       "id": 94,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Current Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"config_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${current_region}`;\n  document.getElementById('config_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -68,6 +77,7 @@
       "id": 40,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -84,6 +94,7 @@
       },
       "id": 5,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -91,7 +102,8 @@
         "col": 2,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -208,52 +220,56 @@
           "unit": "short"
         }
       ],
-      "targets": [{
-        "expr": "count(up{job=\"kubernetes-nodes\"})",
-        "format": "table",
-        "groupBy": [{
-            "params": [
-              "$__interval"
-            ],
-            "type": "time"
-          },
-          {
-            "params": [
-              "null"
-            ],
-            "type": "fill"
-          }
-        ],
-        "hide": false,
-        "intervalFactor": 1,
-        "orderByTime": "ASC",
-        "policy": "default",
-        "query": "select  \"name\", io_role, io_instance_type, node_cpu_cores, node_memory_bytes, io_storage_size from alameda_cluster_status..node\n",
-        "rawQuery": true,
-        "refId": "A",
-        "resultFormat": "table",
-        "select": [
-          [{
+      "targets": [
+        {
+          "expr": "count(up{job=\"kubernetes-nodes\"})",
+          "format": "table",
+          "groupBy": [
+            {
               "params": [
-                "value"
+                "$__interval"
               ],
-              "type": "field"
+              "type": "time"
             },
             {
-              "params": [],
-              "type": "mean"
+              "params": [
+                "null"
+              ],
+              "type": "fill"
             }
-          ]
-        ],
-        "tags": []
-      }],
+          ],
+          "hide": false,
+          "intervalFactor": 1,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select  \"name\", io_role, io_instance_type, node_cpu_cores, node_memory_bytes, io_storage_size from alameda_cluster_status..node\n",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
       "title": "Current Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -272,6 +288,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -293,11 +310,15 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [{
+      "seriesOverrides": [
+        {
           "alias": "Prediction: CPU usage",
           "color": "#f9e2d2",
           "dashLength": 5,
@@ -323,7 +344,8 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [{
+      "targets": [
+        {
           "datasource": "Prometheus",
           "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s])) / $current_cpu_total",
           "format": "time_series",
@@ -348,7 +370,8 @@
           "datasource": "InfluxDB",
           "expr": "",
           "format": "time_series",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -370,7 +393,8 @@
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -387,7 +411,8 @@
         {
           "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -408,7 +433,8 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -441,7 +467,8 @@
         "show": true,
         "values": []
       },
-      "yaxes": [{
+      "yaxes": [
+        {
           "decimals": 2,
           "format": "percent",
           "label": null,
@@ -467,6 +494,7 @@
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"daily_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('daily_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -476,11 +504,13 @@
       "id": 57,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$daily_aws_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per day</div>`;\n  document.getElementById('daily_aws').innerHTML = price;\n  document.getElementById('daily_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -490,11 +520,13 @@
       "id": 54,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${daily_aws_region}`;\n  document.getElementById('daily_aws_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -504,6 +536,7 @@
       "id": 58,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -520,6 +553,7 @@
       },
       "id": 84,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -527,7 +561,8 @@
         "col": 11,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -664,10 +699,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -689,7 +726,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -704,7 +742,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -725,7 +764,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -742,11 +782,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"daily_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('daily_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -756,11 +796,13 @@
       "id": 60,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$daily_azure_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per day</div>`;\n  document.getElementById('daily_azure').innerHTML = price;\n  document.getElementById('daily_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -770,11 +812,13 @@
       "id": 55,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_azure_region}`;\n  document.getElementById('daily_azure_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -784,6 +828,7 @@
       "id": 62,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -800,6 +845,7 @@
       },
       "id": 85,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -807,7 +853,8 @@
         "col": null,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -944,10 +991,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -969,7 +1018,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -984,7 +1034,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1005,7 +1056,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1022,11 +1074,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n       <img id=\"daily_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('daily_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -1036,11 +1088,13 @@
       "id": 63,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$daily_gcp_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per day</div>`;\n  document.getElementById('daily_gcp').innerHTML = price;\n  document.getElementById('daily_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1050,11 +1104,13 @@
       "id": 56,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region =  `${daily_gcp_region}`;\n  document.getElementById('daily_gcp_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1064,6 +1120,7 @@
       "id": 68,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -1080,6 +1137,7 @@
       },
       "id": 86,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -1087,7 +1145,8 @@
         "col": 5,
         "desc": true
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -1108,10 +1167,12 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [{
-            "text": "8.00 GB",
-            "value": "1"
-          }]
+          "valueMaps": [
+            {
+              "text": "8.00 GB",
+              "value": "1"
+            }
+          ]
         },
         {
           "alias": "Master(On-demand)",
@@ -1228,10 +1289,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1253,7 +1316,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1268,7 +1332,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1288,7 +1353,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1305,11 +1371,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1328,6 +1394,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -1349,11 +1416,15 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [{
+      "seriesOverrides": [
+        {
           "alias": "Prediction: CPU usage",
           "color": "#f9e2d2",
           "dashLength": 5,
@@ -1379,7 +1450,8 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [{
+      "targets": [
+        {
           "datasource": "Prometheus",
           "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s])) / $current_cpu_total",
           "format": "time_series",
@@ -1402,7 +1474,8 @@
           "datasource": "InfluxDB",
           "expr": "",
           "format": "time_series",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1424,7 +1497,8 @@
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1441,7 +1515,8 @@
         {
           "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1462,7 +1537,8 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1495,7 +1571,8 @@
         "show": true,
         "values": []
       },
-      "yaxes": [{
+      "yaxes": [
+        {
           "decimals": 2,
           "format": "percent",
           "label": null,
@@ -1521,6 +1598,7 @@
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"weekly_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('weekly_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -1530,11 +1608,13 @@
       "id": 66,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$weekly_aws_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per week</div>`;\n  document.getElementById('weekly_aws').innerHTML = price;\n  document.getElementById('weekly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1544,11 +1624,13 @@
       "id": 50,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_aws_region}`;\n  document.getElementById('weekly_aws_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1558,6 +1640,7 @@
       "id": 67,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -1574,6 +1657,7 @@
       },
       "id": 87,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -1581,7 +1665,8 @@
         "col": null,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -1602,10 +1687,12 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [{
-            "text": "4.00",
-            "value": "1"
-          }]
+          "valueMaps": [
+            {
+              "text": "4.00",
+              "value": "1"
+            }
+          ]
         },
         {
           "alias": "Master(On-demand)",
@@ -1722,10 +1809,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1747,7 +1836,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1762,7 +1852,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -1782,7 +1873,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -1799,11 +1891,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n     <img id=\"weekly_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('weekly_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -1813,11 +1905,13 @@
       "id": 69,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$weekly_azure_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per week</div>`;\n  document.getElementById('weekly_azure').innerHTML = price;\n  document.getElementById('weekly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1827,11 +1921,13 @@
       "id": 51,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_azure_region}`;\n  document.getElementById('weekly_azure_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1841,6 +1937,7 @@
       "id": 71,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -1857,6 +1954,7 @@
       },
       "id": 88,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -1864,7 +1962,8 @@
         "col": null,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -2001,10 +2100,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2026,7 +2127,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2041,7 +2143,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2061,7 +2164,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2078,11 +2182,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n     <img id=\"weekly_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('weekly_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -2092,11 +2196,13 @@
       "id": 74,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$weekly_gcp_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per week</div>`;\n  document.getElementById('weekly_gcp').innerHTML = price;\n  document.getElementById('weekly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -2106,11 +2212,13 @@
       "id": 52,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${weekly_gcp_region}`;\n  document.getElementById('weekly_gcp_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -2120,6 +2228,7 @@
       "id": 77,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -2136,6 +2245,7 @@
       },
       "id": 89,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -2143,7 +2253,8 @@
         "col": null,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -2281,10 +2392,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2306,7 +2419,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2321,7 +2435,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2341,7 +2456,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2358,11 +2474,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2402,11 +2518,13 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [{
+      "seriesOverrides": [
+        {
           "alias": "Prediction: CPU usage",
           "color": "#f9e2d2",
           "dashLength": 5,
@@ -2432,7 +2550,8 @@
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
-      "targets": [{
+      "targets": [
+        {
           "datasource": "Prometheus",
           "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s])) / $current_cpu_total",
           "format": "time_series",
@@ -2456,7 +2575,8 @@
           "datasource": "InfluxDB",
           "expr": "",
           "format": "time_series",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2478,7 +2598,8 @@
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2495,7 +2616,8 @@
         {
           "alias": "Prediction: memory usage",
           "datasource": "InfluxDB",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2516,7 +2638,8 @@
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2549,7 +2672,8 @@
         "show": true,
         "values": []
       },
-      "yaxes": [{
+      "yaxes": [
+        {
           "decimals": 2,
           "format": "percent",
           "label": null,
@@ -2575,6 +2699,7 @@
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_aws_provider\" style=\"display:block; margin-left:auto; margin-right:auto;\" src=\"https://d1.awsstatic.com/gamedev/gamelift/awshomepage.8845ec5b83a849d57f677cf9010c25abd357ea2e.PNG\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_aws_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -2584,11 +2709,13 @@
       "id": 75,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$monthly_aws_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('monthly_aws').innerHTML = price;\n  document.getElementById('monthly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -2598,11 +2725,13 @@
       "id": 28,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_aws_region}`;\n  document.getElementById('monthly_aws_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -2612,6 +2741,7 @@
       "id": 72,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -2628,6 +2758,7 @@
       },
       "id": 90,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -2635,7 +2766,8 @@
         "col": 11,
         "desc": true
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -2772,10 +2904,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2797,7 +2931,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2812,7 +2947,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -2832,7 +2968,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -2849,11 +2986,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_azure_provider\" style=\"display:block; margin-left:auto; margin-right:auto; width:50%; height:50%\" src=\"https://www.net4all.ch/wp-content/uploads/sites/4/2018/04/azure-logo_200x200.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  //document.getElementById('monthly_azure_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -2863,11 +3000,13 @@
       "id": 78,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$monthly_azure_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('monthly_azure').innerHTML = price;\n  document.getElementById('monthly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -2877,11 +3016,13 @@
       "id": 30,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_azure_region}`;\n  document.getElementById('monthly_azure_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -2891,6 +3032,7 @@
       "id": 82,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -2907,6 +3049,7 @@
       },
       "id": 91,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -2914,7 +3057,8 @@
         "col": null,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -2935,10 +3079,12 @@
           "thresholds": [],
           "type": "string",
           "unit": "short",
-          "valueMaps": [{
-            "text": "4.00",
-            "value": "1"
-          }]
+          "valueMaps": [
+            {
+              "text": "4.00",
+              "value": "1"
+            }
+          ]
         },
         {
           "alias": "Master(On-demand)",
@@ -3055,10 +3201,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -3080,7 +3228,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -3095,7 +3244,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -3115,7 +3265,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -3132,11 +3283,11 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <img id=\"monthly_gcp_provider\" style=\"display:block; margin-left:auto; margin-right:auto;height:25%;\" src=\"https://www.abacoinformatica.com/wp-content/uploads/2019/03/Google-Cloud-Platform.png\">\n    </td>\n  </tr>\n</table>\n<script>\n  // https://miro.medium.com/max/1200/1*eSQnSxgOwNWtjsnbBl3w4A.png\n  //document.getElementById('monthly_gcp_provider').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'darkgoldenrod'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -3146,11 +3297,13 @@
       "id": 79,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Recommended Provider",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var price = `$${$monthly_gcp_cost.toFixed(2)}<div style=\"font-size:18px; color:black\">per month</div>`;\n  document.getElementById('monthly_gcp').innerHTML = price;\n  document.getElementById('monthly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -3160,11 +3313,13 @@
       "id": 32,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Estimated Cost",
       "type": "text"
     },
     {
       "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp_region\" type=\"text/JavaScript\" style=\"text-align:center;font-size:20px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var region = `${monthly_gcp_region}`;\n  document.getElementById('monthly_gcp_region').innerHTML = region;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -3174,6 +3329,7 @@
       "id": 83,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Region",
       "type": "text"
     },
@@ -3190,6 +3346,7 @@
       },
       "id": 92,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -3197,7 +3354,8 @@
         "col": null,
         "desc": false
       },
-      "styles": [{
+      "styles": [
+        {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "pattern": "Time",
@@ -3334,10 +3492,12 @@
           "unit": "short"
         }
       ],
-      "targets": [{
+      "targets": [
+        {
           "expr": "count(up{job=\"kubernetes-nodes\"})",
           "format": "table",
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -3359,7 +3519,8 @@
           "refId": "A",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -3374,7 +3535,8 @@
           "tags": []
         },
         {
-          "groupBy": [{
+          "groupBy": [
+            {
               "params": [
                 "$__interval"
               ],
@@ -3394,7 +3556,8 @@
           "refId": "B",
           "resultFormat": "table",
           "select": [
-            [{
+            [
+              {
                 "params": [
                   "value"
                 ],
@@ -3411,7 +3574,6 @@
       ],
       "title": "Cluster Configuration",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     }
   ],
@@ -3420,7 +3582,8 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [{
+    "list": [
+      {
         "allValue": null,
         "current": {
           "selected": true,
@@ -3432,7 +3595,8 @@
         "label": "Scope",
         "multi": false,
         "name": "resource",
-        "options": [{
+        "options": [
+          {
             "selected": true,
             "text": "Cluster",
             "value": "Cluster"
@@ -3484,7 +3648,8 @@
         "label": "RI Consideration",
         "multi": false,
         "name": "purchase_option",
-        "options": [{
+        "options": [
+          {
             "selected": false,
             "text": "Yes",
             "value": "Yes"

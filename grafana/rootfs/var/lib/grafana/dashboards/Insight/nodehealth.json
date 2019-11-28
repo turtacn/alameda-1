@@ -21,6 +21,7 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -74,6 +75,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -156,6 +158,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -204,6 +207,7 @@
       "datasource": "Prometheus",
       "description": "",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 15,
@@ -231,6 +235,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -335,6 +342,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -417,6 +425,7 @@
       "maxDataPoints": 100,
       "nullPointMode": "connected",
       "nullText": null,
+      "options": {},
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "",
@@ -464,6 +473,7 @@
       "dashes": false,
       "datasource": "Prometheus",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 15,
@@ -487,6 +497,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -549,6 +562,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -568,6 +582,7 @@
       "datasource": "Prometheus",
       "decimals": 0,
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 24,
@@ -591,6 +606,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -674,6 +692,7 @@
       "hideTimeOverride": true,
       "id": 60,
       "links": [],
+      "options": {},
       "pageSize": 8,
       "repeat": null,
       "repeatDirection": "v",
@@ -896,7 +915,6 @@
       "timeShift": null,
       "title": "Current Running pods",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     }
   ],

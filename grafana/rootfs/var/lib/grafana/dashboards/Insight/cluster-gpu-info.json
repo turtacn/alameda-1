@@ -21,6 +21,7 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -34,6 +35,7 @@
     },
     {
       "content": "<table style=\"height:80%;width:100%;\">\n  <tr>\n    <td>\n      <div id=\"total\" type=\"text/JavaScript\" style=\"text-align:center;font-size:40px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var total = `${total}`;\n  document.getElementById('total').innerHTML = `${total}`;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 5,
@@ -43,6 +45,7 @@
       "id": 35,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Total Node Count",
       "type": "text"
     },
@@ -415,6 +418,7 @@
     },
     {
       "content": "<table style=\"height:80%;width:100%;background:#299c46\">\n  <tr>\n    <td>\n      <div id=\"active\" type=\"text/JavaScript\" style=\"text-align:center;font-size:40px\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var active = `${active}`;\n  document.getElementById('active').innerHTML = `${active}`;\n</script>",
+      "datasource": null,
       "gridPos": {
         "h": 3,
         "w": 5,
@@ -424,6 +428,7 @@
       "id": 34,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Active Node Count",
       "type": "text"
     },
@@ -551,6 +556,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -804,6 +810,7 @@
       "dashes": false,
       "datasource": "InfluxDB",
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -825,7 +832,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -1166,6 +1175,7 @@
       "dashes": false,
       "datasource": "InfluxDB",
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -1186,7 +1196,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -1289,6 +1301,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1541,6 +1554,7 @@
       "dashes": false,
       "datasource": "InfluxDB",
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -1562,7 +1576,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -2039,6 +2055,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,

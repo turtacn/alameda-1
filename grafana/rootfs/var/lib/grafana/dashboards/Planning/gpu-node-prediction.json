@@ -21,6 +21,7 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -229,6 +230,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -247,6 +249,7 @@
       "dashes": false,
       "datasource": "InfluxDB",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -268,6 +271,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -416,6 +422,7 @@
       "dashes": false,
       "datasource": "InfluxDB",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -437,6 +444,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "connected",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
