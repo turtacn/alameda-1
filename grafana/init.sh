@@ -60,6 +60,9 @@ do_start()
         sleep 2
     done
     
+    # start nginx service
+    nginx -g 'daemon off;' &
+
     ## update 
     while :; do
         [ -f /tmp/.pause ] && sleep 300 || sleep 30

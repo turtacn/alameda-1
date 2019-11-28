@@ -14,8 +14,14 @@ USER root
 RUN set -x \
     && id \
     && apk update \
-    && apk add --no-cache nano curl procps sqlite \
-    && rm -rf /var/cache/apk/*
+    && apk add --no-cache nano curl procps sqlite nginx \
+    && rm -rf /var/cache/apk/* \
+    && rm -fv /etc/nginx/conf.d/* \
+    && mv -fv /tmp/src/nginx.conf /etc/nginx/nginx.conf \
+    && mv -fv /tmp/src/ssl.crt /etc/nginx/ssl.crt \
+    && mv -fv /tmp/src/ssl.key /etc/nginx/ssl.key \
+    ## Need write permission on the following directories
+    && mkdir -p /var/tmp/nginx /var/lib/nginx && chmod -R 777 /var/log /var/tmp/nginx /var/lib/nginx /etc/nginx
 
 RUN set -x \
     ## Build
