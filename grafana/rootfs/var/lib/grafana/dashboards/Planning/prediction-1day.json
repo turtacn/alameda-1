@@ -15,12 +15,13 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
-  "iteration": 1566439853319,
+  "id": 21,
+  "iteration": 1574935475258,
   "links": [],
   "panels": [
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -45,6 +46,7 @@
       },
       "id": 5,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -387,7 +389,6 @@
       ],
       "title": "Managed Containers",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
@@ -402,6 +403,7 @@
       },
       "id": 4,
       "links": [],
+      "options": {},
       "pageSize": null,
       "scroll": true,
       "showHeader": true,
@@ -556,11 +558,11 @@
       ],
       "title": "Managed Nodes",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -579,6 +581,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -600,6 +603,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -688,7 +694,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -716,7 +722,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(3600s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"controller\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$controller'  and 'Controller' = '$resource' group by time(3600s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -836,7 +842,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_cpu where time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..namespace_cpu where \"name\" = '$ns' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Application' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..container_cpu where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Container' = '$resource' group by time(3600s)) where time >= now() -5d and time <= now() +1d group by time(3600s)",
+          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_cpu where time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..namespace_cpu where \"name\" = '$ns' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Application' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..controller_cpu where \"name\" = '$controller' and \"namespace\" = '$ns' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Controller' = '$resource' group by time(3600s)) where time >= now() -5d and time <= now() +1d group by time(3600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -876,7 +882,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(3600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '3600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 1d and \"name\" = '$container' and namespace = '$ns' and pod_name = '$pod' and 'Container' = '$resource' group by time(3600s))\n",
+          "query": "select * from\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(3600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"controller\" where granularity = '3600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 1d and \"name\" = '$controller' and namespace = '$ns' and 'Controller' = '$resource' group by time(3600s))\n",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1027,6 +1033,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -1048,6 +1055,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1130,7 +1140,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1158,7 +1168,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(3600s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(3600s)),\n( select sum(value) from \"alameda_prediction\"..\"controller\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d and \"name\" = '$controller' and 'Controller' = '$resource' group by time(3600s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1278,7 +1288,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_memory where time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..namespace_memory where \"name\" = '$ns' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..application_memory where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Application' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..container_memory where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Container' = '$resource' group by time(3600s)) where time >= now() -5d and time <= now() +1d group by time(3600s)",
+          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_memory where time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..namespace_memory where \"name\" = '$ns' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..application_memory where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Application' = '$resource' group by time(3600s)), (select mean(value) from alameda_metric..controller_memory where \"namespace\" = '$ns' and \"name\" = '$controller' and time >= now() -5d and time <= now() +1d and 'true' = '$preloader' and 'Controller' = '$resource' group by time(3600s)) where time >= now() -5d and time <= now() +1d group by time(3600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -1318,7 +1328,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from\n( select sum(resource_request_memory) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(3600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '3600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 1d and \"name\" = '$container' and pod_name = '$pod' and namespace = '$ns' and namespace = '$ns' and 'Container' = '$resource' group by time(3600s))",
+          "query": "select * from\n( select sum(resource_request_memory) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and 'Cluster' = '$resource' group by time(3600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(3600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '3600' and time >= now() and time <= now() + 1d and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(3600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"controller\" where granularity = '3600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 1d and \"name\" = '$controller' and  namespace = '$ns' and namespace = '$ns' and 'Controller' = '$resource' group by time(3600s))",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1463,6 +1473,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1481,6 +1492,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -1502,6 +1514,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1590,7 +1605,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s]))",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "21600s",
@@ -1618,7 +1633,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(21600s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"controller\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w and \"name\" = '$controller' and 'Controller' = '$resource' group by time(21600s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1738,7 +1753,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_cpu where time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..namespace_cpu where \"name\" = '$ns' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Application' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..container_cpu where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Container' = '$resource' group by time(21600s)) where time >= now() -5w and time <= now() +1w group by time(21600s)",
+          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_cpu where time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..namespace_cpu where \"name\" = '$ns' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Application' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..controller_cpu where \"namespace\" = '$ns' and \"name\" = '$controller' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Controller' = '$resource' group by time(21600s)) where time >= now() -5w and time <= now() +1w group by time(21600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -1778,7 +1793,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(21600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(21600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now()  and time <= now() + 1w and \"name\" = '$container' and pod_name = '$pod' and namespace = '$ns' and namespace = '$ns' and 'Container' = '$resource' group by time(21600s))",
+          "query": "select * from\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(21600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(21600s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"controller\" where granularity = '21600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now()  and time <= now() + 1w and \"name\" = '$controller' and namespace = '$ns' and 'Controller' = '$resource' group by time(21600s))",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -1929,6 +1944,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -1950,6 +1966,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2029,7 +2048,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s])))",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -2056,7 +2075,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(21600s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(21600s)),\n( select sum(value) from \"alameda_prediction\"..\"controller\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w and \"name\" = '$controller'  and 'Controller' = '$resource' group by time(21600s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -2176,7 +2195,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_memory where time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..namespace_memory where \"name\" = '$ns' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..application_memory where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Application' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..container_memory where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Container' = '$resource' group by time(21600s)) where time >= now() -5w and time <= now() +1w group by time(21600s)",
+          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_memory where time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..namespace_memory where \"name\" = '$ns' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..application_memory where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Application' = '$resource' group by time(21600s)), (select mean(value) from alameda_metric..controller_memory where \"namespace\" = '$ns' and \"name\" = '$controller' and time >= now() -5w and time <= now() +1w and 'true' = '$preloader' and 'Controller' = '$resource' group by time(21600s)) where time >= now() -5w and time <= now() +1w group by time(21600s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -2216,7 +2235,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from\n( select sum(resource_request_memory) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(21600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(21600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '21600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now()  and time <= now() + 1w and \"name\" = '$container' and pod_name = '$pod' and namespace = '$ns' and 'Container' = '$resource' group by time(21600s))",
+          "query": "select * from\n( select sum(resource_request_memory) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and 'Cluster' = '$resource' group by time(21600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(21600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '21600' and time >= now()  and time <= now() + 1w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(21600s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"controller\" where granularity = '21600' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now()  and time <= now() + 1w and \"name\" = '$controller' and namespace = '$ns' and 'Controller' = '$resource' group by time(21600s))",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2361,6 +2380,7 @@
     },
     {
       "collapsed": false,
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2379,6 +2399,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -2400,6 +2421,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2486,7 +2510,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s]))",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s]))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2513,7 +2537,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w  and time <= now() + 4w and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(86400s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w  and time <= now() + 4w and 'Namespace' = '$resource' and \"name\" = '$ns' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"controller\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w and \"name\" = '$controller' and 'Controller' = '$resource' group by time(86400s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -2673,7 +2697,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(86400s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(86400s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 4w and \"name\" = '$container' and pod_name = '$pod' and namespace = '$ns' and 'Container' = '$resource' group by time(86400s))",
+          "query": "select * from\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(86400s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(86400s)),\n( select sum(resource_request_cpu) from \"alameda_planning\"..\"controller\" where granularity = '86400' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 4w and \"name\" = '$controller' and namespace = '$ns' and 'Controller' = '$resource' group by time(86400s))",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -2824,6 +2848,7 @@
       "dashes": false,
       "datasource": "-- Mixed --",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -2845,6 +2870,9 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2924,7 +2952,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s])))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2950,7 +2978,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"container\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and \"name\" = '$container' and pod_name = '$pod' and 'Container' = '$resource' group by time(86400s))",
+          "query": "select * from \n( select sum(value) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"namespace\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"application\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and namespace = '$ns' and \"name\" = '$scaler' and 'Application' = '$resource' group by time(86400s)),\n( select sum(value) from \"alameda_prediction\"..\"controller\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w and \"name\" = '$controller' and 'Controller' = '$resource' group by time(86400s))",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -3070,7 +3098,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_memory where time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..namespace_memory where \"name\" = '$ns' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..application_memory where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Application' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..container_memory where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Container' = '$resource' group by time(86400s)) where time >= now() -20w and time <= now() +4w group by time(86400s)",
+          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_memory where time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..namespace_memory where \"name\" = '$ns' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..application_memory where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Application' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..controller_memory where \"namespace\" = '$ns' and \"name\" = '$controller' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Controller' = '$resource' group by time(86400s)) where time >= now() -20w and time <= now() +4w group by time(86400s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -3110,7 +3138,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select * from\n( select sum(resource_request_memory) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(86400s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(86400s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"container\" where granularity = '86400' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 4w and \"name\" = '$container' and pod_name = '$pod' and namespace = '$ns' and 'Container' = '$resource' group by time(86400s))",
+          "query": "select * from\n( select sum(resource_request_memory) from \"alameda_planning\"..\"cluster\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and 'Cluster' = '$resource' group by time(86400s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"namespace\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$ns' and 'Namespace' = '$resource' group by time(86400s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"application\" where \"planning_type\" = 'PT_RECOMMENDATION' and granularity = '86400' and time >= now() and time <= now() + 4w and \"name\" = '$scaler' and namespace = '$ns' and 'Application' = '$resource' group by time(86400s)),\n( select sum(resource_request_memory) from \"alameda_planning\"..\"controller\" where granularity = '86400' and \"planning_type\" = 'PT_RECOMMENDATION' and time >= now() and time <= now() + 4w and \"name\" = '$controller' and namespace = '$ns' and 'Controller' = '$resource' group by time(86400s))",
           "rawQuery": true,
           "refId": "E",
           "resultFormat": "time_series",
@@ -3255,7 +3283,8 @@
       }
     },
     {
-      "content": "<script>\n$( document ).ready(function() {\n  for (var i = 1; i <= 4; i++) {\n    var el = document.getElementsByClassName(\"variable-value-link\")[i];\n    if(el.childNodes && el.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t    el.childNodes[0].nodeValue = el.childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  }\n  $(document).on(\"click\",\".gf-form-inline\",function() {\n    var option = $('.variable-option')[0];\n    if(option.childNodes && option.childNodes[3].childNodes[0].nodeValue.indexOf('None') !== -1) {\n       option.childNodes[3].childNodes[0].nodeValue = option.childNodes[3].childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  });\n  \n});\n\n$(\".variable-value-link\").on('DOMSubtreeModified', function () {\n if(this.childNodes && this.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t  this.childNodes[0].nodeValue = this.childNodes[0].nodeValue.replace('None', 'N/A')\n  }\n});\n</script>\n<style>\n  #panel-56 {\n    display:none;\n  }\n</style>",
+      "content": "<script>\n$( document ).ready(function() {\n  for (var i = 1; i <= 5; i++) {\n    var el = document.getElementsByClassName(\"variable-value-link\")[i];\n    if(el.childNodes && el.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t    el.childNodes[0].nodeValue = el.childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  }\n  $(document).on(\"click\",\".gf-form-inline\",function() {\n    var option = $('.variable-option')[0];\n    if(option.childNodes && option.childNodes[3].childNodes[0].nodeValue.indexOf('None') !== -1) {\n       option.childNodes[3].childNodes[0].nodeValue = option.childNodes[3].childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  });\n  \n});\n\n$(\".variable-value-link\").on('DOMSubtreeModified', function () {\n if(this.childNodes && this.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t  this.childNodes[0].nodeValue = this.childNodes[0].nodeValue.replace('None', 'N/A')\n  }\n});\n</script>\n<style>\n  #panel-56 {\n    display:none;\n  }\n</style>",
+      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 12,
@@ -3264,12 +3293,13 @@
       },
       "id": 56,
       "mode": "html",
+      "options": {},
       "title": "Panel Title",
       "type": "text"
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 16,
+  "schemaVersion": 20,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -3304,29 +3334,30 @@
           },
           {
             "selected": false,
-            "text": "Container",
-            "value": "Container"
+            "text": "Controller",
+            "value": "Controller"
           }
         ],
-        "query": "Cluster, Namespace, Application, Container",
+        "query": "Cluster, Namespace, Application, Controller",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
         "allValue": null,
         "current": {
-          "text": "test",
-          "value": "test"
+          "selected": true,
+          "text": "cake",
+          "value": "cake"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from namespace with key=\"name\" where 'Cluster' != '$resource'",
+        "definition": "select \"name\" from (select \"name\", value from alameda_cluster_status..namespace where 'Namespace' = '$resource'), (select \"alameda_scaler_namespace\" as \"name\", \"policy\" from alameda_cluster_status..pod where 'Application' = '$resource' or 'Controller' = '$resource')",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
         "multi": false,
         "name": "ns",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from namespace with key=\"name\" where 'Cluster' != '$resource'",
+        "query": "select \"name\" from (select \"name\", value from alameda_cluster_status..namespace where 'Namespace' = '$resource'), (select \"alameda_scaler_namespace\" as \"name\", \"policy\" from alameda_cluster_status..pod where 'Application' = '$resource' or 'Controller' = '$resource')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3340,8 +3371,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "alameda-busybox",
-          "value": "alameda-busybox"
+          "selected": true,
+          "text": "alameda",
+          "value": "alameda"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_name\"  where \"alameda_scaler_namespace\" = '$ns'  and 'Namespace' != '$resource'",
@@ -3366,18 +3398,19 @@
         "allValue": null,
         "current": {
           "isNone": true,
+          "selected": true,
           "text": "None",
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and scaling_tool =~ /VPA/ and 'Container' = '$resource'",
+        "definition": "select \"name\",  \"policy\" from alameda_cluster_status..controller where  \"spec_namespace\" = '$ns' and \"spec_name\" = '$scaler'  and 'Controller' = '$resource'",
         "hide": 0,
         "includeAll": false,
-        "label": "Pod",
+        "label": "Controller",
         "multi": false,
-        "name": "pod",
+        "name": "controller",
         "options": [],
-        "query": "select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and scaling_tool =~ /VPA/ and 'Container' = '$resource'",
+        "query": "select \"name\",  \"policy\" from alameda_cluster_status..controller where  \"spec_namespace\" = '$ns' and \"spec_name\" = '$scaler'  and 'Controller' = '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3392,18 +3425,19 @@
         "allValue": null,
         "current": {
           "isNone": true,
+          "selected": true,
           "text": "None",
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"pod_name\" = '$pod' and 'Container' = '$resource'",
-        "hide": 0,
+        "definition": "select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' and scaling_tool =~ /VPA/ and 'Controller' = '$resource'",
+        "hide": 2,
         "includeAll": false,
-        "label": "Container",
+        "label": "Pod",
         "multi": false,
-        "name": "container",
+        "name": "pod",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from container with key=\"name\" where \"pod_name\" = '$pod' and 'Container' = '$resource'",
+        "query": "select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and \"top_controller_name\" = '$controller' and scaling_tool =~ /VPA/ and 'Controller' = '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3417,6 +3451,34 @@
       {
         "allValue": null,
         "current": {
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "show tag values on alameda_cluster_status from container with key=\"name\" where \"pod_name\" = '$pod' and 'Controller' = '$resource'",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Container",
+        "multi": false,
+        "name": "container",
+        "options": [],
+        "query": "show tag values on alameda_cluster_status from container with key=\"name\" where \"pod_name\" = '$pod' and 'Controller' = '$resource'",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3442,18 +3504,19 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_name, scaling_tool from ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
+        "definition": "select \"name\", spec_scaling_tool from (select \"name\", spec_scaling_tool from alameda_cluster_status..application where \"namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by \"name\"), (select \"name\", spec_scaling_tool from alameda_cluster_status..application where \"namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by \"name\")",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "h_scaler",
         "options": [],
-        "query": "select alameda_scaler_name, scaling_tool from ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
+        "query": "select \"name\", spec_scaling_tool from (select \"name\", spec_scaling_tool from alameda_cluster_status..application where \"namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by \"name\"), (select \"name\", spec_scaling_tool from alameda_cluster_status..application where \"namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by \"name\")",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3467,6 +3530,33 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"name\", spec_scaling_tool from  (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" =~ /^[[h_ns]]$/ and \"spec_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" = '$ns' and \"spec_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" = '$ns' and \"spec_name\" = '$scaler' and 'Application' = '$resource'), (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" = '$ns' and \"spec_name\" = '$scaler' and \"name\" = '$controller' and 'Controller' = '$resource')",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "h_controller",
+        "options": [],
+        "query": "select \"name\", spec_scaling_tool from  (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" =~ /^[[h_ns]]$/ and \"spec_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" = '$ns' and \"spec_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" = '$ns' and \"spec_name\" = '$scaler' and 'Application' = '$resource'), (select \"name\", spec_scaling_tool from alameda_cluster_status..controller where \"namespace\" = '$ns' and \"spec_name\" = '$scaler' and \"name\" = '$controller' and 'Controller' = '$resource')",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3492,6 +3582,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3517,8 +3608,10 @@
       {
         "allValue": null,
         "current": {
-          "text": "1",
-          "value": "1"
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select count(\"name\") from (select \"name\", resource_request_cpu from (select \"name\", resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and ('Cluster' = '$resource' or 'Namespace' = 'resource' or 'Application' = 'resource')), (select \"name\", resource_request_cpu from alameda_cluster_status..container where \"pod_name\" = '$pod' and 'Container' = '$resource'))",
@@ -3543,6 +3636,7 @@
         "allValue": null,
         "current": {
           "isNone": true,
+          "selected": true,
           "text": "None",
           "value": ""
         },
@@ -3568,6 +3662,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3671,7 +3766,33 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "InfluxDB",
+        "definition": "select \"namespace\", spec_scaling_tool from alameda_cluster_status..controller where 'Controller' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"namespace\" order by time desc limit 1",
+        "hide": 2,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "controller_ns",
+        "options": [],
+        "query": "select \"namespace\", spec_scaling_tool from alameda_cluster_status..controller where 'Controller' = '$resource' and ('false' = '$preloader' or '' = '$preloader') group by \"namespace\" order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3723,7 +3844,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3827,6 +3948,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3852,6 +3974,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -3877,6 +4000,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
