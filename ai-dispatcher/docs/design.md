@@ -64,7 +64,16 @@ ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_MEMORY          | 1000000 
 ALAMEDA_AI_DISPATCHER_MEASUREMENTS_RMSE_NORMALIZATION_DUTYCYCLE       | 0.2                                                   |
 ALAMEDA_AI_DISPATCHER_MEASUREMENTS_MINIMUMDATAPOINTS                  | 5                                                     |
 ALAMEDA_AI_DISPATCHER_SERVICESETTING_GRANULARITIES                    | 30s 1h 6h 24h                                         |
-ALAMEDA_AI_DISPATCHER_SERVICESETTING_PREDICTUNITS                     | POD NODE GPU NAMESPACE APPLICATION CLUSTER CONTROLLER |
+ALAMEDA_AI_DISPATCHER_SERVICESETTING_PREDICTUNITS                     | POD GPU NAMESPACE APPLICATION CLUSTER CONTROLLER NODE |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_24H_PREDICTIONJOBSENDINTERVALSEC  | 86400                                                 |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_6H_PREDICTIONJOBSENDINTERVALSEC   | 21600                                                 |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_1H_PREDICTIONJOBSENDINTERVALSEC   | 3600                                                  |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_30S_PREDICTIONJOBSENDINTERVALSEC  | 30                                                    |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_24H_MODELJOBSENDINTERVALSEC       | 86400                                                 |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_6H_MODELJOBSENDINTERVALSEC        | 21600                                                 |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_1H_MODELJOBSENDINTERVALSEC        | 3600                                                  |
+ALAMEDA_AI_DISPATCHER_GRANULARITIES_30S_MODELJOBSENDINTERVALSEC       | 30                                                    |
+ALAMEDA_AI_DISPATCHER_HOURLYPREDICT                                   | false                                                 |
 
 # Deduplicate jobs in queue
 
