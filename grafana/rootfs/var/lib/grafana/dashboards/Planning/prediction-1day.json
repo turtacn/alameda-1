@@ -561,13 +561,28 @@
       "type": "table"
     },
     {
+      "content": "<script>\n$( document ).ready(function() {\n  for (var i = 1; i <= 5; i++) {\n    var el = document.getElementsByClassName(\"variable-value-link\")[i];\n    if(el.childNodes && el.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t    el.childNodes[0].nodeValue = el.childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  }\n  $(document).on(\"click\",\".gf-form-inline\",function() {\n    var option = $('.variable-option')[0];\n    if(option.childNodes && option.childNodes[3].childNodes[0].nodeValue.indexOf('None') !== -1) {\n       option.childNodes[3].childNodes[0].nodeValue = option.childNodes[3].childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  });\n  \n});\n\n$(\".variable-value-link\").on('DOMSubtreeModified', function () {\n if(this.childNodes && this.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t  this.childNodes[0].nodeValue = this.childNodes[0].nodeValue.replace('None', 'N/A')\n  }\n});\n</script>\n<style>\n  #panel-56 {\n    display:none;\n  }\n</style>",
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 0,
+        "y": 7
+      },
+      "id": 56,
+      "mode": "html",
+      "options": {},
+      "title": "Panel Title",
+      "type": "text"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 8
       },
       "id": 50,
       "panels": [],
@@ -586,7 +601,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 9
       },
       "hideTimeOverride": true,
       "id": 54,
@@ -1038,7 +1053,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 18
       },
       "hideTimeOverride": true,
       "id": 52,
@@ -1478,7 +1493,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 27
       },
       "id": 38,
       "panels": [],
@@ -1497,7 +1512,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 28
       },
       "hideTimeOverride": true,
       "id": 40,
@@ -1949,7 +1964,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 37
       },
       "hideTimeOverride": true,
       "id": 42,
@@ -2385,7 +2400,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "id": 44,
       "panels": [],
@@ -2404,7 +2419,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 47
       },
       "hideTimeOverride": true,
       "id": 48,
@@ -2853,7 +2868,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 56
       },
       "hideTimeOverride": true,
       "id": 46,
@@ -3281,21 +3296,6 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "content": "<script>\n$( document ).ready(function() {\n  for (var i = 1; i <= 5; i++) {\n    var el = document.getElementsByClassName(\"variable-value-link\")[i];\n    if(el.childNodes && el.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t    el.childNodes[0].nodeValue = el.childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  }\n  $(document).on(\"click\",\".gf-form-inline\",function() {\n    var option = $('.variable-option')[0];\n    if(option.childNodes && option.childNodes[3].childNodes[0].nodeValue.indexOf('None') !== -1) {\n       option.childNodes[3].childNodes[0].nodeValue = option.childNodes[3].childNodes[0].nodeValue.replace('None', 'N/A')\n    }\n  });\n  \n});\n\n$(\".variable-value-link\").on('DOMSubtreeModified', function () {\n if(this.childNodes && this.childNodes[0].nodeValue.indexOf('None') !== -1) {\n\t  this.childNodes[0].nodeValue = this.childNodes[0].nodeValue.replace('None', 'N/A')\n  }\n});\n</script>\n<style>\n  #panel-56 {\n    display:none;\n  }\n</style>",
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 12,
-        "x": 0,
-        "y": 64
-      },
-      "id": 56,
-      "mode": "html",
-      "options": {},
-      "title": "Panel Title",
-      "type": "text"
     }
   ],
   "refresh": "5m",
