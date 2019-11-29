@@ -3,7 +3,10 @@ exclude_namespaces = ["kube-public", "kube-service-catalog",
   "openshift-console", "openshift-infra", "openshift-logging",
   "openshift-monitoring", "openshift-node", "openshift-sdn",
   "openshift-template-service-broker", "openshift-web-console",
-  "kube-node-lease", "stackpoint-system", "openshift-ansible-service-broker"
+  "kube-node-lease", "stackpoint-system", "openshift-ansible-service-broker",
+  "openshift-metrics-server", "openshift-operators",
+  "openshift-operator-lifecycle-manager", "openshift-marketplace",
+  "marketplace"
 ]
 
 [log]
