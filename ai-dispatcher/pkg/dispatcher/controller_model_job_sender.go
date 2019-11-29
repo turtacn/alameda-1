@@ -175,7 +175,7 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 	if len(lastPredictionMetrics) == 0 {
 		controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
 			datahub_common.MetricType_MEMORY_USAGE_BYTES,
-			datahub_common.MetricType_DUTY_CYCLE,
+			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 		)
 		sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
 		scope.Infof("No prediction metric found of controller %s/%s, send model jobs with granularity %v",
@@ -186,7 +186,7 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 		if len(lastPredictionMetric.GetData()) == 0 {
 			controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
 				datahub_common.MetricType_MEMORY_USAGE_BYTES,
-				datahub_common.MetricType_DUTY_CYCLE)
+				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE)
 			sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
 			scope.Infof("No prediction metric %s found of controller %s/%s, send model jobs with granularity %v",
 				lastPredictionMetric.GetMetricType().String(), controllerNS, controllerName, granularity)
@@ -202,7 +202,7 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 			if lastPrediction != nil && lastPredictionTime <= nowSeconds {
 				controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES,
-					datahub_common.MetricType_DUTY_CYCLE)
+					datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE)
 				scope.Infof("send controller %s/%s model job due to no predict found or predict is out of date, send model jobs with granularity %v",
 					controllerNS, controllerName, granularity)
 				sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
