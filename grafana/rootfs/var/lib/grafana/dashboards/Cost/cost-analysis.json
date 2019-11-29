@@ -320,14 +320,14 @@
       "seriesOverrides": [
         {
           "alias": "Prediction: CPU usage",
-          "color": "#f9e2d2",
+          "color": "#93d6d6",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Prediction: memory usage",
-          "color": "#f9e2d2",
+          "color": "#6285e3",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
@@ -1426,14 +1426,14 @@
       "seriesOverrides": [
         {
           "alias": "Prediction: CPU usage",
-          "color": "#f9e2d2",
+          "color": "#93d6d6",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Prediction: memory usage",
-          "color": "#f9e2d2",
+          "color": "#6285e3",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
@@ -2529,14 +2529,14 @@
       "seriesOverrides": [
         {
           "alias": "Prediction: CPU usage",
-          "color": "#f9e2d2",
+          "color": "#93d6d6",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
         },
         {
           "alias": "Prediction: memory usage",
-          "color": "#f9e2d2",
+          "color": "#6285e3",
           "dashLength": 5,
           "dashes": true,
           "spaceLength": 4
