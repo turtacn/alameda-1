@@ -59,7 +59,7 @@ func (s *ServiceV1alpha1) ListPodMetrics(ctx context.Context, in *ApiMetrics.Lis
 			},
 		}, nil
 	}
-	requestExt.SetDefault()
+	requestExt.SetDefaultWithMetricsDBType(s.Config.Apis.Metrics.Source)
 
 	metricDAO := DaoMetric.NewPodMetricsReaderDAO(*s.Config)
 	podMetricMap, err := metricDAO.ListMetrics(ctx, requestExt.ProduceRequest())

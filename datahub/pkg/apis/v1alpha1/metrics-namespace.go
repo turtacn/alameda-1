@@ -49,7 +49,7 @@ func (s *ServiceV1alpha1) ListNamespaceMetrics(ctx context.Context, in *ApiMetri
 			},
 		}, nil
 	}
-	requestExtended.SetDefault()
+	requestExtended.SetDefaultWithMetricsDBType(s.Config.Apis.Metrics.Source)
 
 	metricsDao := DaoMetrics.NewNamespaceMetricsReaderDAO(*s.Config)
 	metricMap, err := metricsDao.ListMetrics(ctx, requestExtended.ProduceRequest())

@@ -48,7 +48,7 @@ func (s *ServiceV1alpha1) ListNodeMetrics(ctx context.Context, in *ApiMetrics.Li
 			},
 		}, nil
 	}
-	requestExt.SetDefault()
+	requestExt.SetDefaultWithMetricsDBType(s.Config.Apis.Metrics.Source)
 
 	metricDAO := DaoMetric.NewNodeMetricsReaderDAO(*s.Config)
 	nodesMetricMap, err := metricDAO.ListMetrics(ctx, requestExt.ProduceRequest())

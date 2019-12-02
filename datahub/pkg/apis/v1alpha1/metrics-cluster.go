@@ -49,7 +49,7 @@ func (s *ServiceV1alpha1) ListClusterMetrics(ctx context.Context, in *ApiMetrics
 			},
 		}, nil
 	}
-	requestExtended.SetDefault()
+	requestExtended.SetDefaultWithMetricsDBType(s.Config.Apis.Metrics.Source)
 
 	metricsDao := DaoMetrics.NewClusterMetricsReaderDAO(*s.Config)
 	metricMap, err := metricsDao.ListMetrics(ctx, requestExtended.ProduceRequest())

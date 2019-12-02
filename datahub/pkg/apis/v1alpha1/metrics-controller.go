@@ -49,7 +49,7 @@ func (s *ServiceV1alpha1) ListControllerMetrics(ctx context.Context, in *ApiMetr
 			},
 		}, nil
 	}
-	requestExtended.SetDefault()
+	requestExtended.SetDefaultWithMetricsDBType(s.Config.Apis.Metrics.Source)
 
 	metricsDao := DaoMetrics.NewControllerMetricsReaderDAO(*s.Config)
 	metricMap, err := metricsDao.ListMetrics(ctx, requestExtended.ProduceRequest())

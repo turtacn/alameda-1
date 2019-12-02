@@ -294,8 +294,8 @@ func (r *ListClusterMetricsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListClusterMetricsRequestExtended) SetDefault() {
-	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+func (r *ListClusterMetricsRequestExtended) SetDefaultWithMetricsDBType(dbType MetricsDBType) {
+	q := normalizeListMetricsRequestQueryConditionWthMetricsDBType(*r.Request.QueryCondition, dbType)
 	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
@@ -325,8 +325,8 @@ func (r *ListNodeMetricsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListNodeMetricsRequestExtended) SetDefault() {
-	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+func (r *ListNodeMetricsRequestExtended) SetDefaultWithMetricsDBType(dbType MetricsDBType) {
+	q := normalizeListMetricsRequestQueryConditionWthMetricsDBType(*r.Request.QueryCondition, dbType)
 	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
@@ -356,8 +356,8 @@ func (r *ListNamespaceMetricsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListNamespaceMetricsRequestExtended) SetDefault() {
-	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+func (r *ListNamespaceMetricsRequestExtended) SetDefaultWithMetricsDBType(dbType MetricsDBType) {
+	q := normalizeListMetricsRequestQueryConditionWthMetricsDBType(*r.Request.QueryCondition, dbType)
 	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
@@ -387,8 +387,8 @@ func (r *ListAppMetricsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListAppMetricsRequestExtended) SetDefault() {
-	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+func (r *ListAppMetricsRequestExtended) SetDefaultWithMetricsDBType(dbType MetricsDBType) {
+	q := normalizeListMetricsRequestQueryConditionWthMetricsDBType(*r.Request.QueryCondition, dbType)
 	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
@@ -428,8 +428,8 @@ func (r *ListControllerMetricsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListControllerMetricsRequestExtended) SetDefault() {
-	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+func (r *ListControllerMetricsRequestExtended) SetDefaultWithMetricsDBType(dbType MetricsDBType) {
+	q := normalizeListMetricsRequestQueryConditionWthMetricsDBType(*r.Request.QueryCondition, dbType)
 	q.TimeRange.AggregateFunction = ApiCommon.TimeRange_AVG
 	r.Request.QueryCondition = &q
 }
@@ -461,8 +461,8 @@ func (r *ListPodMetricsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListPodMetricsRequestExtended) SetDefault() {
-	q := normalizeListMetricsRequestQueryCondition(*r.Request.QueryCondition)
+func (r *ListPodMetricsRequestExtended) SetDefaultWithMetricsDBType(dbType MetricsDBType) {
+	q := normalizeListMetricsRequestQueryConditionWthMetricsDBType(*r.Request.QueryCondition, dbType)
 	switch q.TimeRange.Step.Seconds {
 	case 30:
 		q.TimeRange.AggregateFunction = ApiCommon.TimeRange_MAX
@@ -493,7 +493,19 @@ func (r *ListPodMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListPodM
 	return request
 }
 
-func normalizeListMetricsRequestQueryCondition(q ApiCommon.QueryCondition) ApiCommon.QueryCondition {
+func normalizeListMetricsRequestQueryConditionWthMetricsDBType(q ApiCommon.QueryCondition, dbType MetricsDBType) ApiCommon.QueryCondition {
+
+	t := q.TimeRange
+	if t == nil {
+		t = &ApiCommon.TimeRange{}
+	}
+	normalizeT := normalizeListMetricsRequestTimeRangeByMetricsDBType(*t, dbType)
+	q.TimeRange = &normalizeT
+
+	return q
+}
+
+func normalizeListMetricsRequestTimeRange(t ApiCommon.TimeRange) ApiCommon.TimeRange {
 
 	defaultStartTime := timestamp.Timestamp{}
 	defaultEndTime := *ptypes.TimestampNow()
@@ -501,22 +513,43 @@ func normalizeListMetricsRequestQueryCondition(q ApiCommon.QueryCondition) ApiCo
 		Seconds: 30,
 	}
 
-	if q.TimeRange == nil {
-		q.TimeRange = &ApiCommon.TimeRange{
-			StartTime: &defaultStartTime,
-			EndTime:   &defaultEndTime,
-			Step:      &defaultStep,
-		}
+	if t.StartTime == nil {
+		t.StartTime = &defaultStartTime
 	}
-	if q.TimeRange.StartTime == nil {
-		q.TimeRange.StartTime = &defaultStartTime
+	if t.EndTime == nil {
+		t.EndTime = &defaultEndTime
 	}
-	if q.TimeRange.EndTime == nil {
-		q.TimeRange.EndTime = &defaultEndTime
-	}
-	if q.TimeRange.Step == nil {
-		q.TimeRange.Step = &defaultStep
+	if t.Step == nil {
+		t.Step = &defaultStep
 	}
 
-	return q
+	return t
+}
+
+type MetricsDBType = string
+
+const (
+	MetricsDBTypePromethues MetricsDBType = "prometheus"
+	MetricsDBTypeInfluxdb   MetricsDBType = "influxdb"
+)
+
+func normalizeListMetricsRequestTimeRangeByMetricsDBType(t ApiCommon.TimeRange, metricsDBType MetricsDBType) ApiCommon.TimeRange {
+
+	t = normalizeListMetricsRequestTimeRange(t)
+
+	t.StartTime = &timestamp.Timestamp{
+		Seconds: t.StartTime.Seconds - t.StartTime.Seconds%t.Step.Seconds,
+	}
+
+	switch metricsDBType {
+	case MetricsDBTypePromethues:
+		t.EndTime = &timestamp.Timestamp{
+			Seconds: t.EndTime.Seconds - t.EndTime.Seconds%t.Step.Seconds,
+		}
+	case MetricsDBTypeInfluxdb:
+		t.EndTime = &timestamp.Timestamp{
+			Seconds: t.EndTime.Seconds - t.EndTime.Seconds%t.Step.Seconds - 1,
+		}
+	}
+	return t
 }
