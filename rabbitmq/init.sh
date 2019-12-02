@@ -82,4 +82,5 @@ rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare permission vhost=/ user=$MQ_USER
 rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete user name=guest
 
 echo "Running daemon jobs"
+rabbitmqctl trace_on
 do_crond

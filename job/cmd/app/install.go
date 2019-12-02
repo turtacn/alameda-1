@@ -57,7 +57,7 @@ func install() error {
 		promConfigCMKey = viper.GetString("prometheus.cmConfigKey")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	promConfigMap := &corev1.ConfigMap{}
@@ -95,7 +95,7 @@ func install() error {
 	}
 
 	for {
-		if deploy, err := getPromDeploy(ctx, promDeployNS, promDeployName); err == nil {
+		if deploy, err := getPromDeploy(promDeployNS, promDeployName); err == nil {
 			if *deploy.Spec.Replicas == int32(1) {
 				scope.Infof("start scalng down prometheus deployment")
 				rep := int32(0)
@@ -114,7 +114,7 @@ func install() error {
 	}
 
 	for {
-		if deploy, err := getPromDeploy(ctx, promDeployNS, promDeployName); err == nil {
+		if deploy, err := getPromDeploy(promDeployNS, promDeployName); err == nil {
 			if *deploy.Spec.Replicas == int32(0) {
 				scope.Infof("start scaling up prometheus deployment")
 				rep := int32(1)
@@ -135,7 +135,9 @@ func install() error {
 	return nil
 }
 
-func getPromDeploy(ctx context.Context, ns, name string) (*appsv1.Deployment, error) {
+func getPromDeploy(ns, name string) (*appsv1.Deployment, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	if viper.IsSet("retrySec") {
 		retrySec = viper.GetInt("retrySec")
 	}
