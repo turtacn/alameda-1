@@ -347,7 +347,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s])) / $current_cpu_total",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[3600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[3600s]) * 100) / ($current_cpu_total * 1000)",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -388,7 +388,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) / $current_cpu_total from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d group by time(3600s)",
+          "query": "select (sum(value) * 100) / ($current_cpu_total * 1000) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -431,6 +431,84 @@
           "query": "select sum(value) * 100 / $current_memory_total from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '3600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5d and time <= now() + 1d group by time(3600s)",
           "rawQuery": true,
           "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select (mean(value)*100) / ($current_cpu_total * 1000) from alameda_metric..cluster_cpu where time >= now() -5d and time <= now() and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(3600s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation: memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(value)*100 / $current_memory_total from alameda_metric..cluster_memory where time >= now() -5d and time <= now() and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(3600s)",
+          "rawQuery": true,
+          "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
@@ -1453,7 +1531,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s])) / $current_cpu_total",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[21600s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[21600s]) * 100) / ($current_cpu_total * 1000)",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -1492,7 +1570,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) / $current_cpu_total from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w group by time(21600s)",
+          "query": "select (sum(value) * 100) / ($current_cpu_total * 1000) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 5w and time <= now() + 1w group by time(21600s)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1535,6 +1613,84 @@
           "query": "select sum(value) * 100 / $current_memory_total from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '21600' and \"metric\" = 'memory_usage_bytes' and time >= now() - 5w and time <= now() + 1w group by time(21600s)",
           "rawQuery": true,
           "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select (mean(value)*100) / ($current_cpu_total * 1000) from alameda_metric..cluster_cpu where time >= now() -5w and time <= now() and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(21600s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation: memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(value)*100 / $current_memory_total from alameda_metric..cluster_memory where time >= now() -5w and time <= now() and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(21600s)",
+          "rawQuery": true,
+          "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2556,7 +2712,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s])) / $current_cpu_total",
+          "expr": "sum(1000 * avg_over_time(node:node_cpu_utilisation:avg1m{node=~\"$node\"}[86400s]) * avg_over_time(node:node_num_cpu:sum{node=~\"$node\"}[86400s]) * 100) / ($current_cpu_total * 1000)",
           "format": "time_series",
           "hide": false,
           "interval": "86400s",
@@ -2596,7 +2752,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(value) / $current_cpu_total from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w group by time(86400s)",
+          "query": "select (sum(value) * 100) / ($current_cpu_total * 1000) from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'cpu_usage_seconds_percentage' and time >= now() - 20w and time <= now() + 4w group by time(86400s)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -2639,6 +2795,84 @@
           "query": "select sum(value) * 100 / $current_memory_total from \"alameda_prediction\"..\"cluster\" where kind = 'raw' and granularity = '86400' and \"metric\" = 'memory_usage_bytes' and time >= now() - 20w and time <= now() + 4w group by time(86400s)",
           "rawQuery": true,
           "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation : CPU Usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select (mean(value)*100) / ($current_cpu_total * 1000) from alameda_metric..cluster_cpu where time >= now() -20w and time <= now() and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(86400s)",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Observation: memory usage",
+          "datasource": "InfluxDB",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select mean(value)*100 / $current_memory_total from alameda_metric..cluster_memory where time >= now() -20w and time <= now() and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(86400s)",
+          "rawQuery": true,
+          "refId": "F",
           "resultFormat": "time_series",
           "select": [
             [
@@ -4706,14 +4940,14 @@
           "value": "100"
         },
         "datasource": "InfluxDB",
-        "definition": "select  sum(node_cpu_cores)*10 from alameda_cluster_status..node",
+        "definition": "select sum(node_cpu_cores) from alameda_cluster_status..node",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "current_cpu_total",
         "options": [],
-        "query": "select  sum(node_cpu_cores)*10 from alameda_cluster_status..node",
+        "query": "select sum(node_cpu_cores) from alameda_cluster_status..node",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4749,6 +4983,33 @@
         "type": "query",
         "useTags": false
       },
+            {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "selected": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "InfluxDB",
+        "definition": "select preloader from alameda_metric..grafana_config order by time desc limit 1",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Preloader",
+        "multi": false,
+        "name": "preloader",
+        "options": [],
+        "query": "select preloader from alameda_metric..grafana_config order by time desc limit 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
       {
         "allValue": null,
         "current": {
@@ -4756,14 +5017,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from node with key = \"name\" where 'Cluster' = '$resource'",
+        "definition": "show tag values on alameda_cluster_status from node with key = \"name\" where 'Cluster' = '$resource' and ('false' = '$preloader' or '' = '$preloader')",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "node",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from node with key = \"name\" where 'Cluster' = '$resource'",
+        "query": "show tag values on alameda_cluster_status from node with key = \"name\" where 'Cluster' = '$resource' and ('false' = '$preloader' or '' = '$preloader')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
