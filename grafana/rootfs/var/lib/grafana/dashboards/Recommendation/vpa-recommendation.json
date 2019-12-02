@@ -994,7 +994,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$ns\", pod_name=~\"$pod\", container_name=~\"$container\", pod_name!=\"\", container_name!=\"POD\", container_name!=\"\"}[30s])))",
+          "expr": "round(sum(max_over_time(container_memory_usage_bytes{namespace=~\"$container_ns\", pod_name=~\"$pod\", container_name=~\"$container\", pod_name!=\"\", container_name!=\"POD\", container_name!=\"\"}[30s])))",
           "format": "time_series",
           "hide": false,
           "instant": false,
