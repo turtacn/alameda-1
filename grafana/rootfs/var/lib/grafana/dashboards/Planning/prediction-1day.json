@@ -709,7 +709,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s]))",
+          "expr": "sum (1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", pod_name!=\"\", container_name!=\"POD\"}[3600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1155,7 +1155,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[3600s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", pod_name!=\"\", container_name!=\"POD\", container_name!=\"\"}[3600s])))",
           "format": "time_series",
           "hide": false,
           "interval": "3600s",
@@ -1620,7 +1620,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s]))",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", pod_name!=\"\", container_name!=\"POD\"}[21600s]))",
           "format": "time_series",
           "hide": false,
           "interval": "21600s",
@@ -2063,7 +2063,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[21600s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", pod_name!=\"\", container_name!=\"POD\", container_name!=\"\"}[21600s])))",
           "format": "time_series",
           "interval": "21600s",
           "intervalFactor": 1,
@@ -2525,7 +2525,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s]))",
+          "expr": "sum( 1000 * avg_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", pod_name!=\"\", container_name!=\"POD\"}[86400s]))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
@@ -2672,7 +2672,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_cpu where time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..namespace_cpu where \"name\" = '$ns' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Application' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..container_cpu where \"pod_name\" = '$pod' and \"pod_namespace\" = '$ns' and \"name\" = '$container' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Container' = '$resource' group by time(86400s)) where time >= now() -20w and time <= now() +4w group by time(86400s)",
+          "query": "select sum(mean) from (select mean(value) from alameda_metric..cluster_cpu where time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Cluster' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..namespace_cpu where \"name\" = '$ns' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Namespace' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..application_cpu where \"name\" = '$scaler' and \"namespace\" =~ /^[[ns]]$/ and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Application' = '$resource' group by time(86400s)), (select mean(value) from alameda_metric..controller_cpu where \"name\" = '$controller' and \"namespace\" = '$ns' and time >= now() -20w and time <= now() +4w and 'true' = '$preloader' and 'Controller' = '$resource' group by time(86400s)) where time >= now() -20w and time <= now() +4w group by time(86400s)",
           "rawQuery": true,
           "refId": "G",
           "resultFormat": "time_series",
@@ -2967,7 +2967,7 @@
         },
         {
           "datasource": "Prometheus",
-          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"\"}[86400s])))",
+          "expr": "round(sum(avg_over_time(container_memory_usage_bytes{namespace=~\"$controller_ns\", namespace!=\"\", pod_name=~\"$pod\", pod_name!=\"\", container_name!=\"POD\", container_name!=\"\"}[86400s])))",
           "format": "time_series",
           "interval": "86400s",
           "intervalFactor": 1,
