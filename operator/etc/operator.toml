@@ -1,13 +1,9 @@
-exclude_namespaces = ["kube-public", "kube-service-catalog",
+[namespace_exclusion]
+namespaces = ["kube-public", "kube-service-catalog",
   "kube-system", "management-infra", "openshift",
-  "openshift-console", "openshift-infra", "openshift-logging",
-  "openshift-monitoring", "openshift-node", "openshift-sdn",
-  "openshift-template-service-broker", "openshift-web-console",
-  "kube-node-lease", "stackpoint-system", "openshift-ansible-service-broker",
-  "openshift-metrics-server", "openshift-operators",
-  "openshift-operator-lifecycle-manager", "openshift-marketplace",
-  "marketplace"
+  "kube-node-lease", "stackpoint-system", "marketplace"
 ]
+namespace_regs = ["openshift-*"]
 
 [log]
 setLogcallers = true

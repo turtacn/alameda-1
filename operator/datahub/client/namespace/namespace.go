@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -132,7 +133,14 @@ func (repo *NamespaceRepository) Close() {
 }
 
 func (repo *NamespaceRepository) isNSExcluded(ns string) bool {
-	excludeNamespaces := viper.GetStringSlice("exclude_namespaces")
+	excludeNamespaces := viper.GetStringSlice("namespace_exclusion.namespaces")
+	excludeNSRegs := viper.GetStringSlice("namespace_exclusion.namespace_regs")
+	for _, excludeNSReg := range excludeNSRegs {
+		matched, _ := regexp.MatchString(excludeNSReg, ns)
+		if matched {
+			return true
+		}
+	}
 	for _, excludeNamespace := range excludeNamespaces {
 		if excludeNamespace == ns {
 			return true
