@@ -80,11 +80,13 @@ while ! rabbitmqctl authenticate_user $MQ_USER $MQ_PASSWD > /dev/null 2>&1; do
 done
 rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare permission vhost=/ user=$MQ_USER configure='.*' write='.*' read='.*'
 rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete user name=guest
-rabbitmqctl trace_on
-curl -i -u $MQ_USER:$MQ_PASSWD -H "content-type:application/json" -XPUT \
-     http://localhost:15672/api/traces/%2f/trace \
-     -d'{"format":"json","pattern":"#",
-         "tracer_connection_username":"'$MQ_USER'", "tracer_connection_password":"'$MQ_PASSWD'"}'
+if [ "$TRACE_ENABLED" == "true" ]; then
+    rabbitmqctl trace_on
+    curl -i -u $MQ_USER:$MQ_PASSWD -H "content-type:application/json" -XPUT \
+         http://localhost:15672/api/traces/%2f/trace \
+         -d'{"format":"json","pattern":"#",
+             "tracer_connection_username":"'$MQ_USER'", "tracer_connection_password":"'$MQ_PASSWD'"}'
+fi
 
 echo "Running daemon jobs"
 do_crond
