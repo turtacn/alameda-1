@@ -1069,7 +1069,7 @@
       },
       "datasource": "InfluxDB",
       "fontSize": "100%",
-      "format": "none",
+      "format": "currencyUSD",
       "gridPos": {
         "h": 8,
         "w": 7,
