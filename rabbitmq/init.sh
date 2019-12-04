@@ -47,9 +47,9 @@ do_crond()
     while :; do
         sleep ${sleep_time}
         echo "doing crond jobs"
-        for qn in predict model; do
-            check_queue_dedup $qn
-        done
+        #for qn in predict model; do
+        #    check_queue_dedup $qn
+        #done
         echo "done crond jobs. Sleeing ${sleep_time}"
     done
     exit 0

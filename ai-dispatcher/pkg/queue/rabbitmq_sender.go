@@ -32,6 +32,11 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string) e
 			}
 			continue
 		}
+		notifyClose := make(chan *amqp.Error)
+		notifyConfirm := make(chan amqp.Confirmation)
+		queueCH.Confirm(false)
+		queueCH.NotifyClose(notifyClose)
+		queueCH.NotifyPublish(notifyConfirm)
 		defer queueCH.Close()
 		q, err := queueCH.QueueDeclare(
 			queueName, // name
@@ -71,6 +76,15 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string) e
 			time.Sleep(time.Duration(publishRetryIntervalMS) * time.Millisecond)
 			continue
 		} else {
+			ticker := time.NewTicker(3 * time.Second)
+			select {
+			case confirm := <-notifyConfirm:
+				if confirm.Ack {
+					return nil
+				}
+			case <-ticker.C:
+				continue
+			}
 			return nil
 		}
 	}
