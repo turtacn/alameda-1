@@ -8,28 +8,26 @@ import (
 
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
-	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 )
 
 type NamespaceMetrics struct {
 	PrometheusConfig InternalPromth.Config
 
-	influxNamespaceRepo *RepoInfluxClusterStatus.NamespaceRepository
+	namespaceDAO DaoClusterStatusTypes.NamespaceDAO
 
 	clusterUID string
 }
 
 // NewNamespaceMetricsWithConfig Constructor of prometheus namespace metric dao
-func NewNamespaceMetricsWithConfig(config InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.NamespaceMetricsDAO {
+func NewNamespaceMetricsWithConfig(config InternalPromth.Config, namespaceDAO DaoClusterStatusTypes.NamespaceDAO, clusterUID string) DaoMetricTypes.NamespaceMetricsDAO {
 	return &NamespaceMetrics{
 		PrometheusConfig: config,
 
-		influxNamespaceRepo: RepoInfluxClusterStatus.NewNamespaceRepositoryWithConfig(influxCfg),
+		namespaceDAO: namespaceDAO,
 
 		clusterUID: clusterUID,
 	}
@@ -66,7 +64,7 @@ func (p NamespaceMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.Li
 
 func (p *NamespaceMetrics) listNamespaceMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListNamespaceMetricsRequest) ([]metadata.ObjectMeta, error) {
 
-	namesapces, err := p.influxNamespaceRepo.ListNamespaces(
+	namesapces, err := p.namespaceDAO.ListNamespaces(
 		DaoClusterStatusTypes.ListNamespacesRequest{
 			ObjectMeta: req.ObjectMetas,
 		},

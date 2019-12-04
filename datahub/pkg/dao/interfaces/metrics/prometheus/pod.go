@@ -7,11 +7,9 @@ import (
 
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
-	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 )
@@ -19,17 +17,17 @@ import (
 type PodMetrics struct {
 	PrometheusConfig InternalPromth.Config
 
-	influxPodRepo *RepoInfluxClusterStatus.PodRepository
+	podDAO DaoClusterStatusTypes.PodDAO
 
 	clusterUID string
 }
 
 // NewPodMetricsWithConfig Constructor of prometheus pod metric dao
-func NewPodMetricsWithConfig(config InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.PodMetricsDAO {
+func NewPodMetricsWithConfig(config InternalPromth.Config, podDAO DaoClusterStatusTypes.PodDAO, clusterUID string) DaoMetricTypes.PodMetricsDAO {
 	return &PodMetrics{
 		PrometheusConfig: config,
 
-		influxPodRepo: RepoInfluxClusterStatus.NewPodRepository(&influxCfg),
+		podDAO: podDAO,
 
 		clusterUID: clusterUID,
 	}
@@ -69,7 +67,7 @@ func (p *PodMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListPod
 
 func (p *PodMetrics) listPodMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListPodMetricsRequest) ([]metadata.ObjectMeta, error) {
 
-	pods, err := p.influxPodRepo.ListPods(&DaoClusterStatusTypes.ListPodsRequest{
+	pods, err := p.podDAO.ListPods(&DaoClusterStatusTypes.ListPodsRequest{
 		ObjectMeta: req.ObjectMetas,
 	})
 	if err != nil {

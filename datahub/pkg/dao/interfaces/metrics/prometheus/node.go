@@ -5,11 +5,9 @@ import (
 
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
-	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -18,17 +16,17 @@ import (
 type NodeMetrics struct {
 	PrometheusConfig InternalPromth.Config
 
-	influxNodeRepo *RepoInfluxClusterStatus.NodeRepository
+	nodeDAO DaoClusterStatusTypes.NodeDAO
 
 	clusterUID string
 }
 
 // NewNodeMetricsWithConfig Constructor of prometheus node metric dao
-func NewNodeMetricsWithConfig(config InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.NodeMetricsDAO {
+func NewNodeMetricsWithConfig(config InternalPromth.Config, nodeDAO DaoClusterStatusTypes.NodeDAO, clusterUID string) DaoMetricTypes.NodeMetricsDAO {
 	return &NodeMetrics{
 		PrometheusConfig: config,
 
-		influxNodeRepo: RepoInfluxClusterStatus.NewNodeRepository(&influxCfg),
+		nodeDAO: nodeDAO,
 
 		clusterUID: clusterUID,
 	}
@@ -67,7 +65,7 @@ func (p *NodeMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListNo
 }
 
 func (p *NodeMetrics) listNodeMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListNodeMetricsRequest) ([]metadata.ObjectMeta, error) {
-	nodes, err := p.influxNodeRepo.ListNodes(DaoClusterStatusTypes.ListNodesRequest{
+	nodes, err := p.nodeDAO.ListNodes(DaoClusterStatusTypes.ListNodesRequest{
 		ObjectMeta: req.ObjectMetas,
 	})
 	if err != nil {

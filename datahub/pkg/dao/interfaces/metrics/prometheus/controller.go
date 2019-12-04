@@ -7,10 +7,8 @@ import (
 	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/entities/prometheus/metrics"
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
-	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -18,20 +16,18 @@ import (
 
 type ControllerMetrics struct {
 	PrometheusConfig InternalPromth.Config
-	InfluxDBConfig   InternalInflux.Config
 
-	influxControllerRepo *RepoInfluxClusterStatus.ControllerRepository
+	controllerDAO DaoClusterStatusTypes.ControllerDAO
 
 	clusterUID string
 }
 
 // NewControllerMetricsWithConfig Constructor of prometheus controller metric dao
-func NewControllerMetricsWithConfig(promCfg InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.ControllerMetricsDAO {
+func NewControllerMetricsWithConfig(promCfg InternalPromth.Config, controllerDAO DaoClusterStatusTypes.ControllerDAO, clusterUID string) DaoMetricTypes.ControllerMetricsDAO {
 	return &ControllerMetrics{
 		PrometheusConfig: promCfg,
-		InfluxDBConfig:   influxCfg,
 
-		influxControllerRepo: RepoInfluxClusterStatus.NewControllerRepository(&influxCfg),
+		controllerDAO: controllerDAO,
 
 		clusterUID: clusterUID,
 	}
@@ -73,7 +69,7 @@ func (p ControllerMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.L
 
 func (p *ControllerMetrics) listControllerMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListControllerMetricsRequest) ([]DaoMetricTypes.ControllerObjectMeta, error) {
 
-	controllers, err := p.influxControllerRepo.ListControllers(DaoClusterStatusTypes.ListControllersRequest{
+	controllers, err := p.controllerDAO.ListControllers(DaoClusterStatusTypes.ListControllersRequest{
 		ObjectMeta: req.ObjectMetas,
 		Kind:       strings.ToUpper(req.Kind),
 	})

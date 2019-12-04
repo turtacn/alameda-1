@@ -6,11 +6,9 @@ import (
 	EntityPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/entities/prometheus/metrics"
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
-	RepoInfluxClusterStatus "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
-	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -18,22 +16,20 @@ import (
 
 type ClusterMetrics struct {
 	PrometheusConfig InternalPromth.Config
-	InfluxDBConfig   InternalInflux.Config
 
-	influxClusterRepo *RepoInfluxClusterStatus.ClusterRepository
-	influxNodeRepo    *RepoInfluxClusterStatus.NodeRepository
+	clusterStatusDAO DaoClusterStatusTypes.ClusterDAO
+	nodeDAO          DaoClusterStatusTypes.NodeDAO
 
 	clusterUID string
 }
 
 // NewClusterMetricsWithConfig Constructor of prometheus namespace metric dao
-func NewClusterMetricsWithConfig(config InternalPromth.Config, influxCfg InternalInflux.Config, clusterUID string) DaoMetricTypes.ClusterMetricsDAO {
+func NewClusterMetricsWithConfig(config InternalPromth.Config, clusterStatusDAO DaoClusterStatusTypes.ClusterDAO, nodeDAO DaoClusterStatusTypes.NodeDAO, clusterUID string) DaoMetricTypes.ClusterMetricsDAO {
 	return &ClusterMetrics{
 		PrometheusConfig: config,
-		InfluxDBConfig:   influxCfg,
 
-		influxClusterRepo: RepoInfluxClusterStatus.NewClusterRepositoryWithConfig(influxCfg),
-		influxNodeRepo:    RepoInfluxClusterStatus.NewNodeRepository(&influxCfg),
+		clusterStatusDAO: clusterStatusDAO,
+		nodeDAO:          nodeDAO,
 
 		clusterUID: clusterUID,
 	}
@@ -70,7 +66,7 @@ func (p ClusterMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.List
 
 func (p *ClusterMetrics) listClusterMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListClusterMetricsRequest) ([]metadata.ObjectMeta, error) {
 
-	clusters, err := p.influxClusterRepo.ListClusters(DaoClusterStatusTypes.ListClustersRequest{
+	clusters, err := p.clusterStatusDAO.ListClusters(DaoClusterStatusTypes.ListClustersRequest{
 		ObjectMeta: req.ObjectMetas,
 	})
 	if err != nil {
@@ -201,7 +197,7 @@ func (p *ClusterMetrics) getClusterMetric(ctx context.Context, clusterObjectMeta
 }
 
 func (p *ClusterMetrics) listNodeMetasByClusterObjectMeta(ctx context.Context, clusterObjectMeta metadata.ObjectMeta) ([]metadata.ObjectMeta, error) {
-	nodes, err := p.influxNodeRepo.ListNodes(DaoClusterStatusTypes.ListNodesRequest{
+	nodes, err := p.nodeDAO.ListNodes(DaoClusterStatusTypes.ListNodesRequest{
 		ObjectMeta: []metadata.ObjectMeta{
 			metadata.ObjectMeta{
 				ClusterName: clusterObjectMeta.Name,
