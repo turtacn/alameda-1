@@ -32,6 +32,7 @@ import (
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
 	datahub_application "github.com/containers-ai/alameda/operator/datahub/client/application"
 	datahub_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
+	datahub_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
 	datahub_pod "github.com/containers-ai/alameda/operator/datahub/client/pod"
 	alamedascaler_reconciler "github.com/containers-ai/alameda/operator/pkg/reconciler/alamedascaler"
 	"github.com/containers-ai/alameda/operator/pkg/utils"
@@ -72,6 +73,7 @@ type AlamedaScalerReconciler struct {
 
 	DatahubApplicationRepo *datahub_application.ApplicationRepository
 	DatahubControllerRepo  *datahub_controller.ControllerRepository
+	DatahubNamespaceRepo   *datahub_namespace.NamespaceRepository
 	DatahubPodRepo         *datahub_pod.PodRepository
 }
 
@@ -616,6 +618,17 @@ func (r *AlamedaScalerReconciler) handleAlamedaScalerDeletion(namespace, name st
 		// Delete application from datahub
 		if err := r.DatahubApplicationRepo.DeleteApplications(ctx, []*datahub_resources.ObjectMeta{&applicationObejctMeta}); err != nil {
 			return errors.Wrapf(err, "delete Application(%s/%s) from datahub failed", namespace, name)
+		} else {
+			if r.DatahubNamespaceRepo.IsNSExcluded(namespace) {
+				r.DatahubNamespaceRepo.DeleteNamespaces([]*datahub_resources.Namespace{
+					&datahub_resources.Namespace{
+						ObjectMeta: &datahub_resources.ObjectMeta{
+							Name:        namespace,
+							ClusterName: r.ClusterUID,
+						},
+					},
+				})
+			}
 		}
 		scope.Infof("Remove application of AlamedaScaler(%s/%s) from datahub successed.", namespace, name)
 		return nil

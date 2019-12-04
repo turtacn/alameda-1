@@ -49,7 +49,7 @@ func SyncWithDatahub(client client.Client, conn *grpc.ClientConn) error {
 	}
 	namespacesNeedDeleting := make([]*datahub_resources.Namespace, 0)
 	for _, n := range namespacesFromDatahub {
-		if datahubNamespaceRepo.isNSExcluded(n.GetObjectMeta().GetName()) {
+		if datahubNamespaceRepo.IsNSExcluded(n.GetObjectMeta().GetName()) {
 			namespacesNeedDeleting = append(namespacesNeedDeleting, n)
 			continue
 		}

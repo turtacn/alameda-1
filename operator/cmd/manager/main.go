@@ -334,6 +334,7 @@ func main() {
 	scope.Info("Registering Components.")
 	datahubControllerRepo := datahub_client_controller.NewControllerRepository(datahubConn, clusterUID)
 	datahubPodRepo := datahub_client_pod.NewPodRepository(datahubConn, clusterUID)
+	datahubNamespaceRepo := datahub_client_namespace.NewNamespaceRepository(datahubConn, clusterUID)
 
 	// ------------------------ Setup Controllers ------------------------
 	if err = (&controllers.AlamedaScalerReconciler{
@@ -342,6 +343,7 @@ func main() {
 		ClusterUID:             clusterUID,
 		DatahubApplicationRepo: datahub_client_application.NewApplicationRepository(datahubConn, clusterUID),
 		DatahubControllerRepo:  datahubControllerRepo,
+		DatahubNamespaceRepo: datahubNamespaceRepo,
 		DatahubPodRepo:         datahubPodRepo,
 	}).SetupWithManager(mgr); err != nil {
 		scope.Errorf(err.Error())
@@ -384,7 +386,7 @@ func main() {
 		Client:               mgr.GetClient(),
 		Scheme:               mgr.GetScheme(),
 		ClusterUID:           clusterUID,
-		DatahubNamespaceRepo: datahub_client_namespace.NewNamespaceRepository(datahubConn, clusterUID),
+		DatahubNamespaceRepo: datahubNamespaceRepo,
 	}).SetupWithManager(mgr); err != nil {
 		scope.Errorf(err.Error())
 		os.Exit(1)

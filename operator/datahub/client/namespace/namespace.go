@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/containers-ai/alameda/operator/datahub/client"
+	k8SUtils "github.com/containers-ai/alameda/pkg/utils/kubernetes"
 	logUtil "github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
@@ -43,7 +44,7 @@ func (repo *NamespaceRepository) CreateNamespaces(arg interface{}) error {
 	namespaces := []*datahub_resources.Namespace{}
 	if nss, ok := arg.([]corev1.Namespace); ok {
 		for _, ns := range nss {
-			if !repo.isNSExcluded(ns.GetName()) {
+			if !repo.IsNSExcluded(ns.GetName()) {
 				namespaces = append(namespaces, &datahub_resources.Namespace{
 					ObjectMeta: &datahub_resources.ObjectMeta{
 						Name:        ns.GetName(),
@@ -55,7 +56,7 @@ func (repo *NamespaceRepository) CreateNamespaces(arg interface{}) error {
 	}
 	if nss, ok := arg.([]*datahub_resources.Namespace); ok {
 		for _, ns := range nss {
-			if !repo.isNSExcluded(ns.GetObjectMeta().GetName()) {
+			if !repo.IsNSExcluded(ns.GetObjectMeta().GetName()) {
 				namespaces = append(namespaces, ns)
 			}
 		}
@@ -132,7 +133,27 @@ func (repo *NamespaceRepository) Close() {
 	repo.conn.Close()
 }
 
-func (repo *NamespaceRepository) isNSExcluded(ns string) bool {
+func (repo *NamespaceRepository) IsNSExcluded(ns string) bool {
+	req := &datahub_resources.ListApplicationsRequest{
+		ObjectMeta: []*datahub_resources.ObjectMeta{
+			&datahub_resources.ObjectMeta{},
+		},
+	}
+	resp, err := repo.datahubClient.ListApplications(context.Background(), req)
+	if err != nil {
+		scope.Errorf("namespace exclusion check error: %s", err.Error())
+	} else {
+		for _, app := range resp.GetApplications() {
+			if app.GetObjectMeta().GetNamespace() == ns {
+				return false
+			}
+		}
+	}
+
+	if ns == k8SUtils.GetRunningNamespace() {
+		return true
+	}
+
 	excludeNamespaces := viper.GetStringSlice("namespace_exclusion.namespaces")
 	excludeNSRegs := viper.GetStringSlice("namespace_exclusion.namespace_regs")
 	for _, excludeNSReg := range excludeNSRegs {
