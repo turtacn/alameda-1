@@ -334,7 +334,7 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 								scope.Infof("export pod %s/%s drift counter with granularity %s",
 									podNS, podName, dataGranularity)
 								sender.metricExporter.AddPodMetricDrift(podNS, podName,
-									queue.GetGranularityStr(granularity), 1.0)
+									queue.GetGranularityStr(granularity), time.Now().Unix() , 1.0)
 							}
 							modelMetrics = append(modelMetrics, metricsNeedToModel...)
 						}

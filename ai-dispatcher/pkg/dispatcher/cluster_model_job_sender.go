@@ -269,7 +269,8 @@ func (sender *clusterModelJobSender) sendJobByMetrics(cluster *datahub_resources
 					if drift {
 						scope.Infof("export cluster %s drift counter with granularity %s",
 							clusterName, dataGranularity)
-						sender.metricExporter.AddClusterMetricDrift(clusterName, queue.GetGranularityStr(granularity), 1.0)
+						sender.metricExporter.AddClusterMetricDrift(clusterName, queue.GetGranularityStr(granularity),
+						time.Now().Unix(), 1.0)
 					}
 					clusterInfo.ModelMetrics = append(clusterInfo.ModelMetrics, metricsNeedToModel...)
 					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, clusterInfo)

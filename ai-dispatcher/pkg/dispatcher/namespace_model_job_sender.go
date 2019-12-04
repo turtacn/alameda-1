@@ -269,7 +269,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 					if drift {
 						scope.Infof("export namespace %s drift counter with granularity %s",
 							namespaceName, dataGranularity)
-						sender.metricExporter.AddNamespaceMetricDrift(namespaceName, queue.GetGranularityStr(granularity), 1.0)
+						sender.metricExporter.AddNamespaceMetricDrift(namespaceName, queue.GetGranularityStr(granularity),
+						time.Now().Unix(), 1.0)
 					}
 					namespaceInfo.ModelMetrics = append(namespaceInfo.ModelMetrics, metricsNeedToModel...)
 					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, namespaceInfo)

@@ -284,7 +284,7 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 						scope.Infof("export application %s/%s drift counter with granularity %s",
 							applicationNS, applicationName, dataGranularity)
 						sender.metricExporter.AddApplicationMetricDrift(applicationNS, applicationName,
-							queue.GetGranularityStr(granularity), 1.0)
+							queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
 					}
 					applicationInfo.ModelMetrics = append(applicationInfo.ModelMetrics, metricsNeedToModel...)
 					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, applicationInfo)

@@ -268,7 +268,7 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 						scope.Infof("export (gpu host: %s minor number: %s) drift counter with granularity %s",
 							gpuHost, gpuMinorNumber, dataGranularity)
 						sender.metricExporter.AddGPUMetricDrift(gpuHost, gpuMinorNumber,
-							queue.GetGranularityStr(granularity), 1.0)
+							queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
 					}
 					gpuInfo.ModelMetrics = append(gpuInfo.ModelMetrics, metricsNeedToModel...)
 					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, gpuInfo)

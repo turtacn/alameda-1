@@ -53,7 +53,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export node %s model time metric with granularity %s value %v",
 					nodeName, dataGranularity, mt)
-				metricExporter.ExportNodeMetricModelTime(nodeName, dataGranularity, float64(mt))
+				metricExporter.ExportNodeMetricModelTime(nodeName, dataGranularity,
+					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypePod {
 				podNamespacedName := unit["namespaced_name"].(map[string]interface{})
 				podNS := podNamespacedName["namespace"].(string)
@@ -64,7 +65,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export pod %s model time metric with granularity %s value %v",
 					fmt.Sprintf("%s/%s", podNS, podName), dataGranularity, mt)
-				metricExporter.ExportPodMetricModelTime(podNS, podName, dataGranularity, float64(mt))
+				metricExporter.ExportPodMetricModelTime(podNS, podName, dataGranularity,
+					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeGPU {
 				gpuHost := unit["host"].(string)
 				gpuMinorNumber := unit["minor_number"].(string)
@@ -75,7 +77,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				scope.Infof("export gpu %s model time metric with granularity %s value %v",
 					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber), dataGranularity, mt)
 				metricExporter.ExportGPUMetricModelTime(gpuHost, gpuMinorNumber,
-					dataGranularity, float64(mt))
+					dataGranularity, time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeApplication {
 				appNamespacedName := unit["namespaced_name"].(map[string]interface{})
 				appNS := appNamespacedName["namespace"].(string)
@@ -87,7 +89,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				scope.Infof("export application %s model time metric with granularity %s value %v",
 					fmt.Sprintf("%s/%s", appNS, appName), dataGranularity, mt)
 				metricExporter.ExportApplicationMetricModelTime(appNS, appName,
-					dataGranularity, float64(mt))
+					dataGranularity, time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeNamespace {
 				namespaceName := unit["name"].(string)
 				modelMapper.RemoveModelInfo(unitType, dataGranularity, namespaceName)
@@ -95,7 +97,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export namespace %s model time metric with granularity %s value %v",
 					namespaceName, dataGranularity, mt)
-				metricExporter.ExportNamespaceMetricModelTime(namespaceName, dataGranularity, float64(mt))
+				metricExporter.ExportNamespaceMetricModelTime(namespaceName, dataGranularity,
+					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeCluster {
 				clusterName := unit["name"].(string)
 				modelMapper.RemoveModelInfo(unitType, dataGranularity, clusterName)
@@ -103,7 +106,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				mt := time.Now().Unix() - jobCreateTime
 				scope.Infof("export cluster %s model time metric with granularity %s value %v",
 					clusterName, dataGranularity, mt)
-				metricExporter.ExportClusterMetricModelTime(clusterName, dataGranularity, float64(mt))
+				metricExporter.ExportClusterMetricModelTime(clusterName, dataGranularity,
+					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeController {
 				appNamespacedName := unit["namespaced_name"].(map[string]interface{})
 				appNS := appNamespacedName["namespace"].(string)
@@ -116,7 +120,7 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				scope.Infof("export controller %s model time metric with granularity %s value %v",
 					fmt.Sprintf("%s/%s", appNS, appName), dataGranularity, mt)
 				metricExporter.ExportControllerMetricModelTime(appNS, appName,
-					kind, dataGranularity, float64(mt))
+					kind, dataGranularity, time.Now().Unix(), float64(mt))
 			}
 		}
 		queueConn.Close()

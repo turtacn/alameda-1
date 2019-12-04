@@ -269,7 +269,8 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 					if drift {
 						scope.Infof("export node %s drift counter with granularity %s",
 							nodeName, dataGranularity)
-						sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity), 1.0)
+						sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity),
+						time.Now().Unix(), 1.0)
 					}
 					nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricsNeedToModel...)
 					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, nodeInfo)

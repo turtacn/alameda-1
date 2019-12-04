@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"strings"
+	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
@@ -47,25 +48,26 @@ func mapeDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 			targetDisplayName, metricType, granularity)
 		if unitType == UnitTypeNode {
 			metricExporter.SetNodeMetricMAPE(unitMeta["nodeName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		} else if unitType == UnitTypePod {
 			metricExporter.SetContainerMetricMAPE(unitMeta["podNS"], unitMeta["podName"], unitMeta["containerName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		} else if unitType == UnitTypeGPU {
 			metricExporter.SetGPUMetricMAPE(unitMeta["gpuHost"], unitMeta["gpuMinorNumber"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		} else if unitType == UnitTypeApplication {
 			metricExporter.SetApplicationMetricMAPE(unitMeta["appNS"], unitMeta["appName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		} else if unitType == UnitTypeNamespace {
 			metricExporter.SetNamespaceMetricMAPE(unitMeta["nsName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		} else if unitType == UnitTypeController {
 			metricExporter.SetControllerMetricMAPE(unitMeta["controllerNS"], unitMeta["controllerName"],
-				unitMeta["controllerKind"], queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+				unitMeta["controllerKind"], queue.GetMetricLabel(metricType),
+				queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		} else if unitType == UnitTypeCluster {
-			metricExporter.SetClusterMetricMAPE(unitMeta["clusterName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), mape)
+			metricExporter.SetClusterMetricMAPE(unitMeta["clusterName"], queue.GetMetricLabel(metricType),
+				queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
 		}
 	}
 
@@ -105,25 +107,26 @@ func rmseDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 			targetDisplayName, metricType, granularity)
 		if unitType == UnitTypeNode {
 			metricExporter.SetNodeMetricRMSE(unitMeta["nodeName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		} else if unitType == UnitTypePod {
 			metricExporter.SetContainerMetricRMSE(unitMeta["podNS"], unitMeta["podName"], unitMeta["containerName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		} else if unitType == UnitTypeGPU {
 			metricExporter.SetGPUMetricRMSE(unitMeta["gpuHost"], unitMeta["gpuMinorNumber"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		} else if unitType == UnitTypeApplication {
 			metricExporter.SetApplicationMetricRMSE(unitMeta["appNS"], unitMeta["appName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		} else if unitType == UnitTypeNamespace {
 			metricExporter.SetNamespaceMetricRMSE(unitMeta["nsName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		} else if unitType == UnitTypeController {
 			metricExporter.SetControllerMetricRMSE(unitMeta["controllerNS"], unitMeta["controllerName"],
-				unitMeta["controllerKind"], queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				unitMeta["controllerKind"], queue.GetMetricLabel(metricType),
+				queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		} else if unitType == UnitTypeCluster {
 			metricExporter.SetClusterMetricRMSE(unitMeta["clusterName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), rmse)
+				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
 		}
 	}
 
