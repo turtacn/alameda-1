@@ -76,8 +76,9 @@ func (sender *clusterModelJobSender) sendJob(cluster *datahub_resources.Cluster,
 			return
 		}
 
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%v", clusterName, granularity))
+		clusterJobStr := fmt.Sprintf("%s/%v", clusterName, granularity)
+		scope.Infof("Try to send cluster model job: %s", clusterJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, clusterJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, clusterInfo)
 		} else {

@@ -76,8 +76,9 @@ func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender
 			return
 		}
 
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%s/%v", podNS, podName, granularity))
+		podJobStr := fmt.Sprintf("%s/%s/%v", podNS, podName, granularity)
+		scope.Infof("Try to send pod model job: %s", podJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, podJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, podInfo)
 		} else {

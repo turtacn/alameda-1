@@ -76,8 +76,9 @@ func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSen
 			return
 		}
 
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%v", nodeName, granularity))
+		nodeJobStr := fmt.Sprintf("%s/%v", nodeName, granularity)
+		scope.Infof("Try to send node model job: %s", nodeJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nodeJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, nodeInfo)
 		} else {

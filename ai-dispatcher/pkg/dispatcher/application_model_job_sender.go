@@ -78,8 +78,9 @@ func (sender *applicationModelJobSender) sendJob(application *datahub_resources.
 			return
 		}
 
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%s/%v", applicationNS, applicationName, granularity))
+		appJobStr := fmt.Sprintf("%s/%s/%v", applicationNS, applicationName, granularity)
+		scope.Infof("Try to send application model job: %s", appJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, appJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, applicationInfo)
 		} else {

@@ -77,8 +77,9 @@ func (sender *gpuModelJobSender) sendJob(gpu *datahub_gpu.Gpu, queueSender queue
 			return
 		}
 
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%s/%v", gpuHost, gpuMinorNumber, granularity))
+		gpuJobStr := fmt.Sprintf("%s/%s/%v", gpuHost, gpuMinorNumber, granularity)
+		scope.Infof("Try to send gpu model job: %s", gpuJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, gpuJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, gpuInfo)
 		} else {

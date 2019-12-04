@@ -76,8 +76,9 @@ func (sender *namespaceModelJobSender) sendJob(namespace *datahub_resources.Name
 			return
 		}
 
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr,
-			fmt.Sprintf("%s/%v", namespaceName, granularity))
+		nsJobStr := fmt.Sprintf("%s/%v", namespaceName, granularity)
+		scope.Infof("Try to send namespace model job: %s", nsJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nsJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, namespaceInfo)
 		} else {
