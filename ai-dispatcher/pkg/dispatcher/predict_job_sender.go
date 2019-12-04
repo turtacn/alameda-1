@@ -149,7 +149,7 @@ func (dispatcher *predictJobSender) SendNamespacePredictJobs(namespaces []*datah
 	marshaler := jsonpb.Marshaler{}
 	for _, namespace := range namespaces {
 		namespaceStr, err := marshaler.MarshalToString(namespace)
-		namespaceName := namespace.GetObjectMeta().GetNamespace()
+		namespaceName := namespace.GetObjectMeta().GetName()
 		if err != nil {
 			scope.Errorf("Encode pb message failed for namespace %s with granularity seconds %v. %s",
 				namespaceName, granularity, err.Error())
