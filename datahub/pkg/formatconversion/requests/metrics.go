@@ -7,7 +7,6 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiMetrics "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/metrics"
-	ApiResource "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -415,16 +414,6 @@ type ListControllerMetricsRequestExtended struct {
 }
 
 func (r *ListControllerMetricsRequestExtended) Validate() error {
-
-	var supportedKind = map[ApiResource.Kind]bool{
-		ApiResource.Kind_DEPLOYMENT:       true,
-		ApiResource.Kind_DEPLOYMENTCONFIG: true,
-		ApiResource.Kind_STATEFULSET:      true,
-	}
-	supported, exist := supportedKind[r.Request.Kind]
-	if !exist || !supported {
-		return errors.Errorf(`controller kind "%s" not supported`, r.Request.Kind)
-	}
 	return nil
 }
 
