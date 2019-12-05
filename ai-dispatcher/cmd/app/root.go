@@ -10,11 +10,12 @@ import (
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/dispatcher"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/streadway/amqp"
 
 	alameda_app "github.com/containers-ai/alameda/cmd/app"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahubv1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	datahub_resources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,7 +27,7 @@ var (
 	logRotateOutputFile string
 
 	scope *log.Scope
-	conn   *grpc.ClientConn
+	conn  *grpc.ClientConn
 )
 
 func launchMetricServer() {
@@ -67,6 +68,23 @@ var rootCmd = &cobra.Command{
 			return
 		}
 		datahubConnRetry := viper.GetInt("datahub.connRetry")
+		queueURL := viper.GetString("queue.url")
+		if queueURL == "" {
+			scope.Errorf("No configuration of queue url.")
+			return
+		}
+
+		for {
+			amqConn, err := amqp.Dial(queueURL)
+			if err == nil {
+				amqConn.Close()
+				break
+			}else {
+				scope.Errorf("connect queue failed on init: %s", err.Error())
+			}
+			time.Sleep(time.Duration(1) * time.Second)
+		}
+
 		for {
 			conn, _ = grpc.Dial(datahubAddr, grpc.WithInsecure(),
 			grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
@@ -79,12 +97,6 @@ var rootCmd = &cobra.Command{
 				scope.Errorf("connect datahub failed on init: %s", err.Error())
 			}
 			time.Sleep(time.Duration(1) * time.Second)
-		}
-
-		queueURL := viper.GetString("queue.url")
-		if queueURL == "" {
-			scope.Errorf("No configuration of queue url.")
-			return
 		}
 
 		defer conn.Close()
