@@ -79,7 +79,7 @@ var rootCmd = &cobra.Command{
 			if err == nil {
 				amqConn.Close()
 				break
-			}else {
+			} else {
 				scope.Errorf("connect queue failed on init: %s", err.Error())
 			}
 			time.Sleep(time.Duration(1) * time.Second)
@@ -87,14 +87,20 @@ var rootCmd = &cobra.Command{
 
 		for {
 			conn, _ = grpc.Dial(datahubAddr, grpc.WithInsecure(),
-			grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
-				grpc_retry.WithMax(uint(datahubConnRetry)))))
+				grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
+					grpc_retry.WithMax(uint(datahubConnRetry)))))
 			datahubClient := datahubv1alpha1.NewDatahubServiceClient(conn)
-			_, err := datahubClient.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
-			if err == nil {
+			result, err := datahubClient.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
+			nodeCount := len(result.GetNodes())
+			if err == nil && nodeCount > 0 {
 				break
 			} else {
-				scope.Errorf("connect datahub failed on init: %s", err.Error())
+				if err != nil {
+					scope.Errorf("connect datahub failed on init: %s", err.Error())
+				}
+				if nodeCount <= 0 {
+					scope.Errorf("ListNodes failed on init")
+				}
 			}
 			time.Sleep(time.Duration(1) * time.Second)
 		}
