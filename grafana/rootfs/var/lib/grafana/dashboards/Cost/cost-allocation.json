@@ -15,8 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 28,
-  "iteration": 1575269214157,
+  "iteration": 1575516498025,
   "links": [],
   "panels": [
     {
@@ -946,7 +945,7 @@
       "datasource": "-- Mixed --",
       "decimals": null,
       "fontSize": "100%",
-      "format": "none",
+      "format": "currencyUSD",
       "gridPos": {
         "h": 8,
         "w": 7,
@@ -958,6 +957,7 @@
       "legend": {
         "header": "",
         "percentage": true,
+        "percentageDecimals": 2,
         "show": true,
         "values": false
       },
@@ -989,7 +989,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select 100 - (sum(workloadcost) * 730 * 100 / ($count_of_hourlycost + 0) / ($current_cost + 0)) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5_monthly]]$/ and $timeFilter",
+          "query": "select (($current_cost * $count_of_hourlycost) / 730) - sum(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5_monthly]]$/ and $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -1032,7 +1032,7 @@
           "intervalFactor": 1,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select sum(workloadcost) * 730 * 100 / ($count_of_hourlycost + 0) / ($current_cost + 0) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5_monthly]]$/ and $timeFilter group by namespacename",
+          "query": "select sum(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5_monthly]]$/ and $timeFilter group by namespacename",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -1080,6 +1080,7 @@
       "interval": null,
       "legend": {
         "percentage": true,
+        "percentageDecimals": 2,
         "show": true,
         "values": false
       },
@@ -1849,18 +1850,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "2",
-          "value": "2"
+          "text": "107",
+          "value": "107"
         },
         "datasource": "InfluxDB",
-        "definition": "select count(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter group by namespacename",
+        "definition": "select count(sum) -1 from (select sum(numMeasurements) from _internal..\"database\" where $timeFilter  and time <= now() group by time(3600s) fill(0));",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "count_of_hourlycost",
         "options": [],
-        "query": "select count(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter group by namespacename",
+        "query": "select count(sum) -1 from (select sum(numMeasurements) from _internal..\"database\" where $timeFilter  and time <= now() group by time(3600s) fill(0));",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
