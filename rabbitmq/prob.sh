@@ -6,7 +6,14 @@ if ! rabbitmqctl status > /dev/null 2>&1; then
 fi
 
 test_dedup_queues="model predict"
-file="/tmp/prob.txt"
+dedup_check_dir="/tmp/.dedup-check"
+file="${dedup_check_dir}/prob.txt"
+
+if [ ! -d "$dedup_check_dir" ]
+then
+    mkdir -p $dedup_check_dir
+fi
+
 if [ -f "$file" ]
 then
     exit 0
