@@ -43,18 +43,20 @@ func startPublish() {
 	for retry := 0; retry < publishRetryTime; retry++ {
 		conn, err := amqp.Dial(rabbitmqAddress)
 		if err != nil {
+			fmt.Println("Connect Fail")
 			fmt.Println(err)
 		}
 		defer conn.Close()
 		ch, err := conn.Channel()
 		if err != nil {
+			fmt.Println("Connect Channel Fail")
 			fmt.Println(err)
 		}
 		defer ch.Close()
 		q, err := ch.QueueDeclare(
 			pushQueue, // name
-			false,     // durable
-			false,     // delete when usused
+			true,      // durable
+			false,     // delete when unused
 			false,     // exclusive
 			false,     // no-wait
 			amqp.Table{
@@ -77,11 +79,12 @@ func startPublish() {
 			})
 
 		if err != nil {
+			fmt.Println("Publish Fail")
 			fmt.Println(err)
-			time.Sleep(time.Duration(3) * time.Millisecond)
+			time.Sleep(time.Duration(10) * time.Millisecond)
 			continue
 		} else {
-			fmt.Println("test")
+			fmt.Println("Publish Success")
 			break
 		}
 	}
