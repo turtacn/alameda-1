@@ -989,7 +989,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select (($current_cost * $count_of_hourlycost) / 730) - sum(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5_monthly]]$/ and $timeFilter",
+          "query": "select ((($current_cost + 0) * ($count_of_hourlycost + 0)) / 730) - sum(workloadcost) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and namespacename =~ /^[[ns_top_5_monthly]]$/ and $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
