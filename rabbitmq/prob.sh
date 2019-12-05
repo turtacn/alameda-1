@@ -7,8 +7,10 @@ fi
 
 test_dedup_queues="model predict"
 file="/tmp/prob.txt"
-if [ ! -f "$file" ]
+if [ -f "$file" ]
 then
+    exit 0
+else
     echo "$0: File '${file}' not found."
     dedup_worked="true"
     for test_queue in $test_dedup_queues; do
