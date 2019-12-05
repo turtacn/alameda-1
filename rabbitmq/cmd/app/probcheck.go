@@ -52,7 +52,7 @@ func startPublish() {
 		}
 		defer ch.Close()
 		q, err := ch.QueueDeclare(
-			queueName, // name
+			pushQueue, // name
 			false,     // durable
 			false,     // delete when usused
 			false,     // exclusive
