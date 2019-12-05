@@ -1,30 +1,37 @@
 #!/usr/bin/env sh
 #
 
-queue_name='test_queue'
-
 if ! rabbitmqctl status > /dev/null 2>&1; then
     exit 1
 fi
 
+test_dedup_queues="model predict"
 file="/tmp/prob.txt"
 if [ ! -f "$file" ]
 then
     echo "$0: File '${file}' not found."
-    MQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
-    MQ_PASSWD=${RABBITMQ_DEFAULT_PASS:-adminpass}
-    ./usr/local/bin/rabbitmqcmd publish --queue=$queue_name
-    ./usr/local/bin/rabbitmqcmd publish --queue=$queue_name
-    rabbitmqctl list_queues
-    count=`rabbitmqctl list_queues | grep $queue_name | awk '{print $2}'`
-    if [ "$count" = "1" ]
-    then
-        rabbitmqctl delete_queue $queue_name
+    dedup_worked="true"
+    for test_queue in $test_dedup_queues; do
+        count=`rabbitmqctl list_queues | grep "$test_queue\t" | awk '{print $2}'`
+        if [ "$count" != "" ]; then
+            continue
+        fi
+        MQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
+        MQ_PASSWD=${RABBITMQ_DEFAULT_PASS:-adminpass}
+        ./usr/local/bin/rabbitmqcmd publish --queue=$test_queue
+        ./usr/local/bin/rabbitmqcmd publish --queue=$test_queue
+        count=`rabbitmqctl list_queues | grep "$test_queue\t" | awk '{print $2}'`
+        if [ "$count" = "1" ]
+        then
+            rabbitmqctl purge_queue $test_queue
+        else
+            rabbitmqctl delete_queue $test_queue
+            dedup_worked="false"
+        fi
+    done
+    if [ $dedup_worked == "true" ]; then
         touch $file
         exit 0
-    else
-        exit 1
     fi
 fi
-exit 0
-
+exit 1
