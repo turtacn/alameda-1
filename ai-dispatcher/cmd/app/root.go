@@ -89,18 +89,8 @@ var rootCmd = &cobra.Command{
 			conn, _ = grpc.Dial(datahubAddr, grpc.WithInsecure(),
 				grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
 					grpc_retry.WithMax(uint(datahubConnRetry)))))
-			datahubClient := datahubv1alpha1.NewDatahubServiceClient(conn)
-			result, err := datahubClient.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
-			nodeCount := len(result.GetNodes())
-			if err == nil && nodeCount > 0 {
+			if checkResourceIsExist(conn) {
 				break
-			} else {
-				if err != nil {
-					scope.Errorf("connect datahub failed on init: %s", err.Error())
-				}
-				if nodeCount <= 0 {
-					scope.Errorf("ListNodes failed on init")
-				}
 			}
 			time.Sleep(time.Duration(1) * time.Second)
 		}
@@ -118,6 +108,33 @@ var rootCmd = &cobra.Command{
 			modelMapper, metricExporter)
 		dp.Start()
 	},
+}
+
+func checkResourceIsExist(conn *grpc.ClientConn) bool {
+	datahubClient := datahubv1alpha1.NewDatahubServiceClient(conn)
+	nodeResult, err := datahubClient.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
+	nodeCount := len(nodeResult.GetNodes())
+	if err != nil || nodeCount <= 0 {
+		if err != nil {
+			scope.Errorf("ListNodes failed on init: %s", err.Error())
+		}
+		if nodeCount <= 0 {
+			scope.Errorf("ListNodes is empty on init")
+		}
+		return false
+	}
+	clusterResult, err := datahubClient.ListClusters(context.Background(), &datahub_resources.ListClustersRequest{})
+	clusterCount := len(clusterResult.GetClusters())
+	if err != nil || clusterCount <= 0 {
+		if err != nil {
+			scope.Errorf("ListClusters failed on init: %s", err.Error())
+		}
+		if clusterCount <= 0 {
+			scope.Errorf("ListClusters is empty on init")
+		}
+		return false
+	}
+	return true
 }
 
 func Execute() {
