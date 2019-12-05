@@ -10,5 +10,4 @@ func main() {
 	if err := rabbit_app.PublishCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
-
 }

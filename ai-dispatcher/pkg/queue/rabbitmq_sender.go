@@ -65,7 +65,8 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string) e
 				Body:         []byte(jsonStr),
 				DeliveryMode: 2, // 2 means persistent
 				Headers: amqp.Table{
-					"x-deduplication-header": sender.getMessageHash(msgID),
+					//"x-deduplication-header": sender.getMessageHash(msgID),
+					"x-deduplication-header": msgID,
 				},
 			})
 
