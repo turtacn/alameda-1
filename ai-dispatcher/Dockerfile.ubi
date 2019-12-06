@@ -1,6 +1,6 @@
 # This Dockerfile is used for building ai-dispatcher on https://connect.redhat.com
 FROM openshift/origin-release:golang-1.13 as builder
-RUN yum update -y
+#RUN yum update -y
 
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
@@ -8,6 +8,13 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 WORKDIR /go/src/github.com/containers-ai/alameda
 
 COPY . .
+RUN set -x \
+    && export GIT_COMMIT=`git rev-parse --short HEAD || echo 'none'` \
+    && export _TMP_STR=`git show-ref --abbrev --head | grep "^${GIT_COMMIT} " | grep -v "HEAD$" | head -1 | awk '{print $NF}'` \
+    && [ "${_TMP_STR}" = "" ] && export GIT_REF="HEAD" || export GIT_REF="${_TMP_STR}" \
+    && [ "`git diff --shortstat`" = "" ] && export GIT_DIRTY="" || export GIT_DIRTY="-dirty" \
+    && export CODE_VERSION="${GIT_REF}@${GIT_COMMIT}${GIT_DIRTY}" \
+    && echo "CODE_VERSION=${CODE_VERSION}" > version.txt
 
 # Build
 RUN ["/bin/bash", "-c", "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./ai-dispatcher/ai-dispatcher github.com/containers-ai/alameda/ai-dispatcher/cmd"]
@@ -19,7 +26,8 @@ ENV SUMMARY="Alameda AI Dispatcher is used to dispatch predict jobs to queue."	\
     NAME="Alameda AI Dispatcher" \
     VERSION="latest" \
     USER_UID=1001 \
-    USER_NAME=alameda
+    USER_NAME=alameda \
+    AIHOME="/opt/alameda/ai-dispatcher"
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
@@ -30,10 +38,14 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       vendor="ProphetStor Data Services, Inc."
 
-RUN microdnf update -y \
+RUN set -x \
+    # && microdnf update -y \
     && microdnf install -y \
-        tar procps-ng psmisc findutils vim-minimal 
+        tar procps-ng psmisc findutils vim-minimal \
+    && microdnf clean all
 
+COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/xray.sh /xray.sh
+COPY --from=builder /go/src/github.com/containers-ai/alameda/version.txt ${AIHOME}/etc/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/LICENSE /licenses/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/etc/ai-dispatcher.toml /etc/alameda/ai-dispatcher/ai-dispatcher.toml
 COPY --from=builder /go/src/github.com/containers-ai/alameda/ai-dispatcher/ai-dispatcher /usr/local/bin/

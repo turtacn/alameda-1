@@ -1,6 +1,6 @@
 # This Dockerfile is used for building alameda-datahub on https://connect.redhat.com
 FROM openshift/origin-release:golang-1.13 as builder
-RUN yum update -y
+#RUN yum update -y
 
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
@@ -8,6 +8,13 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 WORKDIR /go/src/github.com/containers-ai/alameda
 
 COPY . .
+RUN set -x \
+    && export GIT_COMMIT=`git rev-parse --short HEAD || echo 'none'` \
+    && export _TMP_STR=`git show-ref --abbrev --head | grep "^${GIT_COMMIT} " | grep -v "HEAD$" | head -1 | awk '{print $NF}'` \
+    && [ "${_TMP_STR}" = "" ] && export GIT_REF="HEAD" || export GIT_REF="${_TMP_STR}" \
+    && [ "`git diff --shortstat`" = "" ] && export GIT_DIRTY="" || export GIT_DIRTY="-dirty" \
+    && export CODE_VERSION="${GIT_REF}@${GIT_COMMIT}${GIT_DIRTY}" \
+    && echo "CODE_VERSION=${CODE_VERSION}" > version.txt
 
 # Build datahub executable binary
 RUN ["/bin/bash", "-c", "go build -ldflags \"-X main.VERSION=`git rev-parse --abbrev-ref HEAD`-`git rev-parse --short HEAD``git diff --quiet || echo '-dirty'` -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'\" -a -o ./datahub/datahub github.com/containers-ai/alameda/datahub/cmd"]
@@ -23,6 +30,7 @@ ENV SUMMARY="Alameda Datahub is an API gateway for handling gRPC requests."	\
     VERSION="latest" \
     USER_UID=1001 \
     USER_NAME=alameda \
+    AIHOME="/opt/alameda/alameda-datahub" \
     FEDAIHOME="/opt/prophetstor/federatorai" \
     LD_LIBRARY_PATH="/opt/prophetstor/federatorai/lib"
 
@@ -36,14 +44,16 @@ LABEL summary="$SUMMARY" \
       vendor="ProphetStor Data Services, Inc."
 
 RUN set -x \
-    && microdnf update -y \
+    # && microdnf update -y \
     && microdnf install -y \
-        tar procps-ng psmisc findutils vim-minimal logrotate \
+         tar procps-ng psmisc findutils vim-minimal logrotate \
     && microdnf clean all \
     && echo "${USER_NAME}:x:${USER_UID}:0:Federator.ai:${AIHOME}:/bin/sh" >> /etc/passwd \
     # The following lines for logrotate - startup script will add running user id into /etc/passwd
     && chmod g+w /etc/passwd
 
+COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/xray.sh /xray.sh
+COPY --from=builder /go/src/github.com/containers-ai/alameda/version.txt ${AIHOME}/etc/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/tini /sbin/tini
 COPY --from=builder /go/src/github.com/containers-ai/alameda/datahub/init.sh /init.sh
 

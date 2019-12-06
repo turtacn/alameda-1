@@ -4,6 +4,7 @@ ARG image_tag
 
 ENV APPHOME=/opt/prophetstor/federatorai/grafana \
     APP_DEBUG=0 \
+    AIHOME="/opt/alameda/alameda-datahub" \
     GF_PANELS_DISABLE_SANITIZE_HTML=true
 
 COPY . /tmp/src
@@ -42,6 +43,8 @@ RUN set -x \
     ## The following lines startup script will add running user id into /etc/passwd
     && chmod g+w /etc/passwd \
     ## init scripts
+    && cp /tmp/src/xray.sh /xray.sh \
+    # && cp /tmp/src/version.txt ${AIHOME}/etc/version.txt \
     && cp /tmp/src/tini /sbin/tini && chmod 755 /sbin/tini \
     && cp /tmp/src/init.sh /init.sh && chmod 755 /init.sh \
     && rm -rf /tmp/src
