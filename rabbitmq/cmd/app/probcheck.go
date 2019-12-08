@@ -13,6 +13,7 @@ import (
 
 const (
 	publishRetryTime = 3
+	retrySec = 10
 	queueName        = "test_queue"
 )
 
@@ -37,22 +38,25 @@ func parseProbeFlag() {
 }
 
 func startPublish() {
-	config := config.NewRabbitmqConfig("admin", "adminpass", "localhost", "5672")
+	config := config.NewRabbitmqConfig("admin", "adminpass", "127.0.0.1", "5672")
 	rabbitmqAddress := fmt.Sprintf("amqp://%s:%s@%s:%s/", config.Account, config.Password, config.Address, config.Port)
 	fmt.Println(rabbitmqAddress)
 	for retry := 0; retry < publishRetryTime; retry++ {
 		conn, err := amqp.Dial(rabbitmqAddress)
-		if err != nil {
-			fmt.Println("Connect Fail")
-			fmt.Println(err)
-		}
 		defer conn.Close()
-		ch, err := conn.Channel()
 		if err != nil {
-			fmt.Println("Connect Channel Fail")
-			fmt.Println(err)
+			fmt.Println(fmt.Sprintf("Connect Fail: %s", err.Error()))
+			time.Sleep(time.Duration(retrySec) * time.Millisecond)
+			continue
 		}
+		ch, err := conn.Channel()
+
 		defer ch.Close()
+		if err != nil {
+			fmt.Println(fmt.Sprintf("Connect Channel Fail: %s", err.Error()))
+			time.Sleep(time.Duration(retrySec) * time.Millisecond)
+			continue
+		}
 		q, err := ch.QueueDeclare(
 			pushQueue, // name
 			true,      // durable
@@ -79,9 +83,8 @@ func startPublish() {
 			})
 
 		if err != nil {
-			fmt.Println("Publish Fail")
-			fmt.Println(err)
-			time.Sleep(time.Duration(10) * time.Millisecond)
+			fmt.Println(fmt.Sprintf("Publish Fail: %s", err.Error()))
+			time.Sleep(time.Duration(retrySec) * time.Millisecond)
 			continue
 		} else {
 			fmt.Println("Publish Success")
