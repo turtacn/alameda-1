@@ -41,7 +41,7 @@ func (sender *controllerModelJobSender) sendModelJobs(controllers []*datahub_res
 		controllerNS := controller.GetObjectMeta().GetNamespace()
 		controllerName := controller.GetObjectMeta().GetName()
 
-		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, controller, granularity)
+		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, controller, granularity)
 		if err != nil {
 			scope.Infof("Get controller %s/%s last prediction failed: %s",
 				controllerNS, controllerName, err.Error())
@@ -103,7 +103,7 @@ func (sender *controllerModelJobSender) genControllerInfo(controllerNS,
 	return controllerInfo
 }
 
-func (sender *controllerModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+func (sender *controllerModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	controller *datahub_resources.Controller, granularity int64) ([]*datahub_predictions.MetricData, error) {
 	controllerNS := controller.GetObjectMeta().GetNamespace()
 	controllerName := controller.GetObjectMeta().GetName()
@@ -130,17 +130,103 @@ func (sender *controllerModelJobSender) getLastPrediction(datahubServiceClnt dat
 		return nil, err
 	}
 
+	lastPid := ""
 	if len(controllerPredictRes.GetControllerPredictions()) > 0 {
 		lastControllerPrediction := controllerPredictRes.GetControllerPredictions()[0]
-		if lastControllerPrediction.GetPredictedRawData() != nil {
-			return lastControllerPrediction.GetPredictedRawData(), nil
-		} else if lastControllerPrediction.GetPredictedLowerboundData() != nil {
-			return lastControllerPrediction.GetPredictedLowerboundData(), nil
-		} else if lastControllerPrediction.GetPredictedUpperboundData() != nil {
-			return lastControllerPrediction.GetPredictedUpperboundData(), nil
+		lctrlPDRData := lastControllerPrediction.GetPredictedRawData()
+		if lctrlPDRData == nil {
+			lctrlPDRData = lastControllerPrediction.GetPredictedLowerboundData()
 		}
+		if lctrlPDRData == nil {
+			lctrlPDRData = lastControllerPrediction.GetPredictedUpperboundData()
+		}
+		for _, pdRD := range lctrlPDRData {
+			for _, theData := range pdRD.GetData() {
+				lastPid = theData.GetPredictionId()
+				break
+			}
+			if lastPid != "" {
+				break
+			}
+		}
+	} else {
+		return []*datahub_predictions.MetricData{}, nil
+	}
+	if lastPid == "" {
+		return nil, fmt.Errorf("Query controller %s/%s last prediction id with granularity %v seconds failed",
+			controllerNS, controllerName, granularity)
+	}
+
+	controllerPredictRes, err = datahubServiceClnt.ListControllerPredictions(context.Background(),
+		&datahub_predictions.ListControllerPredictionsRequest{
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Namespace: controllerNS,
+					Name:      controllerName,
+				},
+			},
+			Granularity: granularity,
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			PredictionId: lastPid,
+		})
+
+	if err != nil {
+		return nil, err
+	}
+	if len(controllerPredictRes.GetControllerPredictions()) > 0 {
+		metricData := []*datahub_predictions.MetricData{}
+		for _, ctrlPrediction := range controllerPredictRes.GetControllerPredictions() {
+			for _, pdRD := range ctrlPrediction.GetPredictedRawData() {
+				for _, pdD := range pdRD.GetData() {
+					modelId := pdD.GetModelId()
+					if modelId != "" {
+						mIdCtrlPrediction, err := sender.getPredictionByMId(datahubServiceClnt, controller, granularity, modelId)
+						if err != nil {
+							scope.Errorf("Query controller %s/%s prediction with granularity %v seconds and model Id %s failed. %s",
+								controllerNS, controllerName, granularity, modelId, err.Error())
+						}
+						for _, mIdCtrlPD := range mIdCtrlPrediction {
+							metricData = append(metricData, mIdCtrlPD.GetPredictedRawData()...)
+						}
+						break
+					}
+				}
+			}
+		}
+		return metricData, nil
 	}
 	return nil, nil
+}
+
+func (sender *controllerModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+	controller *datahub_resources.Controller, granularity int64, modelId string) ([]*datahub_predictions.ControllerPrediction, error) {
+	controllerPredictRes, err := datahubServiceClnt.ListControllerPredictions(context.Background(),
+		&datahub_predictions.ListControllerPredictionsRequest{
+			Granularity: granularity,
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name:      controller.GetObjectMeta().GetName(),
+					Namespace: controller.GetObjectMeta().GetNamespace(),
+				},
+			},
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			ModelId: modelId,
+		})
+	return controllerPredictRes.GetControllerPredictions(), err
 }
 
 func (sender *controllerModelJobSender) getQueryMetricStartTime(
@@ -170,7 +256,7 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 		},
 	}
 	controllerNS := controller.GetObjectMeta().GetNamespace()
-	controllerName := controller.GetObjectMeta().GetNamespace()
+	controllerName := controller.GetObjectMeta().GetName()
 	nowSeconds := time.Now().Unix()
 
 	if len(lastPredictionMetrics) == 0 {
@@ -183,6 +269,8 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 			controllerNS, controllerName, granularity)
 		return
 	}
+
+	controllerInfo := sender.genControllerInfo(controllerNS, controllerName)
 	for _, lastPredictionMetric := range lastPredictionMetrics {
 		if len(lastPredictionMetric.GetData()) == 0 {
 			controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
@@ -260,43 +348,41 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 				continue
 			}
 			controllerMetrics := controllerMetricsRes.GetControllerMetrics()
-
-			for _, controllerMetric := range controllerMetrics {
-				metricData := controllerMetric.GetMetricData()
-				for _, metricDatum := range metricData {
-					mData := metricDatum.GetData()
-					pData := []*datahub_predictions.Sample{}
-					controllerInfo := sender.genControllerInfo(controllerNS, controllerName)
-					for _, controllerPrediction := range controllerPredictions {
-						predictRawData := controllerPrediction.GetPredictedRawData()
-						for _, predictRawDatum := range predictRawData {
+			for _, controllerPrediction := range controllerPredictions {
+				predictRawData := controllerPrediction.GetPredictedRawData()
+				for _, predictRawDatum := range predictRawData {
+					for _, controllerMetric := range controllerMetrics {
+						metricData := controllerMetric.GetMetricData()
+						for _, metricDatum := range metricData {
+							mData := metricDatum.GetData()
+							pData := []*datahub_predictions.Sample{}
 							if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
 								pData = append(pData, predictRawDatum.GetData()...)
+								metricsNeedToModel, drift := DriftEvaluation(UnitTypeController, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+									"controllerNS":   controllerNS,
+									"controllerName": controllerName,
+									"controllerKind": controller.GetKind().String(),
+									"targetDisplayName": fmt.Sprintf("controller %s %s/%s", controller.GetKind().String(),
+										controllerNS, controllerName),
+								}, sender.metricExporter)
+								if drift {
+									scope.Infof("export controller %s %s/%s drift counter with granularity %s",
+										controller.GetKind().String(), controllerNS, controllerName, dataGranularity)
+									sender.metricExporter.AddControllerMetricDrift(controllerNS, controllerName,
+										controller.GetKind().String(), queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
+								}
+								controllerInfo.ModelMetrics = append(controllerInfo.ModelMetrics, metricsNeedToModel...)
 							}
 						}
-					}
-					metricsNeedToModel, drift := DriftEvaluation(UnitTypeController, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
-						"controllerNS":   controllerNS,
-						"controllerName": controllerName,
-						"controllerKind": controller.GetKind().String(),
-						"targetDisplayName": fmt.Sprintf("controller %s %s/%s", controller.GetKind().String(),
-							controllerNS, controllerName),
-					}, sender.metricExporter)
-					if drift {
-						scope.Infof("export controller %s %s/%s drift counter with granularity %s",
-							controller.GetKind().String(), controllerNS, controllerName, dataGranularity)
-						sender.metricExporter.AddControllerMetricDrift(controllerNS, controllerName,
-							controller.GetKind().String(), queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
-					}
-					controllerInfo.ModelMetrics = append(controllerInfo.ModelMetrics, metricsNeedToModel...)
-					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, controllerInfo)
-					if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
-						pdUnit, dataGranularity, controllerInfo)) {
-						sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
-						return
 					}
 				}
 			}
 		}
+	}
+	isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, controllerInfo)
+	if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
+		pdUnit, dataGranularity, controllerInfo)) {
+		sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
+		return
 	}
 }

@@ -39,7 +39,7 @@ func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, node := range nodes {
 		nodeName := node.GetObjectMeta().GetName()
-		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, node, granularity)
+		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, node, granularity)
 		if err != nil {
 			scope.Infof("Get node %s last prediction failed: %s",
 				nodeName, err.Error())
@@ -98,7 +98,7 @@ func (sender *nodeModelJobSender) genNodeInfo(nodeName string,
 	return nodeInfo
 }
 
-func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+func (sender *nodeModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	node *datahub_resources.Node, granularity int64) ([]*datahub_predictions.MetricData, error) {
 	nodeName := node.GetObjectMeta().GetName()
 	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
@@ -122,17 +122,103 @@ func (sender *nodeModelJobSender) getLastPrediction(datahubServiceClnt datahub_v
 	if err != nil {
 		return nil, err
 	}
+
+	lastPid := ""
 	if len(nodePredictRes.GetNodePredictions()) > 0 {
 		lastNodePrediction := nodePredictRes.GetNodePredictions()[0]
-		if lastNodePrediction.GetPredictedRawData() != nil {
-			return lastNodePrediction.GetPredictedRawData(), nil
-		} else if lastNodePrediction.GetPredictedLowerboundData() != nil {
-			return lastNodePrediction.GetPredictedLowerboundData(), nil
-		} else if lastNodePrediction.GetPredictedUpperboundData() != nil {
-			return lastNodePrediction.GetPredictedUpperboundData(), nil
+		lnsPDRData := lastNodePrediction.GetPredictedRawData()
+		if lnsPDRData == nil {
+			lnsPDRData = lastNodePrediction.GetPredictedLowerboundData()
 		}
+		if lnsPDRData == nil {
+			lnsPDRData = lastNodePrediction.GetPredictedUpperboundData()
+		}
+		for _, pdRD := range lnsPDRData {
+			for _, theData := range pdRD.GetData() {
+				lastPid = theData.GetPredictionId()
+				break
+			}
+			if lastPid != "" {
+				break
+			}
+		}
+	} else {
+		return []*datahub_predictions.MetricData{}, nil
+	}
+
+	if lastPid == "" {
+		return nil, fmt.Errorf("Query node %s last prediction id with granularity %v seconds failed",
+			nodeName, granularity)
+	}
+
+	nodePredictRes, err = datahubServiceClnt.ListNodePredictions(context.Background(),
+		&datahub_predictions.ListNodePredictionsRequest{
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name: nodeName,
+				},
+			},
+			Granularity: granularity,
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			PredictionId: lastPid,
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(nodePredictRes.GetNodePredictions()) > 0 {
+		metricData := []*datahub_predictions.MetricData{}
+		for _, nodePrediction := range nodePredictRes.GetNodePredictions() {
+			for _, pdRD := range nodePrediction.GetPredictedRawData() {
+				for _, pdD := range pdRD.GetData() {
+					modelId := pdD.GetModelId()
+					if modelId != "" {
+						mIdNodePrediction, err := sender.getPredictionByMId(datahubServiceClnt, node, granularity, modelId)
+						if err != nil {
+							scope.Errorf("Query node %s prediction with granularity %v seconds and model Id %s failed. %s",
+								nodeName, granularity, modelId, err.Error())
+						}
+						for _, mIdNodePD := range mIdNodePrediction {
+							metricData = append(metricData, mIdNodePD.GetPredictedRawData()...)
+						}
+						break
+					}
+				}
+			}
+		}
+		return metricData, nil
 	}
 	return nil, nil
+}
+
+func (sender *nodeModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+	node *datahub_resources.Node, granularity int64, modelId string) ([]*datahub_predictions.NodePrediction, error) {
+	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
+		&datahub_predictions.ListNodePredictionsRequest{
+			Granularity: granularity,
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name: node.GetObjectMeta().GetName(),
+				},
+			},
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			ModelId: modelId,
+		})
+	return nodePredictRes.GetNodePredictions(), err
 }
 
 func (sender *nodeModelJobSender) getQueryMetricStartTime(descNodePredictions []*datahub_predictions.NodePrediction) int64 {
@@ -173,6 +259,7 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 		return
 	}
 
+	nodeInfo := sender.genNodeInfo(nodeName)
 	for _, lastPredictionMetric := range lastPredictionMetrics {
 		if len(lastPredictionMetric.GetData()) == 0 {
 			nodeInfo := sender.genNodeInfo(nodeName,
@@ -247,39 +334,39 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 				continue
 			}
 			nodeMetrics := nodeMetricsRes.GetNodeMetrics()
+			for _, nodePrediction := range nodePredictions {
+				predictRawData := nodePrediction.GetPredictedRawData()
+				for _, predictRawDatum := range predictRawData {
+					for _, nodeMetric := range nodeMetrics {
+						metricData := nodeMetric.GetMetricData()
+						for _, metricDatum := range metricData {
+							mData := metricDatum.GetData()
+							pData := []*datahub_predictions.Sample{}
 
-			for _, nodeMetric := range nodeMetrics {
-				metricData := nodeMetric.GetMetricData()
-				for _, metricDatum := range metricData {
-					mData := metricDatum.GetData()
-					pData := []*datahub_predictions.Sample{}
-					nodeInfo := sender.genNodeInfo(nodeName)
-					for _, nodePrediction := range nodePredictions {
-						predictRawData := nodePrediction.GetPredictedRawData()
-						for _, predictRawDatum := range predictRawData {
 							if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
 								pData = append(pData, predictRawDatum.GetData()...)
+								metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+									"nodeName":          nodeName,
+									"targetDisplayName": fmt.Sprintf("node %s", nodeName),
+								}, sender.metricExporter)
+								if drift {
+									scope.Infof("export node %s drift counter with granularity %s",
+										nodeName, dataGranularity)
+									sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity),
+										time.Now().Unix(), 1.0)
+								}
+								nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricsNeedToModel...)
 							}
 						}
 					}
-					metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
-						"nodeName":          nodeName,
-						"targetDisplayName": fmt.Sprintf("node %s", nodeName),
-					}, sender.metricExporter)
-					if drift {
-						scope.Infof("export node %s drift counter with granularity %s",
-							nodeName, dataGranularity)
-						sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity),
-						time.Now().Unix(), 1.0)
-					}
-					nodeInfo.ModelMetrics = append(nodeInfo.ModelMetrics, metricsNeedToModel...)
-					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, nodeInfo)
-					if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
-						pdUnit, dataGranularity, nodeInfo)) {
-						sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
-					}
+
 				}
 			}
 		}
+	}
+	isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, nodeInfo)
+	if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
+		pdUnit, dataGranularity, nodeInfo)) {
+		sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
 	}
 }

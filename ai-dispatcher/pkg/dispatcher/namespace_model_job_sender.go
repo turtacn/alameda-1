@@ -39,7 +39,7 @@ func (sender *namespaceModelJobSender) sendModelJobs(namespaces []*datahub_resou
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, namespace := range namespaces {
 		namespaceName := namespace.GetObjectMeta().GetName()
-		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, namespace, granularity)
+		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, namespace, granularity)
 		if err != nil {
 			scope.Infof("Get namespace %s last prediction failed: %s",
 				namespaceName, err.Error())
@@ -98,7 +98,7 @@ func (sender *namespaceModelJobSender) genNamespaceInfo(namespaceName string,
 	return namespaceInfo
 }
 
-func (sender *namespaceModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+func (sender *namespaceModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	namespace *datahub_resources.Namespace, granularity int64) ([]*datahub_predictions.MetricData, error) {
 	namespaceName := namespace.GetObjectMeta().GetName()
 	namespacePredictRes, err := datahubServiceClnt.ListNamespacePredictions(context.Background(),
@@ -122,17 +122,101 @@ func (sender *namespaceModelJobSender) getLastPrediction(datahubServiceClnt data
 	if err != nil {
 		return nil, err
 	}
+	lastPid := ""
 	if len(namespacePredictRes.GetNamespacePredictions()) > 0 {
 		lastNamespacePrediction := namespacePredictRes.GetNamespacePredictions()[0]
-		if lastNamespacePrediction.GetPredictedRawData() != nil {
-			return lastNamespacePrediction.GetPredictedRawData(), nil
-		} else if lastNamespacePrediction.GetPredictedLowerboundData() != nil {
-			return lastNamespacePrediction.GetPredictedLowerboundData(), nil
-		} else if lastNamespacePrediction.GetPredictedUpperboundData() != nil {
-			return lastNamespacePrediction.GetPredictedUpperboundData(), nil
+		lnsPDRData := lastNamespacePrediction.GetPredictedRawData()
+		if lnsPDRData == nil {
+			lnsPDRData = lastNamespacePrediction.GetPredictedLowerboundData()
 		}
+		if lnsPDRData == nil {
+			lnsPDRData = lastNamespacePrediction.GetPredictedUpperboundData()
+		}
+		for _, pdRD := range lnsPDRData {
+			for _, theData := range pdRD.GetData() {
+				lastPid = theData.GetPredictionId()
+				break
+			}
+			if lastPid != "" {
+				break
+			}
+		}
+	} else {
+		return []*datahub_predictions.MetricData{}, nil
+	}
+
+	if lastPid == "" {
+		return nil, fmt.Errorf("Query namespace %s last prediction id with granularity %v seconds failed",
+			namespaceName, granularity)
+	}
+	namespacePredictRes, err = datahubServiceClnt.ListNamespacePredictions(context.Background(),
+		&datahub_predictions.ListNamespacePredictionsRequest{
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name: namespaceName,
+				},
+			},
+			Granularity: granularity,
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			PredictionId: lastPid,
+		})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(namespacePredictRes.GetNamespacePredictions()) > 0 {
+		metricData := []*datahub_predictions.MetricData{}
+		for _, nsPrediction := range namespacePredictRes.GetNamespacePredictions() {
+			for _, pdRD := range nsPrediction.GetPredictedRawData() {
+				for _, pdD := range pdRD.GetData() {
+					modelId := pdD.GetModelId()
+					if modelId != "" {
+						mIdNSPrediction, err := sender.getPredictionByMId(datahubServiceClnt, namespace, granularity, modelId)
+						if err != nil {
+							scope.Errorf("Query namespace %s prediction with granularity %v seconds and model Id %s failed. %s",
+								namespaceName, granularity, modelId, err.Error())
+						}
+						for _, mIdNSPD := range mIdNSPrediction {
+							metricData = append(metricData, mIdNSPD.GetPredictedRawData()...)
+						}
+						break
+					}
+				}
+			}
+		}
+		return metricData, nil
 	}
 	return nil, nil
+}
+
+func (sender *namespaceModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+	namespace *datahub_resources.Namespace, granularity int64, modelId string) ([]*datahub_predictions.NamespacePrediction, error) {
+	namespacePredictRes, err := datahubServiceClnt.ListNamespacePredictions(context.Background(),
+		&datahub_predictions.ListNamespacePredictionsRequest{
+			Granularity: granularity,
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name: namespace.GetObjectMeta().GetName(),
+				},
+			},
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			ModelId: modelId,
+		})
+	return namespacePredictRes.GetNamespacePredictions(), err
 }
 
 func (sender *namespaceModelJobSender) getQueryMetricStartTime(descNamespacePredictions []*datahub_predictions.NamespacePrediction) int64 {
@@ -173,6 +257,7 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 		return
 	}
 
+	namespaceInfo := sender.genNamespaceInfo(namespaceName)
 	for _, lastPredictionMetric := range lastPredictionMetrics {
 		if len(lastPredictionMetric.GetData()) == 0 {
 			namespaceInfo := sender.genNamespaceInfo(namespaceName,
@@ -247,39 +332,37 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 				continue
 			}
 			namespaceMetrics := namespaceMetricsRes.GetNamespaceMetrics()
-
-			for _, namespaceMetric := range namespaceMetrics {
-				metricData := namespaceMetric.GetMetricData()
-				for _, metricDatum := range metricData {
-					mData := metricDatum.GetData()
-					pData := []*datahub_predictions.Sample{}
-					namespaceInfo := sender.genNamespaceInfo(namespaceName)
-					for _, namespacePrediction := range namespacePredictions {
-						predictRawData := namespacePrediction.GetPredictedRawData()
-						for _, predictRawDatum := range predictRawData {
+			for _, namespacePrediction := range namespacePredictions {
+				predictRawData := namespacePrediction.GetPredictedRawData()
+				for _, predictRawDatum := range predictRawData {
+					for _, namespaceMetric := range namespaceMetrics {
+						metricData := namespaceMetric.GetMetricData()
+						for _, metricDatum := range metricData {
+							mData := metricDatum.GetData()
+							pData := []*datahub_predictions.Sample{}
 							if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
 								pData = append(pData, predictRawDatum.GetData()...)
+								metricsNeedToModel, drift := DriftEvaluation(UnitTypeNamespace, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+									"namespaceName":     namespaceName,
+									"targetDisplayName": fmt.Sprintf("namespace %s", namespaceName),
+								}, sender.metricExporter)
+								if drift {
+									scope.Infof("export namespace %s drift counter with granularity %s",
+										namespaceName, dataGranularity)
+									sender.metricExporter.AddNamespaceMetricDrift(namespaceName, queue.GetGranularityStr(granularity),
+										time.Now().Unix(), 1.0)
+								}
+								namespaceInfo.ModelMetrics = append(namespaceInfo.ModelMetrics, metricsNeedToModel...)
 							}
 						}
-					}
-					metricsNeedToModel, drift := DriftEvaluation(UnitTypeNamespace, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
-						"namespaceName":     namespaceName,
-						"targetDisplayName": fmt.Sprintf("namespace %s", namespaceName),
-					}, sender.metricExporter)
-					if drift {
-						scope.Infof("export namespace %s drift counter with granularity %s",
-							namespaceName, dataGranularity)
-						sender.metricExporter.AddNamespaceMetricDrift(namespaceName, queue.GetGranularityStr(granularity),
-						time.Now().Unix(), 1.0)
-					}
-					namespaceInfo.ModelMetrics = append(namespaceInfo.ModelMetrics, metricsNeedToModel...)
-					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, namespaceInfo)
-					if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
-						pdUnit, dataGranularity, namespaceInfo)) {
-						sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
 					}
 				}
 			}
 		}
+	}
+	isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, namespaceInfo)
+	if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
+		pdUnit, dataGranularity, namespaceInfo)) {
+		sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
 	}
 }

@@ -41,7 +41,7 @@ func (sender *applicationModelJobSender) sendModelJobs(applications []*datahub_r
 		applicationNS := application.GetObjectMeta().GetNamespace()
 		applicationName := application.GetObjectMeta().GetName()
 
-		lastPredictionMetrics, err := sender.getLastPrediction(datahubServiceClnt, application, granularity)
+		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, application, granularity)
 		if err != nil {
 			scope.Infof("Get application %s/%s last prediction failed: %s",
 				applicationNS, applicationName, err.Error())
@@ -103,7 +103,7 @@ func (sender *applicationModelJobSender) genApplicationInfo(applicationNS,
 	return applicationInfo
 }
 
-func (sender *applicationModelJobSender) getLastPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+func (sender *applicationModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	application *datahub_resources.Application, granularity int64) ([]*datahub_predictions.MetricData, error) {
 	applicationNS := application.GetObjectMeta().GetNamespace()
 	applicationName := application.GetObjectMeta().GetName()
@@ -130,17 +130,102 @@ func (sender *applicationModelJobSender) getLastPrediction(datahubServiceClnt da
 		return nil, err
 	}
 
+	lastPid := ""
 	if len(applicationPredictRes.GetApplicationPredictions()) > 0 {
 		lastApplicationPrediction := applicationPredictRes.GetApplicationPredictions()[0]
-		if lastApplicationPrediction.GetPredictedRawData() != nil {
-			return lastApplicationPrediction.GetPredictedRawData(), nil
-		} else if lastApplicationPrediction.GetPredictedLowerboundData() != nil {
-			return lastApplicationPrediction.GetPredictedLowerboundData(), nil
-		} else if lastApplicationPrediction.GetPredictedUpperboundData() != nil {
-			return lastApplicationPrediction.GetPredictedUpperboundData(), nil
+		lctrlPDRData := lastApplicationPrediction.GetPredictedRawData()
+		if lctrlPDRData == nil {
+			lctrlPDRData = lastApplicationPrediction.GetPredictedLowerboundData()
 		}
+		if lctrlPDRData == nil {
+			lctrlPDRData = lastApplicationPrediction.GetPredictedUpperboundData()
+		}
+		for _, pdRD := range lctrlPDRData {
+			for _, theData := range pdRD.GetData() {
+				lastPid = theData.GetPredictionId()
+				break
+			}
+			if lastPid != "" {
+				break
+			}
+		}
+	} else {
+		return []*datahub_predictions.MetricData{}, nil
+	}
+	if lastPid == "" {
+		return nil, fmt.Errorf("Query application %s/%s last prediction id with granularity %v seconds failed",
+			applicationNS, applicationName, granularity)
+	}
+
+	applicationPredictRes, err = datahubServiceClnt.ListApplicationPredictions(context.Background(),
+		&datahub_predictions.ListApplicationPredictionsRequest{
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Namespace: applicationNS,
+					Name:      applicationName,
+				},
+			},
+			Granularity: granularity,
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			PredictionId: lastPid,
+		})
+	if err != nil {
+		return nil, err
+	}
+	if len(applicationPredictRes.GetApplicationPredictions()) > 0 {
+		metricData := []*datahub_predictions.MetricData{}
+		for _, appPrediction := range applicationPredictRes.GetApplicationPredictions() {
+			for _, pdRD := range appPrediction.GetPredictedRawData() {
+				for _, pdD := range pdRD.GetData() {
+					modelId := pdD.GetModelId()
+					if modelId != "" {
+						mIdAppPrediction, err := sender.getPredictionByMId(datahubServiceClnt, application, granularity, modelId)
+						if err != nil {
+							scope.Errorf("Query application %s/%s prediction with granularity %v seconds and model Id %s failed. %s",
+								applicationNS, applicationName, granularity, modelId, err.Error())
+						}
+						for _, mIdAppPD := range mIdAppPrediction {
+							metricData = append(metricData, mIdAppPD.GetPredictedRawData()...)
+						}
+						break
+					}
+				}
+			}
+		}
+		return metricData, nil
 	}
 	return nil, nil
+}
+
+func (sender *applicationModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
+	application *datahub_resources.Application, granularity int64, modelId string) ([]*datahub_predictions.ApplicationPrediction, error) {
+	appPredictRes, err := datahubServiceClnt.ListApplicationPredictions(context.Background(),
+		&datahub_predictions.ListApplicationPredictionsRequest{
+			Granularity: granularity,
+			ObjectMeta: []*datahub_resources.ObjectMeta{
+				&datahub_resources.ObjectMeta{
+					Name:      application.GetObjectMeta().GetName(),
+					Namespace: application.GetObjectMeta().GetNamespace(),
+				},
+			},
+			QueryCondition: &datahub_common.QueryCondition{
+				Order: datahub_common.QueryCondition_DESC,
+				TimeRange: &datahub_common.TimeRange{
+					Step: &duration.Duration{
+						Seconds: granularity,
+					},
+				},
+			},
+			ModelId: modelId,
+		})
+	return appPredictRes.GetApplicationPredictions(), err
 }
 
 func (sender *applicationModelJobSender) getQueryMetricStartTime(
@@ -170,7 +255,7 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 		},
 	}
 	applicationNS := application.GetObjectMeta().GetNamespace()
-	applicationName := application.GetObjectMeta().GetNamespace()
+	applicationName := application.GetObjectMeta().GetName()
 	nowSeconds := time.Now().Unix()
 
 	if len(lastPredictionMetrics) == 0 {
@@ -183,6 +268,8 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 			applicationNS, applicationName, granularity)
 		return
 	}
+
+	applicationInfo := sender.genApplicationInfo(applicationNS, applicationName)
 	for _, lastPredictionMetric := range lastPredictionMetrics {
 		if len(lastPredictionMetric.GetData()) == 0 {
 			applicationInfo := sender.genApplicationInfo(applicationNS, applicationName,
@@ -260,41 +347,39 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 				continue
 			}
 			applicationMetrics := applicationMetricsRes.GetApplicationMetrics()
-
-			for _, applicationMetric := range applicationMetrics {
-				metricData := applicationMetric.GetMetricData()
-				for _, metricDatum := range metricData {
-					mData := metricDatum.GetData()
-					pData := []*datahub_predictions.Sample{}
-					applicationInfo := sender.genApplicationInfo(applicationNS, applicationName)
-					for _, applicationPrediction := range applicationPredictions {
-						predictRawData := applicationPrediction.GetPredictedRawData()
-						for _, predictRawDatum := range predictRawData {
+			for _, applicationPrediction := range applicationPredictions {
+				predictRawData := applicationPrediction.GetPredictedRawData()
+				for _, predictRawDatum := range predictRawData {
+					for _, applicationMetric := range applicationMetrics {
+						metricData := applicationMetric.GetMetricData()
+						for _, metricDatum := range metricData {
+							mData := metricDatum.GetData()
+							pData := []*datahub_predictions.Sample{}
 							if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
 								pData = append(pData, predictRawDatum.GetData()...)
+								metricsNeedToModel, drift := DriftEvaluation(UnitTypeApplication, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+									"applicationNS":     applicationNS,
+									"applicationName":   applicationName,
+									"targetDisplayName": fmt.Sprintf("application %s/%s", applicationNS, applicationName),
+								}, sender.metricExporter)
+								if drift {
+									scope.Infof("export application %s/%s drift counter with granularity %s",
+										applicationNS, applicationName, dataGranularity)
+									sender.metricExporter.AddApplicationMetricDrift(applicationNS, applicationName,
+										queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
+								}
+								applicationInfo.ModelMetrics = append(applicationInfo.ModelMetrics, metricsNeedToModel...)
 							}
 						}
-					}
-					metricsNeedToModel, drift := DriftEvaluation(UnitTypeApplication, metricDatum.GetMetricType(), granularity, mData, pData, map[string]string{
-						"applicationNS":     applicationNS,
-						"applicationName":   applicationName,
-						"targetDisplayName": fmt.Sprintf("application %s/%s", applicationNS, applicationName),
-					}, sender.metricExporter)
-					if drift {
-						scope.Infof("export application %s/%s drift counter with granularity %s",
-							applicationNS, applicationName, dataGranularity)
-						sender.metricExporter.AddApplicationMetricDrift(applicationNS, applicationName,
-							queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
-					}
-					applicationInfo.ModelMetrics = append(applicationInfo.ModelMetrics, metricsNeedToModel...)
-					isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, applicationInfo)
-					if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
-						pdUnit, dataGranularity, applicationInfo)) {
-						sender.sendJob(application, queueSender, pdUnit, granularity, applicationInfo)
-						return
 					}
 				}
 			}
 		}
+	}
+	isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, applicationInfo)
+	if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
+		pdUnit, dataGranularity, applicationInfo)) {
+		sender.sendJob(application, queueSender, pdUnit, granularity, applicationInfo)
+		return
 	}
 }

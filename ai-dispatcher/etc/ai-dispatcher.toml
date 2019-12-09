@@ -83,7 +83,7 @@ outputLevel = "info" # debug, info, warn, error, fatal, none
 
 [model]
 enabled = false
-timeout = 30
+timeout = 180
 
 [measurements]
   current = "mape"
