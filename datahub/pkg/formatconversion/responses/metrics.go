@@ -18,7 +18,7 @@ func (p *PodMetricExtended) ProduceMetrics() *ApiMetrics.PodMetric {
 	)
 
 	datahubPodMetric = ApiMetrics.PodMetric{
-		ObjectMeta: NewObjectMeta(p.ObjectMeta),
+		ObjectMeta: NewObjectMeta(&p.ObjectMeta),
 	}
 
 	for _, containerMetric := range p.ContainerMetricMap.MetricMap {
@@ -74,7 +74,7 @@ func (n *NodeMetricExtended) ProduceMetrics() *ApiMetrics.NodeMetric {
 	)
 
 	datahubNodeMetric = ApiMetrics.NodeMetric{}
-	datahubNodeMetric.ObjectMeta = NewObjectMeta(n.ObjectMeta)
+	datahubNodeMetric.ObjectMeta = NewObjectMeta(&n.ObjectMeta)
 
 	for metricType, samples := range n.Metrics {
 		if datahubMetricType, exist := FormatEnum.TypeToDatahubMetricType[metricType]; exist {

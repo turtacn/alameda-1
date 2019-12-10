@@ -13,40 +13,51 @@ type ListNodesRequestExtended struct {
 	*ApiResources.ListNodesRequest
 }
 
-func (r *CreateNodesRequestExtended) Validate() error {
-	return nil
+type DeleteNodesRequestExtended struct {
+	*ApiResources.DeleteNodesRequest
 }
 
-func (r *CreateNodesRequestExtended) ProduceNodes() []*DaoClusterTypes.Node {
-	nodes := make([]*DaoClusterTypes.Node, 0)
-
-	for _, n := range r.GetNodes() {
+func NewNode(node *ApiResources.Node) *DaoClusterTypes.Node {
+	if node != nil {
 		// Normalize request
-		objectMeta := NewObjectMeta(n.GetObjectMeta())
+		objectMeta := NewObjectMeta(node.GetObjectMeta())
 		objectMeta.Namespace = ""
 		objectMeta.NodeName = ""
 
-		node := &DaoClusterTypes.Node{}
-		node.ObjectMeta = &objectMeta
-		node.CreateTime = n.GetStartTime()
-		node.Capacity = NewCapacity(n.GetCapacity())
-		node.AlamedaNodeSpec = NewAlamedaNodeSpec(n.GetAlamedaNodeSpec())
+		n := DaoClusterTypes.Node{}
+		n.ObjectMeta = &objectMeta
+		n.CreateTime = node.GetStartTime()
+		n.Capacity = NewCapacity(node.GetCapacity())
+		n.AlamedaNodeSpec = NewAlamedaNodeSpec(node.GetAlamedaNodeSpec())
 
-		nodes = append(nodes, node)
+		return &n
+	}
+	return nil
+}
+
+func (p *CreateNodesRequestExtended) Validate() error {
+	return nil
+}
+
+func (p *CreateNodesRequestExtended) ProduceNodes() []*DaoClusterTypes.Node {
+	nodes := make([]*DaoClusterTypes.Node, 0)
+
+	for _, node := range p.GetNodes() {
+		nodes = append(nodes, NewNode(node))
 	}
 
 	return nodes
 }
 
-func (r *ListNodesRequestExtended) Validate() error {
+func (p *ListNodesRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListNodesRequestExtended) ProduceRequest() DaoClusterTypes.ListNodesRequest {
+func (p *ListNodesRequestExtended) ProduceRequest() *DaoClusterTypes.ListNodesRequest {
 	request := DaoClusterTypes.NewListNodesRequest()
-	request.QueryCondition = QueryConditionExtend{r.GetQueryCondition()}.QueryCondition()
-	if r.GetObjectMeta() != nil {
-		for _, meta := range r.GetObjectMeta() {
+	request.QueryCondition = QueryConditionExtend{p.GetQueryCondition()}.QueryCondition()
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
 			// Normalize request
 			objectMeta := NewObjectMeta(meta)
 			objectMeta.Namespace = ""
@@ -54,10 +65,33 @@ func (r *ListNodesRequestExtended) ProduceRequest() DaoClusterTypes.ListNodesReq
 
 			if objectMeta.IsEmpty() {
 				request := DaoClusterTypes.NewListNodesRequest()
-				request.QueryCondition = QueryConditionExtend{r.GetQueryCondition()}.QueryCondition()
+				request.QueryCondition = QueryConditionExtend{p.GetQueryCondition()}.QueryCondition()
 				return request
 			}
-			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
+			request.ObjectMeta = append(request.ObjectMeta, &objectMeta)
+		}
+	}
+	return request
+}
+
+func (p *DeleteNodesRequestExtended) Validate() error {
+	return nil
+}
+
+func (p *DeleteNodesRequestExtended) ProduceRequest() *DaoClusterTypes.DeleteNodesRequest {
+	request := DaoClusterTypes.NewDeleteNodesRequest()
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
+			// Normalize request
+			objectMeta := NewObjectMeta(meta)
+			objectMeta.Namespace = ""
+			objectMeta.NodeName = ""
+
+			if objectMeta.IsEmpty() {
+				request := DaoClusterTypes.NewDeleteNodesRequest()
+				return request
+			}
+			request.ObjectMeta = append(request.ObjectMeta, &objectMeta)
 		}
 	}
 	return request

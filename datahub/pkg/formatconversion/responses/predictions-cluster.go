@@ -21,7 +21,7 @@ func (d *ClusterPredictionExtended) ProducePredictions() *ApiPredictions.Cluster
 	)
 
 	datahubClusterPrediction = ApiPredictions.ClusterPrediction{
-		ObjectMeta: NewObjectMeta(d.ObjectMeta),
+		ObjectMeta: NewObjectMeta(&d.ObjectMeta),
 	}
 
 	// Handle prediction raw data

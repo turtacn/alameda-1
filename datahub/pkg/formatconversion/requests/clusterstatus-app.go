@@ -13,43 +13,79 @@ type ListApplicationsRequestExtended struct {
 	*ApiResources.ListApplicationsRequest
 }
 
-func (r *CreateApplicationsRequestExtended) Validate() error {
+type DeleteApplicationsRequestExtended struct {
+	*ApiResources.DeleteApplicationsRequest
+}
+
+func NewApplication(application *ApiResources.Application) *DaoClusterTypes.Application {
+	if application != nil {
+		// Normalize request
+		objectMeta := NewObjectMeta(application.GetObjectMeta())
+		objectMeta.NodeName = ""
+
+		app := DaoClusterTypes.Application{}
+		app.ObjectMeta = &objectMeta
+		app.AlamedaApplicationSpec = NewAlamedaApplicationSpec(application.GetAlamedaApplicationSpec())
+		app.Controllers = make([]*DaoClusterTypes.Controller, 0)
+
+		return &app
+	}
 	return nil
 }
 
-func (r *CreateApplicationsRequestExtended) ProduceApplications() []*DaoClusterTypes.Application {
+func (p *CreateApplicationsRequestExtended) Validate() error {
+	return nil
+}
+
+func (p *CreateApplicationsRequestExtended) ProduceApplications() []*DaoClusterTypes.Application {
 	applications := make([]*DaoClusterTypes.Application, 0)
 
-	for _, app := range r.GetApplications() {
-		// Normalize request
-		objectMeta := NewObjectMeta(app.GetObjectMeta())
-		objectMeta.NodeName = ""
-
-		application := DaoClusterTypes.NewApplication()
-		application.ObjectMeta = objectMeta
-		application.AlamedaApplicationSpec = NewAlamedaApplicationSpec(app.GetAlamedaApplicationSpec())
-		applications = append(applications, application)
+	for _, app := range p.GetApplications() {
+		applications = append(applications, NewApplication(app))
 	}
 
 	return applications
 }
 
-func (r *ListApplicationsRequestExtended) Validate() error {
+func (p *ListApplicationsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListApplicationsRequestExtended) ProduceRequest() DaoClusterTypes.ListApplicationsRequest {
+func (p *ListApplicationsRequestExtended) ProduceRequest() *DaoClusterTypes.ListApplicationsRequest {
 	request := DaoClusterTypes.NewListApplicationsRequest()
-	if r.GetObjectMeta() != nil {
-		for _, meta := range r.GetObjectMeta() {
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
 			// Normalize request
 			objectMeta := NewObjectMeta(meta)
 			objectMeta.NodeName = ""
 
 			if objectMeta.IsEmpty() {
-				return DaoClusterTypes.NewListApplicationsRequest()
+				request.ApplicationObjectMeta = make([]*DaoClusterTypes.ApplicationObjectMeta, 0)
+				return request
 			}
-			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
+			request.ApplicationObjectMeta = append(request.ApplicationObjectMeta, DaoClusterTypes.NewApplicationObjectMeta(&objectMeta, ""))
+		}
+	}
+	return request
+}
+
+func (p *DeleteApplicationsRequestExtended) Validate() error {
+	return nil
+}
+
+func (p *DeleteApplicationsRequestExtended) ProduceRequest() *DaoClusterTypes.DeleteApplicationsRequest {
+	request := DaoClusterTypes.NewDeleteApplicationsRequest()
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
+			// Normalize request
+			objectMeta := NewObjectMeta(meta)
+			objectMeta.NodeName = ""
+
+			if objectMeta.IsEmpty() {
+				request.ApplicationObjectMeta = make([]*DaoClusterTypes.ApplicationObjectMeta, 0)
+				return request
+			}
+			request.ApplicationObjectMeta = append(request.ApplicationObjectMeta, DaoClusterTypes.NewApplicationObjectMeta(&objectMeta, ""))
 		}
 	}
 	return request

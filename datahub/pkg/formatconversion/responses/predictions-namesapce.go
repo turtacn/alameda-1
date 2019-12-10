@@ -21,7 +21,7 @@ func (d *NamespacePredictionExtended) ProducePredictions() *ApiPredictions.Names
 	)
 
 	datahubNamespacePrediction = ApiPredictions.NamespacePrediction{
-		ObjectMeta: NewObjectMeta(d.ObjectMeta),
+		ObjectMeta: NewObjectMeta(&d.ObjectMeta),
 	}
 
 	// Handle prediction raw data

@@ -21,7 +21,7 @@ func (d *ApplicationPredictionExtended) ProducePredictions() *ApiPredictions.App
 	)
 
 	datahubApplicationPrediction = ApiPredictions.ApplicationPrediction{
-		ObjectMeta: NewObjectMeta(d.ObjectMeta),
+		ObjectMeta: NewObjectMeta(&d.ObjectMeta),
 	}
 
 	// Handle prediction raw data

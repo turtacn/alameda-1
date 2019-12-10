@@ -69,17 +69,26 @@ func (p ControllerMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.L
 
 func (p *ControllerMetrics) listControllerMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListControllerMetricsRequest) ([]DaoMetricTypes.ControllerObjectMeta, error) {
 
-	controllers, err := p.controllerDAO.ListControllers(DaoClusterStatusTypes.ListControllersRequest{
-		ObjectMeta: req.ObjectMetas,
-		Kind:       strings.ToUpper(req.Kind),
-	})
+	// Generate list resource controllers request
+	listControllersReq := DaoClusterStatusTypes.NewListControllersRequest()
+	for _, objectMeta := range req.ObjectMetas {
+		controllerObjectMeta := DaoClusterStatusTypes.NewControllerObjectMeta(&objectMeta, nil, strings.ToUpper(req.Kind), "")
+		listControllersReq.ControllerObjectMeta = append(listControllersReq.ControllerObjectMeta, controllerObjectMeta)
+
+	}
+	if len(listControllersReq.ControllerObjectMeta) == 0 {
+		controllerObjectMeta := DaoClusterStatusTypes.NewControllerObjectMeta(nil, nil, strings.ToUpper(req.Kind), "")
+		listControllersReq.ControllerObjectMeta = append(listControllersReq.ControllerObjectMeta, controllerObjectMeta)
+	}
+
+	controllers, err := p.controllerDAO.ListControllers(listControllersReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "list controller metadatas failed")
 	}
 	metas := make([]DaoMetricTypes.ControllerObjectMeta, len(controllers))
 	for i, controller := range controllers {
 		metas[i] = DaoMetricTypes.ControllerObjectMeta{
-			ObjectMeta: controller.ObjectMeta,
+			ObjectMeta: *controller.ObjectMeta,
 			Kind:       controller.Kind,
 		}
 	}

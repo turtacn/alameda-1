@@ -20,10 +20,14 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	for _, pod := range pods {
 		containerMeta := DaoClusterTypes.ContainerObjectMeta{}
 		containerMeta.PodName = pod.ObjectMeta.Name
-		containerMeta.ObjectMeta.Namespace = pod.ObjectMeta.Namespace
-		containerMeta.ObjectMeta.NodeName = pod.ObjectMeta.NodeName
-		containerMeta.ObjectMeta.ClusterName = pod.ObjectMeta.ClusterName
-		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, containerMeta)
+		containerMeta.Namespace = pod.ObjectMeta.Namespace
+		containerMeta.NodeName = pod.ObjectMeta.NodeName
+		containerMeta.ClusterName = pod.ObjectMeta.ClusterName
+		containerMeta.TopControllerName = pod.TopController.ObjectMeta.Name
+		containerMeta.TopControllerKind = pod.TopController.Kind
+		containerMeta.AlamedaScalerName = pod.AlamedaPodSpec.AlamedaScaler.Name
+		containerMeta.AlamedaScalerScalingTool = pod.AlamedaPodSpec.ScalingTool
+		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, &containerMeta)
 	}
 
 	containerMap := make(map[string][]*DaoClusterTypes.Container)
@@ -36,7 +40,7 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	}
 
 	// Do delete containers before creating them
-	containerRepo := RepoInfluxCluster.NewContainerRepository(&p.InfluxDBConfig)
+	containerRepo := RepoInfluxCluster.NewContainerRepository(p.InfluxDBConfig)
 	err := containerRepo.DeleteContainers(delContainerReq)
 	if err != nil {
 		scope.Error("failed to delete container in influxdb when creating pods")
@@ -50,7 +54,7 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	}
 
 	// Create pods
-	podRepo := RepoInfluxCluster.NewPodRepository(&p.InfluxDBConfig)
+	podRepo := RepoInfluxCluster.NewPodRepository(p.InfluxDBConfig)
 	if err := podRepo.CreatePods(pods); err != nil {
 		scope.Error(err.Error())
 		return err
@@ -60,7 +64,7 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 }
 
 func (p *Pod) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*DaoClusterTypes.Pod, error) {
-	podRepo := RepoInfluxCluster.NewPodRepository(&p.InfluxDBConfig)
+	podRepo := RepoInfluxCluster.NewPodRepository(p.InfluxDBConfig)
 	pods, err := podRepo.ListPods(request)
 	if err != nil {
 		scope.Error(err.Error())
@@ -71,13 +75,17 @@ func (p *Pod) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*DaoClusterT
 	for _, pod := range pods {
 		containerMeta := DaoClusterTypes.ContainerObjectMeta{}
 		containerMeta.PodName = pod.ObjectMeta.Name
-		containerMeta.ObjectMeta.Namespace = pod.ObjectMeta.Namespace
-		containerMeta.ObjectMeta.NodeName = pod.ObjectMeta.NodeName
-		containerMeta.ObjectMeta.ClusterName = pod.ObjectMeta.ClusterName
-		containerRequest.ContainerObjectMeta = append(containerRequest.ContainerObjectMeta, containerMeta)
+		containerMeta.Namespace = pod.ObjectMeta.Namespace
+		containerMeta.NodeName = pod.ObjectMeta.NodeName
+		containerMeta.ClusterName = pod.ObjectMeta.ClusterName
+		containerMeta.TopControllerName = pod.TopController.ObjectMeta.Name
+		containerMeta.TopControllerKind = pod.TopController.Kind
+		containerMeta.AlamedaScalerName = pod.AlamedaPodSpec.AlamedaScaler.Name
+		containerMeta.AlamedaScalerScalingTool = pod.AlamedaPodSpec.ScalingTool
+		containerRequest.ContainerObjectMeta = append(containerRequest.ContainerObjectMeta, &containerMeta)
 	}
 
-	containerRepo := RepoInfluxCluster.NewContainerRepository(&p.InfluxDBConfig)
+	containerRepo := RepoInfluxCluster.NewContainerRepository(p.InfluxDBConfig)
 	containerMap, err := containerRepo.ListContainers(containerRequest)
 	for clusterNamespaceNodeName, containers := range containerMap {
 		for _, pod := range pods {
@@ -97,22 +105,44 @@ func (p *Pod) DeletePods(request *DaoClusterTypes.DeletePodsRequest) error {
 	delContainerReq := DaoClusterTypes.NewDeleteContainersRequest()
 	for _, podObjectMeta := range request.PodObjectMeta {
 		containerMeta := DaoClusterTypes.ContainerObjectMeta{}
-		containerMeta.PodName = podObjectMeta.ObjectMeta.Name
-		containerMeta.ObjectMeta.Namespace = podObjectMeta.ObjectMeta.Namespace
-		containerMeta.ObjectMeta.NodeName = podObjectMeta.ObjectMeta.NodeName
-		containerMeta.ObjectMeta.ClusterName = podObjectMeta.ObjectMeta.ClusterName
-		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, containerMeta)
+		containerMeta.TopControllerKind = podObjectMeta.Kind
+		containerMeta.AlamedaScalerScalingTool = podObjectMeta.ScalingTool
+		if podObjectMeta.ObjectMeta != nil {
+			containerMeta.PodName = podObjectMeta.ObjectMeta.Name
+			containerMeta.Namespace = podObjectMeta.ObjectMeta.Namespace
+			containerMeta.NodeName = podObjectMeta.ObjectMeta.NodeName
+			containerMeta.ClusterName = podObjectMeta.ObjectMeta.ClusterName
+		}
+		if podObjectMeta.TopController != nil {
+			containerMeta.TopControllerName = podObjectMeta.TopController.Name
+			if containerMeta.Namespace == "" {
+				containerMeta.Namespace = podObjectMeta.TopController.Namespace
+			}
+			if containerMeta.ClusterName == "" {
+				containerMeta.ClusterName = podObjectMeta.TopController.ClusterName
+			}
+		}
+		if podObjectMeta.AlamedaScaler != nil {
+			containerMeta.AlamedaScalerName = podObjectMeta.AlamedaScaler.Name
+			if containerMeta.Namespace == "" {
+				containerMeta.Namespace = podObjectMeta.AlamedaScaler.Namespace
+			}
+			if containerMeta.ClusterName == "" {
+				containerMeta.ClusterName = podObjectMeta.AlamedaScaler.ClusterName
+			}
+		}
+		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, &containerMeta)
 	}
 
 	// Delete pods
-	podRepo := RepoInfluxCluster.NewPodRepository(&p.InfluxDBConfig)
+	podRepo := RepoInfluxCluster.NewPodRepository(p.InfluxDBConfig)
 	if err := podRepo.DeletePods(request); err != nil {
 		scope.Error(err.Error())
 		return err
 	}
 
 	// Delete containers
-	containerRepo := RepoInfluxCluster.NewContainerRepository(&p.InfluxDBConfig)
+	containerRepo := RepoInfluxCluster.NewContainerRepository(p.InfluxDBConfig)
 	if err := containerRepo.DeleteContainers(delContainerReq); err != nil {
 		scope.Error(err.Error())
 		return err

@@ -27,7 +27,7 @@ func (d *ControllerPredictionExtended) ProducePredictions() *ApiPredictions.Cont
 	}
 
 	datahubControllerPrediction = ApiPredictions.ControllerPrediction{
-		ObjectMeta: NewObjectMeta(d.ObjectMeta),
+		ObjectMeta: NewObjectMeta(&d.ObjectMeta),
 		Kind:       ctlKind,
 	}
 

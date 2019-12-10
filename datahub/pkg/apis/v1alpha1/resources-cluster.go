@@ -78,6 +78,23 @@ func (s *ServiceV1alpha1) ListClusters(ctx context.Context, in *ApiResources.Lis
 func (s *ServiceV1alpha1) DeleteClusters(ctx context.Context, in *ApiResources.DeleteClustersRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteClusters grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	requestExt := FormatRequest.DeleteClustersRequestExtended{DeleteClustersRequest: in}
+	if err := requestExt.Validate(); err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
+		}, nil
+	}
+
+	namespaceDAO := DaoCluster.NewClusterDAO(*s.Config)
+	if err := namespaceDAO.DeleteClusters(requestExt.ProduceRequest()); err != nil {
+		scope.Errorf("failed to delete clusters: %+v", err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

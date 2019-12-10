@@ -65,9 +65,14 @@ func (p *NodeMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListNo
 }
 
 func (p *NodeMetrics) listNodeMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListNodeMetricsRequest) ([]metadata.ObjectMeta, error) {
-	nodes, err := p.nodeDAO.ListNodes(DaoClusterStatusTypes.ListNodesRequest{
-		ObjectMeta: req.ObjectMetas,
-	})
+
+	// Generate list resource nodes request
+	listNodesReq := DaoClusterStatusTypes.NewListNodesRequest()
+	for index := range req.ObjectMetas {
+		listNodesReq.ObjectMeta = append(listNodesReq.ObjectMeta, &req.ObjectMetas[index])
+	}
+
+	nodes, err := p.nodeDAO.ListNodes(listNodesReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "list nodes by cluster metadata failed")
 	}

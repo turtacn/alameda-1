@@ -6,10 +6,10 @@ import (
 	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
-	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
@@ -20,7 +20,7 @@ type PodRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-func NewPodRepository(influxDBCfg *InternalInflux.Config) *PodRepository {
+func NewPodRepository(influxDBCfg InternalInflux.Config) *PodRepository {
 	return &PodRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -43,50 +43,7 @@ func (p *PodRepository) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, pod := range pods {
-		entity := EntityInfluxCluster.PodEntity{
-			Time:         InternalInflux.ZeroTime,
-			Name:         pod.ObjectMeta.Name,
-			Namespace:    pod.ObjectMeta.Namespace,
-			NodeName:     pod.ObjectMeta.NodeName,
-			ClusterName:  pod.ObjectMeta.ClusterName,
-			Uid:          pod.ObjectMeta.Uid,
-			CreateTime:   pod.CreateTime.GetSeconds(),
-			ResourceLink: pod.ResourceLink,
-			AppName:      pod.AppName,
-			AppPartOf:    pod.AppPartOf,
-		}
-		if pod.TopController != nil {
-			entity.TopControllerName = pod.TopController.ObjectMeta.Name
-			entity.TopControllerKind = pod.TopController.Kind
-			entity.TopControllerReplicas = pod.TopController.Replicas
-		}
-		if pod.Status != nil {
-			entity.StatusPhase = pod.Status.Phase
-			entity.StatusMessage = pod.Status.Message
-			entity.StatusReason = pod.Status.Reason
-		}
-		if pod.AlamedaPodSpec != nil {
-			entity.AlamedaSpecScalerName = pod.AlamedaPodSpec.AlamedaScaler.Name
-			entity.AlamedaSpecScalerNamespace = pod.AlamedaPodSpec.AlamedaScaler.Namespace
-			entity.AlamedaSpecScalerClusterName = pod.AlamedaPodSpec.AlamedaScaler.ClusterName
-			entity.AlamedaSpecPolicy = pod.AlamedaPodSpec.Policy
-			entity.AlamedaSpecUsedRecommendationID = pod.AlamedaPodSpec.UsedRecommendationId
-			entity.AlamedaSpecScalingTool = pod.AlamedaPodSpec.ScalingTool
-			if pod.AlamedaPodSpec.AlamedaScalerResources != nil {
-				if value, exist := pod.AlamedaPodSpec.AlamedaScalerResources.Limits[int32(ApiCommon.ResourceName_CPU)]; exist {
-					entity.AlamedaSpecResourceLimitCPU = value
-				}
-				if value, exist := pod.AlamedaPodSpec.AlamedaScalerResources.Limits[int32(ApiCommon.ResourceName_MEMORY)]; exist {
-					entity.AlamedaSpecResourceLimitMemory = value
-				}
-				if value, exist := pod.AlamedaPodSpec.AlamedaScalerResources.Requests[int32(ApiCommon.ResourceName_CPU)]; exist {
-					entity.AlamedaSpecResourceRequestCPU = value
-				}
-				if value, exist := pod.AlamedaPodSpec.AlamedaScalerResources.Requests[int32(ApiCommon.ResourceName_MEMORY)]; exist {
-					entity.AlamedaSpecResourceRequestMemory = value
-				}
-			}
-		}
+		entity := pod.BuildEntity()
 
 		// Add to influx point list
 		if pt, err := entity.BuildInfluxPoint(string(Pod)); err == nil {
@@ -132,7 +89,7 @@ func (p *PodRepository) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*D
 		}
 
 		if request.ScalingTool != "" && request.ScalingTool != ApiResources.ScalingTool_name[0] {
-			conditionList = append(conditionList, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalingTool, request.ScalingTool))
+			conditionList = append(conditionList, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalerScalingTool, request.ScalingTool))
 		}
 
 		condition := strings.Join(conditionList, " AND ")
@@ -146,7 +103,7 @@ func (p *PodRepository) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*D
 			statement.AppendWhereClauseDirectly("AND", fmt.Sprintf(`("%s"='%s')`, EntityInfluxCluster.PodTopControllerKind, request.Kind))
 		}
 		if request.ScalingTool != "" && request.ScalingTool != ApiResources.ScalingTool_name[0] {
-			statement.AppendWhereClauseDirectly("AND", fmt.Sprintf(`("%s"='%s')`, EntityInfluxCluster.PodAlamedaSpecScalingTool, request.ScalingTool))
+			statement.AppendWhereClauseDirectly("AND", fmt.Sprintf(`("%s"='%s')`, EntityInfluxCluster.PodAlamedaSpecScalerScalingTool, request.ScalingTool))
 		}
 		statement.AppendWhereClauseDirectly("AND", p.genCreatePeriodCondition(request.QueryCondition))
 	}
@@ -165,8 +122,7 @@ func (p *PodRepository) ListPods(request *DaoClusterTypes.ListPodsRequest) ([]*D
 			group := result.GetGroup(i)
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
-				pod := DaoClusterTypes.NewPod()
-				pod.Initialize(EntityInfluxCluster.NewPodEntity(row))
+				pod := DaoClusterTypes.NewPod(EntityInfluxCluster.NewPodEntity(row))
 				pods = append(pods, pod)
 			}
 		}
@@ -186,16 +142,52 @@ func (p *PodRepository) DeletePods(request *DaoClusterTypes.DeletePodsRequest) e
 
 	// Build influx drop command
 	for _, podObjectMeta := range request.PodObjectMeta {
-		keyList := podObjectMeta.ObjectMeta.GenerateKeyList()
-		if podObjectMeta.TopController != nil {
-			keyList = append(keyList, string(EntityInfluxCluster.PodTopControllerName))
-			keyList = append(keyList, string(EntityInfluxCluster.PodTopControllerKind))
+		keyList := make([]string, 0)
+		valueList := make([]string, 0)
+
+		if podObjectMeta.ObjectMeta != nil {
+			keyList = podObjectMeta.ObjectMeta.GenerateKeyList()
+			valueList = podObjectMeta.ObjectMeta.GenerateValueList()
 		}
 
-		valueList := podObjectMeta.ObjectMeta.GenerateValueList()
 		if podObjectMeta.TopController != nil {
+			keyList = append(keyList, string(EntityInfluxCluster.PodTopControllerName))
 			valueList = append(valueList, podObjectMeta.TopController.Name)
+
+			if !Utils.SliceContains(keyList, string(EntityInfluxCluster.PodNamespace)) {
+				keyList = append(keyList, string(EntityInfluxCluster.PodNamespace))
+				valueList = append(valueList, podObjectMeta.TopController.Namespace)
+			}
+
+			if !Utils.SliceContains(keyList, string(EntityInfluxCluster.PodClusterName)) {
+				keyList = append(keyList, string(EntityInfluxCluster.PodClusterName))
+				valueList = append(valueList, podObjectMeta.TopController.ClusterName)
+			}
+		}
+
+		if podObjectMeta.AlamedaScaler != nil {
+			keyList = append(keyList, string(EntityInfluxCluster.PodAlamedaSpecScalerName))
+			valueList = append(valueList, podObjectMeta.AlamedaScaler.Name)
+
+			if !Utils.SliceContains(keyList, string(EntityInfluxCluster.PodNamespace)) {
+				keyList = append(keyList, string(EntityInfluxCluster.PodNamespace))
+				valueList = append(valueList, podObjectMeta.AlamedaScaler.Namespace)
+			}
+
+			if !Utils.SliceContains(keyList, string(EntityInfluxCluster.PodClusterName)) {
+				keyList = append(keyList, string(EntityInfluxCluster.PodClusterName))
+				valueList = append(valueList, podObjectMeta.AlamedaScaler.ClusterName)
+			}
+		}
+
+		if podObjectMeta.Kind != "" && podObjectMeta.Kind != ApiResources.Kind_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.PodTopControllerKind))
 			valueList = append(valueList, podObjectMeta.Kind)
+		}
+
+		if podObjectMeta.ScalingTool != "" && podObjectMeta.ScalingTool != ApiResources.ScalingTool_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.PodAlamedaSpecScalerScalingTool))
+			valueList = append(valueList, podObjectMeta.ScalingTool)
 		}
 
 		condition := statement.GenerateCondition(keyList, valueList, "AND")
@@ -249,7 +241,7 @@ func (p *PodRepository) genObjectMetaCondition(objectMeta *Metadata.ObjectMeta, 
 		}
 	case ApiResources.Kind_ALAMEDASCALER:
 		if objectMeta.Namespace != "" {
-			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalerNamespace, objectMeta.Namespace))
+			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodNamespace, objectMeta.Namespace))
 		}
 		if objectMeta.Name != "" {
 			conditions = append(conditions, fmt.Sprintf(`"%s"='%s'`, EntityInfluxCluster.PodAlamedaSpecScalerName, objectMeta.Name))

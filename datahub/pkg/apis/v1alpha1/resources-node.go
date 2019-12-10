@@ -80,47 +80,19 @@ func (s *ServiceV1alpha1) ListNodes(ctx context.Context, in *ApiResources.ListNo
 
 // DeleteAlamedaNodes remove node information to database
 func (s *ServiceV1alpha1) DeleteNodes(ctx context.Context, in *ApiResources.DeleteNodesRequest) (*status.Status, error) {
-	scope.Debug("Request received from DeleteAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
+	scope.Debug("Request received from DeleteNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	/*nodeList := make([]*ApiResources.Node, 0)
-	for _, objectMeta := range in.GetObjectMeta() {
-		nodeList = append(nodeList, &ApiResources.Node{
-			ObjectMeta: &ApiResources.ObjectMeta{
-				Name: objectMeta.GetName(),
-			},
-		})
+	requestExt := FormatRequest.DeleteNodesRequestExtended{DeleteNodesRequest: in}
+	if err := requestExt.Validate(); err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
+		}, nil
 	}
 
 	nodeDAO := DaoCluster.NewNodeDAO(*s.Config)
-	if err := nodeDAO.DeregisterAlamedaNodes(nodeList); err != nil {
-		scope.Error(err.Error())
-		return &status.Status{
-			Code:    int32(code.Code_INTERNAL),
-			Message: err.Error(),
-		}, nil
-	}*/
-
-	return &status.Status{
-		Code: int32(code.Code_OK),
-	}, nil
-}
-
-/*
-// DeleteAlamedaNodes remove node information to database
-func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *ApiResources.DeleteAlamedaNodesRequest) (*status.Status, error) {
-	scope.Debug("Request received from DeleteAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
-
-	var nodeDAO DaoClusterStatus.NodeOperation = &DaoClusterStatusInflux.Node{
-		InfluxDBConfig: *s.Config.InfluxDB,
-	}
-	alamedaNodeList := []*ApiResources.Node{}
-	for _, alamedaNode := range in.GetAlamedaNodes() {
-		alamedaNodeList = append(alamedaNodeList, &ApiResources.Node{
-			Name: alamedaNode.GetName(),
-		})
-	}
-	if err := nodeDAO.DeregisterAlamedaNodes(alamedaNodeList); err != nil {
-		scope.Error(err.Error())
+	if err := nodeDAO.DeleteNodes(requestExt.ProduceRequest()); err != nil {
+		scope.Errorf("failed to delete nodes: %+v", err)
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),
@@ -131,4 +103,3 @@ func (s *ServiceV1alpha1) DeleteAlamedaNodes(ctx context.Context, in *ApiResourc
 		Code: int32(code.Code_OK),
 	}, nil
 }
-*/

@@ -64,17 +64,19 @@ func (p NamespaceMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.Li
 
 func (p *NamespaceMetrics) listNamespaceMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListNamespaceMetricsRequest) ([]metadata.ObjectMeta, error) {
 
-	namesapces, err := p.namespaceDAO.ListNamespaces(
-		DaoClusterStatusTypes.ListNamespacesRequest{
-			ObjectMeta: req.ObjectMetas,
-		},
-	)
+	// Generate list resource namespaces request
+	listNamespacesReq := DaoClusterStatusTypes.NewListNamespacesRequest()
+	for index := range req.ObjectMetas {
+		listNamespacesReq.ObjectMeta = append(listNamespacesReq.ObjectMeta, &req.ObjectMetas[index])
+	}
+
+	namespaces, err := p.namespaceDAO.ListNamespaces(listNamespacesReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "list namespaces metadatas failed")
 	}
-	metas := make([]metadata.ObjectMeta, len(namesapces))
-	for i, namesapce := range namesapces {
-		metas[i] = namesapce.ObjectMeta
+	metas := make([]metadata.ObjectMeta, len(namespaces))
+	for i, namespace := range namespaces {
+		metas[i] = *namespace.ObjectMeta
 	}
 	return metas, nil
 }

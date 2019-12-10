@@ -5,14 +5,16 @@ import (
 	"github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
-func NewAlamedaControllerSpec(controllerSpec *resources.AlamedaControllerSpec) types.AlamedaControllerSpec {
+func NewAlamedaControllerSpec(controllerSpec *resources.AlamedaControllerSpec) *types.AlamedaControllerSpec {
+	objectMeta := NewObjectMeta(controllerSpec.GetAlamedaScaler())
+
 	spec := types.AlamedaControllerSpec{
-		AlamedaScaler:   NewObjectMeta(controllerSpec.GetAlamedaScaler()),
+		AlamedaScaler:   &objectMeta,
 		ScalingTool:     controllerSpec.GetScalingTool().String(),
 		Policy:          controllerSpec.GetPolicy().String(),
 		EnableExecution: controllerSpec.GetEnableRecommendationExecution(),
 	}
-	return spec
+	return &spec
 }
 
 func NewAlamedaPodSpec(podSpec *resources.AlamedaPodSpec) *types.AlamedaPodSpec {

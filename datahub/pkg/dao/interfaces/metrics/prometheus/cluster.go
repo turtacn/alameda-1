@@ -66,15 +66,19 @@ func (p ClusterMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.List
 
 func (p *ClusterMetrics) listClusterMetasFromRequest(ctx context.Context, req DaoMetricTypes.ListClusterMetricsRequest) ([]metadata.ObjectMeta, error) {
 
-	clusters, err := p.clusterStatusDAO.ListClusters(DaoClusterStatusTypes.ListClustersRequest{
-		ObjectMeta: req.ObjectMetas,
-	})
+	// Generate list resource cluster request
+	listClustersReq := DaoClusterStatusTypes.NewListClustersRequest()
+	for index := range req.ObjectMetas {
+		listClustersReq.ObjectMeta = append(listClustersReq.ObjectMeta, &req.ObjectMetas[index])
+	}
+
+	clusters, err := p.clusterStatusDAO.ListClusters(listClustersReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "list cluster metadatas failed")
 	}
 	metas := make([]metadata.ObjectMeta, len(clusters))
 	for i, cluster := range clusters {
-		metas[i] = cluster.ObjectMeta
+		metas[i] = *cluster.ObjectMeta
 	}
 	return metas, nil
 }
@@ -197,13 +201,13 @@ func (p *ClusterMetrics) getClusterMetric(ctx context.Context, clusterObjectMeta
 }
 
 func (p *ClusterMetrics) listNodeMetasByClusterObjectMeta(ctx context.Context, clusterObjectMeta metadata.ObjectMeta) ([]metadata.ObjectMeta, error) {
-	nodes, err := p.nodeDAO.ListNodes(DaoClusterStatusTypes.ListNodesRequest{
-		ObjectMeta: []metadata.ObjectMeta{
-			metadata.ObjectMeta{
-				ClusterName: clusterObjectMeta.Name,
-			},
-		},
-	})
+
+	// Generate list resource nodes request
+	listNodesReq := DaoClusterStatusTypes.NewListNodesRequest()
+	objectMeta := &metadata.ObjectMeta{ClusterName: clusterObjectMeta.Name}
+	listNodesReq.ObjectMeta = append(listNodesReq.ObjectMeta, objectMeta)
+
+	nodes, err := p.nodeDAO.ListNodes(listNodesReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "list nodes by cluster metadata failed")
 	}

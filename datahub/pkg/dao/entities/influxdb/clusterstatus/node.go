@@ -3,7 +3,6 @@ package clusterstatus
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"time"
@@ -75,12 +74,11 @@ type NodeEntity struct {
 }
 
 // NewNodeEntityFromMap Build entity from map
-func NewNodeEntity(data map[string]string) NodeEntity {
-	tempTimestamp, _ := utils.ParseTime(data[string("time")])
+func NewNodeEntity(data map[string]string) *NodeEntity {
+	entity := NodeEntity{}
 
-	entity := NodeEntity{
-		Time: tempTimestamp,
-	}
+	tempTimestamp, _ := utils.ParseTime(data["time"])
+	entity.Time = tempTimestamp
 
 	// InfluxDB tags
 	if value, exist := data[string(NodeName)]; exist {
@@ -136,136 +134,32 @@ func NewNodeEntity(data map[string]string) NodeEntity {
 		entity.IOStorageSize = valueInt64
 	}
 
-	return entity
+	return &entity
 }
 
-func (e *NodeEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {
+func (p *NodeEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {
 	// Pack influx tags
 	tags := map[string]string{
-		string(NodeName):        e.Name,
-		string(NodeClusterName): e.ClusterName,
-		string(NodeUid):         e.Uid,
+		string(NodeName):        p.Name,
+		string(NodeClusterName): p.ClusterName,
+		string(NodeUid):         p.Uid,
 	}
 
 	// Pack influx fields
 	fields := map[string]interface{}{
-		string(NodeCreateTime):     e.CreateTime,
-		string(NodeCPUCores):       e.CPUCores,
-		string(NodeMemoryBytes):    e.MemoryBytes,
-		string(NodeNetworkMbps):    e.NetworkMbps,
-		string(NodeIOProvider):     e.IOProvider,
-		string(NodeIOInstanceType): e.IOInstanceType,
-		string(NodeIORegion):       e.IORegion,
-		string(NodeIOZone):         e.IOZone,
-		string(NodeIOOS):           e.IOOS,
-		string(NodeIORole):         e.IORole,
-		string(NodeIOInstanceID):   e.IOInstanceID,
-		string(NodeIOStorageSize):  e.IOStorageSize,
+		string(NodeCreateTime):     p.CreateTime,
+		string(NodeCPUCores):       p.CPUCores,
+		string(NodeMemoryBytes):    p.MemoryBytes,
+		string(NodeNetworkMbps):    p.NetworkMbps,
+		string(NodeIOProvider):     p.IOProvider,
+		string(NodeIOInstanceType): p.IOInstanceType,
+		string(NodeIORegion):       p.IORegion,
+		string(NodeIOZone):         p.IOZone,
+		string(NodeIOOS):           p.IOOS,
+		string(NodeIORole):         p.IORole,
+		string(NodeIOInstanceID):   p.IOInstanceID,
+		string(NodeIOStorageSize):  p.IOStorageSize,
 	}
 
-	return InfluxClient.NewPoint(measurement, tags, fields, e.Time)
-}
-
-func (e *NodeEntity) BuildNode() *ApiResources.Node {
-	node := &ApiResources.Node{}
-
-	// Build ObjectMeta
-	if e.Name != "" {
-		if node.ObjectMeta == nil {
-			node.ObjectMeta = &ApiResources.ObjectMeta{}
-		}
-		node.ObjectMeta.Name = e.Name
-	}
-	if e.ClusterName != "" {
-		if node.ObjectMeta == nil {
-			node.ObjectMeta = &ApiResources.ObjectMeta{}
-		}
-		node.ObjectMeta.ClusterName = e.ClusterName
-	}
-	if e.Uid != "" {
-		if node.ObjectMeta == nil {
-			node.ObjectMeta = &ApiResources.ObjectMeta{}
-		}
-		node.ObjectMeta.Uid = e.Uid
-	}
-
-	// Build capacity
-	if e.CPUCores != 0 {
-		if node.Capacity == nil {
-			node.Capacity = &ApiResources.Capacity{}
-		}
-		node.Capacity.CpuCores = e.CPUCores
-	}
-	if e.MemoryBytes != 0 {
-		if node.Capacity == nil {
-			node.Capacity = &ApiResources.Capacity{}
-		}
-		node.Capacity.MemoryBytes = e.MemoryBytes
-	}
-	if e.NetworkMbps != 0 {
-		if node.Capacity == nil {
-			node.Capacity = &ApiResources.Capacity{}
-		}
-		node.Capacity.NetworkMegabitsPerSecond = e.NetworkMbps
-	}
-
-	// Build provider
-	if e.IOProvider != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.Provider = e.IOProvider
-	}
-	if e.IOInstanceType != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.InstanceType = e.IOInstanceType
-	}
-	if e.IORegion != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.Region = e.IORegion
-	}
-	if e.IOZone != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.Zone = e.IOZone
-	}
-	if e.IOOS != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.Os = e.IOOS
-	}
-	if e.IORole != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.Role = e.IORole
-	}
-	if e.IOInstanceID != "" {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.InstanceId = e.IOInstanceID
-	}
-	if e.IOStorageSize != 0 {
-		if node.AlamedaNodeSpec == nil {
-			node.AlamedaNodeSpec = &ApiResources.AlamedaNodeSpec{}
-			node.AlamedaNodeSpec.Provider = &ApiResources.Provider{}
-		}
-		node.AlamedaNodeSpec.Provider.StorageSize = e.IOStorageSize
-	}
-
-	return node
+	return InfluxClient.NewPoint(measurement, tags, fields, p.Time)
 }

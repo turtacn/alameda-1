@@ -80,10 +80,17 @@ func (s *ServiceV1alpha1) ListControllers(ctx context.Context, in *ApiResources.
 func (s *ServiceV1alpha1) DeleteControllers(ctx context.Context, in *ApiResources.DeleteControllersRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteControllers grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	requestExt := FormatRequest.DeleteControllersRequestExtended{DeleteControllersRequest: in}
+	if err := requestExt.Validate(); err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
+		}, nil
+	}
+
 	controllerDAO := DaoCluster.NewControllerDAO(*s.Config)
-	err := controllerDAO.DeleteControllers(in)
-	if err != nil {
-		scope.Error(err.Error())
+	if err := controllerDAO.DeleteControllers(requestExt.ProduceRequest()); err != nil {
+		scope.Errorf("failed to delete controllers: %+v", err)
 		return &status.Status{
 			Code:    int32(code.Code_INTERNAL),
 			Message: err.Error(),

@@ -78,6 +78,23 @@ func (s *ServiceV1alpha1) ListApplications(ctx context.Context, in *ApiResources
 func (s *ServiceV1alpha1) DeleteApplications(ctx context.Context, in *ApiResources.DeleteApplicationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteApplications grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	requestExt := FormatRequest.DeleteApplicationsRequestExtended{DeleteApplicationsRequest: in}
+	if err := requestExt.Validate(); err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
+		}, nil
+	}
+
+	applicationDAO := DaoCluster.NewApplicationDAO(*s.Config)
+	if err := applicationDAO.DeleteApplications(requestExt.ProduceRequest()); err != nil {
+		scope.Errorf("failed to delete applications: %+v", err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

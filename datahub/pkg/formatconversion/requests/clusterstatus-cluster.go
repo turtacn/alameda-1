@@ -13,36 +13,48 @@ type ListClustersRequestExtended struct {
 	*ApiResources.ListClustersRequest
 }
 
-func (r *CreateClustersRequestExtended) Validate() error {
-	return nil
+type DeleteClustersRequestExtended struct {
+	*ApiResources.DeleteClustersRequest
 }
 
-func (r *CreateClustersRequestExtended) ProduceClusters() []*DaoClusterTypes.Cluster {
-	clusters := make([]*DaoClusterTypes.Cluster, 0)
-
-	for _, clst := range r.GetClusters() {
+func NewCluster(cluster *ApiResources.Cluster) *DaoClusterTypes.Cluster {
+	if cluster != nil {
 		// Normalize request
-		objectMeta := NewObjectMeta(clst.GetObjectMeta())
+		objectMeta := NewObjectMeta(cluster.GetObjectMeta())
 		objectMeta.Namespace = ""
 		objectMeta.NodeName = ""
 		objectMeta.ClusterName = ""
 
-		cluster := DaoClusterTypes.NewCluster()
-		cluster.ObjectMeta = objectMeta
-		clusters = append(clusters, cluster)
+		c := DaoClusterTypes.Cluster{}
+		c.ObjectMeta = &objectMeta
+
+		return &c
+	}
+	return nil
+}
+
+func (p *CreateClustersRequestExtended) Validate() error {
+	return nil
+}
+
+func (p *CreateClustersRequestExtended) ProduceClusters() []*DaoClusterTypes.Cluster {
+	clusters := make([]*DaoClusterTypes.Cluster, 0)
+
+	for _, cluster := range p.GetClusters() {
+		clusters = append(clusters, NewCluster(cluster))
 	}
 
 	return clusters
 }
 
-func (r *ListClustersRequestExtended) Validate() error {
+func (p *ListClustersRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListClustersRequestExtended) ProduceRequest() DaoClusterTypes.ListClustersRequest {
+func (p *ListClustersRequestExtended) ProduceRequest() *DaoClusterTypes.ListClustersRequest {
 	request := DaoClusterTypes.NewListClustersRequest()
-	if r.GetObjectMeta() != nil {
-		for _, meta := range r.GetObjectMeta() {
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
 			// Normalize request
 			objectMeta := NewObjectMeta(meta)
 			objectMeta.Namespace = ""
@@ -52,7 +64,31 @@ func (r *ListClustersRequestExtended) ProduceRequest() DaoClusterTypes.ListClust
 			if objectMeta.IsEmpty() {
 				return DaoClusterTypes.NewListClustersRequest()
 			}
-			request.ObjectMeta = append(request.ObjectMeta, objectMeta)
+			request.ObjectMeta = append(request.ObjectMeta, &objectMeta)
+		}
+	}
+	return request
+}
+
+func (p *DeleteClustersRequestExtended) Validate() error {
+	return nil
+}
+
+func (p *DeleteClustersRequestExtended) ProduceRequest() *DaoClusterTypes.DeleteClustersRequest {
+	request := DaoClusterTypes.NewDeleteClustersRequest()
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
+			// Normalize request
+			objectMeta := NewObjectMeta(meta)
+			objectMeta.Namespace = ""
+			objectMeta.NodeName = ""
+			objectMeta.ClusterName = ""
+
+			if objectMeta.IsEmpty() {
+				request := DaoClusterTypes.NewDeleteClustersRequest()
+				return request
+			}
+			request.ObjectMeta = append(request.ObjectMeta, &objectMeta)
 		}
 	}
 	return request

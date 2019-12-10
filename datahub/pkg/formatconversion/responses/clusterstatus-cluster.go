@@ -9,9 +9,9 @@ type ClusterExtended struct {
 	*types.Cluster
 }
 
-func (n *ClusterExtended) ProduceCluster() *resources.Cluster {
+func (p *ClusterExtended) ProduceCluster() *resources.Cluster {
 	cluster := &resources.Cluster{
-		ObjectMeta: NewObjectMeta(n.ObjectMeta),
+		ObjectMeta: NewObjectMeta(p.ObjectMeta),
 	}
 	return cluster
 }

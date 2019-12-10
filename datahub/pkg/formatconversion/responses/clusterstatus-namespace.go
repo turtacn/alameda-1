@@ -9,9 +9,9 @@ type NamespaceExtended struct {
 	*types.Namespace
 }
 
-func (n *NamespaceExtended) ProduceNamespace() *resources.Namespace {
+func (p *NamespaceExtended) ProduceNamespace() *resources.Namespace {
 	namespace := &resources.Namespace{
-		ObjectMeta: NewObjectMeta(n.ObjectMeta),
+		ObjectMeta: NewObjectMeta(p.ObjectMeta),
 	}
 	return namespace
 }

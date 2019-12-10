@@ -9,11 +9,11 @@ type NodeExtended struct {
 	*types.Node
 }
 
-func (n *NodeExtended) ProduceNode() *resources.Node {
+func (p *NodeExtended) ProduceNode() *resources.Node {
 	node := resources.Node{}
-	node.ObjectMeta = NewObjectMeta(*n.ObjectMeta)
-	node.StartTime = n.CreateTime
-	node.Capacity = NewCapacity(n.Capacity)
-	node.AlamedaNodeSpec = NewAlamedaNodeSpec(n.AlamedaNodeSpec)
+	node.ObjectMeta = NewObjectMeta(p.ObjectMeta)
+	node.StartTime = p.CreateTime
+	node.Capacity = NewCapacity(p.Capacity)
+	node.AlamedaNodeSpec = NewAlamedaNodeSpec(p.AlamedaNodeSpec)
 	return &node
 }

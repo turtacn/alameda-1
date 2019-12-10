@@ -66,9 +66,14 @@ func (p AppMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListAppM
 
 func (p *AppMetrics) listAppFromRequest(ctx context.Context, req DaoMetricTypes.ListAppMetricsRequest) ([]DaoClusterStatusTypes.Application, error) {
 
-	apps, err := p.appDAO.ListApplications(DaoClusterStatusTypes.ListApplicationsRequest{
-		ObjectMeta: req.ObjectMetas,
-	})
+	// Generate list resource application request
+	listApplicationsReq := DaoClusterStatusTypes.NewListApplicationsRequest()
+	for index := range req.ObjectMetas {
+		applicationObjectMeta := DaoClusterStatusTypes.NewApplicationObjectMeta(&req.ObjectMetas[index], "")
+		listApplicationsReq.ApplicationObjectMeta = append(listApplicationsReq.ApplicationObjectMeta, applicationObjectMeta)
+	}
+
+	apps, err := p.appDAO.ListApplications(listApplicationsReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "list application metadatas failed")
 	}
@@ -118,7 +123,7 @@ func (p *AppMetrics) getAppMetricMapByApps(ctx context.Context, apps []DaoCluste
 
 func (p *AppMetrics) getAppMetric(ctx context.Context, app DaoClusterStatusTypes.Application, options ...DBCommon.Option) (DaoMetricTypes.AppMetric, error) {
 
-	appMeta := app.ObjectMeta
+	appMeta := *app.ObjectMeta
 	emptyAppMetric := DaoMetricTypes.AppMetric{
 		ObjectMeta: appMeta,
 	}
@@ -201,7 +206,7 @@ func (p *AppMetrics) listControllerMetasByApp(app DaoClusterStatusTypes.Applicat
 	metas := make([]DaoMetricTypes.ControllerObjectMeta, len(app.Controllers))
 	for i, controller := range app.Controllers {
 		metas[i] = DaoMetricTypes.ControllerObjectMeta{
-			ObjectMeta: controller.ObjectMeta,
+			ObjectMeta: *controller.ObjectMeta,
 			Kind:       controller.Kind,
 		}
 	}

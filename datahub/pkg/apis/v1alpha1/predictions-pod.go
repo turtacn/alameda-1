@@ -179,7 +179,7 @@ func (s *ServiceV1alpha1) ListPodPredictionsDemo(ctx context.Context, in *ApiPre
 	demoContainerPrediction.PredictedRawData = append(demoContainerPrediction.PredictedRawData, &demoPredictionDataMem)
 
 	demoPodMetric := ApiPredictions.PodPrediction{
-		ObjectMeta:           FormatResponse.NewObjectMeta(tempObjectMeta),
+		ObjectMeta:           FormatResponse.NewObjectMeta(&tempObjectMeta),
 		ContainerPredictions: demoContainerPredictionList,
 	}
 	demoPodPredictionList = append(demoPodPredictionList, &demoPodMetric)

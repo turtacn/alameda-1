@@ -9,7 +9,7 @@ func NewAlamedaPodSpec(podSpec *types.AlamedaPodSpec) *resources.AlamedaPodSpec 
 	if podSpec != nil {
 		spec := resources.AlamedaPodSpec{}
 		if podSpec.AlamedaScaler != nil {
-			spec.AlamedaScaler = NewObjectMeta(*podSpec.AlamedaScaler)
+			spec.AlamedaScaler = NewObjectMeta(podSpec.AlamedaScaler)
 		}
 		spec.UsedRecommendationId = podSpec.UsedRecommendationId
 		spec.ScalingTool = resources.ScalingTool(resources.ScalingTool_value[podSpec.ScalingTool])
@@ -22,13 +22,16 @@ func NewAlamedaPodSpec(podSpec *types.AlamedaPodSpec) *resources.AlamedaPodSpec 
 	return nil
 }
 
-func NewAlamedaControllerSpec(controlSpec types.AlamedaControllerSpec) *resources.AlamedaControllerSpec {
-	ctlSpec := resources.AlamedaControllerSpec{}
-	ctlSpec.AlamedaScaler = NewObjectMeta(controlSpec.AlamedaScaler)
-	ctlSpec.ScalingTool = resources.ScalingTool(resources.ScalingTool_value[controlSpec.ScalingTool])
-	ctlSpec.Policy = resources.RecommendationPolicy(resources.RecommendationPolicy_value[controlSpec.Policy])
-	ctlSpec.EnableRecommendationExecution = controlSpec.EnableExecution
-	return &ctlSpec
+func NewAlamedaControllerSpec(controlSpec *types.AlamedaControllerSpec) *resources.AlamedaControllerSpec {
+	if controlSpec != nil {
+		ctlSpec := resources.AlamedaControllerSpec{}
+		ctlSpec.AlamedaScaler = NewObjectMeta(controlSpec.AlamedaScaler)
+		ctlSpec.ScalingTool = resources.ScalingTool(resources.ScalingTool_value[controlSpec.ScalingTool])
+		ctlSpec.Policy = resources.RecommendationPolicy(resources.RecommendationPolicy_value[controlSpec.Policy])
+		ctlSpec.EnableRecommendationExecution = controlSpec.EnableExecution
+		return &ctlSpec
+	}
+	return nil
 }
 
 func NewAlamedaApplicationSpec(applicationSpec *types.AlamedaApplicationSpec) *resources.AlamedaApplicationSpec {

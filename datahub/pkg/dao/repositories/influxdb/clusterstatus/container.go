@@ -6,7 +6,7 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
-	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
+	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strings"
@@ -16,7 +16,7 @@ type ContainerRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
+func NewContainerRepository(influxDBCfg InternalInflux.Config) *ContainerRepository {
 	return &ContainerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -41,65 +41,7 @@ func (p *ContainerRepository) CreateContainers(containers map[string][]*DaoClust
 
 	for _, cnts := range containers {
 		for _, cnt := range cnts {
-			entity := EntityInfluxCluster.ContainerEntity{
-				Time:        InternalInflux.ZeroTime,
-				Name:        cnt.Name,
-				PodName:     cnt.PodName,
-				Namespace:   cnt.Namespace,
-				NodeName:    cnt.NodeName,
-				ClusterName: cnt.ClusterName,
-				Uid:         cnt.Uid,
-			}
-			if cnt.Resources != nil {
-				if value, exist := cnt.Resources.Limits[int32(ApiCommon.ResourceName_CPU)]; exist {
-					entity.ResourceLimitCPU = value
-				}
-				if value, exist := cnt.Resources.Limits[int32(ApiCommon.ResourceName_MEMORY)]; exist {
-					entity.ResourceLimitMemory = value
-				}
-				if value, exist := cnt.Resources.Requests[int32(ApiCommon.ResourceName_CPU)]; exist {
-					entity.ResourceRequestCPU = value
-				}
-				if value, exist := cnt.Resources.Requests[int32(ApiCommon.ResourceName_MEMORY)]; exist {
-					entity.ResourceRequestMemory = value
-				}
-			}
-			if cnt.Status != nil {
-				if cnt.Status.State != nil {
-					if cnt.Status.State.Waiting != nil {
-						entity.StatusWaitingReason = cnt.Status.State.Waiting.Reason
-						entity.StatusWaitingMessage = cnt.Status.State.Waiting.Message
-					}
-					if cnt.Status.State.Running != nil {
-						entity.StatusRunningStartedAt = cnt.Status.State.Running.StartedAt.GetSeconds()
-					}
-					if cnt.Status.State.Terminated != nil {
-						entity.StatusTerminatedExitCode = cnt.Status.State.Terminated.ExitCode
-						entity.StatusTerminatedReason = cnt.Status.State.Terminated.Reason
-						entity.StatusTerminatedMessage = cnt.Status.State.Terminated.Message
-						entity.StatusTerminatedStartedAt = cnt.Status.State.Terminated.StartedAt.GetSeconds()
-						entity.StatusTerminatedFinishedAt = cnt.Status.State.Terminated.FinishedAt.GetSeconds()
-					}
-
-				}
-				if cnt.Status.LastTerminationState != nil {
-					if cnt.Status.LastTerminationState.Waiting != nil {
-						entity.LastTerminationWaitingReason = cnt.Status.LastTerminationState.Waiting.Reason
-						entity.LastTerminationWaitingMessage = cnt.Status.LastTerminationState.Waiting.Message
-					}
-					if cnt.Status.LastTerminationState.Running != nil {
-						entity.LastTerminationRunningStartedAt = cnt.Status.LastTerminationState.Running.StartedAt.GetSeconds()
-					}
-					if cnt.Status.LastTerminationState.Terminated != nil {
-						entity.LastTerminationTerminatedExitCode = cnt.Status.LastTerminationState.Terminated.ExitCode
-						entity.LastTerminationTerminatedReason = cnt.Status.LastTerminationState.Terminated.Reason
-						entity.LastTerminationTerminatedMessage = cnt.Status.LastTerminationState.Terminated.Message
-						entity.LastTerminationTerminatedStartedAt = cnt.Status.LastTerminationState.Terminated.StartedAt.GetSeconds()
-						entity.LastTerminationTerminatedFinishedAt = cnt.Status.LastTerminationState.Terminated.FinishedAt.GetSeconds()
-					}
-				}
-			}
-			entity.RestartCount = cnt.Status.RestartCount
+			entity := cnt.BuildEntity()
 
 			// Add to influx point list
 			if pt, err := entity.BuildInfluxPoint(string(Container)); err == nil {
@@ -134,11 +76,34 @@ func (p *ContainerRepository) ListContainers(request DaoClusterTypes.ListContain
 
 	// Build influx query command
 	for _, containerMeta := range request.ContainerObjectMeta {
-		keyList := containerMeta.ObjectMeta.GenerateKeyList()
-		keyList = append(keyList, string(EntityInfluxCluster.ContainerPodName))
+		keyList := make([]string, 0)
+		valueList := make([]string, 0)
 
-		valueList := containerMeta.ObjectMeta.GenerateValueList()
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerPodName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerNamespace))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerNodeName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerClusterName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerTopControllerName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerAlamedaScalerName))
+
+		valueList = append(valueList, containerMeta.Name)
 		valueList = append(valueList, containerMeta.PodName)
+		valueList = append(valueList, containerMeta.Namespace)
+		valueList = append(valueList, containerMeta.NodeName)
+		valueList = append(valueList, containerMeta.ClusterName)
+		valueList = append(valueList, containerMeta.TopControllerName)
+		valueList = append(valueList, containerMeta.AlamedaScalerName)
+
+		if containerMeta.TopControllerKind != "" && containerMeta.TopControllerKind != ApiResources.Kind_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.ContainerTopControllerKind))
+			valueList = append(valueList, containerMeta.TopControllerKind)
+		}
+
+		if containerMeta.AlamedaScalerScalingTool != "" && containerMeta.AlamedaScalerScalingTool != ApiResources.ScalingTool_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.ContainerAlamedaScalerScalingTool))
+			valueList = append(valueList, containerMeta.AlamedaScalerScalingTool)
+		}
 
 		condition := statement.GenerateCondition(keyList, valueList, "AND")
 		statement.AppendWhereClauseDirectly("OR", condition)
@@ -183,11 +148,34 @@ func (p *ContainerRepository) DeleteContainers(request DaoClusterTypes.DeleteCon
 
 	// Build influx drop command
 	for _, containerMeta := range request.ContainerObjectMeta {
-		keyList := containerMeta.ObjectMeta.GenerateKeyList()
-		keyList = append(keyList, string(EntityInfluxCluster.ContainerPodName))
+		keyList := make([]string, 0)
+		valueList := make([]string, 0)
 
-		valueList := containerMeta.ObjectMeta.GenerateValueList()
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerPodName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerNamespace))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerNodeName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerClusterName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerTopControllerName))
+		keyList = append(keyList, string(EntityInfluxCluster.ContainerAlamedaScalerName))
+
+		valueList = append(valueList, containerMeta.Name)
 		valueList = append(valueList, containerMeta.PodName)
+		valueList = append(valueList, containerMeta.Namespace)
+		valueList = append(valueList, containerMeta.NodeName)
+		valueList = append(valueList, containerMeta.ClusterName)
+		valueList = append(valueList, containerMeta.TopControllerName)
+		valueList = append(valueList, containerMeta.AlamedaScalerName)
+
+		if containerMeta.TopControllerKind != "" && containerMeta.TopControllerKind != ApiResources.Kind_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.ContainerTopControllerKind))
+			valueList = append(valueList, containerMeta.TopControllerKind)
+		}
+
+		if containerMeta.AlamedaScalerScalingTool != "" && containerMeta.AlamedaScalerScalingTool != ApiResources.ScalingTool_name[0] {
+			keyList = append(keyList, string(EntityInfluxCluster.ContainerAlamedaScalerScalingTool))
+			valueList = append(valueList, containerMeta.AlamedaScalerScalingTool)
+		}
 
 		condition := statement.GenerateCondition(keyList, valueList, "AND")
 		statement.AppendWhereClauseDirectly("OR", condition)

@@ -9,13 +9,13 @@ type ApplicationExtended struct {
 	*types.Application
 }
 
-func (n *ApplicationExtended) ProduceApplication() *resources.Application {
+func (p *ApplicationExtended) ProduceApplication() *resources.Application {
 	application := &resources.Application{}
-	application.ObjectMeta = NewObjectMeta(n.ObjectMeta)
-	application.AlamedaApplicationSpec = NewAlamedaApplicationSpec(n.AlamedaApplicationSpec)
-	if n.Controllers != nil {
+	application.ObjectMeta = NewObjectMeta(p.ObjectMeta)
+	application.AlamedaApplicationSpec = NewAlamedaApplicationSpec(p.AlamedaApplicationSpec)
+	if p.Controllers != nil {
 		application.Controllers = make([]*resources.Controller, 0)
-		for _, controller := range n.Controllers {
+		for _, controller := range p.Controllers {
 			application.Controllers = append(application.Controllers, NewController(controller))
 		}
 	}

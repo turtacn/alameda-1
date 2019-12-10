@@ -84,7 +84,7 @@ func (s *ServiceV1alpha1) ListPods(ctx context.Context, in *ApiResources.ListPod
 func (s *ServiceV1alpha1) DeletePods(ctx context.Context, in *ApiResources.DeletePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeletePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
-	requestExt := FormatRequest.DeletePodsRequestExtended{DeletePodsRequest: *in}
+	requestExt := FormatRequest.DeletePodsRequestExtended{DeletePodsRequest: in}
 	if err := requestExt.Validate(); err != nil {
 		return &status.Status{
 			Code:    int32(code.Code_INVALID_ARGUMENT),

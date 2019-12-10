@@ -15,57 +15,78 @@ type ListPodsRequestExtended struct {
 }
 
 type DeletePodsRequestExtended struct {
-	ApiResources.DeletePodsRequest
+	*ApiResources.DeletePodsRequest
 }
 
-func (r *CreatePodsRequestExtended) Validate() error {
+func (p *CreatePodsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *CreatePodsRequestExtended) ProducePods() []*DaoClusterTypes.Pod {
-	pods := make([]*DaoClusterTypes.Pod, 0)
+func NewPod(pod *ApiResources.Pod) *DaoClusterTypes.Pod {
+	if pod != nil {
+		// Normalize request
+		objectMeta := NewObjectMeta(pod.GetObjectMeta())
 
-	for _, p := range r.GetPods() {
-		objectMeta := NewObjectMeta(p.GetObjectMeta())
-
-		pod := DaoClusterTypes.NewPod()
-		pod.ObjectMeta = &objectMeta
-		pod.ResourceLink = p.ResourceLink
-		for _, container := range p.GetContainers() {
-			cnt := &DaoClusterTypes.Container{}
-			cnt.Name = container.Name
-			cnt.PodName = pod.ObjectMeta.Name
-			cnt.Namespace = pod.ObjectMeta.Namespace
-			cnt.NodeName = pod.ObjectMeta.NodeName
-			cnt.ClusterName = pod.ObjectMeta.ClusterName
-			cnt.Resources = NewResourceRequirements(container.GetResources())
-			cnt.Status = NewContainerStatus(container.GetStatus())
-			pod.Containers = append(pod.Containers, cnt)
+		p := DaoClusterTypes.Pod{}
+		p.Containers = make([]*DaoClusterTypes.Container, 0)
+		p.ObjectMeta = &objectMeta
+		p.ResourceLink = pod.GetResourceLink()
+		p.CreateTime = pod.GetStartTime()
+		p.TopController = NewController(pod.GetTopController())
+		p.Status = NewPodStatus(pod.GetStatus())
+		p.AppName = pod.GetAppName()
+		p.AppPartOf = pod.GetAppPartOf()
+		p.AlamedaPodSpec = NewAlamedaPodSpec(pod.GetAlamedaPodSpec())
+		for _, container := range pod.GetContainers() {
+			p.Containers = append(p.Containers, NewContainer(pod, container))
 		}
-		pod.CreateTime = p.GetStartTime()
-		pod.TopController = NewController(p.GetTopController())
-		pod.Status = NewPodStatus(p.GetStatus())
-		pod.AppName = p.GetAppName()
-		pod.AppPartOf = p.GetAppPartOf()
-		pod.AlamedaPodSpec = NewAlamedaPodSpec(p.GetAlamedaPodSpec())
 
-		pods = append(pods, pod)
+		return &p
 	}
+	return nil
+}
 
+func NewContainer(pod *ApiResources.Pod, container *ApiResources.Container) *DaoClusterTypes.Container {
+	cnt := &DaoClusterTypes.Container{}
+	cnt.Name = container.GetName()
+	if pod.GetObjectMeta() != nil {
+		cnt.PodName = pod.GetObjectMeta().GetName()
+		cnt.Namespace = pod.GetObjectMeta().GetNamespace()
+		cnt.NodeName = pod.GetObjectMeta().GetNodeName()
+		cnt.ClusterName = pod.GetObjectMeta().GetClusterName()
+	}
+	if pod.GetTopController() != nil {
+		cnt.TopControllerName = pod.GetTopController().GetObjectMeta().GetName()
+		cnt.TopControllerKind = pod.GetTopController().GetKind().String()
+	}
+	if pod.GetAlamedaPodSpec() != nil {
+		cnt.AlamedaScalerName = pod.GetAlamedaPodSpec().GetAlamedaScaler().GetName()
+		cnt.AlamedaScalerScalingTool = pod.GetAlamedaPodSpec().GetScalingTool().String()
+	}
+	cnt.Resources = NewResourceRequirements(container.GetResources())
+	cnt.Status = NewContainerStatus(container.GetStatus())
+	return cnt
+}
+
+func (p *CreatePodsRequestExtended) ProducePods() []*DaoClusterTypes.Pod {
+	pods := make([]*DaoClusterTypes.Pod, 0)
+	for _, p := range p.GetPods() {
+		pods = append(pods, NewPod(p))
+	}
 	return pods
 }
 
-func (r *ListPodsRequestExtended) Validate() error {
+func (p *ListPodsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *ListPodsRequestExtended) ProduceRequest() *DaoClusterTypes.ListPodsRequest {
+func (p *ListPodsRequestExtended) ProduceRequest() *DaoClusterTypes.ListPodsRequest {
 	request := DaoClusterTypes.NewListPodsRequest()
-	request.QueryCondition = QueryConditionExtend{r.GetQueryCondition()}.QueryCondition()
-	request.Kind = r.GetKind().String()
-	request.ScalingTool = r.GetScalingTool().String()
-	if r.GetObjectMeta() != nil {
-		for _, meta := range r.GetObjectMeta() {
+	request.QueryCondition = QueryConditionExtend{p.GetQueryCondition()}.QueryCondition()
+	request.Kind = p.GetKind().String()
+	request.ScalingTool = p.GetScalingTool().String()
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
 			// Normalize request
 			objectMeta := NewObjectMeta(meta)
 
@@ -79,14 +100,14 @@ func (r *ListPodsRequestExtended) ProduceRequest() *DaoClusterTypes.ListPodsRequ
 	return request
 }
 
-func (r *DeletePodsRequestExtended) Validate() error {
+func (p *DeletePodsRequestExtended) Validate() error {
 	return nil
 }
 
-func (r *DeletePodsRequestExtended) ProduceRequest() *DaoClusterTypes.DeletePodsRequest {
+func (p *DeletePodsRequestExtended) ProduceRequest() *DaoClusterTypes.DeletePodsRequest {
 	request := DaoClusterTypes.NewDeletePodsRequest()
-	if r.GetObjectMeta() != nil {
-		for _, meta := range r.GetObjectMeta() {
+	if p.GetObjectMeta() != nil {
+		for _, meta := range p.GetObjectMeta() {
 			// Normalize request
 			objectMeta := NewObjectMeta(meta)
 
@@ -94,7 +115,7 @@ func (r *DeletePodsRequestExtended) ProduceRequest() *DaoClusterTypes.DeletePods
 				request.PodObjectMeta = make([]*DaoClusterTypes.PodObjectMeta, 0)
 				return request
 			}
-			request.PodObjectMeta = append(request.PodObjectMeta, DaoClusterTypes.NewPodObjectMeta(&objectMeta, nil, "", ""))
+			request.PodObjectMeta = append(request.PodObjectMeta, DaoClusterTypes.NewPodObjectMeta(&objectMeta, nil, nil, "", ""))
 		}
 	}
 	return request

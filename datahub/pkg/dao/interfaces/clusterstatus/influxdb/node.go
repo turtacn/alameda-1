@@ -3,8 +3,8 @@ package influxdb
 import (
 	DaoClusterTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	RepoInfluxCluster "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/clusterstatus"
+	Metadata "github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
 // Implement Node interface
@@ -16,8 +16,8 @@ func NewNodeWithConfig(config InternalInflux.Config) DaoClusterTypes.NodeDAO {
 	return &Node{InfluxDBConfig: config}
 }
 
-func (n *Node) CreateNodes(nodes []*DaoClusterTypes.Node) error {
-	nodeRepo := RepoInfluxCluster.NewNodeRepository(&n.InfluxDBConfig)
+func (p *Node) CreateNodes(nodes []*DaoClusterTypes.Node) error {
+	nodeRepo := RepoInfluxCluster.NewNodeRepository(p.InfluxDBConfig)
 	if err := nodeRepo.CreateNodes(nodes); err != nil {
 		scope.Error(err.Error())
 		return err
@@ -25,8 +25,8 @@ func (n *Node) CreateNodes(nodes []*DaoClusterTypes.Node) error {
 	return nil
 }
 
-func (n *Node) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]*DaoClusterTypes.Node, error) {
-	nodeRepo := RepoInfluxCluster.NewNodeRepository(&n.InfluxDBConfig)
+func (p *Node) ListNodes(request *DaoClusterTypes.ListNodesRequest) ([]*DaoClusterTypes.Node, error) {
+	nodeRepo := RepoInfluxCluster.NewNodeRepository(p.InfluxDBConfig)
 	nodes, err := nodeRepo.ListNodes(request)
 	if err != nil {
 		scope.Error(err.Error())
@@ -35,25 +35,37 @@ func (n *Node) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]*DaoCluste
 	return nodes, nil
 }
 
-func (n *Node) DeleteNodes(nodes []*ApiResources.Node) error {
-	nodeRepository := RepoInfluxCluster.NewNodeRepository(&n.InfluxDBConfig)
-	return nodeRepository.DeleteNodes(nodes)
+func (p *Node) DeleteNodes(request *DaoClusterTypes.DeleteNodesRequest) error {
+	delPodsReq := p.genDeletePodsRequest(request)
+
+	// Delete nodes
+	nodeRepo := RepoInfluxCluster.NewNodeRepository(p.InfluxDBConfig)
+	if err := nodeRepo.DeleteNodes(request); err != nil {
+		scope.Error(err.Error())
+		return err
+	}
+
+	// Delete pods
+	podDAO := NewPodWithConfig(p.InfluxDBConfig)
+	if err := podDAO.DeletePods(delPodsReq); err != nil {
+		scope.Error(err.Error())
+		return err
+	}
+
+	return nil
 }
 
-/*func (node *Node) RegisterAlamedaNodes(alamedaNodes []*ApiResources.Node) error {
-	nodeRepository := RepoInfluxCluster.NewNodeRepository(&node.InfluxDBConfig)
-	return nodeRepository.AddAlamedaNodes(alamedaNodes)
-}
+func (p *Node) genDeletePodsRequest(request *DaoClusterTypes.DeleteNodesRequest) *DaoClusterTypes.DeletePodsRequest {
+	delPodsReq := DaoClusterTypes.NewDeletePodsRequest()
 
-func (node *Node) ListAlamedaNodes(timeRange *ApiCommon.TimeRange) ([]*ApiResources.Node, error) {
-	alamedaNodes := make([]*ApiResources.Node, 0)
-	nodeRepository := RepoInfluxCluster.NewNodeRepository(&node.InfluxDBConfig)
-	entities, err := nodeRepository.ListAlamedaNodes(timeRange)
-	if err != nil {
-		return alamedaNodes, errors.Wrap(err, "list alameda nodes failed")
+	for _, objectMeta := range request.ObjectMeta {
+		metadata := &Metadata.ObjectMeta{}
+		metadata.NodeName = objectMeta.Name
+		metadata.ClusterName = objectMeta.ClusterName
+
+		podObjectMeta := DaoClusterTypes.NewPodObjectMeta(metadata, nil, nil, "", "")
+		delPodsReq.PodObjectMeta = append(delPodsReq.PodObjectMeta, podObjectMeta)
 	}
-	for _, entity := range entities {
-		alamedaNodes = append(alamedaNodes, entity.BuildDatahubNode())
-	}
-	return alamedaNodes, nil
-}*/
+
+	return delPodsReq
+}

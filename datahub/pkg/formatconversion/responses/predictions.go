@@ -21,7 +21,7 @@ func (d *NodePredictionExtended) ProducePredictions() *ApiPredictions.NodePredic
 	)
 
 	datahubNodePrediction = ApiPredictions.NodePrediction{
-		ObjectMeta:  NewObjectMeta(d.ObjectMeta),
+		ObjectMeta:  NewObjectMeta(&d.ObjectMeta),
 		IsScheduled: d.IsScheduled,
 	}
 
@@ -73,7 +73,7 @@ type PodPredictionExtended struct {
 
 func (p *PodPredictionExtended) ProducePredictions() *ApiPredictions.PodPrediction {
 	datahubPodPrediction := ApiPredictions.PodPrediction{
-		ObjectMeta: NewObjectMeta(p.ObjectMeta),
+		ObjectMeta: NewObjectMeta(&p.ObjectMeta),
 	}
 
 	for _, ptrContainerPrediction := range p.ContainerPredictionMap.MetricMap {

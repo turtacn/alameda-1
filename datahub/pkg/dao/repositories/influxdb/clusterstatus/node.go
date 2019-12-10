@@ -9,7 +9,6 @@ import (
 	InternalCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
 	"strings"
@@ -19,7 +18,7 @@ type NodeRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-func NewNodeRepository(influxDBCfg *InternalInflux.Config) *NodeRepository {
+func NewNodeRepository(influxDBCfg InternalInflux.Config) *NodeRepository {
 	return &NodeRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -42,37 +41,15 @@ func (p *NodeRepository) CreateNodes(nodes []*DaoClusterTypes.Node) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, node := range nodes {
-		entity := EntityInfluxCluster.NodeEntity{
-			Time:        InternalInflux.ZeroTime,
-			Name:        node.ObjectMeta.Name,
-			ClusterName: node.ObjectMeta.ClusterName,
-			Uid:         node.ObjectMeta.Uid,
-			CreateTime:  node.CreateTime.GetSeconds(),
-		}
-		if node.Capacity != nil {
-			entity.CPUCores = node.Capacity.CpuCores
-			entity.MemoryBytes = node.Capacity.MemoryBytes
-			entity.NetworkMbps = node.Capacity.NetworkMegabitsPerSecond
-		}
-		if nodeSpec := node.AlamedaNodeSpec; nodeSpec != nil {
-			if nodeSpec.Provider != nil {
-				entity.IOProvider = node.AlamedaNodeSpec.Provider.Provider
-				entity.IOInstanceType = node.AlamedaNodeSpec.Provider.InstanceType
-				entity.IORegion = node.AlamedaNodeSpec.Provider.Region
-				entity.IOZone = node.AlamedaNodeSpec.Provider.Zone
-				entity.IOOS = node.AlamedaNodeSpec.Provider.Os
-				entity.IORole = node.AlamedaNodeSpec.Provider.Role
-				entity.IOInstanceID = node.AlamedaNodeSpec.Provider.InstanceId
-				entity.IOStorageSize = node.AlamedaNodeSpec.Provider.StorageSize
-			}
-		}
+		entity := node.BuildEntity()
 
 		// Add to influx point list
-		if pt, err := entity.BuildInfluxPoint(string(Node)); err == nil {
-			points = append(points, pt)
-		} else {
+		point, err := entity.BuildInfluxPoint(string(Node))
+		if err != nil {
 			scope.Error(err.Error())
+			return errors.Wrap(err, "failed to instance influxdb data point")
 		}
+		points = append(points, point)
 	}
 
 	// Batch write influxdb data points
@@ -87,7 +64,7 @@ func (p *NodeRepository) CreateNodes(nodes []*DaoClusterTypes.Node) error {
 	return nil
 }
 
-func (p *NodeRepository) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]*DaoClusterTypes.Node, error) {
+func (p *NodeRepository) ListNodes(request *DaoClusterTypes.ListNodesRequest) ([]*DaoClusterTypes.Node, error) {
 	nodes := make([]*DaoClusterTypes.Node, 0)
 
 	statement := InternalInflux.Statement{
@@ -134,8 +111,7 @@ func (p *NodeRepository) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]
 			group := result.GetGroup(i)
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
-				node := DaoClusterTypes.NewNode()
-				node.Initialize(row)
+				node := DaoClusterTypes.NewNode(EntityInfluxCluster.NewNodeEntity(row))
 				nodes = append(nodes, node)
 			}
 		}
@@ -144,25 +120,32 @@ func (p *NodeRepository) ListNodes(request DaoClusterTypes.ListNodesRequest) ([]
 	return nodes, nil
 }
 
-func (p *NodeRepository) DeleteNodes(alamedaNodes []*ApiResources.Node) error {
-	hasErr := false
-	errMsg := ""
-	for _, alamedaNode := range alamedaNodes {
-		cmd := fmt.Sprintf("DROP SERIES FROM %s WHERE \"%s\"='%s'",
-			string(Node), string(EntityInfluxCluster.NodeName), alamedaNode.ObjectMeta.Name)
-		_, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
-		if err != nil {
-			hasErr = true
-			errMsg += errMsg + err.Error()
-		}
+func (p *NodeRepository) DeleteNodes(request *DaoClusterTypes.DeleteNodesRequest) error {
+	statement := InternalInflux.Statement{
+		Measurement: Node,
 	}
-	if hasErr {
-		return fmt.Errorf(errMsg)
+
+	if !p.influxDB.MeasurementExist(string(RepoInflux.ClusterStatus), string(Node)) {
+		return nil
 	}
+
+	// Build influx drop command
+	for _, objectMeta := range request.ObjectMeta {
+		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
+	}
+	cmd := statement.BuildDropCmd()
+
+	_, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
+	if err != nil {
+		scope.Error(err.Error())
+		return errors.Wrap(err, "failed to delete controllers")
+	}
+
 	return nil
 }
 
-func (p *NodeRepository) genObjectMetaCondition(objectMeta Metadata.ObjectMeta) string {
+func (p *NodeRepository) genObjectMetaCondition(objectMeta *Metadata.ObjectMeta) string {
 	condition := ""
 	keyList := objectMeta.GenerateKeyList()
 	valueList := objectMeta.GenerateValueList()

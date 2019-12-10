@@ -3,7 +3,6 @@ package clusterstatus
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"time"
@@ -15,11 +14,10 @@ const (
 	PodNodeName                     influxdb.Tag = "node_name"
 	PodClusterName                  influxdb.Tag = "cluster_name"
 	PodUid                          influxdb.Tag = "uid"
-	PodAlamedaSpecScalerName        influxdb.Tag = "alameda_scaler_name"
-	PodAlamedaSpecScalerNamespace   influxdb.Tag = "alameda_scaler_namespace"
-	PodAlamedaSpecScalerClusterName influxdb.Tag = "alameda_scaler_cluster_name"
 	PodTopControllerName            influxdb.Tag = "top_controller_name"
 	PodTopControllerKind            influxdb.Tag = "top_controller_kind"
+	PodAlamedaSpecScalerName        influxdb.Tag = "alameda_scaler_name"
+	PodAlamedaSpecScalerScalingTool influxdb.Tag = "alameda_scaler_scaling_tool"
 	PodAppName                      influxdb.Tag = "app_name"
 	PodAppPartOf                    influxdb.Tag = "app_part_of"
 
@@ -35,7 +33,6 @@ const (
 	PodAlamedaSpecResourceLimitMemory   influxdb.Field = "alameda_scaler_resource_limit_memory"
 	PodAlamedaSpecResourceRequestCPU    influxdb.Field = "alameda_scaler_resource_request_cpu"
 	PodAlamedaSpecResourceRequestMemory influxdb.Field = "alameda_scaler_resource_request_memory"
-	PodAlamedaSpecScalingTool           influxdb.Field = "scaling_tool"
 )
 
 var (
@@ -45,11 +42,10 @@ var (
 		PodNodeName,
 		PodClusterName,
 		PodUid,
-		PodAlamedaSpecScalerName,
-		PodAlamedaSpecScalerNamespace,
-		PodAlamedaSpecScalerClusterName,
 		PodTopControllerName,
 		PodTopControllerKind,
+		PodAlamedaSpecScalerName,
+		PodAlamedaSpecScalerScalingTool,
 		PodAppName,
 		PodAppPartOf,
 	}
@@ -67,7 +63,6 @@ var (
 		PodAlamedaSpecResourceLimitMemory,
 		PodAlamedaSpecResourceRequestCPU,
 		PodAlamedaSpecResourceRequestMemory,
-		PodAlamedaSpecScalingTool,
 	}
 )
 
@@ -78,11 +73,10 @@ type PodEntity struct {
 	NodeName                     string
 	ClusterName                  string
 	Uid                          string
-	AlamedaSpecScalerName        string
-	AlamedaSpecScalerNamespace   string
-	AlamedaSpecScalerClusterName string
 	TopControllerName            string
 	TopControllerKind            string
+	AlamedaSpecScalerName        string
+	AlamedaSpecScalerScalingTool string
 	AppName                      string
 	AppPartOf                    string
 
@@ -98,13 +92,12 @@ type PodEntity struct {
 	AlamedaSpecResourceLimitMemory   string // TODO: check if type string or float64
 	AlamedaSpecResourceRequestCPU    string // TODO: check if type string or float64
 	AlamedaSpecResourceRequestMemory string // TODO: check if type string or float64
-	AlamedaSpecScalingTool           string
 }
 
 func NewPodEntity(data map[string]string) *PodEntity {
 	entity := PodEntity{}
 
-	tempTimestamp, _ := utils.ParseTime(data[string("time")])
+	tempTimestamp, _ := utils.ParseTime(data["time"])
 	entity.Time = tempTimestamp
 
 	// InfluxDB tags
@@ -123,20 +116,17 @@ func NewPodEntity(data map[string]string) *PodEntity {
 	if value, exist := data[string(PodUid)]; exist {
 		entity.Uid = value
 	}
-	if value, exist := data[string(PodAlamedaSpecScalerName)]; exist {
-		entity.AlamedaSpecScalerName = value
-	}
-	if value, exist := data[string(PodAlamedaSpecScalerNamespace)]; exist {
-		entity.AlamedaSpecScalerNamespace = value
-	}
-	if value, exist := data[string(PodAlamedaSpecScalerClusterName)]; exist {
-		entity.AlamedaSpecScalerClusterName = value
-	}
 	if value, exist := data[string(PodTopControllerName)]; exist {
 		entity.TopControllerName = value
 	}
 	if value, exist := data[string(PodTopControllerKind)]; exist {
 		entity.TopControllerKind = value
+	}
+	if value, exist := data[string(PodAlamedaSpecScalerName)]; exist {
+		entity.AlamedaSpecScalerName = value
+	}
+	if value, exist := data[string(PodAlamedaSpecScalerScalingTool)]; exist {
+		entity.AlamedaSpecScalerScalingTool = value
 	}
 	if value, exist := data[string(PodAppName)]; exist {
 		entity.AppName = value
@@ -184,9 +174,6 @@ func NewPodEntity(data map[string]string) *PodEntity {
 	if value, exist := data[string(PodAlamedaSpecResourceRequestMemory)]; exist {
 		entity.AlamedaSpecResourceRequestMemory = value
 	}
-	if value, exist := data[string(PodAlamedaSpecScalingTool)]; exist {
-		entity.AlamedaSpecScalingTool = value
-	}
 
 	return &entity
 }
@@ -199,11 +186,10 @@ func (p *PodEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, e
 		string(PodNodeName):                     p.NodeName,
 		string(PodClusterName):                  p.ClusterName,
 		string(PodUid):                          p.Uid,
-		string(PodAlamedaSpecScalerName):        p.AlamedaSpecScalerName,
-		string(PodAlamedaSpecScalerNamespace):   p.AlamedaSpecScalerNamespace,
-		string(PodAlamedaSpecScalerClusterName): p.AlamedaSpecScalerClusterName,
 		string(PodTopControllerName):            p.TopControllerName,
 		string(PodTopControllerKind):            p.TopControllerKind,
+		string(PodAlamedaSpecScalerName):        p.AlamedaSpecScalerName,
+		string(PodAlamedaSpecScalerScalingTool): p.AlamedaSpecScalerScalingTool,
 		string(PodAppName):                      p.AppName,
 		string(PodAppPartOf):                    p.AppPartOf,
 	}
@@ -222,7 +208,6 @@ func (p *PodEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, e
 		string(PodAlamedaSpecResourceLimitMemory):   p.AlamedaSpecResourceLimitMemory,
 		string(PodAlamedaSpecResourceRequestCPU):    p.AlamedaSpecResourceRequestCPU,
 		string(PodAlamedaSpecResourceRequestMemory): p.AlamedaSpecResourceRequestMemory,
-		string(PodAlamedaSpecScalingTool):           p.AlamedaSpecScalingTool,
 	}
 
 	return InfluxClient.NewPoint(measurement, tags, fields, p.Time)

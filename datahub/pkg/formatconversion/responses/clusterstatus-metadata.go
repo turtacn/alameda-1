@@ -5,7 +5,7 @@ import (
 	"github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 )
 
-func NewObjectMeta(objectMeta metadata.ObjectMeta) *resources.ObjectMeta {
+func NewObjectMeta(objectMeta *metadata.ObjectMeta) *resources.ObjectMeta {
 	meta := resources.ObjectMeta{
 		Name:        objectMeta.Name,
 		Namespace:   objectMeta.Namespace,

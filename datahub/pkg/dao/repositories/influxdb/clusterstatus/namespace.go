@@ -8,14 +8,13 @@ import (
 	InternalInfluxModels "github.com/containers-ai/alameda/internal/pkg/database/influxdb/models"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
-	"time"
 )
 
 type NamespaceRepository struct {
 	influxDB *InternalInflux.InfluxClient
 }
 
-func NewNamespaceRepositoryWithConfig(influxDBCfg InternalInflux.Config) *NamespaceRepository {
+func NewNamespaceRepository(influxDBCfg InternalInflux.Config) *NamespaceRepository {
 	return &NamespaceRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -25,24 +24,14 @@ func NewNamespaceRepositoryWithConfig(influxDBCfg InternalInflux.Config) *Namesp
 	}
 }
 
-func (c *NamespaceRepository) CreateNamespaces(namespaces []*DaoClusterTypes.Namespace) error {
+func (p *NamespaceRepository) CreateNamespaces(namespaces []*DaoClusterTypes.Namespace) error {
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, namespace := range namespaces {
-		// Pack influx tags
-		tags := map[string]string{
-			string(EntityInfluxCluster.NamespaceName):        namespace.ObjectMeta.Name,
-			string(EntityInfluxCluster.NamespaceClusterName): namespace.ObjectMeta.ClusterName,
-			string(EntityInfluxCluster.NamespaceUid):         namespace.ObjectMeta.Uid,
-		}
-
-		// Pack influx fields
-		fields := map[string]interface{}{
-			string(EntityInfluxCluster.NamespaceValue): "0",
-		}
+		entity := namespace.BuildEntity()
 
 		// Add to influx point list
-		point, err := InfluxClient.NewPoint(string(Namespace), tags, fields, time.Unix(0, 0))
+		point, err := entity.BuildInfluxPoint(string(Namespace))
 		if err != nil {
 			scope.Error(err.Error())
 			return errors.Wrap(err, "failed to instance influxdb data point")
@@ -51,7 +40,7 @@ func (c *NamespaceRepository) CreateNamespaces(namespaces []*DaoClusterTypes.Nam
 	}
 
 	// Batch write influxdb data points
-	err := c.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
+	err := p.influxDB.WritePoints(points, InfluxClient.BatchPointsConfig{
 		Database: string(RepoInflux.ClusterStatus),
 	})
 	if err != nil {
@@ -62,7 +51,7 @@ func (c *NamespaceRepository) CreateNamespaces(namespaces []*DaoClusterTypes.Nam
 	return nil
 }
 
-func (c *NamespaceRepository) ListNamespaces(request DaoClusterTypes.ListNamespacesRequest) ([]*DaoClusterTypes.Namespace, error) {
+func (p *NamespaceRepository) ListNamespaces(request *DaoClusterTypes.ListNamespacesRequest) ([]*DaoClusterTypes.Namespace, error) {
 	namespaces := make([]*DaoClusterTypes.Namespace, 0)
 
 	statement := InternalInflux.Statement{
@@ -79,7 +68,7 @@ func (c *NamespaceRepository) ListNamespaces(request DaoClusterTypes.ListNamespa
 	statement.SetLimitClauseFromQueryCondition()
 	cmd := statement.BuildQueryCmd()
 
-	response, err := c.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
+	response, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
 		return make([]*DaoClusterTypes.Namespace, 0), errors.Wrap(err, "failed to list namespaces")
 	}
@@ -90,12 +79,36 @@ func (c *NamespaceRepository) ListNamespaces(request DaoClusterTypes.ListNamespa
 			group := result.GetGroup(i)
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
-				namespace := DaoClusterTypes.NewNamespace()
-				namespace.ObjectMeta.Initialize(row)
+				namespace := DaoClusterTypes.NewNamespace(EntityInfluxCluster.NewNamespaceEntity(row))
 				namespaces = append(namespaces, namespace)
 			}
 		}
 	}
 
 	return namespaces, nil
+}
+
+func (p *NamespaceRepository) DeleteNamespaces(request *DaoClusterTypes.DeleteNamespacesRequest) error {
+	statement := InternalInflux.Statement{
+		Measurement: Namespace,
+	}
+
+	if !p.influxDB.MeasurementExist(string(RepoInflux.ClusterStatus), string(Namespace)) {
+		return nil
+	}
+
+	// Build influx drop command
+	for _, objectMeta := range request.ObjectMeta {
+		condition := statement.GenerateCondition(objectMeta.GenerateKeyList(), objectMeta.GenerateValueList(), "AND")
+		statement.AppendWhereClauseDirectly("OR", condition)
+	}
+	cmd := statement.BuildDropCmd()
+
+	_, err := p.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
+	if err != nil {
+		scope.Error(err.Error())
+		return errors.Wrap(err, "failed to delete controllers")
+	}
+
+	return nil
 }

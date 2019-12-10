@@ -3,20 +3,22 @@ package clusterstatus
 import (
 	"github.com/containers-ai/alameda/datahub/pkg/utils"
 	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	//ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"time"
 )
 
 const (
-	ContainerTime        influxdb.Tag = "time"
-	ContainerName        influxdb.Tag = "name"
-	ContainerPodName     influxdb.Tag = "pod_name"
-	ContainerNamespace   influxdb.Tag = "namespace"
-	ContainerNodeName    influxdb.Tag = "node_name"
-	ContainerClusterName influxdb.Tag = "cluster_name"
-	ContainerUid         influxdb.Tag = "uid"
+	ContainerName                     influxdb.Tag = "name"
+	ContainerPodName                  influxdb.Tag = "pod_name"
+	ContainerNamespace                influxdb.Tag = "namespace"
+	ContainerNodeName                 influxdb.Tag = "node_name"
+	ContainerClusterName              influxdb.Tag = "cluster_name"
+	ContainerUid                      influxdb.Tag = "uid"
+	ContainerTopControllerName        influxdb.Tag = "top_controller_name"
+	ContainerTopControllerKind        influxdb.Tag = "top_controller_kind"
+	ContainerAlamedaScalerName        influxdb.Tag = "alameda_scaler_name"
+	ContainerAlamedaScalerScalingTool influxdb.Tag = "alameda_scaler_scaling_tool"
 
 	ContainerResourceRequestCPU                  influxdb.Field = "resource_request_cpu"
 	ContainerResourceRequestMemory               influxdb.Field = "resource_request_memory"
@@ -44,13 +46,16 @@ const (
 var (
 	// ContainerTags is the list of container measurement tags
 	ContainerTags = []influxdb.Tag{
-		ContainerTime,
 		ContainerName,
 		ContainerPodName,
 		ContainerNamespace,
 		ContainerNodeName,
 		ContainerClusterName,
 		ContainerUid,
+		ContainerTopControllerName,
+		ContainerTopControllerKind,
+		ContainerAlamedaScalerName,
+		ContainerAlamedaScalerScalingTool,
 	}
 
 	// ContainerFields is the list of container measurement fields
@@ -81,13 +86,17 @@ var (
 
 // ContainerEntity Entity in database
 type ContainerEntity struct {
-	Time        time.Time
-	Name        string
-	PodName     string
-	Namespace   string
-	NodeName    string
-	ClusterName string
-	Uid         string
+	Time                     time.Time
+	Name                     string
+	PodName                  string
+	Namespace                string
+	NodeName                 string
+	ClusterName              string
+	Uid                      string
+	TopControllerName        string
+	TopControllerKind        string
+	AlamedaScalerName        string
+	AlamedaScalerScalingTool string
 
 	ResourceRequestCPU                  string // TODO: check if type string or float64
 	ResourceRequestMemory               string // TODO: check if type string or float64
@@ -116,7 +125,7 @@ type ContainerEntity struct {
 func NewContainerEntity(data map[string]string) *ContainerEntity {
 	entity := ContainerEntity{}
 
-	tempTimestamp, _ := utils.ParseTime(data[string(ContainerTime)])
+	tempTimestamp, _ := utils.ParseTime(data["time"])
 	entity.Time = tempTimestamp
 
 	// InfluxDB tags
@@ -137,6 +146,18 @@ func NewContainerEntity(data map[string]string) *ContainerEntity {
 	}
 	if value, exist := data[string(ContainerUid)]; exist {
 		entity.Uid = value
+	}
+	if value, exist := data[string(ContainerTopControllerName)]; exist {
+		entity.TopControllerName = value
+	}
+	if value, exist := data[string(ContainerTopControllerKind)]; exist {
+		entity.TopControllerKind = value
+	}
+	if value, exist := data[string(ContainerAlamedaScalerName)]; exist {
+		entity.AlamedaScalerName = value
+	}
+	if value, exist := data[string(ContainerAlamedaScalerScalingTool)]; exist {
+		entity.AlamedaScalerScalingTool = value
 	}
 
 	// InfluxDB fields
@@ -224,41 +245,45 @@ func NewContainerEntity(data map[string]string) *ContainerEntity {
 	return &entity
 }
 
-func (e *ContainerEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {
+func (p *ContainerEntity) BuildInfluxPoint(measurement string) (*InfluxClient.Point, error) {
 	// Pack influx tags
 	tags := map[string]string{
-		string(ContainerName):        e.Name,
-		string(ContainerPodName):     e.PodName,
-		string(ContainerNamespace):   e.Namespace,
-		string(ContainerNodeName):    e.NodeName,
-		string(ContainerClusterName): e.ClusterName,
-		string(ContainerUid):         e.Uid,
+		string(ContainerName):                     p.Name,
+		string(ContainerPodName):                  p.PodName,
+		string(ContainerNamespace):                p.Namespace,
+		string(ContainerNodeName):                 p.NodeName,
+		string(ContainerClusterName):              p.ClusterName,
+		string(ContainerUid):                      p.Uid,
+		string(ContainerTopControllerName):        p.TopControllerName,
+		string(ContainerTopControllerKind):        p.TopControllerKind,
+		string(ContainerAlamedaScalerName):        p.AlamedaScalerName,
+		string(ContainerAlamedaScalerScalingTool): p.AlamedaScalerScalingTool,
 	}
 
 	// Pack influx fields
 	fields := map[string]interface{}{
-		string(ContainerResourceRequestCPU):                  e.ResourceRequestCPU,
-		string(ContainerResourceRequestMemory):               e.ResourceRequestMemory,
-		string(ContainerResourceLimitCPU):                    e.ResourceLimitCPU,
-		string(ContainerResourceLimitMemory):                 e.ResourceLimitMemory,
-		string(ContainerStatusWaitingReason):                 e.StatusWaitingReason,
-		string(ContainerStatusWaitingMessage):                e.StatusWaitingMessage,
-		string(ContainerStatusRunningStartedAt):              e.StatusRunningStartedAt,
-		string(ContainerStatusTerminatedExitCode):            e.StatusTerminatedExitCode,
-		string(ContainerStatusTerminatedReason):              e.StatusTerminatedReason,
-		string(ContainerStatusTerminatedMessage):             e.StatusTerminatedMessage,
-		string(ContainerStatusTerminatedStartedAt):           e.StatusTerminatedStartedAt,
-		string(ContainerStatusTerminatedFinishedAt):          e.StatusTerminatedFinishedAt,
-		string(ContainerLastTerminationWaitingReason):        e.LastTerminationWaitingReason,
-		string(ContainerLastTerminationWaitingMessage):       e.LastTerminationWaitingMessage,
-		string(ContainerLastTerminationRunningStartedAt):     e.LastTerminationRunningStartedAt,
-		string(ContainerLastTerminationTerminatedExitCode):   e.LastTerminationTerminatedExitCode,
-		string(ContainerLastTerminationTerminatedReason):     e.LastTerminationTerminatedReason,
-		string(ContainerLastTerminationTerminatedMessage):    e.LastTerminationTerminatedMessage,
-		string(ContainerLastTerminationTerminatedStartedAt):  e.LastTerminationTerminatedStartedAt,
-		string(ContainerLastTerminationTerminatedFinishedAt): e.LastTerminationTerminatedFinishedAt,
-		string(ContainerRestartCount):                        e.RestartCount,
+		string(ContainerResourceRequestCPU):                  p.ResourceRequestCPU,
+		string(ContainerResourceRequestMemory):               p.ResourceRequestMemory,
+		string(ContainerResourceLimitCPU):                    p.ResourceLimitCPU,
+		string(ContainerResourceLimitMemory):                 p.ResourceLimitMemory,
+		string(ContainerStatusWaitingReason):                 p.StatusWaitingReason,
+		string(ContainerStatusWaitingMessage):                p.StatusWaitingMessage,
+		string(ContainerStatusRunningStartedAt):              p.StatusRunningStartedAt,
+		string(ContainerStatusTerminatedExitCode):            p.StatusTerminatedExitCode,
+		string(ContainerStatusTerminatedReason):              p.StatusTerminatedReason,
+		string(ContainerStatusTerminatedMessage):             p.StatusTerminatedMessage,
+		string(ContainerStatusTerminatedStartedAt):           p.StatusTerminatedStartedAt,
+		string(ContainerStatusTerminatedFinishedAt):          p.StatusTerminatedFinishedAt,
+		string(ContainerLastTerminationWaitingReason):        p.LastTerminationWaitingReason,
+		string(ContainerLastTerminationWaitingMessage):       p.LastTerminationWaitingMessage,
+		string(ContainerLastTerminationRunningStartedAt):     p.LastTerminationRunningStartedAt,
+		string(ContainerLastTerminationTerminatedExitCode):   p.LastTerminationTerminatedExitCode,
+		string(ContainerLastTerminationTerminatedReason):     p.LastTerminationTerminatedReason,
+		string(ContainerLastTerminationTerminatedMessage):    p.LastTerminationTerminatedMessage,
+		string(ContainerLastTerminationTerminatedStartedAt):  p.LastTerminationTerminatedStartedAt,
+		string(ContainerLastTerminationTerminatedFinishedAt): p.LastTerminationTerminatedFinishedAt,
+		string(ContainerRestartCount):                        p.RestartCount,
 	}
 
-	return InfluxClient.NewPoint(measurement, tags, fields, e.Time)
+	return InfluxClient.NewPoint(measurement, tags, fields, p.Time)
 }

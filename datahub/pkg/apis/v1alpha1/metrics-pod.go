@@ -162,7 +162,7 @@ func (s *ServiceV1alpha1) ListPodMetricsDemo(ctx context.Context, in *ApiMetrics
 	demoContainerMetric.MetricData = append(demoContainerMetric.MetricData, &demoMetricDataMem)
 
 	demoPodMetric := ApiMetrics.PodMetric{
-		ObjectMeta:       FormatResponse.NewObjectMeta(tempObjectMeta),
+		ObjectMeta:       FormatResponse.NewObjectMeta(&tempObjectMeta),
 		ContainerMetrics: demoContainerMetricList,
 	}
 	demoPodMetricList = append(demoPodMetricList, &demoPodMetric)

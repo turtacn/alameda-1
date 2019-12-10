@@ -78,6 +78,23 @@ func (s *ServiceV1alpha1) ListNamespaces(ctx context.Context, in *ApiResources.L
 func (s *ServiceV1alpha1) DeleteNamespaces(ctx context.Context, in *ApiResources.DeleteNamespacesRequest) (*status.Status, error) {
 	scope.Debug("Request received from DeleteNamespaces grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	requestExt := FormatRequest.DeleteNamespacesRequestExtended{DeleteNamespacesRequest: in}
+	if err := requestExt.Validate(); err != nil {
+		return &status.Status{
+			Code:    int32(code.Code_INVALID_ARGUMENT),
+			Message: err.Error(),
+		}, nil
+	}
+
+	namespaceDAO := DaoCluster.NewNamespaceDAO(*s.Config)
+	if err := namespaceDAO.DeleteNamespaces(requestExt.ProduceRequest()); err != nil {
+		scope.Errorf("failed to delete namespaces: %+v", err)
+		return &status.Status{
+			Code:    int32(code.Code_INTERNAL),
+			Message: err.Error(),
+		}, nil
+	}
+
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil

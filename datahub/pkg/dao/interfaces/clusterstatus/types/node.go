@@ -4,17 +4,15 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/dao/entities/influxdb/clusterstatus"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
-	//ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
-	ApiResources "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/resources"
+	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"strconv"
 )
 
 // Node provides node measurement operations
 type NodeDAO interface {
 	CreateNodes([]*Node) error
-	ListNodes(ListNodesRequest) ([]*Node, error)
-	DeleteNodes([]*ApiResources.Node) error
+	ListNodes(*ListNodesRequest) ([]*Node, error)
+	DeleteNodes(*DeleteNodesRequest) error
 }
 
 type Node struct {
@@ -26,7 +24,11 @@ type Node struct {
 
 type ListNodesRequest struct {
 	common.QueryCondition
-	ObjectMeta []metadata.ObjectMeta
+	ObjectMeta []*metadata.ObjectMeta
+}
+
+type DeleteNodesRequest struct {
+	ObjectMeta []*metadata.ObjectMeta
 }
 
 type Capacity struct {
@@ -50,80 +52,84 @@ type Provider struct {
 	StorageSize  int64
 }
 
-func NewNode() *Node {
+func NewNode(entity *clusterstatus.NodeEntity) *Node {
 	node := Node{}
 	node.ObjectMeta = &metadata.ObjectMeta{}
-	node.Capacity = NewCapacity()
-	node.AlamedaNodeSpec = NewAlamedaNodeSpec()
+	node.ObjectMeta.Name = entity.Name
+	node.ObjectMeta.ClusterName = entity.ClusterName
+	node.ObjectMeta.Uid = entity.Uid
+	node.CreateTime = &timestamp.Timestamp{Seconds: entity.CreateTime}
+	node.Capacity = NewCapacity(entity)
+	node.AlamedaNodeSpec = NewAlamedaNodeSpec(entity)
 	return &node
 }
 
-func NewListNodesRequest() ListNodesRequest {
+func NewListNodesRequest() *ListNodesRequest {
 	request := ListNodesRequest{}
-	request.ObjectMeta = make([]metadata.ObjectMeta, 0)
-	return request
+	request.ObjectMeta = make([]*metadata.ObjectMeta, 0)
+	return &request
 }
 
-func NewCapacity() *Capacity {
+func NewDeleteNodesRequest() *DeleteNodesRequest {
+	request := DeleteNodesRequest{}
+	request.ObjectMeta = make([]*metadata.ObjectMeta, 0)
+	return &request
+}
+
+func NewCapacity(entity *clusterstatus.NodeEntity) *Capacity {
 	capacity := Capacity{}
+	capacity.CpuCores = entity.CPUCores
+	capacity.MemoryBytes = entity.MemoryBytes
+	capacity.NetworkMegabitsPerSecond = entity.NetworkMbps
 	return &capacity
 }
 
-func NewAlamedaNodeSpec() *AlamedaNodeSpec {
-	nodeSpec := AlamedaNodeSpec{}
-	nodeSpec.Provider = &Provider{}
-	return &nodeSpec
+func NewAlamedaNodeSpec(entity *clusterstatus.NodeEntity) *AlamedaNodeSpec {
+	spec := AlamedaNodeSpec{}
+	spec.Provider = NewProvider(entity)
+	return &spec
 }
 
-func (p *Node) Initialize(values map[string]string) {
-	p.ObjectMeta.Initialize(values)
-	if value, ok := values[string(clusterstatus.NodeCreateTime)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.CreateTime = &timestamp.Timestamp{Seconds: valueInt64}
-	}
-	p.Capacity.Initialize(values)
-	p.AlamedaNodeSpec.Initialize(values)
+func NewProvider(entity *clusterstatus.NodeEntity) *Provider {
+	provider := Provider{}
+	provider.Provider = entity.IOProvider
+	provider.InstanceType = entity.IOInstanceType
+	provider.Region = entity.IORegion
+	provider.Zone = entity.IOZone
+	provider.Os = entity.IOOS
+	provider.Role = entity.IORole
+	provider.InstanceId = entity.IOInstanceID
+	provider.StorageSize = entity.IOStorageSize
+	return &provider
 }
 
-func (p *Capacity) Initialize(values map[string]string) {
-	if value, ok := values[string(clusterstatus.NodeCPUCores)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.CpuCores = valueInt64
+func (p *Node) BuildEntity() *clusterstatus.NodeEntity {
+	entity := clusterstatus.NodeEntity{
+		Time:        influxdb.ZeroTime,
+		Name:        p.ObjectMeta.Name,
+		ClusterName: p.ObjectMeta.ClusterName,
+		Uid:         p.ObjectMeta.Uid,
+		CreateTime:  p.CreateTime.GetSeconds(),
 	}
-	if value, ok := values[string(clusterstatus.NodeMemoryBytes)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.MemoryBytes = valueInt64
-	}
-	if value, ok := values[string(clusterstatus.NodeMemoryBytes)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.NetworkMegabitsPerSecond = valueInt64
-	}
-}
 
-func (p *AlamedaNodeSpec) Initialize(values map[string]string) {
-	if value, ok := values[string(clusterstatus.NodeIOProvider)]; ok {
-		p.Provider.Provider = value
+	if p.Capacity != nil {
+		entity.CPUCores = p.Capacity.CpuCores
+		entity.MemoryBytes = p.Capacity.MemoryBytes
+		entity.NetworkMbps = p.Capacity.NetworkMegabitsPerSecond
 	}
-	if value, ok := values[string(clusterstatus.NodeIOInstanceType)]; ok {
-		p.Provider.InstanceType = value
+
+	if nodeSpec := p.AlamedaNodeSpec; nodeSpec != nil {
+		if nodeSpec.Provider != nil {
+			entity.IOProvider = p.AlamedaNodeSpec.Provider.Provider
+			entity.IOInstanceType = p.AlamedaNodeSpec.Provider.InstanceType
+			entity.IORegion = p.AlamedaNodeSpec.Provider.Region
+			entity.IOZone = p.AlamedaNodeSpec.Provider.Zone
+			entity.IOOS = p.AlamedaNodeSpec.Provider.Os
+			entity.IORole = p.AlamedaNodeSpec.Provider.Role
+			entity.IOInstanceID = p.AlamedaNodeSpec.Provider.InstanceId
+			entity.IOStorageSize = p.AlamedaNodeSpec.Provider.StorageSize
+		}
 	}
-	if value, ok := values[string(clusterstatus.NodeIORegion)]; ok {
-		p.Provider.Region = value
-	}
-	if value, ok := values[string(clusterstatus.NodeIOZone)]; ok {
-		p.Provider.Zone = value
-	}
-	if value, ok := values[string(clusterstatus.NodeIOOS)]; ok {
-		p.Provider.Os = value
-	}
-	if value, ok := values[string(clusterstatus.NodeIORole)]; ok {
-		p.Provider.Role = value
-	}
-	if value, ok := values[string(clusterstatus.NodeIOInstanceID)]; ok {
-		p.Provider.InstanceId = value
-	}
-	if value, ok := values[string(clusterstatus.NodeIOStorageSize)]; ok {
-		valueInt64, _ := strconv.ParseInt(value, 10, 64)
-		p.Provider.StorageSize = valueInt64
-	}
+
+	return &entity
 }

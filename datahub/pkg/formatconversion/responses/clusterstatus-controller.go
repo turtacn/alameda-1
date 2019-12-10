@@ -9,13 +9,13 @@ type ControllerExtended struct {
 	*types.Controller
 }
 
-func (n *ControllerExtended) ProduceController() *resources.Controller {
+func (p *ControllerExtended) ProduceController() *resources.Controller {
 	controller := resources.Controller{}
-	controller.ObjectMeta = NewObjectMeta(n.ObjectMeta)
-	controller.Kind = resources.Kind(resources.Kind_value[n.Kind])
-	controller.Replicas = n.Replicas
-	controller.SpecReplicas = n.SpecReplicas
-	controller.AlamedaControllerSpec = NewAlamedaControllerSpec(n.AlamedaControllerSpec)
+	controller.ObjectMeta = NewObjectMeta(p.ObjectMeta)
+	controller.Kind = resources.Kind(resources.Kind_value[p.Kind])
+	controller.Replicas = p.Replicas
+	controller.SpecReplicas = p.SpecReplicas
+	controller.AlamedaControllerSpec = NewAlamedaControllerSpec(p.AlamedaControllerSpec)
 	return &controller
 }
 
