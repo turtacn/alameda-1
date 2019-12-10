@@ -36,18 +36,18 @@ func NewPodModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64) {
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-
+	dataGranularity := queue.GetGranularityStr(granularity)
 	for _, pod := range pods {
 		podNS := pod.GetObjectMeta().GetNamespace()
 		podName := pod.GetObjectMeta().GetName()
 		lastPredictionContainers, err := sender.getLastMIdPrediction(datahubServiceClnt, pod, granularity)
 		if err != nil {
-			scope.Errorf("Get pod (%s/%s) last Prediction failed: %s",
-				podNS, podName, err.Error())
+			scope.Errorf("[POD][%s][%s/%s] Get last prediction failed: %s",
+				dataGranularity, podNS, podName, err.Error())
 			continue
 		}
 		if lastPredictionContainers == nil && err == nil {
-			scope.Infof("No prediction found of pod (%s/%s)", podNS, podName)
+			scope.Infof("[POD][%s][%s/%s] No prediction found", dataGranularity, podNS, podName)
 		}
 		sender.sendJobByMetrics(pod, queueSender, pdUnit, granularity, predictionStep,
 			datahubServiceClnt, lastPredictionContainers)
@@ -63,8 +63,8 @@ func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender
 	podStr, err := marshaler.MarshalToString(pod)
 
 	if err != nil {
-		scope.Errorf("Encode pb message failed for pod %s/%s with granularity %v seconds. %s",
-			podNS, podName, granularity, err.Error())
+		scope.Errorf("[POD][%s][%s/%s] Encode pb message failed. %s",
+			dataGranularity, podNS, podName, err.Error())
 		return
 	}
 	for _, ct := range podInfo.Containers {
@@ -72,19 +72,19 @@ func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender
 			jb := queue.NewJobBuilder(pdUnit, granularity, podStr)
 			jobJSONStr, err := jb.GetJobJSONString()
 			if err != nil {
-				scope.Errorf("Prepare model job payload failed for pod %s/%s with granularity %v seconds. %s",
-					podNS, podName, granularity, err.Error())
+				scope.Errorf("[POD][%s][%s/%s] Prepare model job payload failed. %s",
+					dataGranularity, podNS, podName, err.Error())
 				return
 			}
 
 			podJobStr := fmt.Sprintf("%s/%s/%v", podNS, podName, granularity)
-			scope.Infof("Try to send pod model job: %s", podJobStr)
+			scope.Infof("[POD][%s][%s/%s] Try to send pod model job: %s", dataGranularity, podNS, podName, podJobStr)
 			err = queueSender.SendJsonString(modelQueueName, jobJSONStr, podJobStr)
 			if err == nil {
 				sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, podInfo)
 			} else {
-				scope.Errorf("Send model job payload failed for pod %s/%s with granularity %v seconds. %s",
-					podNS, podName, granularity, err.Error())
+				scope.Errorf("[POD][%s][%s/%s] Send model job payload failed. %s",
+					dataGranularity, podNS, podName, err.Error())
 			}
 			break
 		}
@@ -122,6 +122,7 @@ func (sender *podModelJobSender) genPodInfoWithAllMetrics(podNS,
 
 func (sender *podModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	pod *datahub_resources.Pod, granularity int64) ([]*datahub_predictions.ContainerPrediction, error) {
+	dataGranularity := queue.GetGranularityStr(granularity)
 	podNS := pod.GetObjectMeta().GetNamespace()
 	podName := pod.GetObjectMeta().GetName()
 	podPredictRes, err := datahubServiceClnt.ListPodPredictions(context.Background(),
@@ -176,8 +177,8 @@ func (sender *podModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub
 		return []*datahub_predictions.ContainerPrediction{}, nil
 	}
 	if lastPid == "" {
-		return nil, fmt.Errorf("Query pod %s/%s last prediction id with granularity %v seconds failed",
-			podNS, podName, granularity)
+		return nil, fmt.Errorf("[POD][%s][%s/%s] Query last prediction id failed",
+			dataGranularity, podNS, podName)
 	}
 
 	podPredictRes, err = datahubServiceClnt.ListPodPredictions(context.Background(),
@@ -211,14 +212,14 @@ func (sender *podModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub
 		for _, lctPrediction := range lastPodPrediction.GetContainerPredictions() {
 			for _, pdRD := range lctPrediction.GetPredictedRawData() {
 				for _, pdD := range pdRD.GetData() {
-					modelId := pdD.GetModelId()
-					if modelId != "" {
-						mIdPodPrediction, err := sender.getPredictionByMId(datahubServiceClnt, pod, granularity, modelId)
+					modelID := pdD.GetModelId()
+					if modelID != "" {
+						mIDPodPrediction, err := sender.getPredictionByMId(datahubServiceClnt, pod, granularity, modelID)
 						if err != nil {
-							scope.Errorf("Query pod %s/%s prediction with granularity %v seconds and model Id %s failed. %s",
-								podNS, podName, granularity, modelId, err.Error())
+							scope.Errorf("[POD][%s][%s/%s] Query prediction with model Id %s failed. %s",
+								dataGranularity, podNS, podName, modelID, err.Error())
 						}
-						for _, podPrediction := range mIdPodPrediction {
+						for _, podPrediction := range mIDPodPrediction {
 							for _, midCtPrediction := range podPrediction.GetContainerPredictions() {
 								ctFound := false
 								for _, containerPrediction := range containerPredictions {
@@ -249,7 +250,7 @@ func (sender *podModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub
 }
 
 func (sender *podModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
-	pod *datahub_resources.Pod, granularity int64, modelId string) ([]*datahub_predictions.PodPrediction, error) {
+	pod *datahub_resources.Pod, granularity int64, modelID string) ([]*datahub_predictions.PodPrediction, error) {
 	podPredictRes, err := datahubServiceClnt.ListPodPredictions(context.Background(),
 		&datahub_predictions.ListPodPredictionsRequest{
 			Granularity: granularity,
@@ -267,7 +268,7 @@ func (sender *podModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v
 					},
 				},
 			},
-			ModelId: modelId,
+			ModelId: modelID,
 		})
 	return podPredictRes.GetPodPredictions(), err
 }
@@ -308,8 +309,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 	if len(lastPredictionContainers) == 0 {
 		podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 		sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-		scope.Infof("No last prediction found of pod (%s/%s), send model jobs with granularity %v",
-			podNS, podName, granularity)
+		scope.Infof("[POD][%s][%s/%s] No last prediction found, send model jobs",
+			dataGranularity, podNS, podName)
 		return
 	}
 
@@ -330,8 +331,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 		} else {
 			podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 			sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-			scope.Infof("No any last container metric prediction %s found of pod (%s/%s), send model jobs with granularity %v",
-				lastPredictionContainer.GetName(), podNS, podName, granularity)
+			scope.Infof("[POD][%s][%s/%s] No any last container metric prediction %s found, send model jobs",
+				dataGranularity, podNS, podName, lastPredictionContainer.GetName())
 			return
 		}
 
@@ -339,20 +340,16 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 			if len(lastPredictionMetric.GetData()) == 0 {
 				podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
 				sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
-				scope.Infof("No last prediction metric %s found of pod (%s/%s), send model jobs with granularity %v",
-					lastPredictionMetric.GetMetricType().String(), podNS, podName, granularity)
+				scope.Infof("[POD][%s][%s/%s] No last prediction metric %s found, send model jobs",
+					dataGranularity, lastPredictionMetric.GetMetricType().String(), podNS, podName)
 				return
 			} else {
 				lastPrediction := lastPredictionMetric.GetData()[0]
 				lastPredictionTime := lastPrediction.GetTime().GetSeconds()
 				if lastPrediction != nil && lastPredictionTime <= nowSeconds {
-					scope.Infof("pod (%s/%s) prediction is out of date due to last predict time is %v (current: %v)",
-						podNS, podName, lastPredictionTime, nowSeconds)
-				}
-				if lastPrediction != nil && lastPredictionTime <= time.Now().Unix() {
 					podInfo := sender.genPodInfoWithAllMetrics(podNS, podName, pod)
-					scope.Infof("send pod (%s/%s) model job due to no predict found or predict is out of date, send model jobs with granularity %v",
-						podNS, podName, granularity)
+					scope.Infof("[POD][%s][%s/%s] send model job due to no predict found or predict is out of date",
+						dataGranularity, podNS, podName)
 					sender.sendJob(pod, queueSender, pdUnit, granularity, podInfo)
 					return
 				}
@@ -404,8 +401,8 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 					})
 
 				if err != nil {
-					scope.Errorf("List pods (%s/%s) metric with granularity %v for sending model job failed: %s",
-						podNS, podName, granularity, err.Error())
+					scope.Errorf("[POD][%s][%s/%s] List metric for sending model job failed: %s",
+						dataGranularity, podNS, podName, err.Error())
 					continue
 				}
 				podMetrics := podMetricsRes.GetPodMetrics()
@@ -432,11 +429,11 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 												"podNS":             podNS,
 												"podName":           podName,
 												"containerName":     containerName,
-												"targetDisplayName": fmt.Sprintf("pod %s/%s container %s", podNS, podName, containerName),
+												"targetDisplayName": fmt.Sprintf("[POD][%s][%s/%s]", dataGranularity, podNS, podName),
 											}, sender.metricExporter)
 											if drift {
-												scope.Infof("export pod %s/%s drift counter with granularity %s",
-													podNS, podName, dataGranularity)
+												scope.Infof("[POD][%s][%s/%s] Export drift counter",
+													dataGranularity, podNS, podName)
 												sender.metricExporter.AddPodMetricDrift(podNS, podName,
 													queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
 											}

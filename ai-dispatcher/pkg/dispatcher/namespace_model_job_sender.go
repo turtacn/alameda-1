@@ -35,19 +35,19 @@ func NewNamespaceModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Mod
 
 func (sender *namespaceModelJobSender) sendModelJobs(namespaces []*datahub_resources.Namespace,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
-
+	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, namespace := range namespaces {
 		namespaceName := namespace.GetObjectMeta().GetName()
 		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, namespace, granularity)
 		if err != nil {
-			scope.Infof("Get namespace %s last prediction failed: %s",
-				namespaceName, err.Error())
+			scope.Infof("[NAMESPACE][%s][%s] Get last prediction failed: %s",
+				dataGranularity, namespaceName, err.Error())
 			continue
 		}
 		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("No prediction found of namespace %s",
-				namespaceName)
+			scope.Infof("[NAMESPACE][%s][%s] No prediction found",
+				dataGranularity, namespaceName)
 		}
 
 		sender.sendJobByMetrics(namespace, queueSender, pdUnit, granularity, predictionStep,
@@ -55,15 +55,15 @@ func (sender *namespaceModelJobSender) sendModelJobs(namespaces []*datahub_resou
 	}
 }
 
-func (sender *namespaceModelJobSender) sendJob(namespace *datahub_resources.Namespace, queueSender queue.QueueSender, pdUnit string,
-	granularity int64, namespaceInfo *modelInfo) {
+func (sender *namespaceModelJobSender) sendJob(namespace *datahub_resources.Namespace,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, namespaceInfo *modelInfo) {
 	namespaceName := namespace.GetObjectMeta().GetName()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	marshaler := jsonpb.Marshaler{}
 	namespaceStr, err := marshaler.MarshalToString(namespace)
 	if err != nil {
-		scope.Errorf("Encode pb message failed for namespace %s with granularity seconds %v. %s",
-			namespaceName, granularity, err.Error())
+		scope.Errorf("[NAMESPACE][%s][%s] Encode pb message failed. %s",
+			dataGranularity, namespaceName, err.Error())
 		return
 	}
 	if len(namespaceInfo.ModelMetrics) > 0 && namespaceStr != "" {
@@ -71,20 +71,21 @@ func (sender *namespaceModelJobSender) sendJob(namespace *datahub_resources.Name
 		jobJSONStr, err := jb.GetJobJSONString()
 		if err != nil {
 			scope.Errorf(
-				"Prepare model job payload failed for namespace %s with granularity seconds %v. %s",
-				namespaceName, granularity, err.Error())
+				"[NAMESPACE][%s][%s] Prepare model job payload failed. %s",
+				dataGranularity, namespaceName, err.Error())
 			return
 		}
 
 		nsJobStr := fmt.Sprintf("%s/%v", namespaceName, granularity)
-		scope.Infof("Try to send namespace model job: %s", nsJobStr)
+		scope.Infof("[NAMESPACE][%s][%s] Try to send namespace model job: %s",
+			dataGranularity, namespaceName, nsJobStr)
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nsJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, namespaceInfo)
 		} else {
 			scope.Errorf(
-				"Send model job payload failed for namespace %s with granularity seconds %v. %s",
-				namespaceName, granularity, err.Error())
+				"[NAMESPACE][%s][%s] Send model job payload failed. %s",
+				dataGranularity, namespaceName, err.Error())
 		}
 	}
 }
@@ -100,6 +101,7 @@ func (sender *namespaceModelJobSender) genNamespaceInfo(namespaceName string,
 
 func (sender *namespaceModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	namespace *datahub_resources.Namespace, granularity int64) ([]*datahub_predictions.MetricData, error) {
+	dataGranularity := queue.GetGranularityStr(granularity)
 	namespaceName := namespace.GetObjectMeta().GetName()
 	namespacePredictRes, err := datahubServiceClnt.ListNamespacePredictions(context.Background(),
 		&datahub_predictions.ListNamespacePredictionsRequest{
@@ -146,8 +148,8 @@ func (sender *namespaceModelJobSender) getLastMIdPrediction(datahubServiceClnt d
 	}
 
 	if lastPid == "" {
-		return nil, fmt.Errorf("Query namespace %s last prediction id with granularity %v seconds failed",
-			namespaceName, granularity)
+		return nil, fmt.Errorf("[NAMESPACE][%s][%s] Query last prediction id failed",
+			dataGranularity, namespaceName)
 	}
 	namespacePredictRes, err = datahubServiceClnt.ListNamespacePredictions(context.Background(),
 		&datahub_predictions.ListNamespacePredictionsRequest{
@@ -176,15 +178,15 @@ func (sender *namespaceModelJobSender) getLastMIdPrediction(datahubServiceClnt d
 		for _, nsPrediction := range namespacePredictRes.GetNamespacePredictions() {
 			for _, pdRD := range nsPrediction.GetPredictedRawData() {
 				for _, pdD := range pdRD.GetData() {
-					modelId := pdD.GetModelId()
-					if modelId != "" {
-						mIdNSPrediction, err := sender.getPredictionByMId(datahubServiceClnt, namespace, granularity, modelId)
+					modelID := pdD.GetModelId()
+					if modelID != "" {
+						mIDNSPrediction, err := sender.getPredictionByMId(datahubServiceClnt, namespace, granularity, modelID)
 						if err != nil {
-							scope.Errorf("Query namespace %s prediction with granularity %v seconds and model Id %s failed. %s",
-								namespaceName, granularity, modelId, err.Error())
+							scope.Errorf("[NAMESPACE][%s][%s] Query prediction with model Id %s failed. %s",
+								dataGranularity, namespaceName, modelID, err.Error())
 						}
-						for _, mIdNSPD := range mIdNSPrediction {
-							metricData = append(metricData, mIdNSPD.GetPredictedRawData()...)
+						for _, mIDNSPD := range mIDNSPrediction {
+							metricData = append(metricData, mIDNSPD.GetPredictedRawData()...)
 						}
 						break
 					}
@@ -197,7 +199,7 @@ func (sender *namespaceModelJobSender) getLastMIdPrediction(datahubServiceClnt d
 }
 
 func (sender *namespaceModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
-	namespace *datahub_resources.Namespace, granularity int64, modelId string) ([]*datahub_predictions.NamespacePrediction, error) {
+	namespace *datahub_resources.Namespace, granularity int64, modelID string) ([]*datahub_predictions.NamespacePrediction, error) {
 	namespacePredictRes, err := datahubServiceClnt.ListNamespacePredictions(context.Background(),
 		&datahub_predictions.ListNamespacePredictionsRequest{
 			Granularity: granularity,
@@ -214,7 +216,7 @@ func (sender *namespaceModelJobSender) getPredictionByMId(datahubServiceClnt dat
 					},
 				},
 			},
-			ModelId: modelId,
+			ModelId: modelID,
 		})
 	return namespacePredictRes.GetNamespacePredictions(), err
 }
@@ -252,8 +254,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			datahub_common.MetricType_MEMORY_USAGE_BYTES)
 		sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
-		scope.Infof("No prediction metrics found of namespace %s, send model jobs with granularity %v",
-			namespaceName, granularity)
+		scope.Infof("[NAMESPACE][%s][%s] No prediction metrics found, send model jobs.",
+			dataGranularity, namespaceName)
 		return
 	}
 
@@ -264,22 +266,18 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 				datahub_common.MetricType_MEMORY_USAGE_BYTES)
 			sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
-			scope.Infof("No prediction metric %s found of namespace %s, send model jobs with granularity %v",
-				lastPredictionMetric.GetMetricType().String(), namespaceName, granularity)
+			scope.Infof("[NAMESPACE][%s][%s] No prediction metric %s found, send model jobs",
+				dataGranularity, namespaceName, lastPredictionMetric.GetMetricType().String())
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
 			lastPredictionTime := lastPredictionMetric.GetData()[0].GetTime().GetSeconds()
 			if lastPrediction != nil && lastPredictionTime <= nowSeconds {
-				scope.Infof("namespace prediction %s is out of date due to last predict time is %v (current: %v)",
-					namespaceName, lastPredictionTime, nowSeconds)
-			}
-			if lastPrediction != nil && lastPredictionTime <= nowSeconds {
 				namespaceInfo := sender.genNamespaceInfo(namespaceName,
 					datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES)
-				scope.Infof("send namespace %s model job due to no predict found or predict is out of date, send model jobs with granularity %v",
-					namespaceName, granularity)
+				scope.Infof("[NAMESPACE][%s][%s] Send model job due to no predict found or predict is out of date",
+					dataGranularity, namespaceName)
 				sender.sendJob(namespace, queueSender, pdUnit, granularity, namespaceInfo)
 				return
 			}
@@ -296,8 +294,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 					QueryCondition: queryCondition,
 				})
 			if err != nil {
-				scope.Errorf("Get namespace %s Prediction with granularity %v for sending model job failed: %s",
-					namespaceName, granularity, err.Error())
+				scope.Errorf("[NAMESPACE][%s][%s] Get prediction for sending model job failed: %s",
+					dataGranularity, namespaceName, err.Error())
 				continue
 			}
 			namespacePredictions := namespacePredictRes.GetNamespacePredictions()
@@ -327,8 +325,8 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 					},
 				})
 			if err != nil {
-				scope.Errorf("List namespaces %s metric with granularity %v for sending model job failed: %s",
-					namespaceName, granularity, err.Error())
+				scope.Errorf("[NAMESPACE][%s][%s] List metric for sending model job failed: %s",
+					dataGranularity, namespaceName, err.Error())
 				continue
 			}
 			namespaceMetrics := namespaceMetricsRes.GetNamespaceMetrics()
@@ -342,13 +340,14 @@ func (sender *namespaceModelJobSender) sendJobByMetrics(namespace *datahub_resou
 							pData := []*datahub_predictions.Sample{}
 							if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
 								pData = append(pData, predictRawDatum.GetData()...)
-								metricsNeedToModel, drift := DriftEvaluation(UnitTypeNamespace, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
-									"namespaceName":     namespaceName,
-									"targetDisplayName": fmt.Sprintf("namespace %s", namespaceName),
-								}, sender.metricExporter)
+								metricsNeedToModel, drift := DriftEvaluation(UnitTypeNamespace, predictRawDatum.GetMetricType(),
+									granularity, mData, pData, map[string]string{
+										"namespaceName":     namespaceName,
+										"targetDisplayName": fmt.Sprintf("[NAMESPACE][%s][%s]", dataGranularity, namespaceName),
+									}, sender.metricExporter)
 								if drift {
-									scope.Infof("export namespace %s drift counter with granularity %s",
-										namespaceName, dataGranularity)
+									scope.Infof("[NAMESPACE][%s][%s] Export drift counter",
+										dataGranularity, namespaceName)
 									sender.metricExporter.AddNamespaceMetricDrift(namespaceName, queue.GetGranularityStr(granularity),
 										time.Now().Unix(), 1.0)
 								}

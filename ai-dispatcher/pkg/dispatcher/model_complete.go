@@ -51,8 +51,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				modelMapper.RemoveModelInfo(unitType, dataGranularity, nodeName)
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export node %s model time metric with granularity %s value %v",
-					nodeName, dataGranularity, mt)
+				scope.Infof("[NODE][%s][%s] Export model time metric value %v",
+					dataGranularity, nodeName, mt)
 				metricExporter.ExportNodeMetricModelTime(nodeName, dataGranularity,
 					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypePod {
@@ -63,8 +63,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 					fmt.Sprintf("%s/%s", podNS, podName))
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export pod %s model time metric with granularity %s value %v",
-					fmt.Sprintf("%s/%s", podNS, podName), dataGranularity, mt)
+				scope.Infof("[POD][%s][%s/%s] Export model time metric with value %v",
+					dataGranularity, podNS, podName, mt)
 				metricExporter.ExportPodMetricModelTime(podNS, podName, dataGranularity,
 					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeGPU {
@@ -74,8 +74,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber))
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export gpu %s model time metric with granularity %s value %v",
-					fmt.Sprintf("%s/%s", gpuHost, gpuMinorNumber), dataGranularity, mt)
+				scope.Infof("[GPU][%s][%s/%s] Export model time metric value %v",
+					dataGranularity, gpuHost, gpuMinorNumber, mt)
 				metricExporter.ExportGPUMetricModelTime(gpuHost, gpuMinorNumber,
 					dataGranularity, time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeApplication {
@@ -86,8 +86,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 					fmt.Sprintf("%s/%s", appNS, appName))
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export application %s model time metric with granularity %s value %v",
-					fmt.Sprintf("%s/%s", appNS, appName), dataGranularity, mt)
+				scope.Infof("[APPLICATION][%s][%s/%s] Export model time metric value %v",
+					dataGranularity, appNS, appName, mt)
 				metricExporter.ExportApplicationMetricModelTime(appNS, appName,
 					dataGranularity, time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeNamespace {
@@ -95,8 +95,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				modelMapper.RemoveModelInfo(unitType, dataGranularity, namespaceName)
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export namespace %s model time metric with granularity %s value %v",
-					namespaceName, dataGranularity, mt)
+				scope.Infof("[NAMESPACE][%s][%s] Export model time metric value %v",
+					dataGranularity, namespaceName, mt)
 				metricExporter.ExportNamespaceMetricModelTime(namespaceName, dataGranularity,
 					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeCluster {
@@ -104,8 +104,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 				modelMapper.RemoveModelInfo(unitType, dataGranularity, clusterName)
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export cluster %s model time metric with granularity %s value %v",
-					clusterName, dataGranularity, mt)
+				scope.Infof("[CLUSTER][%s][%s] Export model time metric value %v",
+					dataGranularity, clusterName, mt)
 				metricExporter.ExportClusterMetricModelTime(clusterName, dataGranularity,
 					time.Now().Unix(), float64(mt))
 			} else if unitType == UnitTypeController {
@@ -117,8 +117,8 @@ func ModelCompleteNotification(modelMapper *ModelMapper,
 					fmt.Sprintf("%s/%s", appNS, appName))
 
 				mt := time.Now().Unix() - jobCreateTime
-				scope.Infof("export controller %s model time metric with granularity %s value %v",
-					fmt.Sprintf("%s/%s", appNS, appName), dataGranularity, mt)
+				scope.Infof("[CONTROLLER][%s][%s][%s/%s] Export model time metric value %v",
+					kind, dataGranularity, appNS, appName, mt)
 				metricExporter.ExportControllerMetricModelTime(appNS, appName,
 					kind, dataGranularity, time.Now().Unix(), float64(mt))
 			}

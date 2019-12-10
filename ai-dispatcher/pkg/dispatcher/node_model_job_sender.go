@@ -35,19 +35,19 @@ func NewNodeModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMap
 
 func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
-
+	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	for _, node := range nodes {
 		nodeName := node.GetObjectMeta().GetName()
 		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, node, granularity)
 		if err != nil {
-			scope.Infof("Get node %s last prediction failed: %s",
-				nodeName, err.Error())
+			scope.Infof("[NODE][%s][%s] Get last prediction failed: %s",
+				dataGranularity, nodeName, err.Error())
 			continue
 		}
 		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("No prediction found of node %s",
-				nodeName)
+			scope.Infof("[NODE][%s][%s] No prediction found",
+				dataGranularity, nodeName)
 		}
 
 		sender.sendJobByMetrics(node, queueSender, pdUnit, granularity, predictionStep,
@@ -62,8 +62,8 @@ func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSen
 	marshaler := jsonpb.Marshaler{}
 	nodeStr, err := marshaler.MarshalToString(node)
 	if err != nil {
-		scope.Errorf("Encode pb message failed for node %s with granularity seconds %v. %s",
-			nodeName, granularity, err.Error())
+		scope.Errorf("[NODE][%s][%s] Encode pb message failed. %s",
+			dataGranularity, nodeName, err.Error())
 		return
 	}
 	if len(nodeInfo.ModelMetrics) > 0 && nodeStr != "" {
@@ -71,20 +71,20 @@ func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSen
 		jobJSONStr, err := jb.GetJobJSONString()
 		if err != nil {
 			scope.Errorf(
-				"Prepare model job payload failed for node %s with granularity seconds %v. %s",
-				nodeName, granularity, err.Error())
+				"[NODE][%s][%s] Prepare model job payload failed. %s",
+				dataGranularity, nodeName, err.Error())
 			return
 		}
 
 		nodeJobStr := fmt.Sprintf("%s/%v", nodeName, granularity)
-		scope.Infof("Try to send node model job: %s", nodeJobStr)
+		scope.Infof("[NODE][%s][%s] Try to send node model job: %s", dataGranularity, nodeName, nodeJobStr)
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nodeJobStr)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, nodeInfo)
 		} else {
 			scope.Errorf(
-				"Send model job payload failed for node %s with granularity seconds %v. %s",
-				nodeName, granularity, err.Error())
+				"[NODE][%s][%s] Send model job payload failed. %s",
+				dataGranularity, nodeName, err.Error())
 		}
 	}
 }
@@ -100,6 +100,7 @@ func (sender *nodeModelJobSender) genNodeInfo(nodeName string,
 
 func (sender *nodeModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	node *datahub_resources.Node, granularity int64) ([]*datahub_predictions.MetricData, error) {
+	dataGranularity := queue.GetGranularityStr(granularity)
 	nodeName := node.GetObjectMeta().GetName()
 	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 		&datahub_predictions.ListNodePredictionsRequest{
@@ -147,8 +148,8 @@ func (sender *nodeModelJobSender) getLastMIdPrediction(datahubServiceClnt datahu
 	}
 
 	if lastPid == "" {
-		return nil, fmt.Errorf("Query node %s last prediction id with granularity %v seconds failed",
-			nodeName, granularity)
+		return nil, fmt.Errorf("[NODE][%s][%s] Query last prediction id failed",
+			dataGranularity, nodeName)
 	}
 
 	nodePredictRes, err = datahubServiceClnt.ListNodePredictions(context.Background(),
@@ -178,15 +179,15 @@ func (sender *nodeModelJobSender) getLastMIdPrediction(datahubServiceClnt datahu
 		for _, nodePrediction := range nodePredictRes.GetNodePredictions() {
 			for _, pdRD := range nodePrediction.GetPredictedRawData() {
 				for _, pdD := range pdRD.GetData() {
-					modelId := pdD.GetModelId()
-					if modelId != "" {
-						mIdNodePrediction, err := sender.getPredictionByMId(datahubServiceClnt, node, granularity, modelId)
+					modelID := pdD.GetModelId()
+					if modelID != "" {
+						mIDNodePrediction, err := sender.getPredictionByMId(datahubServiceClnt, node, granularity, modelID)
 						if err != nil {
-							scope.Errorf("Query node %s prediction with granularity %v seconds and model Id %s failed. %s",
-								nodeName, granularity, modelId, err.Error())
+							scope.Errorf("[NODE][%s][%s] Query prediction with model Id %s failed. %s",
+								dataGranularity, nodeName, modelID, err.Error())
 						}
-						for _, mIdNodePD := range mIdNodePrediction {
-							metricData = append(metricData, mIdNodePD.GetPredictedRawData()...)
+						for _, mIDNodePD := range mIDNodePrediction {
+							metricData = append(metricData, mIDNodePD.GetPredictedRawData()...)
 						}
 						break
 					}
@@ -199,7 +200,7 @@ func (sender *nodeModelJobSender) getLastMIdPrediction(datahubServiceClnt datahu
 }
 
 func (sender *nodeModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
-	node *datahub_resources.Node, granularity int64, modelId string) ([]*datahub_predictions.NodePrediction, error) {
+	node *datahub_resources.Node, granularity int64, modelID string) ([]*datahub_predictions.NodePrediction, error) {
 	nodePredictRes, err := datahubServiceClnt.ListNodePredictions(context.Background(),
 		&datahub_predictions.ListNodePredictionsRequest{
 			Granularity: granularity,
@@ -216,7 +217,7 @@ func (sender *nodeModelJobSender) getPredictionByMId(datahubServiceClnt datahub_
 					},
 				},
 			},
-			ModelId: modelId,
+			ModelId: modelID,
 		})
 	return nodePredictRes.GetNodePredictions(), err
 }
@@ -254,8 +255,8 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 			datahub_common.MetricType_MEMORY_USAGE_BYTES)
 		sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
-		scope.Infof("No prediction metrics found of node %s, send model jobs with granularity %v",
-			nodeName, granularity)
+		scope.Infof("[NODE][%s][%s] No prediction metrics found, send model jobs",
+			dataGranularity, nodeName)
 		return
 	}
 
@@ -266,22 +267,18 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 				datahub_common.MetricType_MEMORY_USAGE_BYTES)
 			sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
-			scope.Infof("No prediction metric %s found of node %s, send model jobs with granularity %v",
-				lastPredictionMetric.GetMetricType().String(), nodeName, granularity)
+			scope.Infof("[NODE][%s][%s] No prediction metric %s found, send model jobs",
+				dataGranularity, nodeName, lastPredictionMetric.GetMetricType().String())
 			return
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
 			lastPredictionTime := lastPredictionMetric.GetData()[0].GetTime().GetSeconds()
 			if lastPrediction != nil && lastPredictionTime <= nowSeconds {
-				scope.Infof("node prediction %s is out of date due to last predict time is %v (current: %v)",
-					nodeName, lastPredictionTime, nowSeconds)
-			}
-			if lastPrediction != nil && lastPredictionTime <= nowSeconds {
 				nodeInfo := sender.genNodeInfo(nodeName,
 					datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
 					datahub_common.MetricType_MEMORY_USAGE_BYTES)
-				scope.Infof("send node %s model job due to no predict found or predict is out of date, send model jobs with granularity %v",
-					nodeName, granularity)
+				scope.Infof("[NODE][%s][%s] Send model job due to no predict found or predict is out of date",
+					dataGranularity, nodeName)
 				sender.sendJob(node, queueSender, pdUnit, granularity, nodeInfo)
 				return
 			}
@@ -298,8 +295,8 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 					QueryCondition: queryCondition,
 				})
 			if err != nil {
-				scope.Errorf("Get node %s Prediction with granularity %v for sending model job failed: %s",
-					nodeName, granularity, err.Error())
+				scope.Errorf("[NODE][%s][%s] Get prediction for sending model job failed: %s",
+					dataGranularity, nodeName, err.Error())
 				continue
 			}
 			nodePredictions := nodePredictRes.GetNodePredictions()
@@ -329,8 +326,8 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 					},
 				})
 			if err != nil {
-				scope.Errorf("List nodes %s metric with granularity %v for sending model job failed: %s",
-					nodeName, granularity, err.Error())
+				scope.Errorf("[NODE][%s][%s] List metric for sending model job failed: %s",
+					dataGranularity, nodeName, err.Error())
 				continue
 			}
 			nodeMetrics := nodeMetricsRes.GetNodeMetrics()
@@ -347,11 +344,11 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 								pData = append(pData, predictRawDatum.GetData()...)
 								metricsNeedToModel, drift := DriftEvaluation(UnitTypeNode, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
 									"nodeName":          nodeName,
-									"targetDisplayName": fmt.Sprintf("node %s", nodeName),
+									"targetDisplayName": fmt.Sprintf("[NODE][%s][%s]", dataGranularity, nodeName),
 								}, sender.metricExporter)
 								if drift {
-									scope.Infof("export node %s drift counter with granularity %s",
-										nodeName, dataGranularity)
+									scope.Infof("[NODE][%s][%s] Export drift counter",
+										dataGranularity, nodeName)
 									sender.metricExporter.AddNodeMetricDrift(nodeName, queue.GetGranularityStr(granularity),
 										time.Now().Unix(), 1.0)
 								}
