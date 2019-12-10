@@ -41,6 +41,9 @@ func mapeDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 	targetDisplayName := unitMeta["targetDisplayName"]
 	scope.Infof("%s Start MAPE calculation for metric %v",
 		targetDisplayName, metricType)
+	scope.Infof("%s Metric data: %v",targetDisplayName, mData)
+	scope.Infof("%s Predict data: %v",targetDisplayName, pData)
+
 	measurementDataSet := stats.NewMeasurementDataSet(mData, pData, granularity)
 	mape, mapeErr := stats.MAPE(measurementDataSet, granularity)
 	if mapeErr == nil {
