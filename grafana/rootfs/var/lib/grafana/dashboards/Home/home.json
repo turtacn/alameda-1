@@ -914,7 +914,7 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
           "mappingType": 1,
-          "pattern": "alameda_scaler_namespace",
+          "pattern": "namespace",
           "thresholds": [],
           "type": "string",
           "unit": "short"
@@ -1026,7 +1026,23 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
           "mappingType": 1,
-          "pattern": "scaling_tool",
+          "pattern": "alameda_scaler_scaling_tool",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "",
           "thresholds": [],
           "type": "number",
           "unit": "short"
@@ -1040,9 +1056,9 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "/.*/",
+          "pattern": "policy",
           "thresholds": [],
-          "type": "number",
+          "type": "hidden",
           "unit": "short"
         }
       ],
@@ -1067,7 +1083,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select scaling_tool from alameda_cluster_status..pod group by alameda_scaler_name, alameda_scaler_namespace limit 1",
+          "query": "select \"alameda_scaler_scaling_tool\", \"policy\" from alameda_cluster_status..pod group by alameda_scaler_name, namespace limit 1",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -1106,7 +1122,7 @@
           "hide": false,
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select count(pod_phase) as pod_count  from alameda_cluster_status..pod group by  alameda_scaler_name, alameda_scaler_namespace",
+          "query": "select count(pod_phase) as pod_count  from alameda_cluster_status..pod group by  alameda_scaler_name, namespace",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
@@ -1224,7 +1240,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
+          "query": "select alameda_scaler_name, \"policy\" from alameda_cluster_status..pod where \"namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler'",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -2273,14 +2289,14 @@
           ]
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_namespace\"",
+        "definition": "show tag values on alameda_cluster_status from pod with key = \"namespace\"",
         "hide": 2,
         "includeAll": true,
         "label": "NameSpace",
         "multi": true,
         "name": "ns",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_namespace\"",
+        "query": "show tag values on alameda_cluster_status from pod with key = \"namespace\"",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2300,14 +2316,14 @@
           ]
         },
         "datasource": "InfluxDB",
-        "definition": "select \"alameda_scaler_namespace\", scaling_tool from alameda_cluster_status..pod where ('false' = '$preloader' or '' = '$preloader')",
+        "definition": "show tag values on alameda_cluster_status from pod with key = \"namespace\" where ('false' = '$preloader' or '' = '$preloader')",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": true,
         "name": "pre_ns",
         "options": [],
-        "query": "select \"alameda_scaler_namespace\", scaling_tool from alameda_cluster_status..pod where ('false' = '$preloader' or '' = '$preloader')",
+        "query": "show tag values on alameda_cluster_status from pod with key = \"namespace\" where ('false' = '$preloader' or '' = '$preloader')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2321,18 +2337,19 @@
       {
         "allValue": null,
         "current": {
-          "text": "redis",
-          "value": "redis"
+          "selected": true,
+          "text": "alameda-nginx-hpa",
+          "value": "alameda-nginx-hpa"
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
+        "definition": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"namespace\" =~ /^[[ns]]$/",
         "hide": 0,
         "includeAll": false,
         "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"alameda_scaler_namespace\" =~ /^[[ns]]$/",
+        "query": "show tag values on alameda_cluster_status from pod with key = \"alameda_scaler_name\" where \"namespace\" =~ /^[[ns]]$/",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2352,14 +2369,14 @@
           ]
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", scaling_tool  from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and scaling_tool =~ /VPA/",
+        "definition": "show tag values  on alameda_cluster_status from pod with key = \"name\" where \"namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"alameda_scaler_scaling_tool\" =~ /VPA/",
         "hide": 2,
         "includeAll": true,
         "label": "pod",
         "multi": true,
         "name": "pod",
         "options": [],
-        "query": "select \"name\", scaling_tool  from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and scaling_tool =~ /VPA/",
+        "query": "show tag values  on alameda_cluster_status from pod with key = \"name\" where \"namespace\" =~ /^[[ns]]$/ and \"alameda_scaler_name\" = '$scaler' and \"alameda_scaler_scaling_tool\" =~ /VPA/",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2425,8 +2442,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1575612984000",
-          "value": "1575612984000"
+          "text": "1578616676000",
+          "value": "1578616676000"
         },
         "datasource": "InfluxDB",
         "definition": "select expire_timestamp * 1000 from alameda_cluster_status..keycode limit 1",
@@ -2875,8 +2892,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "0",
-          "value": "0"
+          "text": "1",
+          "value": "1"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_INFO'  and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
@@ -2900,8 +2917,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1",
-          "value": "1"
+          "text": "7",
+          "value": "7"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_WARNING' and subject_namespace =~ /^[[event_ns]]$/ and $timeFilter ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
@@ -2925,8 +2942,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "0",
-          "value": "0"
+          "text": "1",
+          "value": "1"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(*) from (select count + zero as info from (select count(id) from alameda_event..event where level = 'EVENT_LEVEL_ERROR' and $timeFilter and subject_namespace =~ /^[[event_ns]]$/ ), (select count(id) - count(id) as zero from alameda_event..event) fill(0))",
@@ -3004,14 +3021,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
+        "definition": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "deployment_controller",
         "options": [],
-        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
+        "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENT'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3029,14 +3046,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "definition": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "deploymentConfig_controller",
         "options": [],
-        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'DEPLOYMENTCONFIG'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3054,14 +3071,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
+        "definition": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "statefulset_controller",
         "options": [],
-        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
+        "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace =~ /^[[ns]]$/ and ('false' = \"$preloader\" or '' = \"$preloader\") and \"kind\" = 'STATEFULSET'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
