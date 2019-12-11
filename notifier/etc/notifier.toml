@@ -38,6 +38,8 @@ port = 50443
 18 = "AnomalyAnalysisCreate"
 19 = "License"
 20 = "EmailNotification"
+21 = "AnomalyForecastDetect"
+22 = "AnomalyRealtimeDetect"
 
 # DO NOT EDIT eventLevel config unless event level definition changed
 [eventLevel]
