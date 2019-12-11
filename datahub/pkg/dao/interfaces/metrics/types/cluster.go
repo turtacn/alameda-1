@@ -46,6 +46,9 @@ func NewClusterMetric() *ClusterMetric {
 }
 
 func (n *ClusterMetric) AddSample(metricType enumconv.MetricType, sample types.Sample) {
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if _, exist := n.Metrics[metricType]; !exist {
 		n.Metrics[metricType] = make([]types.Sample, 0)
 	}
@@ -53,6 +56,9 @@ func (n *ClusterMetric) AddSample(metricType enumconv.MetricType, sample types.S
 }
 
 func (c *ClusterMetric) GetSamples(metricType enumconv.MetricType) ClusterMetricSample {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	return ClusterMetricSample{
 		ObjectMeta: c.ObjectMeta,
 		MetricType: metricType,
@@ -62,6 +68,9 @@ func (c *ClusterMetric) GetSamples(metricType enumconv.MetricType) ClusterMetric
 
 // Merge Merge current ClusterMetric with input ClusterMetric
 func (n *ClusterMetric) Merge(in *ClusterMetric) {
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	for metricType, metrics := range in.Metrics {
 		n.Metrics[metricType] = append(n.Metrics[metricType], metrics...)
 	}
@@ -101,6 +110,9 @@ func NewClusterMetricMap() ClusterMetricMap {
 
 // AddClusterMetric Add namespace metric into ClustersMetricMap
 func (n *ClusterMetricMap) AddClusterMetric(m *ClusterMetric) {
+	if n.MetricMap == nil {
+		n.MetricMap = make(map[metadata.ObjectMeta]*ClusterMetric)
+	}
 	if existClusterMetric, exist := n.MetricMap[m.ObjectMeta]; exist {
 		existClusterMetric.Merge(m)
 	} else {
@@ -109,6 +121,9 @@ func (n *ClusterMetricMap) AddClusterMetric(m *ClusterMetric) {
 }
 
 func (n *ClusterMetricMap) GetClusterMetric(o metadata.ObjectMeta) ClusterMetric {
+	if n.MetricMap == nil {
+		n.MetricMap = make(map[metadata.ObjectMeta]*ClusterMetric)
+	}
 	m, exist := n.MetricMap[o]
 	if !exist {
 		m = &ClusterMetric{}

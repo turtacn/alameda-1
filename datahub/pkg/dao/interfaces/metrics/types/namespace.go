@@ -46,6 +46,9 @@ func NewNamespaceMetric() *NamespaceMetric {
 }
 
 func (n *NamespaceMetric) AddSample(metricType enumconv.MetricType, sample types.Sample) {
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if _, exist := n.Metrics[metricType]; !exist {
 		n.Metrics[metricType] = make([]types.Sample, 0)
 	}
@@ -53,6 +56,9 @@ func (n *NamespaceMetric) AddSample(metricType enumconv.MetricType, sample types
 }
 
 func (c *NamespaceMetric) GetSamples(metricType enumconv.MetricType) NamespaceMetricSample {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	return NamespaceMetricSample{
 		ObjectMeta: c.ObjectMeta,
 		MetricType: metricType,
@@ -62,6 +68,9 @@ func (c *NamespaceMetric) GetSamples(metricType enumconv.MetricType) NamespaceMe
 
 // Merge Merge current NamespaceMetric with input NamespaceMetric
 func (n *NamespaceMetric) Merge(in *NamespaceMetric) {
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	for metricType, metrics := range in.Metrics {
 		n.Metrics[metricType] = append(n.Metrics[metricType], metrics...)
 	}
@@ -101,6 +110,9 @@ func NewNamespaceMetricMap() NamespaceMetricMap {
 
 // AddNamespaceMetric Add namespace metric into NamespacesMetricMap
 func (n *NamespaceMetricMap) AddNamespaceMetric(m *NamespaceMetric) {
+	if n.MetricMap == nil {
+		n.MetricMap = make(map[metadata.ObjectMeta]*NamespaceMetric)
+	}
 	if existNamespaceMetric, exist := n.MetricMap[m.ObjectMeta]; exist {
 		existNamespaceMetric.Merge(m)
 	} else {

@@ -57,6 +57,9 @@ func (c *ContainerMetric) GetSamples(metricType enumconv.MetricType) *ContainerM
 	containerSample.MetricType = metricType
 	containerSample.RateRange = c.RateRange
 
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if value, exist := c.Metrics[metricType]; exist {
 		containerSample.Metrics = value
 	}
@@ -65,6 +68,9 @@ func (c *ContainerMetric) GetSamples(metricType enumconv.MetricType) *ContainerM
 }
 
 func (c *ContainerMetric) AddSample(metricType enumconv.MetricType, sample types.Sample) {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if _, exist := c.Metrics[metricType]; !exist {
 		c.Metrics[metricType] = make([]types.Sample, 0)
 	}
@@ -73,6 +79,9 @@ func (c *ContainerMetric) AddSample(metricType enumconv.MetricType, sample types
 
 // Merge Merge current ContainersMetricMap with input ContainersMetricMap
 func (c *ContainerMetric) Merge(in *ContainerMetric) {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	for metricType, containerMetric := range in.Metrics {
 		if _, exist := c.Metrics[metricType]; exist {
 			c.Metrics[metricType] = append(c.Metrics[metricType], containerMetric...)
@@ -122,6 +131,9 @@ func (c *ContainerMetric) Limit(limit int) {
 }
 
 func (c *ContainerMetricMap) AddContainerMetric(containerMetric *ContainerMetric) {
+	if c.MetricMap == nil {
+		c.MetricMap = make(map[ContainerMeta]*ContainerMetric)
+	}
 	if existContainerMetric, exist := c.MetricMap[containerMetric.ObjectMeta]; exist {
 		existContainerMetric.Merge(containerMetric)
 	} else {

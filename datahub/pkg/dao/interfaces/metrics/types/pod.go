@@ -58,6 +58,9 @@ func (p *PodMetric) NamespacePodName() metadata.NamespacePodName {
 
 // Merge Merge current PodMetric with input PodMetric
 func (p *PodMetric) Merge(in *PodMetric) {
+	if p.ContainerMetricMap.MetricMap == nil {
+		p.ContainerMetricMap.MetricMap = make(map[ContainerMeta]*ContainerMetric)
+	}
 	for _, containerMetric := range in.ContainerMetricMap.MetricMap {
 		p.ContainerMetricMap.AddContainerMetric(containerMetric)
 	}
@@ -78,6 +81,9 @@ func (p *PodMetric) Limit(limit int) {
 }
 
 func (p *PodMetricMap) AddPodMetric(podMetric *PodMetric) {
+	if p.MetricMap == nil {
+		p.MetricMap = make(map[metadata.ObjectMeta]*PodMetric)
+	}
 	if existedPodMetric, exist := p.MetricMap[podMetric.ObjectMeta]; exist {
 		existedPodMetric.Merge(podMetric)
 	} else {
@@ -88,6 +94,9 @@ func (p *PodMetricMap) AddPodMetric(podMetric *PodMetric) {
 // AddContainerMetric Add container metric into PodsMetricMap
 func (p *PodMetricMap) AddContainerMetric(c *ContainerMetric) {
 	// TODO
+	if p.MetricMap == nil {
+		p.MetricMap = make(map[metadata.ObjectMeta]*PodMetric)
+	}
 	podMetric := c.BuildPodMetric()
 	if existedPodMetric, exist := p.MetricMap[podMetric.ObjectMeta]; exist {
 		existedPodMetric.Merge(podMetric)

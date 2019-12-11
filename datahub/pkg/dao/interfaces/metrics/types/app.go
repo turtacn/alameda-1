@@ -42,6 +42,9 @@ func NewAppMetric() *AppMetric {
 }
 
 func (c *AppMetric) AddSample(metricType enumconv.MetricType, sample types.Sample) {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if _, exist := c.Metrics[metricType]; !exist {
 		c.Metrics[metricType] = make([]types.Sample, 0)
 	}
@@ -50,6 +53,9 @@ func (c *AppMetric) AddSample(metricType enumconv.MetricType, sample types.Sampl
 
 // Merge Merge current AppMetricMap with input AppMetricMap
 func (c *AppMetric) Merge(in *AppMetric) {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	for metricType, metric := range in.Metrics {
 		if _, exist := c.Metrics[metricType]; exist {
 			c.Metrics[metricType] = append(c.Metrics[metricType], metric...)
@@ -60,7 +66,9 @@ func (c *AppMetric) Merge(in *AppMetric) {
 }
 
 func (c *AppMetric) GetSamples(metricType enumconv.MetricType) AppMetricSample {
-
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	return AppMetricSample{
 		ObjectMeta: c.ObjectMeta,
 		MetricType: metricType,
@@ -105,6 +113,9 @@ func NewAppMetricMap() AppMetricMap {
 }
 
 func (c *AppMetricMap) AddAppMetric(metric *AppMetric) {
+	if c.MetricMap == nil {
+		c.MetricMap = make(map[metadata.ObjectMeta]*AppMetric)
+	}
 	if existAppMetric, exist := c.MetricMap[metric.ObjectMeta]; exist {
 		existAppMetric.Merge(metric)
 	} else {

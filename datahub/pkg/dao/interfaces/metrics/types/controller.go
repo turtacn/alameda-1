@@ -48,6 +48,9 @@ func NewControllerMetric() *ControllerMetric {
 }
 
 func (c *ControllerMetric) AddSample(metricType enumconv.MetricType, sample types.Sample) {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if _, exist := c.Metrics[metricType]; !exist {
 		c.Metrics[metricType] = make([]types.Sample, 0)
 	}
@@ -55,6 +58,9 @@ func (c *ControllerMetric) AddSample(metricType enumconv.MetricType, sample type
 }
 
 func (c *ControllerMetric) GetSamples(metricType enumconv.MetricType) ControllerMetricSample {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	return ControllerMetricSample{
 		ObjectMeta: c.ObjectMeta,
 		MetricType: metricType,
@@ -64,6 +70,9 @@ func (c *ControllerMetric) GetSamples(metricType enumconv.MetricType) Controller
 
 // Merge Merge current ControllerMetricMap with input ControllerMetricMap
 func (c *ControllerMetric) Merge(in *ControllerMetric) {
+	if c.Metrics == nil {
+		c.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	for metricType, metric := range in.Metrics {
 		if _, exist := c.Metrics[metricType]; exist {
 			c.Metrics[metricType] = append(c.Metrics[metricType], metric...)
@@ -110,6 +119,9 @@ func NewControllerMetricMap() ControllerMetricMap {
 }
 
 func (c *ControllerMetricMap) AddControllerMetric(metric *ControllerMetric) {
+	if c.MetricMap == nil {
+		c.MetricMap = make(map[ControllerObjectMeta]*ControllerMetric)
+	}
 	if metricMap, exist := c.MetricMap[metric.ObjectMeta]; exist {
 		metricMap.Merge(metric)
 	} else {

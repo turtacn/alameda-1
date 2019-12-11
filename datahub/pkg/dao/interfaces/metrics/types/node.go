@@ -83,6 +83,9 @@ func (n *NodeMetric) GetSamples(metricType enumconv.MetricType) *NodeMetricSampl
 	nodeSample.ObjectMeta.ClusterName = n.ObjectMeta.ClusterName
 	nodeSample.MetricType = metricType
 
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if value, exist := n.Metrics[metricType]; exist {
 		nodeSample.Metrics = value
 	}
@@ -91,6 +94,9 @@ func (n *NodeMetric) GetSamples(metricType enumconv.MetricType) *NodeMetricSampl
 }
 
 func (n *NodeMetric) AddSample(metricType enumconv.MetricType, sample types.Sample) {
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	if _, exist := n.Metrics[metricType]; !exist {
 		n.Metrics[metricType] = make([]types.Sample, 0)
 	}
@@ -99,6 +105,9 @@ func (n *NodeMetric) AddSample(metricType enumconv.MetricType, sample types.Samp
 
 // Merge Merge current NodeMetric with input NodeMetric
 func (n *NodeMetric) Merge(in *NodeMetric) {
+	if n.Metrics == nil {
+		n.Metrics = make(map[enumconv.MetricType][]types.Sample)
+	}
 	for metricType, metrics := range in.Metrics {
 		n.Metrics[metricType] = append(n.Metrics[metricType], metrics...)
 	}
@@ -128,6 +137,9 @@ func (n *NodeMetric) Limit(limit int) {
 
 // AddNodeMetric Add node metric into NodesMetricMap
 func (n *NodeMetricMap) AddNodeMetric(nodeMetric *NodeMetric) {
+	if n.MetricMap == nil {
+		n.MetricMap = make(map[metadata.ObjectMeta]*NodeMetric)
+	}
 	if existNodeMetric, exist := n.MetricMap[nodeMetric.ObjectMeta]; exist {
 		existNodeMetric.Merge(nodeMetric)
 	} else {
