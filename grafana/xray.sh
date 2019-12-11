@@ -25,7 +25,7 @@ kubectl -n ${ns} cp ${pod}:${AIHOME}/etc/version.txt ${dest_dir}/version.txt
 # logs
 kubectl -n ${ns} exec ${pod} -- find /var/log/alameda -type f \
   | while read fn; do
-        kubectl -n ${ns} cp ${pod}:${fn} ${dest_dir}
+        kubectl -n ${ns} cp ${pod}:${fn} ${dest_dir}/${fn}
     done
 
 exit 0
