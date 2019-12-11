@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 14,
-  "iteration": 1566901059423,
+  "id": 19,
+  "iteration": 1576057924370,
   "links": [],
   "panels": [
     {
@@ -3815,7 +3815,7 @@
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 16,
+  "schemaVersion": 20,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -3851,18 +3851,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "nginx",
-          "value": "nginx"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_namespace\" where 'Cluster' != '$resource'",
+        "definition": "show tag values on alameda_cluster_status from pod with key=\"namespace\" where 'Cluster' != '$resource'",
         "hide": 2,
         "includeAll": false,
         "label": "Namespace",
         "multi": false,
         "name": "ns",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_namespace\" where 'Cluster' != '$resource'",
+        "query": "show tag values on alameda_cluster_status from pod with key=\"namespace\" where 'Cluster' != '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3934,14 +3934,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_name\"  where \"alameda_scaler_namespace\" = '$ns'  and 'Namespace' != '$resource'",
+        "definition": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_name\"  where \"namespace\" = '$ns'  and 'Namespace' != '$resource'",
         "hide": 2,
         "includeAll": false,
         "label": "Application",
         "multi": false,
         "name": "scaler",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_name\"  where \"alameda_scaler_namespace\" = '$ns'  and 'Namespace' != '$resource'",
+        "query": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_name\"  where \"namespace\" = '$ns'  and 'Namespace' != '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -3960,14 +3960,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "show tag values on alameda_cluster_status from pod with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource'",
+        "definition": "show tag values on alameda_cluster_status from pod with key=\"name\" where \"namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource'",
         "hide": 2,
         "includeAll": false,
         "label": "Pod",
         "multi": false,
         "name": "pod",
         "options": [],
-        "query": "show tag values on alameda_cluster_status from pod with key=\"name\" where \"alameda_scaler_namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource'",
+        "query": "show tag values on alameda_cluster_status from pod with key=\"name\" where \"namespace\" = '$ns' and \"alameda_scaler_name\" = '$scaler' and 'Container' = '$resource'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4011,14 +4011,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_namespace, scaling_tool from (select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Cluster' = '$resource' group by alameda_scaler_namespace),(select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Cluster' != '$resource' and alameda_scaler_namespace = '$ns' group by alameda_scaler_namespace)",
+        "definition": "select namespace, \"policy\" from (select namespace, \"policy\" from alameda_cluster_status..pod where 'Cluster' = '$resource' group by namespace),(select namespace, \"policy\" from alameda_cluster_status..pod where 'Cluster' != '$resource' and namespace = '$ns' group by namespace)",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "h_ns",
         "options": [],
-        "query": "select alameda_scaler_namespace, scaling_tool from (select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Cluster' = '$resource' group by alameda_scaler_namespace),(select alameda_scaler_namespace, scaling_tool from alameda_cluster_status..pod where 'Cluster' != '$resource' and alameda_scaler_namespace = '$ns' group by alameda_scaler_namespace)",
+        "query": "select namespace, \"policy\" from (select namespace, \"policy\" from alameda_cluster_status..pod where 'Cluster' = '$resource' group by namespace),(select namespace, \"policy\" from alameda_cluster_status..pod where 'Cluster' != '$resource' and namespace = '$ns' group by namespace)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4036,14 +4036,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select alameda_scaler_name, scaling_tool from ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
+        "definition": "select alameda_scaler_name, \"policy\" from ( select alameda_scaler_name, \"policy\" from alameda_cluster_status..pod where \"namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, \"policy\" from alameda_cluster_status..pod where \"namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "h_scaler",
         "options": [],
-        "query": "select alameda_scaler_name, scaling_tool from ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
+        "query": "select alameda_scaler_name, \"policy\" from ( select alameda_scaler_name, \"policy\" from alameda_cluster_status..pod where \"namespace\" =~ /^[[h_ns]]$/  and ('Cluster' = '$resource' or 'Namespace' = '$resource') group by alameda_scaler_name), ( select alameda_scaler_name, \"policy\" from alameda_cluster_status..pod where \"namespace\" ='$ns' and 'Cluster' != '$resource' and 'Namespace' != '$resource' group by alameda_scaler_name)",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4061,14 +4061,14 @@
           "value": "$__all"
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", scaling_tool from (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"name\" = '$pod' and 'Container' = '$resource')",
+        "definition": "select \"name\", \"policy\" from (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"name\" = '$pod' and 'Container' = '$resource')",
         "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
         "name": "h_pod",
         "options": [],
-        "query": "select \"name\", scaling_tool from (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select \"name\", scaling_tool from alameda_cluster_status..pod where \"alameda_scaler_namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"name\" = '$pod' and 'Container' = '$resource')",
+        "query": "select \"name\", \"policy\" from (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"=~ /^[[h_ns]]$/ and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Cluster' = '$resource'), (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"= '$ns' and \"alameda_scaler_name\" =~ /^[[h_scaler]]$/ and 'Namespace' = '$resource'), (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and 'Application' = '$resource'), (select \"name\", \"policy\" from alameda_cluster_status..pod where \"namespace\"= '$ns' and \"alameda_scaler_name\" ='$scaler' and \"name\" = '$pod' and 'Container' = '$resource')",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4108,8 +4108,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570100935",
-          "value": "1570100935"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-2d  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4134,8 +4134,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570144151",
-          "value": "1570144151"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'aws'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-12h  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4160,8 +4160,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570158548",
-          "value": "1570158548"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'aws'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-2h  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4186,8 +4186,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570100935",
-          "value": "1570100935"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-2d  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4211,9 +4211,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "1570144151",
-          "value": "1570144151"
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'azure'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-12h  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4238,8 +4238,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570158548",
-          "value": "1570158548"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'azure'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-2h  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4264,8 +4264,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570100935",
-          "value": "1570100935"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-2d  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4290,8 +4290,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570144151",
-          "value": "1570144151"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '21600' and provider = 'gcp'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-12h  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4316,8 +4316,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "1570158548",
-          "value": "1570158548"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..recommendation_jeri where granularity = '3600' and provider = 'gcp'  and ((\"reservedinstances\" = '0' and 'No' = '$purchase_option') or (\"reservedinstances\" = '1' and 'Yes' = '$purchase_option')) and time >= now()-2h  and time <= now() and country = '$country' order by time desc limit 1",
@@ -4342,18 +4342,18 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "17",
-          "value": "17"
+          "text": "2",
+          "value": "2"
         },
         "datasource": "InfluxDB",
-        "definition": "select count(uid) from (select uid, resource_request_cpu from (select uid, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and ('Cluster' = '$resource' or 'Namespace' = '$resource' or 'Application' = '$resource')), (select uid, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" = '$pod' and 'Container' = '$resource'))",
+        "definition": "select count(pod_name) from (select pod_name, resource_request_cpu from (select pod_name, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and ('Cluster' = '$resource' or 'Namespace' = '$resource' or 'Application' = '$resource')), (select pod_name, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" = '$pod' and 'Container' = '$resource'))",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "count_container",
         "options": [],
-        "query": "select count(uid) from (select uid, resource_request_cpu from (select uid, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and ('Cluster' = '$resource' or 'Namespace' = '$resource' or 'Application' = '$resource')), (select uid, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" = '$pod' and 'Container' = '$resource'))",
+        "query": "select count(pod_name) from (select pod_name, resource_request_cpu from (select pod_name, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" =~ /^[[h_pod]]$/ and ('Cluster' = '$resource' or 'Namespace' = '$resource' or 'Application' = '$resource')), (select pod_name, resource_request_cpu from alameda_cluster_status..container where \"pod_name\" = '$pod' and 'Container' = '$resource'))",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4781,8 +4781,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "647.993424",
-          "value": "647.993424"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'aws' and starttime = '$aws_stime_month' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) and country = '$country' ",
@@ -4807,8 +4807,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "478.803748",
-          "value": "478.803748"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select  sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure' and starttime = '$azure_stime_month' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) and country = '$country' ",
@@ -4833,8 +4833,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "430.31737",
-          "value": "430.31737"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select sum(totalcost) from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'gcp' and starttime = '$gcp_stime_month' and ( ( \"reservedinstances\" = '1' and 'Yes' = '$purchase_option')  or ( \"reservedinstances\" = '0' and 'No' = '$purchase_option') ) and country = '$country'",
@@ -4936,8 +4936,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "100",
-          "value": "100"
+          "text": "6",
+          "value": "6"
         },
         "datasource": "InfluxDB",
         "definition": "select sum(node_cpu_cores) from alameda_cluster_status..node",
@@ -4961,8 +4961,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "19804012544",
-          "value": "19804012544"
+          "text": "16656842752",
+          "value": "16656842752"
         },
         "datasource": "InfluxDB",
         "definition": "select  sum(node_memory_bytes) from alameda_cluster_status..node",
@@ -4983,7 +4983,7 @@
         "type": "query",
         "useTags": false
       },
-            {
+      {
         "allValue": null,
         "current": {
           "isNone": true,

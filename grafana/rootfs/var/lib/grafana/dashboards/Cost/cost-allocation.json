@@ -637,7 +637,7 @@
           "pattern": "workloadcost",
           "thresholds": [],
           "type": "number",
-          "unit": "none"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -1217,7 +1217,7 @@
           "pattern": "workloadcost",
           "thresholds": [],
           "type": "number",
-          "unit": "none"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -1575,8 +1575,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1575266178",
-          "value": "1575266178"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select starttime from alameda_fedemeter..calculate_instance where time >= now() -2h and  granularity = '3600' order by time desc limit 1 ",
@@ -1600,8 +1600,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "404.40000000000003",
-          "value": "404.40000000000003"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select sum(totalcost) as totalcost from alameda_fedemeter..calculate_instance where starttime = $current_cost_starttime fill(0)",
@@ -1650,8 +1650,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1575262800",
-          "value": "1575262800"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select last(starttime) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and time >= now() -2h ",
@@ -1675,8 +1675,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1575262800",
-          "value": "1575262800"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select last(starttime) from alameda_fedemeter..cost_app where granularity = '3600' and type = '0' and time >= now() -2h and namespacename = '$ns'",
@@ -1750,8 +1750,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1575244800",
-          "value": "1575244800"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select last(starttime) from alameda_fedemeter..cost_namespace where granularity = '86400' and type = '0' and time >= now() -2d",
@@ -1775,8 +1775,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1575244800",
-          "value": "1575244800"
+          "text": "None",
+          "value": ""
         },
         "datasource": "InfluxDB",
         "definition": "select last(starttime) from alameda_fedemeter..cost_app where granularity = '86400' and type = '0' and time >= now() -2d and namespacename = '$ns'",
@@ -1850,8 +1850,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "107",
-          "value": "107"
+          "text": "257",
+          "value": "257"
         },
         "datasource": "InfluxDB",
         "definition": "select count(sum) -1 from (select sum(numMeasurements) from _internal..\"database\" where $timeFilter  and time <= now() group by time(3600s) fill(0));",
