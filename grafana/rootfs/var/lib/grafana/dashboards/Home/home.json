@@ -2135,6 +2135,14 @@
             {
               "text": "Email Notification",
               "value": "EVENT_TYPE_EMAIL_NOTIFICATION"
+            },
+            {
+              "text": "Anomaly Forecast Detect",
+              "value": "EVENT_TYPE_ANOMALY_FORECAST_DETECT"
+            },
+            {
+              "text": "Anomaly Realtime Detect",
+              "value": "EVENT_TYPE_ANOMALY_REALTIME_DETECT"
             }
           ]
         },
