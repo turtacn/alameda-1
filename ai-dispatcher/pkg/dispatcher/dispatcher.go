@@ -29,8 +29,9 @@ const (
 )
 const queueName = "predict"
 const modelQueueName = "model"
+
 var (
-	modelHasVPA = false
+	modelHasVPA   = false
 	predictHasVPA = false
 )
 
@@ -113,8 +114,7 @@ func (dispatcher *Dispatcher) dispatch(granularity string, predictionStep int64,
 		queueConnRetryItvMS = 3000
 	}
 	for {
-		queueConn := queue.GetQueueConn(queueURL, queueConnRetryItvMS)
-		queueSender := queue.NewRabbitMQSender(queueConn)
+		queueSender, queueConn := queue.NewRabbitMQSender(queueURL, queueConnRetryItvMS)
 		// Node will send model/predict job with granularity 30s if modelHasVPA/predictHasVPA is true
 		if granularitySec == 30 {
 			modelHasVPA = false
@@ -167,7 +167,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 
 		nodes := []*datahub_resources.Node{}
 		if queueJobType == "predictionJobSendIntervalSec" {
-			for _, no := range res.GetNodes(){
+			for _, no := range res.GetNodes() {
 				if (granularity == 30 && !viper.GetBool("hourlyPredict")) && !predictHasVPA {
 					continue
 				}
@@ -179,7 +179,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			dispatcher.predictJobSender.SendNodePredictJobs(nodes, queueSender, pdUnit, granularity)
 		}
 		if viper.GetBool("model.enabled") && queueJobType == "modelJobSendIntervalSec" {
-			for _, no := range res.GetNodes(){
+			for _, no := range res.GetNodes() {
 				if (granularity == 30 && !viper.GetBool("hourlyPredict")) && !modelHasVPA {
 					continue
 				}

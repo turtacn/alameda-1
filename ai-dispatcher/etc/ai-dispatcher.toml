@@ -7,11 +7,12 @@ connRetry = 5
 [queue]
 url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
   [queue.retry]
-  publishTime = 3
+  publishTime = 5
   publishIntervalMs = 500
-  consumeTime = 3
+  consumeTime = 5
   consumeIntervalMs = 500
   connectIntervalMs = 3000
+  ackTimeoutSec = 3
   [queue.consumer]
   reconnectInterval = 30 #seconds
 
