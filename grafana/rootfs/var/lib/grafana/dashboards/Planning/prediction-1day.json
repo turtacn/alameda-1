@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 21,
-  "iteration": 1574936645920,
+  "iteration": 1576140141973,
   "links": [],
   "panels": [
     {
@@ -3346,8 +3346,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "federatorai-demo",
-          "value": "federatorai-demo"
+          "text": "nginx-preloader-sample",
+          "value": "nginx-preloader-sample"
         },
         "datasource": "InfluxDB",
         "definition": "select \"name\" from (select \"name\", value from alameda_cluster_status..namespace where 'Namespace' = '$resource'), (select \"namespace\" as \"name\", \"policy\" from alameda_cluster_status..pod where 'Application' = '$resource' or 'Controller' = '$resource')",
@@ -3372,8 +3372,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "alameda-nginx-hpa",
-          "value": "alameda-nginx-hpa"
+          "text": "nginx-alamedascaler",
+          "value": "nginx-alamedascaler"
         },
         "datasource": "InfluxDB",
         "definition": "show tag values on alameda_cluster_status from pod with key=\"alameda_scaler_name\"  where \"namespace\" = '$ns'  and 'Namespace' != '$resource'",
@@ -4082,14 +4082,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENT'",
+        "definition": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENT'",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "selected_deployment_controller",
         "options": [],
-        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENT'",
+        "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENT'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4108,14 +4108,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "definition": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENTCONFIG'",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "selected_deploymentconfig_controller",
         "options": [],
-        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENTCONFIG'",
+        "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENTCONFIG'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4134,14 +4134,14 @@
           "value": ""
         },
         "datasource": "InfluxDB",
-        "definition": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'STATEFULSET'",
+        "definition": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'STATEFULSET'",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "selected_statefulset_controller",
         "options": [],
-        "query": "select \"name\", spec_scaling_tool from alameda_cluster_status..controller where spec_name = '$scaler' and spec_namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'STATEFULSET'",
+        "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'STATEFULSET'",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
