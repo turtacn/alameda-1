@@ -4113,7 +4113,7 @@
         "includeAll": false,
         "label": null,
         "multi": false,
-        "name": "selected_deploymentconfig_controller",
+        "name": "selected_deploymentConfig_controller",
         "options": [],
         "query": "select \"name\", \"policy\" from alameda_cluster_status..controller where alameda_scaler_name = '$scaler' and namespace = '$ns' and ('false' = \"$preloader\" or '' = \"$preloader\") and \"name\" = '$controller' and \"kind\" = 'DEPLOYMENTCONFIG'",
         "refresh": 2,
