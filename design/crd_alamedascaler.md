@@ -102,6 +102,7 @@ alameda-ai-7f5b6b6d8-8fqrv   18m
   - type: ObjectMeta
   - description: This follows the ObjectMeta definition in [Kubernetes API Reference](https://kubernetes.io/docs/reference/#api-reference).  
 One special note is Alameda uses labels `app.federator.ai/name` and `app.federator.ai/part-of` to correlate whether selected objects of different AlamedaScaler CRs belong to the same application. If `app.federator.ai/name` label is not given, Alameda will use "`metadata.namespace`-`metadata.name`" as its value. If `app.federator.ai/part-of` is not given, Alameda will use the value of `app.federator.ai/name` as its value.
+  > **NOTE**: Do not set metadata name to `alamedaSelfDriving`
 
   > **NOTE**: The application label lookup is cross namespaces. If two CRs are created in different namespaces with the same `app.kubernetes.io/part-of` value, the selected `deployment`/`deploymentconfig` objects are considered be part of the same application.
 
