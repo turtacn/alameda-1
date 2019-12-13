@@ -31,7 +31,8 @@ COPY --from=builder /go/src/github.com/containers-ai/alameda/rabbitmq/xray.sh /x
 COPY --from=builder /go/src/github.com/containers-ai/alameda/version.txt ${AIHOME}/etc/
 COPY --from=builder /go/src/github.com/containers-ai/alameda/rabbitmq/rabbitmqcmd /usr/local/bin/
 RUN chmod 755 /init.sh /prob.sh && \
-    rabbitmq-plugins enable rabbitmq_message_deduplication rabbitmq_tracing
+    rabbitmq-plugins enable rabbitmq_message_deduplication rabbitmq_tracing \
+    && apk update && apk add --no-cache curl && rm -rf /var/cache/apk/*
 
 CMD ["/init.sh"]
 
