@@ -3497,7 +3497,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select displayname, masterondemandnum, masterrinum, workerondemandnum, workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  and \"reservedinstances\" = '0' and 'No' = '$purchase_option' and starttime = '$azure_stime_month' and country = '$country'",
+          "query": "select displayname, masterondemandnum, \"\" as masterrinum, workerondemandnum, \"\" as workerrinum, totalcost from alameda_fedemeter..recommendation_jeri where granularity = '86400' and provider = 'azure'  and \"reservedinstances\" = '0' and 'No' = '$purchase_option' and starttime = '$azure_stime_month' and country = '$country'",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "table",
