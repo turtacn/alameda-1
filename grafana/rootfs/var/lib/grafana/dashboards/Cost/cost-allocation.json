@@ -15,7 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1575516498025,
+  "id": 17,
+  "iteration": 1576205256746,
   "links": [],
   "panels": [
     {
@@ -252,13 +253,28 @@
       "type": "table"
     },
     {
+      "content": "<script>\n  $('#panel-12 .table-panel-table tbody').on('DOMSubtreeModified', function() {\n    var dataLength = this.children.length;\n    if (dataLength > 0) {\n      for(var i = 0; i < dataLength; i++) {\n        if (this.children[i].innerText.indexOf('idle') !== -1) {\n          this.children[i].style.backgroundColor = '#3f6833';\n        }\n      }\n    }\n  });\n  \n  $('#panel-48 .table-panel-table tbody').on('DOMSubtreeModified', function() {\n    var dataLength = this.children.length;\n    if (dataLength > 0) {\n      for(var i = 0; i < dataLength; i++) {\n        if (this.children[i].innerText.indexOf('idle') !== -1) {\n          this.children[i].style.backgroundColor = '#3f6833';\n        }\n      }\n    }\n  });\n</script>\n<style>\n  #panel-36 {\n   display:none\n  }\n\n  .pieLabel > div {\n   color: white !important;\n  }\n </style>",
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "id": 36,
+      "mode": "html",
+      "options": {},
+      "title": "Panel Title",
+      "type": "text"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 6
       },
       "id": 10,
       "panels": [],
@@ -277,7 +293,7 @@
         "h": 7,
         "w": 7,
         "x": 0,
-        "y": 6
+        "y": 7
       },
       "id": 38,
       "legend": {
@@ -443,7 +459,7 @@
         "h": 7,
         "w": 7,
         "x": 7,
-        "y": 6
+        "y": 7
       },
       "id": 47,
       "legend": {
@@ -566,7 +582,7 @@
         "h": 7,
         "w": 10,
         "x": 14,
-        "y": 6
+        "y": 7
       },
       "id": 12,
       "links": [],
@@ -753,7 +769,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 14
       },
       "hideTimeOverride": true,
       "id": 42,
@@ -925,7 +941,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "id": 44,
       "panels": [],
@@ -950,7 +966,7 @@
         "h": 8,
         "w": 7,
         "x": 0,
-        "y": 22
+        "y": 23
       },
       "id": 8,
       "interval": null,
@@ -1074,7 +1090,7 @@
         "h": 8,
         "w": 7,
         "x": 7,
-        "y": 22
+        "y": 23
       },
       "id": 30,
       "interval": null,
@@ -1146,7 +1162,7 @@
         "h": 8,
         "w": 10,
         "x": 14,
-        "y": 22
+        "y": 23
       },
       "id": 48,
       "links": [],
@@ -1333,7 +1349,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 31
       },
       "hideTimeOverride": false,
       "id": 46,
@@ -1499,21 +1515,6 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "content": "<script>\n  $('#panel-12 .table-panel-table tbody').on('DOMSubtreeModified', function() {\n    var dataLength = this.children.length;\n    if (dataLength > 0) {\n      for(var i = 0; i < dataLength; i++) {\n        if (this.children[i].innerText.indexOf('idle') !== -1) {\n          this.children[i].style.backgroundColor = '#3f6833';\n        }\n      }\n    }\n  });\n  \n  $('#panel-48 .table-panel-table tbody').on('DOMSubtreeModified', function() {\n    var dataLength = this.children.length;\n    if (dataLength > 0) {\n      for(var i = 0; i < dataLength; i++) {\n        if (this.children[i].innerText.indexOf('idle') !== -1) {\n          this.children[i].style.backgroundColor = '#3f6833';\n        }\n      }\n    }\n  });\n</script>\n<style>\n  #panel-36 {\n   display:none\n  }\n\n  .pieLabel > div {\n   color: white !important;\n  }\n </style>",
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 12,
-        "x": 0,
-        "y": 38
-      },
-      "id": 36,
-      "mode": "html",
-      "options": {},
-      "title": "Panel Title",
-      "type": "text"
     }
   ],
   "refresh": "5m",
