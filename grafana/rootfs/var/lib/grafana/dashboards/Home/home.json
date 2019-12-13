@@ -2069,7 +2069,7 @@
               "value": "EVENT_TYPE_NODE_REGISTER"
             },
             {
-              "text": "Deployment  register",
+              "text": "Deployment register",
               "value": "EVENT_TYPE_DEPLOYMENT_REGISTER"
             },
             {
@@ -2109,7 +2109,7 @@
               "value": "EVENT_TYPE_VPA_RECOMMENDATION_CREATE"
             },
             {
-              "text": "HPA  recommendation create",
+              "text": "HPA recommendation create",
               "value": "EVENT_TYPE_HPA_RECOMMENDATION_CREATE"
             },
             {
@@ -2133,15 +2133,15 @@
               "value": "EVENT_TYPE_LICENSE"
             },
             {
-              "text": "Email Notification",
+              "text": "Email notification",
               "value": "EVENT_TYPE_EMAIL_NOTIFICATION"
             },
             {
-              "text": "Anomaly Forecast Detect",
+              "text": "Anomaly forecast detect",
               "value": "EVENT_TYPE_ANOMALY_FORECAST_DETECT"
             },
             {
-              "text": "Anomaly Realtime Detect",
+              "text": "Anomaly realtime detect",
               "value": "EVENT_TYPE_ANOMALY_REALTIME_DETECT"
             }
           ]
