@@ -35,24 +35,29 @@ func NewClusterModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Model
 
 func (sender *clusterModelJobSender) sendModelJobs(clusters []*datahub_resources.Cluster,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	for _, cluster := range clusters {
+		go sender.sendClusterModelJobs(cluster, queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *clusterModelJobSender) sendClusterModelJobs(cluster *datahub_resources.Cluster,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-	for _, cluster := range clusters {
-		clusterName := cluster.GetObjectMeta().GetName()
-		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, cluster, granularity)
-		if err != nil {
-			scope.Infof("[CLUSTER][%s][%s] Get last prediction failed: %s",
-				dataGranularity, clusterName, err.Error())
-			continue
-		}
-		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("[CLUSTER][%s][%s] No prediction found",
-				dataGranularity, clusterName)
-		}
-
-		sender.sendJobByMetrics(cluster, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionMetrics)
+	clusterName := cluster.GetObjectMeta().GetName()
+	lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, cluster, granularity)
+	if err != nil {
+		scope.Infof("[CLUSTER][%s][%s] Get last prediction failed: %s",
+			dataGranularity, clusterName, err.Error())
+		return
 	}
+	if lastPredictionMetrics == nil && err == nil {
+		scope.Infof("[CLUSTER][%s][%s] No prediction found",
+			dataGranularity, clusterName)
+	}
+
+	sender.sendJobByMetrics(cluster, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionMetrics)
 }
 
 func (sender *clusterModelJobSender) sendJob(cluster *datahub_resources.Cluster, queueSender queue.QueueSender, pdUnit string,
@@ -78,7 +83,7 @@ func (sender *clusterModelJobSender) sendJob(cluster *datahub_resources.Cluster,
 
 		clusterJobStr := fmt.Sprintf("%s/%v", clusterName, granularity)
 		scope.Infof("[CLUSTER][%s][%s] Try to send cluster model job: %s", dataGranularity, clusterName, clusterJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, clusterJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, clusterJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, clusterInfo)
 		} else {

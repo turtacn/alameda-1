@@ -35,25 +35,32 @@ func NewApplicationModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *M
 
 func (sender *applicationModelJobSender) sendModelJobs(applications []*datahub_resources.Application,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	for _, application := range applications {
+		go sender.sendApplicationModelJobs(application,
+			queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *applicationModelJobSender) sendApplicationModelJobs(application *datahub_resources.Application,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-	for _, application := range applications {
-		applicationNS := application.GetObjectMeta().GetNamespace()
-		applicationName := application.GetObjectMeta().GetName()
 
-		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, application, granularity)
-		if err != nil {
-			scope.Infof("[APPLICATION][%s][%s/%s] Get last prediction failed: %s",
-				dataGranularity, applicationNS, applicationName, err.Error())
-			continue
-		}
-		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("[APPLICATION][%s][%s/%s] No prediction found", dataGranularity,
-				applicationNS, applicationName)
-		}
-		sender.sendJobByMetrics(application, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionMetrics)
+	applicationNS := application.GetObjectMeta().GetNamespace()
+	applicationName := application.GetObjectMeta().GetName()
+
+	lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, application, granularity)
+	if err != nil {
+		scope.Infof("[APPLICATION][%s][%s/%s] Get last prediction failed: %s",
+			dataGranularity, applicationNS, applicationName, err.Error())
+		return
 	}
+	if lastPredictionMetrics == nil && err == nil {
+		scope.Infof("[APPLICATION][%s][%s/%s] No prediction found", dataGranularity,
+			applicationNS, applicationName)
+	}
+	sender.sendJobByMetrics(application, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionMetrics)
 }
 
 func (sender *applicationModelJobSender) sendJob(application *datahub_resources.Application, queueSender queue.QueueSender, pdUnit string,
@@ -81,7 +88,7 @@ func (sender *applicationModelJobSender) sendJob(application *datahub_resources.
 		appJobStr := fmt.Sprintf("%s/%s/%v", applicationNS, applicationName, granularity)
 		scope.Infof("[APPLICATION][%s][%s/%s] Try to send application model job: %s",
 			dataGranularity, applicationNS, applicationName, appJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, appJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, appJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, applicationInfo)
 		} else {

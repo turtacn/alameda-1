@@ -42,7 +42,7 @@ func (dispatcher *predictJobSender) SendNodePredictJobs(nodes []*datahub_resourc
 
 		nodeJobStr := fmt.Sprintf("%s/%v", nodeName, granularity)
 		scope.Infof("[NODE][%s][%s] Try to send predict job: %s", dataGranularity, nodeName, nodeJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, nodeJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, nodeJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[NODE][%s][%s] Send predict job failed. %s",
 				dataGranularity, nodeName, err.Error())
@@ -74,7 +74,7 @@ func (dispatcher *predictJobSender) SendPodPredictJobs(pods []*datahub_resources
 		podJobStr := fmt.Sprintf("%s/%s/%v", podNS, podName, granularity)
 		scope.Infof("[POD][%s][%s/%s] Try to send predict job: %s",
 			dataGranularity, podNS, podName, podJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, podJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, podJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[POD][%s][%s/%s] Send predict job failed. %s",
 				dataGranularity, podNS, podName, err.Error())
@@ -108,7 +108,7 @@ func (dispatcher *predictJobSender) SendGPUPredictJobs(gpus []*datahub_gpu.Gpu,
 		gpuJobStr := fmt.Sprintf("%s/%s/%v", gpuHost, gpuMinorNumber, granularity)
 		scope.Infof("[GPU][%s][%s/%s] Try to send predict job: %s",
 			dataGranularity, gpuHost, gpuMinorNumber, gpuJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, gpuJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, gpuJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[GPU][%s][%s/%s] Send predict job failed. %s",
 				dataGranularity, gpuHost, gpuMinorNumber, err.Error())
@@ -143,7 +143,7 @@ func (dispatcher *predictJobSender) SendApplicationPredictJobs(
 		appJobStr := fmt.Sprintf("%s/%s/%v", applicationNS, applicationName, granularity)
 		scope.Infof("[APPLICATION][%s][%s/%s] Try to send predict job: %s",
 			dataGranularity, applicationNS, applicationName, appJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, appJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, appJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[APPLICATION][%s][%s/%s] Send predict job failed. %s",
 				dataGranularity, applicationNS, applicationName, err.Error())
@@ -174,7 +174,7 @@ func (dispatcher *predictJobSender) SendNamespacePredictJobs(namespaces []*datah
 		nsJobStr := fmt.Sprintf("%s/%v", namespaceName, granularity)
 		scope.Infof("[NAMESPACE][%s][%s] Try to send predict job: %s",
 			dataGranularity, namespaceName, nsJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, nsJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, nsJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[NAMESPACE][%s][%s] Send predict job failed. %s",
 				dataGranularity, namespaceName, err.Error())
@@ -204,7 +204,7 @@ func (dispatcher *predictJobSender) SendClusterPredictJobs(clusters []*datahub_r
 
 		clusterJobStr := fmt.Sprintf("%s/%v", clusterName, granularity)
 		scope.Infof("[CLUSTER][%s][%s] Try to send predict job: %s", dataGranularity, clusterName, clusterJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, clusterJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, clusterJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[CLUSTER][%s][%s] Send predict job failed. %s",
 				dataGranularity, clusterName, err.Error())
@@ -239,7 +239,7 @@ func (dispatcher *predictJobSender) SendControllerPredictJobs(
 		controllerJobStr := fmt.Sprintf("%s/%s/%v", controllerNS, controllerName, granularity)
 		scope.Infof("[CONTROLLER][%s][%s][%s/%s] Try to send predict job: %s",
 			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, controllerJobStr)
-		err = queueSender.SendJsonString(queueName, jobJSONStr, controllerJobStr)
+		err = queueSender.SendJsonString(queueName, jobJSONStr, controllerJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[CONTROLLER][%s][%s][%s/%s] Send predict job failed. %s",
 				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())

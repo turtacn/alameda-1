@@ -35,25 +35,31 @@ func NewControllerModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Mo
 
 func (sender *controllerModelJobSender) sendModelJobs(controllers []*datahub_resources.Controller,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	for _, controller := range controllers {
+		go sender.sendControllerModelJobs(controller, queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *controllerModelJobSender) sendControllerModelJobs(controller *datahub_resources.Controller,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-	for _, controller := range controllers {
-		controllerNS := controller.GetObjectMeta().GetNamespace()
-		controllerName := controller.GetObjectMeta().GetName()
 
-		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, controller, granularity)
-		if err != nil {
-			scope.Infof("[CONTROLLER][%s][%s][%s/%s] Get last prediction failed: %s",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
-			continue
-		}
-		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("[CONTROLLER][%s][%s][%s/%s] No prediction found",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
-		}
-		sender.sendJobByMetrics(controller, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionMetrics)
+	controllerNS := controller.GetObjectMeta().GetNamespace()
+	controllerName := controller.GetObjectMeta().GetName()
+
+	lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, controller, granularity)
+	if err != nil {
+		scope.Infof("[CONTROLLER][%s][%s][%s/%s] Get last prediction failed: %s",
+			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+		return
 	}
+	if lastPredictionMetrics == nil && err == nil {
+		scope.Infof("[CONTROLLER][%s][%s][%s/%s] No prediction found",
+			controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
+	}
+	sender.sendJobByMetrics(controller, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionMetrics)
 }
 
 func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Controller, queueSender queue.QueueSender, pdUnit string,
@@ -81,7 +87,7 @@ func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Co
 		controllerJobStr := fmt.Sprintf("%s/%s/%v", controllerNS, controllerName, granularity)
 		scope.Infof("[CONTROLLER][%s][%s][%s/%s] Try to send controller model job: %s",
 			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, controllerJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, controllerJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, controllerJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, controllerInfo)
 		} else {

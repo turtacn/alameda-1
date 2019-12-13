@@ -3,7 +3,7 @@ package queue
 import "github.com/containers-ai/alameda/pkg/utils/log"
 
 type QueueSender interface {
-	SendJsonString(queueName, jsonStr, msgID string) error
+	SendJsonString(queueName, jsonStr, msgID string, timeout int64) error
 	getRetry() *retry
 }
 

@@ -23,29 +23,39 @@ type RabbitMQSender struct {
 	connNotify chan *amqp.Error
 }
 
-func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string) error {
-	publishRetryTime := sender.getRetry().publishRetryTime
+func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string, granularity int64) error {
+
 	publishRetryIntervalMS := sender.getRetry().publishRetryIntervalMS
-	for retry := 0; retry < publishRetryTime; retry++ {
-		err := sender.sendJob(queueName, jsonStr, msgID)
+	var err error
+	for start := time.Now(); time.Since(start) < (time.Duration(granularity) * time.Second); {
+
+		err = sender.sendJob(queueName, jsonStr, msgID)
 		if err == nil {
 			return nil
+		} else {
+			scope.Errorf("Send job failed due to %s. Retry job sending later if sending process does not reach timeout",
+				err.Error())
 		}
-		if err != nil && retry == publishRetryTime-1 {
-			return err
-		}
+
 		time.Sleep(time.Duration(publishRetryIntervalMS) * time.Millisecond)
+	}
+	if err != nil {
+		return err
 	}
 	return fmt.Errorf("unknown error to send message to queue %s", queueName)
 }
 
 func (sender *RabbitMQSender) sendJob(queueName, jsonStr, msgID string) error {
+	if sender.conn.IsClosed() {
+		sender.conn = GetQueueConn(sender.queueURL, sender.retryItvMS)
+		return fmt.Errorf("send job failed due to connection is closed")
+	}
 	queueCH, err := sender.conn.Channel()
-	defer queueCH.Close()
-
 	if err != nil {
 		return err
 	}
+	defer queueCH.Close()
+
 	notifyClose := make(chan *amqp.Error)
 	notifyConfirm := make(chan amqp.Confirmation)
 	queueCH.Confirm(false)
@@ -100,14 +110,22 @@ func (sender *RabbitMQSender) sendJob(queueName, jsonStr, msgID string) error {
 				return fmt.Errorf("send job to queue %s failed, server does not receive the job", queueName)
 			}
 		case confirm := <-notifyClose:
-			return fmt.Errorf(confirm.Error())
+			if confirm != nil {
+				return fmt.Errorf(confirm.Error())
+			}
+			return nil
 		case confirm := <-sender.connNotify:
 			if !sender.conn.IsClosed() {
 				err := sender.conn.Close()
-				scope.Errorf(err.Error())
+				if err != nil {
+					scope.Errorf(err.Error())
+				}
 			}
 			sender.conn = GetQueueConn(sender.queueURL, sender.retryItvMS)
-			return fmt.Errorf(confirm.Error())
+			if confirm != nil {
+				return fmt.Errorf(confirm.Error())
+			}
+			return nil
 		case <-ticker.C:
 			return fmt.Errorf("send job to queue %s timeout", queueName)
 		}

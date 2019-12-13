@@ -35,24 +35,30 @@ func NewNamespaceModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Mod
 
 func (sender *namespaceModelJobSender) sendModelJobs(namespaces []*datahub_resources.Namespace,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	for _, namespace := range namespaces {
+		go sender.sendNamespaceModelJobs(namespace, queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *namespaceModelJobSender) sendNamespaceModelJobs(namespace *datahub_resources.Namespace,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-	for _, namespace := range namespaces {
-		namespaceName := namespace.GetObjectMeta().GetName()
-		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, namespace, granularity)
-		if err != nil {
-			scope.Infof("[NAMESPACE][%s][%s] Get last prediction failed: %s",
-				dataGranularity, namespaceName, err.Error())
-			continue
-		}
-		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("[NAMESPACE][%s][%s] No prediction found",
-				dataGranularity, namespaceName)
-		}
 
-		sender.sendJobByMetrics(namespace, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionMetrics)
+	namespaceName := namespace.GetObjectMeta().GetName()
+	lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, namespace, granularity)
+	if err != nil {
+		scope.Infof("[NAMESPACE][%s][%s] Get last prediction failed: %s",
+			dataGranularity, namespaceName, err.Error())
+		return
 	}
+	if lastPredictionMetrics == nil && err == nil {
+		scope.Infof("[NAMESPACE][%s][%s] No prediction found",
+			dataGranularity, namespaceName)
+	}
+
+	sender.sendJobByMetrics(namespace, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionMetrics)
 }
 
 func (sender *namespaceModelJobSender) sendJob(namespace *datahub_resources.Namespace,
@@ -79,7 +85,7 @@ func (sender *namespaceModelJobSender) sendJob(namespace *datahub_resources.Name
 		nsJobStr := fmt.Sprintf("%s/%v", namespaceName, granularity)
 		scope.Infof("[NAMESPACE][%s][%s] Try to send namespace model job: %s",
 			dataGranularity, namespaceName, nsJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nsJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nsJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, namespaceInfo)
 		} else {

@@ -35,23 +35,29 @@ func NewPodModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 
 func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64) {
+	for _, pod := range pods {
+		go sender.sendPodModelJobs(pod, queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *podModelJobSender) sendPodModelJobs(pod *datahub_resources.Pod, queueSender queue.QueueSender,
+	pdUnit string, granularity int64, predictionStep int64) {
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	dataGranularity := queue.GetGranularityStr(granularity)
-	for _, pod := range pods {
-		podNS := pod.GetObjectMeta().GetNamespace()
-		podName := pod.GetObjectMeta().GetName()
-		lastPredictionContainers, err := sender.getLastMIdPrediction(datahubServiceClnt, pod, granularity)
-		if err != nil {
-			scope.Errorf("[POD][%s][%s/%s] Get last prediction failed: %s",
-				dataGranularity, podNS, podName, err.Error())
-			continue
-		}
-		if lastPredictionContainers == nil && err == nil {
-			scope.Infof("[POD][%s][%s/%s] No prediction found", dataGranularity, podNS, podName)
-		}
-		sender.sendJobByMetrics(pod, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionContainers)
+
+	podNS := pod.GetObjectMeta().GetNamespace()
+	podName := pod.GetObjectMeta().GetName()
+	lastPredictionContainers, err := sender.getLastMIdPrediction(datahubServiceClnt, pod, granularity)
+	if err != nil {
+		scope.Errorf("[POD][%s][%s/%s] Get last prediction failed: %s",
+			dataGranularity, podNS, podName, err.Error())
+		return
 	}
+	if lastPredictionContainers == nil && err == nil {
+		scope.Infof("[POD][%s][%s/%s] No prediction found", dataGranularity, podNS, podName)
+	}
+	sender.sendJobByMetrics(pod, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionContainers)
 }
 
 func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender queue.QueueSender, pdUnit string,
@@ -79,7 +85,7 @@ func (sender *podModelJobSender) sendJob(pod *datahub_resources.Pod, queueSender
 
 			podJobStr := fmt.Sprintf("%s/%s/%v", podNS, podName, granularity)
 			scope.Infof("[POD][%s][%s/%s] Try to send pod model job: %s", dataGranularity, podNS, podName, podJobStr)
-			err = queueSender.SendJsonString(modelQueueName, jobJSONStr, podJobStr)
+			err = queueSender.SendJsonString(modelQueueName, jobJSONStr, podJobStr, granularity)
 			if err == nil {
 				sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, podInfo)
 			} else {

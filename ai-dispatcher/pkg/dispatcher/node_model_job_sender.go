@@ -35,24 +35,30 @@ func NewNodeModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMap
 
 func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	for _, node := range nodes {
+		go sender.sendNodeModelJobs(node, queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *nodeModelJobSender) sendNodeModelJobs(node *datahub_resources.Node,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-	for _, node := range nodes {
-		nodeName := node.GetObjectMeta().GetName()
-		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, node, granularity)
-		if err != nil {
-			scope.Infof("[NODE][%s][%s] Get last prediction failed: %s",
-				dataGranularity, nodeName, err.Error())
-			continue
-		}
-		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("[NODE][%s][%s] No prediction found",
-				dataGranularity, nodeName)
-		}
 
-		sender.sendJobByMetrics(node, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionMetrics)
+	nodeName := node.GetObjectMeta().GetName()
+	lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, node, granularity)
+	if err != nil {
+		scope.Infof("[NODE][%s][%s] Get last prediction failed: %s",
+			dataGranularity, nodeName, err.Error())
+		return
 	}
+	if lastPredictionMetrics == nil && err == nil {
+		scope.Infof("[NODE][%s][%s] No prediction found",
+			dataGranularity, nodeName)
+	}
+
+	sender.sendJobByMetrics(node, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionMetrics)
 }
 
 func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSender queue.QueueSender, pdUnit string,
@@ -78,7 +84,7 @@ func (sender *nodeModelJobSender) sendJob(node *datahub_resources.Node, queueSen
 
 		nodeJobStr := fmt.Sprintf("%s/%v", nodeName, granularity)
 		scope.Infof("[NODE][%s][%s] Try to send node model job: %s", dataGranularity, nodeName, nodeJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nodeJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, nodeJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, nodeInfo)
 		} else {

@@ -34,25 +34,31 @@ func NewGPUModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 
 func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_gpu.Gpu,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	for _, gpu := range gpus {
+		go sender.sendGpuModelJobs(gpu, queueSender, pdUnit, granularity, predictionStep)
+	}
+}
+
+func (sender *gpuModelJobSender) sendGpuModelJobs(gpu *datahub_gpu.Gpu,
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
-	for _, gpu := range gpus {
-		gpuHost := gpu.GetMetadata().GetHost()
-		gpuMinorNumber := gpu.GetMetadata().GetMinorNumber()
 
-		lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, gpu, granularity)
-		if err != nil {
-			scope.Infof("[GPU][%s][%s/%s] Get last prediction failed: %s",
-				dataGranularity, gpuHost, gpuMinorNumber, err.Error())
-			continue
-		}
-		if lastPredictionMetrics == nil && err == nil {
-			scope.Infof("[GPU][%s][%s/%s] No prediction found",
-				dataGranularity, gpuHost, gpuMinorNumber)
-		}
-		sender.sendJobByMetrics(gpu, queueSender, pdUnit, granularity, predictionStep,
-			datahubServiceClnt, lastPredictionMetrics)
+	gpuHost := gpu.GetMetadata().GetHost()
+	gpuMinorNumber := gpu.GetMetadata().GetMinorNumber()
+
+	lastPredictionMetrics, err := sender.getLastMIdPrediction(datahubServiceClnt, gpu, granularity)
+	if err != nil {
+		scope.Infof("[GPU][%s][%s/%s] Get last prediction failed: %s",
+			dataGranularity, gpuHost, gpuMinorNumber, err.Error())
+		return
 	}
+	if lastPredictionMetrics == nil && err == nil {
+		scope.Infof("[GPU][%s][%s/%s] No prediction found",
+			dataGranularity, gpuHost, gpuMinorNumber)
+	}
+	sender.sendJobByMetrics(gpu, queueSender, pdUnit, granularity, predictionStep,
+		datahubServiceClnt, lastPredictionMetrics)
 }
 
 func (sender *gpuModelJobSender) sendJob(gpu *datahub_gpu.Gpu, queueSender queue.QueueSender, pdUnit string,
@@ -79,7 +85,7 @@ func (sender *gpuModelJobSender) sendJob(gpu *datahub_gpu.Gpu, queueSender queue
 
 		gpuJobStr := fmt.Sprintf("%s/%s/%v", gpuHost, gpuMinorNumber, granularity)
 		scope.Infof("[GPU][%s][%s/%s] Try to send gpu model job: %s", dataGranularity, gpuHost, gpuMinorNumber, gpuJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, gpuJobStr)
+		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, gpuJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, gpuInfo)
 		} else {
