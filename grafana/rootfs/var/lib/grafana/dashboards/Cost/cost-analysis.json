@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 19,
-  "iteration": 1576057924370,
+  "id": 17,
+  "iteration": 1576208889771,
   "links": [],
   "panels": [
     {
@@ -587,7 +587,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$daily_aws_cost'.trim() == '' || '$daily_aws_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$daily_aws_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per day</div>';\n  }\n  document.getElementById('daily_aws').innerHTML = message;\n  document.getElementById('daily_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$daily_aws_cost'.trim() == '' || '$daily_aws_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$daily_aws_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per day</div>';\n  }\n  document.getElementById('daily_aws').innerHTML = message;\n  document.getElementById('daily_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -744,7 +744,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -879,7 +879,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$daily_azure_cost'.trim() == '' || '$daily_azure_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$daily_azure_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per day</div>';\n  }\n  document.getElementById('daily_azure').innerHTML = message;\n  document.getElementById('daily_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$daily_azure_cost'.trim() == '' || '$daily_azure_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$daily_azure_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per day</div>';\n  }\n  document.getElementById('daily_azure').innerHTML = message;\n  document.getElementById('daily_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -1036,7 +1036,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -1171,7 +1171,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$daily_gcp_cost'.trim() == '' || '$daily_gcp_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$daily_gcp_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per day</div>';\n  }\n document.getElementById('daily_gcp').innerHTML = message;\n  document.getElementById('daily_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"daily_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$daily_gcp_cost'.trim() == '' || '$daily_gcp_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$daily_gcp_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per day</div>';\n  }\n document.getElementById('daily_gcp').innerHTML = message;\n  document.getElementById('daily_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -1334,7 +1334,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -1769,7 +1769,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$weekly_aws_cost'.trim() == '' || '$weekly_aws_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$weekly_aws_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per week</div>';\n  }\n  document.getElementById('weekly_aws').innerHTML = message;\n  document.getElementById('weekly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$weekly_aws_cost'.trim() == '' || '$weekly_aws_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$weekly_aws_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per week</div>';\n  }\n  document.getElementById('weekly_aws').innerHTML = message;\n  document.getElementById('weekly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -1932,7 +1932,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -2066,7 +2066,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$weekly_azure_cost'.trim() == '' || '$weekly_azure_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$weekly_azure_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per week</div>';\n  }\n  document.getElementById('weekly_azure').innerHTML = message;\n  document.getElementById('weekly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$weekly_azure_cost'.trim() == '' || '$weekly_azure_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$weekly_azure_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per week</div>';\n  }\n  document.getElementById('weekly_azure').innerHTML = message;\n  document.getElementById('weekly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -2223,7 +2223,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -2357,7 +2357,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$weekly_gcp_cost'.trim() == '' || '$weekly_gcp_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$weekly_gcp_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per week</div>';\n  }\n document.getElementById('weekly_gcp').innerHTML = message;\n  document.getElementById('weekly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"weekly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$weekly_gcp_cost'.trim() == '' || '$weekly_gcp_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$weekly_gcp_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per week</div>';\n  }\n document.getElementById('weekly_gcp').innerHTML = message;\n  document.getElementById('weekly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -2515,7 +2515,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -2951,7 +2951,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$monthly_aws_cost'.trim() == '' || '$monthly_aws_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$monthly_aws_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per month</div>';\n  }\n  document.getElementById('monthly_aws').innerHTML = message;\n  document.getElementById('monthly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_aws\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$monthly_aws_cost'.trim() == '' || '$monthly_aws_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$monthly_aws_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per month</div>';\n  }\n  document.getElementById('monthly_aws').innerHTML = message;\n  document.getElementById('monthly_aws').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>\n<style>\n .markdown-html table {\n  border: none !important\n}\n .markdown-html tr {\n  border: none !important\n}\n .markdown-html td {\n  border: none !important\n}\n</style>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -3108,7 +3108,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -3242,7 +3242,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$monthly_azure_cost'.trim() == '' || '$monthly_azure_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$monthly_azure_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per month</div>';\n  }\n document.getElementById('monthly_azure').innerHTML = message;\n  document.getElementById('monthly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_azure\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px;color:black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n  var message = ''\n  if ('$monthly_azure_cost'.trim() == '' || '$monthly_azure_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$monthly_azure_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per month</div>';\n  }\n document.getElementById('monthly_azure').innerHTML = message;\n  document.getElementById('monthly_azure').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -3405,7 +3405,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
@@ -3539,7 +3539,7 @@
       "type": "text"
     },
     {
-      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$monthly_gcp_cost'.trim() == '' || '$monthly_gcp_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = Number('$monthly_gcp_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per month</div>';\n  }\n  document.getElementById('monthly_gcp').innerHTML = message;\n  document.getElementById('monthly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
+      "content": "<table style=\"height:100%;width:100%\">\n  <tr>\n    <td>\n      <div id=\"monthly_gcp\" type=\"text/JavaScript\" style=\"text-align:center;font-size:30px; color: black\"></div>\n    </td>\n  </tr>\n</table>\n<script>\n var message = ''\n  if ('$monthly_gcp_cost'.trim() == '' || '$monthly_gcp_cost' == null) {\n    message = '<div style=\"font-size:18px; color:black\">No data to show</div>'\n  } else {\n    message = '$' + Number('$monthly_gcp_cost').toFixed(2) + '<div style=\"font-size:18px; color:black\">per month</div>';\n  }\n  document.getElementById('monthly_gcp').innerHTML = message;\n  document.getElementById('monthly_gcp').parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = 'cadetblue'\n</script>",
       "datasource": null,
       "gridPos": {
         "h": 4,
@@ -3696,7 +3696,7 @@
           "pattern": "totalcost",
           "thresholds": [],
           "type": "number",
-          "unit": "short"
+          "unit": "currencyUSD"
         },
         {
           "alias": "",
