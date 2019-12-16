@@ -6,6 +6,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
 	ApiPredictions "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/predictions"
+	"strings"
 )
 
 type NodePredictionsDAO interface {
@@ -57,6 +58,16 @@ func NewListNodePredictionRequest() ListNodePredictionsRequest {
 	return request
 }
 
+func (n *NodePrediction) Identifier() string {
+	if !n.ObjectMeta.IsEmpty() {
+		valueList := make([]string, 0)
+		valueList = append(valueList, n.ObjectMeta.ClusterName)
+		valueList = append(valueList, n.ObjectMeta.Name)
+		return strings.Join(valueList, "/")
+	}
+	return ""
+}
+
 func (n *NodePrediction) AddRawSample(metricType enumconv.MetricType, granularity int64, sample types.PredictionSample) {
 	if _, exist := n.PredictionRaw[metricType]; !exist {
 		n.PredictionRaw[metricType] = types.NewPredictionMetricData()
@@ -98,10 +109,10 @@ func (n *NodePrediction) Merge(in *NodePrediction) {
 
 // AddNodePrediction Add node Prediction into NodesPredictionMap
 func (n *NodePredictionMap) AddNodePrediction(nodePrediction *NodePrediction) {
-	nodeName := nodePrediction.ObjectMeta.Name
-	if existNodePrediction, exist := n.MetricMap[nodeName]; exist {
+	identifier := nodePrediction.Identifier()
+	if existNodePrediction, exist := n.MetricMap[identifier]; exist {
 		existNodePrediction.Merge(nodePrediction)
 	} else {
-		n.MetricMap[nodeName] = nodePrediction
+		n.MetricMap[identifier] = nodePrediction
 	}
 }

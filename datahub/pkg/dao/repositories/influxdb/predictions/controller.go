@@ -56,7 +56,7 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Controller,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ControllerName)},
+		GroupByTags:    []string{string(EntityInfluxPrediction.ControllerName), string(EntityInfluxPrediction.ControllerNamespace), string(EntityInfluxPrediction.ControllerClusterName)},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {

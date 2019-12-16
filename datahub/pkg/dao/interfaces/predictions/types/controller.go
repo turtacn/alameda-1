@@ -5,6 +5,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
+	"strings"
 )
 
 type ControllerPredictionsDAO interface {
@@ -56,6 +57,18 @@ func NewListControllerPredictionRequest() ListControllerPredictionsRequest {
 	return request
 }
 
+func (n *ControllerPrediction) Identifier() string {
+	if !n.ObjectMeta.IsEmpty() {
+		valueList := make([]string, 0)
+		valueList = append(valueList, n.ObjectMeta.ClusterName)
+		valueList = append(valueList, n.ObjectMeta.Namespace)
+		valueList = append(valueList, n.ObjectMeta.Name)
+		valueList = append(valueList, n.Kind)
+		return strings.Join(valueList, "/")
+	}
+	return ""
+}
+
 func (n *ControllerPrediction) AddRawSample(metricType enumconv.MetricType, granularity int64, sample types.PredictionSample) {
 	if _, exist := n.PredictionRaw[metricType]; !exist {
 		n.PredictionRaw[metricType] = types.NewPredictionMetricData()
@@ -97,10 +110,10 @@ func (n *ControllerPrediction) Merge(in *ControllerPrediction) {
 
 // AddControllerPrediction Add Controller Prediction into ControllersPredictionMap
 func (n *ControllerPredictionMap) AddControllerPrediction(controllerPrediction *ControllerPrediction) {
-	controllerName := controllerPrediction.ObjectMeta.Name
-	if existControllerPrediction, exist := n.MetricMap[controllerName]; exist {
+	identifier := controllerPrediction.Identifier()
+	if existControllerPrediction, exist := n.MetricMap[identifier]; exist {
 		existControllerPrediction.Merge(controllerPrediction)
 	} else {
-		n.MetricMap[controllerName] = controllerPrediction
+		n.MetricMap[identifier] = controllerPrediction
 	}
 }

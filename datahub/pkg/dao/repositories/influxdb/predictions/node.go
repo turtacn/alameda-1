@@ -55,7 +55,7 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Node,
-		GroupByTags:    []string{string(EntityInfluxPrediction.NodeName), string(EntityInfluxPrediction.NodeIsScheduled)},
+		GroupByTags:    []string{string(EntityInfluxPrediction.NodeName), string(EntityInfluxPrediction.NodeClusterName), string(EntityInfluxPrediction.NodeIsScheduled)},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {

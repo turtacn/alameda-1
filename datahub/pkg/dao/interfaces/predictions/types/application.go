@@ -5,6 +5,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
+	"strings"
 )
 
 type ApplicationPredictionsDAO interface {
@@ -54,6 +55,17 @@ func NewListApplicationPredictionRequest() ListApplicationPredictionsRequest {
 	return request
 }
 
+func (n *ApplicationPrediction) Identifier() string {
+	if !n.ObjectMeta.IsEmpty() {
+		valueList := make([]string, 0)
+		valueList = append(valueList, n.ObjectMeta.ClusterName)
+		valueList = append(valueList, n.ObjectMeta.Namespace)
+		valueList = append(valueList, n.ObjectMeta.Name)
+		return strings.Join(valueList, "/")
+	}
+	return ""
+}
+
 func (n *ApplicationPrediction) AddRawSample(metricType enumconv.MetricType, granularity int64, sample types.PredictionSample) {
 	if _, exist := n.PredictionRaw[metricType]; !exist {
 		n.PredictionRaw[metricType] = types.NewPredictionMetricData()
@@ -95,10 +107,10 @@ func (n *ApplicationPrediction) Merge(in *ApplicationPrediction) {
 
 // AddApplicationPrediction Add application Prediction into ApplicationsPredictionMap
 func (n *ApplicationPredictionMap) AddApplicationPrediction(applicationPrediction *ApplicationPrediction) {
-	applicationName := applicationPrediction.ObjectMeta.Name
-	if existApplicationPrediction, exist := n.MetricMap[applicationName]; exist {
+	identifier := applicationPrediction.Identifier()
+	if existApplicationPrediction, exist := n.MetricMap[identifier]; exist {
 		existApplicationPrediction.Merge(applicationPrediction)
 	} else {
-		n.MetricMap[applicationName] = applicationPrediction
+		n.MetricMap[identifier] = applicationPrediction
 	}
 }

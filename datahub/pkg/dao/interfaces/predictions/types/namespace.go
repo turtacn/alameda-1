@@ -5,6 +5,7 @@ import (
 	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/types"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
+	"strings"
 )
 
 type NamespacePredictionsDAO interface {
@@ -54,6 +55,16 @@ func NewListNamespacePredictionRequest() ListNamespacePredictionsRequest {
 	return request
 }
 
+func (n *NamespacePrediction) Identifier() string {
+	if !n.ObjectMeta.IsEmpty() {
+		valueList := make([]string, 0)
+		valueList = append(valueList, n.ObjectMeta.ClusterName)
+		valueList = append(valueList, n.ObjectMeta.Name)
+		return strings.Join(valueList, "/")
+	}
+	return ""
+}
+
 func (n *NamespacePrediction) AddRawSample(metricType enumconv.MetricType, granularity int64, sample types.PredictionSample) {
 	if _, exist := n.PredictionRaw[metricType]; !exist {
 		n.PredictionRaw[metricType] = types.NewPredictionMetricData()
@@ -95,10 +106,10 @@ func (n *NamespacePrediction) Merge(in *NamespacePrediction) {
 
 // AddNamespacePrediction Add namespace Prediction into namespacesPredictionMap
 func (n *NamespacePredictionMap) AddNamespacePrediction(namespacePrediction *NamespacePrediction) {
-	namespaceName := namespacePrediction.ObjectMeta.Name
-	if existNamespacePrediction, exist := n.MetricMap[namespaceName]; exist {
+	identifier := namespacePrediction.Identifier()
+	if existNamespacePrediction, exist := n.MetricMap[identifier]; exist {
 		existNamespacePrediction.Merge(namespacePrediction)
 	} else {
-		n.MetricMap[namespaceName] = namespacePrediction
+		n.MetricMap[identifier] = namespacePrediction
 	}
 }

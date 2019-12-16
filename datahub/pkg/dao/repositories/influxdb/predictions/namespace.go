@@ -55,7 +55,7 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Namespace,
-		GroupByTags:    []string{string(EntityInfluxPrediction.NamespaceName)},
+		GroupByTags:    []string{string(EntityInfluxPrediction.NamespaceName), string(EntityInfluxPrediction.NamespaceClusterName)},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
