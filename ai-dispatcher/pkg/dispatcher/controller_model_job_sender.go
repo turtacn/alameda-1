@@ -68,10 +68,11 @@ func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Co
 	dataGranularity := queue.GetGranularityStr(granularity)
 	controllerNS := controller.GetObjectMeta().GetNamespace()
 	controllerName := controller.GetObjectMeta().GetName()
+	controllerKindStr := controller.GetKind().String()
 	controllerStr, err := marshaler.MarshalToString(controller)
 	if err != nil {
 		scope.Errorf("[CONTROLLER][%s][%s][%s/%s] Encode pb message failed. %s",
-			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+			controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 		return
 	}
 	if len(controllerInfo.ModelMetrics) > 0 && controllerStr != "" {
@@ -80,20 +81,20 @@ func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Co
 		if err != nil {
 			scope.Errorf(
 				"[CONTROLLER][%s][%s][%s/%s] Prepare model job payload failed. %s",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 			return
 		}
 
-		controllerJobStr := fmt.Sprintf("%s/%s/%v", controllerNS, controllerName, granularity)
+		controllerJobStr := fmt.Sprintf("%s/%s/%s/%v", controllerKindStr, controllerNS, controllerName, granularity)
 		scope.Infof("[CONTROLLER][%s][%s][%s/%s] Try to send controller model job: %s",
-			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, controllerJobStr)
+			controllerKindStr, dataGranularity, controllerNS, controllerName, controllerJobStr)
 		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, controllerJobStr, granularity)
 		if err == nil {
 			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, controllerInfo)
 		} else {
 			scope.Errorf(
 				"[CONTROLLER][%s][%s][%s/%s] Send model job payload failed. %s",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 		}
 	}
 }

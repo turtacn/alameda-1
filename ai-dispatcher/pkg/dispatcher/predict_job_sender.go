@@ -220,11 +220,12 @@ func (dispatcher *predictJobSender) SendControllerPredictJobs(
 	for _, controller := range controllers {
 		controllerNS := controller.GetObjectMeta().GetNamespace()
 		controllerName := controller.GetObjectMeta().GetName()
+		controllerKindStr := controller.GetKind().String()
 		controllerStr, err := marshaler.MarshalToString(controller)
 		if err != nil {
 			scope.Errorf(
 				"[CONTROLLER][%s][%s][%s/%s] Encode pb message failed. %s",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 			continue
 		}
 		jb := queue.NewJobBuilder(pdUnit, granularity, controllerStr)
@@ -232,17 +233,17 @@ func (dispatcher *predictJobSender) SendControllerPredictJobs(
 		if err != nil {
 			scope.Errorf(
 				"[CONTROLLER][%s][%s][%s/%s] Prepare predict job payload failed. %s",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 			continue
 		}
 
-		controllerJobStr := fmt.Sprintf("%s/%s/%v", controllerNS, controllerName, granularity)
+		controllerJobStr := fmt.Sprintf("%s/%s/%s/%v", controllerKindStr, controllerNS, controllerName, granularity)
 		scope.Infof("[CONTROLLER][%s][%s][%s/%s] Try to send predict job: %s",
-			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, controllerJobStr)
+			controllerKindStr, dataGranularity, controllerNS, controllerName, controllerJobStr)
 		err = queueSender.SendJsonString(queueName, jobJSONStr, controllerJobStr, granularity)
 		if err != nil {
 			scope.Errorf("[CONTROLLER][%s][%s][%s/%s] Send predict job failed. %s",
-				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 		}
 	}
 }
