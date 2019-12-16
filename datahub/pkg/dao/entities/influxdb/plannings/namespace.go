@@ -7,6 +7,7 @@ const (
 	NamespacePlanningId   namespaceTag = "planning_id"
 	NamespacePlanningType namespaceTag = "planning_type"
 	NamespaceTime         namespaceTag = "time"
+	NamespaceClusterName  namespaceTag = "cluster_name"
 	NamespaceName         namespaceTag = "name"
 	NamespaceGranularity  namespaceTag = "granularity"
 
@@ -29,6 +30,7 @@ var (
 		NamespacePlanningId,
 		NamespacePlanningType,
 		NamespaceTime,
+		NamespaceClusterName,
 		NamespaceName,
 		NamespaceGranularity,
 	}

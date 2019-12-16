@@ -37,8 +37,9 @@ func (c *NodeRepository) CreateRecommendations(recommendations []*ApiRecommendat
 			recommendedSpec := recommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
-				EntityInfluxRecommend.NodeName: recommendation.GetObjectMeta().GetName(),
-				EntityInfluxRecommend.NodeType: ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
+				EntityInfluxRecommend.NodeClusterName: recommendation.GetObjectMeta().GetClusterName(),
+				EntityInfluxRecommend.NodeName:        recommendation.GetObjectMeta().GetName(),
+				EntityInfluxRecommend.NodeType:        ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -109,17 +110,26 @@ func (c *NodeRepository) ListRecommendations(in *ApiRecommendations.ListNodeReco
 	kind := in.GetKind().String()
 
 	for _, objMeta := range in.GetObjectMeta() {
+		clusterName := objMeta.GetClusterName()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxRecommend.NodeClusterName,
 			EntityInfluxRecommend.NodeName,
-			EntityInfluxRecommend.NodeKind,
 		}
-		valueList := []string{name, kind}
+		valueList := []string{
+			clusterName,
+			name,
+		}
 
 		if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_UNDEFINED.String() {
 			keyList = append(keyList, EntityInfluxRecommend.NodeType)
 			valueList = append(valueList, recommendationType)
+		}
+
+		if kind != ApiResources.Kind_KIND_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxRecommend.NodeKind)
+			valueList = append(valueList, kind)
 		}
 
 		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
@@ -178,7 +188,8 @@ func (c *NodeRepository) getRecommendationsFromInfluxRows(rows []*InternalInflux
 			if commendationType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
 				tempRecommendation := &ApiRecommendations.NodeRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
-						Name: data[string(EntityInfluxRecommend.NodeName)],
+						ClusterName: data[string(EntityInfluxRecommend.NodeClusterName)],
+						Name:        data[string(EntityInfluxRecommend.NodeName)],
 					},
 					Kind:            commendationKind,
 					RecommendedType: commendationType,
@@ -204,7 +215,8 @@ func (c *NodeRepository) getRecommendationsFromInfluxRows(rows []*InternalInflux
 			} else if commendationType == ApiRecommendations.ControllerRecommendedType_K8S {
 				tempRecommendation := &ApiRecommendations.NodeRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
-						Name: data[string(EntityInfluxRecommend.NodeName)],
+						ClusterName: data[string(EntityInfluxRecommend.NodeClusterName)],
+						Name:        data[string(EntityInfluxRecommend.NodeName)],
 					},
 					Kind:            commendationKind,
 					RecommendedType: commendationType,

@@ -7,7 +7,8 @@ const (
 	// ContainerTime is the time to apply recommendation
 	ContainerTime containerTag = "time"
 	// ContainerNamespace is recommended container namespace
-	ContainerNamespace containerTag = "namespace"
+	ContainerClusterName containerTag = "cluster_name"
+	ContainerNamespace   containerTag = "namespace"
 	// ContainerName is recommended container name
 	ContainerName containerTag = "name"
 	// ContainerPodName is pod name of recommended container
@@ -64,6 +65,7 @@ var (
 	// ContainerTags is list of tags of alameda_container_recommendation measurement
 	ContainerTags = []containerTag{
 		ContainerTime,
+		ContainerClusterName,
 		ContainerNamespace,
 		ContainerName,
 		ContainerPodName,

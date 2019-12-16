@@ -48,6 +48,7 @@ func (c *NamespaceRepository) CreatePlannings(in *ApiPlannings.CreateNamespacePl
 
 		planningId := namespacePlanning.GetPlanningId()
 		planningType := namespacePlanning.GetPlanningType().String()
+		clusterName := namespacePlanning.GetObjectMeta().GetClusterName()
 		name := namespacePlanning.GetObjectMeta().GetName()
 		totalCost := namespacePlanning.GetTotalCost()
 		applyPlanningNow := namespacePlanning.GetApplyPlanningNow()
@@ -57,6 +58,7 @@ func (c *NamespaceRepository) CreatePlannings(in *ApiPlannings.CreateNamespacePl
 			tags := map[string]string{
 				EntityInfluxPlanning.NamespacePlanningId:   planningId,
 				EntityInfluxPlanning.NamespacePlanningType: planningType,
+				EntityInfluxPlanning.NamespaceClusterName:  clusterName,
 				EntityInfluxPlanning.NamespaceName:         name,
 				EntityInfluxPlanning.NamespaceGranularity:  strconv.FormatInt(granularity, 10),
 			}
@@ -202,13 +204,19 @@ func (c *NamespaceRepository) ListPlannings(in *ApiPlannings.ListNamespacePlanni
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxPlanning.NamespaceClusterName,
 			EntityInfluxPlanning.NamespaceName,
 			EntityInfluxPlanning.NamespaceGranularity,
 		}
-		valueList := []string{name, strconv.FormatInt(granularity, 10)}
+		valueList := []string{
+			clusterName,
+			name,
+			strconv.FormatInt(granularity, 10),
+		}
 
 		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
 			keyList = append(keyList, EntityInfluxPlanning.NamespacePlanningType)
@@ -266,7 +274,8 @@ func (c *NamespaceRepository) queryPlannings(cmd string, granularity int64) ([]*
 			namespacePlanning := &ApiPlannings.NamespacePlanning{}
 			namespacePlanning.PlanningId = data[EntityInfluxPlanning.NamespacePlanningId]
 			namespacePlanning.ObjectMeta = &ApiResources.ObjectMeta{
-				Name: data[EntityInfluxPlanning.NamespaceName],
+				ClusterName: data[EntityInfluxPlanning.NamespaceClusterName],
+				Name:        data[EntityInfluxPlanning.NamespaceName],
 			}
 
 			var planningType ApiPlannings.PlanningType

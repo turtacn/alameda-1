@@ -48,6 +48,7 @@ func (c *NodeRepository) CreatePlannings(in *ApiPlannings.CreateNodePlanningsReq
 
 		planningId := nodePlanning.GetPlanningId()
 		planningType := nodePlanning.GetPlanningType().String()
+		clusterName := nodePlanning.GetObjectMeta().GetClusterName()
 		name := nodePlanning.GetObjectMeta().GetName()
 		totalCost := nodePlanning.GetTotalCost()
 		applyPlanningNow := nodePlanning.GetApplyPlanningNow()
@@ -57,6 +58,7 @@ func (c *NodeRepository) CreatePlannings(in *ApiPlannings.CreateNodePlanningsReq
 			tags := map[string]string{
 				EntityInfluxPlanning.NodePlanningId:   planningId,
 				EntityInfluxPlanning.NodePlanningType: planningType,
+				EntityInfluxPlanning.NodeClusterName:  clusterName,
 				EntityInfluxPlanning.NodeName:         name,
 				EntityInfluxPlanning.NodeGranularity:  strconv.FormatInt(granularity, 10),
 			}
@@ -202,13 +204,19 @@ func (c *NodeRepository) ListPlannings(in *ApiPlannings.ListNodePlanningsRequest
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxPlanning.NodeClusterName,
 			EntityInfluxPlanning.NodeName,
 			EntityInfluxPlanning.NodeGranularity,
 		}
-		valueList := []string{name, strconv.FormatInt(granularity, 10)}
+		valueList := []string{
+			clusterName,
+			name,
+			strconv.FormatInt(granularity, 10),
+		}
 
 		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
 			keyList = append(keyList, EntityInfluxPlanning.NodePlanningType)
@@ -266,7 +274,8 @@ func (c *NodeRepository) queryPlannings(cmd string, granularity int64) ([]*ApiPl
 			nodePlanning := &ApiPlannings.NodePlanning{}
 			nodePlanning.PlanningId = data[EntityInfluxPlanning.NodePlanningId]
 			nodePlanning.ObjectMeta = &ApiResources.ObjectMeta{
-				Name: data[EntityInfluxPlanning.NodeName],
+				ClusterName: data[EntityInfluxPlanning.NodeClusterName],
+				Name:        data[EntityInfluxPlanning.NodeName],
 			}
 
 			var planningType ApiPlannings.PlanningType

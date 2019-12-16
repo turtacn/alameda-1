@@ -4,9 +4,10 @@ type nodeTag = string
 type nodeField = string
 
 const (
-	NodeTime nodeTag = "time"
-	NodeName nodeTag = "name"
-	NodeType nodeTag = "type"
+	NodeTime        nodeTag = "time"
+	NodeClusterName nodeTag = "cluster_name"
+	NodeName        nodeTag = "name"
+	NodeType        nodeTag = "type"
 
 	NodeKind              nodeField = "kind"
 	NodeCurrentReplicas   nodeField = "current_replicas"
@@ -24,6 +25,7 @@ const (
 var (
 	NodeTags = []nodeTag{
 		NodeTime,
+		NodeClusterName,
 		NodeName,
 		NodeType,
 	}

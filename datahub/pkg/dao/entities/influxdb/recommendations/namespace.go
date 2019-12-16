@@ -4,9 +4,10 @@ type namespaceTag = string
 type namespaceField = string
 
 const (
-	NamespaceTime namespaceTag = "time"
-	NamespaceName namespaceTag = "name"
-	NamespaceType namespaceTag = "type"
+	NamespaceTime        namespaceTag = "time"
+	NamespaceClusterName namespaceTag = "cluster_name"
+	NamespaceName        namespaceTag = "name"
+	NamespaceType        namespaceTag = "type"
 
 	NamespaceKind              namespaceField = "kind"
 	NamespaceCurrentReplicas   namespaceField = "current_replicas"
@@ -24,6 +25,7 @@ const (
 var (
 	NamespaceTags = []namespaceTag{
 		NamespaceTime,
+		NamespaceClusterName,
 		NamespaceName,
 		NamespaceType,
 	}

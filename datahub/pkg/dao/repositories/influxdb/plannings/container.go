@@ -64,6 +64,9 @@ func (c *ContainerRepository) CreateContainerPlannings(in *ApiPlannings.CreatePo
 			//TODO
 		}
 
+		planningId := podPlanning.GetPlanningId()
+		planningType := podPlanning.GetPlanningType().String()
+		clusterName := podPlanning.GetObjectMeta().GetClusterName()
 		podNS := podPlanning.GetObjectMeta().GetNamespace()
 		podName := podPlanning.GetObjectMeta().GetName()
 		podTotalCost := podPlanning.GetTotalCost()
@@ -91,7 +94,9 @@ func (c *ContainerRepository) CreateContainerPlannings(in *ApiPlannings.CreatePo
 
 		for _, containerPlanning := range containerPlannings {
 			tags := map[string]string{
-				EntityInfluxPlanning.ContainerPlanningType: podPlanning.GetPlanningType().String(),
+				EntityInfluxPlanning.ContainerPlanningId:   planningId,
+				EntityInfluxPlanning.ContainerPlanningType: planningType,
+				EntityInfluxPlanning.ContainerClusterName:  clusterName,
 				EntityInfluxPlanning.ContainerNamespace:    podNS,
 				EntityInfluxPlanning.ContainerPodName:      podName,
 				EntityInfluxPlanning.ContainerName:         containerPlanning.GetName(),
@@ -245,15 +250,18 @@ func (c *ContainerRepository) ListContainerPlannings(in *ApiPlannings.ListPodPla
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
 		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxPlanning.ContainerClusterName,
 			EntityInfluxPlanning.ContainerNamespace,
 			EntityInfluxPlanning.ContainerPodName,
 			EntityInfluxPlanning.ContainerGranularity,
 		}
 		valueList := []string{
+			clusterName,
 			namespace,
 			name,
 			strconv.FormatInt(granularity, 10),
@@ -297,8 +305,9 @@ func (c *ContainerRepository) queryPlannings(cmd string, granularity int64) ([]*
 			podPlanning := &ApiPlannings.PodPlanning{}
 			podPlanning.PlanningType = ApiPlannings.PlanningType(ApiPlannings.PlanningType_value[data[EntityInfluxPlanning.ContainerPlanningType]])
 			podPlanning.ObjectMeta = &ApiResources.ObjectMeta{
-				Namespace: data[EntityInfluxPlanning.ContainerNamespace],
-				Name:      data[EntityInfluxPlanning.ContainerPodName],
+				ClusterName: data[EntityInfluxPlanning.ContainerClusterName],
+				Namespace:   data[EntityInfluxPlanning.ContainerNamespace],
+				Name:        data[EntityInfluxPlanning.ContainerPodName],
 			}
 
 			tempTopControllerKind := data[EntityInfluxPlanning.ContainerTopControllerKind]

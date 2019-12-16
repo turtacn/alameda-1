@@ -37,8 +37,9 @@ func (c *NamespaceRepository) CreateRecommendations(recommendations []*ApiRecomm
 			recommendedSpec := recommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
-				EntityInfluxRecommend.NamespaceName: recommendation.GetObjectMeta().GetName(),
-				EntityInfluxRecommend.NamespaceType: ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
+				EntityInfluxRecommend.NamespaceClusterName: recommendation.GetObjectMeta().GetClusterName(),
+				EntityInfluxRecommend.NamespaceName:        recommendation.GetObjectMeta().GetName(),
+				EntityInfluxRecommend.NamespaceType:        ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -109,17 +110,26 @@ func (c *NamespaceRepository) ListRecommendations(in *ApiRecommendations.ListNam
 	kind := in.GetKind().String()
 
 	for _, objMeta := range in.GetObjectMeta() {
+		cluster := objMeta.GetClusterName()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxRecommend.NamespaceClusterName,
 			EntityInfluxRecommend.NamespaceName,
-			EntityInfluxRecommend.NamespaceKind,
 		}
-		valueList := []string{name, kind}
+		valueList := []string{
+			cluster,
+			name,
+		}
 
 		if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_UNDEFINED.String() {
 			keyList = append(keyList, EntityInfluxRecommend.NamespaceType)
 			valueList = append(valueList, recommendationType)
+		}
+
+		if kind != ApiResources.Kind_KIND_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxRecommend.NamespaceKind)
+			valueList = append(valueList, kind)
 		}
 
 		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
@@ -178,7 +188,8 @@ func (c *NamespaceRepository) getRecommendationsFromInfluxRows(rows []*InternalI
 			if commendationType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
 				tempRecommendation := &ApiRecommendations.NamespaceRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
-						Name: data[string(EntityInfluxRecommend.NamespaceName)],
+						ClusterName: data[string(EntityInfluxRecommend.NamespaceClusterName)],
+						Name:        data[string(EntityInfluxRecommend.NamespaceName)],
 					},
 					Kind:            commendationKind,
 					RecommendedType: commendationType,
@@ -204,7 +215,8 @@ func (c *NamespaceRepository) getRecommendationsFromInfluxRows(rows []*InternalI
 			} else if commendationType == ApiRecommendations.ControllerRecommendedType_K8S {
 				tempRecommendation := &ApiRecommendations.NamespaceRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
-						Name: data[string(EntityInfluxRecommend.NamespaceName)],
+						ClusterName: data[string(EntityInfluxRecommend.NamespaceClusterName)],
+						Name:        data[string(EntityInfluxRecommend.NamespaceName)],
 					},
 					Kind:            commendationKind,
 					RecommendedType: commendationType,

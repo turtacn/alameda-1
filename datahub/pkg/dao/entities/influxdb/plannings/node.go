@@ -7,6 +7,7 @@ const (
 	NodePlanningId   nodeTag = "planning_id"
 	NodePlanningType nodeTag = "planning_type"
 	NodeTime         nodeTag = "time"
+	NodeClusterName  nodeTag = "cluster_name"
 	NodeName         nodeTag = "name"
 	NodeGranularity  nodeTag = "granularity"
 
@@ -29,6 +30,7 @@ var (
 		NodePlanningId,
 		NodePlanningType,
 		NodeTime,
+		NodeClusterName,
 		NodeName,
 		NodeGranularity,
 	}

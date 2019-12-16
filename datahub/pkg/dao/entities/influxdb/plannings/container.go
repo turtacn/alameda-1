@@ -4,8 +4,10 @@ type containerTag = string
 type containerField = string
 
 const (
+	ContainerPlanningId   containerTag = "planning_id"
 	ContainerPlanningType containerTag = "planning_type"
 	ContainerTime         containerTag = "time"
+	ContainerClusterName  containerTag = "cluster_name"
 	ContainerNamespace    containerTag = "namespace"
 	ContainerName         containerTag = "name"
 	ContainerPodName      containerTag = "pod_name"
@@ -47,6 +49,7 @@ var (
 var (
 	ContainerTags = []containerTag{
 		ContainerTime,
+		ContainerClusterName,
 		ContainerNamespace,
 		ContainerName,
 		ContainerPodName,

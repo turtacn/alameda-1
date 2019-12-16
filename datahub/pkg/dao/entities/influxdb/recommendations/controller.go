@@ -4,10 +4,11 @@ type controllerTag = string
 type controllerField = string
 
 const (
-	ControllerTime      controllerTag = "time"
-	ControllerNamespace controllerTag = "namespace"
-	ControllerName      controllerTag = "name"
-	ControllerType      controllerTag = "type"
+	ControllerTime        controllerTag = "time"
+	ControllerClusterName controllerTag = "cluster_name"
+	ControllerNamespace   controllerTag = "namespace"
+	ControllerName        controllerTag = "name"
+	ControllerType        controllerTag = "type"
 
 	ControllerKind              controllerField = "kind"
 	ControllerCurrentReplicas   controllerField = "current_replicas"
@@ -26,6 +27,7 @@ var (
 	// ControllerTags is list of tags of alameda_controller_recommendation measurement
 	ControllerTags = []controllerTag{
 		ControllerTime,
+		ControllerClusterName,
 		ControllerNamespace,
 		ControllerName,
 		ControllerType,

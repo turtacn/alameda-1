@@ -63,6 +63,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *ApiRecommendati
 			//TODO
 		}
 
+		clusterName := podRecommendation.GetObjectMeta().GetNamespace()
 		podNS := podRecommendation.GetObjectMeta().GetNamespace()
 		podName := podRecommendation.GetObjectMeta().GetName()
 		podTotalCost := podRecommendation.GetTotalCost()
@@ -90,6 +91,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *ApiRecommendati
 
 		for _, containerRecommendation := range containerRecommendations {
 			tags := map[string]string{
+				EntityInfluxRecommend.ContainerClusterName: clusterName,
 				EntityInfluxRecommend.ContainerNamespace:   podNS,
 				EntityInfluxRecommend.ContainerPodName:     podName,
 				EntityInfluxRecommend.ContainerName:        containerRecommendation.GetName(),
@@ -231,7 +233,7 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Container,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
-		GroupByTags:    []string{EntityInfluxRecommend.ContainerName, EntityInfluxRecommend.ContainerNamespace, EntityInfluxRecommend.ContainerPodName},
+		GroupByTags:    []string{EntityInfluxRecommend.ContainerClusterName, EntityInfluxRecommend.ContainerName, EntityInfluxRecommend.ContainerNamespace, EntityInfluxRecommend.ContainerPodName},
 	}
 
 	kind := in.GetKind()
@@ -243,6 +245,8 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
+		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
 		nameCol := ""
@@ -259,8 +263,19 @@ func (c *ContainerRepository) ListContainerRecommendations(in *ApiRecommendation
 			return podRecommendations, errors.Errorf("no matching kind for Datahub Kind, received Kind: %s", ApiResources.Kind_name[int32(kind)])
 		}
 
-		keyList := []string{nameCol, EntityInfluxRecommend.ContainerGranularity}
-		valueList := []string{name, strconv.FormatInt(granularity, 10)}
+		keyList := []string{
+			EntityInfluxRecommend.ContainerClusterName,
+			EntityInfluxRecommend.ContainerNamespace,
+			nameCol,
+			EntityInfluxRecommend.ContainerGranularity,
+		}
+
+		valueList := []string{
+			clusterName,
+			namespace,
+			name,
+			strconv.FormatInt(granularity, 10),
+		}
 
 		if kind != ApiResources.Kind_KIND_UNDEFINED {
 			keyList = append(keyList, EntityInfluxRecommend.ContainerTopControllerKind)
@@ -298,12 +313,14 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Container,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
-		GroupByTags:    []string{EntityInfluxRecommend.ContainerName, EntityInfluxRecommend.ContainerNamespace, EntityInfluxRecommend.ContainerPodName},
+		GroupByTags:    []string{EntityInfluxRecommend.ContainerClusterName, EntityInfluxRecommend.ContainerName, EntityInfluxRecommend.ContainerNamespace, EntityInfluxRecommend.ContainerPodName},
 	}
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
 		name := objMeta.GetName()
+		namespace := objMeta.GetNamespace()
 
 		nameCol := ""
 		switch kind {
@@ -322,6 +339,8 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 		applyTime := in.GetQueryCondition().GetTimeRange().GetApplyTime().GetSeconds()
 
 		conditionList := []string{
+			fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ClusterName, clusterName),
+			fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerNamespace, namespace),
 			fmt.Sprintf("\"%s\"='%s'", nameCol, name),
 			fmt.Sprintf("\"%s\"='%d'", EntityInfluxRecommend.ContainerGranularity, granularity),
 			fmt.Sprintf("\"%s\">=%d", EntityInfluxRecommend.ContainerStartTime, applyTime),
@@ -365,8 +384,9 @@ func (c *ContainerRepository) queryRecommendation(cmd string, granularity int64)
 		for _, data := range row.Data {
 			podRecommendation := &ApiRecommendations.PodRecommendation{}
 			podRecommendation.ObjectMeta = &ApiResources.ObjectMeta{
-				Namespace: data[EntityInfluxRecommend.ContainerNamespace],
-				Name:      data[EntityInfluxRecommend.ContainerPodName],
+				ClusterName: data[string(EntityInfluxRecommend.ContainerClusterName)],
+				Namespace:   data[EntityInfluxRecommend.ContainerNamespace],
+				Name:        data[EntityInfluxRecommend.ContainerPodName],
 			}
 
 			tempTopControllerKind := data[EntityInfluxRecommend.ContainerTopControllerKind]

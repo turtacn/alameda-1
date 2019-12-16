@@ -4,10 +4,11 @@ type appTag = string
 type appField = string
 
 const (
-	AppTime      appTag = "time"
-	AppNamespace appTag = "namespace"
-	AppName      appTag = "name"
-	AppType      appTag = "type"
+	AppTime        appTag = "time"
+	AppClusterName appTag = "cluster_name"
+	AppNamespace   appTag = "namespace"
+	AppName        appTag = "name"
+	AppType        appTag = "type"
 
 	AppKind              appField = "kind"
 	AppCurrentReplicas   appField = "current_replicas"
@@ -25,6 +26,7 @@ const (
 var (
 	AppTags = []appTag{
 		AppTime,
+		AppClusterName,
 		AppNamespace,
 		AppName,
 		AppType,

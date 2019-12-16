@@ -37,9 +37,10 @@ func (c *ControllerRepository) CreateControllerRecommendations(controllerRecomme
 			recommendedSpec := controllerRecommendation.GetRecommendedSpec()
 
 			tags := map[string]string{
-				EntityInfluxRecommend.ControllerNamespace: controllerRecommendation.GetObjectMeta().GetNamespace(),
-				EntityInfluxRecommend.ControllerName:      controllerRecommendation.GetObjectMeta().GetName(),
-				EntityInfluxRecommend.ControllerType:      ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
+				EntityInfluxRecommend.ControllerClusterName: controllerRecommendation.GetObjectMeta().GetClusterName(),
+				EntityInfluxRecommend.ControllerNamespace:   controllerRecommendation.GetObjectMeta().GetNamespace(),
+				EntityInfluxRecommend.ControllerName:        controllerRecommendation.GetObjectMeta().GetName(),
+				EntityInfluxRecommend.ControllerType:        ApiRecommendations.ControllerRecommendedType_PRIMITIVE.String(),
 			}
 
 			fields := map[string]interface{}{
@@ -111,19 +112,29 @@ func (c *ControllerRepository) ListControllerRecommendations(in *ApiRecommendati
 	kind := in.GetKind().String()
 
 	for _, objMeta := range in.GetObjectMeta() {
+		cluster := objMeta.GetClusterName()
 		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxRecommend.ControllerClusterName,
 			EntityInfluxRecommend.ControllerNamespace,
 			EntityInfluxRecommend.ControllerName,
-			EntityInfluxRecommend.ControllerKind,
 		}
-		valueList := []string{namespace, name, kind}
+		valueList := []string{
+			cluster,
+			namespace,
+			name,
+		}
 
 		if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_UNDEFINED.String() {
 			keyList = append(keyList, EntityInfluxRecommend.ControllerType)
 			valueList = append(valueList, recommendationType)
+		}
+
+		if kind != ApiResources.Kind_KIND_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxRecommend.ControllerKind)
+			valueList = append(valueList, kind)
 		}
 
 		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
@@ -182,8 +193,9 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 			if commendationType == ApiRecommendations.ControllerRecommendedType_PRIMITIVE {
 				tempRecommendation := &ApiRecommendations.ControllerRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
-						Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
-						Name:      data[string(EntityInfluxRecommend.ControllerName)],
+						ClusterName: data[string(EntityInfluxRecommend.ControllerClusterName)],
+						Namespace:   data[string(EntityInfluxRecommend.ControllerNamespace)],
+						Name:        data[string(EntityInfluxRecommend.ControllerName)],
 					},
 					Kind:            commendationKind,
 					RecommendedType: commendationType,
@@ -209,8 +221,9 @@ func (c *ControllerRepository) getControllersRecommendationsFromInfluxRows(rows 
 			} else if commendationType == ApiRecommendations.ControllerRecommendedType_K8S {
 				tempRecommendation := &ApiRecommendations.ControllerRecommendation{
 					ObjectMeta: &ApiResources.ObjectMeta{
-						Namespace: data[string(EntityInfluxRecommend.ControllerNamespace)],
-						Name:      data[string(EntityInfluxRecommend.ControllerName)],
+						ClusterName: data[string(EntityInfluxRecommend.ControllerClusterName)],
+						Namespace:   data[string(EntityInfluxRecommend.ControllerNamespace)],
+						Name:        data[string(EntityInfluxRecommend.ControllerName)],
 					},
 					Kind:            commendationKind,
 					RecommendedType: commendationType,

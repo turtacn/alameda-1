@@ -47,6 +47,7 @@ func (c *AppRepository) CreatePlannings(in *ApiPlannings.CreateApplicationPlanni
 
 		planningId := appPlanning.GetPlanningId()
 		planningType := appPlanning.GetPlanningType().String()
+		clusterName := appPlanning.GetObjectMeta().GetClusterName()
 		namespace := appPlanning.GetObjectMeta().GetNamespace()
 		name := appPlanning.GetObjectMeta().GetName()
 		totalCost := appPlanning.GetTotalCost()
@@ -57,6 +58,7 @@ func (c *AppRepository) CreatePlannings(in *ApiPlannings.CreateApplicationPlanni
 			tags := map[string]string{
 				EntityInfluxPlanning.AppPlanningId:   planningId,
 				EntityInfluxPlanning.AppPlanningType: planningType,
+				EntityInfluxPlanning.AppClusterName:  clusterName,
 				EntityInfluxPlanning.AppNamespace:    namespace,
 				EntityInfluxPlanning.AppName:         name,
 				EntityInfluxPlanning.AppGranularity:  strconv.FormatInt(granularity, 10),
@@ -203,15 +205,22 @@ func (c *AppRepository) ListPlannings(in *ApiPlannings.ListApplicationPlanningsR
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
 		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxPlanning.AppClusterName,
 			EntityInfluxPlanning.AppNamespace,
 			EntityInfluxPlanning.AppName,
 			EntityInfluxPlanning.AppGranularity,
 		}
-		valueList := []string{namespace, name, strconv.FormatInt(granularity, 10)}
+		valueList := []string{
+			clusterName,
+			namespace,
+			name,
+			strconv.FormatInt(granularity, 10),
+		}
 
 		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
 			keyList = append(keyList, EntityInfluxPlanning.AppPlanningType)
@@ -269,8 +278,9 @@ func (c *AppRepository) queryPlannings(cmd string, granularity int64) ([]*ApiPla
 			appPlanning := &ApiPlannings.ApplicationPlanning{}
 			appPlanning.PlanningId = data[EntityInfluxPlanning.AppPlanningId]
 			appPlanning.ObjectMeta = &ApiResources.ObjectMeta{
-				Namespace: data[EntityInfluxPlanning.AppNamespace],
-				Name:      data[EntityInfluxPlanning.AppName],
+				ClusterName: data[EntityInfluxPlanning.AppClusterName],
+				Namespace:   data[EntityInfluxPlanning.AppNamespace],
+				Name:        data[EntityInfluxPlanning.AppName],
 			}
 
 			var planningType ApiPlannings.PlanningType

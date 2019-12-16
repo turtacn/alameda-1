@@ -7,6 +7,7 @@ const (
 	AppPlanningId   appTag = "planning_id"
 	AppPlanningType appTag = "planning_type"
 	AppTime         appTag = "time"
+	AppClusterName  appTag = "cluster_name"
 	AppNamespace    appTag = "namespace"
 	AppName         appTag = "name"
 	AppGranularity  appTag = "granularity"
@@ -46,6 +47,7 @@ var (
 		AppPlanningId,
 		AppPlanningType,
 		AppTime,
+		AppClusterName,
 		AppNamespace,
 		AppName,
 		AppGranularity,

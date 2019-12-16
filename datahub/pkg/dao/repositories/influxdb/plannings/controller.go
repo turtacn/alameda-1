@@ -48,6 +48,7 @@ func (c *ControllerRepository) CreateControllerPlannings(in *ApiPlannings.Create
 
 		planningId := controllerPlanning.GetPlanningId()
 		planningType := controllerPlanning.GetPlanningType().String()
+		clusterName := controllerPlanning.GetObjectMeta().GetClusterName()
 		namespace := controllerPlanning.GetObjectMeta().GetNamespace()
 		name := controllerPlanning.GetObjectMeta().GetName()
 		totalCost := controllerPlanning.GetTotalCost()
@@ -59,6 +60,7 @@ func (c *ControllerRepository) CreateControllerPlannings(in *ApiPlannings.Create
 			tags := map[string]string{
 				EntityInfluxPlanning.ControllerPlanningId:   planningId,
 				EntityInfluxPlanning.ControllerPlanningType: planningType,
+				EntityInfluxPlanning.ControllerClusterName:  clusterName,
 				EntityInfluxPlanning.ControllerNamespace:    namespace,
 				EntityInfluxPlanning.ControllerName:         name,
 				EntityInfluxPlanning.ControllerGranularity:  strconv.FormatInt(granularity, 10),
@@ -207,18 +209,25 @@ func (c *ControllerRepository) ListControllerPlannings(in *ApiPlannings.ListCont
 
 	for _, objMeta := range in.GetObjectMeta() {
 		tempCondition := ""
+		clusterName := objMeta.GetClusterName()
 		namespace := objMeta.GetNamespace()
 		name := objMeta.GetName()
 
 		keyList := []string{
+			EntityInfluxPlanning.ControllerClusterName,
 			EntityInfluxPlanning.ControllerNamespace,
-			EntityInfluxPlanning.ClusterName,
-			EntityInfluxPlanning.ClusterGranularity,
+			EntityInfluxPlanning.ControllerName,
+			EntityInfluxPlanning.ControllerGranularity,
 		}
-		valueList := []string{namespace, name, strconv.FormatInt(granularity, 10)}
+		valueList := []string{
+			clusterName,
+			namespace,
+			name,
+			strconv.FormatInt(granularity, 10),
+		}
 
 		if planningType != ApiPlannings.PlanningType_PT_UNDEFINED.String() {
-			keyList = append(keyList, EntityInfluxPlanning.ClusterPlanningType)
+			keyList = append(keyList, EntityInfluxPlanning.ControllerPlanningType)
 			valueList = append(valueList, planningType)
 		}
 
@@ -283,8 +292,9 @@ func (c *ControllerRepository) queryPlannings(cmd string, granularity int64) ([]
 			controllerPlanning := &ApiPlannings.ControllerPlanning{}
 			controllerPlanning.PlanningId = data[EntityInfluxPlanning.ControllerPlanningId]
 			controllerPlanning.ObjectMeta = &ApiResources.ObjectMeta{
-				Namespace: data[EntityInfluxPlanning.ControllerNamespace],
-				Name:      data[EntityInfluxPlanning.ControllerName],
+				ClusterName: data[EntityInfluxPlanning.ControllerClusterName],
+				Namespace:   data[EntityInfluxPlanning.ControllerNamespace],
+				Name:        data[EntityInfluxPlanning.ControllerName],
 			}
 
 			var kind ApiResources.Kind

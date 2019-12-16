@@ -7,6 +7,7 @@ const (
 	ControllerPlanningId   controllerTag = "planning_id"
 	ControllerPlanningType controllerTag = "planning_type"
 	ControllerTime         controllerTag = "time"
+	ControllerClusterName  controllerTag = "cluster_name"
 	ControllerNamespace    controllerTag = "namespace"
 	ControllerName         controllerTag = "name"
 	ControllerGranularity  controllerTag = "granularity"
@@ -32,6 +33,7 @@ var (
 		ControllerPlanningId,
 		ControllerPlanningType,
 		ControllerTime,
+		ControllerClusterName,
 		ControllerNamespace,
 		ControllerName,
 		ControllerGranularity,

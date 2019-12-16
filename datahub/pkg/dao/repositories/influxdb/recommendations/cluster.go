@@ -113,13 +113,17 @@ func (c *ClusterRepository) ListRecommendations(in *ApiRecommendations.ListClust
 
 		keyList := []string{
 			EntityInfluxRecommend.ClusterName,
-			EntityInfluxRecommend.ClusterKind,
 		}
-		valueList := []string{name, kind}
+		valueList := []string{name}
 
 		if recommendationType != ApiRecommendations.ControllerRecommendedType_CRT_UNDEFINED.String() {
-			keyList = append(keyList, EntityInfluxRecommend.ControllerType)
+			keyList = append(keyList, EntityInfluxRecommend.ClusterType)
 			valueList = append(valueList, recommendationType)
+		}
+
+		if kind != ApiResources.Kind_KIND_UNDEFINED.String() {
+			keyList = append(keyList, EntityInfluxRecommend.ClusterKind)
+			valueList = append(valueList, kind)
 		}
 
 		tempCondition := influxdbStatement.GenerateCondition(keyList, valueList, "AND")
