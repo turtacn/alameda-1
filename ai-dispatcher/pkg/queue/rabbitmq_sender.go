@@ -31,12 +31,12 @@ func (sender *RabbitMQSender) SendJsonString(queueName, jsonStr, msgID string, g
 
 		err = sender.sendJob(queueName, jsonStr, msgID)
 		if err == nil {
+			scope.Infof("[%s] Send job successfully.", msgID)
 			return nil
 		} else {
-			scope.Errorf("Send job failed due to %s. Retry job sending later if sending process does not reach timeout",
-				err.Error())
+			scope.Errorf("[%s] Send job failed due to %s. Retry job sending later if sending process does not reach timeout",
+				msgID, err.Error())
 		}
-
 		time.Sleep(time.Duration(publishRetryIntervalMS) * time.Millisecond)
 	}
 	if err != nil {
@@ -127,6 +127,16 @@ func (sender *RabbitMQSender) sendJob(queueName, jsonStr, msgID string) error {
 			}
 			return nil
 		case <-ticker.C:
+			err := queueCH.Close()
+			if err != nil {
+				scope.Errorf(err.Error())
+			}
+			if !sender.conn.IsClosed() {
+				err := sender.conn.Close()
+				if err != nil {
+					scope.Errorf(err.Error())
+				}
+			}
 			return fmt.Errorf("send job to queue %s timeout", queueName)
 		}
 	}
