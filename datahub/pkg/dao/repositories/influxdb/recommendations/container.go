@@ -63,7 +63,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *ApiRecommendati
 			//TODO
 		}
 
-		clusterName := podRecommendation.GetObjectMeta().GetNamespace()
+		clusterName := podRecommendation.GetObjectMeta().GetClusterName()
 		podNS := podRecommendation.GetObjectMeta().GetNamespace()
 		podName := podRecommendation.GetObjectMeta().GetName()
 		podTotalCost := podRecommendation.GetTotalCost()
