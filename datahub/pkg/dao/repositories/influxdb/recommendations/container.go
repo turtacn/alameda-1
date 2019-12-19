@@ -338,14 +338,19 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *ApiRecommendat
 
 		applyTime := in.GetQueryCondition().GetTimeRange().GetApplyTime().GetSeconds()
 
-		conditionList := []string{
-			fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ClusterName, clusterName),
-			fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerNamespace, namespace),
-			fmt.Sprintf("\"%s\"='%s'", nameCol, name),
-			fmt.Sprintf("\"%s\"='%d'", EntityInfluxRecommend.ContainerGranularity, granularity),
-			fmt.Sprintf("\"%s\">=%d", EntityInfluxRecommend.ContainerStartTime, applyTime),
-			fmt.Sprintf("\"%s\"<=%d", EntityInfluxRecommend.ContainerEndTime, applyTime),
+		conditionList := make([]string, 0)
+		if clusterName != "" {
+			conditionList = append(conditionList, fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerClusterName, clusterName))
 		}
+		if namespace != "" {
+			conditionList = append(conditionList, fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerNamespace, namespace))
+		}
+		if name != "" {
+			conditionList = append(conditionList, fmt.Sprintf("\"%s\"='%s'", nameCol, name))
+		}
+		conditionList = append(conditionList, fmt.Sprintf("\"%s\"='%d'", EntityInfluxRecommend.ContainerGranularity, granularity))
+		conditionList = append(conditionList, fmt.Sprintf("\"%s\"<=%d", EntityInfluxRecommend.ContainerStartTime, applyTime))
+		conditionList = append(conditionList, fmt.Sprintf("\"%s\">=%d", EntityInfluxRecommend.ContainerEndTime, applyTime))
 
 		if kind != ApiResources.Kind_KIND_UNDEFINED {
 			kindCondition := fmt.Sprintf("\"%s\"='%s'", EntityInfluxRecommend.ContainerTopControllerKind, kind.String())
