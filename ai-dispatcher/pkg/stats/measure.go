@@ -3,6 +3,7 @@ package stats
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strconv"
 
 	stats_errors "github.com/containers-ai/alameda/ai-dispatcher/pkg/stats/errors"
@@ -70,19 +71,29 @@ func MAPE(measurementDataSet map[int64]*MeasurementData,
 	granularity int64) (float64, error) {
 	nPts := 0.0
 	result := 0.0
+	times := []int64{}
+	for time, _ := range measurementDataSet {
+		times = append(times, time)
+	}
+	sort.Slice(times, func(i, j int) bool { return times[i] > times[j] })
+
 	scope.Debugf("Start MAPE calculation")
-	for _, data := range measurementDataSet {
+	for _, time := range times {
+		data := measurementDataSet[time]
 		metricValue := data.GetMetricData()
 		if metricValue == 0 {
-			scope.Warnf("Real value is 0 in MAPE measurement, skip this point")
+			scope.Warnf("[MAPE] Real value is 0 in MAPE measurement, skip this point")
 			continue
 		}
 		predictValue := data.GetPredictData()
 		nPts = nPts + 1
 		deltaRatio := math.Abs(predictValue-metricValue) / metricValue
 		result = result + deltaRatio
-		scope.Debugf("(real value: %v, predict value: %v, delta ratio: %v)",
-			metricValue, predictValue, deltaRatio)
+		scope.Debugf("[MAPE] (time: %d, real value: %v, predict value: %v, delta ratio: %v)",
+			time, metricValue, predictValue, deltaRatio)
+		if viper.GetFloat64("measurements.maximumDataPoints") == nPts {
+			break
+		}
 	}
 	if nPts == 0 {
 		return 0, fmt.Errorf(stats_errors.ErrorNoDataPoints)
@@ -109,15 +120,23 @@ func RMSE(measurementDataSet map[int64]*MeasurementData,
 	} else if metricType == datahub_common.MetricType_DUTY_CYCLE {
 		normalize = viper.GetFloat64("measurements.rmse.normalization.dutyCycle")
 	}
+
+	times := []int64{}
+	for time, _ := range measurementDataSet {
+		times = append(times, time)
+	}
+	sort.Slice(times, func(i, j int) bool { return times[i] > times[j] })
+
 	scope.Debugf("Start RMSE calculation")
-	for _, data := range measurementDataSet {
+	for _, time := range times {
+		data := measurementDataSet[time]
 		metricValue := data.GetMetricData()
 		predictValue := data.GetPredictData()
 		nPts = nPts + 1
 		square := math.Pow(math.Abs((predictValue-metricValue)/normalize), 2)
 		result = result + square
-		scope.Debugf("(Use %v to normalize. normalized real value: %v, normalized predict value: %v, square %v)",
-			normalize, metricValue/normalize, predictValue/normalize, square)
+		scope.Debugf("[RMSE] (Use %v to normalize. time: %d, normalized real value: %v, normalized predict value: %v, square %v)",
+			normalize, time, metricValue/normalize, predictValue/normalize, square)
 	}
 	if nPts == 0 {
 		return 0, fmt.Errorf(stats_errors.ErrorNoDataPoints)
