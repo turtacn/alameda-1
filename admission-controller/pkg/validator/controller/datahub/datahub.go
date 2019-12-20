@@ -67,15 +67,19 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 	}
 	controller := resp.Controllers[0]
 
-	if controller.AlamedaControllerSpec == nil || controller.AlamedaControllerSpec.AlamedaScaler == nil {
-		return false, errors.Errorf("cannot find matched AlamedaScaler to controller (%s/%s ,kind: %s) from datahub", namespace, name, kind)
+	if controller == nil {
+		return false, errors.Errorf("receive nil controller from datahub")
+	}
+	asNamesapce, asName, err := getWatchingAlamedaScalerNamespaceNameByController(*controller)
+	if err != nil {
+		return false, errors.Errorf("get AlamedaScaler identity watching controller (%s/%s ,kind: %s) failed", namespace, name, kind)
 	}
 	alamedaScaler := autoscaling_v1alpha1.AlamedaScaler{}
 	err = v.sigsK8SClient.Get(
 		ctx,
 		client.ObjectKey{
-			Namespace: controller.AlamedaControllerSpec.AlamedaScaler.Namespace,
-			Name:      controller.AlamedaControllerSpec.AlamedaScaler.Name,
+			Namespace: asNamesapce,
+			Name:      asName,
 		},
 		&alamedaScaler)
 	if err != nil {
@@ -90,6 +94,30 @@ func (v *validator) IsControllerEnabledExecution(namespace, name, kind string) (
 		name: %s
 	}`, namespace, name, kind, alamedaScaler.Namespace, alamedaScaler.Name)
 	return alamedaScaler.IsEnableExecution() && alamedaScaler.IsScalingToolTypeVPA(), nil
+}
+
+func getWatchingAlamedaScalerNamespaceNameByController(controller datahub_resources.Controller) (string, string, error) {
+
+	namespace := ""
+	name := ""
+
+	if controller.ObjectMeta == nil {
+		return namespace, name, errors.Errorf("nil ObjectMeta")
+	}
+	if controller.ObjectMeta.GetNamespace() == "" {
+		return namespace, name, errors.Errorf("get empty namespace")
+	}
+	namespace = controller.ObjectMeta.GetNamespace()
+
+	if controller.AlamedaControllerSpec == nil || controller.AlamedaControllerSpec.AlamedaScaler == nil {
+		return namespace, name, errors.Errorf("nil ObjectMeta in controller.AlamedaControllerSpec.AlamedaScaler")
+	}
+	if controller.AlamedaControllerSpec.AlamedaScaler.GetName() == "" {
+		return namespace, name, errors.Errorf("get empty name")
+	}
+	name = controller.AlamedaControllerSpec.AlamedaScaler.GetName()
+
+	return namespace, name, nil
 }
 
 func buildDefaultRequestContext() context.Context {
