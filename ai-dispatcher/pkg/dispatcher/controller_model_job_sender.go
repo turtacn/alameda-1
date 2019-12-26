@@ -322,7 +322,7 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 			controllerPredictions := controllerPredictRes.GetControllerPredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(controllerPredictions)
-			if firstPDTime > 0 {
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
 			controllerMetricsRes, err := datahubServiceClnt.ListControllerMetrics(context.Background(),

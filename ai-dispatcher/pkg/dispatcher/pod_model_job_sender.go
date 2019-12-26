@@ -376,10 +376,9 @@ func (sender *podModelJobSender) sendJobByMetrics(pod *datahub_resources.Pod, qu
 				podPredictions := podPredictRes.GetPodPredictions()
 				queryStartTime := time.Now().Unix() - predictionStep*granularity
 				firstPDTime := sender.getQueryMetricStartTime(podPredictions)
-				if firstPDTime > 0 {
+				if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 					queryStartTime = firstPDTime
 				}
-
 				aggFun := datahub_common.TimeRange_AVG
 				if granularity == 30 {
 					aggFun = datahub_common.TimeRange_MAX

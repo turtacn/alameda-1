@@ -308,7 +308,7 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 			nodePredictions := nodePredictRes.GetNodePredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(nodePredictions)
-			if firstPDTime > 0 {
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix(){
 				queryStartTime = firstPDTime
 			}
 			nodeMetricsRes, err := datahubServiceClnt.ListNodeMetrics(context.Background(),

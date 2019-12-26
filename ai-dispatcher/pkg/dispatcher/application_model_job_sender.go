@@ -321,7 +321,7 @@ func (sender *applicationModelJobSender) sendJobByMetrics(application *datahub_r
 			applicationPredictions := applicationPredictRes.GetApplicationPredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(applicationPredictions)
-			if firstPDTime > 0 {
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
 			applicationMetricsRes, err := datahubServiceClnt.ListApplicationMetrics(context.Background(),

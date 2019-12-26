@@ -305,7 +305,7 @@ func (sender *clusterModelJobSender) sendJobByMetrics(cluster *datahub_resources
 			clusterPredictions := clusterPredictRes.GetClusterPredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(clusterPredictions)
-			if firstPDTime > 0 {
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
 			clusterMetricsRes, err := datahubServiceClnt.ListClusterMetrics(context.Background(),

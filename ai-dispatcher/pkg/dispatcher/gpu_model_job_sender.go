@@ -300,7 +300,7 @@ func (sender *gpuModelJobSender) sendJobByMetrics(gpu *datahub_gpu.Gpu, queueSen
 			gpuPredictions := gpuPredictRes.GetGpuPredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(gpuPredictions)
-			if firstPDTime > 0 {
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
 			gpuMetricsRes, err := datahubServiceClnt.ListGpuMetrics(context.Background(),
