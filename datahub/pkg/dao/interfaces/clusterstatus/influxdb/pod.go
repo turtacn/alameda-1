@@ -19,14 +19,28 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 	delContainerReq := DaoClusterTypes.NewDeleteContainersRequest()
 	for _, pod := range pods {
 		containerMeta := DaoClusterTypes.ContainerObjectMeta{}
-		containerMeta.PodName = pod.ObjectMeta.Name
-		containerMeta.Namespace = pod.ObjectMeta.Namespace
-		containerMeta.NodeName = pod.ObjectMeta.NodeName
-		containerMeta.ClusterName = pod.ObjectMeta.ClusterName
-		containerMeta.TopControllerName = pod.TopController.ObjectMeta.Name
-		containerMeta.TopControllerKind = pod.TopController.Kind
-		containerMeta.AlamedaScalerName = pod.AlamedaPodSpec.AlamedaScaler.Name
-		containerMeta.AlamedaScalerScalingTool = pod.AlamedaPodSpec.ScalingTool
+
+		if pod.ObjectMeta != nil {
+			containerMeta.PodName = pod.ObjectMeta.Name
+			containerMeta.Namespace = pod.ObjectMeta.Namespace
+			containerMeta.NodeName = pod.ObjectMeta.NodeName
+			containerMeta.ClusterName = pod.ObjectMeta.ClusterName
+		}
+
+		if pod.TopController != nil {
+			if pod.TopController.ObjectMeta != nil {
+				containerMeta.TopControllerName = pod.TopController.ObjectMeta.Name
+			}
+			containerMeta.TopControllerKind = pod.TopController.Kind
+		}
+
+		if pod.AlamedaPodSpec != nil {
+			if pod.AlamedaPodSpec.AlamedaScaler != nil {
+				containerMeta.AlamedaScalerName = pod.AlamedaPodSpec.AlamedaScaler.Name
+			}
+			containerMeta.AlamedaScalerScalingTool = pod.AlamedaPodSpec.ScalingTool
+		}
+
 		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, &containerMeta)
 	}
 

@@ -75,17 +75,20 @@ func NewAlamedaApplicationSpec(entity *clusterstatus.ApplicationEntity) *Alameda
 }
 
 func (p *Application) BuildEntity() *clusterstatus.ApplicationEntity {
-	entity := clusterstatus.ApplicationEntity{
-		// InfluxDB tags
-		Time:        influxdb.ZeroTime,
-		Name:        p.ObjectMeta.Name,
-		Namespace:   p.ObjectMeta.Namespace,
-		ClusterName: p.ObjectMeta.ClusterName,
-		Uid:         p.ObjectMeta.Uid,
-		ScalingTool: p.AlamedaApplicationSpec.ScalingTool,
+	entity := clusterstatus.ApplicationEntity{}
 
-		// InfluxDB fields
-		Value: "",
+	entity.Time = influxdb.ZeroTime
+	entity.Value = ""
+
+	if p.ObjectMeta != nil {
+		entity.Name = p.ObjectMeta.Name
+		entity.Namespace = p.ObjectMeta.Namespace
+		entity.ClusterName = p.ObjectMeta.ClusterName
+		entity.Uid = p.ObjectMeta.Uid
+	}
+
+	if p.AlamedaApplicationSpec != nil {
+		entity.ScalingTool = p.AlamedaApplicationSpec.ScalingTool
 	}
 
 	return &entity

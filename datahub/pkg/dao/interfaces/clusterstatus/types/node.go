@@ -104,12 +104,18 @@ func NewProvider(entity *clusterstatus.NodeEntity) *Provider {
 }
 
 func (p *Node) BuildEntity() *clusterstatus.NodeEntity {
-	entity := clusterstatus.NodeEntity{
-		Time:        influxdb.ZeroTime,
-		Name:        p.ObjectMeta.Name,
-		ClusterName: p.ObjectMeta.ClusterName,
-		Uid:         p.ObjectMeta.Uid,
-		CreateTime:  p.CreateTime.GetSeconds(),
+	entity := clusterstatus.NodeEntity{}
+
+	entity.Time = influxdb.ZeroTime
+
+	if p.ObjectMeta != nil {
+		entity.Name = p.ObjectMeta.Name
+		entity.ClusterName = p.ObjectMeta.ClusterName
+		entity.Uid = p.ObjectMeta.Uid
+	}
+
+	if p.CreateTime != nil {
+		entity.CreateTime = p.CreateTime.GetSeconds()
 	}
 
 	if p.Capacity != nil {
@@ -118,8 +124,8 @@ func (p *Node) BuildEntity() *clusterstatus.NodeEntity {
 		entity.NetworkMbps = p.Capacity.NetworkMegabitsPerSecond
 	}
 
-	if nodeSpec := p.AlamedaNodeSpec; nodeSpec != nil {
-		if nodeSpec.Provider != nil {
+	if p.AlamedaNodeSpec != nil {
+		if p.AlamedaNodeSpec.Provider != nil {
 			entity.IOProvider = p.AlamedaNodeSpec.Provider.Provider
 			entity.IOInstanceType = p.AlamedaNodeSpec.Provider.InstanceType
 			entity.IORegion = p.AlamedaNodeSpec.Provider.Region

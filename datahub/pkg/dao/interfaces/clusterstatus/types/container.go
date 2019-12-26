@@ -138,7 +138,6 @@ func (p *Container) BuildEntity() *clusterstatus.ContainerEntity {
 	entity.TopControllerKind = p.TopControllerKind
 	entity.AlamedaScalerName = p.AlamedaScalerName
 	entity.AlamedaScalerScalingTool = p.AlamedaScalerScalingTool
-	entity.RestartCount = p.Status.RestartCount
 
 	// Build resources
 	if p.Resources != nil {
@@ -192,6 +191,8 @@ func (p *Container) BuildEntity() *clusterstatus.ContainerEntity {
 				entity.LastTerminationTerminatedFinishedAt = p.Status.LastTerminationState.Terminated.FinishedAt.GetSeconds()
 			}
 		}
+
+		entity.RestartCount = p.Status.RestartCount
 	}
 
 	return &entity

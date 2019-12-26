@@ -48,14 +48,15 @@ func NewDeleteClustersRequest() *DeleteClustersRequest {
 }
 
 func (p *Cluster) BuildEntity() *clusterstatus.ClusterEntity {
-	entity := clusterstatus.ClusterEntity{
-		// InfluxDB tags
-		Time: influxdb.ZeroTime,
-		Name: p.ObjectMeta.Name,
-		Uid:  p.ObjectMeta.Uid,
+	entity := clusterstatus.ClusterEntity{}
 
-		// InfluxDB fields
-		Value: p.Value,
+	entity.Time = influxdb.ZeroTime
+	entity.Value = p.Value
+
+	if p.ObjectMeta != nil {
+		entity.Name = p.ObjectMeta.Name
+		entity.Uid = p.ObjectMeta.Uid
 	}
+
 	return &entity
 }

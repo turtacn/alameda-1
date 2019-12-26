@@ -146,18 +146,26 @@ func (p *Pod) BuildEntity() *clusterstatus.PodEntity {
 	entity := clusterstatus.PodEntity{}
 
 	entity.Time = influxdb.ZeroTime
-	entity.Name = p.ObjectMeta.Name
-	entity.Namespace = p.ObjectMeta.Namespace
-	entity.NodeName = p.ObjectMeta.NodeName
-	entity.ClusterName = p.ObjectMeta.ClusterName
-	entity.Uid = p.ObjectMeta.Uid
-	entity.CreateTime = p.CreateTime.GetSeconds()
 	entity.ResourceLink = p.ResourceLink
 	entity.AppName = p.AppName
 	entity.AppPartOf = p.AppPartOf
 
+	if p.ObjectMeta != nil {
+		entity.Name = p.ObjectMeta.Name
+		entity.Namespace = p.ObjectMeta.Namespace
+		entity.NodeName = p.ObjectMeta.NodeName
+		entity.ClusterName = p.ObjectMeta.ClusterName
+		entity.Uid = p.ObjectMeta.Uid
+	}
+
+	if p.CreateTime != nil {
+		entity.CreateTime = p.CreateTime.GetSeconds()
+	}
+
 	if p.TopController != nil {
-		entity.TopControllerName = p.TopController.ObjectMeta.Name
+		if p.TopController.ObjectMeta != nil {
+			entity.TopControllerName = p.TopController.ObjectMeta.Name
+		}
 		entity.TopControllerKind = p.TopController.Kind
 		entity.TopControllerReplicas = p.TopController.Replicas
 	}
@@ -169,7 +177,10 @@ func (p *Pod) BuildEntity() *clusterstatus.PodEntity {
 	}
 
 	if p.AlamedaPodSpec != nil {
-		entity.AlamedaSpecScalerName = p.AlamedaPodSpec.AlamedaScaler.Name
+		if p.AlamedaPodSpec.AlamedaScaler != nil {
+			entity.AlamedaSpecScalerName = p.AlamedaPodSpec.AlamedaScaler.Name
+		}
+
 		entity.AlamedaSpecPolicy = p.AlamedaPodSpec.Policy
 		entity.AlamedaSpecUsedRecommendationID = p.AlamedaPodSpec.UsedRecommendationId
 		entity.AlamedaSpecScalerScalingTool = p.AlamedaPodSpec.ScalingTool

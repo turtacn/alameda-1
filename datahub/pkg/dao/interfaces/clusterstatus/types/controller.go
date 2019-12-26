@@ -92,22 +92,27 @@ func NewAlamedaControllerSpec(entity *clusterstatus.ControllerEntity) *AlamedaCo
 }
 
 func (p *Controller) BuildEntity() *clusterstatus.ControllerEntity {
-	entity := clusterstatus.ControllerEntity{
-		// InfluxDB tags
-		Time:                   influxdb.ZeroTime,
-		Name:                   p.ObjectMeta.Name,
-		Namespace:              p.ObjectMeta.Namespace,
-		ClusterName:            p.ObjectMeta.ClusterName,
-		Uid:                    p.ObjectMeta.Uid,
-		Kind:                   p.Kind,
-		AlamedaSpecScalerName:  p.AlamedaControllerSpec.AlamedaScaler.Name,
-		AlamedaSpecScalingTool: p.AlamedaControllerSpec.ScalingTool,
+	entity := clusterstatus.ControllerEntity{}
 
-		// InfluxDB fields
-		Replicas:                   p.Replicas,
-		SpecReplicas:               p.SpecReplicas,
-		AlamedaSpecPolicy:          p.AlamedaControllerSpec.Policy,
-		AlamedaSpecEnableExecution: strconv.FormatBool(p.AlamedaControllerSpec.EnableExecution),
+	entity.Time = influxdb.ZeroTime
+	entity.Kind = p.Kind
+	entity.Replicas = p.Replicas
+	entity.SpecReplicas = p.SpecReplicas
+
+	if p.ObjectMeta != nil {
+		entity.Name = p.ObjectMeta.Name
+		entity.Namespace = p.ObjectMeta.Namespace
+		entity.ClusterName = p.ObjectMeta.ClusterName
+		entity.Uid = p.ObjectMeta.Uid
+	}
+
+	if p.AlamedaControllerSpec != nil {
+		if p.AlamedaControllerSpec.AlamedaScaler != nil {
+			entity.AlamedaSpecScalerName = p.AlamedaControllerSpec.AlamedaScaler.Name
+		}
+		entity.AlamedaSpecScalingTool = p.AlamedaControllerSpec.ScalingTool
+		entity.AlamedaSpecPolicy = p.AlamedaControllerSpec.Policy
+		entity.AlamedaSpecEnableExecution = strconv.FormatBool(p.AlamedaControllerSpec.EnableExecution)
 	}
 
 	return &entity

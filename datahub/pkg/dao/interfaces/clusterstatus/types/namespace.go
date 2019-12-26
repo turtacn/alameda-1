@@ -50,15 +50,16 @@ func NewDeleteNamespacesRequest() *DeleteNamespacesRequest {
 }
 
 func (p *Namespace) BuildEntity() *clusterstatus.NamespaceEntity {
-	entity := clusterstatus.NamespaceEntity{
-		// InfluxDB tags
-		Time:        influxdb.ZeroTime,
-		Name:        p.ObjectMeta.Name,
-		ClusterName: p.ObjectMeta.ClusterName,
-		Uid:         p.ObjectMeta.Uid,
+	entity := clusterstatus.NamespaceEntity{}
 
-		// InfluxDB fields
-		Value: p.Value,
+	entity.Time = influxdb.ZeroTime
+	entity.Value = p.Value
+
+	if p.ObjectMeta != nil {
+		entity.Name = p.ObjectMeta.Name
+		entity.ClusterName = p.ObjectMeta.ClusterName
+		entity.Uid = p.ObjectMeta.Uid
 	}
+
 	return &entity
 }

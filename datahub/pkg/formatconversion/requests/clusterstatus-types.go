@@ -6,15 +6,17 @@ import (
 )
 
 func NewAlamedaControllerSpec(controllerSpec *resources.AlamedaControllerSpec) *types.AlamedaControllerSpec {
-	objectMeta := NewObjectMeta(controllerSpec.GetAlamedaScaler())
+	if controllerSpec != nil {
+		objectMeta := NewObjectMeta(controllerSpec.GetAlamedaScaler())
 
-	spec := types.AlamedaControllerSpec{
-		AlamedaScaler:   &objectMeta,
-		ScalingTool:     controllerSpec.GetScalingTool().String(),
-		Policy:          controllerSpec.GetPolicy().String(),
-		EnableExecution: controllerSpec.GetEnableRecommendationExecution(),
+		spec := &types.AlamedaControllerSpec{}
+		spec.AlamedaScaler = &objectMeta
+		spec.ScalingTool = controllerSpec.GetScalingTool().String()
+		spec.Policy = controllerSpec.GetPolicy().String()
+		spec.EnableExecution = controllerSpec.GetEnableRecommendationExecution()
+		return spec
 	}
-	return &spec
+	return nil
 }
 
 func NewAlamedaPodSpec(podSpec *resources.AlamedaPodSpec) *types.AlamedaPodSpec {
@@ -44,17 +46,16 @@ func NewAlamedaApplicationSpec(applicationSpec *resources.AlamedaApplicationSpec
 func NewAlamedaNodeSpec(nodeSpec *resources.AlamedaNodeSpec) *types.AlamedaNodeSpec {
 	if nodeSpec != nil {
 		spec := &types.AlamedaNodeSpec{}
-		if provider := nodeSpec.Provider; provider != nil {
-			spec.Provider = &types.Provider{
-				Provider:     provider.Provider,
-				InstanceType: provider.InstanceType,
-				Region:       provider.Region,
-				Zone:         provider.Zone,
-				Os:           provider.Os,
-				Role:         provider.Role,
-				InstanceId:   provider.InstanceId,
-				StorageSize:  provider.StorageSize,
-			}
+		if nodeSpec.Provider != nil {
+			spec.Provider = &types.Provider{}
+			spec.Provider.Provider = nodeSpec.Provider.Provider
+			spec.Provider.InstanceType = nodeSpec.Provider.InstanceType
+			spec.Provider.Region = nodeSpec.Provider.Region
+			spec.Provider.Zone = nodeSpec.Provider.Zone
+			spec.Provider.Os = nodeSpec.Provider.Os
+			spec.Provider.Role = nodeSpec.Provider.Role
+			spec.Provider.InstanceId = nodeSpec.Provider.InstanceId
+			spec.Provider.StorageSize = nodeSpec.Provider.StorageSize
 		}
 		return spec
 	}
@@ -63,11 +64,10 @@ func NewAlamedaNodeSpec(nodeSpec *resources.AlamedaNodeSpec) *types.AlamedaNodeS
 
 func NewCapacity(capacity *resources.Capacity) *types.Capacity {
 	if capacity != nil {
-		c := &types.Capacity{
-			CpuCores:                 capacity.CpuCores,
-			MemoryBytes:              capacity.MemoryBytes,
-			NetworkMegabitsPerSecond: capacity.NetworkMegabitsPerSecond,
-		}
+		c := &types.Capacity{}
+		c.CpuCores = capacity.CpuCores
+		c.MemoryBytes = capacity.MemoryBytes
+		c.NetworkMegabitsPerSecond = capacity.NetworkMegabitsPerSecond
 		return c
 	}
 	return nil
@@ -75,7 +75,7 @@ func NewCapacity(capacity *resources.Capacity) *types.Capacity {
 
 func NewResourceRequirements(resourceReq *resources.ResourceRequirements) *types.ResourceRequirements {
 	if resourceReq != nil {
-		requirements := types.ResourceRequirements{}
+		requirements := &types.ResourceRequirements{}
 		if resourceReq.GetLimits() != nil {
 			requirements.Limits = make(map[int32]string)
 			for k, v := range resourceReq.GetLimits() {
@@ -88,7 +88,7 @@ func NewResourceRequirements(resourceReq *resources.ResourceRequirements) *types
 				requirements.Requests[k] = v
 			}
 		}
-		return &requirements
+		return requirements
 	}
 	return nil
 }
