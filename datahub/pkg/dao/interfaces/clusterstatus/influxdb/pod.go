@@ -16,32 +16,19 @@ func NewPodWithConfig(config InternalInflux.Config) DaoClusterTypes.PodDAO {
 }
 
 func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
-	delContainerReq := DaoClusterTypes.NewDeleteContainersRequest()
+	delPodReq := DaoClusterTypes.NewDeletePodsRequest()
 	for _, pod := range pods {
-		containerMeta := DaoClusterTypes.ContainerObjectMeta{}
-
+		podMeta := DaoClusterTypes.PodObjectMeta{}
 		if pod.ObjectMeta != nil {
-			containerMeta.PodName = pod.ObjectMeta.Name
-			containerMeta.Namespace = pod.ObjectMeta.Namespace
-			containerMeta.NodeName = pod.ObjectMeta.NodeName
-			containerMeta.ClusterName = pod.ObjectMeta.ClusterName
+			podMeta.ObjectMeta = pod.ObjectMeta
 		}
-
-		if pod.TopController != nil {
-			if pod.TopController.ObjectMeta != nil {
-				containerMeta.TopControllerName = pod.TopController.ObjectMeta.Name
-			}
-			containerMeta.TopControllerKind = pod.TopController.Kind
+		if pod.TopController != nil && pod.TopController.ObjectMeta != nil{
+			podMeta.TopController = pod.TopController.ObjectMeta
 		}
-
-		if pod.AlamedaPodSpec != nil {
-			if pod.AlamedaPodSpec.AlamedaScaler != nil {
-				containerMeta.AlamedaScalerName = pod.AlamedaPodSpec.AlamedaScaler.Name
-			}
-			containerMeta.AlamedaScalerScalingTool = pod.AlamedaPodSpec.ScalingTool
+		if pod.AlamedaPodSpec != nil && pod.AlamedaPodSpec.AlamedaScaler != nil {
+			podMeta.AlamedaScaler = pod.AlamedaPodSpec.AlamedaScaler
 		}
-
-		delContainerReq.ContainerObjectMeta = append(delContainerReq.ContainerObjectMeta, &containerMeta)
+		delPodReq.PodObjectMeta = append(delPodReq.PodObjectMeta, &podMeta)
 	}
 
 	containerMap := make(map[string][]*DaoClusterTypes.Container)
@@ -53,15 +40,15 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 		}
 	}
 
-	// Do delete containers before creating them
-	containerRepo := RepoInfluxCluster.NewContainerRepository(p.InfluxDBConfig)
-	err := containerRepo.DeleteContainers(delContainerReq)
+	// Do delete pods before creating them
+	err := p.DeletePods(delPodReq)
 	if err != nil {
-		scope.Error("failed to delete container in influxdb when creating pods")
+		scope.Error("failed to delete pods first in influxdb before creating them")
 		return err
 	}
 
 	// Create containers
+	containerRepo := RepoInfluxCluster.NewContainerRepository(p.InfluxDBConfig)
 	if err := containerRepo.CreateContainers(containerMap); err != nil {
 		scope.Error(err.Error())
 		return err
