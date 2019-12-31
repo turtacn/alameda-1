@@ -30,6 +30,7 @@ import (
 	"github.com/pkg/errors"
 
 	autoscalingv1alpha1 "github.com/containers-ai/alameda/operator/api/v1alpha1"
+	datahub_client "github.com/containers-ai/alameda/operator/datahub/client"
 	datahub_application "github.com/containers-ai/alameda/operator/datahub/client/application"
 	datahub_controller "github.com/containers-ai/alameda/operator/datahub/client/controller"
 	datahub_namespace "github.com/containers-ai/alameda/operator/datahub/client/namespace"
@@ -640,8 +641,11 @@ func (r *AlamedaScalerReconciler) handleAlamedaScalerDeletion(namespace, name st
 func (r *AlamedaScalerReconciler) deleteControllersFromDatahubByAlamedaScaler(ctx context.Context, namespace, name string) error {
 
 	application, err := r.DatahubApplicationRepo.GetApplication(ctx, namespace, name)
-	if err != nil {
+	if err != nil && err != datahub_client.ErrResourceNotFound {
 		return errors.Wrap(err, "get application failed")
+	} else if err == datahub_client.ErrResourceNotFound {
+		scope.Infof("Application(%s/%s) not found, skip deleting controllers.", namespace, name)
+		return nil
 	}
 
 	controllerMap := map[datahub_resources.Kind][]*datahub_resources.ObjectMeta{

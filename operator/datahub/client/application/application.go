@@ -83,9 +83,9 @@ func (repo *ApplicationRepository) GetApplication(ctx context.Context, namespace
 		return datahub_resources.Application{}, errors.Wrap(err, "list applications from Datahub failed")
 	}
 	if len(resp.Applications) < 1 {
-		return datahub_resources.Application{}, errors.New("not found")
+		return datahub_resources.Application{}, client.ErrResourceNotFound
 	} else if resp.Applications[0] == nil {
-		return datahub_resources.Application{}, errors.New("not found")
+		return datahub_resources.Application{}, client.ErrResourceNotFound
 	} else if len(resp.Applications) > 1 {
 		return datahub_resources.Application{}, errors.Errorf("length of applications from Datahub %d > 1", len(resp.Applications))
 	}
