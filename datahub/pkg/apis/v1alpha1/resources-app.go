@@ -14,6 +14,10 @@ import (
 func (s *ServiceV1alpha1) CreateApplications(ctx context.Context, in *ApiResources.CreateApplicationsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateApplications grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	if in.GetApplications() == nil {
+		return &status.Status{Code: int32(code.Code_OK)}, nil
+	}
+
 	requestExtended := FormatRequest.CreateApplicationsRequestExtended{CreateApplicationsRequest: *in}
 	if requestExtended.Validate() != nil {
 		return &status.Status{
