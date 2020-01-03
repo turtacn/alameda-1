@@ -9,6 +9,11 @@ import (
 var scope = log.RegisterScope("probe", "ai dispatcher health probe", 0)
 
 func LivenessProbe(cfg *LivenessProbeConfig) {
+	err := checkRabbitmqNotBlock(cfg.QueueURL)
+	if err != nil {
+		scope.Errorf("Liveness probe: rabbitmq failed due to %s", err.Error())
+		os.Exit(1)
+	}
 	os.Exit(0)
 }
 
