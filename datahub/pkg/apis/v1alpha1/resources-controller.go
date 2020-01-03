@@ -14,6 +14,10 @@ import (
 func (s *ServiceV1alpha1) CreateControllers(ctx context.Context, in *ApiResources.CreateControllersRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateControllers grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	if in.GetControllers() == nil {
+		return &status.Status{Code: int32(code.Code_OK)}, nil
+	}
+
 	requestExtended := FormatRequest.CreateControllersRequestExtended{CreateControllersRequest: *in}
 	if requestExtended.Validate() != nil {
 		return &status.Status{
