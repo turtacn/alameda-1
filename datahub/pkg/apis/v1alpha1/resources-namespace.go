@@ -14,6 +14,10 @@ import (
 func (s *ServiceV1alpha1) CreateNamespaces(ctx context.Context, in *ApiResources.CreateNamespacesRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNamespaces grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	if in.GetNamespaces() == nil {
+		return &status.Status{Code: int32(code.Code_OK)}, nil
+	}
+
 	requestExtended := FormatRequest.CreateNamespacesRequestExtended{CreateNamespacesRequest: *in}
 	if requestExtended.Validate() != nil {
 		return &status.Status{

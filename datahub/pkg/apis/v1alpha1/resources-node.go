@@ -15,6 +15,10 @@ import (
 func (s *ServiceV1alpha1) CreateNodes(ctx context.Context, in *ApiResources.CreateNodesRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreateNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	if in.GetNodes() == nil {
+		return &status.Status{Code: int32(code.Code_OK)}, nil
+	}
+
 	requestExtended := FormatRequest.CreateNodesRequestExtended{CreateNodesRequest: *in}
 	if requestExtended.Validate() != nil {
 		return &status.Status{
