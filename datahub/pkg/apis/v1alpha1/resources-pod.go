@@ -15,6 +15,10 @@ import (
 func (s *ServiceV1alpha1) CreatePods(ctx context.Context, in *ApiResources.CreatePodsRequest) (*status.Status, error) {
 	scope.Debug("Request received from CreatePods grpc function: " + AlamedaUtils.InterfaceToString(in))
 
+	if in.GetPods() == nil {
+		return &status.Status{Code: int32(code.Code_OK)}, nil
+	}
+
 	requestExtended := FormatRequest.CreatePodsRequestExtended{CreatePodsRequest: *in}
 	if err := requestExtended.Validate(); err != nil {
 		return &status.Status{

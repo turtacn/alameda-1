@@ -22,7 +22,7 @@ func (p *Pod) CreatePods(pods []*DaoClusterTypes.Pod) error {
 		if pod.ObjectMeta != nil {
 			podMeta.ObjectMeta = pod.ObjectMeta
 		}
-		if pod.TopController != nil && pod.TopController.ObjectMeta != nil{
+		if pod.TopController != nil && pod.TopController.ObjectMeta != nil {
 			podMeta.TopController = pod.TopController.ObjectMeta
 		}
 		if pod.AlamedaPodSpec != nil && pod.AlamedaPodSpec.AlamedaScaler != nil {
