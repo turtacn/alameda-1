@@ -1386,6 +1386,21 @@
           "dashes": true,
           "linewidth": 2,
           "spaceLength": 4
+        },
+        {
+          "alias": "total(prediction)",
+          "color": "#C4162A",
+          "dashLength": 15,
+          "dashes": true,
+          "fill": 0,
+          "linewidth": 2,
+          "spaceLength": 4
+        },
+        {
+          "alias": "total",
+          "color": "#C4162A",
+          "fill": 0,
+          "linewidth": 2
         }
       ],
       "spaceLength": 10,
@@ -1456,6 +1471,84 @@
           "query": "select history + prediction from (select sum(workloadcost) as history from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter group by namespacename),\n(select cumulative_sum(workloadcost) as prediction from alameda_fedemeter..cost_namespace where granularity = '86400' and type = '1' and $timeFilter and time >= now() group by namespacename) group by namespacename fill(previous)",
           "rawQuery": true,
           "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "total",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select cumulative_sum(sum(workloadcost)) from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter group by time(3600s)",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "total(prediction)",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select history + prediction from (select sum(workloadcost) as history from alameda_fedemeter..cost_namespace where granularity = '3600' and type = '0' and $timeFilter), (select cumulative_sum(sum(workloadcost)) as prediction from alameda_fedemeter..cost_namespace where granularity = '86400' and type = '1' and $timeFilter and time >= now() group by time(86400s)) fill(previous)",
+          "rawQuery": true,
+          "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
