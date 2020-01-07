@@ -113,7 +113,7 @@ func (sender *RabbitMQSender) sendJob(queueName, jsonStr, msgID string) error {
 			if confirm != nil {
 				return fmt.Errorf(confirm.Error())
 			}
-			return nil
+			return fmt.Errorf("send jobs to queue %s with unknown exception of notification close", queueName)
 		case confirm := <-sender.connNotify:
 			if !sender.conn.IsClosed() {
 				err := sender.conn.Close()
@@ -125,7 +125,7 @@ func (sender *RabbitMQSender) sendJob(queueName, jsonStr, msgID string) error {
 			if confirm != nil {
 				return fmt.Errorf(confirm.Error())
 			}
-			return nil
+			return fmt.Errorf("send jobs to queue %s with unknown exception of connection notification", queueName)
 		case <-ticker.C:
 			err := queueCH.Close()
 			if err != nil {
