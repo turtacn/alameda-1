@@ -37,6 +37,7 @@ type NamespaceMetricMap struct {
 type ListNamespaceMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []metadata.ObjectMeta
+	MetricTypes []enumconv.MetricType
 }
 
 func NewNamespaceMetric() *NamespaceMetric {

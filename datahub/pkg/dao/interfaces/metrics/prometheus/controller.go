@@ -8,6 +8,8 @@ import (
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -58,7 +60,7 @@ func (p ControllerMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.L
 	if len(controllerMetas) == 0 {
 		return DaoMetricTypes.ControllerMetricMap{}, nil
 	}
-	metricMap, err = p.getControllerMetricMapByObjectMetas(ctx, controllerMetas, options...)
+	metricMap, err = p.getControllerMetricMapByObjectMetas(ctx, controllerMetas, req.MetricTypes, options...)
 	if err != nil {
 		return DaoMetricTypes.ControllerMetricMap{}, errors.Wrap(err, "list controller metrics failed")
 	}
@@ -95,7 +97,7 @@ func (p *ControllerMetrics) listControllerMetasFromRequest(ctx context.Context, 
 	return metas, nil
 }
 
-func (p *ControllerMetrics) getControllerMetricMapByObjectMetas(ctx context.Context, controllerMetas []DaoMetricTypes.ControllerObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.ControllerMetricMap, error) {
+func (p *ControllerMetrics) getControllerMetricMapByObjectMetas(ctx context.Context, controllerMetas []DaoMetricTypes.ControllerObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.ControllerMetricMap, error) {
 	scope.Debugf("getControllerMetricMapByObjectMetas: controllerMetas: %+v", controllerMetas)
 
 	metricMap := DaoMetricTypes.NewControllerMetricMap()
@@ -104,7 +106,7 @@ func (p *ControllerMetrics) getControllerMetricMapByObjectMetas(ctx context.Cont
 	for _, controllerMeta := range controllerMetas {
 		copyControllerMeta := controllerMeta
 		producerWG.Go(func() error {
-			m, err := p.getControllerMetric(ctx, copyControllerMeta, options...)
+			m, err := p.getControllerMetric(ctx, copyControllerMeta, metricTypes, options...)
 			if err != nil {
 				return errors.Wrap(err, "get controller metric failed")
 			}
@@ -132,7 +134,7 @@ func (p *ControllerMetrics) getControllerMetricMapByObjectMetas(ctx context.Cont
 	return metricMap, nil
 }
 
-func (p *ControllerMetrics) getControllerMetric(ctx context.Context, controllerMeta DaoMetricTypes.ControllerObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.ControllerMetric, error) {
+func (p *ControllerMetrics) getControllerMetric(ctx context.Context, controllerMeta DaoMetricTypes.ControllerObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.ControllerMetric, error) {
 
 	emptyControllerMetric := DaoMetricTypes.ControllerMetric{
 		ObjectMeta: controllerMeta,
@@ -147,44 +149,48 @@ func (p *ControllerMetrics) getControllerMetric(ctx context.Context, controllerM
 	metricMap := DaoMetricTypes.NewControllerMetricMap()
 	metricChan := make(chan DaoMetricTypes.ControllerMetric)
 	producerWG := errgroup.Group{}
-	producerWG.Go(func() error {
-		podCPUUsageRepo := RepoPromthMetric.NewPodCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
-		if err != nil {
-			return errors.Wrap(err, "list sum of pod cpu usage metrics failed")
-		}
-		for _, e := range podCPUMetricEntities {
-			controllerEntity := EntityPromthMetric.ControllerCPUUsageMillicoresEntity{
-				NamespaceName:  controllerMeta.Namespace,
-				ControllerName: controllerMeta.Name,
-				ControllerKind: controllerMeta.Kind,
-				Samples:        e.Samples,
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		producerWG.Go(func() error {
+			podCPUUsageRepo := RepoPromthMetric.NewPodCPUUsageRepositoryWithConfig(p.PrometheusConfig)
+			podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
+			if err != nil {
+				return errors.Wrap(err, "list sum of pod cpu usage metrics failed")
 			}
-			m := controllerEntity.ControllerMetric()
-			m.ObjectMeta = controllerMeta
-			metricChan <- m
-		}
-		return nil
-	})
-	producerWG.Go(func() error {
-		podMemoryUsageRepo := RepoPromthMetric.NewPodMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
-		if err != nil {
-			return errors.Wrap(err, "list sum of pod memory usage metrics failed")
-		}
-		for _, e := range podMemoryMetricEntities {
-			controllerEntity := EntityPromthMetric.ControllerMemoryUsageBytesEntity{
-				NamespaceName:  controllerMeta.Namespace,
-				ControllerName: controllerMeta.Name,
-				ControllerKind: controllerMeta.Kind,
-				Samples:        e.Samples,
+			for _, e := range podCPUMetricEntities {
+				controllerEntity := EntityPromthMetric.ControllerCPUUsageMillicoresEntity{
+					NamespaceName:  controllerMeta.Namespace,
+					ControllerName: controllerMeta.Name,
+					ControllerKind: controllerMeta.Kind,
+					Samples:        e.Samples,
+				}
+				m := controllerEntity.ControllerMetric()
+				m.ObjectMeta = controllerMeta
+				metricChan <- m
 			}
-			m := controllerEntity.ControllerMetric()
-			m.ObjectMeta = controllerMeta
-			metricChan <- m
-		}
-		return nil
-	})
+			return nil
+		})
+	}
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		producerWG.Go(func() error {
+			podMemoryUsageRepo := RepoPromthMetric.NewPodMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
+			podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
+			if err != nil {
+				return errors.Wrap(err, "list sum of pod memory usage metrics failed")
+			}
+			for _, e := range podMemoryMetricEntities {
+				controllerEntity := EntityPromthMetric.ControllerMemoryUsageBytesEntity{
+					NamespaceName:  controllerMeta.Namespace,
+					ControllerName: controllerMeta.Name,
+					ControllerKind: controllerMeta.Kind,
+					Samples:        e.Samples,
+				}
+				m := controllerEntity.ControllerMetric()
+				m.ObjectMeta = controllerMeta
+				metricChan <- m
+			}
+			return nil
+		})
+	}
 
 	consumerWG := errgroup.Group{}
 	consumerWG.Go(func() error {

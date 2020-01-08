@@ -7,7 +7,9 @@ import (
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -55,7 +57,7 @@ func (p ClusterMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.List
 	if len(metas) == 0 {
 		return DaoMetricTypes.ClusterMetricMap{}, nil
 	}
-	metricMap, err := p.getClusterMetricMapByObjectMetas(ctx, metas, options...)
+	metricMap, err := p.getClusterMetricMapByObjectMetas(ctx, metas, req.MetricTypes, options...)
 	if err != nil {
 		return DaoMetricTypes.ClusterMetricMap{}, err
 	}
@@ -83,7 +85,7 @@ func (p *ClusterMetrics) listClusterMetasFromRequest(ctx context.Context, req Da
 	return metas, nil
 }
 
-func (p *ClusterMetrics) getClusterMetricMapByObjectMetas(ctx context.Context, clusterObjectMetas []metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.ClusterMetricMap, error) {
+func (p *ClusterMetrics) getClusterMetricMapByObjectMetas(ctx context.Context, clusterObjectMetas []metadata.ObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.ClusterMetricMap, error) {
 
 	scope.Debugf("getClusterMetricMapByObjectMetas: clusterObjectMetas: %+v", clusterObjectMetas)
 
@@ -93,7 +95,7 @@ func (p *ClusterMetrics) getClusterMetricMapByObjectMetas(ctx context.Context, c
 	for _, clusterObjectMeta := range clusterObjectMetas {
 		copyMeta := clusterObjectMeta
 		producerWG.Go(func() error {
-			m, err := p.getClusterMetric(ctx, copyMeta, options...)
+			m, err := p.getClusterMetric(ctx, copyMeta, metricTypes, options...)
 			if err != nil {
 				return errors.Wrap(err, "get cluster metric failed")
 			}
@@ -122,7 +124,7 @@ func (p *ClusterMetrics) getClusterMetricMapByObjectMetas(ctx context.Context, c
 
 }
 
-func (p *ClusterMetrics) getClusterMetric(ctx context.Context, clusterObjectMeta metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.ClusterMetric, error) {
+func (p *ClusterMetrics) getClusterMetric(ctx context.Context, clusterObjectMeta metadata.ObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.ClusterMetric, error) {
 
 	emptyClusterMetric := DaoMetricTypes.ClusterMetric{
 		ObjectMeta: clusterObjectMeta,
@@ -141,40 +143,44 @@ func (p *ClusterMetrics) getClusterMetric(ctx context.Context, clusterObjectMeta
 
 	metricChan := make(chan DaoMetricTypes.ClusterMetric)
 	producerWG := errgroup.Group{}
-	producerWG.Go(func() error {
-		nodeCPUUsageRepo := RepoPromthMetric.NewNodeCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		nodeCPUUsageEntities, err := nodeCPUUsageRepo.ListSumOfNodeCPUUsageMillicoresByNodeNames(ctx, nodeNames, options...)
-		if err != nil {
-			return errors.Wrap(err, "list cluster cpu usage metrics failed")
-		}
-		for _, e := range nodeCPUUsageEntities {
-			clusterEntity := EntityPromthMetric.ClusterCPUUsageMillicoresEntity{
-				ClusterName: "",
-				Samples:     e.Samples,
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		producerWG.Go(func() error {
+			nodeCPUUsageRepo := RepoPromthMetric.NewNodeCPUUsageRepositoryWithConfig(p.PrometheusConfig)
+			nodeCPUUsageEntities, err := nodeCPUUsageRepo.ListSumOfNodeCPUUsageMillicoresByNodeNames(ctx, nodeNames, options...)
+			if err != nil {
+				return errors.Wrap(err, "list cluster cpu usage metrics failed")
 			}
-			m := clusterEntity.ClusterMetric()
-			m.ObjectMeta = clusterObjectMeta
-			metricChan <- m
-		}
-		return nil
-	})
-	producerWG.Go(func() error {
-		nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		nodeMemoryUsageEntities, err := nodeMemoryUsageRepo.ListSumOfNodeMetricsByNodeNames(ctx, nodeNames, options...)
-		if err != nil {
-			return errors.Wrap(err, "list cluster memory usage metrics failed")
-		}
-		for _, e := range nodeMemoryUsageEntities {
-			clusterEntity := EntityPromthMetric.ClusterMemoryUsageBytesEntity{
-				ClusterName: "",
-				Samples:     e.Samples,
+			for _, e := range nodeCPUUsageEntities {
+				clusterEntity := EntityPromthMetric.ClusterCPUUsageMillicoresEntity{
+					ClusterName: "",
+					Samples:     e.Samples,
+				}
+				m := clusterEntity.ClusterMetric()
+				m.ObjectMeta = clusterObjectMeta
+				metricChan <- m
 			}
-			m := clusterEntity.ClusterMetric()
-			m.ObjectMeta = clusterObjectMeta
-			metricChan <- m
-		}
-		return nil
-	})
+			return nil
+		})
+	}
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		producerWG.Go(func() error {
+			nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
+			nodeMemoryUsageEntities, err := nodeMemoryUsageRepo.ListSumOfNodeMetricsByNodeNames(ctx, nodeNames, options...)
+			if err != nil {
+				return errors.Wrap(err, "list cluster memory usage metrics failed")
+			}
+			for _, e := range nodeMemoryUsageEntities {
+				clusterEntity := EntityPromthMetric.ClusterMemoryUsageBytesEntity{
+					ClusterName: "",
+					Samples:     e.Samples,
+				}
+				m := clusterEntity.ClusterMetric()
+				m.ObjectMeta = clusterObjectMeta
+				metricChan <- m
+			}
+			return nil
+		})
+	}
 
 	metricMap := DaoMetricTypes.NewClusterMetricMap()
 	consumerWG := errgroup.Group{}

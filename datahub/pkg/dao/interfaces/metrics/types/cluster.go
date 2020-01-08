@@ -37,6 +37,7 @@ type ClusterMetricMap struct {
 type ListClusterMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []metadata.ObjectMeta
+	MetricTypes []enumconv.MetricType
 }
 
 func NewClusterMetric() *ClusterMetric {

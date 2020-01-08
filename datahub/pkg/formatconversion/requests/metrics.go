@@ -313,6 +313,15 @@ func (r *ListClusterMetricsRequestExtended) ProduceRequest() DaoMetricTypes.List
 		objectMetas[i] = o
 	}
 	request.ObjectMetas = objectMetas
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range r.Request.GetMetricTypes() {
+		metricTypes = append(metricTypes, MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE])
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+	}
+	request.MetricTypes = metricTypes
 	return request
 }
 
@@ -344,6 +353,15 @@ func (r *ListNodeMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListNod
 		objectMetas[i] = o
 	}
 	request.ObjectMetas = objectMetas
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range r.Request.GetMetricTypes() {
+		metricTypes = append(metricTypes, MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE])
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+	}
+	request.MetricTypes = metricTypes
 	return request
 }
 
@@ -375,6 +393,15 @@ func (r *ListNamespaceMetricsRequestExtended) ProduceRequest() DaoMetricTypes.Li
 		objectMetas[i] = o
 	}
 	request.ObjectMetas = objectMetas
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range r.Request.GetMetricTypes() {
+		metricTypes = append(metricTypes, MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE])
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+	}
+	request.MetricTypes = metricTypes
 	return request
 }
 
@@ -406,6 +433,15 @@ func (r *ListAppMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListAppM
 		objectMetas[i] = o
 	}
 	request.ObjectMetas = objectMetas
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range r.Request.GetMetricTypes() {
+		metricTypes = append(metricTypes, MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE])
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+	}
+	request.MetricTypes = metricTypes
 	return request
 }
 
@@ -439,6 +475,15 @@ func (r *ListControllerMetricsRequestExtended) ProduceRequest() DaoMetricTypes.L
 		objectMetas[i] = o
 	}
 	request.ObjectMetas = objectMetas
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range r.Request.GetMetricTypes() {
+		metricTypes = append(metricTypes, MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE])
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+	}
+	request.MetricTypes = metricTypes
 	return request
 }
 
@@ -479,6 +524,15 @@ func (r *ListPodMetricsRequestExtended) ProduceRequest() DaoMetricTypes.ListPodM
 		objectMetas[i] = &o
 	}
 	request.ObjectMetas = objectMetas
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range r.Request.GetMetricTypes() {
+		metricTypes = append(metricTypes, MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_CPU_USAGE_SECONDS_PERCENTAGE])
+		metricTypes = append(metricTypes, MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+	}
+	request.MetricTypes = metricTypes
 	return request
 }
 

@@ -6,6 +6,7 @@ import (
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoInfluxMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/metrics"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 )
 
@@ -51,29 +52,33 @@ func (p *PodMetrics) CreateMetrics(ctx context.Context, metrics DaoMetricTypes.P
 	return nil
 }
 
-func (p *PodMetrics) ListMetrics(ctx context.Context, request DaoMetricTypes.ListPodMetricsRequest) (DaoMetricTypes.PodMetricMap, error) {
+func (p *PodMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListPodMetricsRequest) (DaoMetricTypes.PodMetricMap, error) {
 	podMetricMap := DaoMetricTypes.NewPodMetricMap()
 
 	// Read container cpu metrics
-	containerCpuRepo := RepoInfluxMetric.NewContainerCpuRepositoryWithConfig(p.InfluxDBConfig)
-	cpuMetrics, err := containerCpuRepo.ListMetrics(request)
-	if err != nil {
-		scope.Error(err.Error())
-		return DaoMetricTypes.NewPodMetricMap(), err
-	}
-	for _, nodeMetric := range cpuMetrics {
-		podMetricMap.AddContainerMetric(nodeMetric)
+	if Utils.SliceContains(req.MetricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		containerCpuRepo := RepoInfluxMetric.NewContainerCpuRepositoryWithConfig(p.InfluxDBConfig)
+		cpuMetrics, err := containerCpuRepo.ListMetrics(req)
+		if err != nil {
+			scope.Error(err.Error())
+			return DaoMetricTypes.NewPodMetricMap(), err
+		}
+		for _, nodeMetric := range cpuMetrics {
+			podMetricMap.AddContainerMetric(nodeMetric)
+		}
 	}
 
 	// Read node memory metrics
-	containerMemoryRepo := RepoInfluxMetric.NewContainerMemoryRepositoryWithConfig(p.InfluxDBConfig)
-	memoryMetrics, err := containerMemoryRepo.ListMetrics(request)
-	if err != nil {
-		scope.Error(err.Error())
-		return DaoMetricTypes.NewPodMetricMap(), err
-	}
-	for _, nodeMetric := range memoryMetrics {
-		podMetricMap.AddContainerMetric(nodeMetric)
+	if Utils.SliceContains(req.MetricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		containerMemoryRepo := RepoInfluxMetric.NewContainerMemoryRepositoryWithConfig(p.InfluxDBConfig)
+		memoryMetrics, err := containerMemoryRepo.ListMetrics(req)
+		if err != nil {
+			scope.Error(err.Error())
+			return DaoMetricTypes.NewPodMetricMap(), err
+		}
+		for _, nodeMetric := range memoryMetrics {
+			podMetricMap.AddContainerMetric(nodeMetric)
+		}
 	}
 
 	return podMetricMap, nil

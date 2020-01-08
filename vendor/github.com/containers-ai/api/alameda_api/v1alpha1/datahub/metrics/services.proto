@@ -4,6 +4,7 @@ syntax = "proto3";
 
 package containersai.alameda.v1alpha1.datahub.metrics;
 
+import "alameda_api/v1alpha1/datahub/common/metrics.proto";
 import "alameda_api/v1alpha1/datahub/common/queries.proto";
 import "alameda_api/v1alpha1/datahub/metrics/metrics.proto";
 import "alameda_api/v1alpha1/datahub/resources/metadata.proto";
@@ -42,7 +43,8 @@ message CreateClusterMetricsRequest {
 message ListPodMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
-    uint64                        rate_range      = 3;
+    repeated common.MetricType    metric_types    = 3;
+    uint64                        rate_range      = 4;
 }
 
 // Represents a response for a listing pod metric data request
@@ -54,7 +56,8 @@ message ListPodMetricsResponse {
 message ListControllerMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
-    resources.Kind                kind            = 3;
+    repeated common.MetricType    metric_types    = 3;
+    resources.Kind                kind            = 4;
 }
 
 message ListControllerMetricsResponse {
@@ -65,6 +68,7 @@ message ListControllerMetricsResponse {
 message ListApplicationMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
+    repeated common.MetricType    metric_types    = 3;
 }
 
 message ListApplicationMetricsResponse {
@@ -75,6 +79,7 @@ message ListApplicationMetricsResponse {
 message ListNamespaceMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
+    repeated common.MetricType    metric_types    = 3;
 }
 
 message ListNamespaceMetricsResponse {
@@ -86,6 +91,7 @@ message ListNamespaceMetricsResponse {
 message ListNodeMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
+    repeated common.MetricType    metric_types    = 3;
 }
 
 // Represents a response for a listing node metrics request
@@ -97,6 +103,7 @@ message ListNodeMetricsResponse {
 message ListClusterMetricsRequest {
     common.QueryCondition         query_condition = 1;
     repeated resources.ObjectMeta object_meta     = 2;
+    repeated common.MetricType    metric_types    = 3;
 }
 
 message ListClusterMetricsResponse {

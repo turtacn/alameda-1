@@ -37,6 +37,7 @@ type NodeMetricMap struct {
 type ListNodeMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []metadata.ObjectMeta
+	MetricTypes []enumconv.MetricType
 }
 
 func NewNodeMetricSample() *NodeMetricSample {

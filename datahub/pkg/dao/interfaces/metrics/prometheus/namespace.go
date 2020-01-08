@@ -9,7 +9,9 @@ import (
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 )
@@ -53,7 +55,7 @@ func (p NamespaceMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.Li
 	if len(namespaceMetas) == 0 {
 		return DaoMetricTypes.NamespaceMetricMap{}, nil
 	}
-	metricMap, err := p.getNamespaceMetricMapByObjectMetas(ctx, namespaceMetas, options...)
+	metricMap, err := p.getNamespaceMetricMapByObjectMetas(ctx, namespaceMetas, req.MetricTypes, options...)
 	if err != nil {
 		return DaoMetricTypes.NamespaceMetricMap{}, err
 	}
@@ -81,7 +83,7 @@ func (p *NamespaceMetrics) listNamespaceMetasFromRequest(ctx context.Context, re
 	return metas, nil
 }
 
-func (p *NamespaceMetrics) getNamespaceMetricMapByObjectMetas(ctx context.Context, namespaceMetas []metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.NamespaceMetricMap, error) {
+func (p *NamespaceMetrics) getNamespaceMetricMapByObjectMetas(ctx context.Context, namespaceMetas []metadata.ObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.NamespaceMetricMap, error) {
 	scope.Debugf("getNamespaceMetricMapByObjectMetas: namespaceMetas: %+v", namespaceMetas)
 
 	// Build namespace map for later searching
@@ -96,46 +98,45 @@ func (p *NamespaceMetrics) getNamespaceMetricMapByObjectMetas(ctx context.Contex
 	}
 	metricChan := make(chan DaoMetricTypes.NamespaceMetric)
 	producerWG := errgroup.Group{}
-	producerWG.Go(func() error {
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		producerWG.Go(func() error {
+			namespaceCPUUsageRepo := RepoPromthMetric.NewNamespaceCPUUsageRepositoryWithConfig(p.PrometheusConfig)
+			namespaceCPUUsageEntities, err := namespaceCPUUsageRepo.ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(ctx, namespaceNames, options...)
+			if err != nil {
+				return errors.Wrap(err, "list namespace cpu usage metrics failed")
+			}
+			for _, e := range namespaceCPUUsageEntities {
+				m := e.NamespaceMetric()
+				m.ObjectMeta = namespaceMetaMap[e.NamespaceName]
+				metricChan <- m
+			}
+			return nil
+		})
+	}
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		producerWG.Go(func() error {
+			namespaceMemoryUsageRepo := RepoPromthMetric.NewNamespaceMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
+			namespaceMemoryUsageEntities, err := namespaceMemoryUsageRepo.ListNamespaceMemoryUsageBytesEntitiesByNamespaceNames(ctx, namespaceNames, options...)
+			if err != nil {
+				return errors.Wrap(err, "list namespace memory usage metrics failed")
+			}
+			for _, e := range namespaceMemoryUsageEntities {
+				m := e.NamespaceMetric()
+				m.ObjectMeta = namespaceMetaMap[e.NamespaceName]
+				metricChan <- m
+			}
 
-		namespaceCPUUsageRepo := RepoPromthMetric.NewNamespaceCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		namespaceCPUUsageEntities, err := namespaceCPUUsageRepo.ListNamespaceCPUUsageMillicoresEntitiesByNamespaceNames(ctx, namespaceNames, options...)
-		if err != nil {
-			return errors.Wrap(err, "list namespace cpu usage metrics failed")
-		}
-		for _, e := range namespaceCPUUsageEntities {
-			m := e.NamespaceMetric()
-			m.ObjectMeta = namespaceMetaMap[e.NamespaceName]
-			metricChan <- m
-		}
-
-		return nil
-	})
-	producerWG.Go(func() error {
-
-		namespaceMemoryUsageRepo := RepoPromthMetric.NewNamespaceMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		namespaceMemoryUsageEntities, err := namespaceMemoryUsageRepo.ListNamespaceMemoryUsageBytesEntitiesByNamespaceNames(ctx, namespaceNames, options...)
-		if err != nil {
-			return errors.Wrap(err, "list namespace memory usage metrics failed")
-		}
-		for _, e := range namespaceMemoryUsageEntities {
-			m := e.NamespaceMetric()
-			m.ObjectMeta = namespaceMetaMap[e.NamespaceName]
-			metricChan <- m
-		}
-
-		return nil
-	})
+			return nil
+		})
+	}
 
 	metricMap := DaoMetricTypes.NewNamespaceMetricMap()
 	consumerWG := errgroup.Group{}
 	consumerWG.Go(func() error {
-
 		for m := range metricChan {
 			copyM := m
 			metricMap.AddNamespaceMetric(&copyM)
 		}
-
 		return nil
 	})
 

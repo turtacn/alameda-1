@@ -14,7 +14,7 @@ type GpuMetric struct {
 }
 
 type MetricsDAO interface {
-	ListMetrics(host, minorNumber string, condition *DBCommon.QueryCondition) (GpuMetricMap, error)
+	ListMetrics(host, minorNumber string, metricTypes []FormatEnum.MetricType, condition *DBCommon.QueryCondition) (GpuMetricMap, error)
 }
 
 func NewGpuMetric() *GpuMetric {

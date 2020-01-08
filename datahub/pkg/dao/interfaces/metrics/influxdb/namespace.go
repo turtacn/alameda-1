@@ -6,6 +6,7 @@ import (
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoInfluxMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/metrics"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	"github.com/pkg/errors"
 )
@@ -41,27 +42,31 @@ func (n NamespaceMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.Li
 	metricMap := DaoMetricTypes.NewNamespaceMetricMap()
 
 	// Read namespace cpu metrics
-	cpuRepo := RepoInfluxMetric.NewNamespaceCPURepositoryWithConfig(n.InfluxDBConfig)
-	cpuMetricMap, err := cpuRepo.GetNamespaceMetricMap(ctx, req)
-	if err != nil {
-		scope.Error(err.Error())
-		return metricMap, errors.Wrap(err, "get namespace cpu usage metric map failed")
-	}
-	for _, m := range cpuMetricMap.MetricMap {
-		copyM := m
-		metricMap.AddNamespaceMetric(copyM)
+	if Utils.SliceContains(req.MetricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		cpuRepo := RepoInfluxMetric.NewNamespaceCPURepositoryWithConfig(n.InfluxDBConfig)
+		cpuMetricMap, err := cpuRepo.GetNamespaceMetricMap(ctx, req)
+		if err != nil {
+			scope.Error(err.Error())
+			return metricMap, errors.Wrap(err, "get namespace cpu usage metric map failed")
+		}
+		for _, m := range cpuMetricMap.MetricMap {
+			copyM := m
+			metricMap.AddNamespaceMetric(copyM)
+		}
 	}
 
 	// Read namespace memory metrics
-	memoryRepo := RepoInfluxMetric.NewNamespaceMemoryRepositoryWithConfig(n.InfluxDBConfig)
-	memoryMetricMap, err := memoryRepo.GetNamespaceMetricMap(ctx, req)
-	if err != nil {
-		scope.Error(err.Error())
-		return metricMap, errors.Wrap(err, "get namespace memory usage metric map failed")
-	}
-	for _, m := range memoryMetricMap.MetricMap {
-		copyM := m
-		metricMap.AddNamespaceMetric(copyM)
+	if Utils.SliceContains(req.MetricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		memoryRepo := RepoInfluxMetric.NewNamespaceMemoryRepositoryWithConfig(n.InfluxDBConfig)
+		memoryMetricMap, err := memoryRepo.GetNamespaceMetricMap(ctx, req)
+		if err != nil {
+			scope.Error(err.Error())
+			return metricMap, errors.Wrap(err, "get namespace memory usage metric map failed")
+		}
+		for _, m := range memoryMetricMap.MetricMap {
+			copyM := m
+			metricMap.AddNamespaceMetric(copyM)
+		}
 	}
 
 	return metricMap, nil

@@ -6,7 +6,9 @@ import (
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -55,7 +57,7 @@ func (p *NodeMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListNo
 	if len(nodeMetas) == 0 {
 		return DaoMetricTypes.NodeMetricMap{}, nil
 	}
-	metricMap, err := p.getNodeMetricMapByObjectMetas(ctx, nodeMetas, options...)
+	metricMap, err := p.getNodeMetricMapByObjectMetas(ctx, nodeMetas, req.MetricTypes, options...)
 	if err != nil {
 		return DaoMetricTypes.NodeMetricMap{}, errors.Wrap(err, "get node metricMap failed")
 	}
@@ -83,7 +85,7 @@ func (p *NodeMetrics) listNodeMetasFromRequest(ctx context.Context, req DaoMetri
 	return objectMetas, nil
 }
 
-func (p *NodeMetrics) getNodeMetricMapByObjectMetas(ctx context.Context, nodeMetas []metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.NodeMetricMap, error) {
+func (p *NodeMetrics) getNodeMetricMapByObjectMetas(ctx context.Context, nodeMetas []metadata.ObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.NodeMetricMap, error) {
 
 	nodeMap := make(map[string]metadata.ObjectMeta)
 	names := make([]string, len(nodeMetas))
@@ -95,44 +97,41 @@ func (p *NodeMetrics) getNodeMetricMapByObjectMetas(ctx context.Context, nodeMet
 	metricChan := make(chan DaoMetricTypes.NodeMetric)
 	producerWG := errgroup.Group{}
 	// Query cpu metrics
-	producerWG.Go(func() error {
-
-		nodeCPUUsageRepo := RepoPromthMetric.NewNodeCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		nodeCPUUsageEntities, err := nodeCPUUsageRepo.ListNodeCPUUsageMillicoresEntitiesByNodeNames(ctx, names, options...)
-		if err != nil {
-			return errors.Wrap(err, "list node cpu usage metrics failed")
-		}
-
-		for _, e := range nodeCPUUsageEntities {
-			nodeMetric := e.NodeMetric()
-			nodeMetric.ObjectMeta = nodeMap[e.NodeName]
-			metricChan <- nodeMetric
-		}
-
-		return nil
-	})
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		producerWG.Go(func() error {
+			nodeCPUUsageRepo := RepoPromthMetric.NewNodeCPUUsageRepositoryWithConfig(p.PrometheusConfig)
+			nodeCPUUsageEntities, err := nodeCPUUsageRepo.ListNodeCPUUsageMillicoresEntitiesByNodeNames(ctx, names, options...)
+			if err != nil {
+				return errors.Wrap(err, "list node cpu usage metrics failed")
+			}
+			for _, e := range nodeCPUUsageEntities {
+				nodeMetric := e.NodeMetric()
+				nodeMetric.ObjectMeta = nodeMap[e.NodeName]
+				metricChan <- nodeMetric
+			}
+			return nil
+		})
+	}
 	// Query memory metrics
-	producerWG.Go(func() error {
-
-		nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		nodeMemoryUsageEntities, err := nodeMemoryUsageRepo.ListNodeMemoryBytesUsageEntitiesByNodeNames(ctx, names, options...)
-		if err != nil {
-			return errors.Wrap(err, "list node memory usage metrics failed")
-		}
-
-		for _, e := range nodeMemoryUsageEntities {
-			nodeMetric := e.NodeMetric()
-			nodeMetric.ObjectMeta = nodeMap[e.NodeName]
-			metricChan <- nodeMetric
-		}
-
-		return nil
-	})
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		producerWG.Go(func() error {
+			nodeMemoryUsageRepo := RepoPromthMetric.NewNodeMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
+			nodeMemoryUsageEntities, err := nodeMemoryUsageRepo.ListNodeMemoryBytesUsageEntitiesByNodeNames(ctx, names, options...)
+			if err != nil {
+				return errors.Wrap(err, "list node memory usage metrics failed")
+			}
+			for _, e := range nodeMemoryUsageEntities {
+				nodeMetric := e.NodeMetric()
+				nodeMetric.ObjectMeta = nodeMap[e.NodeName]
+				metricChan <- nodeMetric
+			}
+			return nil
+		})
+	}
 
 	metricMap := DaoMetricTypes.NewNodeMetricMap()
 	consumerWG := errgroup.Group{}
 	consumerWG.Go(func() error {
-
 		for m := range metricChan {
 			copyM := m
 			metricMap.AddNodeMetric(&copyM)

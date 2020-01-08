@@ -21,6 +21,7 @@ type AppMetricsDAO interface {
 type ListAppMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []metadata.ObjectMeta
+	MetricTypes []enumconv.MetricType
 }
 
 type AppMetricSample struct {

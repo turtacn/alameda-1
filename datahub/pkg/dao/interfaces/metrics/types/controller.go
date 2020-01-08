@@ -32,6 +32,7 @@ type ControllerObjectMeta struct {
 type ListControllerMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []metadata.ObjectMeta
+	MetricTypes []enumconv.MetricType
 	Kind        string // DEPLOYMENT, DEPLOYMENTCONFIG and STATEFULSET
 }
 

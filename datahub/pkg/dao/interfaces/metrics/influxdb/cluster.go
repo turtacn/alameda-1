@@ -6,6 +6,7 @@ import (
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoInfluxMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/influxdb/metrics"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	"github.com/pkg/errors"
 )
@@ -41,27 +42,31 @@ func (n ClusterMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.List
 	metricMap := DaoMetricTypes.NewClusterMetricMap()
 
 	// Read cluster cpu metrics
-	cpuRepo := RepoInfluxMetric.NewClusterCPURepositoryWithConfig(n.InfluxDBConfig)
-	cpuMetricMap, err := cpuRepo.GetClusterMetricMap(ctx, req)
-	if err != nil {
-		scope.Error(err.Error())
-		return metricMap, errors.Wrap(err, "get cluster cpu usage metric map failed")
-	}
-	for _, m := range cpuMetricMap.MetricMap {
-		copyM := m
-		metricMap.AddClusterMetric(copyM)
+	if Utils.SliceContains(req.MetricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		cpuRepo := RepoInfluxMetric.NewClusterCPURepositoryWithConfig(n.InfluxDBConfig)
+		cpuMetricMap, err := cpuRepo.GetClusterMetricMap(ctx, req)
+		if err != nil {
+			scope.Error(err.Error())
+			return metricMap, errors.Wrap(err, "get cluster cpu usage metric map failed")
+		}
+		for _, m := range cpuMetricMap.MetricMap {
+			copyM := m
+			metricMap.AddClusterMetric(copyM)
+		}
 	}
 
 	// Read cluster memory metrics
-	memoryRepo := RepoInfluxMetric.NewClusterMemoryRepositoryWithConfig(n.InfluxDBConfig)
-	memoryMetricMap, err := memoryRepo.GetClusterMetricMap(ctx, req)
-	if err != nil {
-		scope.Error(err.Error())
-		return metricMap, errors.Wrap(err, "get cluster memory usage metric map failed")
-	}
-	for _, m := range memoryMetricMap.MetricMap {
-		copyM := m
-		metricMap.AddClusterMetric(copyM)
+	if Utils.SliceContains(req.MetricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		memoryRepo := RepoInfluxMetric.NewClusterMemoryRepositoryWithConfig(n.InfluxDBConfig)
+		memoryMetricMap, err := memoryRepo.GetClusterMetricMap(ctx, req)
+		if err != nil {
+			scope.Error(err.Error())
+			return metricMap, errors.Wrap(err, "get cluster memory usage metric map failed")
+		}
+		for _, m := range memoryMetricMap.MetricMap {
+			copyM := m
+			metricMap.AddClusterMetric(copyM)
+		}
 	}
 
 	return metricMap, nil

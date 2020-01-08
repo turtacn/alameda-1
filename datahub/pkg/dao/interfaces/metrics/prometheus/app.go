@@ -7,6 +7,8 @@ import (
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -55,7 +57,7 @@ func (p AppMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListAppM
 	if len(apps) == 0 {
 		return DaoMetricTypes.AppMetricMap{}, nil
 	}
-	metricMap, err = p.getAppMetricMapByApps(ctx, apps, options...)
+	metricMap, err = p.getAppMetricMapByApps(ctx, apps, req.MetricTypes, options...)
 	if err != nil {
 		return DaoMetricTypes.AppMetricMap{}, errors.Wrap(err, "list app metrics failed")
 	}
@@ -84,7 +86,7 @@ func (p *AppMetrics) listAppFromRequest(ctx context.Context, req DaoMetricTypes.
 	return nonPointerSlice, nil
 }
 
-func (p *AppMetrics) getAppMetricMapByApps(ctx context.Context, apps []DaoClusterStatusTypes.Application, options ...DBCommon.Option) (DaoMetricTypes.AppMetricMap, error) {
+func (p *AppMetrics) getAppMetricMapByApps(ctx context.Context, apps []DaoClusterStatusTypes.Application, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.AppMetricMap, error) {
 	scope.Debugf("getAppMetricMapByApps: apps: %+v", apps)
 
 	metricMap := DaoMetricTypes.NewAppMetricMap()
@@ -93,7 +95,7 @@ func (p *AppMetrics) getAppMetricMapByApps(ctx context.Context, apps []DaoCluste
 	for _, app := range apps {
 		copyApp := app
 		producerWG.Go(func() error {
-			m, err := p.getAppMetric(ctx, copyApp, options...)
+			m, err := p.getAppMetric(ctx, copyApp, metricTypes, options...)
 			if err != nil {
 				return errors.Wrap(err, "get app metric failed")
 			}
@@ -121,7 +123,7 @@ func (p *AppMetrics) getAppMetricMapByApps(ctx context.Context, apps []DaoCluste
 	return metricMap, nil
 }
 
-func (p *AppMetrics) getAppMetric(ctx context.Context, app DaoClusterStatusTypes.Application, options ...DBCommon.Option) (DaoMetricTypes.AppMetric, error) {
+func (p *AppMetrics) getAppMetric(ctx context.Context, app DaoClusterStatusTypes.Application, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.AppMetric, error) {
 
 	appMeta := *app.ObjectMeta
 	emptyAppMetric := DaoMetricTypes.AppMetric{
@@ -141,42 +143,46 @@ func (p *AppMetrics) getAppMetric(ctx context.Context, app DaoClusterStatusTypes
 	metricMap := DaoMetricTypes.NewAppMetricMap()
 	metricChan := make(chan DaoMetricTypes.AppMetric)
 	producerWG := errgroup.Group{}
-	producerWG.Go(func() error {
-		podCPUUsageRepo := RepoPromthMetric.NewPodCPUUsageRepositoryWithConfig(p.PrometheusConfig)
-		podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
-		if err != nil {
-			return errors.Wrap(err, "list sum of pod cpu usage metrics failed")
-		}
-		for _, e := range podCPUMetricEntities {
-			appEntity := EntityPromthMetric.AppCPUUsageMillicoresEntity{
-				NamespaceName: appMeta.Namespace,
-				AppName:       appMeta.Name,
-				Samples:       e.Samples,
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		producerWG.Go(func() error {
+			podCPUUsageRepo := RepoPromthMetric.NewPodCPUUsageRepositoryWithConfig(p.PrometheusConfig)
+			podCPUMetricEntities, err := podCPUUsageRepo.ListPodCPUUsageMillicoresEntitiesBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
+			if err != nil {
+				return errors.Wrap(err, "list sum of pod cpu usage metrics failed")
 			}
-			m := appEntity.AppMetric()
-			m.ObjectMeta = appMeta
-			metricChan <- m
-		}
-		return nil
-	})
-	producerWG.Go(func() error {
-		podMemoryUsageRepo := RepoPromthMetric.NewPodMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
-		if err != nil {
-			return errors.Wrap(err, "list sum of pod memory usage metrics failed")
-		}
-		for _, e := range podMemoryMetricEntities {
-			appEntity := EntityPromthMetric.AppMemoryUsageBytesEntity{
-				NamespaceName: appMeta.Namespace,
-				AppName:       appMeta.Name,
-				Samples:       e.Samples,
+			for _, e := range podCPUMetricEntities {
+				appEntity := EntityPromthMetric.AppCPUUsageMillicoresEntity{
+					NamespaceName: appMeta.Namespace,
+					AppName:       appMeta.Name,
+					Samples:       e.Samples,
+				}
+				m := appEntity.AppMetric()
+				m.ObjectMeta = appMeta
+				metricChan <- m
 			}
-			m := appEntity.AppMetric()
-			m.ObjectMeta = appMeta
-			metricChan <- m
-		}
-		return nil
-	})
+			return nil
+		})
+	}
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		producerWG.Go(func() error {
+			podMemoryUsageRepo := RepoPromthMetric.NewPodMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
+			podMemoryMetricEntities, err := podMemoryUsageRepo.ListPodMemoryUsageBytesEntityBySummingPodMetrics(ctx, namespace, podNameRegExps, options...)
+			if err != nil {
+				return errors.Wrap(err, "list sum of pod memory usage metrics failed")
+			}
+			for _, e := range podMemoryMetricEntities {
+				appEntity := EntityPromthMetric.AppMemoryUsageBytesEntity{
+					NamespaceName: appMeta.Namespace,
+					AppName:       appMeta.Name,
+					Samples:       e.Samples,
+				}
+				m := appEntity.AppMetric()
+				m.ObjectMeta = appMeta
+				metricChan <- m
+			}
+			return nil
+		})
+	}
 
 	consumerWG := errgroup.Group{}
 	consumerWG.Go(func() error {

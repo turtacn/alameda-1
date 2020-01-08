@@ -4,6 +4,7 @@ syntax = "proto3";
 
 package containersai.alameda.v1alpha1.datahub.gpu;
 
+import "alameda_api/v1alpha1/datahub/common/metrics.proto";
 import "alameda_api/v1alpha1/datahub/common/queries.proto";
 import "alameda_api/v1alpha1/datahub/gpu/gpu.proto";
 import "google/rpc/status.proto";
@@ -22,9 +23,10 @@ message ListGpusResponse {
 }
 
 message ListGpuMetricsRequest {
-    common.QueryCondition query_condition = 1;
-    string                host            = 2;
-    string                minor_number    = 3;
+    common.QueryCondition      query_condition = 1;
+    repeated common.MetricType metric_types    = 2;
+    string                     host            = 3;
+    string                     minor_number    = 4;
 }
 
 message ListGpuMetricsResponse {

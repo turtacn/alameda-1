@@ -8,7 +8,9 @@ import (
 	DaoClusterStatusTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/clusterstatus/types"
 	DaoMetricTypes "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/metrics/types"
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/dao/repositories/prometheus/metrics"
+	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
+	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
@@ -56,7 +58,7 @@ func (p *PodMetrics) ListMetrics(ctx context.Context, req DaoMetricTypes.ListPod
 	if len(podMetas) == 0 {
 		return DaoMetricTypes.PodMetricMap{}, nil
 	}
-	metricMap, err := p.getPodMetricMapByObjectMetas(ctx, podMetas, options...)
+	metricMap, err := p.getPodMetricMapByObjectMetas(ctx, podMetas, req.MetricTypes, options...)
 	if err != nil {
 		return DaoMetricTypes.PodMetricMap{}, errors.Wrap(err, "get pod metricMap failed")
 	}
@@ -81,7 +83,7 @@ func (p *PodMetrics) listPodMetasFromRequest(ctx context.Context, req DaoMetricT
 	return metas, nil
 }
 
-func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas []metadata.ObjectMeta, options ...DBCommon.Option) (DaoMetricTypes.PodMetricMap, error) {
+func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas []metadata.ObjectMeta, metricTypes []FormatEnum.MetricType, options ...DBCommon.Option) (DaoMetricTypes.PodMetricMap, error) {
 	scope.Debugf("getPodMetricMapByObjectMetas: podMetas: %+v", podMetas)
 
 	// To minimize the times to query prometheus, aggregate pods in the same namespaces
@@ -97,66 +99,69 @@ func (p *PodMetrics) getPodMetricMapByObjectMetas(ctx context.Context, podMetas 
 	metricChan := make(chan DaoMetricTypes.ContainerMetric)
 	producerWG := errgroup.Group{}
 	// Query cpu metrics
-	producerWG.Go(func() error {
-		wg := errgroup.Group{}
-		podContainerCPURepo := RepoPromthMetric.NewContainerCpuUsageRepositoryWithConfig(p.PrometheusConfig)
-		for namespace, podMetaMap := range namespacePodMap {
-			copyNamespace := namespace
-			copyPodMetaMap := podMetaMap
-			wg.Go(func() error {
-				podNames := make([]string, 0, len(copyPodMetaMap))
-				for podName := range copyPodMetaMap {
-					podNames = append(podNames, podName)
-				}
-				containerCPUEntities, err := podContainerCPURepo.ListContainerCPUUsageMillicoresEntitiesByNamespaceAndPodNames(ctx, copyNamespace, podNames, options...)
-				if err != nil {
-					return errors.Wrap(err, "list pod cpu usage metrics failed")
-				}
-				for _, e := range containerCPUEntities {
-					m := e.ContainerMetric()
-					clusterName := ""
-					if meta, exist := copyPodMetaMap[m.ObjectMeta.PodName]; exist {
-						clusterName = meta.ClusterName
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeCPUUsageSecondsPercentage) {
+		producerWG.Go(func() error {
+			wg := errgroup.Group{}
+			podContainerCPURepo := RepoPromthMetric.NewContainerCpuUsageRepositoryWithConfig(p.PrometheusConfig)
+			for namespace, podMetaMap := range namespacePodMap {
+				copyNamespace := namespace
+				copyPodMetaMap := podMetaMap
+				wg.Go(func() error {
+					podNames := make([]string, 0, len(copyPodMetaMap))
+					for podName := range copyPodMetaMap {
+						podNames = append(podNames, podName)
 					}
-					m.ObjectMeta.ObjectMeta.ClusterName = clusterName
-					metricChan <- m
-				}
-				return nil
-			})
-		}
-
-		return wg.Wait()
-	})
+					containerCPUEntities, err := podContainerCPURepo.ListContainerCPUUsageMillicoresEntitiesByNamespaceAndPodNames(ctx, copyNamespace, podNames, options...)
+					if err != nil {
+						return errors.Wrap(err, "list pod cpu usage metrics failed")
+					}
+					for _, e := range containerCPUEntities {
+						m := e.ContainerMetric()
+						clusterName := ""
+						if meta, exist := copyPodMetaMap[m.ObjectMeta.PodName]; exist {
+							clusterName = meta.ClusterName
+						}
+						m.ObjectMeta.ObjectMeta.ClusterName = clusterName
+						metricChan <- m
+					}
+					return nil
+				})
+			}
+			return wg.Wait()
+		})
+	}
 	// Query memory metrics
-	producerWG.Go(func() error {
-		wg := errgroup.Group{}
-		podContainerMemoryRepo := RepoPromthMetric.NewContainerMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
-		for namespace, podMetaMap := range namespacePodMap {
-			copyNamespace := namespace
-			copyPodMetaMap := podMetaMap
-			wg.Go(func() error {
-				podNames := make([]string, 0, len(copyPodMetaMap))
-				for podName := range copyPodMetaMap {
-					podNames = append(podNames, podName)
-				}
-				containerMemoryEntities, err := podContainerMemoryRepo.ListContainerMemoryUsageBytesEntitiesByNamespaceAndPodNames(ctx, copyNamespace, podNames, options...)
-				if err != nil {
-					return errors.Wrap(err, "list pod memory usage metrics failed")
-				}
-				for _, e := range containerMemoryEntities {
-					m := e.ContainerMetric()
-					clusterName := ""
-					if meta, exist := copyPodMetaMap[m.ObjectMeta.PodName]; exist {
-						clusterName = meta.ClusterName
+	if Utils.SliceContains(metricTypes, FormatEnum.MetricTypeMemoryUsageBytes) {
+		producerWG.Go(func() error {
+			wg := errgroup.Group{}
+			podContainerMemoryRepo := RepoPromthMetric.NewContainerMemoryUsageRepositoryWithConfig(p.PrometheusConfig)
+			for namespace, podMetaMap := range namespacePodMap {
+				copyNamespace := namespace
+				copyPodMetaMap := podMetaMap
+				wg.Go(func() error {
+					podNames := make([]string, 0, len(copyPodMetaMap))
+					for podName := range copyPodMetaMap {
+						podNames = append(podNames, podName)
 					}
-					m.ObjectMeta.ObjectMeta.ClusterName = clusterName
-					metricChan <- m
-				}
-				return nil
-			})
-		}
-		return wg.Wait()
-	})
+					containerMemoryEntities, err := podContainerMemoryRepo.ListContainerMemoryUsageBytesEntitiesByNamespaceAndPodNames(ctx, copyNamespace, podNames, options...)
+					if err != nil {
+						return errors.Wrap(err, "list pod memory usage metrics failed")
+					}
+					for _, e := range containerMemoryEntities {
+						m := e.ContainerMetric()
+						clusterName := ""
+						if meta, exist := copyPodMetaMap[m.ObjectMeta.PodName]; exist {
+							clusterName = meta.ClusterName
+						}
+						m.ObjectMeta.ObjectMeta.ClusterName = clusterName
+						metricChan <- m
+					}
+					return nil
+				})
+			}
+			return wg.Wait()
+		})
+	}
 
 	metricMap := DaoMetricTypes.NewPodMetricMap()
 	consumerWG := errgroup.Group{}

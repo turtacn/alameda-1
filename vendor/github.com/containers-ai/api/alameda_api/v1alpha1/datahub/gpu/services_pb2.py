@@ -13,6 +13,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from alameda_api.v1alpha1.datahub.common import metrics_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2
 from alameda_api.v1alpha1.datahub.common import queries_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2
 from alameda_api.v1alpha1.datahub.gpu import gpu_pb2 as alameda__api_dot_v1alpha1_dot_datahub_dot_gpu_dot_gpu__pb2
 from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
@@ -23,9 +24,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='containersai.alameda.v1alpha1.datahub.gpu',
   syntax='proto3',
   serialized_options=_b('Z=github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu'),
-  serialized_pb=_b('\n/alameda_api/v1alpha1/datahub/gpu/services.proto\x12)containersai.alameda.v1alpha1.datahub.gpu\x1a\x31\x61lameda_api/v1alpha1/datahub/common/queries.proto\x1a*alameda_api/v1alpha1/datahub/gpu/gpu.proto\x1a\x17google/rpc/status.proto\"\x8c\x01\n\x0fListGpusRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12\x0c\n\x04host\x18\x02 \x01(\t\x12\x14\n\x0cminor_number\x18\x03 \x01(\t\"t\n\x10ListGpusResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12<\n\x04gpus\x18\x02 \x03(\x0b\x32..containersai.alameda.v1alpha1.datahub.gpu.Gpu\"\x92\x01\n\x15ListGpuMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12\x0c\n\x04host\x18\x02 \x01(\t\x12\x14\n\x0cminor_number\x18\x03 \x01(\t\"\x87\x01\n\x16ListGpuMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12I\n\x0bgpu_metrics\x18\x02 \x03(\x0b\x32\x34.containersai.alameda.v1alpha1.datahub.gpu.GpuMetric\"p\n\x1b\x43reateGpuPredictionsRequest\x12Q\n\x0fgpu_predictions\x18\x01 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.gpu.GpuPrediction\"\xd4\x01\n\x19ListGpuPredictionsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12\x0c\n\x04host\x18\x02 \x01(\t\x12\x14\n\x0cminor_number\x18\x03 \x01(\t\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\x12\x10\n\x08model_id\x18\x05 \x01(\t\x12\x15\n\rprediction_id\x18\x06 \x01(\t\"\x93\x01\n\x1aListGpuPredictionsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12Q\n\x0fgpu_predictions\x18\x02 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.gpu.GpuPredictionB?Z=github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpub\x06proto3')
+  serialized_pb=_b('\n/alameda_api/v1alpha1/datahub/gpu/services.proto\x12)containersai.alameda.v1alpha1.datahub.gpu\x1a\x31\x61lameda_api/v1alpha1/datahub/common/metrics.proto\x1a\x31\x61lameda_api/v1alpha1/datahub/common/queries.proto\x1a*alameda_api/v1alpha1/datahub/gpu/gpu.proto\x1a\x17google/rpc/status.proto\"\x8c\x01\n\x0fListGpusRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12\x0c\n\x04host\x18\x02 \x01(\t\x12\x14\n\x0cminor_number\x18\x03 \x01(\t\"t\n\x10ListGpusResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12<\n\x04gpus\x18\x02 \x03(\x0b\x32..containersai.alameda.v1alpha1.datahub.gpu.Gpu\"\xe2\x01\n\x15ListGpuMetricsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12N\n\x0cmetric_types\x18\x02 \x03(\x0e\x32\x38.containersai.alameda.v1alpha1.datahub.common.MetricType\x12\x0c\n\x04host\x18\x03 \x01(\t\x12\x14\n\x0cminor_number\x18\x04 \x01(\t\"\x87\x01\n\x16ListGpuMetricsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12I\n\x0bgpu_metrics\x18\x02 \x03(\x0b\x32\x34.containersai.alameda.v1alpha1.datahub.gpu.GpuMetric\"p\n\x1b\x43reateGpuPredictionsRequest\x12Q\n\x0fgpu_predictions\x18\x01 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.gpu.GpuPrediction\"\xd4\x01\n\x19ListGpuPredictionsRequest\x12U\n\x0fquery_condition\x18\x01 \x01(\x0b\x32<.containersai.alameda.v1alpha1.datahub.common.QueryCondition\x12\x0c\n\x04host\x18\x02 \x01(\t\x12\x14\n\x0cminor_number\x18\x03 \x01(\t\x12\x13\n\x0bgranularity\x18\x04 \x01(\x03\x12\x10\n\x08model_id\x18\x05 \x01(\t\x12\x15\n\rprediction_id\x18\x06 \x01(\t\"\x93\x01\n\x1aListGpuPredictionsResponse\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.google.rpc.Status\x12Q\n\x0fgpu_predictions\x18\x02 \x03(\x0b\x32\x38.containersai.alameda.v1alpha1.datahub.gpu.GpuPredictionB?Z=github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpub\x06proto3')
   ,
-  dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_gpu_dot_gpu__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
+  dependencies=[alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2.DESCRIPTOR,alameda__api_dot_v1alpha1_dot_datahub_dot_gpu_dot_gpu__pb2.DESCRIPTOR,google_dot_rpc_dot_status__pb2.DESCRIPTOR,])
 
 
 
@@ -70,8 +71,8 @@ _LISTGPUSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=215,
-  serialized_end=355,
+  serialized_start=266,
+  serialized_end=406,
 )
 
 
@@ -108,8 +109,8 @@ _LISTGPUSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=357,
-  serialized_end=473,
+  serialized_start=408,
+  serialized_end=524,
 )
 
 
@@ -128,15 +129,22 @@ _LISTGPUMETRICSREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='host', full_name='containersai.alameda.v1alpha1.datahub.gpu.ListGpuMetricsRequest.host', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      name='metric_types', full_name='containersai.alameda.v1alpha1.datahub.gpu.ListGpuMetricsRequest.metric_types', index=1,
+      number=2, type=14, cpp_type=8, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='host', full_name='containersai.alameda.v1alpha1.datahub.gpu.ListGpuMetricsRequest.host', index=2,
+      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='minor_number', full_name='containersai.alameda.v1alpha1.datahub.gpu.ListGpuMetricsRequest.minor_number', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='minor_number', full_name='containersai.alameda.v1alpha1.datahub.gpu.ListGpuMetricsRequest.minor_number', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -153,8 +161,8 @@ _LISTGPUMETRICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=476,
-  serialized_end=622,
+  serialized_start=527,
+  serialized_end=753,
 )
 
 
@@ -191,8 +199,8 @@ _LISTGPUMETRICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=625,
-  serialized_end=760,
+  serialized_start=756,
+  serialized_end=891,
 )
 
 
@@ -222,8 +230,8 @@ _CREATEGPUPREDICTIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=762,
-  serialized_end=874,
+  serialized_start=893,
+  serialized_end=1005,
 )
 
 
@@ -288,8 +296,8 @@ _LISTGPUPREDICTIONSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=877,
-  serialized_end=1089,
+  serialized_start=1008,
+  serialized_end=1220,
 )
 
 
@@ -326,14 +334,15 @@ _LISTGPUPREDICTIONSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1092,
-  serialized_end=1239,
+  serialized_start=1223,
+  serialized_end=1370,
 )
 
 _LISTGPUSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
 _LISTGPUSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTGPUSRESPONSE.fields_by_name['gpus'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_gpu_dot_gpu__pb2._GPU
 _LISTGPUMETRICSREQUEST.fields_by_name['query_condition'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_queries__pb2._QUERYCONDITION
+_LISTGPUMETRICSREQUEST.fields_by_name['metric_types'].enum_type = alameda__api_dot_v1alpha1_dot_datahub_dot_common_dot_metrics__pb2._METRICTYPE
 _LISTGPUMETRICSRESPONSE.fields_by_name['status'].message_type = google_dot_rpc_dot_status__pb2._STATUS
 _LISTGPUMETRICSRESPONSE.fields_by_name['gpu_metrics'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_gpu_dot_gpu__pb2._GPUMETRIC
 _CREATEGPUPREDICTIONSREQUEST.fields_by_name['gpu_predictions'].message_type = alameda__api_dot_v1alpha1_dot_datahub_dot_gpu_dot_gpu__pb2._GPUPREDICTION

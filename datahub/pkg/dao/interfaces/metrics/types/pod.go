@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	"github.com/containers-ai/alameda/datahub/pkg/kubernetes/metadata"
 	"github.com/containers-ai/alameda/internal/pkg/database/common"
 )
@@ -30,6 +31,7 @@ type PodMetricMap struct {
 type ListPodMetricsRequest struct {
 	common.QueryCondition
 	ObjectMetas []*metadata.ObjectMeta
+	MetricTypes []enumconv.MetricType
 	RateRange   int64
 }
 

@@ -1,12 +1,14 @@
 package v1alpha1
 
 import (
+	DaoGpuInflux "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/gpu/influxdb"
 	DaoGpu "github.com/containers-ai/alameda/datahub/pkg/dao/interfaces/gpu/influxdb/nvidia"
 	FormatEnum "github.com/containers-ai/alameda/datahub/pkg/formatconversion/enumconv"
 	FormatRequest "github.com/containers-ai/alameda/datahub/pkg/formatconversion/requests"
 	FormatResponse "github.com/containers-ai/alameda/datahub/pkg/formatconversion/responses"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	AlamedaUtils "github.com/containers-ai/alameda/pkg/utils"
+	ApiCommon "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	ApiGpu "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/gpu"
 	"golang.org/x/net/context"
 	"google.golang.org/genproto/googleapis/rpc/code"
@@ -70,7 +72,7 @@ func (s *ServiceV1alpha1) ListGpuMetrics(ctx context.Context, in *ApiGpu.ListGpu
 	scope.Debug("Request received from ListGpuMetrics grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	metricDAO := DaoGpu.NewMetricWithConfig(*s.Config.InfluxDB)
-	metrics, err := metricDAO.ListMetrics(in.GetHost(), in.GetMinorNumber(), DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
+	metrics, err := metricDAO.ListMetrics(in.GetHost(), in.GetMinorNumber(), generateGpuMetricTypes(in), DBCommon.BuildQueryConditionV1(in.GetQueryCondition()))
 	if err != nil {
 		scope.Errorf("failed to ListGpuMetrics: %+v", err)
 		return &ApiGpu.ListGpuMetricsResponse{
@@ -212,4 +214,26 @@ func (s *ServiceV1alpha1) CreateGpuPredictions(ctx context.Context, in *ApiGpu.C
 	return &status.Status{
 		Code: int32(code.Code_OK),
 	}, nil
+}
+
+func generateGpuMetricTypes(in *ApiGpu.ListGpuMetricsRequest) []FormatEnum.MetricType {
+	metricTypes := make([]FormatEnum.MetricType, 0)
+	for _, metricType := range in.GetMetricTypes() {
+		metricTypes = append(metricTypes, FormatRequest.MetricTypeNameMap[metricType])
+	}
+	if len(metricTypes) == 0 {
+		if DaoGpuInflux.GpuMetricUsedMap[FormatEnum.TypeGpuDutyCycle] == true {
+			metricTypes = append(metricTypes, FormatRequest.MetricTypeNameMap[ApiCommon.MetricType_DUTY_CYCLE])
+		}
+		if DaoGpuInflux.GpuMetricUsedMap[FormatEnum.TypeGpuMemoryUsedBytes] == true {
+			metricTypes = append(metricTypes, FormatRequest.MetricTypeNameMap[ApiCommon.MetricType_MEMORY_USAGE_BYTES])
+		}
+		if DaoGpuInflux.GpuMetricUsedMap[FormatEnum.TypeGpuPowerUsageMilliWatts] == true {
+			metricTypes = append(metricTypes, FormatRequest.MetricTypeNameMap[ApiCommon.MetricType_POWER_USAGE_WATTS])
+		}
+		if DaoGpuInflux.GpuMetricUsedMap[FormatEnum.TypeGpuTemperatureCelsius] == true {
+			metricTypes = append(metricTypes, FormatRequest.MetricTypeNameMap[ApiCommon.MetricType_TEMPERATURE_CELSIUS])
+		}
+	}
+	return metricTypes
 }
