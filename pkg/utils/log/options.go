@@ -138,7 +138,7 @@ func DefaultOptions() *Options {
 		RotationMaxBackups: defaultRotationMaxBackups,
 		outputLevels:       DefaultScopeName + ":" + levelToString[defaultOutputLevel],
 		stackTraceLevels:   DefaultScopeName + ":" + levelToString[defaultStackTraceLevel],
-		LogGrpc:            true,
+		LogGrpc:            false,
 	}
 }
 
