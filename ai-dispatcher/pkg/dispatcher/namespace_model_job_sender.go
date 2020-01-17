@@ -36,7 +36,7 @@ func NewNamespaceModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Mod
 func (sender *namespaceModelJobSender) sendModelJobs(namespaces []*datahub_resources.Namespace,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	for _, namespace := range namespaces {
-		go sender.sendNamespaceModelJobs(namespace, queueSender, pdUnit, granularity, predictionStep)
+		sender.sendNamespaceModelJobs(namespace, queueSender, pdUnit, granularity, predictionStep)
 	}
 }
 

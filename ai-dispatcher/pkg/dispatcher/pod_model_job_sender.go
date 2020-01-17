@@ -36,7 +36,7 @@ func NewPodModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 func (sender *podModelJobSender) sendModelJobs(pods []*datahub_resources.Pod, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64) {
 	for _, pod := range pods {
-		go sender.sendPodModelJobs(pod, queueSender, pdUnit, granularity, predictionStep)
+		sender.sendPodModelJobs(pod, queueSender, pdUnit, granularity, predictionStep)
 	}
 }
 

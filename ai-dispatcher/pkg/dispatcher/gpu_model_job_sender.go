@@ -35,7 +35,7 @@ func NewGPUModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_gpu.Gpu,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	for _, gpu := range gpus {
-		go sender.sendGpuModelJobs(gpu, queueSender, pdUnit, granularity, predictionStep)
+		sender.sendGpuModelJobs(gpu, queueSender, pdUnit, granularity, predictionStep)
 	}
 }
 

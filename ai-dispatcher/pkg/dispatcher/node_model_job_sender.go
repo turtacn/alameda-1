@@ -36,7 +36,7 @@ func NewNodeModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMap
 func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	for _, node := range nodes {
-		go sender.sendNodeModelJobs(node, queueSender, pdUnit, granularity, predictionStep)
+		sender.sendNodeModelJobs(node, queueSender, pdUnit, granularity, predictionStep)
 	}
 }
 
@@ -308,7 +308,7 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 			nodePredictions := nodePredictRes.GetNodePredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(nodePredictions)
-			if firstPDTime > 0 && firstPDTime <= time.Now().Unix(){
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
 			nodeMetricsRes, err := datahubServiceClnt.ListNodeMetrics(context.Background(),

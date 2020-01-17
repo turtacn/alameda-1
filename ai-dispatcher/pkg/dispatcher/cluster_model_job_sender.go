@@ -36,7 +36,7 @@ func NewClusterModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Model
 func (sender *clusterModelJobSender) sendModelJobs(clusters []*datahub_resources.Cluster,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	for _, cluster := range clusters {
-		go sender.sendClusterModelJobs(cluster, queueSender, pdUnit, granularity, predictionStep)
+		sender.sendClusterModelJobs(cluster, queueSender, pdUnit, granularity, predictionStep)
 	}
 }
 

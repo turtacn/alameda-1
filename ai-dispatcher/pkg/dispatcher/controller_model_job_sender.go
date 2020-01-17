@@ -36,7 +36,7 @@ func NewControllerModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Mo
 func (sender *controllerModelJobSender) sendModelJobs(controllers []*datahub_resources.Controller,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	for _, controller := range controllers {
-		go sender.sendControllerModelJobs(controller, queueSender, pdUnit, granularity, predictionStep)
+		sender.sendControllerModelJobs(controller, queueSender, pdUnit, granularity, predictionStep)
 	}
 }
 

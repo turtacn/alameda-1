@@ -36,7 +36,7 @@ func NewApplicationModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *M
 func (sender *applicationModelJobSender) sendModelJobs(applications []*datahub_resources.Application,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
 	for _, application := range applications {
-		go sender.sendApplicationModelJobs(application,
+		sender.sendApplicationModelJobs(application,
 			queueSender, pdUnit, granularity, predictionStep)
 	}
 }
