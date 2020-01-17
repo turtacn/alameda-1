@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
@@ -35,13 +36,17 @@ func NewNamespaceModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Mod
 
 func (sender *namespaceModelJobSender) sendModelJobs(namespaces []*datahub_resources.Namespace,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	var wg sync.WaitGroup
 	for _, namespace := range namespaces {
-		go sender.sendNamespaceModelJobs(namespace, queueSender, pdUnit, granularity, predictionStep)
+		wg.Add(1)
+		go sender.sendNamespaceModelJobs(namespace, queueSender, pdUnit, granularity, predictionStep, &wg)
 	}
+	wg.Wait()
 }
 
 func (sender *namespaceModelJobSender) sendNamespaceModelJobs(namespace *datahub_resources.Namespace,
-	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64, wg *sync.WaitGroup) {
+	defer wg.Done()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 

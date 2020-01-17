@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
@@ -35,13 +36,17 @@ func NewNodeModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMap
 
 func (sender *nodeModelJobSender) sendModelJobs(nodes []*datahub_resources.Node,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	var wg sync.WaitGroup
 	for _, node := range nodes {
-		go sender.sendNodeModelJobs(node, queueSender, pdUnit, granularity, predictionStep)
+		wg.Add(1)
+		go sender.sendNodeModelJobs(node, queueSender, pdUnit, granularity, predictionStep, &wg)
 	}
+	wg.Wait()
 }
 
 func (sender *nodeModelJobSender) sendNodeModelJobs(node *datahub_resources.Node,
-	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64, wg *sync.WaitGroup) {
+	defer wg.Done()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 
@@ -308,7 +313,7 @@ func (sender *nodeModelJobSender) sendJobByMetrics(node *datahub_resources.Node,
 			nodePredictions := nodePredictRes.GetNodePredictions()
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
 			firstPDTime := sender.getQueryMetricStartTime(nodePredictions)
-			if firstPDTime > 0 && firstPDTime <= time.Now().Unix(){
+			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
 			nodeMetricsRes, err := datahubServiceClnt.ListNodeMetrics(context.Background(),

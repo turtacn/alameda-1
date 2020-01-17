@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
@@ -34,13 +35,17 @@ func NewGPUModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *ModelMapp
 
 func (sender *gpuModelJobSender) sendModelJobs(gpus []*datahub_gpu.Gpu,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	var wg sync.WaitGroup
 	for _, gpu := range gpus {
-		go sender.sendGpuModelJobs(gpu, queueSender, pdUnit, granularity, predictionStep)
+		wg.Add(1)
+		go sender.sendGpuModelJobs(gpu, queueSender, pdUnit, granularity, predictionStep, &wg)
 	}
+	wg.Wait()
 }
 
 func (sender *gpuModelJobSender) sendGpuModelJobs(gpu *datahub_gpu.Gpu,
-	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
+	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64, wg *sync.WaitGroup) {
+	defer wg.Done()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 
