@@ -6,35 +6,35 @@ import (
 )
 
 var (
-	podModelTimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
+	ctMetricModelTimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
-		Name:      "pod_model_seconds",
-		Help:      "Target modeling time of pod",
-	}, []string{"namespace", "name", "data_granularity", "export_timestamp"})
+		Name:      "container_metric_model_seconds",
+		Help:      "Target modeling time of container metric",
+	}, []string{"cluster_name", "pod_namespace", "pod_name", "name", "data_granularity", "metric_type", "export_timestamp"})
 
-	podModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+	ctMetricModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
-		Name:      "pod_model_seconds_total",
-		Help:      "Total target modeling time of pod",
-	}, []string{"namespace", "name", "data_granularity", "export_timestamp"})
+		Name:      "container_metric_model_seconds_total",
+		Help:      "Total target modeling time of container metric",
+	}, []string{"cluster_name", "pod_namespace", "pod_name", "name", "data_granularity", "metric_type", "export_timestamp"})
 
 	containerMetricMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "container_metric_mape",
 		Help:      "MAPE of container metric",
-	}, []string{"pod_namespace", "pod_name", "name", "metric_type", "data_granularity", "export_timestamp"})
+	}, []string{"cluster_name", "pod_namespace", "pod_name", "name", "data_granularity", "metric_type", "export_timestamp"})
 
 	containerMetricRMSEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "container_metric_rmse",
 		Help:      "RMSE of container metric",
-	}, []string{"pod_namespace", "pod_name", "name", "metric_type", "data_granularity", "export_timestamp"})
+	}, []string{"cluster_name", "pod_namespace", "pod_name", "name", "data_granularity", "metric_type", "export_timestamp"})
 
-	podMetricDriftCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+	containerMetricDriftCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
-		Name:      "pod_metric_drift_total",
-		Help:      "Total number of pod metric drift",
-	}, []string{"namespace", "name", "data_granularity", "export_timestamp"})
+		Name:      "container_metric_drift_total",
+		Help:      "Total number of container metric drift",
+	}, []string{"cluster_name", "pod_namespace", "pod_name", "name", "data_granularity", "metric_type", "export_timestamp"})
 )
 
 type podMetric struct{}
@@ -43,34 +43,34 @@ func newPodMetric() *podMetric {
 	return &podMetric{}
 }
 
-func (podMetric *podMetric) setPodMetricModelTime(podNS, podName,
-	dataGranularity, exportTimestamp string, val float64) {
-	podModelTimeGauge.WithLabelValues(podNS, podName,
-		dataGranularity, exportTimestamp).Set(val)
+func (podMetric *podMetric) setContainerMetricModelTime(clusterID, podNS, podName, ctName,
+	dataGranularity, metricType, exportTimestamp string, val float64) {
+	ctMetricModelTimeGauge.WithLabelValues(clusterID, podNS, podName, ctName,
+		dataGranularity, metricType, exportTimestamp).Set(val)
 }
 
-func (podMetric *podMetric) addPodMetricModelTimeTotal(podNS, podName,
-	dataGranularity, exportTimestamp string, val float64) {
-		podModelTimeCounter.WithLabelValues(podNS, podName,
-	dataGranularity, exportTimestamp).Add(val)
+func (podMetric *podMetric) addContainerMetricModelTimeTotal(clusterID, podNS, podName, ctName,
+	dataGranularity, metricType, exportTimestamp string, val float64) {
+	ctMetricModelTimeCounter.WithLabelValues(clusterID, podNS, podName, ctName,
+		dataGranularity, metricType, exportTimestamp).Add(val)
 }
 
-func (podMetric *podMetric) setContainerMetricMAPE(podNS, podName,
-	name, metricType, dataGranularity, exportTimestamp string,
+func (podMetric *podMetric) setContainerMetricMAPE(clusterID, podNS, podName,
+	name, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	containerMetricMAPEGauge.WithLabelValues(podNS, podName,
-		name, metricType, dataGranularity, exportTimestamp).Set(val)
+	containerMetricMAPEGauge.WithLabelValues(clusterID, podNS, podName,
+		name, dataGranularity, metricType, exportTimestamp).Set(val)
 }
 
-func (podMetric *podMetric) setContainerMetricRMSE(podNS, podName,
-	name, metricType, dataGranularity, exportTimestamp string,
+func (podMetric *podMetric) setContainerMetricRMSE(clusterID, podNS, podName,
+	name, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	containerMetricRMSEGauge.WithLabelValues(podNS, podName,
-		name, metricType, dataGranularity, exportTimestamp).Set(val)
+	containerMetricRMSEGauge.WithLabelValues(clusterID, podNS, podName,
+		name, dataGranularity, metricType, exportTimestamp).Set(val)
 }
 
-func (podMetric *podMetric) addPodMetricDrift(podNS, podName,
-	dataGranularity, exportTimestamp string, val float64) {
-	podMetricDriftCounter.WithLabelValues(podNS, podName,
-		dataGranularity, exportTimestamp).Add(val)
+func (podMetric *podMetric) addPodMetricDrift(clusterID, podNS, podName, name,
+	dataGranularity, metricType, exportTimestamp string, val float64) {
+	containerMetricDriftCounter.WithLabelValues(clusterID, podNS, podName, name,
+		dataGranularity, metricType, exportTimestamp).Add(val)
 }

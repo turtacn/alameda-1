@@ -12,6 +12,25 @@ type RabbitMQConsumer struct {
 	conn *amqp.Connection
 }
 
+func (consumer *RabbitMQConsumer) ConsumeJsonString(queueName string) (<-chan amqp.Delivery, error) {
+	consumeRetryTime := consumer.getRetry().consumeRetryTime
+	for retry := 0; retry < consumeRetryTime; retry++ {
+		queueCH, err := consumer.conn.Channel()
+
+		if err != nil {
+			if retry == (consumeRetryTime - 1) {
+				queueCH.Close()
+				return nil, err
+			}
+			continue
+		}
+
+		return queueCH.Consume(queueName, "", true, false, false, false, nil)
+	}
+	return nil,
+		fmt.Errorf("unknown error to consume message from queue %s", queueName)
+}
+
 func (consumer *RabbitMQConsumer) ReceiveJsonString(queueName string) (
 	string, bool, error) {
 	consumeRetryTime := consumer.getRetry().consumeRetryTime

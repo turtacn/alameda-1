@@ -115,28 +115,25 @@ func (sender *RabbitMQSender) sendJob(queueName, jsonStr, msgID string) error {
 			}
 			return fmt.Errorf("send jobs to queue %s with unknown exception of notification close", queueName)
 		case confirm := <-sender.connNotify:
-			if !sender.conn.IsClosed() {
-				err := sender.conn.Close()
-				if err != nil {
-					scope.Errorf(err.Error())
-				}
-			}
-			sender.conn = GetQueueConn(sender.queueURL, sender.retryItvMS)
 			if confirm != nil {
+				if !sender.conn.IsClosed() {
+					err := sender.conn.Close()
+					if err != nil {
+						scope.Errorf(err.Error())
+					}
+				}
+				sender.conn = GetQueueConn(sender.queueURL, sender.retryItvMS)
 				return fmt.Errorf(confirm.Error())
+			} else {
+				return nil
 			}
-			return fmt.Errorf("send jobs to queue %s with unknown exception of connection notification", queueName)
 		case <-ticker.C:
 			err := queueCH.Close()
 			if err != nil {
-				scope.Errorf(err.Error())
+				return fmt.Errorf("send job to queue %s timeout and close channel failed: %s",
+					queueName, err.Error())
 			}
-			if !sender.conn.IsClosed() {
-				err := sender.conn.Close()
-				if err != nil {
-					scope.Errorf(err.Error())
-				}
-			}
+
 			return fmt.Errorf("send job to queue %s timeout", queueName)
 		}
 	}

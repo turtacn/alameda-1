@@ -9,32 +9,32 @@ var (
 	controllerModelTimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "controller_model_seconds",
-		Help:      "Target modeling time of controller",
-	}, []string{"namespace", "name", "kind", "data_granularity", "export_timestamp"})
+		Help:      "Target modeling time of controller metric",
+	}, []string{"cluster_name", "namespace", "name", "kind", "data_granularity", "metric_type", "export_timestamp"})
 
 	controllerModelTimeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "controller_model_seconds_total",
-		Help:      "Total target modeling time of controller",
-	}, []string{"namespace", "name", "kind", "data_granularity", "export_timestamp"})
+		Help:      "Total target modeling time of controller metric",
+	}, []string{"cluster_name", "namespace", "name", "kind", "data_granularity", "metric_type", "export_timestamp"})
 
 	controllerMAPEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "controller_metric_mape",
 		Help:      "MAPE of controller metric",
-	}, []string{"namespace", "name", "kind", "metric_type", "data_granularity", "export_timestamp"})
+	}, []string{"cluster_name", "namespace", "name", "kind", "data_granularity", "metric_type", "export_timestamp"})
 
 	controllerRMSEGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "controller_metric_rmse",
 		Help:      "RMSE of controller metric",
-	}, []string{"namespace", "name", "kind", "metric_type", "data_granularity", "export_timestamp"})
+	}, []string{"cluster_name", "namespace", "name", "kind", "data_granularity", "metric_type", "export_timestamp"})
 
 	controllerMetricDriftCounter = promauto.NewCounterVec(prometheus.CounterOpts{
 		Subsystem: "alameda_ai_dispatcher",
 		Name:      "controller_metric_drift_total",
 		Help:      "Total number of controller metric drift",
-	}, []string{"namespace", "name", "kind", "data_granularity", "export_timestamp"})
+	}, []string{"cluster_name", "namespace", "name", "kind", "data_granularity", "metric_type", "export_timestamp"})
 )
 
 type controllerMetric struct{}
@@ -43,37 +43,37 @@ func newControllerMetric() *controllerMetric {
 	return &controllerMetric{}
 }
 
-func (controllerMetric *controllerMetric) setControllerMetricModelTime(
-	namespace, name, kind, dataGranularity, exportTimestamp string,
+func (controllerMetric *controllerMetric) setControllerMetricModelTime(clusterID,
+	namespace, name, kind, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	controllerModelTimeGauge.WithLabelValues(namespace,
-		name, kind, dataGranularity, exportTimestamp).Set(val)
+	controllerModelTimeGauge.WithLabelValues(clusterID, namespace,
+		name, kind, dataGranularity, metricType, exportTimestamp).Set(val)
 }
 
-func (controllerMetric *controllerMetric) addControllerMetricModelTimeTotal(
-	namespace, name, kind, dataGranularity, exportTimestamp string,
+func (controllerMetric *controllerMetric) addControllerMetricModelTimeTotal(clusterID,
+	namespace, name, kind, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	controllerModelTimeCounter.WithLabelValues(namespace,
-		name, kind, dataGranularity, exportTimestamp).Add(val)
+	controllerModelTimeCounter.WithLabelValues(clusterID, namespace,
+		name, kind, dataGranularity, metricType, exportTimestamp).Add(val)
 }
 
-func (controllerMetric *controllerMetric) setControllerMetricMAPE(
-	namespace, name, kind, metricType, dataGranularity, exportTimestamp string,
+func (controllerMetric *controllerMetric) setControllerMetricMAPE(clusterID,
+	namespace, name, kind, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	controllerMAPEGauge.WithLabelValues(namespace,
-		name, kind, metricType, dataGranularity, exportTimestamp).Set(val)
+	controllerMAPEGauge.WithLabelValues(clusterID, namespace,
+		name, kind, dataGranularity, metricType, exportTimestamp).Set(val)
 }
 
-func (controllerMetric *controllerMetric) setControllerMetricRMSE(
-	namespace, name, kind, metricType, dataGranularity, exportTimestamp string,
+func (controllerMetric *controllerMetric) setControllerMetricRMSE(clusterID,
+	namespace, name, kind, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	controllerRMSEGauge.WithLabelValues(namespace, kind,
-		name, metricType, dataGranularity, exportTimestamp).Set(val)
+	controllerRMSEGauge.WithLabelValues(clusterID, namespace, kind,
+		name, dataGranularity, metricType, exportTimestamp).Set(val)
 }
 
-func (controllerMetric *controllerMetric) addControllerMetricDrift(
-	namespace, name, kind, dataGranularity, exportTimestamp string,
+func (controllerMetric *controllerMetric) addControllerMetricDrift(clusterID,
+	namespace, name, kind, dataGranularity, metricType, exportTimestamp string,
 	val float64) {
-	controllerMetricDriftCounter.WithLabelValues(namespace,
-		name, kind, dataGranularity, exportTimestamp).Add(val)
+	controllerMetricDriftCounter.WithLabelValues(clusterID, namespace,
+		name, kind, dataGranularity, metricType, exportTimestamp).Add(val)
 }

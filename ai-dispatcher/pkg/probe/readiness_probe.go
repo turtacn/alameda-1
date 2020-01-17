@@ -38,7 +38,9 @@ func queryDatahub(datahubAddr string) error {
 
 func connQueue(url string) error {
 	conn, err := amqp.Dial(url)
-	defer conn.Close()
+	if conn != nil {
+		defer conn.Close()
+	}
 	if err != nil {
 		return err
 	}

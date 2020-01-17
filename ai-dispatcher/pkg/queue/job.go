@@ -4,24 +4,30 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
+	"github.com/containers-ai/alameda/ai-dispatcher/consts"
 	datahub_common "github.com/containers-ai/api/alameda_api/v1alpha1/datahub/common"
 	"github.com/streadway/amqp"
 )
 
 type job struct {
-	UnitType          string `json:"unitType"`
-	Granularity       string `json:"granularity"`
-	GranularitySec    int64  `json:"granularitySec"`
-	PayloadJSONString string `json:"payloadJSONString"`
-	CreateTimeStamp   int64  `json:"createTimestamp"`
+	UnitType          string                    `json:"unitType"`
+	Granularity       string                    `json:"granularity"`
+	GranularitySec    int64                     `json:"granularitySec"`
+	PayloadJSONString string                    `json:"payloadJSONString"`
+	CreateTimeStamp   int64                     `json:"createTimestamp"`
+	ClusterID         string                    `json:"clusterID"`
+	MetricType        datahub_common.MetricType `json:"metricType"`
+	MetricTypeString  string                    `json:"metricTypeString"`
+	ContainerName     string                    `json:"containerName"`
 }
 
 type jobBuilder struct {
 	job *job
 }
 
-func NewJobBuilder(unitType string, granularitySec int64, payloadJSONString string) *jobBuilder {
+func NewJobBuilder(clusterID string, unitType string, granularitySec int64,
+	metricType datahub_common.MetricType, payloadJSONString string,
+	extraJobInfo map[string]string) *jobBuilder {
 	granularity := GetGranularityStr(granularitySec)
 	job := &job{
 		UnitType:          unitType,
@@ -29,6 +35,15 @@ func NewJobBuilder(unitType string, granularitySec int64, payloadJSONString stri
 		Granularity:       granularity,
 		PayloadJSONString: payloadJSONString,
 		CreateTimeStamp:   time.Now().Unix(),
+		ClusterID:         clusterID,
+		MetricType:        metricType,
+		MetricTypeString:  metricType.String(),
+	}
+	if unitType == consts.UnitTypePod && extraJobInfo != nil {
+		ctName, ok := extraJobInfo["containerName"]
+		if ok {
+			job.ContainerName = ctName
+		}
 	}
 	return &jobBuilder{job: job}
 }
@@ -77,19 +92,4 @@ func GetQueueConn(queueURL string, retryItvMS int64) *amqp.Connection {
 		}
 		return queueConn
 	}
-}
-
-func GetMetricLabel(mt datahub_common.MetricType) string {
-	if mt == datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE {
-		return metrics.MetricTypeLabelCPUUsageSecondsPercentage
-	} else if mt == datahub_common.MetricType_DUTY_CYCLE {
-		return metrics.MetricTypeLabelDutyCycle
-	} else if mt == datahub_common.MetricType_MEMORY_USAGE_BYTES {
-		return metrics.MetricTypeLabelMemoryUsageBytes
-	} else if mt == datahub_common.MetricType_POWER_USAGE_WATTS {
-		return metrics.MetricTypeLabelPowerUsageWatts
-	} else if mt == datahub_common.MetricType_TEMPERATURE_CELSIUS {
-		return metrics.MetricTypeLabelTemperatureCelsius
-	}
-	return ""
 }

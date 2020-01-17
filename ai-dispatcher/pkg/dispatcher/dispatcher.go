@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/containers-ai/alameda/ai-dispatcher/consts"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/pkg/utils/log"
@@ -18,15 +19,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	UnitTypeNode        = "NODE"
-	UnitTypePod         = "POD"
-	UnitTypeGPU         = "GPU"
-	UnitTypeNamespace   = "NAMESPACE"
-	UnitTypeApplication = "APPLICATION"
-	UnitTypeCluster     = "CLUSTER"
-	UnitTypeController  = "CONTROLLER"
-)
 const queueName = "predict"
 const modelQueueName = "model"
 
@@ -155,7 +147,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(dispatcher.datahubGrpcCn)
 
-	if pdUnit == UnitTypeNode {
+	if pdUnit == consts.UnitTypeNode {
 		res, err := datahubServiceClnt.ListNodes(context.Background(),
 			&datahub_resources.ListNodesRequest{})
 		if err != nil {
@@ -195,7 +187,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 			"Sending %v node jobs to queue completely with granularity %v seconds.",
 			len(nodes), granularity)
 
-	} else if pdUnit == UnitTypePod {
+	} else if pdUnit == consts.UnitTypePod {
 		res, err := datahubServiceClnt.ListPods(context.Background(),
 			&datahub_resources.ListPodsRequest{
 				ScalingTool: datahub_resources.ScalingTool_VPA,
@@ -242,7 +234,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof(
 			"Sending %v pod jobs to queue completely with granularity %v seconds.",
 			len(pods), granularity)
-	} else if pdUnit == UnitTypeGPU {
+	} else if pdUnit == consts.UnitTypeGPU {
 		res, err := datahubServiceClnt.ListGpus(context.Background(),
 			&datahub_gpu.ListGpusRequest{})
 		if err != nil {
@@ -267,7 +259,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		}
 		scope.Infof("Sending %v gpu jobs to queue completely with granularity %v seconds.",
 			len(gpus), granularity)
-	} else if pdUnit == UnitTypeApplication {
+	} else if pdUnit == consts.UnitTypeApplication {
 		res, err := datahubServiceClnt.ListApplications(context.Background(),
 			&datahub_resources.ListApplicationsRequest{})
 		if err != nil {
@@ -300,7 +292,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		}
 		scope.Infof("Sending %v application jobs to queue completely with granularity %v seconds.",
 			len(applications), granularity)
-	} else if pdUnit == UnitTypeNamespace {
+	} else if pdUnit == consts.UnitTypeNamespace {
 		res, err := datahubServiceClnt.ListNamespaces(context.Background(),
 			&datahub_resources.ListNamespacesRequest{})
 		if err != nil {
@@ -327,7 +319,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof(
 			"Sending %v namespace jobs to queue completely with granularity %v seconds.",
 			len(namespaces), granularity)
-	} else if pdUnit == UnitTypeCluster {
+	} else if pdUnit == consts.UnitTypeCluster {
 		res, err := datahubServiceClnt.ListClusters(context.Background(),
 			&datahub_resources.ListClustersRequest{})
 		if err != nil {
@@ -354,7 +346,7 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 		scope.Infof(
 			"Sending %v cluster jobs to queue completely with granularity %v seconds.",
 			len(clusters), granularity)
-	} else if pdUnit == UnitTypeController {
+	} else if pdUnit == consts.UnitTypeController {
 		res, err := datahubServiceClnt.ListControllers(context.Background(),
 			&datahub_resources.ListControllersRequest{})
 		if err != nil {
@@ -391,10 +383,10 @@ func (dispatcher *Dispatcher) getAndPushJobs(queueSender queue.QueueSender,
 }
 
 func (dispatcher *Dispatcher) skipJobSending(pdUnit string, granularitySec int64) bool {
-	if pdUnit == UnitTypeGPU && granularitySec != 3600 {
+	if pdUnit == consts.UnitTypeGPU && granularitySec != 3600 {
 		return true
 	}
 
-	return (pdUnit == UnitTypeCluster || pdUnit == UnitTypeNamespace) &&
+	return (pdUnit == consts.UnitTypeCluster || pdUnit == consts.UnitTypeNamespace) &&
 		(granularitySec == 30 && !viper.GetBool("hourlyPredict"))
 }

@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containers-ai/alameda/ai-dispatcher/consts"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/stats"
@@ -22,10 +23,10 @@ func DriftEvaluation(unitType string, metricType datahub_common.MetricType, gran
 	rmseMetrics, rmseDrift := rmseDriftEvaluation(unitType, metricType, granularity, mData, pData, unitMeta, metricExporter)
 
 	if strings.ToLower(strings.TrimSpace(currentMeasure)) == "mape" {
-		scope.Infof("%s drift with MAPE: %t", unitMeta["targetDisplayName"], mapeDrift)
+		scope.Infof("%s metric %s drift with MAPE: %t", unitMeta["targetDisplayName"], metricType, mapeDrift)
 		return mapeMetrics, mapeDrift
 	} else if strings.ToLower(strings.TrimSpace(currentMeasure)) == "rmse" {
-		scope.Infof("%s drift with MAPE: %t", unitMeta["targetDisplayName"], rmseDrift)
+		scope.Infof("%s metric %s drift with MAPE: %t", unitMeta["targetDisplayName"], metricType, rmseDrift)
 		return rmseMetrics, rmseDrift
 	}
 
@@ -49,28 +50,28 @@ func mapeDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 	if mapeErr == nil {
 		scope.Infof("%s Export MAPE value %v metric %v",
 			targetDisplayName, mape, metricType)
-		if unitType == UnitTypeNode {
-			metricExporter.SetNodeMetricMAPE(unitMeta["nodeName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
-		} else if unitType == UnitTypePod {
-			metricExporter.SetContainerMetricMAPE(unitMeta["podNS"], unitMeta["podName"], unitMeta["containerName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
-		} else if unitType == UnitTypeGPU {
-			metricExporter.SetGPUMetricMAPE(unitMeta["gpuHost"], unitMeta["gpuMinorNumber"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
-		} else if unitType == UnitTypeApplication {
-			metricExporter.SetApplicationMetricMAPE(unitMeta["appNS"], unitMeta["appName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
-		} else if unitType == UnitTypeNamespace {
-			metricExporter.SetNamespaceMetricMAPE(unitMeta["nsName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
-		} else if unitType == UnitTypeController {
-			metricExporter.SetControllerMetricMAPE(unitMeta["controllerNS"], unitMeta["controllerName"],
-				unitMeta["controllerKind"], queue.GetMetricLabel(metricType),
-				queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
-		} else if unitType == UnitTypeCluster {
-			metricExporter.SetClusterMetricMAPE(unitMeta["clusterName"], queue.GetMetricLabel(metricType),
-				queue.GetGranularityStr(granularity), time.Now().Unix(), mape)
+		if unitType == consts.UnitTypeNode {
+			metricExporter.SetNodeMetricMAPE(unitMeta["clusterID"], unitMeta["nodeName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
+		} else if unitType == consts.UnitTypePod {
+			metricExporter.SetContainerMetricMAPE(unitMeta["clusterID"], unitMeta["podNS"], unitMeta["podName"], unitMeta["containerName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
+		} else if unitType == consts.UnitTypeGPU {
+			metricExporter.SetGPUMetricMAPE(unitMeta["clusterID"], unitMeta["gpuHost"], unitMeta["gpuMinorNumber"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
+		} else if unitType == consts.UnitTypeApplication {
+			metricExporter.SetApplicationMetricMAPE(unitMeta["clusterID"], unitMeta["applicationNS"], unitMeta["applicationName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
+		} else if unitType == consts.UnitTypeNamespace {
+			metricExporter.SetNamespaceMetricMAPE(unitMeta["clusterID"], unitMeta["namespaceName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
+		} else if unitType == consts.UnitTypeController {
+			metricExporter.SetControllerMetricMAPE(unitMeta["clusterID"], unitMeta["controllerNS"], unitMeta["controllerName"],
+				unitMeta["controllerKind"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
+		} else if unitType == consts.UnitTypeCluster {
+			metricExporter.SetClusterMetricMAPE(unitMeta["clusterName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), mape)
 		}
 	}
 
@@ -108,28 +109,28 @@ func rmseDriftEvaluation(unitType string, metricType datahub_common.MetricType, 
 	if rmseErr == nil {
 		scope.Infof("%s Export RMSE value %v for metric %v",
 			targetDisplayName, rmse, metricType)
-		if unitType == UnitTypeNode {
-			metricExporter.SetNodeMetricRMSE(unitMeta["nodeName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
-		} else if unitType == UnitTypePod {
-			metricExporter.SetContainerMetricRMSE(unitMeta["podNS"], unitMeta["podName"], unitMeta["containerName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
-		} else if unitType == UnitTypeGPU {
-			metricExporter.SetGPUMetricRMSE(unitMeta["gpuHost"], unitMeta["gpuMinorNumber"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
-		} else if unitType == UnitTypeApplication {
-			metricExporter.SetApplicationMetricRMSE(unitMeta["appNS"], unitMeta["appName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
-		} else if unitType == UnitTypeNamespace {
-			metricExporter.SetNamespaceMetricRMSE(unitMeta["nsName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
-		} else if unitType == UnitTypeController {
-			metricExporter.SetControllerMetricRMSE(unitMeta["controllerNS"], unitMeta["controllerName"],
-				unitMeta["controllerKind"], queue.GetMetricLabel(metricType),
-				queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
-		} else if unitType == UnitTypeCluster {
-			metricExporter.SetClusterMetricRMSE(unitMeta["clusterName"],
-				queue.GetMetricLabel(metricType), queue.GetGranularityStr(granularity), time.Now().Unix(), rmse)
+		if unitType == consts.UnitTypeNode {
+			metricExporter.SetNodeMetricRMSE(unitMeta["clusterID"], unitMeta["nodeName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), rmse)
+		} else if unitType == consts.UnitTypePod {
+			metricExporter.SetContainerMetricRMSE(unitMeta["clusterID"], unitMeta["podNS"], unitMeta["podName"], unitMeta["containerName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), rmse)
+		} else if unitType == consts.UnitTypeGPU {
+			metricExporter.SetGPUMetricRMSE(unitMeta["clusterID"], unitMeta["gpuHost"], unitMeta["gpuMinorNumber"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), rmse)
+		} else if unitType == consts.UnitTypeApplication {
+			metricExporter.SetApplicationMetricRMSE(unitMeta["clusterID"], unitMeta["applicationNS"], unitMeta["applicationName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), rmse)
+		} else if unitType == consts.UnitTypeNamespace {
+			metricExporter.SetNamespaceMetricRMSE(unitMeta["clusterID"], unitMeta["namespaceName"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), rmse)
+		} else if unitType == consts.UnitTypeController {
+			metricExporter.SetControllerMetricRMSE(unitMeta["clusterID"], unitMeta["controllerNS"], unitMeta["controllerName"],
+				unitMeta["controllerKind"],
+				queue.GetGranularityStr(granularity), metricType.String(), time.Now().Unix(), rmse)
+		} else if unitType == consts.UnitTypeCluster {
+			metricExporter.SetClusterMetricRMSE(unitMeta["clusterName"], queue.GetGranularityStr(granularity),
+				metricType.String(), time.Now().Unix(), rmse)
 		}
 	}
 

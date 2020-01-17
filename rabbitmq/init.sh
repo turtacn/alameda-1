@@ -87,6 +87,6 @@ if [ "$TRACE_ENABLED" == "true" ]; then
          -d'{"format":"json","pattern":"#",
              "tracer_connection_username":"'$MQ_USER'", "tracer_connection_password":"'$MQ_PASSWD'"}'
 fi
-
+rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare queue name="model_complete"
 echo "Running daemon jobs"
 do_crond

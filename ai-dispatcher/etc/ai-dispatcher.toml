@@ -12,7 +12,7 @@ url = "amqp://admin:adminpass@rabbitmq.alameda.svc.cluster.local:5672"
   consumeTime = 5
   consumeIntervalMs = 3000
   connectIntervalMs = 3000
-  ackTimeoutSec = 5
+  ackTimeoutSec = 3
   [queue.consumer]
   reconnectInterval = 30 #seconds
 

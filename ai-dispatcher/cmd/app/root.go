@@ -100,7 +100,7 @@ var rootCmd = &cobra.Command{
 		go launchMetricServer()
 		granularities := viper.GetStringSlice("serviceSetting.granularities")
 		predictUnits := viper.GetStringSlice("serviceSetting.predictUnits")
-		modelMapper := dispatcher.NewModelMapper(predictUnits, granularities)
+		modelMapper := dispatcher.NewModelMapper()
 		if viper.GetBool("model.enabled") {
 			go dispatcher.ModelCompleteNotification(modelMapper, conn, metricExporter)
 		}

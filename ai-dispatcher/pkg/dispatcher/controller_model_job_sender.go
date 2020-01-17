@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/containers-ai/alameda/ai-dispatcher/consts"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/metrics"
 	"github.com/containers-ai/alameda/ai-dispatcher/pkg/queue"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
@@ -55,18 +56,16 @@ func (sender *controllerModelJobSender) sendControllerModelJobs(controller *data
 			controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
 		return
 	}
-	if lastPredictionMetrics == nil && err == nil {
-		scope.Infof("[CONTROLLER][%s][%s][%s/%s] No prediction found",
-			controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
-	}
 	sender.sendJobByMetrics(controller, queueSender, pdUnit, granularity, predictionStep,
 		datahubServiceClnt, lastPredictionMetrics)
 }
 
-func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Controller, queueSender queue.QueueSender, pdUnit string,
-	granularity int64, controllerInfo *modelInfo) {
+func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Controller,
+	queueSender queue.QueueSender, pdUnit string, granularity int64,
+	metricType datahub_common.MetricType) {
 	marshaler := jsonpb.Marshaler{}
 	dataGranularity := queue.GetGranularityStr(granularity)
+	clusterID := controller.GetObjectMeta().GetClusterName()
 	controllerNS := controller.GetObjectMeta().GetNamespace()
 	controllerName := controller.GetObjectMeta().GetName()
 	controllerKindStr := controller.GetKind().String()
@@ -76,44 +75,39 @@ func (sender *controllerModelJobSender) sendJob(controller *datahub_resources.Co
 			controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 		return
 	}
-	if len(controllerInfo.ModelMetrics) > 0 && controllerStr != "" {
-		jb := queue.NewJobBuilder(pdUnit, granularity, controllerStr)
-		jobJSONStr, err := jb.GetJobJSONString()
-		if err != nil {
-			scope.Errorf(
-				"[CONTROLLER][%s][%s][%s/%s] Prepare model job payload failed. %s",
-				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
-			return
-		}
 
-		controllerJobStr := fmt.Sprintf("%s/%s/%s/%v", controllerKindStr, controllerNS, controllerName, granularity)
-		scope.Infof("[CONTROLLER][%s][%s][%s/%s] Try to send controller model job: %s",
-			controllerKindStr, dataGranularity, controllerNS, controllerName, controllerJobStr)
-		err = queueSender.SendJsonString(modelQueueName, jobJSONStr, controllerJobStr, granularity)
-		if err == nil {
-			sender.modelMapper.AddModelInfo(pdUnit, dataGranularity, controllerInfo)
-		} else {
-			scope.Errorf(
-				"[CONTROLLER][%s][%s][%s/%s] Send model job payload failed. %s",
-				controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
-		}
+	jb := queue.NewJobBuilder(clusterID, pdUnit, granularity, metricType, controllerStr, nil)
+	jobJSONStr, err := jb.GetJobJSONString()
+	if err != nil {
+		scope.Errorf(
+			"[CONTROLLER][%s][%s][%s/%s] Prepare model job payload failed. %s",
+			controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
+		return
 	}
-}
 
-func (sender *controllerModelJobSender) genControllerInfo(controllerNS,
-	controllerName string, modelMetrics ...datahub_common.MetricType) *modelInfo {
-	controllerInfo := new(modelInfo)
-	controllerInfo.NamespacedName = &namespacedName{
-		Namespace: controllerNS,
-		Name:      controllerName,
+	controllerJobStr := fmt.Sprintf("%s/%s/%s/%s/%s/%v/%s", consts.UnitTypeController,
+		clusterID, controllerKindStr, controllerNS, controllerName, granularity, metricType)
+	scope.Infof("[CONTROLLER][%s][%s][%s/%s] Try to send controller model job: %s",
+		controllerKindStr, dataGranularity, controllerNS, controllerName, controllerJobStr)
+	err = queueSender.SendJsonString(modelQueueName, jobJSONStr, controllerJobStr, granularity)
+	if err == nil {
+		sender.modelMapper.AddModelInfo(clusterID, pdUnit, dataGranularity, metricType.String(), map[string]string{
+			"namespace": controllerNS,
+			"name":      controllerName,
+			"kind":      controllerKindStr,
+		})
+	} else {
+		scope.Errorf(
+			"[CONTROLLER][%s][%s][%s/%s] Send model job payload failed. %s",
+			controllerKindStr, dataGranularity, controllerNS, controllerName, err.Error())
 	}
-	controllerInfo.ModelMetrics = modelMetrics
-	controllerInfo.SetTimeStamp(time.Now().Unix())
-	return controllerInfo
+
 }
 
 func (sender *controllerModelJobSender) getLastMIdPrediction(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	controller *datahub_resources.Controller, granularity int64) ([]*datahub_predictions.MetricData, error) {
+
+	metricData := []*datahub_predictions.MetricData{}
 	dataGranularity := queue.GetGranularityStr(granularity)
 	controllerNS := controller.GetObjectMeta().GetNamespace()
 	controllerName := controller.GetObjectMeta().GetName()
@@ -137,118 +131,73 @@ func (sender *controllerModelJobSender) getLastMIdPrediction(datahubServiceClnt 
 			},
 		})
 	if err != nil {
-		return nil, err
+		return metricData, err
 	}
 
-	lastPid := ""
-	if len(controllerPredictRes.GetControllerPredictions()) > 0 {
-		lastControllerPrediction := controllerPredictRes.GetControllerPredictions()[0]
-		lctrlPDRData := lastControllerPrediction.GetPredictedRawData()
-		if lctrlPDRData == nil {
-			lctrlPDRData = lastControllerPrediction.GetPredictedLowerboundData()
-		}
-		if lctrlPDRData == nil {
-			lctrlPDRData = lastControllerPrediction.GetPredictedUpperboundData()
-		}
-		for _, pdRD := range lctrlPDRData {
-			for _, theData := range pdRD.GetData() {
-				lastPid = theData.GetPredictionId()
-				break
-			}
-			if lastPid != "" {
-				break
-			}
-		}
-	} else {
-		return []*datahub_predictions.MetricData{}, nil
-	}
-	if lastPid == "" {
-		return nil, fmt.Errorf("[CONTROLLER][%s][%s][%s/%s] Query last prediction id failed",
-			controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
+	lastMid := ""
+	if len(controllerPredictRes.GetControllerPredictions()) == 0 {
+		return metricData, nil
 	}
 
-	controllerPredictRes, err = datahubServiceClnt.ListControllerPredictions(context.Background(),
-		&datahub_predictions.ListControllerPredictionsRequest{
-			ObjectMeta: []*datahub_resources.ObjectMeta{
-				&datahub_resources.ObjectMeta{
-					Namespace: controllerNS,
-					Name:      controllerName,
-				},
-			},
-			Granularity: granularity,
-			QueryCondition: &datahub_common.QueryCondition{
-				Order: datahub_common.QueryCondition_DESC,
-				TimeRange: &datahub_common.TimeRange{
-					Step: &duration.Duration{
-						Seconds: granularity,
+	lastControllerPrediction := controllerPredictRes.GetControllerPredictions()[0]
+	lctrlPDRData := lastControllerPrediction.GetPredictedRawData()
+	if lctrlPDRData == nil {
+		lctrlPDRData = lastControllerPrediction.GetPredictedLowerboundData()
+	}
+	if lctrlPDRData == nil {
+		lctrlPDRData = lastControllerPrediction.GetPredictedUpperboundData()
+	}
+	for _, pdRD := range lctrlPDRData {
+		for _, theData := range pdRD.GetData() {
+			lastMid = theData.GetModelId()
+			break
+		}
+		if lastMid == "" {
+			scope.Warnf("[CONTROLLER][%s][%s][%s/%s] Query last model id for metric %s is empty",
+				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, pdRD.GetMetricType())
+		}
+		controllerPredictRes, err = datahubServiceClnt.ListControllerPredictions(context.Background(),
+			&datahub_predictions.ListControllerPredictionsRequest{
+				ObjectMeta: []*datahub_resources.ObjectMeta{
+					&datahub_resources.ObjectMeta{
+						Namespace: controllerNS,
+						Name:      controllerName,
 					},
 				},
-			},
-			PredictionId: lastPid,
-		})
+				Granularity: granularity,
+				QueryCondition: &datahub_common.QueryCondition{
+					Order: datahub_common.QueryCondition_DESC,
+					TimeRange: &datahub_common.TimeRange{
+						Step: &duration.Duration{
+							Seconds: granularity,
+						},
+					},
+				},
+				ModelId: lastMid,
+			})
 
-	if err != nil {
-		return nil, err
-	}
-	if len(controllerPredictRes.GetControllerPredictions()) > 0 {
-		metricData := []*datahub_predictions.MetricData{}
+		if err != nil {
+			scope.Warnf("[CONTROLLER][%s][%s][%s/%s] Query last model id %v for metric %s failed",
+				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, lastMid, pdRD.GetMetricType())
+		}
+
 		for _, ctrlPrediction := range controllerPredictRes.GetControllerPredictions() {
-			for _, pdRD := range ctrlPrediction.GetPredictedRawData() {
-				for _, pdD := range pdRD.GetData() {
-					modelID := pdD.GetModelId()
-					if modelID != "" {
-						mIDCtrlPrediction, err := sender.getPredictionByMId(datahubServiceClnt, controller, granularity, modelID)
-						if err != nil {
-							scope.Errorf("[CONTROLLER][%s][%s][%s/%s] Query prediction with model Id %s failed. %s",
-								controller.GetKind().String(), dataGranularity, controllerNS, controllerName, modelID, err.Error())
-						}
-						for _, mIDCtrlPD := range mIDCtrlPrediction {
-							metricData = append(metricData, mIDCtrlPD.GetPredictedRawData()...)
-						}
-						break
-					}
+			for _, lMIDPdRD := range ctrlPrediction.GetPredictedRawData() {
+				if lMIDPdRD.GetMetricType() == pdRD.GetMetricType() {
+					metricData = append(metricData, lMIDPdRD)
 				}
 			}
 		}
-		return metricData, nil
 	}
-	return nil, nil
-}
 
-func (sender *controllerModelJobSender) getPredictionByMId(datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
-	controller *datahub_resources.Controller, granularity int64, modelID string) ([]*datahub_predictions.ControllerPrediction, error) {
-	controllerPredictRes, err := datahubServiceClnt.ListControllerPredictions(context.Background(),
-		&datahub_predictions.ListControllerPredictionsRequest{
-			Granularity: granularity,
-			ObjectMeta: []*datahub_resources.ObjectMeta{
-				&datahub_resources.ObjectMeta{
-					Name:      controller.GetObjectMeta().GetName(),
-					Namespace: controller.GetObjectMeta().GetNamespace(),
-				},
-			},
-			QueryCondition: &datahub_common.QueryCondition{
-				Order: datahub_common.QueryCondition_DESC,
-				TimeRange: &datahub_common.TimeRange{
-					Step: &duration.Duration{
-						Seconds: granularity,
-					},
-				},
-			},
-			ModelId: modelID,
-		})
-	return controllerPredictRes.GetControllerPredictions(), err
+	return metricData, nil
 }
 
 func (sender *controllerModelJobSender) getQueryMetricStartTime(
-	descControllerPredictions []*datahub_predictions.ControllerPrediction) int64 {
-	if len(descControllerPredictions) > 0 {
-		pdMDs := descControllerPredictions[len(descControllerPredictions)-1].GetPredictedRawData()
-		for _, pdMD := range pdMDs {
-			mD := pdMD.GetData()
-			if len(mD) > 0 {
-				return mD[len(mD)-1].GetTime().GetSeconds()
-			}
-		}
+	metricData *datahub_predictions.MetricData) int64 {
+	mD := metricData.GetData()
+	if len(mD) > 0 {
+		return mD[len(mD)-1].GetTime().GetSeconds()
 	}
 	return 0
 }
@@ -256,73 +205,44 @@ func (sender *controllerModelJobSender) getQueryMetricStartTime(
 func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_resources.Controller, queueSender queue.QueueSender,
 	pdUnit string, granularity int64, predictionStep int64, datahubServiceClnt datahub_v1alpha1.DatahubServiceClient,
 	lastPredictionMetrics []*datahub_predictions.MetricData) {
+
 	dataGranularity := queue.GetGranularityStr(granularity)
-	queryCondition := &datahub_common.QueryCondition{
-		Order: datahub_common.QueryCondition_DESC,
-		TimeRange: &datahub_common.TimeRange{
-			Step: &duration.Duration{
-				Seconds: granularity,
-			},
-		},
-	}
+	clusterID := controller.GetObjectMeta().GetClusterName()
 	controllerNS := controller.GetObjectMeta().GetNamespace()
 	controllerName := controller.GetObjectMeta().GetName()
 	nowSeconds := time.Now().Unix()
 
 	if len(lastPredictionMetrics) == 0 {
-		controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
-			datahub_common.MetricType_MEMORY_USAGE_BYTES,
-			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
-		)
-		sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
 		scope.Infof("[CONTROLLER][%s][%s][%s/%s] No prediction metric found, send model jobs",
 			controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
+		for _, metricType := range []datahub_common.MetricType{
+			datahub_common.MetricType_MEMORY_USAGE_BYTES,
+			datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE,
+		} {
+			sender.sendJob(controller, queueSender, pdUnit, granularity, metricType)
+		}
 		return
 	}
 
-	controllerInfo := sender.genControllerInfo(controllerNS, controllerName)
 	for _, lastPredictionMetric := range lastPredictionMetrics {
 		if len(lastPredictionMetric.GetData()) == 0 {
-			controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
-				datahub_common.MetricType_MEMORY_USAGE_BYTES,
-				datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE)
-			sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
 			scope.Infof("[CONTROLLER][%s][%s][%s/%s] No prediction metric %s found, send model jobs",
 				controller.GetKind().String(), dataGranularity, controllerNS, controllerName, lastPredictionMetric.GetMetricType().String())
-			return
+			sender.sendJob(controller, queueSender, pdUnit, granularity, lastPredictionMetric.GetMetricType())
+			continue
 		} else {
 			lastPrediction := lastPredictionMetric.GetData()[0]
 			lastPredictionTime := lastPredictionMetric.GetData()[0].GetTime().GetSeconds()
 
 			if lastPrediction != nil && lastPredictionTime <= nowSeconds {
-				controllerInfo := sender.genControllerInfo(controllerNS, controllerName,
-					datahub_common.MetricType_MEMORY_USAGE_BYTES,
-					datahub_common.MetricType_CPU_USAGE_SECONDS_PERCENTAGE)
-				scope.Infof("[CONTROLLER][%s][%s][%s/%s] Send model job due to no predict found or predict is out of date",
-					controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
-				sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
-				return
-			}
-			controllerPredictRes, err := datahubServiceClnt.ListControllerPredictions(context.Background(),
-				&datahub_predictions.ListControllerPredictionsRequest{
-					ObjectMeta: []*datahub_resources.ObjectMeta{
-						&datahub_resources.ObjectMeta{
-							Namespace: controllerNS,
-							Name:      controllerName,
-						},
-					},
-					Granularity:    granularity,
-					ModelId:        lastPrediction.GetModelId(),
-					QueryCondition: queryCondition,
-				})
-			if err != nil {
-				scope.Errorf("[CONTROLLER][%s][%s][%s/%s] Get prediction for sending model job failed: %s",
-					controller.GetKind().String(), dataGranularity, controllerNS, controllerName, err.Error())
+				scope.Infof("[CONTROLLER][%s][%s][%s/%s] Send model job due to no predict metric %s found or is out of date",
+					controller.GetKind().String(), dataGranularity, controllerNS, controllerName, lastPredictionMetric.GetMetricType())
+				sender.sendJob(controller, queueSender, pdUnit, granularity, lastPredictionMetric.GetMetricType())
 				continue
 			}
-			controllerPredictions := controllerPredictRes.GetControllerPredictions()
+
 			queryStartTime := time.Now().Unix() - predictionStep*granularity
-			firstPDTime := sender.getQueryMetricStartTime(controllerPredictions)
+			firstPDTime := sender.getQueryMetricStartTime(lastPredictionMetric)
 			if firstPDTime > 0 && firstPDTime <= time.Now().Unix() {
 				queryStartTime = firstPDTime
 			}
@@ -346,6 +266,9 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 							Name:      controllerName,
 						},
 					},
+					MetricTypes: []datahub_common.MetricType{
+						lastPredictionMetric.GetMetricType(),
+					},
 				})
 
 			if err != nil {
@@ -354,41 +277,50 @@ func (sender *controllerModelJobSender) sendJobByMetrics(controller *datahub_res
 				continue
 			}
 			controllerMetrics := controllerMetricsRes.GetControllerMetrics()
-			for _, controllerPrediction := range controllerPredictions {
-				predictRawData := controllerPrediction.GetPredictedRawData()
-				for _, predictRawDatum := range predictRawData {
-					for _, controllerMetric := range controllerMetrics {
-						metricData := controllerMetric.GetMetricData()
-						for _, metricDatum := range metricData {
-							mData := metricDatum.GetData()
-							pData := []*datahub_predictions.Sample{}
-							if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
-								pData = append(pData, predictRawDatum.GetData()...)
-								metricsNeedToModel, drift := DriftEvaluation(UnitTypeController, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
-									"controllerNS":   controllerNS,
-									"controllerName": controllerName,
-									"controllerKind": controller.GetKind().String(),
-									"targetDisplayName": fmt.Sprintf("[CONTROLLER][%s][%s][%s/%s]",
-										controller.GetKind().String(), dataGranularity, controllerNS, controllerName),
-								}, sender.metricExporter)
+
+			predictRawData := lastPredictionMetrics
+			for _, predictRawDatum := range predictRawData {
+				for _, controllerMetric := range controllerMetrics {
+					metricData := controllerMetric.GetMetricData()
+					for _, metricDatum := range metricData {
+						mData := metricDatum.GetData()
+						pData := []*datahub_predictions.Sample{}
+						if metricDatum.GetMetricType() == predictRawDatum.GetMetricType() {
+							pData = append(pData, predictRawDatum.GetData()...)
+							metricsNeedToModel, drift := DriftEvaluation(consts.UnitTypeController, predictRawDatum.GetMetricType(), granularity, mData, pData, map[string]string{
+								"clusterID":      clusterID,
+								"controllerNS":   controllerNS,
+								"controllerName": controllerName,
+								"controllerKind": controller.GetKind().String(),
+								"targetDisplayName": fmt.Sprintf("[CONTROLLER][%s][%s][%s/%s]",
+									controller.GetKind().String(), dataGranularity, controllerNS, controllerName),
+							}, sender.metricExporter)
+
+							for _, mntm := range metricsNeedToModel {
 								if drift {
-									scope.Infof("[CONTROLLER][%s][%s][%s/%s] Export drift counter",
-										controller.GetKind().String(), dataGranularity, controllerNS, controllerName)
-									sender.metricExporter.AddControllerMetricDrift(controllerNS, controllerName,
-										controller.GetKind().String(), queue.GetGranularityStr(granularity), time.Now().Unix(), 1.0)
+									scope.Infof("[CONTROLLER][%s][%s][%s/%s] Export metric %s drift counter",
+										controller.GetKind().String(), dataGranularity, controllerNS, controllerName, mntm)
+									sender.metricExporter.AddControllerMetricDrift(clusterID, controllerNS, controllerName,
+										controller.GetKind().String(), queue.GetGranularityStr(granularity), mntm.String(), time.Now().Unix(), 1.0)
 								}
-								controllerInfo.ModelMetrics = append(controllerInfo.ModelMetrics, metricsNeedToModel...)
+								isModeling := sender.modelMapper.IsModeling(clusterID, pdUnit, dataGranularity, mntm.String(), map[string]string{
+									"namespace": controllerNS,
+									"name":      controllerName,
+									"kind":      controller.GetKind().String(),
+								})
+								if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
+									clusterID, pdUnit, dataGranularity, mntm.String(), map[string]string{
+										"namespace": controllerNS,
+										"name":      controllerName,
+										"kind":      controller.GetKind().String(),
+									})) {
+									sender.sendJob(controller, queueSender, pdUnit, granularity, mntm)
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
-	isModeling := sender.modelMapper.IsModeling(pdUnit, dataGranularity, controllerInfo)
-	if !isModeling || (isModeling && sender.modelMapper.IsModelTimeout(
-		pdUnit, dataGranularity, controllerInfo)) {
-		sender.sendJob(controller, queueSender, pdUnit, granularity, controllerInfo)
-		return
 	}
 }
