@@ -55,7 +55,12 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Namespace,
-		GroupByTags:    []string{string(EntityInfluxPrediction.NamespaceName), string(EntityInfluxPrediction.NamespaceClusterName)},
+		GroupByTags: []string{string(
+			EntityInfluxPrediction.NamespaceName),
+			string(EntityInfluxPrediction.NamespaceClusterName),
+			string(EntityInfluxPrediction.NamespaceMetricType),
+			string(EntityInfluxPrediction.NamespaceMetric),
+		},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
@@ -95,6 +100,20 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 			group := result.GetGroup(i)
 			namespacePrediction := DaoPredictionTypes.NewNamespacePrediction()
 			namespacePrediction.ObjectMeta.Initialize(group.GetRow(0))
+
+			exist := false
+			for index, prediction := range namespacePredictionList {
+				if prediction.ObjectMeta.ClusterName == namespacePrediction.ObjectMeta.ClusterName && prediction.ObjectMeta.Name == namespacePrediction.ObjectMeta.Name {
+					namespacePrediction = namespacePredictionList[index]
+					exist = true
+					break
+				}
+			}
+
+			if exist == false {
+				namespacePredictionList = append(namespacePredictionList, namespacePrediction)
+			}
+
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -111,7 +130,6 @@ func (r *NamespaceRepository) ListPredictions(request DaoPredictionTypes.ListNam
 					}
 				}
 			}
-			namespacePredictionList = append(namespacePredictionList, namespacePrediction)
 		}
 	}
 

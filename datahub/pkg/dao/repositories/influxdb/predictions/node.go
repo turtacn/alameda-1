@@ -55,7 +55,13 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Node,
-		GroupByTags:    []string{string(EntityInfluxPrediction.NodeName), string(EntityInfluxPrediction.NodeClusterName), string(EntityInfluxPrediction.NodeIsScheduled)},
+		GroupByTags: []string{
+			string(EntityInfluxPrediction.NodeName),
+			string(EntityInfluxPrediction.NodeClusterName),
+			string(EntityInfluxPrediction.NodeIsScheduled),
+			string(EntityInfluxPrediction.NodeMetricType),
+			string(EntityInfluxPrediction.NodeMetric),
+		},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
@@ -97,6 +103,20 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 			nodePrediction := DaoPredictionTypes.NewNodePrediction()
 			nodePrediction.ObjectMeta.Initialize(group.GetRow(0))
 			nodePrediction.IsScheduled, _ = strconv.ParseBool(group.Tags[string(EntityInfluxPrediction.NodeIsScheduled)])
+
+			exist := false
+			for index, prediction := range nodePredictionList {
+				if prediction.ObjectMeta.ClusterName == nodePrediction.ObjectMeta.ClusterName && prediction.ObjectMeta.Name == nodePrediction.ObjectMeta.Name {
+					nodePrediction = nodePredictionList[index]
+					exist = true
+					break
+				}
+			}
+
+			if exist == false {
+				nodePredictionList = append(nodePredictionList, nodePrediction)
+			}
+
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -113,7 +133,6 @@ func (r *NodeRepository) ListPredictions(request DaoPredictionTypes.ListNodePred
 					}
 				}
 			}
-			nodePredictionList = append(nodePredictionList, nodePrediction)
 		}
 	}
 

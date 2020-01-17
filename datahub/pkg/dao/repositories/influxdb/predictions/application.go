@@ -55,7 +55,13 @@ func (r *ApplicationRepository) ListPredictions(request DaoPredictionTypes.ListA
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Application,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ApplicationName), string(EntityInfluxPrediction.ApplicationNameSpace), string(EntityInfluxPrediction.ApplicationClusterName)},
+		GroupByTags: []string{
+			string(EntityInfluxPrediction.ApplicationName),
+			string(EntityInfluxPrediction.ApplicationNameSpace),
+			string(EntityInfluxPrediction.ApplicationClusterName),
+			string(EntityInfluxPrediction.ApplicationMetricType),
+			string(EntityInfluxPrediction.ApplicationMetric),
+		},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
@@ -95,6 +101,20 @@ func (r *ApplicationRepository) ListPredictions(request DaoPredictionTypes.ListA
 			group := result.GetGroup(i)
 			applicationPrediction := DaoPredictionTypes.NewApplicationPrediction()
 			applicationPrediction.ObjectMeta.Initialize(group.GetRow(0))
+
+			exist := false
+			for index, prediction := range applicationPredictionList {
+				if prediction.ObjectMeta.ClusterName == applicationPrediction.ObjectMeta.ClusterName && prediction.ObjectMeta.Namespace == applicationPrediction.ObjectMeta.Namespace && prediction.ObjectMeta.Name == applicationPrediction.ObjectMeta.Name {
+					applicationPrediction = applicationPredictionList[index]
+					exist = true
+					break
+				}
+			}
+
+			if exist == false {
+				applicationPredictionList = append(applicationPredictionList, applicationPrediction)
+			}
+
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -111,7 +131,6 @@ func (r *ApplicationRepository) ListPredictions(request DaoPredictionTypes.ListA
 					}
 				}
 			}
-			applicationPredictionList = append(applicationPredictionList, applicationPrediction)
 		}
 	}
 

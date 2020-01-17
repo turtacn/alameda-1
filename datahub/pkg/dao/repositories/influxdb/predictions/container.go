@@ -92,7 +92,13 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Container,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ContainerName), string(EntityInfluxPrediction.ContainerPodName), string(EntityInfluxPrediction.ContainerNamespace)},
+		GroupByTags: []string{
+			string(EntityInfluxPrediction.ContainerName),
+			string(EntityInfluxPrediction.ContainerPodName),
+			string(EntityInfluxPrediction.ContainerNamespace),
+			string(EntityInfluxPrediction.ContainerMetricType),
+			string(EntityInfluxPrediction.ContainerMetric),
+		},
 	}
 
 	for _, objMeta := range request.ObjectMeta {
@@ -137,12 +143,33 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 		for i := 0; i < result.GetGroupNum(); i++ {
 			group := result.GetGroup(i)
 			row := group.GetRow(0)
-			containerPrediction := DaoPredictionTypes.NewContainerPrediction()
-			containerPrediction.ContainerName = row[string(EntityInfluxPrediction.ContainerName)]
-			containerPrediction.PodName = row[string(EntityInfluxPrediction.ContainerPodName)]
-			containerPrediction.Namespace = row[string(EntityInfluxPrediction.ContainerNamespace)]
-			containerPrediction.NodeName = row[string(EntityInfluxPrediction.ContainerNodeName)]
-			containerPrediction.ClusterName = row[string(EntityInfluxPrediction.ContainerClusterName)]
+
+			containerName := row[string(EntityInfluxPrediction.ContainerName)]
+			podName := row[string(EntityInfluxPrediction.ContainerPodName)]
+			namespace := row[string(EntityInfluxPrediction.ContainerNamespace)]
+			nodeName := row[string(EntityInfluxPrediction.ContainerNodeName)]
+			clusterName := row[string(EntityInfluxPrediction.ContainerClusterName)]
+
+			var containerPrediction *DaoPredictionTypes.ContainerPrediction
+			exist := false
+			for index, prediction := range containerPredictionList {
+				if prediction.ClusterName == clusterName && prediction.NodeName == nodeName && prediction.Namespace == namespace && prediction.PodName == podName && prediction.ContainerName == containerName {
+					containerPrediction = containerPredictionList[index]
+					exist = true
+					break
+				}
+			}
+
+			if exist == false {
+				containerPrediction = DaoPredictionTypes.NewContainerPrediction()
+				containerPrediction.ContainerName = containerName
+				containerPrediction.PodName = podName
+				containerPrediction.Namespace = namespace
+				containerPrediction.NodeName = nodeName
+				containerPrediction.ClusterName = clusterName
+				containerPredictionList = append(containerPredictionList, containerPrediction)
+			}
+
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -159,7 +186,6 @@ func (r *ContainerRepository) ListPredictions(request DaoPredictionTypes.ListPod
 					}
 				}
 			}
-			containerPredictionList = append(containerPredictionList, containerPrediction)
 		}
 	}
 

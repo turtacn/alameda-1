@@ -56,7 +56,13 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Controller,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ControllerName), string(EntityInfluxPrediction.ControllerNamespace), string(EntityInfluxPrediction.ControllerClusterName)},
+		GroupByTags: []string{
+			string(EntityInfluxPrediction.ControllerName),
+			string(EntityInfluxPrediction.ControllerNamespace),
+			string(EntityInfluxPrediction.ControllerClusterName),
+			string(EntityInfluxPrediction.ControllerMetricType),
+			string(EntityInfluxPrediction.ControllerMetric),
+		},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
@@ -103,6 +109,20 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 			controllerPrediction := DaoPredictionTypes.NewControllerPrediction()
 			controllerPrediction.ObjectMeta.Initialize(row)
 			controllerPrediction.Kind = row[string(EntityInfluxPrediction.ControllerKind)]
+
+			exist := false
+			for index, prediction := range controllerPredictionList {
+				if prediction.ObjectMeta.ClusterName == controllerPrediction.ObjectMeta.ClusterName && prediction.ObjectMeta.Namespace == controllerPrediction.ObjectMeta.Namespace && prediction.ObjectMeta.Name == controllerPrediction.ObjectMeta.Name {
+					controllerPrediction = controllerPredictionList[index]
+					exist = true
+					break
+				}
+			}
+
+			if exist == false {
+				controllerPredictionList = append(controllerPredictionList, controllerPrediction)
+			}
+
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -119,7 +139,6 @@ func (r *ControllerRepository) ListPredictions(request DaoPredictionTypes.ListCo
 					}
 				}
 			}
-			controllerPredictionList = append(controllerPredictionList, controllerPrediction)
 		}
 	}
 

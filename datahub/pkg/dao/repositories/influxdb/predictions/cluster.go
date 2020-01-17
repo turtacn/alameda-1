@@ -55,7 +55,11 @@ func (r *ClusterRepository) ListPredictions(request DaoPredictionTypes.ListClust
 	statement := InternalInflux.Statement{
 		QueryCondition: &request.QueryCondition,
 		Measurement:    Cluster,
-		GroupByTags:    []string{string(EntityInfluxPrediction.ClusterName)},
+		GroupByTags: []string{
+			string(EntityInfluxPrediction.ClusterName),
+			string(EntityInfluxPrediction.ClusterMetricType),
+			string(EntityInfluxPrediction.ClusterMetric),
+		},
 	}
 
 	for _, objectMeta := range request.ObjectMeta {
@@ -95,6 +99,20 @@ func (r *ClusterRepository) ListPredictions(request DaoPredictionTypes.ListClust
 			group := result.GetGroup(i)
 			clusterPrediction := DaoPredictionTypes.NewClusterPrediction()
 			clusterPrediction.ObjectMeta.Initialize(group.GetRow(0))
+
+			exist := false
+			for index, prediction := range clusterPredictionList {
+				if prediction.ObjectMeta.Name == clusterPrediction.ObjectMeta.Name {
+					clusterPrediction = clusterPredictionList[index]
+					exist = true
+					break
+				}
+			}
+
+			if exist == false {
+				clusterPredictionList = append(clusterPredictionList, clusterPrediction)
+			}
+
 			for j := 0; j < group.GetRowNum(); j++ {
 				row := group.GetRow(j)
 				if row["value"] != "" {
@@ -111,7 +129,6 @@ func (r *ClusterRepository) ListPredictions(request DaoPredictionTypes.ListClust
 					}
 				}
 			}
-			clusterPredictionList = append(clusterPredictionList, clusterPrediction)
 		}
 	}
 
