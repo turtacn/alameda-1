@@ -36,18 +36,14 @@ func NewApplicationModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *M
 
 func (sender *applicationModelJobSender) sendModelJobs(applications []*datahub_resources.Application,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
-	var wg sync.WaitGroup
 	for _, application := range applications {
-		wg.Add(1)
-		go sender.sendApplicationModelJobs(application,
+		sender.sendApplicationModelJobs(application,
 			queueSender, pdUnit, granularity, predictionStep, &wg)
 	}
-	wg.Wait()
 }
 
 func (sender *applicationModelJobSender) sendApplicationModelJobs(application *datahub_resources.Application,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64, wg *sync.WaitGroup) {
-	defer wg.Done()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 

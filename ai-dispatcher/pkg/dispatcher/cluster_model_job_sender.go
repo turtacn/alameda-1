@@ -36,17 +36,13 @@ func NewClusterModelJobSender(datahubGrpcCn *grpc.ClientConn, modelMapper *Model
 
 func (sender *clusterModelJobSender) sendModelJobs(clusters []*datahub_resources.Cluster,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64) {
-	var wg sync.WaitGroup
 	for _, cluster := range clusters {
-		wg.Add(1)
-		go sender.sendClusterModelJobs(cluster, queueSender, pdUnit, granularity, predictionStep, &wg)
+		sender.sendClusterModelJobs(cluster, queueSender, pdUnit, granularity, predictionStep, &wg)
 	}
-	wg.Wait()
 }
 
 func (sender *clusterModelJobSender) sendClusterModelJobs(cluster *datahub_resources.Cluster,
 	queueSender queue.QueueSender, pdUnit string, granularity int64, predictionStep int64, wg *sync.WaitGroup) {
-	defer wg.Done()
 	dataGranularity := queue.GetGranularityStr(granularity)
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(sender.datahubGrpcCn)
 	clusterName := cluster.GetObjectMeta().GetName()
