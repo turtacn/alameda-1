@@ -23,11 +23,13 @@ type AdmissionController struct {
 
 func queryDatahub(datahubAddr string) error {
 	conn, err := grpc.Dial(datahubAddr, grpc.WithInsecure())
+	if conn != nil {
+		defer conn.Close()
+	}
 	if err != nil {
 		return err
 	}
 
-	defer conn.Close()
 	datahubServiceClnt := datahub_client.NewDatahubServiceClient(conn)
 	res, err := datahubServiceClnt.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
 	if err != nil {

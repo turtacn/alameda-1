@@ -13,7 +13,7 @@ import (
 
 const (
 	publishRetryTime = 3
-	retrySec = 10
+	retrySec         = 10
 	queueName        = "test_queue"
 )
 
@@ -43,7 +43,9 @@ func startPublish() {
 	fmt.Println(rabbitmqAddress)
 	for retry := 0; retry < publishRetryTime; retry++ {
 		conn, err := amqp.Dial(rabbitmqAddress)
-		defer conn.Close()
+		if conn != nil {
+			defer conn.Close()
+		}
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Connect Fail: %s", err.Error()))
 			time.Sleep(time.Duration(retrySec) * time.Millisecond)
@@ -51,7 +53,9 @@ func startPublish() {
 		}
 		ch, err := conn.Channel()
 
-		defer ch.Close()
+		if ch != nil {
+			defer ch.Close()
+		}
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Connect Channel Fail: %s", err.Error()))
 			time.Sleep(time.Duration(retrySec) * time.Millisecond)
