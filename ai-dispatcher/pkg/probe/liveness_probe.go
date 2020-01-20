@@ -12,7 +12,10 @@ type LivenessProbeConfig struct {
 
 func checkRabbitmqNotBlock(url string) error {
 	conn, err := amqp.Dial(url)
-	defer conn.Close()
+	if conn != nil {
+		defer conn.Close()
+	}
+
 	if err != nil {
 		fmt.Println(err)
 		return err

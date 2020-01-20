@@ -16,11 +16,13 @@ type ReadinessProbeConfig struct {
 
 func queryDatahub(datahubAddr string) error {
 	conn, err := grpc.Dial(datahubAddr, grpc.WithInsecure())
+	if conn != nil {
+		defer conn.Close()
+	}
 	if err != nil {
 		return err
 	}
 
-	defer conn.Close()
 	datahubServiceClnt := datahub_v1alpha1.NewDatahubServiceClient(conn)
 	_, err = datahubServiceClnt.ListNodes(context.Background(), &datahub_resources.ListNodesRequest{})
 	if err != nil {

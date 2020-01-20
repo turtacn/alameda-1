@@ -3,6 +3,7 @@ package probe
 import (
 	"context"
 	"fmt"
+
 	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
@@ -16,10 +17,12 @@ type LivenessProbeConfig struct {
 
 func queryDatahub(bindAddr string) error {
 	conn, err := grpc.Dial(fmt.Sprintf("localhost%s", bindAddr), grpc.WithInsecure())
+	if conn != nil {
+		defer conn.Close()
+	}
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
 
 	client := DatahubV1alpha1.NewDatahubServiceClient(conn)
 
