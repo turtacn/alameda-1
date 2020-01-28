@@ -1,28 +1,48 @@
-FROM grafana/grafana:6.4.4
+FROM registry.access.redhat.com/ubi8/ubi
 
 ARG image_tag
+ARG GF_VER="6.4.5"
+ARG GF_RPM="grafana-${GF_VER}-1.x86_64.rpm"
 
 ENV APPHOME=/opt/prophetstor/federatorai/grafana \
     APP_DEBUG=0 \
     AIHOME="/opt/alameda/alameda-datahub" \
-    GF_PANELS_DISABLE_SANITIZE_HTML=true
+    GF_PANELS_DISABLE_SANITIZE_HTML=true \
+    PATH="/usr/share/grafana/bin:$PATH" \
+    GF_PATHS_CONFIG="/etc/grafana/grafana.ini" \
+    GF_PATHS_DATA="/var/lib/grafana" \
+    GF_PATHS_HOME="/usr/share/grafana" \
+    GF_PATHS_LOGS="/var/log/grafana" \
+    GF_PATHS_PLUGINS="/var/lib/grafana/plugins" \
+    GF_PATHS_PROVISIONING="/etc/grafana/provisioning"
 
 COPY . /tmp/src
 
 ## avoid define WORKDIR to use original container defination
 
-USER root
 RUN set -x \
     && id \
-    && apk update \
-    && apk add --no-cache nano curl procps sqlite nginx \
-    && rm -rf /var/cache/apk/* \
+    && yum update -y \
+    && curl -LO https://dl.grafana.com/oss/release/$GF_RPM \
+    && yum localinstall $GF_RPM -y && rm $GF_RPM \
+    && curl -LO https://raw.githubusercontent.com/grafana/grafana/v${GF_VER}/packaging/docker/run.sh \
+    && chmod +x run.sh \
+    && yum install nano curl procps sqlite nginx -y \
+    && yum clean all && rm -rf /var/cache/yum \
     && rm -fv /etc/nginx/conf.d/* \
     && mv -fv /tmp/src/nginx.conf /etc/nginx/nginx.conf \
     && mv -fv /tmp/src/ssl.crt /etc/nginx/ssl.crt \
     && mv -fv /tmp/src/ssl.key /etc/nginx/ssl.key \
     ## Need write permission on the following directories
-    && mkdir -p /var/tmp/nginx /var/lib/nginx && chmod -R 777 /var/log /var/tmp/nginx /var/lib/nginx /etc/nginx
+    && mkdir -p /var/tmp/nginx /var/lib/nginx && chmod -R 777 /var/log /var/tmp/nginx /var/lib/nginx /etc/nginx \
+    && mkdir -p "$GF_PATHS_PROVISIONING/datasources" \
+             "$GF_PATHS_PROVISIONING/dashboards" \
+             "$GF_PATHS_PROVISIONING/notifiers" \
+             "$GF_PATHS_LOGS" \
+             "$GF_PATHS_PLUGINS" \
+             "$GF_PATHS_DATA" \
+    && chown -R grafana:grafana "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING" \
+    && chmod -R 777 "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
 
 RUN set -x \
     ## Build
