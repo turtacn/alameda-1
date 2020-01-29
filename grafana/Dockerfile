@@ -6,7 +6,6 @@ ARG GF_RPM="grafana-${GF_VER}-1.x86_64.rpm"
 
 ENV APPHOME=/opt/prophetstor/federatorai/grafana \
     APP_DEBUG=0 \
-    AIHOME="/opt/alameda/alameda-datahub" \
     GF_PANELS_DISABLE_SANITIZE_HTML=true \
     PATH="/usr/share/grafana/bin:$PATH" \
     GF_PATHS_CONFIG="/etc/grafana/grafana.ini" \
@@ -35,14 +34,10 @@ RUN set -x \
     && mv -fv /tmp/src/ssl.key /etc/nginx/ssl.key \
     ## Need write permission on the following directories
     && mkdir -p /var/tmp/nginx /var/lib/nginx && chmod -R 777 /var/log /var/tmp/nginx /var/lib/nginx /etc/nginx \
-    && mkdir -p "$GF_PATHS_PROVISIONING/datasources" \
-             "$GF_PATHS_PROVISIONING/dashboards" \
-             "$GF_PATHS_PROVISIONING/notifiers" \
-             "$GF_PATHS_LOGS" \
-             "$GF_PATHS_PLUGINS" \
-             "$GF_PATHS_DATA" \
+    && mkdir -p "$GF_PATHS_PLUGINS" \
     && chown -R grafana:grafana "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING" \
-    && chmod -R 777 "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING"
+    && chmod -R 777 "$GF_PATHS_DATA" "$GF_PATHS_LOGS" "$GF_PATHS_PLUGINS" "$GF_PATHS_PROVISIONING" \
+    && chmod 777 "$GF_PATHS_CONFIG"
 
 RUN set -x \
     ## Build
@@ -56,15 +51,12 @@ RUN set -x \
     && (cd /tmp/src/rootfs; tar czvf ${APPHOME}/alameda-dashboard.tgz .; cd -) \
     && (cd /; tar xzvf ${APPHOME}/alameda-dashboard.tgz; cd -) \
     && ln -sfv /var/lib/grafana/dashboards/Home/home.json /usr/share/grafana/public/dashboards/home.json \
-    ## Need permission inside the following directories
-    && chmod -R 777 /etc/grafana /usr/share/grafana /var/lib/grafana /var/log/grafana \
     ## OS
     && echo "${USER_NAME}:x:${USER_UID}:0:Federator.ai:${APPHOME}:/bin/sh" >> /etc/passwd \
     ## The following lines startup script will add running user id into /etc/passwd
     && chmod g+w /etc/passwd \
     ## init scripts
     && cp /tmp/src/xray.sh /xray.sh \
-    # && cp /tmp/src/version.txt ${AIHOME}/etc/version.txt \
     && cp /tmp/src/tini /sbin/tini && chmod 755 /sbin/tini \
     && cp /tmp/src/init.sh /init.sh && chmod 755 /init.sh \
     && rm -rf /tmp/src
