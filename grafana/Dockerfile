@@ -1,8 +1,6 @@
-FROM registry.access.redhat.com/ubi8/ubi
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 ARG image_tag
-ARG GF_VER="6.4.5"
-ARG GF_RPM="grafana-${GF_VER}-1.x86_64.rpm"
 
 ENV SUMMARY="Alameda Grafana is dashboard of Federator.ai."	\
     DESCRIPTION="Alameda Grafana is dashboard of Federator.ai." \
@@ -35,13 +33,12 @@ COPY . /tmp/src
 
 RUN set -x \
     && id \
-    && yum update -y \
-    && curl -LO https://dl.grafana.com/oss/release/$GF_RPM \
-    && yum localinstall $GF_RPM -y && rm $GF_RPM \
-    && curl -LO https://raw.githubusercontent.com/grafana/grafana/v${GF_VER}/packaging/docker/run.sh \
+    && mv -fv /tmp/src/grafana.repo /etc/yum.repos.d/grafana.repo \
+    && microdnf update -y \
+    && microdnf install -y tar nano curl procps sqlite nginx grafana vim \
+    && microdnf clean all \
+    && GF_VER_STR=`grafana-cli -v` && curl -LO https://raw.githubusercontent.com/grafana/grafana/v${GF_VER_STR##* }/packaging/docker/run.sh \
     && chmod +x run.sh \
-    && yum install nano curl procps sqlite nginx -y \
-    && yum clean all && rm -rf /var/cache/yum \
     && rm -fv /etc/nginx/conf.d/* \
     && mv -fv /tmp/src/nginx.conf /etc/nginx/nginx.conf \
     && mv -fv /tmp/src/ssl.crt /etc/nginx/ssl.crt \
@@ -79,5 +76,5 @@ RUN set -x \
 
 USER grafana
 
-ENTRYPOINT ["/sbin/tini","-v", "--"]
+ENTRYPOINT ["/sbin/tini", "-v", "--"]
 CMD ["/init.sh", "start"]
