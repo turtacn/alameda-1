@@ -4,6 +4,20 @@ ARG image_tag
 ARG GF_VER="6.4.5"
 ARG GF_RPM="grafana-${GF_VER}-1.x86_64.rpm"
 
+ENV SUMMARY="Alameda Grafana is dashboard of Federator.ai."	\
+    DESCRIPTION="Alameda Grafana is dashboard of Federator.ai." \
+    NAME="Alameda Grafana" \
+    VERSION="latest"
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$NAME" \
+      com.redhat.component="customer-container" \
+      name="$NAME" \
+      version="$VERSION" \
+      vendor="ProphetStor Data Services, Inc."
+
 ENV APPHOME=/opt/prophetstor/federatorai/grafana \
     APP_DEBUG=0 \
     GF_PANELS_DISABLE_SANITIZE_HTML=true \
@@ -40,6 +54,8 @@ RUN set -x \
     && chmod 777 "$GF_PATHS_CONFIG"
 
 RUN set -x \
+    ## RedHat MarketPlace certification required licenses directory
+    && mkdir -pv /licenses/ && touch /licenses/.placeholder \
     ## Build
     && (if [ "${image_tag}" = "" ]; then /bin/echo -e "\n\nError. Please run with '--build-arg image_tag=<tag_name>'\n\n"; exit 1; fi) \
     && sed -i -e "s/__DEV_VERSION__/${image_tag}/g" /tmp/src/rootfs/var/lib/grafana/dashboards/Home/home.json \
