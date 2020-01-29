@@ -21,15 +21,16 @@ else
     echo "$0: File '${file}' not found."
     dedup_worked="true"
     for test_queue in $test_dedup_queues; do
-        count=`rabbitmqctl list_queues | grep "$test_queue\t" | awk '{print $2}'`
+        count=`rabbitmqctl list_queues | awk '{print $1" "$2}' | grep "$test_queue " | awk '{print $2}'`
+
         if [ "$count" != "" ]; then
             continue
         fi
         MQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
         MQ_PASSWD=${RABBITMQ_DEFAULT_PASS:-adminpass}
-        ./usr/local/bin/rabbitmqcmd publish --queue=$test_queue
-        ./usr/local/bin/rabbitmqcmd publish --queue=$test_queue
-        count=`rabbitmqctl list_queues | grep "$test_queue\t" | awk '{print $2}'`
+        /usr/local/bin/rabbitmqcmd publish --queue=$test_queue
+        /usr/local/bin/rabbitmqcmd publish --queue=$test_queue
+        count=`rabbitmqctl list_queues | awk '{print $1" "$2}' | grep "$test_queue " | awk '{print $2}'`
         if [ "$count" = "1" ]
         then
             rabbitmqctl purge_queue $test_queue

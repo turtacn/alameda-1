@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-AIHOME="/opt/alameda/alameda-rabbitmq"
+APPHOME="/opt/alameda/alameda-rabbitmq"
 #
 ns=$1
 pod=$2
@@ -20,7 +20,7 @@ show_usage()
 # main
 #
 # version.txt
-kubectl -n ${ns} cp ${pod}:${AIHOME}/etc/version.txt ${dest_dir}/version.txt
+kubectl -n ${ns} cp ${pod}:${APPHOME}/etc/version.txt ${dest_dir}/version.txt
 
 # logs
 kubectl -n ${ns} exec ${pod} -- find /var/log/alameda -type f \

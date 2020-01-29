@@ -4,6 +4,11 @@
 MQ_USER=${RABBITMQ_DEFAULT_USER:-admin}
 MQ_PASSWD=${RABBITMQ_DEFAULT_PASS:-adminpass}
 
+MY_UID="`id -u`"
+if [ "`cat /etc/passwd | awk -F: '{print $3}' | grep \"^${MY_UID}$\"`" = "" ]; then
+    sed -i -e "s|rabbitmq:x.*|rabbitmq:x:${MY_UID}:0:RabbitMQ messaging server:/var/lib/rabbitmq:/bin/sh|g" /etc/passwd
+fi
+
 check_rabbitmq_status()
 {
     out=`rabbitmqctl status`
@@ -15,30 +20,30 @@ check_rabbitmq_status()
 
 check_queue_dedup()
 {
-local queue_name=$1
-echo "Checking queue $queue_name deduplication"
-queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep " $queue_name " | cut -d '|' -f 3 | awk '{$1=$1;print}'`
+    local queue_name=$1
+    echo "Checking queue $queue_name deduplication"
+    queue_size=`rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD list queues | grep " $queue_name " | cut -d '|' -f 3 | awk '{$1=$1;print}'`
 
-if [ "$queue_size" == "" ]; then
-    echo "no result"
-	return
-else
-    get_queue_count=$((2 * $queue_size))
-	rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD get queue=$queue_name count=$get_queue_count | grep $queue_name | cut -d '|' -f 5 | sort | awk '{$1=$1;print}' | sed -r 's/[ ]*"createTimestamp":[ ]*[0-9]*//' > /tmp/content
-	lines=`cat /tmp/content | wc -l`
-	uniq_content=`cat /tmp/content | sort | uniq > /tmp/uniq_content`
-	uniq_lines=`cat /tmp/uniq_content | wc -l`
-	if [ "$lines" != "$uniq_lines" ]; then
-		echo "message duplicated. Try to recreate the queue"
-		rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete queue name=$queue_name
-		rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare queue name=$queue_name arguments='{"x-message-deduplication":true}'
-		while read p; do
-#		    echo "publish $p"
-			message_md5=`echo '$p' | md5sum | cut -f1 -d" "`
-			rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD publish exchange=amq.default routing_key=$queue_name payload='$p' properties='{"headers":{"x-deduplication-header":"$message_md5"}}'
-		done </tmp/uniq_content
-	fi
-fi
+    if [ "$queue_size" == "" ]; then
+        echo "no result"
+        return
+    else
+        get_queue_count=$((2 * $queue_size))
+        rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD get queue=$queue_name count=$get_queue_count | grep $queue_name | cut -d '|' -f 5 | sort | awk '{$1=$1;print}' | sed -r 's/[ ]*"createTimestamp":[ ]*[0-9]*//' > /tmp/content
+        lines=`cat /tmp/content | wc -l`
+        uniq_content=`cat /tmp/content | sort | uniq > /tmp/uniq_content`
+        uniq_lines=`cat /tmp/uniq_content | wc -l`
+        if [ "$lines" != "$uniq_lines" ]; then
+            echo "message duplicated. Try to recreate the queue"
+            rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD delete queue name=$queue_name
+            rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD declare queue name=$queue_name arguments='{"x-message-deduplication":true}'
+            while read p; do
+    #            echo "publish $p"
+                message_md5=`echo '$p' | md5sum | cut -f1 -d" "`
+                rabbitmqadmin -u $MQ_USER -p $MQ_PASSWD publish exchange=amq.default routing_key=$queue_name payload='$p' properties='{"headers":{"x-deduplication-header":"$message_md5"}}'
+            done </tmp/uniq_content
+        fi
+    fi
 }
 
 do_crond()
