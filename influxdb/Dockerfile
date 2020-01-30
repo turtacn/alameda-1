@@ -1,4 +1,17 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal
+ENV SUMMARY="Alameda InfluxDB." \
+    DESCRIPTION="Alameda InfluxDB." \
+    NAME="Alameda InfluxDB" \
+    VERSION="latest"
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$NAME" \
+      com.redhat.component="customer-container" \
+      name="$NAME" \
+      version="$VERSION" \
+      vendor="ProphetStor Data Services, Inc."
 
 ENV AIHOME=/opt/alameda/alameda-influxdb \
     INFLUXDB_HTTP_HTTPS_ENABLED=true \
@@ -20,6 +33,8 @@ RUN set -x \
     && chmod +x /entrypoint.sh /init-influxdb.sh \
     && microdnf update -y \
     && microdnf install -y vim openssl influxdb \
+    ## RedHat MarketPlace certification required licenses directory
+    && mkdir -pv /licenses/ && touch /licenses/.placeholder \
     && microdnf clean all \
     && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $INFLUXDB_HTTP_HTTPS_PRIVATE_KEY -out $INFLUXDB_HTTP_HTTPS_CERTIFICATE \
       -subj "/C=  /ST= /L= /O= /OU= /CN= /emailAddress= "
