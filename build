@@ -15,6 +15,6 @@ ALL_PROXY=http://10.226.137.205:19666
 go build -mod=mod  -v -o ./docker/datahub/datahub  datahub/cmd/main.go
 exit
 go build -mod=mod  -v -o ./docker/ai-dispatcher/ai-dispatcher ai-dispatcher/cmd/main.go
-go build -mod=mod  -v -o ./docker/operator/manager operator/cmd/manager/main.go
+go build -mod=mod  -v -o ./docker/operator/manager operator/cmd/manager/*.go
 go build -mod=mod  -v -o ./docker/admission-controller/admission-controller admission-controller/cmd/main.go
 go build -mod=mod  -v -o ./docker/evictioner/evictioner evictioner/cmd/main.go

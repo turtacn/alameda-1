@@ -1,0 +1,12 @@
+kubectl delete pod alameda-admission-controller-554ffc47cb-w42fc -n alameda
+kubectl delete pod alameda-ai-b5cd565d6-cfh4b -n alameda
+kubectl delete pod alameda-ai-dispatcher-56b8d9b9-sbdpd -n alameda
+kubectl delete pod alameda-datahub-588ffb4fbb-pkx97 -n alameda
+kubectl delete pod alameda-evictioner-84ff7f6874-c4l2w -n alameda
+kubectl delete pod alameda-executor-7b4c67f8b8-prdd2 -n alameda
+kubectl delete pod alameda-grafana-7569776958-dp9vb -n alameda
+kubectl delete pod alameda-influxdb-55b477b85b-96ptw -n alameda
+kubectl delete pod alameda-notifier-56b85f6dfd-scfkq -n alameda
+kubectl delete pod alameda-operator-54d57df955-s6hdl -n alameda
+kubectl delete pod alameda-rabbitmq-6cd685cc56-kv4xx -n alameda
+kubectl delete pod alameda-recommender-7d557d8cd8-7gwqw -n alameda

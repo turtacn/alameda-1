@@ -1,0 +1,66 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app: alameda
+    component: admission-controller
+  name: alameda-admission-controller
+rules:
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - create
+  - update
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - configmaps
+  verbs:
+  - get
+  - list
+  - patch
+  - create
+- apiGroups:
+  - extensions
+  - apps
+  resources:
+  - replicasets
+  - deployments
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - extensions
+  - ""
+  resources:
+  - replicationcontrollers
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - apps.openshift.io
+  resources:
+  - deploymentconfigs
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - autoscaling.containers.ai
+  resources:
+  - alamedascalers
+  verbs:
+  - get
+- apiGroups:
+  - federatorai.containers.ai
+  resources:
+  - alamedaservices
+  verbs:
+  - get
+  - list
+  - watch

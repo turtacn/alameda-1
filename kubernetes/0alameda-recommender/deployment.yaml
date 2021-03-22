@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: alameda
+    component: alameda-recommender
+  name: alameda-recommender
+  namespace: alameda
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: alameda
+      component: alameda-recommender
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: alameda
+        component: alameda-recommender
+    spec:
+      containers:
+      - env:
+        - name: FEDERATOR_AI_SETUP_TYPE
+          value: on-premise
+        image: quay.io/prophetstor/alameda-recommender-ubi:latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /usr/local/bin/federatorai-recommender
+            - probe
+            - --type=liveness
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: recommender
+        readinessProbe:
+          exec:
+            command:
+            - /usr/local/bin/federatorai-recommender
+            - probe
+            - --type=readiness
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/alameda/federatorai-recommendation/config.toml
+          name: alameda-recommender
+          subPath: config.toml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: alameda-recommender
+        name: alameda-recommender
+status: {}

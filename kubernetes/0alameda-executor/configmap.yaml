@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  config.yml: |-
+    datahub:
+      address: "alameda-datahub.alameda.svc"
+      port: 50050
+    executor:
+      check-cycle: 3   # second
+      expire-time: 300 # second
+      enable: true
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: alameda-executor
+  namespace: alameda

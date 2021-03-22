@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: alameda
+    component: alameda-datahub
+  name: alameda-datahub
+  namespace: alameda
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: alameda
+      component: alameda-datahub
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: alameda
+        component: alameda-datahub
+    spec:
+      containers:
+      - env:
+        - name: ALAMEDA_DATAHUB_INFLUXDB_ADDRESS
+          value: http://alameda-influxdb.alameda.svc:8086
+        - name: ALAMEDA_DATAHUB_INFLUXDB_USERNAME
+          value: alameda
+        - name: ALAMEDA_DATAHUB_INFLUXDB_PASSWORD
+          value: alameda
+        - name: ALAMEDA_DATAHUB_INFLUXDB_INSECURESKIPVERIFY
+          value: "true"
+        - name: ALAMEDA_DATAHUB_PROMETHEUS_TLSCONFIG_INSECURESKIPVERIFY
+          value: "true"
+        - name: ALAMEDA_DATAHUB_PROMETHEUS_BEARERTOKENFILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token
+        - name: ALAMEDA_DATAHUB_PROMETHEUS_URL
+          value: http://prometheus-prometheus-oper-prometheus.monitoring:9090
+        - name: ALAMEDA_DATAHUB_RABBITMQ_URL
+          value: amqp://admin:adminpass@alameda-rabbitmq.alameda:5672
+        image: jdcloudiaas/turta:datahub
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command:
+            - /usr/local/bin/datahub
+            - probe
+            - --type=liveness
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: datahub
+        readinessProbe:
+          exec:
+            command:
+            - /usr/local/bin/datahub
+            - probe
+            - --type=readiness
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: alameda-datahub
+      serviceAccountName: alameda-datahub
+      terminationGracePeriodSeconds: 30
+status: {}

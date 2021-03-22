@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana
+    chart: grafana-3.8.4
+    heritage: Tiller
+    release: alameda-grafana
+  name: alameda-grafana
+  namespace: alameda
+spec:
+  ports:
+  - name: service
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: grafana
+    release: alameda-grafana
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

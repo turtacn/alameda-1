@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana
+    chart: grafana-3.8.4
+    heritage: Tiller
+    release: alameda-grafana
+  name: alameda-grafana
+  namespace: alameda
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: grafana
+      release: alameda-grafana
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: 5e337023f61dc15dec81c2a3e81e601da4c0dd4f9feea37fe1f5b8dec613d1f4
+        checksum/dashboards-json-config: 9953d887a87f1a8c3a30ac9e05e76e646fec3a1240d241686bcc4ec5d5d215c7
+        checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/secret: 68bc12f682492f70e0a6284104aeebf0143faf2b550c2ce02a1fc9aff29a923d
+      creationTimestamp: null
+      labels:
+        app: grafana
+        release: alameda-grafana
+    spec:
+      containers:
+      - env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              key: admin-user
+              name: alameda-grafana
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: admin-password
+              name: alameda-grafana
+        image: grafana/grafana:6.2.5
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 30
+        name: grafana
+        ports:
+        - containerPort: 80
+          name: service
+          protocol: TCP
+        - containerPort: 3000
+          name: grafana
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/grafana/grafana.ini
+          name: config
+          subPath: grafana.ini
+        - mountPath: /etc/grafana/ldap.toml
+          name: ldap
+          subPath: ldap.toml
+        - mountPath: /var/lib/grafana
+          name: storage
+        - mountPath: /var/lib/grafana/dashboards/alameda/clusterhealth.json
+          name: dashboards-alameda
+          subPath: clusterhealth.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/hpa-recommendation.json
+          name: dashboards-alameda
+          subPath: hpa-recommendation.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/nodehealth.json
+          name: dashboards-alameda
+          subPath: nodehealth.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/prediction-1day.json
+          name: dashboards-alameda
+          subPath: prediction-1day.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/vpa-recommendation.json
+          name: dashboards-alameda
+          subPath: vpa-recommendation.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/vpa-recommendation-alamedascaler.json
+          name: dashboards-alameda
+          subPath: vpa-recommendation-alamedascaler.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/vpa-recommendation-cluster.json
+          name: dashboards-alameda
+          subPath: vpa-recommendation-cluster.json
+        - mountPath: /var/lib/grafana/dashboards/alameda/vpa-recommendation-namespace.json
+          name: dashboards-alameda
+          subPath: vpa-recommendation-namespace.json
+        - mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+          name: config
+          subPath: datasources.yaml
+        - mountPath: /etc/grafana/provisioning/dashboards/dashboardproviders.yaml
+          name: config
+          subPath: dashboardproviders.yaml
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - args:
+        - -c
+        - mkdir -p /var/lib/grafana/dashboards/default && /bin/sh /etc/grafana/download_dashboards.sh
+        command:
+        - /bin/sh
+        image: appropriate/curl:latest
+        imagePullPolicy: IfNotPresent
+        name: download-dashboards
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/grafana/download_dashboards.sh
+          name: config
+          subPath: download_dashboards.sh
+        - mountPath: /var/lib/grafana
+          name: storage
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 472
+        runAsUser: 472
+      serviceAccount: alameda-grafana
+      serviceAccountName: alameda-grafana
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: alameda-grafana
+        name: config
+      - configMap:
+          defaultMode: 420
+          name: alameda-grafana-dashboards-alameda
+        name: dashboards-alameda
+      - name: ldap
+        secret:
+          defaultMode: 420
+          items:
+          - key: ldap-toml
+            path: ldap.toml
+          secretName: alameda-grafana
+      - emptyDir: {}
+        name: storage
+status: {}

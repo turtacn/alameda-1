@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: null
+  labels:
+    app: alameda
+    component: admission-controller
+  name: alameda-admission-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alameda-admission-controller
+subjects:
+- kind: ServiceAccount
+  name: alameda-admission-controller
+  namespace: alameda

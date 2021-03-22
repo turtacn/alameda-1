@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2021-01-06T12:35:17Z"
+  labels:
+    app: alameda
+    component: datahub
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:labels:
+          .: {}
+          f:app: {}
+          f:component: {}
+      f:spec:
+        f:ports:
+          .: {}
+          k:{"port":50050,"protocol":"TCP"}:
+            .: {}
+            f:name: {}
+            f:port: {}
+            f:protocol: {}
+            f:targetPort: {}
+        f:selector:
+          .: {}
+          f:app: {}
+          f:component: {}
+        f:sessionAffinity: {}
+        f:type: {}
+    manager: kubectl
+    operation: Update
+    time: "2021-01-06T12:35:17Z"
+  name: datahub
+  namespace: alameda
+  resourceVersion: "5492"
+  selfLink: /api/v1/namespaces/alameda/services/datahub
+  uid: d1f1a8ec-a3cb-4c78-8c9f-4a75eb91f604
+spec:
+  ports:
+  - name: grpc
+    port: 50050
+    protocol: TCP
+    targetPort: 50050
+  selector:
+    app: alameda
+    component: datahub
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

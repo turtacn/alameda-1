@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana
+    chart: grafana-3.8.4
+    heritage: Tiller
+    release: alameda-grafana
+  name: alameda-grafana
+  namespace: alameda
+rules:
+- apiGroups:
+  - extensions
+  resourceNames:
+  - alameda-grafana
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
