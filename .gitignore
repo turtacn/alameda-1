@@ -19,3 +19,5 @@ bin
 *.swo
 *~
 .vscode
+.circleci
+.github

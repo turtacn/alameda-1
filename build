@@ -1,0 +1,20 @@
+#!/bin/sh
+#alias go="docker run --rm -t -i -v \$(pwd):\$(pwd) -w \$(pwd) -e GO111MODULE=on -e GOPROXY=https://goproxy.io --entrypoint /usr/local/go/bin/go golang:1.14-alpine"
+alias go="docker run --rm -t -i -v \$(pwd):\$(pwd) -w \$(pwd) -e GO111MODULE=on -e GOPROXY=https://goproxy.io --entrypoint /usr/local/go/bin/go golang:1.14"
+echo "*******************************************"
+echo "*"`go version`
+echo "*******************************************"
+
+ALL_PROXY=http://10.226.137.205:19666
+#git pull
+#go mod init github.com/containers-ai/alameda
+#go mod vendor
+#go mod tidy
+#go mod verify
+
+go build -mod=mod  -v -o ./docker/datahub/datahub  datahub/cmd/main.go
+exit
+go build -mod=mod  -v -o ./docker/ai-dispatcher/ai-dispatcher ai-dispatcher/cmd/main.go
+go build -mod=mod  -v -o ./docker/operator/manager operator/cmd/manager/main.go
+go build -mod=mod  -v -o ./docker/admission-controller/admission-controller admission-controller/cmd/main.go
+go build -mod=mod  -v -o ./docker/evictioner/evictioner evictioner/cmd/main.go
