@@ -1,0 +1,96 @@
+module github.com/containers-ai/alameda
+
+go 1.14
+
+require (
+	cloud.google.com/go v0.29.0
+	github.com/appscode/jsonpatch v0.0.0-20190108182946-7c0e3b262f30
+	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
+	github.com/containers-ai/api v0.0.0-20190814080620-f3945ad503b6
+	github.com/davecgh/go-spew v1.1.1
+	github.com/emicklei/go-restful v2.8.0+incompatible
+	github.com/fsnotify/fsnotify v1.4.7
+	github.com/ghodss/yaml v1.0.0
+	github.com/go-logr/logr v0.1.0
+	github.com/go-logr/zapr v0.1.0
+	github.com/gobuffalo/envy v1.6.4
+	github.com/gogo/protobuf v1.1.1
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/golang/groupcache v0.0.0-20180924190550-6f2cf27854a4
+	github.com/golang/protobuf v1.2.0
+	github.com/google/btree v1.0.0
+	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf
+	github.com/google/uuid v1.0.0
+	github.com/googleapis/gnostic v0.2.0
+	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
+	github.com/hashicorp/golang-lru v0.5.0
+	github.com/hashicorp/hcl v1.0.0
+	github.com/hpcloud/tail v1.0.0
+	github.com/imdario/mergo v0.3.6
+	github.com/inconshreveable/mousetrap v1.0.0
+	github.com/influxdata/influxdb v1.7.4
+	github.com/influxdata/platform v0.0.0-20181219193417-0f79e4ea3248
+	github.com/joho/godotenv v1.3.0
+	github.com/json-iterator/go v1.1.5
+	github.com/magiconair/properties v1.8.0
+	github.com/markbates/inflect v1.0.1
+	github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a
+	github.com/matttproud/golang_protobuf_extensions v1.0.1
+	github.com/mitchellh/mapstructure v1.1.2
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742
+	github.com/onsi/ginkgo v1.6.0
+	github.com/onsi/gomega v1.4.2
+	github.com/openshift/api v0.0.0-20190129160438-bbc4289c54e0
+	github.com/openshift/client-go v3.9.0+incompatible
+	github.com/pborman/uuid v0.0.0-20180906182336-adf5a7427709
+	github.com/pelletier/go-toml v1.2.0
+	github.com/petar/GoLLRB v0.0.0-20130427215148-53be0d36a84c
+	github.com/peterbourgon/diskv v2.0.1+incompatible
+	github.com/pkg/errors v0.8.0
+	github.com/pmezard/go-difflib v1.0.0
+	github.com/prometheus/client_golang v0.9.2
+	github.com/prometheus/client_model v0.0.0-20190115171406-56726106282f
+	github.com/prometheus/common v0.2.0
+	github.com/prometheus/procfs v0.0.0-20190117184657-bf6a532e95b1
+	github.com/spf13/afero v1.1.2
+	github.com/spf13/cast v1.3.0
+	github.com/spf13/cobra v0.0.3
+	github.com/spf13/jwalterweatherman v1.0.0
+	github.com/spf13/pflag v1.0.3
+	github.com/spf13/viper v1.2.1
+	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
+	github.com/stretchr/testify v1.3.0
+	go.uber.org/atomic v1.3.2
+	go.uber.org/multierr v1.1.0
+	go.uber.org/zap v1.9.1
+	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
+	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
+	golang.org/x/oauth2 v0.0.0-20181017192945-9dcd33a902f4
+	golang.org/x/sys v0.0.0-20181205085412-a5c9d58dba9a
+	golang.org/x/text v0.3.0
+	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
+	golang.org/x/tools v0.0.0-20181121193951-91f80e683c10
+	google.golang.org/appengine v1.2.0
+	google.golang.org/genproto v0.0.0-20181101192439-c830210a61df
+	google.golang.org/grpc v1.16.0
+	gopkg.in/inf.v0 v0.9.1
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
+	gopkg.in/yaml.v2 v2.2.1
+	k8s.io/api v0.0.0-20190202010724-74b699b93c15
+	k8s.io/apiextensions-apiserver v0.0.0-20190202013456-d4288ab64945
+	k8s.io/apimachinery v0.0.0-20190117220443-572dfc7bdfcb
+	k8s.io/client-go v0.0.0-20190202011228-6e4752048fde
+	k8s.io/code-generator v0.0.0-20190215220509-095ce2f23e83
+	k8s.io/gengo v0.0.0-20190128074634-0689ccc1d7d6
+	k8s.io/klog v0.1.0
+	k8s.io/kube-openapi v0.0.0-20180928202339-9dfdf9be683f
+	sigs.k8s.io/controller-runtime v0.1.10
+	sigs.k8s.io/controller-tools v0.1.10
+	sigs.k8s.io/testing_frameworks v0.1.1
+	sigs.k8s.io/yaml v1.1.0
+)
+
+replace gopkg.in/fsnotify.v1 v1.4.7 => github.com/fsnotify/fsnotify v1.4.7
