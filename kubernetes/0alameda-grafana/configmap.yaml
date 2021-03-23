@@ -24,7 +24,7 @@ data:
       isDefault: false
       name: InfluxDB
       type: influxdb
-      url: http://alameda-influxdb.default.svc:8086
+      url: http://alameda-influxdb.alameda.svc:8086
   download_dashboards.sh: |
     #!/usr/bin/env sh
     set -euf
