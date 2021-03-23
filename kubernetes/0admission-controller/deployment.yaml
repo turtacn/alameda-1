@@ -48,7 +48,7 @@ spec:
         - name: ALAMEDA_ADMCTL_DEPLOYEDNAMESPACE
           value: alameda
         - name: ALAMEDA_ADMCTL_ENABLE
-          value: "false"
+          value: "true"
         - name: ALAMEDA_ADMCTL_DATAHUB_ADDRESS
           value: alameda-datahub.alameda:50050
         image: quay.io/prophetstor/alameda-admission-ubi:latest
