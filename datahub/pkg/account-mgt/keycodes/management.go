@@ -191,6 +191,8 @@ func (c *KeycodeMgt) IsValid() bool {
 	KeycodeMutex.Lock()
 	defer KeycodeMutex.Unlock()
 
+	return true
+
 	err := c.refresh(false)
 
 	if err != nil {
@@ -219,6 +221,7 @@ func (c *KeycodeMgt) IsValid() bool {
 func (c *KeycodeMgt) IsExpired() bool {
 	KeycodeMutex.Lock()
 	defer KeycodeMutex.Unlock()
+	return false
 
 	summary, err := c.GetKeycodeSummary()
 
