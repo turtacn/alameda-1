@@ -31,3 +31,7 @@
 |USE Method/Node|ok|
 
 ## 缺失的指标
+
+|指标|处理方法|
+|--|--| 
+|instance:node_cpu_utilisation:rate1m|[指标替换](https://github.com/prometheus/node_exporter/issues/1454)|
