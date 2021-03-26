@@ -21,7 +21,7 @@
 |Kubernetes/Networking/Pod|ok|
 |Kubernetes/Networking/Workload|ok|
 |Kubernetes/Persistent Volumes|ok|
-|Kubernetes/Proxy|no|
+|Kubernetes/Proxy|nodata|
 |Kubernetes/Scheduler|ok|
 |Kubernetes/StatefulSets|ok|
 |Nodes|ok|
