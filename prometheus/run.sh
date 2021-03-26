@@ -12,3 +12,15 @@ cd prometheus-operator
 kubectl create ns monitoring
 kubectl apply -f crds/
 helm install prometheus -n monitoring .
+
+## 其他安装选择，社区官方版
+#helm repo add prometheus-community	https://prometheus-community.github.io/helm-charts/
+#helm pull   prometheus-community/kube-prometheus-stack
+#tar zxvf kube-prometheus-stack-14.3.0.tgz
+#cd kube-prometheus-stack
+#kubectl create ns monitoring
+#kubectl apply -f crds/
+#helm install prometheus -n monitoring .
+
+
+
