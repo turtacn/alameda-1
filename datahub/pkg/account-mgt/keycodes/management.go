@@ -6,9 +6,8 @@ import (
 	EntityInflux "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb"
 	EntityInfluxKeycode "github.com/containers-ai/alameda/internal/pkg/database/entity/influxdb/cluster_status"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
-	DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
+	//DatahubV1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
-	"math"
 	"strings"
 	"time"
 )
@@ -192,49 +191,12 @@ func (c *KeycodeMgt) IsValid() bool {
 	defer KeycodeMutex.Unlock()
 
 	return true
-
-	err := c.refresh(false)
-
-	if err != nil {
-		scope.Errorf("failed to check if keycode is valid: %s", err.Error())
-		return false
-	}
-
-	switch c.GetStatus() {
-	case KeycodeStatusNoKeycode:
-		return false
-	case KeycodeStatusInvalid:
-		return false
-	case KeycodeStatusExpired:
-		return false
-	case KeycodeStatusNotActivated:
-		return true
-	case KeycodeStatusValid:
-		return true
-	case KeycodeStatusUnknown:
-		return false
-	default:
-		return false
-	}
 }
 
 func (c *KeycodeMgt) IsExpired() bool {
 	KeycodeMutex.Lock()
 	defer KeycodeMutex.Unlock()
 	return false
-
-	summary, err := c.GetKeycodeSummary()
-
-	if err != nil {
-		scope.Error("failed to check if keycode is expired")
-		return false
-	}
-
-	if summary.LicenseState == "Valid" {
-		return false
-	}
-
-	return true
 }
 
 // NOTE: DO Refresh() before GetStatus() if necessary
@@ -242,75 +204,8 @@ func (c *KeycodeMgt) GetStatus() int {
 	return c.Status.GetStatus()
 }
 
-// NOTE: DO GET KeycodeMutex lock before using this function
-func (c *KeycodeMgt) refresh(force bool) error {
-	tm := time.Now()
-	tmUnix := tm.Unix()
-	refreshed := false
-	keycode := "N/A"
 
-	if (force == true) || (int64(math.Abs(float64(tmUnix-KeycodeTimestamp))) >= KeycodeDuration) {
-		keycodeList, keycodeSummary, err := c.Executor.GetAllKeycodes()
-		if err != nil {
-			scope.Error("failed to refresh keycodes information")
-			return err
-		}
-
-		// If everything goes right, refresh the global variables
-		KeycodeTimestamp = tmUnix
-		KeycodeList = keycodeList
-		KeycodeSummary = keycodeSummary
-		KeycodeTM = tm
-		refreshed = true
-	}
-
-	if len(KeycodeList) > 0 {
-		// log the first keycode in KeycodeList
-		keycode = KeycodeList[0].Keycode
-	}
-	if force == false {
-		if refreshed == true {
-			scope.Infof("keycode cache data refreshed, keycode: %s", keycode)
-		} else {
-			scope.Debugf("cached keycode (@ %s): %s", KeycodeTM.Format(time.RFC3339), keycode)
-		}
-	} else {
-		scope.Infof("keycode cache data refreshed for CUD OP, keycode: %s", keycode)
-	}
-
-	if c.KeycodeStatus != c.GetStatus() {
-		KeycodeStatus = c.GetStatus()
-		c.KeycodeStatus = c.GetStatus()
-
-		// Update InfluxDB and post event
-		switch KeycodeStatus {
-		case KeycodeStatusNoKeycode:
-			c.writeInfluxEntry("N/A", KeycodeStatusName[KeycodeStatusNoKeycode])
-			c.deleteInfluxEntry("Summary")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusNoKeycode])
-		case KeycodeStatusInvalid:
-			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusInvalid])
-			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusInvalid])
-		case KeycodeStatusExpired:
-			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusExpired])
-			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusExpired])
-		case KeycodeStatusNotActivated:
-			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusNotActivated])
-			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_WARNING, KeycodeStatusMessage[KeycodeStatusNotActivated])
-		case KeycodeStatusValid:
-			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusValid])
-			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_INFO, KeycodeStatusMessage[KeycodeStatusValid])
-		default:
-			c.writeInfluxEntry("Summary", KeycodeStatusName[KeycodeStatusUnknown])
-			c.deleteInfluxEntry("N/A")
-			PostEvent(DatahubV1alpha1.EventLevel_EVENT_LEVEL_ERROR, KeycodeStatusMessage[KeycodeStatusUnknown])
-		}
-	}
-
+func (c *KeycodeMgt) refresh(force bool) error {// NOTE: DO GET KeycodeMutex lock before using this function
 	return nil
 }
 
