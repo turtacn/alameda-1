@@ -1,6 +1,7 @@
 package keycodes
 
 import (
+	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
 type Result struct {
@@ -33,15 +34,22 @@ func NewKeycodeExecutor() *KeycodeExecutor {
 }
 
 func (c *KeycodeExecutor) AddKeycode(keycode string) error {
+	log.Infof("KeycodeExecutor AddKeycode keycode=%s", keycode)
 	return nil
 }
 
 func (c *KeycodeExecutor) DeleteKeycode(keycode string) error {
+	log.Infof("KeycodeExecutor DeleteKeycode keycode=%s", keycode)
 	return nil
 }
 
 func (c *KeycodeExecutor) GetKeycode(keycode string) (*Keycode, error) {
-	result := KeycodeResult{}
+	result := KeycodeResult{
+		Data: &Keycode{
+			Keycode: keycode,
+
+		},
+	}
 
 
 	return result.Data, nil
