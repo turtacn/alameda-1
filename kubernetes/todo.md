@@ -7,9 +7,9 @@
 |CoreDNS|ok|
 |etcd|nodata|
 |Kubernetes/API server|ok|
-|Kubernetes/Compute Resources/Cluster|partial|
+|Kubernetes/Compute Resources/Cluster|ok|
 |Kubernetes/Compute Resources/Namespace (Pods)|partial|
-|Kubernetes/Compute Resources/Namespace (Workloads)|partial|
+|Kubernetes/Compute Resources/Namespace (Workloads)|ok|
 |Kubernetes/Compute Resources/Node (Pods)|ok|
 |Kubernetes/Compute Resources/Pod|ok|
 |Kubernetes/Compute Resources/Workload|ok|

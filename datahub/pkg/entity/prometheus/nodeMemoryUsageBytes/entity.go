@@ -8,7 +8,7 @@ import (
 
 const (
 	// MetricName Metric name to query from prometheus
-	MetricName = ""
+	MetricName = "instance:node_memory_utilisation:ratio"
 	// NodeLabel Node label name in the metric
 	NodeLabel = "node"
 )

@@ -9,7 +9,7 @@ import (
 const (
 	// MetricName Metric name to query from prometheus
 	MetricNameSum = "node:node_num_cpu:sum"
-	MetricNameAvg = "node:node_cpu_utilisation:avg1m"
+	MetricNameAvg = "instance:node_cpu_utilisation:rate1m" //"node:node_cpu_utilisation:avg1m"
 	// NodeLabel Node label name in the metric
 	NodeLabel = "node"
 )

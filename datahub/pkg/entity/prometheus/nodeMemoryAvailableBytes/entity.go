@@ -8,7 +8,7 @@ import (
 
 const (
 	// MetricName Metric name to query from prometheus
-	MetricName = "node:node_memory_bytes_available:sum"
+	MetricName = ":node_memory_MemAvailable_bytes:sum" //"node:node_memory_bytes_available:sum"
 	// NodeLabel Node label name in the metric
 	NodeLabel = "node"
 )
