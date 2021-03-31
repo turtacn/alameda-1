@@ -109,6 +109,7 @@ func (s *ServiceV1alpha1) ListAlamedaPods(ctx context.Context, in *DatahubV1alph
 
 // ListAlamedaNodes list nodes in cluster
 func (s *ServiceV1alpha1) ListAlamedaNodes(ctx context.Context, in *DatahubV1alpha1.ListAlamedaNodesRequest) (*DatahubV1alpha1.ListNodesResponse, error) {
+	scope.Infof("turta-ServiceV1alpha1-ListAlamedaNodes input %v", in)
 	scope.Debug("Request received from ListAlamedaNodes grpc function: " + AlamedaUtils.InterfaceToString(in))
 
 	var nodeDAO DaoClusterStatus.NodeOperation = &DaoClusterStatusImpl.Node{
