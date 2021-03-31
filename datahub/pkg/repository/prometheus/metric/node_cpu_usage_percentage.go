@@ -21,7 +21,6 @@ func NewNodeCPUUsagePercentageRepositoryWithConfig(cfg InternalPromth.Config) No
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
-
 	var (
 		err error
 

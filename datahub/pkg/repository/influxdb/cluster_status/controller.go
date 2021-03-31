@@ -27,6 +27,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1.Controller) error {
+	scope.Infof("turta-CreateControllers input %v", controllers )
 	points := make([]*InfluxClient.Point, 0)
 	for _, controller := range controllers {
 		controllerNamespace := controller.GetControllerInfo().GetNamespacedName().GetNamespace()
@@ -80,6 +81,7 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1
 }
 
 func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControllersRequest) ([]*datahub_v1alpha1.Controller, error) {
+	scope.Infof("turta-ListControllers input %v", in )
 	namespace := in.GetNamespacedName().GetNamespace()
 	name := in.GetNamespacedName().GetName()
 
@@ -105,6 +107,7 @@ func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControll
 }
 
 func (c *ControllerRepository) DeleteControllers(in *datahub_v1alpha1.DeleteControllersRequest) error {
+	scope.Infof("turta-DeleteControllers input %v", in )
 	controllers := in.GetControllers()
 	whereStr := ""
 

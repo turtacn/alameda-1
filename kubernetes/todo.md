@@ -37,3 +37,17 @@
 |instance:node_cpu_utilisation:rate1m|[指标替换](https://github.com/prometheus/node_exporter/issues/1454)|node:node_cpu_utilisation:avg1m * node:node_num_cpu:sum / scalar(sum(node:node_num_cpu:sum))|
 |node:node_memory_utilisation:ratio| | instance:node_memory_utilisation:ratio|
 |node:node_disk_utilisation:avg_irate|||
+
+### Cluster Health
+
+- node cpu utilisation
+
+```text
+instance:node_cpu_utilisation:rate1m * scalar(node:node_num_cpu:sum)  / scalar(sum(node:node_num_cpu:sum))
+```
+
+- node memory utilisation
+
+```text
+
+```

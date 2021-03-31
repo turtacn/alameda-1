@@ -37,6 +37,7 @@ func NewNodeRepository(influxDBCfg *InternalInflux.Config) *NodeRepository {
 
 // AddAlamedaNodes add node information to database
 func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
+	scope.Infof("turta-AddAlamedaNodes input %v", alamedaNodes )
 	points := []*InfluxClient.Point{}
 	for _, alamedaNode := range alamedaNodes {
 		isInCluster := true
@@ -77,6 +78,7 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 }
 
 func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
+	scope.Infof("turta-RemoveAlamedaNodes input %v", alamedaNodes )
 	hasErr := false
 	errMsg := ""
 	for _, alamedaNode := range alamedaNodes {
@@ -95,7 +97,7 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 }
 
 func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alpha1.TimeRange) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
-
+	scope.Infof("turta-ListAlamedaNodes input %v", timeRange )
 	nodeEntities := []*EntityInfluxClusterStatus.NodeEntity{}
 	nodeCreatePeriodCondition := nodeRepository.getNodeCreatePeriodCondition(timeRange)
 
@@ -105,6 +107,7 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alph
 	scope.Debug(fmt.Sprintf("Query nodes in cluster: %s", cmd))
 	results, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
+		scope.Errorf("turta-ListAlamedaNodes error %v", err)
 		return nodeEntities, errors.Wrap(err, "list alameda nodes from influxdb failed")
 	}
 
@@ -118,11 +121,12 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alph
 			}
 		}
 	}
-
+	scope.Infof("turta-ListAlamedaNodes return %v", nodeEntities )
 	return nodeEntities, nil
 }
 
 func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNodesRequest) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
+	scope.Infof("turta-ListNodes input %v", &request)
 
 	nodeEntities := []*EntityInfluxClusterStatus.NodeEntity{}
 
@@ -131,6 +135,7 @@ func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNod
 	scope.Debug(fmt.Sprintf("Query nodes in cluster: %s", cmd))
 	results, err := nodeRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
+		scope.Errorf("turta-ListNodes error %v", err)
 		return nodeEntities, errors.Wrap(err, "list nodes from influxdb failed")
 	}
 
@@ -142,6 +147,7 @@ func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNod
 		}
 	}
 
+	scope.Infof("turta-ListNodes return %v", nodeEntities)
 	return nodeEntities, nil
 }
 

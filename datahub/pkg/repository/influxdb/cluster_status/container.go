@@ -47,6 +47,7 @@ func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerReposi
 
 // ListAlamedaContainers list predicted containers have relation with arguments
 func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name string, kind datahub_v1alpha1.Kind, timeRange *datahub_v1alpha1.TimeRange) ([]*datahub_v1alpha1.Pod, error) {
+	scope.Infof("turta-ListAlamedaContainers input namespace %s; name %s; kind %v; timereange %v", namespace, name, kind, timeRange )
 	pods := []*datahub_v1alpha1.Pod{}
 	whereStr := ""
 
@@ -81,7 +82,9 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 			EntityInfluxClusterStatus.ContainerAlamedaScalerName, name,
 			podCreatePeriodCondition)
 	default:
-		return pods, errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
+		err  :=  errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
+		scope.Errorf("turta-ListAlamedaContainers error %v", err )
+		return pods, err
 	}
 	if relationStatement != "" {
 		if whereStr != "" {
@@ -96,6 +99,7 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 		string(EntityInfluxClusterStatus.ContainerNamespace), string(EntityInfluxClusterStatus.ContainerPodName),
 		string(EntityInfluxClusterStatus.ContainerAlamedaScalerNamespace), string(EntityInfluxClusterStatus.ContainerAlamedaScalerName))
 	scope.Debugf("ListAlamedaContainers command: %s", cmd)
+	var retErr error
 	if results, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus)); err == nil {
 
 		containerEntities := make([]*EntityInfluxClusterStatus.ContainerEntity, 0)
@@ -107,16 +111,17 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 				containerEntities = append(containerEntities, &entity)
 			}
 		}
-
 		pods = buildDatahubPodsFromContainerEntities(containerEntities)
-		return pods, nil
 	} else {
-		return pods, err
+		retErr  = err
 	}
+	scope.Infof("turta-ListAlamedaContainers return %v; error %v", pods, retErr)
+	return pods, retErr
 }
 
 // CreateContainers add containers information container measurement
 func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub_v1alpha1.Pod) error {
+	scope.Infof("turta-CreateContainers input #pod=%d: %", len(pods))
 	points := []*InfluxClient.Point{}
 	for _, pod := range pods {
 		containerEntities, err := buildContainerEntitiesFromDatahubPod(pod)
@@ -135,6 +140,7 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 		Database: string(RepoInflux.ClusterStatus),
 	})
 	if err != nil {
+		scope.Errorf("turta-CreateContainers return error %v", err)
 		return errors.Wrap(err, "create containers to influxdb failed")
 	}
 	return nil
@@ -142,6 +148,7 @@ func (containerRepository *ContainerRepository) CreateContainers(pods []*datahub
 
 // DeleteContainers set containers' field is_deleted to true into container measurement
 func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub_v1alpha1.Pod) error {
+	scope.Infof("turta-DeleteContainers input #pod %d", len(pods))
 	for _, pod := range pods {
 		if pod.GetNamespacedName() == nil || pod.GetAlamedaScaler() == nil {
 			continue
@@ -164,7 +171,7 @@ func (containerRepository *ContainerRepository) DeleteContainers(pods []*datahub
 
 // ListPodsContainers list containers information container measurement
 func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datahub_v1alpha1.Pod) ([]*EntityInfluxClusterStatus.ContainerEntity, error) {
-
+	scope.Infof("turta-ListPodsContainers input #pod %d", len(pods))
 	var (
 		cmd                 = ""
 		cmdSelectString     = ""
@@ -199,6 +206,7 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 	cmd = fmt.Sprintf("%s where %s", cmdSelectString, cmdTagsFilterString)
 	results, err := containerRepository.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
+		scope.Errorf("turta-ListPodsContainers error %v", err)
 		return containerEntities, errors.Wrap(err, "list pod containers failed")
 	}
 
@@ -210,6 +218,7 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 		}
 	}
 
+	scope.Infof("turta-ListPodsContainers return %v", containerEntities)
 	return containerEntities, nil
 }
 
