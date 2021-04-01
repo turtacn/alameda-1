@@ -128,7 +128,7 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 	ptrNodesMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
 	ptrNodesMetricMap.Limit(req.QueryCondition.Limit)
 
-	scope.Infof("turta-ListNodesMetric return %v", ptrNodesMetricMap)
+	scope.Infof("turta-ListNodesMetric return %d %v", len(*ptrNodesMetricMap),ptrNodesMetricMap )
 	return *ptrNodesMetricMap, nil
 }
 

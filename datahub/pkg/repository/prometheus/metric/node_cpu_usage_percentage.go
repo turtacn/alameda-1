@@ -7,7 +7,14 @@ import (
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"time"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 )
+
+
+var (
+	node_cpu_usage_percentage_scope = log.RegisterScope("node cpu usage  percentage", "", 0)
+)
+
 
 // NodeCPUUsagePercentageRepository Repository to access metric node:node_cpu_utilisation:avg1m from prometheus
 type NodeCPUUsagePercentageRepository struct {
@@ -21,6 +28,7 @@ func NewNodeCPUUsagePercentageRepositoryWithConfig(cfg InternalPromth.Config) No
 
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
+	node_cpu_usage_percentage_scope.Infof("turta-ListMetricsByNodeName input {%s, %v}", nodeName, options)
 	var (
 		err error
 
@@ -38,6 +46,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 
 	prometheusClient, err = InternalPromth.NewClient(&n.PrometheusConfig)
 	if err != nil {
+		node_cpu_usage_percentage_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
@@ -63,10 +72,12 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 	queryExpressionSum, err = InternalPromth.WrapQueryExpression(queryExpressionSum, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
+		node_cpu_usage_percentage_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 	queryExpressionAvg, err = InternalPromth.WrapQueryExpression(queryExpressionAvg, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
+		node_cpu_usage_percentage_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
@@ -74,16 +85,19 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
+		node_cpu_usage_percentage_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
+		node_cpu_usage_percentage_scope.Errorf("turta-ListMetricsByNodeName response status != prometheus success status %v")
 		return entities, errors.Errorf("list node cpu usage metrics by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
 	entities, err = response.GetEntities()
 	if err != nil {
+		node_cpu_usage_percentage_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
-
+	node_cpu_usage_percentage_scope.Infof("turta-ListMetricsByNodeName return %d  %v", len(entities) , &entities)
 	return entities, nil
 }
 
