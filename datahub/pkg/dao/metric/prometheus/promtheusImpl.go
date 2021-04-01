@@ -11,6 +11,11 @@ import (
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"sync"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+)
+
+var (
+	scope = log.RegisterScope("metric_dao_implement", "metric dao implement", 0)
 )
 
 type prometheusMetricDAOImpl struct {
@@ -77,6 +82,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 // ListNodesMetric Method implementation of MetricsDAO
 func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequest) (metric.NodesMetricMap, error) {
 
+	scope.Infof("turta-ListNodesMetric input %v", &req)
 	var (
 		wg             = sync.WaitGroup{}
 		nodeNames      []string
