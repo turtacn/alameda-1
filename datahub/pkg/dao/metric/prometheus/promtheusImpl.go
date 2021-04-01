@@ -121,12 +121,14 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 	select {
 	case _ = <-done:
 	case err := <-errChan:
+		scope.Infof("turta-ListNodesMetric error %v", err)
 		return metric.NodesMetricMap{}, errors.Wrap(err, "list nodes metrics failed")
 	}
 
 	ptrNodesMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
 	ptrNodesMetricMap.Limit(req.QueryCondition.Limit)
 
+	scope.Infof("turta-ListNodesMetric return %v", ptrNodesMetricMap)
 	return *ptrNodesMetricMap, nil
 }
 
