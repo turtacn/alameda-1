@@ -7,6 +7,11 @@ import (
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
 	"github.com/pkg/errors"
 	"time"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+)
+
+var (
+	node_memory_utlization_scope = log.RegisterScope("node memory utlization","", 0)
 )
 
 // NodeMemoryUtilizationRepository Repository to access metric from prometheus
@@ -21,6 +26,8 @@ func NewNodeMemoryUtilizationRepositoryWithConfig(cfg InternalPromth.Config) Nod
 
 // ListMetricsByNodeName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
+
+	node_memory_utlization_scope.Infof("metric-ListMetricsByNodeName input nodename %s", nodeName)
 
 	var (
 		err error
@@ -63,6 +70,7 @@ func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, 
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
+		scope.Errorf("metric-ListMetricsByNodeName error %v", err )
 		return entities, errors.Wrap(err, "list node memory utilization by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
 		return entities, errors.Errorf("list node memory utilization by node name failed: receive error response from prometheus: %s", response.Error)

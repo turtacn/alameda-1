@@ -27,7 +27,7 @@ func NewNodeMemoryUsageBytesRepositoryWithConfig(cfg InternalPromth.Config) Node
 
 // ListMetricsByNodeName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
-
+	scope.Infof("metric-ListMetricsByNodeName input nodename %s", nodeName)
 	var (
 		err error
 
@@ -48,6 +48,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 
 	prometheusClient, err = InternalPromth.NewClient(&n.PrometheusConfig)
 	if err != nil {
+		scope.Infof("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	}
 
@@ -66,6 +67,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 	}
 	nodeMemoryBytesTotalQueryExpression, err = InternalPromth.WrapQueryExpression(nodeMemoryBytesTotalQueryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
+		scope.Infof("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory usage metrics by node name failed")
 	}
 
@@ -78,6 +80,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 	}
 	nodeMemoryUtilizationQueryExpression, err = InternalPromth.WrapQueryExpression(nodeMemoryUtilizationQueryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
+		scope.Infof("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory usage metrics by node name failed")
 	}
 
@@ -85,16 +88,20 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
+		scope.Infof("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory bytes total by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
+		scope.Infof("metric-ListMetricsByNodeName error response status not success", )
 		return entities, errors.Errorf("list node memory bytes total by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
 	entities, err = response.GetEntities()
 	if err != nil {
+		scope.Infof("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	}
 
+	scope.Infof("metric-ListMetricsByNodeName return %d %v", len(entities), &entities[0] )
 	return entities, nil
 }
 
