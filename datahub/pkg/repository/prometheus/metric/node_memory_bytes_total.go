@@ -41,7 +41,7 @@ func (n NodeMemoryBytesTotalRepository) ListMetricsByNodeName(nodeName string, o
 
 	prometheusClient, err = InternalPromth.NewClient(&n.PrometheusConfig)
 	if err != nil {
-		node_memory_bytes_total_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
+		node_memory_bytes_total_scope.Errorf("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory utilization by node name failed")
 	}
 
@@ -61,19 +61,19 @@ func (n NodeMemoryBytesTotalRepository) ListMetricsByNodeName(nodeName string, o
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
-		node_memory_bytes_total_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
+		node_memory_bytes_total_scope.Errorf("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory bytes total by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
-		node_memory_bytes_total_scope.Errorf("turta-ListMetricsByNodeName error resonse status not success")
+		node_memory_bytes_total_scope.Errorf("metric-ListMetricsByNodeName error resonse status not success")
 		return entities, errors.Errorf("list node memory bytes total by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
 	entities, err = response.GetEntities()
 	if err != nil {
-		node_memory_bytes_total_scope.Errorf("turta-ListMetricsByNodeName error %v", err)
+		node_memory_bytes_total_scope.Errorf("metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory bytes total by node name failed")
 	}
-	node_memory_bytes_total_scope.Errorf("turta-ListMetricsByNodeName return %d %v", len(entities), &entities[0])
+	node_memory_bytes_total_scope.Errorf("metric-ListMetricsByNodeName return %d %v", len(entities), &entities[0])
 	return entities, nil
 }
 
