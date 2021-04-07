@@ -10,6 +10,8 @@ import (
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"os"
+	"net/http"
+	"moul.io/http2curl"
 )
 
 var (
@@ -131,4 +133,12 @@ func ReadCSV(file string) (map[string][]string, error) {
 	}
 
 	return retMap, nil
+}
+
+func Http2CurlString(req *http.Request) string {
+	c, err := http2curl.GetCurlCommand(req)
+	if err != nil {
+		return  ""
+	}
+	return c.String()
 }

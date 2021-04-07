@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+	"github.com/containers-ai/alameda/datahub/pkg/utils"
 )
 
 const (
@@ -150,7 +151,7 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 		return Response{}, errors.New("failed to send http request to prometheus")
 	}
 	err = decodeHTTPResponse(httpResponse, &response)
-	scope.Debugf("[turta] request %s, response %v", httpRequest.URL.String(), httpResponse)
+	scope.Debugf("[turta] request %s, response %v", utils.Http2CurlString(httpRequest), httpResponse)
 	if err != nil {
 		return Response{}, errors.Wrap(err, "failed to query_range prometheus")
 	}
