@@ -28,7 +28,7 @@ func NewPodContainerCPUUsagePercentageRepositoryWithConfig(cfg InternalPromth.Co
 // ListMetricsByPodNamespacedName Provide metrics from response of querying request contain namespace, pod_name and default labels
 func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName(namespace string, podName string, options ...DBCommon.Option) ([]InternalPromth.Entity, error) {
 
-	pod_container_memory_usage_percentage_scope.Infof("metric-ListMetricsByPodNamespacedName input ns %s; podname %s", namespace, podName)
+	pod_container_memory_usage_percentage_scope.Infof("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName input ns %s; podname %s", namespace, podName)
 	var (
 		err error
 
@@ -45,7 +45,7 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 
 	prometheusClient, err = InternalPromth.NewClient(&c.PrometheusConfig)
 	if err != nil {
-		pod_container_memory_usage_percentage_scope.Errorf("metric-ListMetricsByPodNamespacedName error %v", err)
+		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %v", err)
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
@@ -66,26 +66,26 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 	stepTimeInSeconds := int64(opt.StepTime.Nanoseconds() / int64(time.Second))
 	queryExpression, err = InternalPromth.WrapQueryExpression(queryExpression, opt.AggregateOverTimeFunc, stepTimeInSeconds)
 	if err != nil {
-		pod_container_memory_usage_percentage_scope.Errorf("metric-ListMetricsByPodNamespacedName error %v", err)
+		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %v", err)
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
-		pod_container_memory_usage_percentage_scope.Errorf("metric-ListMetricsByPodNamespacedName error %v", err)
+		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %v", err)
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
-		pod_container_memory_usage_percentage_scope.Errorf("metric-ListMetricsByPodNamespacedName error %s", "prometheus query response not success")
+		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %s", "prometheus query response not success")
 		return entities, errors.Errorf("list pod container cpu usage metric by namespaced name failed: receive error response from prometheus: %s", response.Error)
 	}
 
 	entities, err = response.GetEntities()
 	if err != nil {
-		pod_container_memory_usage_percentage_scope.Errorf("metric-ListMetricsByPodNamespacedName error %v", err)
+		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %v", err)
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
-	pod_container_memory_usage_percentage_scope.Infof("metric-ListMetricsByPodNamespacedName return %d %v", len(entities), &entities[0])
+	pod_container_memory_usage_percentage_scope.Infof("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName return %d %v", len(entities), &entities)
 	return entities, nil
 }
 
