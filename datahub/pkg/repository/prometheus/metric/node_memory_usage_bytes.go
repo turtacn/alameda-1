@@ -112,7 +112,7 @@ func (n NodeMemoryUsageBytesRepository) buildNodeMemoryBytesTotalQueryLabelsStri
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemBytes.NodeLabel, nodeName)
+		//queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemBytes.NodeLabel, nodeName)
 	}
 
 	return queryLabelsString
@@ -125,7 +125,7 @@ func (n NodeMemoryUsageBytesRepository) buildNodeMemoryUtilizationQueryLabelsStr
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemUtilization.NodeLabel, nodeName)
+		//queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemUtilization.NodeLabel, nodeName)
 	}
 
 	return queryLabelsString

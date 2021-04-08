@@ -12,7 +12,7 @@ const (
 	// NamespaceLabel Namespace label name in the metric
 	NamespaceLabel = "namespace"
 	// PodLabelName pod label name in the metric
-	PodLabelName = "pod_name"
+	PodLabelName = "pod"
 	// ContainerLabel container label name in the metric
 	ContainerLabel = "container_name"
 )

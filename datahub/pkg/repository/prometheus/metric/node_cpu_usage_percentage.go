@@ -108,7 +108,7 @@ func (n NodeCPUUsagePercentageRepository) buildQueryLabelsStringByNodeName(nodeN
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeCpu.NodeLabel, nodeName)
+		//queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeCpu.NodeLabel, nodeName)
 	}
 
 	return queryLabelsString

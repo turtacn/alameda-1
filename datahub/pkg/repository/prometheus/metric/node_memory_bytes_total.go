@@ -84,7 +84,7 @@ func (n NodeMemoryBytesTotalRepository) buildNodeMemoryBytesTotalQueryLabelsStri
 	)
 
 	if nodeName != "" {
-		queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemBytes.NodeLabel, nodeName)
+		//queryLabelsString += fmt.Sprintf(`%s = "%s"`, EntityPromthNodeMemBytes.NodeLabel, nodeName)
 	}
 
 	return queryLabelsString
