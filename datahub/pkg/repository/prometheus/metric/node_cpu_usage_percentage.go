@@ -81,7 +81,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
 
-	queryExpression := fmt.Sprintf("1000 * %s * %s", queryExpressionSum, queryExpressionAvg)
+	queryExpression := fmt.Sprintf("1000 * scalar(%s) * %s", queryExpressionSum, queryExpressionAvg)
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
