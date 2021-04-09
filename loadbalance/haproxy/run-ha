@@ -1,2 +1,2 @@
-docker rm -f ha-jobmanager
-docker run -d --name ha-jobmanager --restart always --net=host  -v $PWD:/usr/local/etc/haproxy:ro  haproxy
+docker rm -f ha-alameda
+docker run -d --name ha-alameda--restart always --net=host  -v $PWD:/usr/local/etc/haproxy:ro  haproxy
