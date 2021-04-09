@@ -933,7 +933,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "instance:node_cpu_utilisation:rate1m * node:node_num_cpu:sum / scalar(sum(node:node_num_cpu:sum))",
+              "expr": "instance:node_cpu_utilisation:rate1m * scalar(node:node_num_cpu:sum) / scalar(sum(node:node_num_cpu:sum))",
               "format": "time_series",
               "groupBy": [
                 {
@@ -1286,7 +1286,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node:node_disk_utilisation:avg_irate / scalar(:kube_pod_info_node_count:)",
+              "expr": "sum(instance_device:node_disk_io_time_seconds:rate1m / scalar(count(instance_device:node_disk_io_time_seconds:rate1m)))",
               "format": "time_series",
               "groupBy": [
                 {
