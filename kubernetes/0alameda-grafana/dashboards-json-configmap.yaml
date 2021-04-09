@@ -933,7 +933,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node:node_cpu_utilisation:avg1m * node:node_num_cpu:sum / scalar(sum(node:node_num_cpu:sum))",
+              "expr": "instance:node_cpu_utilisation:rate1m * node:node_num_cpu:sum / scalar(sum(node:node_num_cpu:sum))",
               "format": "time_series",
               "groupBy": [
                 {
@@ -1051,7 +1051,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node:node_memory_utilisation:ratio",
+              "expr": "instance:node_memory_utilisation:ratio",
               "format": "time_series",
               "groupBy": [
                 {
@@ -2219,7 +2219,7 @@ data:
           "tableColumn": "",
           "targets": [
             {
-              "expr": "node:node_cpu_utilisation:avg1m{node=\"$node\"} * 100",
+              "expr": "instance:node_cpu_utilisation:rate1m * 100",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -2478,7 +2478,7 @@ data:
           "tableColumn": "",
           "targets": [
             {
-              "expr": "node:node_memory_utilisation:{node=\"$node\"} * 100",
+              "expr": "instance:node_memory_utilisation:ratio * 100",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
