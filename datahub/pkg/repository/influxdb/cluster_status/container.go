@@ -36,6 +36,7 @@ func (containerRepository *ContainerRepository) IsTag(column string) bool {
 
 // NewContainerRepository creates the ContainerRepository instance
 func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
+	scope.Infof("influxdb-NewContainerRepository input %v", influxDBCfg)
 	return &ContainerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -115,7 +116,7 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 	} else {
 		retErr  = err
 	}
-	scope.Infof("influxdb-ListAlamedaContainers return %+v; error %+v", pods, retErr)
+	scope.Infof("influxdb-ListAlamedaContainers return %d %+v; error %+v", len(pods), pods, retErr)
 	return pods, retErr
 }
 

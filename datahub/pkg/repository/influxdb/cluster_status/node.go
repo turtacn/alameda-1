@@ -26,6 +26,7 @@ func (nodeRepository *NodeRepository) IsTag(column string) bool {
 }
 
 func NewNodeRepository(influxDBCfg *InternalInflux.Config) *NodeRepository {
+	scope.Infof("influxdb-NewNodeRepository input %v", influxDBCfg)
 	return &NodeRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -37,7 +38,7 @@ func NewNodeRepository(influxDBCfg *InternalInflux.Config) *NodeRepository {
 
 // AddAlamedaNodes add node information to database
 func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
-	scope.Infof("influxdb-AddAlamedaNodes input %+v", alamedaNodes )
+	scope.Infof("influxdb-AddAlamedaNodes input %d %+v", len(alamedaNodes) ,alamedaNodes )
 	points := []*InfluxClient.Point{}
 	for _, alamedaNode := range alamedaNodes {
 		isInCluster := true
@@ -78,7 +79,7 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 }
 
 func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
-	scope.Infof("influxdb-RemoveAlamedaNodes input %+v", alamedaNodes )
+	scope.Infof("influxdb-RemoveAlamedaNodes input %d %+v", len(alamedaNodes),  alamedaNodes )
 	hasErr := false
 	errMsg := ""
 	for _, alamedaNode := range alamedaNodes {

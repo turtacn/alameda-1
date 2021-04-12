@@ -17,6 +17,7 @@ type ControllerRepository struct {
 }
 
 func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepository {
+	scope.Infof("influxdb-NewControllerRepository input %v", influxDBCfg)
 	return &ControllerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -97,17 +98,19 @@ func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControll
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
+		scope.Infof("influxdb-ListControllers cmd %s, error %v", cmd,  err)
 		return make([]*datahub_v1alpha1.Controller, 0), err
 	}
 
 	influxdbRows := InternalInflux.PackMap(results)
 
 	controllerList := c.getControllersFromInfluxRows(influxdbRows)
+	scope.Infof("influxdb-ListControllers return %d %v", len(controllerList), controllerList)
 	return controllerList, nil
 }
 
 func (c *ControllerRepository) DeleteControllers(in *datahub_v1alpha1.DeleteControllersRequest) error {
-	scope.Infof("influxdb-DeleteControllers input %+v", in )
+	scope.Infof("influxdb-DeleteControllers input %s %+v", in.String(),  in )
 	controllers := in.GetControllers()
 	whereStr := ""
 
@@ -126,6 +129,7 @@ func (c *ControllerRepository) DeleteControllers(in *datahub_v1alpha1.DeleteCont
 
 	_, err := c.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
+		scope.Infof("influxdb-DeleteControllers cmd %s, error %v", cmd, err)
 		return err
 	}
 
