@@ -218,7 +218,7 @@ func (containerRepository *ContainerRepository) ListPodsContainers(pods []*datah
 		}
 	}
 
-	scope.Infof("influxdb-ListPodsContainers return %+v", containerEntities)
+	scope.Infof("influxdb-ListPodsContainers return %d %v", len(containerEntities), containerEntities)
 	return containerEntities, nil
 }
 

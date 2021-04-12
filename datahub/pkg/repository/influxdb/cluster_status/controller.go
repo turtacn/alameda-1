@@ -27,7 +27,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1.Controller) error {
-	scope.Infof("influxdb-CreateControllers input %+v", controllers )
+	scope.Infof("influxdb-CreateControllers input %d %v", len(controllers) ,controllers )
 	points := make([]*InfluxClient.Point, 0)
 	for _, controller := range controllers {
 		controllerNamespace := controller.GetControllerInfo().GetNamespacedName().GetNamespace()
@@ -81,7 +81,7 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1
 }
 
 func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControllersRequest) ([]*datahub_v1alpha1.Controller, error) {
-	scope.Infof("influxdb-ListControllers input %+v", in )
+	scope.Infof("influxdb-ListControllers input %v", in )
 	namespace := in.GetNamespacedName().GetNamespace()
 	name := in.GetNamespacedName().GetName()
 

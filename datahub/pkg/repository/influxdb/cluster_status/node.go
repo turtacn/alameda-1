@@ -121,7 +121,7 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alph
 			}
 		}
 	}
-	scope.Infof("influxdb-ListAlamedaNodes return %+v", nodeEntities )
+	scope.Infof("influxdb-ListAlamedaNodes return %d %v", len(nodeEntities), nodeEntities )
 	return nodeEntities, nil
 }
 
@@ -147,7 +147,7 @@ func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNod
 		}
 	}
 
-	scope.Infof("influxdb-ListNodes return %+v", nodeEntities)
+	scope.Infof("influxdb-ListNodes return %d %v", len(nodeEntities),  nodeEntities)
 	return nodeEntities, nil
 }
 
