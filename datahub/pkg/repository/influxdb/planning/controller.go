@@ -11,7 +11,6 @@ import (
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"time"
-	"golang.org/x/net/html/atom"
 )
 
 type ControllerRepository struct {
