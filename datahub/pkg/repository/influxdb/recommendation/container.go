@@ -29,6 +29,7 @@ type ContainerRepository struct {
 
 // NewContainerRepository creates the ContainerRepository instance
 func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
+	scope.Infof("influxdb-NewContainerRepository input %v", influxDBCfg)
 	return &ContainerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -50,6 +51,7 @@ func (c *ContainerRepository) IsTag(column string) bool {
 
 // CreateContainerRecommendations add containers information container measurement
 func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha1.CreatePodRecommendationsRequest) error {
+	scope.Infof("influxdb-CreateContainerRecommendations input %v", in)
 	podRecommendations := in.GetPodRecommendations()
 	granularity := in.GetGranularity()
 	if granularity == 0 {
@@ -218,6 +220,7 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 	})
 
 	if err != nil {
+		scope.Errorf("influxdb-CreateContainerRecommendations error %v", err)
 		return err
 	}
 	return nil
@@ -227,6 +230,8 @@ func (c *ContainerRepository) CreateContainerRecommendations(in *datahub_v1alpha
 func (c *ContainerRepository) ListContainerRecommendations(in *datahub_v1alpha1.ListPodRecommendationsRequest) ([]*datahub_v1alpha1.PodRecommendation, error) {
 	kind := in.GetKind()
 	granularity := in.GetGranularity()
+
+	scope.Infof("influxdb-ListContainerRecommendations input %v, kind %s, granularity %d ", in, kind, granularity)
 
 	podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
 
@@ -274,9 +279,11 @@ func (c *ContainerRepository) ListContainerRecommendations(in *datahub_v1alpha1.
 
 	podRecommendations, err := c.queryRecommendation(cmd, granularity)
 	if err != nil {
+		scope.Errorf("influxdb-ListContainerRecommendations error %v", err)
 		return podRecommendations, err
 	}
 
+	scope.Infof("influxdb-ListContainerRecommendations return %d %v ", len(podRecommendations), podRecommendations)
 	return podRecommendations, nil
 }
 
@@ -284,6 +291,7 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alph
 	kind := in.GetKind()
 	granularity := in.GetGranularity()
 
+	scope.Infof("influxdb-ListAvailablePodRecommendations input %v, kind %s, granularity %d ", in, kind, granularity)
 	podRecommendations := make([]*datahub_v1alpha1.PodRecommendation, 0)
 
 	influxdbStatement := InternalInflux.Statement{
@@ -330,9 +338,11 @@ func (c *ContainerRepository) ListAvailablePodRecommendations(in *datahub_v1alph
 
 	podRecommendations, err := c.queryRecommendation(cmd, granularity)
 	if err != nil {
+		scope.Errorf("influxdb-ListAvailablePodRecommendations error %v", err)
 		return podRecommendations, err
 	}
 
+	scope.Infof("influxdb-ListAvailablePodRecommendations return %d %v", len(podRecommendations), podRecommendations)
 	return podRecommendations, nil
 }
 

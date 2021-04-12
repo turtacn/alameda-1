@@ -29,6 +29,7 @@ type ContainerRepository struct {
 
 // NewContainerRepository creates the ContainerRepository instance
 func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerRepository {
+	scope.Infof("influxdb-NewContainerRepository input %v", influxDBCfg)
 	return &ContainerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -50,6 +51,7 @@ func (c *ContainerRepository) IsTag(column string) bool {
 
 // CreateContainerPlannings add containers plannings
 func (c *ContainerRepository) CreateContainerPlannings(in *DatahubV1alpha1.CreatePodPlanningsRequest) error {
+	scope.Infof("influxdb-CreateContainerPlannings input %v", in)
 	podPlannings := in.GetPodPlannings()
 	granularity := in.GetGranularity()
 	if granularity == 0 {
@@ -219,6 +221,7 @@ func (c *ContainerRepository) CreateContainerPlannings(in *DatahubV1alpha1.Creat
 	})
 
 	if err != nil {
+		scope.Errorf("influxdb-CreateContainerPlannings error %v",err)
 		return err
 	}
 	return nil
@@ -226,6 +229,7 @@ func (c *ContainerRepository) CreateContainerPlannings(in *DatahubV1alpha1.Creat
 
 // ListContainerPlannings list container plannings
 func (c *ContainerRepository) ListContainerPlannings(in *DatahubV1alpha1.ListPodPlanningsRequest) ([]*DatahubV1alpha1.PodPlanning, error) {
+	scope.Infof("influxdb-ListContainerPlannings input %v", in)
 	kind := in.GetKind()
 	granularity := in.GetGranularity()
 
@@ -275,9 +279,11 @@ func (c *ContainerRepository) ListContainerPlannings(in *DatahubV1alpha1.ListPod
 
 	podPlannings, err := c.queryPlannings(cmd, granularity)
 	if err != nil {
+		scope.Errorf("influxdb-ListContainerPlannings error %v", err)
 		return podPlannings, err
 	}
 
+	scope.Infof("influxdb-ListContainerPlannings return %d %v", len(podPlannings),podPlannings)
 	return podPlannings, nil
 }
 

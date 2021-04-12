@@ -8,6 +8,11 @@ import (
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+)
+
+var (
+	scope  = log.RegisterScope("score_db_measurements", "", 0)
 )
 
 // SimulatedSchedulingScoreRepository Repository of simulated_scheduling_score data
@@ -17,6 +22,7 @@ type SimulatedSchedulingScoreRepository struct {
 
 // NewRepositoryWithConfig New SimulatedSchedulingScoreRepository with influxdb configuration
 func NewRepositoryWithConfig(cfg InternalInflux.Config) SimulatedSchedulingScoreRepository {
+	scope.Infof("influxdb-NewRepositoryWithConfig input %v", &cfg)
 	return SimulatedSchedulingScoreRepository{
 		influxDB: InternalInflux.NewClient(&cfg),
 	}
@@ -25,6 +31,7 @@ func NewRepositoryWithConfig(cfg InternalInflux.Config) SimulatedSchedulingScore
 // ListScoresByRequest List scores from influxDB
 func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request DaoScore.ListRequest) ([]*EntityInfluxScore.SimulatedSchedulingScoreEntity, error) {
 
+	scope.Infof("influxdb-ListScoresByRequest input %v", &request)
 	var (
 		err error
 
@@ -53,6 +60,7 @@ func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request DaoScore
 
 	results, err = r.influxDB.QueryDB(cmd, string(RepoInflux.Score))
 	if err != nil {
+		scope.Errorf("influxdb-ListScoresByRequest error %v", results)
 		return scores, errors.Wrap(err, "list scores failed")
 	}
 
@@ -64,6 +72,7 @@ func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request DaoScore
 		}
 	}
 
+	scope.Infof("influxdb-ListScoresByRequest return %d %v", len(scores), scores)
 	return scores, nil
 
 }
@@ -71,6 +80,7 @@ func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request DaoScore
 // CreateScores Create simulated_scheduling_score data points into influxdb
 func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*DaoScore.SimulatedSchedulingScore) error {
 
+	scope.Infof("influxdb-CreateScores input %d %v", len(scores),  scores)
 	var (
 		err error
 
@@ -90,6 +100,7 @@ func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*DaoScore.Simu
 
 		point, err := entity.InfluxDBPoint(string(SimulatedSchedulingScore))
 		if err != nil {
+			scope.Errorf("influxdb-CreateScores error %v", err)
 			return errors.Wrap(err, "create scores failed")
 		}
 		points = append(points, point)
@@ -99,6 +110,7 @@ func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*DaoScore.Simu
 		Database: string(RepoInflux.Score),
 	})
 	if err != nil {
+		scope.Errorf("influxdb-CreateScores error %v", err)
 		return errors.Wrap(err, "create scores failed")
 	}
 

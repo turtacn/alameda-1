@@ -16,6 +16,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/containers-ai/alameda/pkg/utils/log"
+)
+
+
+var (
+	scope  = log.RegisterScope("prediction_db_measurements", "", 0)
 )
 
 type NodeRepository struct {
@@ -23,6 +29,7 @@ type NodeRepository struct {
 }
 
 func NewNodeRepositoryWithConfig(influxDBCfg InternalInflux.Config) *NodeRepository {
+	scope.Infof("influxdb-NewNodeRepositoryWithConfig input %v", influxDBCfg)
 	return &NodeRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -34,6 +41,7 @@ func NewNodeRepositoryWithConfig(influxDBCfg InternalInflux.Config) *NodeReposit
 
 func (r *NodeRepository) CreateNodePrediction(in *datahub_v1alpha1.CreateNodePredictionsRequest) error {
 
+	scope.Infof("influxdb-CreateNodePrediction input %v", in)
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, nodePrediction := range in.GetNodePredictions() {
@@ -49,6 +57,7 @@ func (r *NodeRepository) CreateNodePrediction(in *datahub_v1alpha1.CreateNodePre
 		Database: string(RepoInflux.Prediction),
 	})
 	if err != nil {
+		scope.Errorf("influxdb-CreateNodePrediction error %v", err)
 		return errors.Wrap(err, "create node prediction failed")
 	}
 
@@ -104,6 +113,9 @@ func (r *NodeRepository) appendMetricDataToPoints(kind Metric.ContainerMetricKin
 }
 
 func (r *NodeRepository) ListNodePredictionsByRequest(request DaoPrediction.ListNodePredictionsRequest) ([]*datahub_v1alpha1.NodePrediction, error) {
+
+	scope.Infof("influxdb-ListNodePredictionsByRequest input %v", request)
+
 	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
 
 	queryCondition := DBCommon.QueryCondition{
@@ -129,12 +141,14 @@ func (r *NodeRepository) ListNodePredictionsByRequest(request DaoPrediction.List
 
 	results, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Prediction))
 	if err != nil {
+		scope.Errorf("influxdb-ListNodePredictionsByRequest error %v", err)
 		return []*datahub_v1alpha1.NodePrediction{}, errors.Wrap(err, "list node prediction failed")
 	}
 
 	rows := InternalInflux.PackMap(results)
 	nodePredictions := r.getNodePredictionsFromInfluxRows(rows)
 
+	scope.Infof("influxdb-ListNodePredictionsByRequest return %d %v",  len(nodePredictions), nodePredictions)
 	return nodePredictions, nil
 }
 

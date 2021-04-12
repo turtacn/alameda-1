@@ -11,6 +11,7 @@ import (
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"strconv"
 	"time"
+	"golang.org/x/net/html/atom"
 )
 
 type ControllerRepository struct {
@@ -18,6 +19,7 @@ type ControllerRepository struct {
 }
 
 func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepository {
+	scope.Infof("influxdb-NewControllerRepository input %v", influxDBCfg)
 	return &ControllerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -28,6 +30,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*DatahubV1alpha1.ControllerPlanning) error {
+	scope.Infof("influxdb-CreateControllerPlannings input %d %v", len(controllerPlannings) ,controllerPlannings)
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, controllerPlanning := range controllerPlannings {
@@ -104,10 +107,12 @@ func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*
 }
 
 func (c *ControllerRepository) ListControllerPlannings(in *DatahubV1alpha1.ListControllerPlanningsRequest) ([]*DatahubV1alpha1.ControllerPlanning, error) {
+
 	namespace := in.GetNamespacedName().GetNamespace()
 	name := in.GetNamespacedName().GetName()
 	ctlPlanningType := in.GetCtlPlanningType()
 
+	scope.Infof("influxdb-ListControllerPlannings input namespace %s, name %s, ctlplanningtype %d",  namespace, name, ctlPlanningType)
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
@@ -127,11 +132,14 @@ func (c *ControllerRepository) ListControllerPlannings(in *DatahubV1alpha1.ListC
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Planning))
 	if err != nil {
+		scope.Errorf("influxdb-ListControllerPlannings error %v", err)
 		return make([]*DatahubV1alpha1.ControllerPlanning, 0), err
 	}
 
 	influxdbRows := InternalInflux.PackMap(results)
 	recommendations := c.getControllersPlanningsFromInfluxRows(influxdbRows)
+
+	scope.Infof("influxdb-ListControllerPlannings return %d %v", len(recommendations), recommendations)
 
 	return recommendations, nil
 }

@@ -18,6 +18,7 @@ type ControllerRepository struct {
 }
 
 func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepository {
+	scope.Infof("influxdb-NewControllerRepository input %v", influxDBCfg)
 	return &ControllerRepository{
 		influxDB: &InternalInflux.InfluxClient{
 			Address:  influxDBCfg.Address,
@@ -28,6 +29,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllerRecommendations(controllerRecommendations []*datahub_v1alpha1.ControllerRecommendation) error {
+	scope.Infof("influxdb-CreateControllerRecommendations input %d %v", len(controllerRecommendations),  controllerRecommendations)
 	points := make([]*InfluxClient.Point, 0)
 	for _, conrollerRecommendation := range controllerRecommendations {
 		recommendedType := conrollerRecommendation.GetRecommendedType()
@@ -105,6 +107,7 @@ func (c *ControllerRepository) ListControllerRecommendations(in *datahub_v1alpha
 	name := in.GetNamespacedName().GetName()
 	recommendationType := in.GetRecommendedType()
 
+	scope.Infof("influxdb-ListControllerRecommendations input %v, namespace %s, name %s, recommendationtype %d", in , namespace, name, in)
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),
@@ -124,11 +127,14 @@ func (c *ControllerRepository) ListControllerRecommendations(in *datahub_v1alpha
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.Recommendation))
 	if err != nil {
+		scope.Errorf("influxdb-ListControllerRecommendations error %v", err)
 		return make([]*datahub_v1alpha1.ControllerRecommendation, 0), err
 	}
 
 	influxdbRows := InternalInflux.PackMap(results)
 	recommendations := c.getControllersRecommendationsFromInfluxRows(influxdbRows)
+
+	scope.Infof("influxdb-ListControllerRecommendations return %d %v", len(recommendations), recommendations)
 
 	return recommendations, nil
 }
