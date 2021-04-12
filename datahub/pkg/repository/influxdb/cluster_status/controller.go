@@ -81,7 +81,7 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1
 }
 
 func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControllersRequest) ([]*datahub_v1alpha1.Controller, error) {
-	scope.Infof("influxdb-ListControllers input %v", in )
+	scope.Infof("influxdb-ListControllers input %s", in.String() )
 	namespace := in.GetNamespacedName().GetNamespace()
 	name := in.GetNamespacedName().GetName()
 
