@@ -2283,7 +2283,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "topk(5, sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[2m])\r\n* on (namespace, pod) group_left (node) node_namespace_pod:kube_pod_info:{node=\"$node\"}))  by (pod))",
+              "expr": "topk(5, sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[2m])\r\n* on (namespace, pod) group_left (node) node_namespace_pod:kube_pod_info:{node=\"$node\"})  by (pod))",
               "format": "time_series",
               "instant": false,
               "interval": "",
