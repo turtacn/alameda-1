@@ -1758,8 +1758,8 @@ data:
     limit\",\r\n          \"color\": \"#f2c96d\",\r\n          \"steppedLine\": true\r\n
     \       }\r\n      ],\r\n      \"spaceLength\": 10,\r\n      \"stack\": false,\r\n
     \     \"steppedLine\": false,\r\n      \"targets\": [\r\n        {\r\n          \"datasource\":
-    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name=~\\\"$container\\\", container_name!=\\\"\\\"}[30s]))\",\r\n
+    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(container_cpu_usage_seconds_total{namespace=\\\"$ns\\\",
+    pod=~\\\"$pod\\\", container=~\\\"$container\\\", container!=\\\"\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"intervalFactor\": 1,\r\n          \"legendFormat\": \"Observation
     : CPU usage\",\r\n          \"refId\": \"C\"\r\n        },\r\n        {\r\n          \"alias\":
@@ -3201,8 +3201,8 @@ data:
     lowerbound (in 1d)\",\r\n          \"lines\": false\r\n        }\r\n      ],\r\n
     \     \"spaceLength\": 10,\r\n      \"stack\": false,\r\n      \"steppedLine\":
     false,\r\n      \"targets\": [\r\n        {\r\n          \"datasource\": \"Prometheus\",\r\n
-    \         \"expr\": \"1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\\\"$ns\\\",
-    pod_name=\\\"$pod\\\", container_name=\\\"$container\\\", container_name!=\\\"\\\"}[3600s])\",\r\n
+    \         \"expr\": \"1000 * max_over_time(container_cpu_usage_seconds_total{namespace=\\\"$ns\\\",
+    pod=\\\"$pod\\\", container=\\\"$container\\\", container!=\\\"\\\"}[3600s])\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"interval\": \"\",\r\n          \"intervalFactor\": 1,\r\n
     \         \"legendFormat\": \"Observation : CPU Usage\",\r\n          \"refId\":
@@ -4162,8 +4162,8 @@ data:
     \           },\r\n            {\r\n              \"condition\": \"AND\",\r\n              \"key\":
     \"type\",\r\n              \"operator\": \"=\",\r\n              \"value\": \"cpu\"\r\n
     \           }\r\n          ]\r\n        },\r\n        {\r\n          \"datasource\":
-    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name!=\\\"\\\", container_name!=\\\"POD\\\"}[30s]))\",\r\n
+    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(container_cpu_usage_seconds_total{namespace=~\\\"$ns\\\",
+    pod=~\\\"$pod\\\", container!=\\\"\\\", container!=\\\"POD\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"interval\": \"\",\r\n          \"intervalFactor\": 1,\r\n
     \         \"legendFormat\": \"Observation : CPU Usage\",\r\n          \"refId\":
@@ -4951,8 +4951,8 @@ data:
     \         \"dashLength\": 5,\r\n          \"dashes\": true,\r\n          \"spaceLength\":
     4\r\n        }\r\n      ],\r\n      \"spaceLength\": 10,\r\n      \"stack\": false,\r\n
     \     \"steppedLine\": false,\r\n      \"targets\": [\r\n        {\r\n          \"datasource\":
-    \"Prometheus\",\r\n          \"expr\": \"1000 * max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\\\"$ns\\\",
-    pod_name=\\\"$pod\\\", container_name=\\\"$container\\\", container_name!=\\\"\\\"}[30s])\",\r\n
+    \"Prometheus\",\r\n          \"expr\": \"1000 * max_over_time(container_cpu_usage_seconds_total{namespace=\\\"$ns\\\",
+    pod=\\\"$pod\\\", container=\\\"$container\\\", container!=\\\"\\\"}[30s])\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"interval\": \"30s\",\r\n          \"intervalFactor\": 1,\r\n
     \         \"legendFormat\": \"Observation : CPU Usage\",\r\n          \"refId\":
