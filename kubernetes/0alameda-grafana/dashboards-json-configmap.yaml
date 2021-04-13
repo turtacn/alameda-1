@@ -1873,7 +1873,7 @@ data:
     true\r\n        }\r\n      ],\r\n      \"spaceLength\": 10,\r\n      \"stack\":
     false,\r\n      \"steppedLine\": false,\r\n      \"targets\": [\r\n        {\r\n
     \         \"datasource\": \"Prometheus\",\r\n          \"expr\": \"sum(max_over_time(container_memory_usage_bytes{namespace=\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name=~\\\"$container\\\", container_name!=\\\"\\\"}[30s]))\",\r\n
+    pod=~\\\"$pod\\\", container=~\\\"$container\\\", container!=\\\"\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"intervalFactor\": 1,\r\n          \"legendFormat\": \"Observation
     : memory usage\",\r\n          \"refId\": \"C\"\r\n        },\r\n        {\r\n
@@ -2899,7 +2899,7 @@ data:
               "refId": "B"
             },
             {
-              "expr": "sum(container_memory_usage_bytes{container_name!=\"POD\", container_name!=\"\"}\r\n* on (namespace, pod_name) group_left (node) label_replace(node_namespace_pod:kube_pod_info:{node=\"$node\"}, \"pod_name\", \"$1\", \"pod\", \"(.*)\")\r\n) by (pod_name)",
+              "expr": "sum(container_memory_usage_bytes{container!=\"POD\", container!=\"\"}\r\n* on (namespace, pod) group_left (node) node_namespace_pod:kube_pod_info:{node=\"$node\"}) by (pod)",
               "format": "table",
               "hide": false,
               "instant": true,
@@ -3368,7 +3368,7 @@ data:
     false\r\n        }\r\n      ],\r\n      \"spaceLength\": 10,\r\n      \"stack\":
     false,\r\n      \"steppedLine\": false,\r\n      \"targets\": [\r\n        {\r\n
     \         \"datasource\": \"Prometheus\",\r\n          \"expr\": \"max_over_time(container_memory_usage_bytes{namespace=\\\"$ns\\\",
-    pod_name=\\\"$pod\\\", container_name=\\\"$container\\\", container_name!=\\\"\\\"}[3600s])\",\r\n
+    pod=\\\"$pod\\\", container=\\\"$container\\\", container!=\\\"\\\"}[3600s])\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"interval\": \"\",\r\n          \"intervalFactor\": 1,\r\n
     \         \"legendFormat\": \"Observation: memory usage\",\r\n          \"refId\":
@@ -3853,7 +3853,7 @@ data:
     \"type\",\r\n              \"operator\": \"=\",\r\n              \"value\": \"cpu\"\r\n
     \           }\r\n          ]\r\n        },\r\n        {\r\n          \"datasource\":
     \"Prometheus\",\r\n          \"expr\": \"sum(max_over_time(container_memory_usage_bytes{namespace=\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name!=\\\"\\\", container_name!=\\\"POD\\\"}[30s]))\",\r\n
+    pod=~\\\"$pod\\\", container!=\\\"\\\", container!=\\\"POD\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"instant\": false,\r\n          \"intervalFactor\":
     1,\r\n          \"legendFormat\": \"Observation: memory usage\",\r\n          \"refId\":
     \"C\"\r\n        },\r\n        {\r\n          \"alias\": \"Recommendation: memory
@@ -4250,7 +4250,7 @@ data:
     \"type\",\r\n              \"operator\": \"=\",\r\n              \"value\": \"cpu\"\r\n
     \           }\r\n          ]\r\n        },\r\n        {\r\n          \"datasource\":
     \"Prometheus\",\r\n          \"expr\": \"sum(max_over_time(container_memory_usage_bytes{namespace=~\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name!=\\\"\\\", container_name!=\\\"POD\\\"}[30s]))\",\r\n
+    pod=~\\\"$pod\\\", container!=\\\"\\\", container!=\\\"POD\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"instant\": false,\r\n          \"interval\":
     \"\",\r\n          \"intervalFactor\": 1,\r\n          \"legendFormat\": \"Observation:
     memory usage\",\r\n          \"refId\": \"C\"\r\n        },\r\n        {\r\n          \"alias\":
@@ -4644,7 +4644,7 @@ data:
     \"type\",\r\n              \"operator\": \"=\",\r\n              \"value\": \"cpu\"\r\n
     \           }\r\n          ]\r\n        },\r\n        {\r\n          \"datasource\":
     \"Prometheus\",\r\n          \"expr\": \"sum(max_over_time(container_memory_usage_bytes{namespace=~\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name!=\\\"\\\", container_name!=\\\"POD\\\"}[30s]))\",\r\n
+    pod=~\\\"$pod\\\", container!=\\\"\\\", container!=\\\"POD\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"instant\": false,\r\n          \"intervalFactor\":
     1,\r\n          \"legendFormat\": \"Observation: memory usage\",\r\n          \"refId\":
     \"C\"\r\n        },\r\n        {\r\n          \"alias\": \"Recommendation: memory
@@ -5127,7 +5127,7 @@ data:
     \     ],\r\n      \"spaceLength\": 10,\r\n      \"stack\": false,\r\n      \"steppedLine\":
     false,\r\n      \"targets\": [\r\n        {\r\n          \"datasource\": \"Prometheus\",\r\n
     \         \"expr\": \"max_over_time(container_memory_usage_bytes{namespace=\\\"$ns\\\",
-    pod_name=\\\"$pod\\\", container_name=\\\"$container\\\", container_name!=\\\"\\\"}[30s])\",\r\n
+    pod=\\\"$pod\\\", container=\\\"$container\\\", container!=\\\"\\\"}[30s])\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"interval\": \"30s\",\r\n          \"intervalFactor\": 1,\r\n
     \         \"legendFormat\": \"Observation: memory usage\",\r\n          \"refId\":
