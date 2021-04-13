@@ -2875,7 +2875,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "sum(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{container_name!=\"\",container_name!=\"POD\",pod_name!=\"\"}\r\n* on (namespace, pod_name) group_left (node) label_replace(node_namespace_pod:kube_pod_info:{node=\"$node\"}, \"pod_name\", \"$1\", \"pod\", \"(.*)\")) by (pod_name)",
+              "expr": "sum(container_cpu_usage_seconds_total{container!=\"\",container!=\"POD\",pod!=\"\"}\r\n* on (namespace, pod) group_left (node) node_namespace_pod:kube_pod_info:{node=\"$node\"}) by (pod_name)",
               "format": "table",
               "hide": false,
               "instant": true,
@@ -3766,8 +3766,8 @@ data:
     \           },\r\n            {\r\n              \"condition\": \"AND\",\r\n              \"key\":
     \"type\",\r\n              \"operator\": \"=\",\r\n              \"value\": \"cpu\"\r\n
     \           }\r\n          ]\r\n        },\r\n        {\r\n          \"datasource\":
-    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name!=\\\"\\\", container_name!=\\\"POD\\\"}[30s]))\",\r\n
+    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(container_cpu_usage_seconds_total{namespace=\\\"$ns\\\",
+    pod=~\\\"$pod\\\", container!=\\\"\\\", container!=\\\"POD\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"intervalFactor\": 1,\r\n          \"legendFormat\": \"Observation
     : CPU Usage\",\r\n          \"refId\": \"C\"\r\n        },\r\n        {\r\n          \"alias\":
@@ -4557,8 +4557,8 @@ data:
     \           },\r\n            {\r\n              \"condition\": \"AND\",\r\n              \"key\":
     \"type\",\r\n              \"operator\": \"=\",\r\n              \"value\": \"cpu\"\r\n
     \           }\r\n          ]\r\n        },\r\n        {\r\n          \"datasource\":
-    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{namespace=~\\\"$ns\\\",
-    pod_name=~\\\"$pod\\\", container_name!=\\\"\\\", container_name!=\\\"POD\\\"}[30s]))\",\r\n
+    \"Prometheus\",\r\n          \"expr\": \"1000 * sum(max_over_time(container_cpu_usage_seconds_total{namespace=~\\\"$ns\\\",
+    pod=~\\\"$pod\\\", container!=\\\"\\\", container!=\\\"POD\\\"}[30s]))\",\r\n
     \         \"format\": \"time_series\",\r\n          \"hide\": false,\r\n          \"instant\":
     false,\r\n          \"intervalFactor\": 1,\r\n          \"legendFormat\": \"Observation
     : CPU Usage\",\r\n          \"refId\": \"C\"\r\n        },\r\n        {\r\n          \"alias\":
