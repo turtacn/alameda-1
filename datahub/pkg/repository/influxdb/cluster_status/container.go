@@ -116,7 +116,11 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 	} else {
 		retErr  = err
 	}
-	scope.Infof("influxdb-ListAlamedaContainers return %d %+v; error %+v", len(pods), pods, retErr)
+	if retErr != nil {
+		scope.Infof("influxdb-ListAlamedaContainers error %v", retErr)
+	}else {
+		scope.Infof("influxdb-ListAlamedaContainers return %d %+v", len(pods), pods)
+	}
 	return pods, retErr
 }
 
