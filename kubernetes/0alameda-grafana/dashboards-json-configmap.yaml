@@ -950,7 +950,7 @@ data:
                 }
               ],
               "intervalFactor": 2,
-              "legendFormat": "{{node}}",
+              "legendFormat": "{{instance}}",
               "orderByTime": "ASC",
               "policy": "default",
               "refId": "A",
@@ -1068,7 +1068,7 @@ data:
                 }
               ],
               "intervalFactor": 2,
-              "legendFormat": "{{node}}",
+              "legendFormat": "{{instance}}",
               "orderByTime": "ASC",
               "policy": "default",
               "refId": "A",
@@ -1303,7 +1303,7 @@ data:
                 }
               ],
               "intervalFactor": 2,
-              "legendFormat": "{{node}}",
+              "legendFormat": "{{instance}}",
               "orderByTime": "ASC",
               "policy": "default",
               "refId": "A",
