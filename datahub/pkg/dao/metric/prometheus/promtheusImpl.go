@@ -9,9 +9,9 @@ import (
 	RepoPromthMetric "github.com/containers-ai/alameda/datahub/pkg/repository/prometheus/metric"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 	"sync"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
 var (
@@ -82,7 +82,7 @@ func (p *prometheusMetricDAOImpl) ListPodMetrics(req metric.ListPodMetricsReques
 // ListNodesMetric Method implementation of MetricsDAO
 func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequest) (metric.NodesMetricMap, error) {
 
-	scope.Infof("turta-ListNodesMetric input %v", &req)
+	scope.Infof("dao-metrics-ListNodesMetric input %v", &req)
 	var (
 		wg             = sync.WaitGroup{}
 		nodeNames      []string
@@ -121,14 +121,14 @@ func (p *prometheusMetricDAOImpl) ListNodesMetric(req metric.ListNodeMetricsRequ
 	select {
 	case _ = <-done:
 	case err := <-errChan:
-		scope.Infof("turta-ListNodesMetric error %v", err)
+		scope.Infof("dao-metric-ListNodesMetric error %v", err)
 		return metric.NodesMetricMap{}, errors.Wrap(err, "list nodes metrics failed")
 	}
 
 	ptrNodesMetricMap.SortByTimestamp(req.QueryCondition.TimestampOrder)
 	ptrNodesMetricMap.Limit(req.QueryCondition.Limit)
 
-	scope.Infof("turta-ListNodesMetric return %d %v", len(*ptrNodesMetricMap),ptrNodesMetricMap )
+	scope.Infof("dao-metric-ListNodesMetric return %d %v", len(*ptrNodesMetricMap), ptrNodesMetricMap)
 	return *ptrNodesMetricMap, nil
 }
 
