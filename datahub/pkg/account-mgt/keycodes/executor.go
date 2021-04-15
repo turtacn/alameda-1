@@ -47,10 +47,8 @@ func (c *KeycodeExecutor) GetKeycode(keycode string) (*Keycode, error) {
 	result := KeycodeResult{
 		Data: &Keycode{
 			Keycode: keycode,
-
 		},
 	}
-
 
 	return result.Data, nil
 }

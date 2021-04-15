@@ -221,7 +221,7 @@ func (c *ContainerRepository) CreateContainerPlannings(in *DatahubV1alpha1.Creat
 	})
 
 	if err != nil {
-		scope.Errorf("influxdb-CreateContainerPlannings error %v",err)
+		scope.Errorf("influxdb-CreateContainerPlannings error %v", err)
 		return err
 	}
 	return nil
@@ -283,7 +283,7 @@ func (c *ContainerRepository) ListContainerPlannings(in *DatahubV1alpha1.ListPod
 		return podPlannings, err
 	}
 
-	scope.Infof("influxdb-ListContainerPlannings return %d %v", len(podPlannings),podPlannings)
+	scope.Infof("influxdb-ListContainerPlannings return %d %v", len(podPlannings), podPlannings)
 	return podPlannings, nil
 }
 

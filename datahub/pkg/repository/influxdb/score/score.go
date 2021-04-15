@@ -6,13 +6,13 @@ import (
 	RepoInflux "github.com/containers-ai/alameda/datahub/pkg/repository/influxdb"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
 	"github.com/pkg/errors"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
 var (
-	scope  = log.RegisterScope("score_db_measurements", "", 0)
+	scope = log.RegisterScope("score_db_measurements", "", 0)
 )
 
 // SimulatedSchedulingScoreRepository Repository of simulated_scheduling_score data
@@ -80,7 +80,7 @@ func (r SimulatedSchedulingScoreRepository) ListScoresByRequest(request DaoScore
 // CreateScores Create simulated_scheduling_score data points into influxdb
 func (r SimulatedSchedulingScoreRepository) CreateScores(scores []*DaoScore.SimulatedSchedulingScore) error {
 
-	scope.Infof("influxdb-CreateScores input %d %v", len(scores),  scores)
+	scope.Infof("influxdb-CreateScores input %d %v", len(scores), scores)
 	var (
 		err error
 

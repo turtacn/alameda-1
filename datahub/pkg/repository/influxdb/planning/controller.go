@@ -29,7 +29,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllerPlannings(controllerPlannings []*DatahubV1alpha1.ControllerPlanning) error {
-	scope.Infof("influxdb-CreateControllerPlannings input %d %v", len(controllerPlannings) ,controllerPlannings)
+	scope.Infof("influxdb-CreateControllerPlannings input %d %v", len(controllerPlannings), controllerPlannings)
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, controllerPlanning := range controllerPlannings {
@@ -111,7 +111,7 @@ func (c *ControllerRepository) ListControllerPlannings(in *DatahubV1alpha1.ListC
 	name := in.GetNamespacedName().GetName()
 	ctlPlanningType := in.GetCtlPlanningType()
 
-	scope.Infof("influxdb-ListControllerPlannings input namespace %s, name %s, ctlplanningtype %d",  namespace, name, ctlPlanningType)
+	scope.Infof("influxdb-ListControllerPlannings input namespace %s, name %s, ctlplanningtype %d", namespace, name, ctlPlanningType)
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),

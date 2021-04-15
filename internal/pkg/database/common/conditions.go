@@ -79,12 +79,12 @@ func BuildQueryCondition(condition *Common.QueryCondition) QueryCondition {
 	}
 
 	queryCondition = QueryCondition{
-		StartTime:      queryStartTime,
-		EndTime:        queryEndTime,
-		Timeout:        queryTimeout,
-		StepTime:       queryStepTime,
-		TimestampOrder: queryTimestampOrder,
-		Limit:          queryLimit,
+		StartTime:                 queryStartTime,
+		EndTime:                   queryEndTime,
+		Timeout:                   queryTimeout,
+		StepTime:                  queryStepTime,
+		TimestampOrder:            queryTimestampOrder,
+		Limit:                     queryLimit,
 		AggregateOverTimeFunction: aggregateFunc,
 	}
 
@@ -97,11 +97,11 @@ func BuildQueryConditionV1(condition *DatahubV1alpha1.QueryCondition) *QueryCond
 	stepTime, _ := ptypes.Duration(condition.GetTimeRange().GetStep())
 
 	queryCondition := QueryCondition{
-		StartTime: &startTime,
-		EndTime: &endTime,
-		StepTime: &stepTime,
+		StartTime:      &startTime,
+		EndTime:        &endTime,
+		StepTime:       &stepTime,
 		TimestampOrder: Order(condition.GetOrder()),
-		Limit: int(condition.GetLimit()),
+		Limit:          int(condition.GetLimit()),
 	}
 
 	return &queryCondition

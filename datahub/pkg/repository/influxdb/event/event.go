@@ -32,7 +32,7 @@ func NewEventRepository(influxDBCfg *InternalInflux.Config) *EventRepository {
 }
 
 func (e *EventRepository) CreateEvents(in *datahub_v1alpha1.CreateEventsRequest) error {
-	scope.Infof("influxdb-CreateEvents input %v",in)
+	scope.Infof("influxdb-CreateEvents input %v", in)
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, event := range in.GetEvents() {
@@ -77,7 +77,7 @@ func (e *EventRepository) CreateEvents(in *datahub_v1alpha1.CreateEventsRequest)
 }
 
 func (e *EventRepository) ListEvents(in *datahub_v1alpha1.ListEventsRequest) ([]*datahub_v1alpha1.Event, error) {
-	scope.Infof("influxdb-ListEvents input %v",in)
+	scope.Infof("influxdb-ListEvents input %v", in)
 	idList := in.GetId()
 	clusterIdList := in.GetClusterId()
 

@@ -1,8 +1,8 @@
 package errors
 
 import (
-	"strconv"
 	"fmt"
+	"strconv"
 )
 
 func NewError(id int, args ...interface{}) *InternalError {

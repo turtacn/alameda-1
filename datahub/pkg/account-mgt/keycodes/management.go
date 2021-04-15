@@ -204,8 +204,7 @@ func (c *KeycodeMgt) GetStatus() int {
 	return c.Status.GetStatus()
 }
 
-
-func (c *KeycodeMgt) refresh(force bool) error {// NOTE: DO GET KeycodeMutex lock before using this function
+func (c *KeycodeMgt) refresh(force bool) error { // NOTE: DO GET KeycodeMutex lock before using this function
 	return nil
 }
 

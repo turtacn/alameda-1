@@ -29,7 +29,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllerRecommendations(controllerRecommendations []*datahub_v1alpha1.ControllerRecommendation) error {
-	scope.Infof("influxdb-CreateControllerRecommendations input %d %v", len(controllerRecommendations),  controllerRecommendations)
+	scope.Infof("influxdb-CreateControllerRecommendations input %d %v", len(controllerRecommendations), controllerRecommendations)
 	points := make([]*InfluxClient.Point, 0)
 	for _, conrollerRecommendation := range controllerRecommendations {
 		recommendedType := conrollerRecommendation.GetRecommendedType()
@@ -107,7 +107,7 @@ func (c *ControllerRepository) ListControllerRecommendations(in *datahub_v1alpha
 	name := in.GetNamespacedName().GetName()
 	recommendationType := in.GetRecommendedType()
 
-	scope.Infof("influxdb-ListControllerRecommendations input %v, namespace %s, name %s, recommendationtype %d", in , namespace, name, in)
+	scope.Infof("influxdb-ListControllerRecommendations input %v, namespace %s, name %s, recommendationtype %d", in, namespace, name, in)
 	influxdbStatement := InternalInflux.Statement{
 		Measurement:    Controller,
 		QueryCondition: DBCommon.BuildQueryConditionV1(in.GetQueryCondition()),

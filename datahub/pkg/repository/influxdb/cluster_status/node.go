@@ -38,7 +38,7 @@ func NewNodeRepository(influxDBCfg *InternalInflux.Config) *NodeRepository {
 
 // AddAlamedaNodes add node information to database
 func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
-	scope.Infof("influxdb-AddAlamedaNodes input %d %+v", len(alamedaNodes) ,alamedaNodes )
+	scope.Infof("influxdb-AddAlamedaNodes input %d %+v", len(alamedaNodes), alamedaNodes)
 	points := []*InfluxClient.Point{}
 	for _, alamedaNode := range alamedaNodes {
 		isInCluster := true
@@ -79,7 +79,7 @@ func (nodeRepository *NodeRepository) AddAlamedaNodes(alamedaNodes []*datahub_v1
 }
 
 func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub_v1alpha1.Node) error {
-	scope.Infof("influxdb-RemoveAlamedaNodes input %d %+v", len(alamedaNodes),  alamedaNodes )
+	scope.Infof("influxdb-RemoveAlamedaNodes input %d %+v", len(alamedaNodes), alamedaNodes)
 	hasErr := false
 	errMsg := ""
 	for _, alamedaNode := range alamedaNodes {
@@ -98,7 +98,7 @@ func (nodeRepository *NodeRepository) RemoveAlamedaNodes(alamedaNodes []*datahub
 }
 
 func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alpha1.TimeRange) ([]*EntityInfluxClusterStatus.NodeEntity, error) {
-	scope.Infof("influxdb-ListAlamedaNodes input %+v", timeRange )
+	scope.Infof("influxdb-ListAlamedaNodes input %+v", timeRange)
 	nodeEntities := []*EntityInfluxClusterStatus.NodeEntity{}
 	nodeCreatePeriodCondition := nodeRepository.getNodeCreatePeriodCondition(timeRange)
 
@@ -122,7 +122,7 @@ func (nodeRepository *NodeRepository) ListAlamedaNodes(timeRange *datahub_v1alph
 			}
 		}
 	}
-	scope.Infof("influxdb-ListAlamedaNodes return %d %v", len(nodeEntities), nodeEntities )
+	scope.Infof("influxdb-ListAlamedaNodes return %d %v", len(nodeEntities), nodeEntities)
 	return nodeEntities, nil
 }
 
@@ -148,7 +148,7 @@ func (nodeRepository *NodeRepository) ListNodes(request DaoClusterStatus.ListNod
 		}
 	}
 
-	scope.Infof("influxdb-ListNodes return %d %v", len(nodeEntities),  nodeEntities)
+	scope.Infof("influxdb-ListNodes return %d %v", len(nodeEntities), nodeEntities)
 	return nodeEntities, nil
 }
 

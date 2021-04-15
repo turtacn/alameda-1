@@ -4,7 +4,7 @@ import (
 	"github.com/containers-ai/alameda/internal/pkg/database/influxdb"
 )
 
-type keycodeTag   = string
+type keycodeTag = string
 type keycodeField = string
 
 const (
@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	Keycode                keycodeTag   = "keycode"
+	Keycode keycodeTag = "keycode"
 
 	KeycodeStatus          keycodeField = "status"
 	KeycodeType            keycodeField = "type"

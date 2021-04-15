@@ -48,7 +48,7 @@ func NewContainerRepository(influxDBCfg *InternalInflux.Config) *ContainerReposi
 
 // ListAlamedaContainers list predicted containers have relation with arguments
 func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace, name string, kind datahub_v1alpha1.Kind, timeRange *datahub_v1alpha1.TimeRange) ([]*datahub_v1alpha1.Pod, error) {
-	scope.Infof("influxdb-ListAlamedaContainers input namespace %s; name %s; kind %+v; timereange %+v", namespace, name, kind, timeRange )
+	scope.Infof("influxdb-ListAlamedaContainers input namespace %s; name %s; kind %+v; timereange %+v", namespace, name, kind, timeRange)
 	pods := []*datahub_v1alpha1.Pod{}
 	whereStr := ""
 
@@ -83,8 +83,8 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 			EntityInfluxClusterStatus.ContainerAlamedaScalerName, name,
 			podCreatePeriodCondition)
 	default:
-		err  :=  errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
-		scope.Errorf("influxdb-ListAlamedaContainers error %+v", err )
+		err := errors.Errorf("no mapping filter statement with Datahub Kind: %s, skip building relation statement", datahub_v1alpha1.Kind_name[int32(kind)])
+		scope.Errorf("influxdb-ListAlamedaContainers error %+v", err)
 		return pods, err
 	}
 	if relationStatement != "" {
@@ -114,11 +114,11 @@ func (containerRepository *ContainerRepository) ListAlamedaContainers(namespace,
 		}
 		pods = buildDatahubPodsFromContainerEntities(containerEntities)
 	} else {
-		retErr  = err
+		retErr = err
 	}
 	if retErr != nil {
 		scope.Infof("influxdb-ListAlamedaContainers error %v", retErr)
-	}else {
+	} else {
 		scope.Infof("influxdb-ListAlamedaContainers return %d %+v", len(pods), pods)
 	}
 	return pods, retErr

@@ -20,86 +20,83 @@ var (
 	KeycodeTimestamp int64      = 0
 	KeycodeList      []*Keycode = []*Keycode{
 		&Keycode{
-			Keycode : "A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST",
-			KeycodeType:      "Regular",
+			Keycode:         "A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST",
+			KeycodeType:     "Regular",
 			KeycodeVersion:  2,
 			ApplyTimestamp:  1546271999,
-			ExpireTimestamp:  1717030666,
-			LicenseState: "Valid",
-			Registered:  false,
-			Capacity:         Capacity{
+			ExpireTimestamp: 1717030666,
+			LicenseState:    "Valid",
+			Registered:      false,
+			Capacity: Capacity{
 				Users: 1,
 				Hosts: 20,
 				Disks: 200,
-			} ,
-			Functionality:    Functionality{
-				Diskprophet: true ,
-				Workload: true ,
-			} ,
-			Retention:        Retention{
-				ValidMonth: 100,
-				Years: 10,
 			},
-			ServiceAgreement: ServiceAgreement{
-			} ,
-			Description:"your-description",
+			Functionality: Functionality{
+				Diskprophet: true,
+				Workload:    true,
+			},
+			Retention: Retention{
+				ValidMonth: 100,
+				Years:      10,
+			},
+			ServiceAgreement: ServiceAgreement{},
+			Description:      "your-description",
 		},
 		&Keycode{
-			Keycode : "KBAFI-XTEDK-G4OQM-QMM67-A5IMH-4TEST",
-			KeycodeType:      "Regular",
+			Keycode:         "KBAFI-XTEDK-G4OQM-QMM67-A5IMH-4TEST",
+			KeycodeType:     "Regular",
 			KeycodeVersion:  2,
 			ApplyTimestamp:  1546271999,
-			ExpireTimestamp:  1717030666,
-			LicenseState: "Valid",
-			Registered:  true ,
-			Capacity:         Capacity{
+			ExpireTimestamp: 1717030666,
+			LicenseState:    "Valid",
+			Registered:      true,
+			Capacity: Capacity{
 				Users: 1,
 				Hosts: 20,
 				Disks: 200,
-			} ,
-			Functionality:    Functionality{
-				Diskprophet: true ,
-				Workload: true ,
-			} ,
-			Retention:        Retention{
-				ValidMonth: 100,
-				Years: 10,
 			},
-			ServiceAgreement: ServiceAgreement{
-			} ,
-			Description:"your-description",
+			Functionality: Functionality{
+				Diskprophet: true,
+				Workload:    true,
+			},
+			Retention: Retention{
+				ValidMonth: 100,
+				Years:      10,
+			},
+			ServiceAgreement: ServiceAgreement{},
+			Description:      "your-description",
 		},
 	}
-	KeycodeSummary   *Keycode   = &Keycode{
-		Keycode : "A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST",
-		KeycodeType:      "Regular",
+	KeycodeSummary *Keycode = &Keycode{
+		Keycode:         "A5IMH-KBAFI-XTEDK-G4OQM-QMM67-4TEST",
+		KeycodeType:     "Regular",
 		KeycodeVersion:  2,
 		ApplyTimestamp:  1546271999,
-		ExpireTimestamp:  1717030666,
-		LicenseState: "Valid",
-		Registered:  false,
-		Capacity:         Capacity{
+		ExpireTimestamp: 1717030666,
+		LicenseState:    "Valid",
+		Registered:      false,
+		Capacity: Capacity{
 			Users: 1,
 			Hosts: 20,
 			Disks: 200,
-		} ,
-		Functionality:    Functionality{
-			Diskprophet: true ,
-			Workload: true ,
-		} ,
-		Retention:        Retention{
-			ValidMonth: 100,
-			Years: 10,
 		},
-		ServiceAgreement: ServiceAgreement{
-		} ,
-		Description:"your-description",
+		Functionality: Functionality{
+			Diskprophet: true,
+			Workload:    true,
+		},
+		Retention: Retention{
+			ValidMonth: 100,
+			Years:      10,
+		},
+		ServiceAgreement: ServiceAgreement{},
+		Description:      "your-description",
 	}
-	KeycodeTM        time.Time
-	KeycodeMutex     sync.Mutex
-	InfluxConfig     *InternalInflux.Config
-	LdapConfig       *InternalLdap.Config
-	K8SClient        client.Client
+	KeycodeTM    time.Time
+	KeycodeMutex sync.Mutex
+	InfluxConfig *InternalInflux.Config
+	LdapConfig   *InternalLdap.Config
+	K8SClient    client.Client
 )
 
 type Keycode struct {

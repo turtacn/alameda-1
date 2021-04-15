@@ -28,7 +28,7 @@ func NewControllerRepository(influxDBCfg *InternalInflux.Config) *ControllerRepo
 }
 
 func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1.Controller) error {
-	scope.Infof("influxdb-CreateControllers input %d %v", len(controllers) ,controllers )
+	scope.Infof("influxdb-CreateControllers input %d %v", len(controllers), controllers)
 	points := make([]*InfluxClient.Point, 0)
 	for _, controller := range controllers {
 		controllerNamespace := controller.GetControllerInfo().GetNamespacedName().GetNamespace()
@@ -82,7 +82,7 @@ func (c *ControllerRepository) CreateControllers(controllers []*datahub_v1alpha1
 }
 
 func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControllersRequest) ([]*datahub_v1alpha1.Controller, error) {
-	scope.Infof("influxdb-ListControllers input %s", in.String() )
+	scope.Infof("influxdb-ListControllers input %s", in.String())
 	namespace := in.GetNamespacedName().GetNamespace()
 	name := in.GetNamespacedName().GetName()
 
@@ -98,7 +98,7 @@ func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControll
 
 	results, err := c.influxDB.QueryDB(cmd, string(RepoInflux.ClusterStatus))
 	if err != nil {
-		scope.Infof("influxdb-ListControllers cmd %s, error %v", cmd,  err)
+		scope.Infof("influxdb-ListControllers cmd %s, error %v", cmd, err)
 		return make([]*datahub_v1alpha1.Controller, 0), err
 	}
 
@@ -110,7 +110,7 @@ func (c *ControllerRepository) ListControllers(in *datahub_v1alpha1.ListControll
 }
 
 func (c *ControllerRepository) DeleteControllers(in *datahub_v1alpha1.DeleteControllersRequest) error {
-	scope.Infof("influxdb-DeleteControllers input %s %+v", in.String(),  in )
+	scope.Infof("influxdb-DeleteControllers input %s %+v", in.String(), in)
 	controllers := in.GetControllers()
 	whereStr := ""
 

@@ -9,6 +9,7 @@ import (
 	Utils "github.com/containers-ai/alameda/datahub/pkg/utils"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalInflux "github.com/containers-ai/alameda/internal/pkg/database/influxdb"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	datahub_v1alpha1 "github.com/containers-ai/api/alameda_api/v1alpha1/datahub"
 	"github.com/golang/protobuf/ptypes"
 	InfluxClient "github.com/influxdata/influxdb/client/v2"
@@ -16,12 +17,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
-
 var (
-	scope  = log.RegisterScope("prediction_db_measurements", "", 0)
+	scope = log.RegisterScope("prediction_db_measurements", "", 0)
 )
 
 type NodeRepository struct {
@@ -148,7 +147,7 @@ func (r *NodeRepository) ListNodePredictionsByRequest(request DaoPrediction.List
 	rows := InternalInflux.PackMap(results)
 	nodePredictions := r.getNodePredictionsFromInfluxRows(rows)
 
-	scope.Infof("influxdb-ListNodePredictionsByRequest return %d %v",  len(nodePredictions), nodePredictions)
+	scope.Infof("influxdb-ListNodePredictionsByRequest return %d %v", len(nodePredictions), nodePredictions)
 	return nodePredictions, nil
 }
 

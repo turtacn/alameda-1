@@ -37,7 +37,7 @@ func NewContainerRepositoryWithConfig(influxDBCfg InternalInflux.Config) *Contai
 
 func (r *ContainerRepository) CreateContainerPrediction(in *datahub_v1alpha1.CreatePodPredictionsRequest) error {
 
-	scope.Infof("influxdb-CreateContainerPrediction input %v", in )
+	scope.Infof("influxdb-CreateContainerPrediction input %v", in)
 	points := make([]*InfluxClient.Point, 0)
 
 	for _, podPrediction := range in.GetPodPredictions() {
@@ -56,7 +56,7 @@ func (r *ContainerRepository) CreateContainerPrediction(in *datahub_v1alpha1.Cre
 		Database: string(RepoInflux.Prediction),
 	})
 	if err != nil {
-		scope.Errorf("influxdb-CreateContainerPrediction error %v", err )
+		scope.Errorf("influxdb-CreateContainerPrediction error %v", err)
 		return errors.Wrap(err, "create container prediction failed")
 	}
 
@@ -114,7 +114,7 @@ func (r *ContainerRepository) appendMetricDataToPoints(kind Metric.ContainerMetr
 
 // ListContainerPredictionsByRequest list containers' prediction from influxDB
 func (r *ContainerRepository) ListContainerPredictionsByRequest(request DaoPrediction.ListPodPredictionsRequest) ([]*datahub_v1alpha1.PodPrediction, error) {
-	scope.Infof("influxdb-ListContainerPredictionsByRequest input %v", request )
+	scope.Infof("influxdb-ListContainerPredictionsByRequest input %v", request)
 	whereClause := r.buildInfluxQLWhereClauseFromRequest(request)
 
 	queryCondition := DBCommon.QueryCondition{
@@ -139,13 +139,13 @@ func (r *ContainerRepository) ListContainerPredictionsByRequest(request DaoPredi
 
 	results, err := r.influxDB.QueryDB(cmd, string(RepoInflux.Prediction))
 	if err != nil {
-		scope.Errorf("influxdb-ListContainerPredictionsByRequest error %v", err )
+		scope.Errorf("influxdb-ListContainerPredictionsByRequest error %v", err)
 		return []*datahub_v1alpha1.PodPrediction{}, errors.Wrap(err, "list container prediction failed")
 	}
 
 	rows := InternalInflux.PackMap(results)
 	podPredictions := r.getPodPredictionsFromInfluxRows(rows)
-	scope.Infof("influxdb-ListContainerPredictionsByRequest return %d %v", len(podPredictions), podPredictions )
+	scope.Infof("influxdb-ListContainerPredictionsByRequest return %d %v", len(podPredictions), podPredictions)
 	return podPredictions, nil
 }
 
