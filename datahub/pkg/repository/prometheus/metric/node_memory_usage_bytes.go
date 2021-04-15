@@ -91,7 +91,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 		scope.Infof("node_memory_usage_bytes metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory bytes total by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
-		scope.Infof("node_memory_usage_bytes metric-ListMetricsByNodeName error response status not success", )
+		scope.Infof("node_memory_usage_bytes metric-ListMetricsByNodeName error response status not success %s", response.Error)
 		return entities, errors.Errorf("list node memory bytes total by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
@@ -101,7 +101,7 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 		return entities, errors.Wrap(err, "list node memory usage by node name failed")
 	}
 
-	scope.Infof("node_memory_usage_bytes metric-ListMetricsByNodeName return %d %v", len(entities), &entities )
+	scope.Infof("node_memory_usage_bytes metric-ListMetricsByNodeName return %d %v", len(entities), &entities)
 	return entities, nil
 }
 

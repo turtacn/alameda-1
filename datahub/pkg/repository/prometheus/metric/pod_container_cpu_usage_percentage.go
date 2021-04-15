@@ -5,14 +5,13 @@ import (
 	EntityPromthContainerCpuUsage "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/containerCPUUsagePercentage"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 	"time"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
-
 var (
-	pod_container_memory_usage_percentage_scope = log.RegisterScope("","",0)
+	pod_container_memory_usage_percentage_scope = log.RegisterScope("", "", 0)
 )
 
 // PodContainerCPUUsagePercentageRepository Repository to access metric namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate from prometheus
@@ -75,7 +74,8 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %v", err)
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
-		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %s", "prometheus query response not success")
+		// 业务不成功
+		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName not success, response [%s]", response.Error)
 		return entities, errors.Errorf("list pod container cpu usage metric by namespaced name failed: receive error response from prometheus: %s", response.Error)
 	}
 

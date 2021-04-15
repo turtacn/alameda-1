@@ -5,13 +5,13 @@ import (
 	EntityPromthNodeMemUtilization "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeMemoryUtilization"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 	"time"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 )
 
 var (
-	node_memory_utlization_scope = log.RegisterScope("node memory utlization","", 0)
+	node_memory_utlization_scope = log.RegisterScope("node memory utlization", "", 0)
 )
 
 // NodeMemoryUtilizationRepository Repository to access metric from prometheus
@@ -70,9 +70,10 @@ func (n NodeMemoryUtilizationRepository) ListMetricsByNodeName(nodeName string, 
 
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
-		scope.Errorf("node_memory_utlization_scope metric-ListMetricsByNodeName error %v", err )
+		scope.Errorf("node_memory_utlization_scope metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node memory utilization by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
+		scope.Errorf("list node memory utilization by node name failed: receive error response from prometheus: %s", response.Error)
 		return entities, errors.Errorf("list node memory utilization by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 

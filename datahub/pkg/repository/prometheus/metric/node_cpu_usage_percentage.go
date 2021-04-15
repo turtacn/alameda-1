@@ -5,16 +5,14 @@ import (
 	EntityPromthNodeCpu "github.com/containers-ai/alameda/datahub/pkg/entity/prometheus/nodeCPUUsagePercentage"
 	DBCommon "github.com/containers-ai/alameda/internal/pkg/database/common"
 	InternalPromth "github.com/containers-ai/alameda/internal/pkg/database/prometheus"
+	"github.com/containers-ai/alameda/pkg/utils/log"
 	"github.com/pkg/errors"
 	"time"
-	"github.com/containers-ai/alameda/pkg/utils/log"
 )
-
 
 var (
 	node_cpu_usage_percentage_scope = log.RegisterScope("node cpu usage  percentage", "", 0)
 )
-
 
 // NodeCPUUsagePercentageRepository Repository to access metric node:node_cpu_utilisation:avg1m from prometheus
 type NodeCPUUsagePercentageRepository struct {
@@ -88,7 +86,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 		node_cpu_usage_percentage_scope.Errorf("node_cpu_usage_percentage_scope metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	} else if response.Status != InternalPromth.StatusSuccess {
-		node_cpu_usage_percentage_scope.Errorf("node_cpu_usage_percentage_scope metric-ListMetricsByNodeName response status != prometheus success status %v")
+		node_cpu_usage_percentage_scope.Errorf("node_cpu_usage_percentage_scope metric-ListMetricsByNodeName response status != prometheus success status %s", response.Error)
 		return entities, errors.Errorf("list node cpu usage metrics by node name failed: receive error response from prometheus: %s", response.Error)
 	}
 
@@ -97,7 +95,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 		node_cpu_usage_percentage_scope.Errorf("node_cpu_usage_percentage_scope metric-ListMetricsByNodeName error %v", err)
 		return entities, errors.Wrap(err, "list node cpu usage metrics by node name failed")
 	}
-	node_cpu_usage_percentage_scope.Infof("node_cpu_usage_percentage_scope metric-ListMetricsByNodeName return %d  %v", len(entities) , &entities)
+	node_cpu_usage_percentage_scope.Infof("node_cpu_usage_percentage_scope metric-ListMetricsByNodeName return %d  %v", len(entities), &entities)
 	return entities, nil
 }
 
