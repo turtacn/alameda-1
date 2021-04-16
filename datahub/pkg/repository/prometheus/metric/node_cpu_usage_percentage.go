@@ -82,7 +82,7 @@ func (n NodeCPUUsagePercentageRepository) ListMetricsByNodeName(nodeName string,
 	queryExpression := fmt.Sprintf("1000 * scalar(%s) * %s", queryExpressionSum, queryExpressionAvg)
 
 	if opt.StartTime == nil {
-		newS := time.Now().Add(time.Duration(-3600) * time.Second)
+		newS := time.Now().Add(-3600 * time.Second)
 		opt.StartTime = &newS
 	}
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
