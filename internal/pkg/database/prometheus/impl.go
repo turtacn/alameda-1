@@ -107,7 +107,7 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 	endTimeString = strconv.FormatInt(int64(endTime.Unix()), 10)
 
 	if startTime == nil {
-		tmpTime := endTime.Add(time.Duration(-3600) * time.Second)
+		tmpTime := time.Unix(0, 0) //endTime.Add(time.Duration(-3600) * time.Second)
 		startTime = &tmpTime
 	}
 	startTimeString = strconv.FormatInt(int64(startTime.Unix()), 10)
