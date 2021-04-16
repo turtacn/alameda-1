@@ -69,6 +69,10 @@ func (c PodContainerCPUUsagePercentageRepository) ListMetricsByPodNamespacedName
 		return entities, errors.Wrap(err, "list pod container cpu usage metric by namespaced name failed")
 	}
 
+	if opt.StartTime == nil {
+		newS := time.Now().Add(time.Duration(-3600) * time.Second)
+		opt.StartTime = &newS
+	}
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		pod_container_memory_usage_percentage_scope.Errorf("pod_container_memory_usage_percentage_scope metric-ListMetricsByPodNamespacedName error %v", err)

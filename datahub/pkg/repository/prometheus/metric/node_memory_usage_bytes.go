@@ -86,6 +86,10 @@ func (n NodeMemoryUsageBytesRepository) ListMetricsByNodeName(nodeName string, o
 
 	queryExpression = fmt.Sprintf("%s * %s", nodeMemoryBytesTotalQueryExpression, nodeMemoryUtilizationQueryExpression)
 
+	if opt.StartTime == nil {
+		newS := time.Now().Add(time.Duration(-3600) * time.Second)
+		opt.StartTime = &newS
+	}
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		scope.Infof("node_memory_usage_bytes metric-ListMetricsByNodeName error %v", err)
