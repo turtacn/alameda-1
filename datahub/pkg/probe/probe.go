@@ -22,6 +22,8 @@ func ReadinessProbe(cfg *ReadinessProbeConfig) {
 	prometheusCfg := cfg.PrometheusCfg
 	queueCfg := cfg.RabbitMQCfg
 
+	os.Exit(0)
+
 	err := queryInfluxdb(influxdbCfg)
 	if err != nil {
 		scope.Errorf("Readiness probe: failed to ping influxdb with address (%s) due to %s", influxdbCfg.Address, err.Error())
