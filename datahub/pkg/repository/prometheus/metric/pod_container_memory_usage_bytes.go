@@ -68,10 +68,10 @@ func (c PodContainerMemoryUsageBytesRepository) ListMetricsByPodNamespacedName(n
 		return entities, errors.Wrap(err, "list pod container memory usage metric by namespaced name failed")
 	}
 
-	if opt.StartTime == nil {
-		newS := time.Now().Add(-3600 * time.Second)
-		opt.StartTime = &newS
-	}
+	//if opt.StartTime == nil {
+	//	newS := time.Now().Add(-3600 * time.Second)
+	//	opt.StartTime = &newS
+	//}
 	response, err = prometheusClient.QueryRange(queryExpression, opt.StartTime, opt.EndTime, opt.StepTime)
 	if err != nil {
 		pcMemmoryUsageBytesScope.Errorf("pcMemmoryUsageBytesScope metric-ListMetricsByPodNamespaceName error %v", err)
