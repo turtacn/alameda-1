@@ -100,17 +100,17 @@ func (p *Prometheus) QueryRange(query string, startTime, endTime *time.Time, ste
 		response Response
 	)
 
-	if startTime == nil {
-		tmpTime := time.Unix(0, 0)
-		startTime = &tmpTime
-	}
-	startTimeString = strconv.FormatInt(int64(startTime.Unix()), 10)
-
 	if endTime == nil {
 		tmpTime := time.Now()
 		endTime = &tmpTime
 	}
 	endTimeString = strconv.FormatInt(int64(endTime.Unix()), 10)
+
+	if startTime == nil {
+		tmpTime := endTime.Add(time.Duration(-3600) * time.Second)
+		startTime = &tmpTime
+	}
+	startTimeString = strconv.FormatInt(int64(startTime.Unix()), 10)
 
 	if stepTime == nil {
 		copyDefaultStepTime := DBCommon.DefaultStepTime
